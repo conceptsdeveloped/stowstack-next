@@ -1,0 +1,251 @@
+import { NextRequest } from "next/server";
+import { db } from "@/lib/db";
+import {
+  jsonResponse,
+  errorResponse,
+  getOrigin,
+  corsResponse,
+  requireAdminKey,
+} from "@/lib/api-helpers";
+
+function esc(str: string | null | undefined): string {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function generateSlug(facilityName: string): string {
+  const base = (facilityName || "facility")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
+  const rand = Math.random().toString(36).slice(2, 6);
+  return `${base}-${rand}`;
+}
+
+export async function OPTIONS(req: NextRequest) {
+  return corsResponse(getOrigin(req));
+}
+
+export async function POST(req: NextRequest) {
+  const origin = getOrigin(req);
+  const authErr = requireAdminKey(req);
+  if (authErr) return authErr;
+
+  try {
+    const body = await req.json();
+    const { auditId, facilityId } = body || {};
+    if (!auditId || !facilityId) {
+      return errorResponse("Missing auditId or facilityId", 400, origin);
+    }
+
+    const audit = await db.audits.findUnique({ where: { id: auditId } });
+    if (!audit) return errorResponse("Audit not found", 404, origin);
+
+    const facility = await db.facilities.findUnique({
+      where: { id: facilityId },
+    });
+    if (!facility) return errorResponse("Facility not found", 404, origin);
+
+    // Transform AI-generated audit format to SharedAuditView format
+    const aiAudit = (audit.audit_json as Record<string, unknown>) || {};
+    const fs = (aiAudit.facility_summary as Record<string, unknown>) || {};
+    const occupancy =
+      typeof fs.occupancy_estimate === "number" ? fs.occupancy_estimate : 80;
+    const totalUnits =
+      typeof fs.total_units_estimate === "number"
+        ? fs.total_units_estimate
+        : 200;
+    const vacantUnits =
+      typeof fs.vacant_units_estimate === "number"
+        ? fs.vacant_units_estimate
+        : Math.round(totalUnits * (1 - occupancy / 100));
+    const rl = (aiAudit.revenue_leakage as Record<string, unknown>) || {};
+    const sf = (aiAudit.stowstack_fit as Record<string, unknown>) || {};
+    const recSpend =
+      typeof sf.projected_monthly_spend === "number"
+        ? sf.projected_monthly_spend
+        : 2000;
+    const costPerMoveIn =
+      typeof sf.projected_cost_per_move_in === "number"
+        ? sf.projected_cost_per_move_in
+        : 50;
+    const moveIns =
+      recSpend > 0 ? Math.round(recSpend / costPerMoveIn) : 20;
+
+    const dp = (aiAudit.digital_presence as Record<string, unknown>) || {};
+    const mp = (aiAudit.market_position as Record<string, unknown>) || {};
+    const recommendedActions = (aiAudit.recommended_actions ||
+      []) as Array<Record<string, unknown>>;
+
+    const overallScore =
+      typeof aiAudit.overall_score === "number" ? aiAudit.overall_score : 0;
+
+    const viewAudit = {
+      generatedAt: new Date().toISOString(),
+      facility: {
+        name: (fs.name as string) || facility.name,
+        location: (fs.location as string) || facility.location,
+        totalUnits,
+        occupancy,
+        vacantUnits,
+        biggestIssue: facility.biggest_issue || "",
+      },
+      vacancyCost: {
+        monthlyLoss:
+          typeof rl.monthly_loss === "number"
+            ? rl.monthly_loss
+            : vacantUnits * 110,
+        annualLoss:
+          typeof rl.annual_loss === "number"
+            ? rl.annual_loss
+            : vacantUnits * 110 * 12,
+        vacantUnits,
+        avgUnitRate:
+          typeof rl.per_unit_monthly === "number" ? rl.per_unit_monthly : 110,
+      },
+      marketOpportunity: {
+        score: overallScore,
+        grade:
+          overallScore >= 80
+            ? "Excellent"
+            : overallScore >= 60
+              ? "Strong"
+              : overallScore >= 40
+                ? "Moderate"
+                : "Needs Work",
+      },
+      projections: {
+        recommendedSpend: recSpend,
+        projectedCpl: 24,
+        projectedLeadsPerMonth: Math.round(recSpend / 24),
+        projectedMoveInsPerMonth: moveIns,
+        projectedMonthlyRevenue: moveIns * 110 * 8,
+        projectedRoas:
+          recSpend > 0
+            ? Math.round(((moveIns * 110 * 8) / recSpend) * 10) / 10
+            : 0,
+        projectedMonthsToFill:
+          typeof sf.projected_months_to_target === "number"
+            ? sf.projected_months_to_target
+            : 6,
+        conversionRate: 25,
+      },
+      competitiveInsights: [
+        dp.summary as string | undefined,
+        mp.summary as string | undefined,
+        ...((dp.findings as string[]) || []),
+      ].filter(Boolean),
+      recommendations: recommendedActions.map((a) => ({
+        title: a.title as string,
+        detail: a.detail as string,
+        priority: (a.priority as string) || "medium",
+      })),
+    };
+
+    // Create shareable audit link
+    const slug = generateSlug(facility.name);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 90);
+
+    await db.shared_audits.create({
+      data: {
+        slug,
+        facility_name: facility.name,
+        audit_json: viewAudit as any,
+        views: 0,
+        expires_at: expiresAt,
+      },
+    });
+
+    const auditUrl = `https://stowstack.co/audit/${slug}`;
+
+    // Email the audit to the lead
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey && facility.contact_email) {
+      const firstName =
+        (facility.contact_name || "").trim().split(" ")[0] || "there";
+      const annualLoss =
+        typeof rl.annual_loss === "number"
+          ? rl.annual_loss
+          : viewAudit.vacancyCost.annualLoss;
+
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${resendKey}`,
+        },
+        body: JSON.stringify({
+          from: "Blake at StowStack <noreply@stowstack.co>",
+          to: facility.contact_email,
+          cc: "anna@storepawpaw.com",
+          reply_to: ["blake@storepawpaw.com", "anna@storepawpaw.com"],
+          subject: `Your ${facility.name} facility audit is ready`,
+          html: `
+            <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.7; color: #1a1a1a;">
+              <p>Hey ${esc(firstName)},</p>
+              <p>Your facility audit for <strong>${esc(facility.name)}</strong> is done. I went through your market, competitors, digital presence, and revenue numbers.</p>
+              ${annualLoss > 0 ? `<p>Quick headline: your vacancy is costing you an estimated <strong style="color: #dc2626;">$${annualLoss.toLocaleString()}/year</strong> in lost revenue. The audit breaks down exactly where that is coming from and what to do about it.</p>` : ""}
+              <p style="margin: 24px 0;">
+                <a href="${auditUrl}" style="display: inline-block; padding: 14px 28px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">View Your Audit Report</a>
+              </p>
+              <p>The report covers:</p>
+              <ul style="padding-left: 20px; margin: 12px 0;">
+                <li style="margin-bottom: 6px;">Market position and competitor analysis</li>
+                <li style="margin-bottom: 6px;">Digital presence assessment</li>
+                <li style="margin-bottom: 6px;">Revenue leakage estimate</li>
+                <li style="margin-bottom: 6px;">Specific recommended actions with priorities</li>
+                <li style="margin-bottom: 6px;">StowStack fit assessment with projected ROI</li>
+              </ul>
+              <p>I would love to walk you through the findings on a quick call. <strong>Pick a time that works for you:</strong></p>
+              <p style="margin: 20px 0;">
+                <a href="https://calendly.com/blake-stowstack/facility-audit" style="display: inline-block; padding: 12px 24px; background: #1e293b; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Book a 20-Minute Walkthrough</a>
+              </p>
+              <p>The report link is active for 90 days. If you have any questions before we talk, just reply to this email.</p>
+              <p style="margin-top: 24px;">
+                Blake Burkett<br/>
+                StowStack<br/>
+                <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a>
+              </p>
+            </div>`,
+        }),
+      }).catch(() => {});
+    }
+
+    // Update facility pipeline
+    await db.facilities.update({
+      where: { id: facilityId },
+      data: { pipeline_status: "audit_sent", updated_at: new Date() },
+    });
+
+    // Log activity (fire-and-forget)
+    db.activity_log
+      .create({
+        data: {
+          type: "audit_approved",
+          facility_id: facilityId,
+          facility_name: facility.name,
+          detail: `Audit approved and sent to ${facility.contact_email}`,
+        },
+      })
+      .catch(() => {});
+
+    return jsonResponse(
+      {
+        success: true,
+        slug,
+        auditUrl,
+        sentTo: facility.contact_email,
+      },
+      200,
+      origin
+    );
+  } catch {
+    return errorResponse("Internal server error", 500, origin);
+  }
+}

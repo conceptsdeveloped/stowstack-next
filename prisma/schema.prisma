@@ -1,0 +1,1633 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model ab_test_events {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  test_id    String    @db.Uuid
+  variant_id String
+  visitor_id String
+  event_name String
+  metadata   Json?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  ab_tests   ab_tests  @relation(fields: [test_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([test_id, variant_id, visitor_id, event_name], map: "idx_ab_test_events_dedup")
+  @@index([test_id], map: "idx_ab_test_events_test")
+}
+
+model ab_tests {
+  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id       String           @db.Uuid
+  name              String
+  description       String?
+  status            String           @default("active")
+  variants          Json
+  metrics           Json
+  landing_page_ids  String[]         @db.Uuid
+  start_date        DateTime         @default(now()) @db.Timestamptz(6)
+  end_date          DateTime?        @db.Timestamptz(6)
+  winner_variant_id String?
+  created_at        DateTime?        @default(now()) @db.Timestamptz(6)
+  ab_test_events    ab_test_events[]
+  facilities        facilities       @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_ab_tests_facility")
+  @@index([status], map: "idx_ab_tests_status")
+}
+
+model activity_log {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type          String
+  facility_id   String?     @db.Uuid
+  lead_name     String?
+  facility_name String?
+  detail        String?
+  meta          Json?       @default("{}")
+  created_at    DateTime?   @default(now()) @db.Timestamptz(6)
+  facilities    facilities? @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_activity_log_created")
+  @@index([facility_id], map: "idx_activity_log_facility")
+}
+
+model ad_variations {
+  id                      String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id             String?                   @db.Uuid
+  brief_id                String?                   @db.Uuid
+  created_at              DateTime?                 @default(now()) @db.Timestamptz(6)
+  platform                String
+  format                  String?
+  angle                   String?
+  content_json            Json
+  asset_urls              Json?
+  status                  String?                   @default("draft")
+  feedback                String?
+  version                 Int?                      @default(1)
+  creative_briefs         creative_briefs?          @relation(fields: [brief_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  facilities              facilities?               @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  drip_sequence_templates drip_sequence_templates[]
+  publish_log             publish_log[]
+
+  @@index([brief_id], map: "idx_variations_brief")
+  @@index([facility_id], map: "idx_variations_facility")
+  @@index([status], map: "idx_variations_status")
+}
+
+model api_keys {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization_id String          @db.Uuid
+  name            String
+  key_hash        String          @unique
+  key_prefix      String          @db.VarChar(8)
+  scopes          String[]        @default([])
+  rate_limit      Int?            @default(100)
+  last_used_at    DateTime?       @db.Timestamptz(6)
+  expires_at      DateTime?       @db.Timestamptz(6)
+  revoked         Boolean?        @default(false)
+  revoked_at      DateTime?       @db.Timestamptz(6)
+  created_by      String?         @db.Uuid
+  created_at      DateTime?       @default(now()) @db.Timestamptz(6)
+  organizations   organizations   @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  api_usage_log   api_usage_log[]
+
+  @@index([key_hash], map: "idx_api_keys_hash")
+  @@index([organization_id], map: "idx_api_keys_org")
+  @@index([key_prefix], map: "idx_api_keys_prefix")
+}
+
+model api_usage_log {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  api_key_id      String    @db.Uuid
+  organization_id String    @db.Uuid
+  method          String
+  path            String
+  status_code     Int?
+  duration_ms     Int?
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+  api_keys        api_keys  @relation(fields: [api_key_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_api_usage_created")
+  @@index([api_key_id], map: "idx_api_usage_key")
+  @@index([organization_id], map: "idx_api_usage_org")
+}
+
+model assets {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String?     @db.Uuid
+  created_at  DateTime?   @default(now()) @db.Timestamptz(6)
+  type        String
+  source      String
+  url         String
+  metadata    Json?
+  facilities  facilities? @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_assets_facility")
+}
+
+model audit_report_cache {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String     @unique @db.Uuid
+  report_json Json
+  created_at  DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities  facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model audits {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String?     @db.Uuid
+  created_at    DateTime?   @default(now()) @db.Timestamptz(6)
+  audit_json    Json
+  overall_score Int?
+  grade         String?
+  facilities    facilities? @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_audits_facility")
+}
+
+model betapad_notes {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  session_id String
+  entry_type String
+  entry_data Json
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([created_at(sort: Desc)], map: "idx_betapad_notes_created")
+  @@index([session_id], map: "idx_betapad_notes_session")
+}
+
+model call_logs {
+  id                    String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tracking_number_id    String                @db.Uuid
+  facility_id           String                @db.Uuid
+  twilio_call_sid       String                @unique
+  caller_number         String?
+  caller_city           String?
+  caller_state          String?
+  duration              Int?                  @default(0)
+  status                String
+  recording_url         String?
+  started_at            DateTime              @db.Timestamptz(6)
+  ended_at              DateTime?             @db.Timestamptz(6)
+  created_at            DateTime?             @default(now()) @db.Timestamptz(6)
+  facilities            facilities            @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  call_tracking_numbers call_tracking_numbers @relation(fields: [tracking_number_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_call_logs_created")
+  @@index([facility_id], map: "idx_call_logs_facility")
+  @@index([status], map: "idx_call_logs_status")
+  @@index([tracking_number_id], map: "idx_call_logs_tracking")
+}
+
+model call_tracking_numbers {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id     String         @db.Uuid
+  landing_page_id String?        @db.Uuid
+  utm_link_id     String?        @db.Uuid
+  label           String
+  twilio_sid      String         @unique
+  phone_number    String
+  forward_to      String
+  status          String?        @default("active")
+  call_count      Int?           @default(0)
+  total_duration  Int?           @default(0)
+  created_at      DateTime?      @default(now()) @db.Timestamptz(6)
+  call_logs       call_logs[]
+  facilities      facilities     @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  landing_pages   landing_pages? @relation(fields: [landing_page_id], references: [id], onUpdate: NoAction)
+  utm_links       utm_links?     @relation(fields: [utm_link_id], references: [id], onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_call_tracking_facility")
+  @@index([phone_number], map: "idx_call_tracking_phone")
+  @@index([status], map: "idx_call_tracking_status")
+}
+
+model campaign_spend {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String     @db.Uuid
+  platform      String
+  date          DateTime   @db.Date
+  campaign_name String?
+  campaign_id   String?
+  utm_campaign  String?
+  spend         Decimal    @default(0) @db.Decimal(10, 2)
+  impressions   Int?       @default(0)
+  clicks        Int?       @default(0)
+  created_at    DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities    facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([facility_id, platform, campaign_id, date])
+  @@index([facility_id], map: "idx_campaign_spend_facility")
+  @@index([utm_campaign], map: "idx_campaign_spend_utm")
+}
+
+model churn_predictions {
+  id                    String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id             String     @unique @db.Uuid
+  facility_id           String     @db.Uuid
+  risk_score            Int
+  risk_level            String
+  predicted_vacate      DateTime?  @db.Date
+  factors               Json
+  recommended_actions   Json?      @default("[]")
+  retention_campaign_id String?    @db.Uuid
+  retention_status      String?    @default("none")
+  last_scored_at        DateTime?  @default(now()) @db.Timestamptz(6)
+  created_at            DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities            facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants               tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_churn_predictions_facility")
+  @@index([risk_level], map: "idx_churn_predictions_level")
+  @@index([risk_score(sort: Desc)], map: "idx_churn_predictions_risk")
+}
+
+model client_campaigns {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_id        String    @db.Uuid
+  month            String
+  spend            Decimal   @default(0) @db.Decimal(10, 2)
+  leads            Int       @default(0)
+  cpl              Decimal?  @default(0) @db.Decimal(10, 2)
+  move_ins         Int?      @default(0)
+  cost_per_move_in Decimal?  @default(0) @db.Decimal(10, 2)
+  roas             Decimal?  @default(0) @db.Decimal(6, 2)
+  occupancy_delta  Decimal?  @default(0) @db.Decimal(5, 2)
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+  clients          clients   @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([client_id, month])
+  @@index([client_id], map: "idx_client_campaigns_client")
+}
+
+model client_onboarding {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_id    String    @unique @db.Uuid
+  access_code  String    @db.VarChar(16)
+  steps        Json      @default("{}")
+  completed_at DateTime? @db.Timestamptz(6)
+  updated_at   DateTime? @default(now()) @db.Timestamptz(6)
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  clients      clients   @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([access_code], map: "idx_client_onboarding_code")
+}
+
+model clients {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id       String             @db.Uuid
+  email             String
+  name              String
+  facility_name     String?
+  location          String?
+  occupancy_range   String?
+  total_units       String?
+  access_code       String             @unique @db.VarChar(16)
+  monthly_goal      Int?               @default(0)
+  signed_at         DateTime?          @default(now()) @db.Timestamptz(6)
+  created_at        DateTime?          @default(now()) @db.Timestamptz(6)
+  client_campaigns  client_campaigns[]
+  client_onboarding client_onboarding?
+  facilities        facilities         @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([access_code], map: "idx_clients_access_code")
+  @@index([facility_id], map: "idx_clients_facility")
+}
+
+model commit_comments {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash String
+  author      String
+  body        String
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([commit_hash], map: "idx_commit_comments_hash")
+}
+
+model commit_enrichments {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash       String    @unique
+  dev_note          String?
+  dev_name          String?
+  laymans_summary   String?
+  technical_summary String?
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([commit_hash], map: "idx_commit_enrichments_hash")
+}
+
+model commit_flags {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash String
+  flag_type   String
+  reason      String?   @default("")
+  flagged_by  String
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([commit_hash], map: "idx_commit_flags_hash")
+}
+
+model commit_reviews {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash String
+  reviewed_by String
+  status      String    @default("reviewed")
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@unique([commit_hash, reviewed_by], map: "idx_commit_reviews_unique")
+}
+
+model creative_briefs {
+  id                      String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id             String?         @db.Uuid
+  created_at              DateTime?       @default(now()) @db.Timestamptz(6)
+  version                 Int?            @default(1)
+  brief_json              Json
+  platform_recommendation String[]
+  status                  String?         @default("draft")
+  ad_variations           ad_variations[]
+  facilities              facilities?     @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_briefs_facility")
+}
+
+model delinquency_escalations {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String     @db.Uuid
+  facility_id      String     @db.Uuid
+  stage            String
+  stage_entered_at DateTime   @default(now()) @db.Timestamptz(6)
+  next_stage_at    DateTime?  @db.Timestamptz(6)
+  notes            String?
+  automated        Boolean?   @default(true)
+  created_at       DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities       facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants          tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_delinquency_escalations_facility")
+  @@index([stage], map: "idx_delinquency_escalations_stage")
+  @@index([tenant_id], map: "idx_delinquency_escalations_tenant")
+}
+
+model deployment_tags {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash String
+  environment String    @default("production")
+  deployed_by String
+  version     String?
+  notes       String?
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([environment], map: "idx_deployment_tags_env")
+  @@index([commit_hash], map: "idx_deployment_tags_hash")
+}
+
+model dev_handoffs {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  from_dev    String
+  to_dev      String?
+  title       String
+  body        String
+  commit_hash String?
+  status      String    @default("active")
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([status], map: "idx_dev_handoffs_status")
+}
+
+model drip_sequence_templates {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String         @db.Uuid
+  variation_id  String?        @db.Uuid
+  name          String
+  steps         Json
+  created_at    DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime?      @default(now()) @db.Timestamptz(6)
+  facilities    facilities     @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  ad_variations ad_variations? @relation(fields: [variation_id], references: [id], onUpdate: NoAction)
+
+  @@unique([facility_id, variation_id])
+  @@index([facility_id], map: "idx_drip_templates_facility")
+}
+
+model drip_sequences {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String     @unique @db.Uuid
+  sequence_id   String     @default("post_audit")
+  current_step  Int        @default(0)
+  status        String     @default("active")
+  enrolled_at   DateTime   @default(now()) @db.Timestamptz(6)
+  next_send_at  DateTime?  @db.Timestamptz(6)
+  paused_at     DateTime?  @db.Timestamptz(6)
+  completed_at  DateTime?  @db.Timestamptz(6)
+  cancelled_at  DateTime?  @db.Timestamptz(6)
+  cancel_reason String?
+  history       Json?      @default("[]")
+  facilities    facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([next_send_at], map: "idx_drip_sequences_next_send")
+  @@index([status], map: "idx_drip_sequences_status")
+}
+
+model facilities {
+  id                           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                   DateTime?                      @default(now()) @db.Timestamptz(6)
+  name                         String
+  location                     String
+  contact_name                 String?
+  contact_email                String?
+  contact_phone                String?
+  occupancy_range              String?
+  total_units                  String?
+  biggest_issue                String?
+  notes                        String?
+  place_id                     String?
+  google_address               String?
+  google_phone                 String?
+  website                      String?
+  google_rating                Decimal?                       @db.Decimal(2, 1)
+  review_count                 Int?
+  google_maps_url              String?
+  hours                        Json?
+  status                       String?                        @default("intake")
+  pipeline_status              String?                        @default("submitted")
+  follow_up_date               DateTime?                      @db.Date
+  pms_uploaded                 Boolean?                       @default(false)
+  access_code                  String?                        @unique @db.VarChar(16)
+  form_notes                   String?
+  lead_score                   Int?
+  updated_at                   DateTime?                      @default(now()) @db.Timestamptz(6)
+  organization_id              String?                        @db.Uuid
+  ab_tests                     ab_tests[]
+  activity_log                 activity_log[]
+  ad_variations                ad_variations[]
+  assets                       assets[]
+  audit_report_cache           audit_report_cache?
+  audits                       audits[]
+  call_logs                    call_logs[]
+  call_tracking_numbers        call_tracking_numbers[]
+  campaign_spend               campaign_spend[]
+  churn_predictions            churn_predictions[]
+  clients                      clients[]
+  creative_briefs              creative_briefs[]
+  delinquency_escalations      delinquency_escalations[]
+  drip_sequence_templates      drip_sequence_templates[]
+  drip_sequences               drip_sequences?
+  organizations                organizations?                 @relation(fields: [organization_id], references: [id], onUpdate: NoAction)
+  facility_context             facility_context[]
+  facility_market_intel        facility_market_intel?
+  facility_pms_aging           facility_pms_aging[]
+  facility_pms_length_of_stay  facility_pms_length_of_stay[]
+  facility_pms_rate_history    facility_pms_rate_history[]
+  facility_pms_rent_roll       facility_pms_rent_roll[]
+  facility_pms_revenue_history facility_pms_revenue_history[]
+  facility_pms_snapshots       facility_pms_snapshots[]
+  facility_pms_specials        facility_pms_specials[]
+  facility_pms_tenant_rates    facility_pms_tenant_rates[]
+  facility_pms_units           facility_pms_units[]
+  gbp_connections              gbp_connections?
+  gbp_insights                 gbp_insights[]
+  gbp_posts                    gbp_posts[]
+  gbp_profile_sync_log         gbp_profile_sync_log[]
+  gbp_questions                gbp_questions[]
+  gbp_reviews                  gbp_reviews[]
+  landing_pages                landing_pages[]
+  lead_notes                   lead_notes[]
+  marketing_plans              marketing_plans[]
+  moveout_remarketing          moveout_remarketing[]
+  partial_leads                partial_leads[]
+  places_data                  places_data[]
+  platform_connections         platform_connections[]
+  pms_reports                  pms_reports[]
+  publish_log                  publish_log[]
+  referral_codes               referral_codes[]
+  retention_campaigns          retention_campaigns[]
+  rev_share_referrals          rev_share_referrals[]
+  tenant_communications        tenant_communications[]
+  tenant_payments              tenant_payments[]
+  tenants                      tenants[]
+  upsell_opportunities         upsell_opportunities[]
+  style_references             style_references[]
+  utm_links                    utm_links[]
+
+  @@index([access_code], map: "idx_facilities_access_code")
+  @@index([contact_email], map: "idx_facilities_contact_email")
+  @@index([organization_id], map: "idx_facilities_organization")
+  @@index([pipeline_status], map: "idx_facilities_pipeline_status")
+  @@index([status], map: "idx_facilities_status")
+}
+
+model facility_context {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String     @db.Uuid
+  created_at  DateTime?  @default(now()) @db.Timestamptz(6)
+  type        String
+  title       String
+  content     String?
+  file_url    String?
+  metadata    Json?
+  facilities  facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_facility_context_facility")
+}
+
+model facility_market_intel {
+  id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id        String     @unique @db.Uuid
+  last_scanned       DateTime?  @default(now()) @db.Timestamptz(6)
+  competitors        Json?      @default("[]")
+  demand_drivers     Json?      @default("[]")
+  demographics       Json?      @default("{}")
+  manual_notes       String?
+  operator_overrides Json?      @default("{}")
+  created_at         DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities         facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_market_intel_facility")
+}
+
+model facility_pms_aging {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id     String     @db.Uuid
+  snapshot_date   DateTime   @default(dbgenerated("CURRENT_DATE")) @db.Date
+  unit            String
+  tenant_name     String?
+  bucket_0_30     Decimal?   @default(0) @db.Decimal(10, 2)
+  bucket_31_60    Decimal?   @default(0) @db.Decimal(10, 2)
+  bucket_61_90    Decimal?   @default(0) @db.Decimal(10, 2)
+  bucket_91_120   Decimal?   @default(0) @db.Decimal(10, 2)
+  bucket_120_plus Decimal?   @default(0) @db.Decimal(10, 2)
+  total           Decimal?   @default(0) @db.Decimal(10, 2)
+  move_out_date   DateTime?  @db.Date
+  created_at      DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities      facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id, snapshot_date], map: "idx_pms_aging_facility")
+}
+
+model facility_pms_length_of_stay {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String     @db.Uuid
+  tenant_name   String
+  latest_unit   String?
+  move_in       DateTime?  @db.Date
+  move_out      DateTime?  @db.Date
+  days_in_unit  Int?       @default(0)
+  lead_source   String?
+  lead_category String?
+  created_at    DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities    facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_pms_los_facility")
+}
+
+model facility_pms_rate_history {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id    String     @db.Uuid
+  unit_type      String
+  effective_date DateTime   @db.Date
+  street_rate    Decimal?   @db.Decimal(8, 2)
+  web_rate       Decimal?   @db.Decimal(8, 2)
+  notes          String?
+  created_at     DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities     facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_pms_rate_history_facility")
+}
+
+model facility_pms_rent_roll {
+  id                String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id       String     @db.Uuid
+  snapshot_date     DateTime   @default(dbgenerated("CURRENT_DATE")) @db.Date
+  unit              String
+  size_label        String?
+  tenant_name       String?
+  account           String?
+  rental_start      DateTime?  @db.Date
+  paid_thru         DateTime?  @db.Date
+  rent_rate         Decimal?   @db.Decimal(8, 2)
+  insurance_premium Decimal?   @db.Decimal(8, 2)
+  total_due         Decimal?   @default(0) @db.Decimal(10, 2)
+  days_past_due     Int?       @default(0)
+  created_at        DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities        facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id, snapshot_date], map: "idx_pms_rent_roll_facility")
+}
+
+model facility_pms_revenue_history {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String     @db.Uuid
+  year        Int
+  month       String
+  quarter     Int?
+  revenue     Decimal?   @default(0) @db.Decimal(12, 2)
+  monthly_tax Decimal?   @default(0) @db.Decimal(10, 2)
+  move_ins    Int?       @default(0)
+  move_outs   Int?       @default(0)
+  created_at  DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities  facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([facility_id, year, month])
+  @@index([facility_id], map: "idx_pms_revenue_history_facility")
+}
+
+model facility_pms_snapshots {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id     String     @db.Uuid
+  snapshot_date   DateTime   @default(dbgenerated("CURRENT_DATE")) @db.Date
+  total_units     Int?
+  occupied_units  Int?
+  occupancy_pct   Decimal?   @db.Decimal(5, 2)
+  total_sqft      Int?
+  occupied_sqft   Int?
+  gross_potential Decimal?   @db.Decimal(12, 2)
+  actual_revenue  Decimal?   @db.Decimal(12, 2)
+  delinquency_pct Decimal?   @db.Decimal(5, 2)
+  move_ins_mtd    Int?       @default(0)
+  move_outs_mtd   Int?       @default(0)
+  notes           String?
+  created_at      DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities      facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([facility_id, snapshot_date])
+  @@index([facility_id], map: "idx_pms_snapshots_facility")
+}
+
+model facility_pms_specials {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id      String     @db.Uuid
+  name             String
+  description      String?
+  applies_to       String[]   @default([])
+  discount_type    String?    @default("fixed")
+  discount_value   Decimal?   @db.Decimal(8, 2)
+  min_lease_months Int?       @default(1)
+  start_date       DateTime?  @db.Date
+  end_date         DateTime?  @db.Date
+  active           Boolean?   @default(true)
+  created_at       DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities       facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_pms_specials_facility")
+}
+
+model facility_pms_tenant_rates {
+  id                String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id       String     @db.Uuid
+  snapshot_date     DateTime   @default(dbgenerated("CURRENT_DATE")) @db.Date
+  unit              String
+  size_label        String?
+  unit_type         String?
+  access_type       String?
+  tenant_name       String?
+  moved_in          DateTime?  @db.Date
+  standard_rate     Decimal?   @db.Decimal(8, 2)
+  actual_rate       Decimal?   @db.Decimal(8, 2)
+  paid_rate         Decimal?   @db.Decimal(8, 2)
+  rate_variance     Decimal?   @db.Decimal(8, 2)
+  discount          Decimal?   @default(0) @db.Decimal(8, 2)
+  discount_desc     String?
+  days_as_tenant    Int?       @default(0)
+  ecri_flag         Boolean?   @default(false)
+  ecri_suggested    Decimal?   @db.Decimal(8, 2)
+  ecri_revenue_lift Decimal?   @db.Decimal(8, 2)
+  created_at        DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities        facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id, snapshot_date], map: "idx_pms_tenant_rates_facility")
+}
+
+model facility_pms_units {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id     String     @db.Uuid
+  unit_type       String
+  size_label      String?
+  width_ft        Decimal?   @db.Decimal(6, 1)
+  depth_ft        Decimal?   @db.Decimal(6, 1)
+  sqft            Decimal?   @db.Decimal(8, 1)
+  floor           String?
+  features        String[]   @default([])
+  total_count     Int        @default(0)
+  occupied_count  Int        @default(0)
+  vacant_count    Int?       @default(dbgenerated("(total_count - occupied_count)"))
+  street_rate     Decimal?   @db.Decimal(8, 2)
+  actual_avg_rate Decimal?   @db.Decimal(8, 2)
+  web_rate        Decimal?   @db.Decimal(8, 2)
+  push_rate       Decimal?   @db.Decimal(8, 2)
+  ecri_eligible   Int?       @default(0)
+  last_updated    DateTime?  @default(now()) @db.Timestamptz(6)
+  created_at      DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities      facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([facility_id, unit_type])
+  @@index([facility_id], map: "idx_pms_units_facility")
+}
+
+model fb_deletion_requests {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  confirmation_code String    @unique
+  fb_user_id        String
+  status            String    @default("pending")
+  requested_at      DateTime? @default(now()) @db.Timestamptz(6)
+  completed_at      DateTime? @db.Timestamptz(6)
+
+  @@index([confirmation_code], map: "idx_fb_deletion_code")
+}
+
+model portal_login_codes {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email      String
+  code       String   @db.VarChar(4)
+  expires_at DateTime @db.Timestamptz(6)
+  used       Boolean  @default(false)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([email, code], map: "idx_portal_login_email_code")
+  @@index([expires_at], map: "idx_portal_login_expires")
+}
+
+model data_deletion_requests {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String
+  name           String?
+  reason         String?
+  source         String    @default("user_request")
+  status         String    @default("pending")
+  data_found     Json?     @default("{}")
+  data_deleted   Json?     @default("{}")
+  admin_notes    String?
+  requested_at   DateTime  @default(now()) @db.Timestamptz(6)
+  acknowledged_at DateTime? @db.Timestamptz(6)
+  completed_at   DateTime? @db.Timestamptz(6)
+  completed_by   String?
+
+  @@index([email], map: "idx_data_deletion_email")
+  @@index([status], map: "idx_data_deletion_status")
+}
+
+model gbp_connections {
+  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id       String          @unique @db.Uuid
+  google_account_id String?
+  location_id       String?
+  location_name     String?
+  access_token      String?
+  refresh_token     String?
+  token_expires_at  DateTime?       @db.Timestamptz(6)
+  status            String?         @default("disconnected")
+  last_sync_at      DateTime?       @db.Timestamptz(6)
+  sync_config       Json?           @default("{\"auto_post\": false, \"sync_hours\": true, \"sync_photos\": true, \"auto_respond\": false}")
+  created_at        DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?       @default(now()) @db.Timestamptz(6)
+  facilities        facilities      @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  gbp_posts         gbp_posts[]
+  gbp_questions     gbp_questions[]
+  gbp_reviews       gbp_reviews[]
+
+  @@index([facility_id], map: "idx_gbp_connections_facility")
+  @@index([status], map: "idx_gbp_connections_status")
+}
+
+model gbp_insights {
+  id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id        String     @db.Uuid
+  period_start       DateTime   @db.Date
+  period_end         DateTime   @db.Date
+  search_views       Int?       @default(0)
+  maps_views         Int?       @default(0)
+  website_clicks     Int?       @default(0)
+  direction_clicks   Int?       @default(0)
+  phone_calls        Int?       @default(0)
+  photo_views        Int?       @default(0)
+  post_views         Int?       @default(0)
+  post_clicks        Int?       @default(0)
+  total_searches     Int?       @default(0)
+  direct_searches    Int?       @default(0)
+  discovery_searches Int?       @default(0)
+  raw_data           Json?      @default("{}")
+  synced_at          DateTime?  @default(now()) @db.Timestamptz(6)
+  created_at         DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities         facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([facility_id, period_start, period_end])
+  @@index([facility_id], map: "idx_gbp_insights_facility")
+  @@index([period_start(sort: Desc)], map: "idx_gbp_insights_period")
+}
+
+model gbp_posts {
+  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id       String           @db.Uuid
+  gbp_connection_id String?          @db.Uuid
+  post_type         String           @default("update")
+  title             String?
+  body              String
+  cta_type          String?
+  cta_url           String?
+  image_url         String?
+  offer_code        String?
+  start_date        DateTime?        @db.Date
+  end_date          DateTime?        @db.Date
+  status            String?          @default("draft")
+  scheduled_at      DateTime?        @db.Timestamptz(6)
+  published_at      DateTime?        @db.Timestamptz(6)
+  external_post_id  String?
+  error_message     String?
+  ai_generated      Boolean?         @default(false)
+  created_at        DateTime?        @default(now()) @db.Timestamptz(6)
+  facilities        facilities       @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  gbp_connections   gbp_connections? @relation(fields: [gbp_connection_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_gbp_posts_facility")
+  @@index([status], map: "idx_gbp_posts_status")
+}
+
+model gbp_profile_sync_log {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String     @db.Uuid
+  sync_type     String
+  status        String?    @default("success")
+  changes       Json?      @default("{}")
+  error_message String?
+  created_at    DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities    facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_gbp_sync_log_created")
+  @@index([facility_id], map: "idx_gbp_sync_log_facility")
+}
+
+model gbp_questions {
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id          String           @db.Uuid
+  gbp_connection_id    String?          @db.Uuid
+  external_question_id String?          @unique
+  author_name          String?
+  question_text        String
+  question_time        DateTime?        @db.Timestamptz(6)
+  answer_text          String?
+  answer_status        String?          @default("pending")
+  ai_draft             String?
+  answered_at          DateTime?        @db.Timestamptz(6)
+  upvote_count         Int?             @default(0)
+  synced_at            DateTime?        @default(now()) @db.Timestamptz(6)
+  created_at           DateTime?        @default(now()) @db.Timestamptz(6)
+  facilities           facilities       @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  gbp_connections      gbp_connections? @relation(fields: [gbp_connection_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_gbp_questions_facility")
+  @@index([answer_status], map: "idx_gbp_questions_status")
+}
+
+model gbp_reviews {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id        String           @db.Uuid
+  gbp_connection_id  String?          @db.Uuid
+  external_review_id String?          @unique
+  author_name        String?
+  rating             Int
+  review_text        String?
+  review_time        DateTime?        @db.Timestamptz(6)
+  response_text      String?
+  response_status    String?          @default("pending")
+  ai_draft           String?
+  responded_at       DateTime?        @db.Timestamptz(6)
+  synced_at          DateTime?        @default(now()) @db.Timestamptz(6)
+  created_at         DateTime?        @default(now()) @db.Timestamptz(6)
+  facilities         facilities       @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  gbp_connections    gbp_connections? @relation(fields: [gbp_connection_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_gbp_reviews_facility")
+  @@index([rating], map: "idx_gbp_reviews_rating")
+  @@index([response_status], map: "idx_gbp_reviews_response")
+}
+
+model ideas {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  description String?   @default("")
+  category    String?   @default("general")
+  priority    String?   @default("medium")
+  status      String?   @default("new")
+  votes       Int?      @default(0)
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([category], map: "idx_ideas_category")
+  @@index([status], map: "idx_ideas_status")
+}
+
+model landing_page_sections {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  landing_page_id String        @db.Uuid
+  sort_order      Int           @default(0)
+  section_type    String        @db.VarChar(40)
+  config          Json          @default("{}")
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+  landing_pages   landing_pages @relation(fields: [landing_page_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([landing_page_id], map: "idx_lp_sections_page")
+}
+
+model landing_pages {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id           String                  @db.Uuid
+  slug                  String                  @unique @db.VarChar(120)
+  title                 String                  @db.VarChar(255)
+  status                String                  @default("draft")
+  variation_ids         String[]                @db.Uuid
+  meta_title            String?                 @db.VarChar(120)
+  meta_description      String?                 @db.VarChar(300)
+  og_image_url          String?
+  theme                 Json                    @default("{}")
+  storedge_widget_url   String?
+  created_at            DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime                @default(now()) @db.Timestamptz(6)
+  published_at          DateTime?               @db.Timestamptz(6)
+  call_tracking_numbers call_tracking_numbers[]
+  landing_page_sections landing_page_sections[]
+  facilities            facilities              @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  partial_leads         partial_leads[]
+  utm_links             utm_links[]
+
+  @@index([facility_id], map: "idx_landing_pages_facility")
+  @@index([slug], map: "idx_landing_pages_slug")
+  @@index([status], map: "idx_landing_pages_status")
+}
+
+model lead_notes {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String     @db.Uuid
+  text        String
+  created_at  DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities  facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_lead_notes_facility")
+}
+
+model marketing_plans {
+  id                   String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id          String     @db.Uuid
+  created_at           DateTime?  @default(now()) @db.Timestamptz(6)
+  version              Int?       @default(1)
+  status               String?    @default("draft")
+  plan_json            Json
+  spend_recommendation Json?
+  assigned_playbooks   String[]
+  generated_from       Json?
+  facilities           facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_marketing_plans_facility")
+}
+
+model moveout_remarketing {
+  id                                                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                                          String     @unique @db.Uuid
+  facility_id                                        String     @db.Uuid
+  moved_out_date                                     DateTime   @db.Date
+  move_out_reason                                    String?
+  sequence_status                                    String?    @default("pending")
+  current_step                                       Int?       @default(0)
+  total_steps                                        Int?       @default(5)
+  last_sent_at                                       DateTime?  @db.Timestamptz(6)
+  next_send_at                                       DateTime?  @db.Timestamptz(6)
+  opened_count                                       Int?       @default(0)
+  clicked_count                                      Int?       @default(0)
+  converted                                          Boolean?   @default(false)
+  converted_at                                       DateTime?  @db.Timestamptz(6)
+  new_tenant_id                                      String?    @db.Uuid
+  offer_type                                         String?
+  offer_value                                        Decimal?   @default(0) @db.Decimal(10, 2)
+  created_at                                         DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at                                         DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities                                         facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants_moveout_remarketing_new_tenant_idTotenants tenants?   @relation("moveout_remarketing_new_tenant_idTotenants", fields: [new_tenant_id], references: [id], onUpdate: NoAction)
+  tenants_moveout_remarketing_tenant_idTotenants     tenants    @relation("moveout_remarketing_tenant_idTotenants", fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_moveout_remarketing_facility")
+  @@index([sequence_status], map: "idx_moveout_remarketing_status")
+}
+
+model org_users {
+  id                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization_id        String        @db.Uuid
+  email                  String
+  name                   String
+  role                   String        @default("viewer")
+  password_hash          String?
+  invite_token           String?       @db.VarChar(64)
+  invite_expires_at      DateTime?     @db.Timestamptz(6)
+  last_login_at          DateTime?     @db.Timestamptz(6)
+  status                 String?       @default("invited")
+  created_at             DateTime?     @default(now()) @db.Timestamptz(6)
+  reset_token            String?       @db.VarChar(64)
+  reset_token_expires_at DateTime?     @db.Timestamptz(6)
+  is_superadmin          Boolean?      @default(false)
+  organizations          organizations @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sessions               sessions[]
+
+  @@unique([organization_id, email])
+  @@index([email], map: "idx_org_users_email")
+  @@index([invite_token], map: "idx_org_users_invite")
+  @@index([organization_id], map: "idx_org_users_org")
+  @@index([reset_token], map: "idx_org_users_reset")
+  @@index([status], map: "idx_org_users_status")
+}
+
+model organizations {
+  id                     String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                   String
+  slug                   String                @unique @db.VarChar(60)
+  logo_url               String?
+  primary_color          String?               @default("#16a34a") @db.VarChar(7)
+  accent_color           String?               @default("#4f46e5") @db.VarChar(7)
+  custom_domain          String?
+  contact_email          String?
+  contact_phone          String?
+  billing_email          String?
+  plan                   String?               @default("starter")
+  facility_limit         Int?                  @default(10)
+  white_label            Boolean?              @default(false)
+  status                 String?               @default("active")
+  rev_share_enabled      Boolean?              @default(true)
+  rev_share_pct          Decimal?              @db.Decimal(5, 2)
+  rev_share_tier         String?               @default("auto")
+  lifetime_earnings      Decimal?              @default(0) @db.Decimal(12, 2)
+  payout_method          String?               @default("bank_transfer")
+  payout_email           String?
+  settings               Json?                 @default("{}")
+  created_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  stripe_customer_id     String?
+  stripe_subscription_id String?
+  subscription_status    String?               @default("incomplete")
+  api_keys               api_keys[]
+  facilities             facilities[]
+  org_users              org_users[]
+  rev_share_payouts      rev_share_payouts[]
+  rev_share_referrals    rev_share_referrals[]
+  webhooks               webhooks[]
+
+  @@index([custom_domain], map: "idx_organizations_custom_domain")
+  @@index([slug], map: "idx_organizations_slug")
+  @@index([status], map: "idx_organizations_status")
+  @@index([stripe_customer_id], map: "idx_organizations_stripe_customer")
+}
+
+model partial_leads {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  landing_page_id     String?        @db.Uuid
+  facility_id         String?        @db.Uuid
+  session_id          String         @unique
+  email               String?
+  phone               String?
+  name                String?
+  unit_size           String?
+  fields_completed    Int?           @default(0)
+  total_fields        Int?           @default(0)
+  scroll_depth        Int?           @default(0)
+  time_on_page        Int?           @default(0)
+  exit_intent         Boolean?       @default(false)
+  utm_source          String?
+  utm_medium          String?
+  utm_campaign        String?
+  utm_content         String?
+  referrer            String?
+  user_agent          String?
+  ip_hash             String?
+  recovery_status     String?        @default("pending")
+  recovery_sent_count Int?           @default(0)
+  next_recovery_at    DateTime?      @db.Timestamptz(6)
+  converted           Boolean?       @default(false)
+  converted_at        DateTime?      @db.Timestamptz(6)
+  lead_score          Int?           @default(0)
+  created_at          DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime?      @default(now()) @db.Timestamptz(6)
+  lead_status         String?        @default("partial")
+  monthly_revenue     Decimal?       @db.Decimal(10, 2)
+  move_in_date        DateTime?      @db.Date
+  fbclid              String?
+  gclid               String?
+  status_updated_at   DateTime?      @db.Timestamptz(6)
+  lead_notes          String?
+  facilities          facilities?    @relation(fields: [facility_id], references: [id], onUpdate: NoAction)
+  landing_pages       landing_pages? @relation(fields: [landing_page_id], references: [id], onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_partial_leads_created")
+  @@index([email], map: "idx_partial_leads_email")
+  @@index([facility_id, created_at(sort: Desc)], map: "idx_partial_leads_facility_created")
+  @@index([facility_id, lead_status], map: "idx_partial_leads_facility_status")
+  @@index([landing_page_id], map: "idx_partial_leads_landing_page")
+  @@index([lead_status], map: "idx_partial_leads_lead_status")
+  @@index([recovery_status, next_recovery_at], map: "idx_partial_leads_recovery")
+  @@index([session_id], map: "idx_partial_leads_session")
+  @@index([utm_campaign], map: "idx_partial_leads_utm_campaign")
+}
+
+model places_data {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String?     @db.Uuid
+  fetched_at  DateTime?   @default(now()) @db.Timestamptz(6)
+  photos      Json?
+  reviews     Json?
+  facilities  facilities? @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_places_facility")
+}
+
+model platform_connections {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id      String?       @db.Uuid
+  created_at       DateTime?     @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime?     @default(now()) @db.Timestamptz(6)
+  platform         String
+  status           String?       @default("disconnected")
+  access_token     String?
+  refresh_token    String?
+  token_expires_at DateTime?     @db.Timestamptz(6)
+  account_id       String?
+  account_name     String?
+  page_id          String?
+  page_name        String?
+  metadata         Json?
+  facilities       facilities?   @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  publish_log      publish_log[]
+
+  @@unique([facility_id, platform])
+  @@index([facility_id], map: "idx_platform_connections_facility")
+}
+
+model pms_reports {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String?     @db.Uuid
+  facility_name String?
+  email         String?
+  report_type   String?     @default("unknown")
+  file_name     String?     @default("report.csv")
+  report_data   Json
+  uploaded_at   DateTime?   @default(now()) @db.Timestamptz(6)
+  facilities    facilities? @relation(fields: [facility_id], references: [id], onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_pms_reports_facility")
+}
+
+model publish_log {
+  id                   String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id          String?               @db.Uuid
+  variation_id         String?               @db.Uuid
+  connection_id        String?               @db.Uuid
+  created_at           DateTime?             @default(now()) @db.Timestamptz(6)
+  platform             String
+  status               String?               @default("pending")
+  external_id          String?
+  external_url         String?
+  error_message        String?
+  request_payload      Json?
+  response_payload     Json?
+  platform_connections platform_connections? @relation(fields: [connection_id], references: [id], onUpdate: NoAction)
+  facilities           facilities?           @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  ad_variations        ad_variations?        @relation(fields: [variation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_publish_log_facility")
+  @@index([variation_id], map: "idx_publish_log_variation")
+}
+
+model push_subscriptions {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  user_type    String    @default("admin")
+  user_id      String?
+  endpoint     String    @unique
+  p256dh       String
+  auth         String
+  active       Boolean?  @default(true)
+  last_used_at DateTime? @db.Timestamptz(6)
+  user_agent   String?
+
+  @@index([user_type, user_id], map: "idx_push_subs_user")
+}
+
+model referral_codes {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id      String             @db.Uuid
+  code             String             @unique @db.VarChar(20)
+  referrer_name    String
+  referrer_email   String
+  credit_balance   Decimal?           @default(0) @db.Decimal(10, 2)
+  total_earned     Decimal?           @default(0) @db.Decimal(10, 2)
+  referral_count   Int?               @default(0)
+  status           String?            @default("active")
+  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  facilities       facilities         @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  referral_credits referral_credits[]
+  referrals        referrals[]
+
+  @@index([code], map: "idx_referral_codes_code")
+  @@index([referrer_email], map: "idx_referral_codes_email")
+  @@index([facility_id], map: "idx_referral_codes_facility")
+}
+
+model referral_credits {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  referral_code_id String         @db.Uuid
+  referral_id      String?        @db.Uuid
+  type             String
+  amount           Decimal        @db.Decimal(10, 2)
+  description      String
+  balance_after    Decimal        @db.Decimal(10, 2)
+  created_at       DateTime?      @default(now()) @db.Timestamptz(6)
+  referral_codes   referral_codes @relation(fields: [referral_code_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  referrals        referrals?     @relation(fields: [referral_id], references: [id], onUpdate: NoAction)
+
+  @@index([referral_code_id], map: "idx_referral_credits_code")
+  @@index([type], map: "idx_referral_credits_type")
+}
+
+model referrals {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  referral_code_id  String             @db.Uuid
+  referred_name     String
+  referred_email    String
+  referred_phone    String?
+  facility_name     String?
+  facility_location String?
+  status            String?            @default("invited")
+  credit_amount     Decimal?           @default(0) @db.Decimal(10, 2)
+  credit_issued     Boolean?           @default(false)
+  credit_issued_at  DateTime?          @db.Timestamptz(6)
+  signed_up_at      DateTime?          @db.Timestamptz(6)
+  activated_at      DateTime?          @db.Timestamptz(6)
+  notes             String?
+  created_at        DateTime?          @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?          @default(now()) @db.Timestamptz(6)
+  referral_credits  referral_credits[]
+  referral_codes    referral_codes     @relation(fields: [referral_code_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([referral_code_id], map: "idx_referrals_code")
+  @@index([referred_email], map: "idx_referrals_email")
+  @@index([status], map: "idx_referrals_status")
+}
+
+model retention_campaigns {
+  id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id        String     @db.Uuid
+  name               String
+  trigger_risk_level String?    @default("high")
+  sequence_steps     Json
+  active             Boolean?   @default(true)
+  enrolled_count     Int?       @default(0)
+  retained_count     Int?       @default(0)
+  created_at         DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities         facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_retention_campaigns_facility")
+}
+
+model rev_share_payouts {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization_id String        @db.Uuid
+  month           String
+  facility_count  Int           @default(0)
+  gross_mrr       Decimal       @default(0) @db.Decimal(10, 2)
+  rev_share_pct   Decimal       @db.Decimal(5, 2)
+  payout_amount   Decimal       @default(0) @db.Decimal(10, 2)
+  status          String?       @default("pending")
+  paid_at         DateTime?     @db.Timestamptz(6)
+  notes           String?
+  created_at      DateTime?     @default(now()) @db.Timestamptz(6)
+  organizations   organizations @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([organization_id, month])
+  @@index([month], map: "idx_rev_share_payouts_month")
+  @@index([organization_id], map: "idx_rev_share_payouts_org")
+  @@index([status], map: "idx_rev_share_payouts_status")
+}
+
+model rev_share_referrals {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization_id  String        @db.Uuid
+  facility_id      String        @db.Uuid
+  referred_at      DateTime?     @default(now()) @db.Timestamptz(6)
+  first_revenue_at DateTime?     @db.Timestamptz(6)
+  status           String?       @default("active")
+  total_earned     Decimal?      @default(0) @db.Decimal(10, 2)
+  facilities       facilities    @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  organizations    organizations @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([organization_id, facility_id])
+  @@index([organization_id], map: "idx_rev_share_referrals_org")
+}
+
+model sessions {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id        String    @db.Uuid
+  token_hash     String    @unique
+  expires_at     DateTime  @db.Timestamptz(6)
+  ip_address     String?
+  user_agent     String?
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  last_active_at DateTime? @default(now()) @db.Timestamptz(6)
+  org_users      org_users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([expires_at], map: "idx_sessions_expires")
+  @@index([token_hash], map: "idx_sessions_token")
+  @@index([user_id], map: "idx_sessions_user")
+}
+
+model shared_audits {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug          String    @unique @db.VarChar(60)
+  facility_name String?
+  audit_json    Json
+  views         Int?      @default(0)
+  expires_at    DateTime  @db.Timestamptz(6)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([slug], map: "idx_shared_audits_slug")
+}
+
+model tenant_communications {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id   String     @db.Uuid
+  facility_id String     @db.Uuid
+  channel     String
+  type        String
+  subject     String?
+  body        String?
+  status      String?    @default("sent")
+  related_id  String?    @db.Uuid
+  created_at  DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities  facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants     tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_tenant_comms_facility")
+  @@index([tenant_id], map: "idx_tenant_comms_tenant")
+  @@index([type], map: "idx_tenant_comms_type")
+}
+
+model tenant_payments {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id    String     @db.Uuid
+  facility_id  String     @db.Uuid
+  amount       Decimal    @db.Decimal(10, 2)
+  payment_date DateTime   @db.Date
+  due_date     DateTime   @db.Date
+  method       String?
+  status       String?    @default("paid")
+  days_late    Int?       @default(0)
+  external_ref String?
+  created_at   DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities   facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants      tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([payment_date(sort: Desc)], map: "idx_tenant_payments_date")
+  @@index([facility_id], map: "idx_tenant_payments_facility")
+  @@index([tenant_id], map: "idx_tenant_payments_tenant")
+}
+
+model tenants {
+  id                                                             String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id                                                    String                    @db.Uuid
+  external_id                                                    String?
+  name                                                           String
+  email                                                          String?
+  phone                                                          String?
+  unit_number                                                    String
+  unit_size                                                      String?
+  unit_type                                                      String?
+  monthly_rate                                                   Decimal                   @default(0) @db.Decimal(10, 2)
+  move_in_date                                                   DateTime                  @db.Date
+  lease_end_date                                                 DateTime?                 @db.Date
+  autopay_enabled                                                Boolean?                  @default(false)
+  has_insurance                                                  Boolean?                  @default(false)
+  insurance_monthly                                              Decimal?                  @default(0) @db.Decimal(10, 2)
+  balance                                                        Decimal?                  @default(0) @db.Decimal(10, 2)
+  status                                                         String?                   @default("active")
+  days_delinquent                                                Int?                      @default(0)
+  last_payment_date                                              DateTime?                 @db.Date
+  moved_out_date                                                 DateTime?                 @db.Date
+  move_out_reason                                                String?
+  metadata                                                       Json?                     @default("{}")
+  created_at                                                     DateTime?                 @default(now()) @db.Timestamptz(6)
+  updated_at                                                     DateTime?                 @default(now()) @db.Timestamptz(6)
+  churn_predictions                                              churn_predictions?
+  delinquency_escalations                                        delinquency_escalations[]
+  moveout_remarketing_moveout_remarketing_new_tenant_idTotenants moveout_remarketing[]     @relation("moveout_remarketing_new_tenant_idTotenants")
+  moveout_remarketing_moveout_remarketing_tenant_idTotenants     moveout_remarketing?      @relation("moveout_remarketing_tenant_idTotenants")
+  tenant_communications                                          tenant_communications[]
+  tenant_payments                                                tenant_payments[]
+  facilities                                                     facilities                @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  upsell_opportunities                                           upsell_opportunities[]
+
+  @@index([facility_id, external_id], map: "idx_tenants_external")
+  @@index([facility_id], map: "idx_tenants_facility")
+  @@index([status], map: "idx_tenants_status")
+}
+
+model upsell_opportunities {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id       String     @db.Uuid
+  facility_id     String     @db.Uuid
+  type            String
+  title           String
+  description     String?
+  current_value   Decimal?   @default(0) @db.Decimal(10, 2)
+  proposed_value  Decimal?   @default(0) @db.Decimal(10, 2)
+  monthly_uplift  Decimal?   @default(0) @db.Decimal(10, 2)
+  confidence      Int?       @default(50)
+  status          String?    @default("identified")
+  outreach_method String?
+  sent_at         DateTime?  @db.Timestamptz(6)
+  responded_at    DateTime?  @db.Timestamptz(6)
+  created_at      DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime?  @default(now()) @db.Timestamptz(6)
+  facilities      facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants         tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_upsell_facility")
+  @@index([status], map: "idx_upsell_status")
+  @@index([tenant_id], map: "idx_upsell_tenant")
+  @@index([type], map: "idx_upsell_type")
+}
+
+model utm_links {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id           String                  @db.Uuid
+  landing_page_id       String?                 @db.Uuid
+  label                 String
+  utm_source            String
+  utm_medium            String
+  utm_campaign          String?
+  utm_content           String?
+  utm_term              String?
+  short_code            String                  @unique @db.VarChar(16)
+  click_count           Int?                    @default(0)
+  last_clicked_at       DateTime?               @db.Timestamptz(6)
+  created_at            DateTime?               @default(now()) @db.Timestamptz(6)
+  call_tracking_numbers call_tracking_numbers[]
+  facilities            facilities              @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  landing_pages         landing_pages?          @relation(fields: [landing_page_id], references: [id], onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_utm_links_facility")
+  @@index([short_code], map: "idx_utm_links_short_code")
+}
+
+model webhook_deliveries {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  webhook_id    String    @db.Uuid
+  event         String
+  payload       Json
+  status        Int?
+  response_body String?
+  duration_ms   Int?
+  error         String?
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  webhooks      webhooks  @relation(fields: [webhook_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_webhook_deliveries_created")
+  @@index([webhook_id], map: "idx_webhook_deliveries_webhook")
+}
+
+model webhooks {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization_id    String               @db.Uuid
+  url                String
+  events             String[]             @default([])
+  secret             String
+  active             Boolean?             @default(true)
+  failure_count      Int?                 @default(0)
+  last_triggered_at  DateTime?            @db.Timestamptz(6)
+  last_status        Int?
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  webhook_deliveries webhook_deliveries[]
+  organizations      organizations        @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([organization_id], map: "idx_webhooks_org")
+}
+
+model social_posts {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id      String    @db.Uuid
+  platform         String
+  post_type        String?   @default("tip")
+  content          String
+  hashtags         String[]  @default([])
+  media_urls       String[]  @default([])
+  cta_url          String?
+  status           String    @default("draft")
+  scheduled_at     DateTime? @db.Timestamptz(6)
+  published_at     DateTime? @db.Timestamptz(6)
+  external_post_id String?
+  external_url     String?
+  error_message    String?
+  engagement       Json?
+  ai_generated     Boolean?  @default(false)
+  batch_id         String?   @db.Uuid
+  suggested_image  String?
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([facility_id], map: "idx_social_posts_facility")
+  @@index([status], map: "idx_social_posts_status")
+  @@index([scheduled_at], map: "idx_social_posts_scheduled")
+}
+
+model nurture_sequences {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id  String    @db.Uuid
+  name         String
+  trigger_type String?
+  steps        Json
+  status       String    @default("active")
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([facility_id], map: "idx_nurture_sequences_facility")
+}
+
+model nurture_enrollments {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sequence_id   String    @db.Uuid
+  facility_id   String    @db.Uuid
+  lead_id       String?   @db.Uuid
+  tenant_id     String?   @db.Uuid
+  contact_name  String?
+  contact_email String?
+  contact_phone String?
+  current_step  Int       @default(0)
+  status        String    @default("active")
+  enrolled_at   DateTime? @default(now()) @db.Timestamptz(6)
+  next_send_at  DateTime? @db.Timestamptz(6)
+  completed_at  DateTime? @db.Timestamptz(6)
+  exit_reason   String?
+  metadata      Json?
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([sequence_id], map: "idx_nurture_enrollments_seq")
+  @@index([facility_id], map: "idx_nurture_enrollments_facility")
+  @@index([status, next_send_at], map: "idx_nurture_enrollments_due")
+}
+
+model nurture_messages {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  enrollment_id String    @db.Uuid
+  step_number   Int
+  channel       String
+  to_address    String
+  subject       String?
+  body          String
+  status        String    @default("pending")
+  external_id   String?
+  sent_at       DateTime? @db.Timestamptz(6)
+  delivered_at  DateTime? @db.Timestamptz(6)
+  opened_at     DateTime? @db.Timestamptz(6)
+  clicked_at    DateTime? @db.Timestamptz(6)
+  error_message String?
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([enrollment_id], map: "idx_nurture_messages_enrollment")
+}
+
+model audience_syncs {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id      String    @db.Uuid
+  connection_id    String?   @db.Uuid
+  audience_type    String
+  audience_name    String
+  meta_audience_id String?
+  source_type      String?
+  record_count     Int?      @default(0)
+  status           String    @default("pending")
+  last_synced_at   DateTime? @db.Timestamptz(6)
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([facility_id], map: "idx_audience_syncs_facility")
+}
+
+model style_references {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String?     @db.Uuid
+  created_at    DateTime?   @default(now()) @db.Timestamptz(6)
+  image_url     String
+  title         String?
+  tags          String[]    @default([])
+  analysis      Json
+  active        Boolean     @default(true)
+  facilities    facilities? @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_style_references_facility")
+  @@index([active], map: "idx_style_references_active")
+}

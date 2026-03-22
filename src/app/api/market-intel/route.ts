@@ -1,0 +1,314 @@
+import { NextRequest } from "next/server";
+import { db } from "@/lib/db";
+import {
+  jsonResponse,
+  errorResponse,
+  corsResponse,
+  getOrigin,
+  requireAdminKey,
+} from "@/lib/api-helpers";
+
+function haversineDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const R = 3958.8;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function extractZip(address: string | null): string | null {
+  if (!address) return null;
+  const match = address.match(/\b(\d{5})(?:-\d{4})?\b/);
+  return match ? match[1] : null;
+}
+
+async function searchPlaces(
+  textQuery: string,
+  apiKey: string,
+  maxResults = 10
+): Promise<Record<string, unknown>[]> {
+  const fieldMask =
+    "places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.googleMapsUri,places.location,places.websiteUri";
+  try {
+    const res = await fetch(
+      "https://places.googleapis.com/v1/places:searchText",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": fieldMask,
+        },
+        body: JSON.stringify({
+          textQuery,
+          maxResultCount: maxResults,
+        }),
+      }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.places || []) as Record<string, unknown>[];
+  } catch {
+    return [];
+  }
+}
+
+async function fetchCensusDemographics(
+  zip: string | null
+): Promise<Record<string, unknown> | null> {
+  if (!zip) return null;
+  const vars =
+    "B01003_001E,B19013_001E,B25003_002E,B25003_003E,B01002_001E,B25077_001E";
+  const url = `https://api.census.gov/data/2022/acs/acs5?get=${vars}&for=zip%20code%20tabulation%20area:${zip}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || data.length < 2) return null;
+    const values = data[1] as string[];
+    const populationVal = parseInt(values[0]) || 0;
+    const medianIncome = parseInt(values[1]) || 0;
+    const ownerOccupied = parseInt(values[2]) || 0;
+    const renterOccupied = parseInt(values[3]) || 0;
+    const medianAge = parseFloat(values[4]) || 0;
+    const medianHomeValue = parseInt(values[5]) || 0;
+    const totalHousing = ownerOccupied + renterOccupied;
+    const renterPct =
+      totalHousing > 0
+        ? Math.round((renterOccupied / totalHousing) * 1000) / 10
+        : 0;
+    return {
+      zip,
+      population: populationVal,
+      median_income: medianIncome,
+      median_age: medianAge,
+      owner_occupied: ownerOccupied,
+      renter_occupied: renterOccupied,
+      renter_pct: renterPct,
+      median_home_value: medianHomeValue,
+      source: "census_acs_2022",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function OPTIONS(request: NextRequest) {
+  return corsResponse(getOrigin(request));
+}
+
+export async function GET(request: NextRequest) {
+  const origin = getOrigin(request);
+  const denied = requireAdminKey(request);
+  if (denied) return denied;
+
+  const facilityId = request.nextUrl.searchParams.get("facilityId");
+  if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+  try {
+    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
+      "SELECT * FROM facility_market_intel WHERE facility_id = $1::uuid",
+      facilityId
+    );
+    return jsonResponse({ intel: rows[0] || null }, 200, origin);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return errorResponse(message, 500, origin);
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const origin = getOrigin(request);
+  const denied = requireAdminKey(request);
+  if (denied) return denied;
+
+  try {
+    const body = await request.json();
+    const { facilityId } = body || {};
+    if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey)
+      return errorResponse("GOOGLE_PLACES_API_KEY not configured", 500, origin);
+
+    const facilityRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
+      "SELECT * FROM facilities WHERE id = $1",
+      facilityId
+    );
+    if (facilityRows.length === 0)
+      return errorResponse("Facility not found", 404, origin);
+    const facility = facilityRows[0];
+
+    const address = String(
+      facility.google_address || facility.location || ""
+    );
+    const zip = extractZip(address);
+
+    const demandCategories = [
+      { query: "apartment complex", category: "apartment_complex" },
+      { query: "university", category: "university" },
+      { query: "military base", category: "military_base" },
+      { query: "real estate office", category: "real_estate" },
+      { query: "moving company", category: "moving_company" },
+      { query: "senior living", category: "senior_living" },
+    ];
+
+    const [competitorResults, ...demandResults] = await Promise.all([
+      searchPlaces(`self storage near ${address}`, apiKey, 10),
+      ...demandCategories.map((cat) =>
+        searchPlaces(`${cat.query} near ${address}`, apiKey, 5)
+      ),
+    ]);
+
+    const demographics = await fetchCensusDemographics(zip);
+
+    let facilityLat: number | null = null;
+    let facilityLng: number | null = null;
+
+    if (facility.google_address) {
+      const selfResults = await searchPlaces(
+        String(facility.google_address),
+        apiKey,
+        1
+      );
+      if (
+        selfResults.length &&
+        (selfResults[0].location as Record<string, unknown> | undefined)
+      ) {
+        const loc = selfResults[0].location as Record<string, number>;
+        facilityLat = loc.latitude;
+        facilityLng = loc.longitude;
+      }
+    }
+
+    const competitors = competitorResults
+      .filter((p) => {
+        const pName = (
+          (p.displayName as Record<string, string>)?.text || ""
+        ).toLowerCase();
+        const fName = String(facility.name || "").toLowerCase();
+        return !pName.includes(fName) && !fName.includes(pName);
+      })
+      .map((p) => {
+        const loc = p.location as Record<string, number> | undefined;
+        const lat = loc?.latitude;
+        const lng = loc?.longitude;
+        let distance_miles: number | null = null;
+        if (facilityLat && facilityLng && lat && lng) {
+          distance_miles =
+            Math.round(
+              haversineDistance(facilityLat, facilityLng, lat, lng) * 10
+            ) / 10;
+        }
+        return {
+          name:
+            (p.displayName as Record<string, string>)?.text || "Unknown",
+          address: p.formattedAddress || "",
+          rating: p.rating || null,
+          reviewCount: p.userRatingCount || 0,
+          distance_miles,
+          mapsUrl: p.googleMapsUri || null,
+          website: p.websiteUri || null,
+          source: "google_places",
+        };
+      })
+      .filter((c) => c.distance_miles === null || c.distance_miles <= 15)
+      .sort(
+        (a, b) => (a.distance_miles ?? 99) - (b.distance_miles ?? 99)
+      );
+
+    const demand_drivers: Record<string, unknown>[] = [];
+    demandCategories.forEach((cat, i) => {
+      const results = demandResults[i] || [];
+      results.forEach((p) => {
+        const loc = p.location as Record<string, number> | undefined;
+        const lat = loc?.latitude;
+        const lng = loc?.longitude;
+        let distance_miles: number | null = null;
+        if (facilityLat && facilityLng && lat && lng) {
+          distance_miles =
+            Math.round(
+              haversineDistance(facilityLat, facilityLng, lat, lng) * 10
+            ) / 10;
+        }
+        if (distance_miles !== null && distance_miles > 5) return;
+        demand_drivers.push({
+          name:
+            (p.displayName as Record<string, string>)?.text || "Unknown",
+          category: cat.category,
+          address: p.formattedAddress || "",
+          distance_miles,
+          source: "google_places",
+        });
+      });
+    });
+    demand_drivers.sort(
+      (a, b) =>
+        ((a.distance_miles as number) ?? 99) -
+        ((b.distance_miles as number) ?? 99)
+    );
+
+    const intelRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
+      `INSERT INTO facility_market_intel (facility_id, last_scanned, competitors, demand_drivers, demographics)
+       VALUES ($1, NOW(), $2, $3, $4)
+       ON CONFLICT (facility_id) DO UPDATE SET
+         last_scanned = NOW(),
+         competitors = $2,
+         demand_drivers = $3,
+         demographics = $4,
+         updated_at = NOW()
+       RETURNING *`,
+      facilityId,
+      JSON.stringify(competitors),
+      JSON.stringify(demand_drivers),
+      JSON.stringify(demographics || {})
+    );
+
+    return jsonResponse({ intel: intelRows[0] }, 200, origin);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return errorResponse(message, 500, origin);
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  const origin = getOrigin(request);
+  const denied = requireAdminKey(request);
+  if (denied) return denied;
+
+  try {
+    const body = await request.json();
+    const { facilityId, manual_notes, operator_overrides } = body || {};
+    if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+    const intelRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
+      `INSERT INTO facility_market_intel (facility_id, manual_notes, operator_overrides)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (facility_id) DO UPDATE SET
+         manual_notes = COALESCE($2, facility_market_intel.manual_notes),
+         operator_overrides = COALESCE($3, facility_market_intel.operator_overrides),
+         updated_at = NOW()
+       RETURNING *`,
+      facilityId,
+      manual_notes ?? null,
+      operator_overrides ? JSON.stringify(operator_overrides) : null
+    );
+
+    return jsonResponse({ intel: intelRows[0] }, 200, origin);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return errorResponse(message, 500, origin);
+  }
+}

@@ -1,0 +1,323 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { Resend } from "resend";
+import { verifyCronSecret } from "@/lib/cron-auth";
+
+export const maxDuration = 60;
+
+const getResend = () => new Resend(process.env.RESEND_API_KEY!);
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
+  || (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:5173");
+
+function resolveMergeTags(
+  template: string | null,
+  data: Record<string, string | null | undefined>
+): string {
+  if (!template) return "";
+  return template.replace(/\{(\w+)\}/g, (match, key) => {
+    return data[key] !== undefined && data[key] !== null
+      ? String(data[key])
+      : match;
+  });
+}
+
+async function advanceStep(
+  enrollmentId: string,
+  steps: { delay_minutes?: number }[],
+  currentStepIdx: number
+) {
+  const nextIdx = currentStepIdx + 1;
+  if (nextIdx >= steps.length) {
+    await db.$executeRaw`
+      UPDATE nurture_enrollments SET status = 'completed', completed_at = NOW(),
+      current_step = ${nextIdx}, next_send_at = NULL WHERE id = ${enrollmentId}::uuid
+    `;
+  } else {
+    const nextStep = steps[nextIdx];
+    const delayMs = (nextStep.delay_minutes || 60) * 60 * 1000;
+    const nextSendAt = new Date(Date.now() + delayMs).toISOString();
+    await db.$executeRaw`
+      UPDATE nurture_enrollments SET current_step = ${nextIdx},
+      next_send_at = ${nextSendAt}::timestamptz WHERE id = ${enrollmentId}::uuid
+    `;
+  }
+}
+
+async function logMessage(
+  enrollmentId: string,
+  stepNumber: number,
+  channel: string,
+  toAddress: string,
+  subject: string | null,
+  body: string,
+  status: string,
+  externalId: string | null,
+  errorMessage: string | null
+) {
+  await db.$executeRaw`
+    INSERT INTO nurture_messages (enrollment_id, step_number, channel, to_address, subject, body, status, external_id, sent_at, error_message)
+    VALUES (${enrollmentId}::uuid, ${stepNumber}, ${channel}, ${toAddress}, ${subject}, ${body}, ${status}, ${externalId}, ${status === "sent" ? new Date().toISOString() : null}::timestamptz, ${errorMessage})
+  `;
+}
+
+async function sendSMS(to: string, body: string, facilityId: string) {
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  if (!sid || !token) throw new Error("Twilio not configured");
+
+  let fromNumber = process.env.TWILIO_FROM_NUMBER;
+  if (!fromNumber && facilityId) {
+    const rows = await db.$queryRaw<{ phone_number: string }[]>`
+      SELECT phone_number FROM call_tracking_numbers WHERE facility_id = ${facilityId}::uuid AND status = 'active' LIMIT 1
+    `;
+    if (rows[0]) fromNumber = rows[0].phone_number;
+  }
+  if (!fromNumber) throw new Error("No SMS from number configured");
+
+  const bodyWithOptOut = body.includes("STOP")
+    ? body
+    : `${body}\n\nReply STOP to opt out`;
+
+  const twilioRes = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+    {
+      method: "POST",
+      headers: {
+        Authorization:
+          "Basic " + Buffer.from(`${sid}:${token}`).toString("base64"),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        To: to,
+        From: fromNumber,
+        Body: bodyWithOptOut,
+      }),
+    }
+  );
+  const result = await twilioRes.json();
+  if (result.error_code)
+    throw new Error(`Twilio: ${result.message}`);
+  return result;
+}
+
+async function sendEmail(
+  to: string,
+  subject: string,
+  body: string,
+  facilityName: string | null
+) {
+  const result = await getResend().emails.send({
+    from: `${facilityName || "StowStack"} <notifications@stowstack.co>`,
+    to: [to],
+    subject,
+    text: body,
+  });
+  if (result.error) throw new Error(`Resend: ${result.error.message}`);
+  return result.data;
+}
+
+interface EnrollmentRow {
+  id: string;
+  sequence_id: string;
+  facility_id: string;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  current_step: number;
+  metadata: unknown;
+  seq_steps: unknown;
+  seq_name: string;
+  trigger_type: string;
+}
+
+interface NurtureStep {
+  channel: string;
+  body: string;
+  subject?: string;
+  send_window?: { start?: string; end?: string };
+  delay_minutes?: number;
+}
+
+export async function GET(request: NextRequest) {
+  if (!verifyCronSecret(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const dueEnrollments = await db.$queryRaw<EnrollmentRow[]>`
+      SELECT ne.*, ns.steps as seq_steps, ns.name as seq_name, ns.trigger_type
+      FROM nurture_enrollments ne
+      JOIN nurture_sequences ns ON ns.id = ne.sequence_id
+      WHERE ne.status = 'active'
+        AND ne.next_send_at <= NOW()
+        AND ns.status = 'active'
+      ORDER BY ne.next_send_at ASC
+      LIMIT 50
+    `;
+
+    let sent = 0,
+      failed = 0,
+      completed = 0,
+      skipped = 0;
+
+    for (const enrollment of dueEnrollments) {
+      try {
+        const steps: NurtureStep[] =
+          typeof enrollment.seq_steps === "string"
+            ? JSON.parse(enrollment.seq_steps)
+            : (enrollment.seq_steps as NurtureStep[]);
+        const currentStepIdx = enrollment.current_step;
+        const step = steps[currentStepIdx];
+
+        if (!step) {
+          await db.$executeRaw`
+            UPDATE nurture_enrollments SET status = 'completed', completed_at = NOW(), next_send_at = NULL WHERE id = ${enrollment.id}::uuid
+          `;
+          completed++;
+          continue;
+        }
+
+        if (step.channel === "sms" && step.send_window) {
+          const now = new Date();
+          const hour = now.getHours();
+          const startHour = parseInt(
+            step.send_window.start?.split(":")[0] || "9"
+          );
+          const endHour = parseInt(
+            step.send_window.end?.split(":")[0] || "21"
+          );
+          if (hour < startHour || hour >= endHour) {
+            skipped++;
+            continue;
+          }
+        }
+
+        const facilityRows = await db.$queryRaw<Record<string, unknown>[]>`
+          SELECT * FROM facilities WHERE id = ${enrollment.facility_id}::uuid
+        `;
+        const facility = facilityRows[0];
+        const metadata: Record<string, string> =
+          typeof enrollment.metadata === "string"
+            ? JSON.parse(enrollment.metadata)
+            : ((enrollment.metadata as Record<string, string>) || {});
+
+        const mergeData: Record<string, string | null | undefined> = {
+          ...metadata,
+          first_name:
+            enrollment.contact_name?.split(" ")[0] || "there",
+          contact_name: enrollment.contact_name || "",
+          facility_name: (facility?.name as string) || "",
+          facility_location: (facility?.location as string) || "",
+          facility_phone:
+            (facility?.google_phone as string) ||
+            (facility?.contact_phone as string) ||
+            "",
+          reserve_link:
+            metadata.reserve_link || `${SITE_URL}/reserve`,
+          review_link:
+            metadata.review_link ||
+            (facility?.google_maps_url as string) ||
+            "",
+          feedback_link:
+            metadata.feedback_link || `${SITE_URL}/feedback`,
+        };
+
+        const resolvedBody = resolveMergeTags(step.body, mergeData);
+        const resolvedSubject = step.subject
+          ? resolveMergeTags(step.subject, {
+              ...metadata,
+              first_name:
+                enrollment.contact_name?.split(" ")[0] || "there",
+              facility_name: (facility?.name as string) || "",
+              unit_size: metadata.unit_size || "storage",
+            })
+          : null;
+
+        const toAddress =
+          step.channel === "sms"
+            ? enrollment.contact_phone
+            : enrollment.contact_email;
+
+        if (!toAddress) {
+          await logMessage(
+            enrollment.id,
+            currentStepIdx,
+            step.channel,
+            "unknown",
+            resolvedSubject,
+            resolvedBody,
+            "failed",
+            null,
+            "No contact info for this channel"
+          );
+          failed++;
+          await advanceStep(enrollment.id, steps, currentStepIdx);
+          continue;
+        }
+
+        let externalId: string | null = null;
+        if (step.channel === "sms") {
+          const smsResult = await sendSMS(
+            toAddress,
+            resolvedBody,
+            enrollment.facility_id
+          );
+          externalId = smsResult.messageSid;
+        } else {
+          const emailResult = await sendEmail(
+            toAddress,
+            resolvedSubject ||
+              `Message from ${(facility?.name as string) || "StowStack"}`,
+            resolvedBody,
+            (facility?.name as string) || null
+          );
+          externalId = emailResult?.id || null;
+        }
+
+        await logMessage(
+          enrollment.id,
+          currentStepIdx,
+          step.channel,
+          toAddress,
+          resolvedSubject,
+          resolvedBody,
+          "sent",
+          externalId,
+          null
+        );
+        sent++;
+
+        await advanceStep(enrollment.id, steps, currentStepIdx);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Unknown error";
+        await logMessage(
+          enrollment.id,
+          enrollment.current_step,
+          "unknown",
+          "",
+          null,
+          "",
+          "failed",
+          null,
+          message
+        ).catch(() => {});
+        failed++;
+      }
+    }
+
+    return NextResponse.json({
+      processed: dueEnrollments.length,
+      sent,
+      failed,
+      completed,
+      skipped,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

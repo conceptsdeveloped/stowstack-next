@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /portal
+Disallow: /partner
+Disallow: /api
+Sitemap: https://stowstack.co/sitemap.xml

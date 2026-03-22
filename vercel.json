@@ -1,0 +1,35 @@
+{
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "crons": [
+    { "path": "/api/cron/cleanup-sessions", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/process-drips", "schedule": "*/15 * * * *" },
+    { "path": "/api/cron/process-nurture", "schedule": "*/30 * * * *" },
+    { "path": "/api/cron/process-gbp", "schedule": "0 */6 * * *" },
+    { "path": "/api/cron/process-recovery", "schedule": "0 */2 * * *" },
+    { "path": "/api/cron/check-campaign-alerts", "schedule": "0 */4 * * *" },
+    { "path": "/api/cron/send-client-reports", "schedule": "0 9 * * 1" },
+    { "path": "/api/cron/aggregate-page-stats", "schedule": "0 2 * * *" },
+    { "path": "/api/cron/sync-audiences", "schedule": "0 1 * * 0" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.svg",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}

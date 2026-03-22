@@ -1,0 +1,575 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft, Check } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description:
+    "StowStack pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+};
+
+const demandEnginePlans = [
+  {
+    name: "Launch",
+    price: "$750",
+    period: "/mo per facility",
+    description:
+      "For operators ready to start filling units with paid ads.",
+    features: [
+      "Meta ad campaigns (Facebook + Instagram)",
+      "2 ad-specific landing pages with embedded storEDGE rental flow",
+      "Static creative and ad copy",
+      "Monthly performance report with cost-per-move-in data",
+    ],
+    bestFor:
+      "Single-facility operators testing paid ads for the first time. You want to see if this works before going deeper.",
+    isRecommended: false,
+  },
+  {
+    name: "Growth",
+    price: "$1,500",
+    period: "/mo per facility",
+    description:
+      "The full system. This is where the compounding starts.",
+    features: [
+      "Meta ad campaigns (Facebook + Instagram)",
+      "Google PPC campaigns (search + display)",
+      "5 ad-specific landing pages with embedded storEDGE rental flow",
+      "Retargeting campaigns for abandoned visitors",
+      "A/B testing on creative and landing pages",
+      "Video creative production",
+      "Full attribution dashboard — cost per reservation, cost per move-in, ROAS by creative",
+      "Bi-weekly optimization calls",
+    ],
+    bestFor:
+      "Operators who want the complete acquisition system. You want every dollar tracked to a move-in and a dedicated team optimizing your campaigns every two weeks.",
+    isRecommended: true,
+  },
+  {
+    name: "Portfolio",
+    price: "Custom",
+    period: " pricing (5+ facilities)",
+    description:
+      "Everything in Growth, scaled across your portfolio.",
+    features: [
+      "Unlimited landing pages across all facilities",
+      "Cross-facility budget allocation and optimization",
+      "Portfolio-level attribution and reporting",
+      "Dedicated strategist",
+      "Volume discount: 20-35% off per-facility rates",
+    ],
+    bestFor:
+      "Multi-facility operators who want centralized campaign management with facility-level reporting.",
+    isRecommended: false,
+  },
+];
+
+const conversionPlans = [
+  {
+    name: "Single Site",
+    price: "$3,000 build + $199/mo",
+    features: [
+      "Custom designed and branded to your facility",
+      "Embedded storEDGE rental flow — customers reserve without leaving your site",
+      "Mobile-optimized and speed-optimized",
+      "Trust elements and social proof built in",
+    ],
+    bestFor:
+      "Operators whose current website is a default template or a page they have not touched in years. You need a site that converts, not one that exists.",
+  },
+  {
+    name: "Site + Landing Pages",
+    price: "$5,000 build + $299/mo",
+    tag: "best value",
+    features: [
+      "Everything in Single Site, plus:",
+      "5 ad-specific landing pages built for campaign traffic",
+      "Per-page tracking setup",
+      "A/B testing framework",
+      "Ongoing conversion rate optimization",
+    ],
+    bestFor:
+      "Operators planning to run paid ads (now or soon) who want the landing page infrastructure ready from day one.",
+  },
+  {
+    name: "Portfolio Build",
+    price: "Custom pricing (3+ facilities)",
+    features: [
+      "Everything in Site + Landing Pages, scaled across multiple facilities",
+      "Shared brand system with per-facility customization",
+      "Centralized management dashboard",
+      "Volume pricing: 25-40% off per-facility rates",
+    ],
+    bestFor: "",
+  },
+];
+
+export default function PricingPage() {
+  return (
+    <div
+      className="min-h-screen"
+      style={{ background: "var(--bg-void)", color: "var(--text-primary)" }}
+    >
+      {/* Nav */}
+      <header
+        className="sticky top-0 z-[100] border-b"
+        style={{
+          background: "var(--bg-void)",
+          borderColor: "var(--border-subtle)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center gap-3">
+          <Link
+            href="/"
+            className="p-2 -ml-2 transition-colors"
+            style={{ color: "var(--text-tertiary)" }}
+          >
+            <ArrowLeft size={20} />
+          </Link>
+          <span className="text-sm font-bold tracking-tight">
+            Stow<span style={{ color: "var(--accent)" }}>Stack</span>
+          </span>
+        </div>
+      </header>
+
+      {/* Intro */}
+      <section className="max-w-3xl mx-auto px-6 pt-24 pb-16 text-center">
+        <h1
+          className="font-bold mb-6"
+          style={{
+            fontSize: "var(--text-section-head)",
+            lineHeight: "var(--leading-tight)",
+            letterSpacing: "var(--tracking-tight)",
+          }}
+        >
+          Before you look at the price, look at the math.
+        </h1>
+        <div
+          className="mx-auto space-y-4"
+          style={{
+            maxWidth: "680px",
+            color: "var(--text-secondary)",
+            fontSize: "var(--text-body)",
+            lineHeight: "var(--leading-normal)",
+          }}
+        >
+          <p>
+            A single move-in at a typical self-storage facility generates
+            $100-150 per month in recurring revenue. The average tenant stays 12
+            months. That is $1,200-1,800 in lifetime value from one move-in.
+          </p>
+          <p>
+            If StowStack produces 5 additional move-ins in a month, that is
+            $6,000-9,000 in annualized revenue. If it produces 10, that is
+            $12,000-18,000.
+          </p>
+          <p style={{ color: "var(--text-primary)", fontWeight: 500 }}>
+            Now look at the price.
+          </p>
+        </div>
+      </section>
+
+      {/* Demand Engine */}
+      <section
+        className="py-20"
+        style={{ background: "var(--bg-primary)" }}
+      >
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-4">
+            <span
+              className="text-xs font-semibold uppercase"
+              style={{
+                color: "var(--accent)",
+                letterSpacing: "var(--tracking-wide)",
+              }}
+            >
+              Product A
+            </span>
+          </div>
+          <h2
+            className="font-bold mb-2"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            Demand Engine (Paid Media)
+          </h2>
+          <p
+            className="mb-4"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "var(--text-body)",
+              maxWidth: "680px",
+            }}
+          >
+            We create, manage, and optimize paid ad campaigns. Every campaign
+            maps to its own landing page.
+          </p>
+          <p
+            className="mb-12"
+            style={{
+              color: "var(--text-tertiary)",
+              fontSize: "var(--text-small)",
+            }}
+          >
+            Monthly retainer. Ad spend paid directly to Meta/Google — separate
+            from StowStack fees.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {demandEnginePlans.map((plan) => (
+              <div
+                key={plan.name}
+                className="rounded-lg p-6 flex flex-col relative"
+                style={{
+                  background: "var(--bg-elevated)",
+                  border: plan.isRecommended
+                    ? "1px solid var(--accent)"
+                    : "1px solid var(--border-subtle)",
+                }}
+              >
+                {plan.isRecommended && (
+                  <span
+                    className="absolute -top-3 left-6 text-xs font-semibold uppercase px-3 py-1 rounded-full"
+                    style={{
+                      background: "var(--accent)",
+                      color: "var(--text-inverse)",
+                      letterSpacing: "var(--tracking-wide)",
+                    }}
+                  >
+                    recommended
+                  </span>
+                )}
+                <h3 className="text-lg font-bold mb-2">{plan.name}</h3>
+                <div className="mb-3">
+                  <span
+                    className="text-2xl font-bold"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    {plan.price}
+                  </span>
+                  <span
+                    className="text-sm"
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
+                    {plan.period}
+                  </span>
+                </div>
+                <p
+                  className="text-sm mb-6"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {plan.description}
+                </p>
+                <ul className="space-y-3 mb-6 flex-1">
+                  {plan.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex gap-2 text-sm"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <Check
+                        size={16}
+                        className="flex-shrink-0 mt-0.5"
+                        style={{ color: "var(--accent)" }}
+                      />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                {plan.bestFor && (
+                  <p
+                    className="text-xs mt-auto pt-4 border-t"
+                    style={{
+                      color: "var(--text-tertiary)",
+                      borderColor: "var(--border-subtle)",
+                    }}
+                  >
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      Best for:{" "}
+                    </span>
+                    {plan.bestFor}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Conversion Layer */}
+      <section className="py-20" style={{ background: "var(--bg-void)" }}>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-4">
+            <span
+              className="text-xs font-semibold uppercase"
+              style={{
+                color: "var(--accent)",
+                letterSpacing: "var(--tracking-wide)",
+              }}
+            >
+              Product B
+            </span>
+          </div>
+          <h2
+            className="font-bold mb-2"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            Conversion Layer (Custom Website + storEDGE Embed)
+          </h2>
+          <p
+            className="mb-4"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "var(--text-body)",
+              maxWidth: "680px",
+            }}
+          >
+            A branded facility website with embedded reservation and move-in
+            functionality. Sold standalone or bundled with the Demand Engine.
+          </p>
+          <p
+            className="mb-12"
+            style={{
+              color: "var(--text-tertiary)",
+              fontSize: "var(--text-small)",
+            }}
+          >
+            One-time build fee + monthly hosting and management.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {conversionPlans.map((plan) => (
+              <div
+                key={plan.name}
+                className="rounded-lg p-6 flex flex-col relative"
+                style={{
+                  background: "var(--bg-elevated)",
+                  border:
+                    plan.tag
+                      ? "1px solid var(--accent)"
+                      : "1px solid var(--border-subtle)",
+                }}
+              >
+                {plan.tag && (
+                  <span
+                    className="absolute -top-3 left-6 text-xs font-semibold uppercase px-3 py-1 rounded-full"
+                    style={{
+                      background: "var(--accent)",
+                      color: "var(--text-inverse)",
+                      letterSpacing: "var(--tracking-wide)",
+                    }}
+                  >
+                    {plan.tag}
+                  </span>
+                )}
+                <h3 className="text-lg font-bold mb-3">{plan.name}</h3>
+                <div
+                  className="mb-6 text-sm font-semibold"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
+                  {plan.price}
+                </div>
+                <ul className="space-y-3 mb-6 flex-1">
+                  {plan.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex gap-2 text-sm"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <Check
+                        size={16}
+                        className="flex-shrink-0 mt-0.5"
+                        style={{ color: "var(--accent)" }}
+                      />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                {plan.bestFor && (
+                  <p
+                    className="text-xs mt-auto pt-4 border-t"
+                    style={{
+                      color: "var(--text-tertiary)",
+                      borderColor: "var(--border-subtle)",
+                    }}
+                  >
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      Best for:{" "}
+                    </span>
+                    {plan.bestFor}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bundle */}
+      <section className="py-20" style={{ background: "var(--bg-primary)" }}>
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <h2
+            className="font-bold mb-2"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            The Bundle: Full-Stack Acquisition System
+          </h2>
+          <p
+            className="mb-8"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "var(--text-body)",
+            }}
+          >
+            One system. The ad, the page, the rental flow, the reporting. All
+            connected.
+          </p>
+          <div
+            className="rounded-lg p-8 text-left space-y-4"
+            style={{
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border-subtle)",
+            }}
+          >
+            <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-body)" }}>
+              Commit to 6 months of Growth and the site build drops from $5,000
+              to $2,500. That is a $2,500 discount that locks in your full
+              acquisition system from day one.
+            </p>
+            <ul className="space-y-2 text-sm" style={{ color: "var(--text-secondary)" }}>
+              <li className="flex gap-2">
+                <Check size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
+                <span><strong style={{ color: "var(--text-primary)" }}>One-time build:</strong> $2,500-4,000 (waived or discounted with 6-month Growth commitment)</span>
+              </li>
+              <li className="flex gap-2">
+                <Check size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
+                <span><strong style={{ color: "var(--text-primary)" }}>Monthly retainer:</strong> $1,500-2,000/mo per facility</span>
+              </li>
+              <li className="flex gap-2">
+                <Check size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
+                <span><strong style={{ color: "var(--text-primary)" }}>Optional performance bonus:</strong> $X per move-in above your target baseline</span>
+              </li>
+            </ul>
+            <p className="pt-4" style={{ color: "var(--text-secondary)", fontSize: "var(--text-body)" }}>
+              You are paying one company for a website and another for ads.
+              Neither one can tell you which ad produced a move-in. With
+              StowStack, it is one system — the ad, the page, the rental flow,
+              and the reporting — all connected. That is how you stop guessing
+              and start scaling.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison */}
+      <section className="py-20" style={{ background: "var(--bg-void)" }}>
+        <div className="max-w-3xl mx-auto px-6">
+          <h2
+            className="font-bold mb-8 text-center"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            What you are actually paying for
+          </h2>
+          <div className="space-y-6">
+            {[
+              {
+                price: "$299-899/mo on an SEO shop",
+                copy: "You get a nice website and a promise that organic traffic will build in 3-6 months. No paid traffic. No embedded rental flow. No attribution. No idea which page produced a move-in. You wait.",
+              },
+              {
+                price: "$149-399/mo on a Google-only platform",
+                copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No full-funnel attribution. They optimize for clicks, not leases. You guess.',
+              },
+              {
+                price: "$750-1,500/mo on StowStack",
+                copy: "You get Meta ads + Google PPC + retargeting driving traffic to ad-specific landing pages with embedded storEDGE rental flow. Every move-in traced to the ad that produced it. A/B testing based on revenue. Cost per move-in drops every month. You know.",
+                isHighlighted: true,
+              },
+            ].map((item) => (
+              <div
+                key={item.price}
+                className="rounded-lg p-6"
+                style={{
+                  background: item.isHighlighted
+                    ? "var(--bg-elevated)"
+                    : "transparent",
+                  border: item.isHighlighted
+                    ? "1px solid var(--accent)"
+                    : "1px solid var(--border-subtle)",
+                }}
+              >
+                <h3
+                  className="text-sm font-semibold uppercase mb-3"
+                  style={{
+                    color: item.isHighlighted
+                      ? "var(--accent)"
+                      : "var(--text-tertiary)",
+                    letterSpacing: "var(--tracking-wide)",
+                  }}
+                >
+                  {item.price}
+                </h3>
+                <p
+                  className="text-sm"
+                  style={{
+                    color: "var(--text-secondary)",
+                    lineHeight: "var(--leading-normal)",
+                  }}
+                >
+                  {item.copy}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24" style={{ background: "var(--bg-primary)" }}>
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <h2
+            className="font-bold mb-4"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            Let&apos;s talk about your facilities.
+          </h2>
+          <p
+            className="mb-8 mx-auto"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "var(--text-body)",
+              maxWidth: "520px",
+            }}
+          >
+            This is not a self-serve checkout. StowStack is built for operators
+            who want a real conversation about their vacancy, their market, and
+            what a full-funnel system would look like for their specific
+            facilities.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/#cta"
+              className="btn-primary inline-block text-center"
+            >
+              Get your free facility audit
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
