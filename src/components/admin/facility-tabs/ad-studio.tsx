@@ -257,23 +257,24 @@ function StepIndicator({ current, onStep }: { current: StudioStep; onStep: (s: S
     { key: 'preview', label: 'Preview & Publish', num: 3 },
   ]
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
       {steps.map((s, i) => (
-        <div key={s.key} className="flex items-center gap-1">
+        <div key={s.key} className="flex items-center gap-1 shrink-0">
           <button
             onClick={() => onStep(s.key)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium rounded-lg transition-colors whitespace-nowrap ${
               current === s.key
                 ? 'bg-[#3B82F6] text-white'
                 : 'text-[#6E6E73] hover:text-[#A1A1A6] hover:bg-white/[0.04]'
             }`}
           >
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
               current === s.key ? 'bg-white/20' : 'bg-white/[0.06]'
             }`}>{s.num}</span>
-            {s.label}
+            <span className="hidden sm:inline">{s.label}</span>
+            <span className="sm:hidden">{s.label.split(' ')[0]}</span>
           </button>
-          {i < steps.length - 1 && <ChevronRight size={12} className="text-[#6E6E73]" />}
+          {i < steps.length - 1 && <ChevronRight size={12} className="text-[#6E6E73] shrink-0" />}
         </div>
       ))}
     </div>
@@ -689,19 +690,19 @@ export default function AdStudio({ facilityId, adminKey }: {
       {step === 'preview' && (
         <div className="space-y-6">
           {/* Format selector */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
             {AD_FORMATS.map(f => (
               <button
                 key={f.id}
                 onClick={() => setActiveFormat(f.id)}
-                className={`px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
+                className={`shrink-0 px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-medium rounded-lg border transition-colors ${
                   activeFormat === f.id
                     ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
                     : 'border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]'
                 }`}
               >
                 {f.label}
-                <span className={`ml-1.5 text-[10px] ${activeFormat === f.id ? 'text-blue-200' : 'text-[#6E6E73]'}`}>
+                <span className={`ml-1 sm:ml-1.5 text-[9px] sm:text-[10px] hidden sm:inline ${activeFormat === f.id ? 'text-blue-200' : 'text-[#6E6E73]'}`}>
                   {f.width}x{f.height}
                 </span>
               </button>

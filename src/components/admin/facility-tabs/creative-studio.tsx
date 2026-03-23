@@ -1441,7 +1441,7 @@ export default function CreativeStudio({
       {/* Generation buttons */}
       {!showRegenInput && (
         <div className="space-y-3">
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             {GENERATION_OPTIONS.map((opt) => (
               <button
                 key={opt.id}

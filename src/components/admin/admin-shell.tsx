@@ -415,9 +415,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           onMobileClose={() => setMobileOpen(false)}
           isVA={isVA}
         />
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <AdminHeader onToggleSidebar={() => setMobileOpen((v) => !v)} />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-6">
             {children}
           </main>
         </div>

@@ -478,3 +478,16 @@ body {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
+
+/* ═══════════════════════════════════════════
+   MOBILE UTILITIES
+   ═══════════════════════════════════════════ */
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Prevent horizontal overflow on mobile */
+@layer base {
+  body { overflow-x: hidden; }
+}

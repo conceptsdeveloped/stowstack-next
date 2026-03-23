@@ -323,27 +323,27 @@ function FacilityDetail({
   }, [activeTab]);
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+    <div className="rounded-xl border border-white/[0.06] bg-[#111111] overflow-hidden">
       {/* header */}
-      <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-3 sm:px-5 sm:py-4 gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+            className="rounded-lg p-1.5 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7] shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <div>
-            <h2 className="text-base font-semibold text-[#F5F5F7]">
+          <div className="min-w-0">
+            <h2 className="text-sm sm:text-base font-semibold text-[#F5F5F7] truncate">
               {facility.name}
             </h2>
-            <p className="text-xs text-[#6E6E73]">
+            <p className="text-xs text-[#6E6E73] truncate">
               {[facility.city, facility.state].filter(Boolean).join(", ")}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {facility.status && <StatusBadge status={facility.status} />}
           <button
             type="button"
@@ -358,7 +358,8 @@ function FacilityDetail({
       {/* sub-tab navigation — horizontally scrollable */}
       <div
         ref={tabScrollRef}
-        className="flex gap-0.5 overflow-x-auto border-b border-white/[0.06] px-3 scrollbar-hide"
+        className="flex gap-0.5 overflow-x-auto border-b border-white/[0.06] px-2 sm:px-3 -webkit-overflow-scrolling-touch"
+        style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {TABS.map((tab) => {
           const Icon = tab.icon;
@@ -369,13 +370,13 @@ function FacilityDetail({
               data-tab={tab.key}
               type="button"
               onClick={() => onTabChange(tab.key)}
-              className={`flex shrink-0 items-center gap-1.5 border-b-2 px-2.5 py-3 text-xs font-medium transition-colors ${
+              className={`flex shrink-0 items-center gap-1 sm:gap-1.5 border-b-2 px-2 sm:px-2.5 py-2.5 sm:py-3 text-[11px] sm:text-xs font-medium transition-colors ${
                 isActive
                   ? "border-[#3B82F6] text-[#3B82F6]"
                   : "border-transparent text-[#6E6E73] hover:text-[#A1A1A6]"
               }`}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               {tab.label}
             </button>
           );
@@ -383,7 +384,7 @@ function FacilityDetail({
       </div>
 
       {/* tab content */}
-      <div className="p-5">
+      <div className="p-3 sm:p-5 overflow-x-hidden">
         <TabContent
           activeTab={activeTab}
           facility={facility}
