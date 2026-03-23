@@ -134,11 +134,11 @@ function AdMockup({ format, image, copy, facilityName }: {
             <p className="text-white/60 text-[8px]">Sponsored</p>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-          <p className="text-white text-sm font-bold leading-tight" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
+          <p className="text-white text-lg font-extrabold uppercase tracking-wide leading-none" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           <p className="text-white/80 text-[11px] leading-relaxed line-clamp-3" style={{ fontFamily: 'var(--font-ad-body)' }}>{primaryText}</p>
           <div className="flex justify-center pt-2">
-            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-bold text-black" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</div>
+            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-black" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</div>
           </div>
         </div>
       </div>
