@@ -484,7 +484,7 @@ function MetaVariationCard({
                 <p className="text-xs uppercase tracking-wide text-[#6E6E73]">
                   storageads.com
                 </p>
-                <p className="font-extrabold text-base text-[#F5F5F7] mt-0.5 uppercase tracking-wide" style={{ fontFamily: 'var(--font-ad-headline)' }}>
+                <p className="font-semibold text-sm text-[#F5F5F7] mt-0.5" style={{ fontFamily: 'var(--font-ad-headline)' }}>
                   {content.headline}
                 </p>
                 {content.description && (
