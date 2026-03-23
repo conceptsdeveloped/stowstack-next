@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Libre_Franklin, Lato } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
 import "./globals.css";
@@ -10,6 +10,20 @@ const mono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
   weight: ["400", "700"],
+  display: "swap",
+});
+
+const franklin = Libre_Franklin({
+  variable: "--font-franklin",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+});
+
+const lato = Lato({
+  variable: "--font-lato",
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
   display: "swap",
 });
 
@@ -80,7 +94,7 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" className={`${mono.variable} antialiased`}>
+      <html lang="en" className={`${mono.variable} ${franklin.variable} ${lato.variable} antialiased`}>
         <head>
           <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
           <link rel="dns-prefetch" href="https://api.fontshare.com" />

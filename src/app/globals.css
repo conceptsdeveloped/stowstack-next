@@ -32,6 +32,10 @@
   --color-error: rgba(239, 68, 68, 0.8);
   --color-success: rgba(34, 197, 94, 0.8);
 
+  /* Doctrine fonts */
+  --font-ad-headline: var(--font-franklin), 'Libre Franklin', 'Franklin Gothic', 'Arial Narrow', sans-serif;
+  --font-ad-body: var(--font-lato), 'Lato', 'Gill Sans', 'Gill Sans MT', sans-serif;
+
   /* Typography scale */
   --text-hero: clamp(2.5rem, 8vw, 5.5rem);
   --text-section-head: clamp(2rem, 5vw, 3.75rem);

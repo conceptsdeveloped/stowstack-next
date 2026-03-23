@@ -135,10 +135,10 @@ function AdMockup({ format, image, copy, facilityName }: {
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-          <p className="text-white text-sm font-bold leading-tight">{headline}</p>
-          <p className="text-white/80 text-[11px] leading-relaxed line-clamp-3">{primaryText}</p>
+          <p className="text-white text-sm font-bold leading-tight" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <p className="text-white/80 text-[11px] leading-relaxed line-clamp-3" style={{ fontFamily: 'var(--font-ad-body)' }}>{primaryText}</p>
           <div className="flex justify-center pt-2">
-            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-bold text-black">{cta}</div>
+            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-bold text-black" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</div>
           </div>
         </div>
       </div>
@@ -165,7 +165,7 @@ function AdMockup({ format, image, copy, facilityName }: {
             </div>
           )}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12">
-            <p className="text-white text-base font-bold">{headline}</p>
+            <p className="text-white text-base font-bold" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           </div>
         </div>
         <div className="flex items-center gap-4 px-3 py-2 text-[#F5F5F7]">
@@ -175,7 +175,7 @@ function AdMockup({ format, image, copy, facilityName }: {
           <p className="text-xs text-[#F5F5F7]">
             <span className="font-semibold">{facilityName.toLowerCase().replace(/\s+/g, '')} </span>{primaryText}
           </p>
-          {description && <p className="text-[10px] text-[#6E6E73] mt-1">{description}</p>}
+          {description && <p className="text-[10px] text-[#6E6E73] mt-1" style={{ fontFamily: 'var(--font-ad-body)' }}>{description}</p>}
           <div className="mt-2">
             <span className="inline-block bg-[#3B82F6] text-white text-[10px] font-semibold px-3 py-1 rounded">{cta}</span>
           </div>
@@ -195,7 +195,7 @@ function AdMockup({ format, image, copy, facilityName }: {
           </div>
           <MoreHorizontal size={18} className="text-[#6E6E73]" />
         </div>
-        <div className="px-3 pb-2"><p className="text-sm text-[#F5F5F7]">{primaryText}</p></div>
+        <div className="px-3 pb-2"><p className="text-sm text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-body)' }}>{primaryText}</p></div>
         <div className="w-full aspect-[1.91/1] bg-[#1a1a1a] relative">
           {image ? (
             <img src={image} alt="" className="w-full h-full object-cover" />
@@ -207,11 +207,11 @@ function AdMockup({ format, image, copy, facilityName }: {
         </div>
         <div className="px-3 py-2 border-t border-white/[0.06] bg-white/[0.02]">
           <p className="text-[10px] uppercase text-[#6E6E73]">storageads.com</p>
-          <p className="text-sm font-semibold text-[#F5F5F7] truncate">{headline}</p>
-          <p className="text-xs text-[#6E6E73] truncate">{description}</p>
+          <p className="text-sm font-semibold text-[#F5F5F7] truncate" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <p className="text-xs text-[#6E6E73] truncate" style={{ fontFamily: 'var(--font-ad-body)' }}>{description}</p>
         </div>
         <div className="px-3 py-2 border-t border-white/[0.06] flex items-center justify-between">
-          <button className="px-4 py-1.5 text-xs font-semibold rounded bg-white/[0.06] text-[#F5F5F7]">{cta}</button>
+          <button className="px-4 py-1.5 text-xs font-semibold rounded bg-white/[0.06] text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</button>
           <div className="flex gap-4 text-[#6E6E73]">
             <span className="text-xs">Like</span><span className="text-xs">Comment</span><span className="text-xs">Share</span>
           </div>
@@ -234,11 +234,11 @@ function AdMockup({ format, image, copy, facilityName }: {
           <div className="absolute top-1 left-1 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded">Ad</div>
         </div>
         <div className="p-3 space-y-1.5">
-          <p className="text-sm font-bold leading-tight text-[#F5F5F7]">{headline}</p>
+          <p className="text-sm font-bold leading-tight text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           <p className="text-[11px] text-[#6E6E73] line-clamp-2">{description || primaryText}</p>
           <div className="flex items-center justify-between pt-1">
             <span className="text-[10px] text-[#6E6E73]">{facilityName}</span>
-            <button className="bg-[#3B82F6] text-white text-[10px] font-semibold px-3 py-1 rounded">{cta}</button>
+            <button className="bg-[#3B82F6] text-white text-[10px] font-semibold px-3 py-1 rounded" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</button>
           </div>
         </div>
       </div>

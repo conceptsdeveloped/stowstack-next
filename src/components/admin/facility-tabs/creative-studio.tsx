@@ -477,14 +477,14 @@ function MetaVariationCard({
         ) : (
           <div className="space-y-4">
             <div className="rounded-lg p-4 bg-[#0A0A0A]">
-              <p className="text-sm leading-relaxed text-[#F5F5F7]">
+              <p className="text-sm leading-relaxed text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-body)' }}>
                 {content.primaryText}
               </p>
               <div className="mt-3 border-t border-white/[0.06] pt-3">
                 <p className="text-xs uppercase tracking-wide text-[#6E6E73]">
                   storageads.com
                 </p>
-                <p className="font-semibold text-sm text-[#F5F5F7] mt-0.5">
+                <p className="font-semibold text-sm text-[#F5F5F7] mt-0.5" style={{ fontFamily: 'var(--font-ad-headline)' }}>
                   {content.headline}
                 </p>
                 {content.description && (
