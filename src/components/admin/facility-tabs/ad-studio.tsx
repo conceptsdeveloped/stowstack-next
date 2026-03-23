@@ -134,11 +134,11 @@ function AdMockup({ format, image, copy, facilityName }: {
             <p className="text-white/60 text-[8px]">Sponsored</p>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-          <p className="text-white text-sm font-bold leading-tight" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
+          <p className="text-white text-lg font-extrabold uppercase tracking-wide leading-none" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           <p className="text-white/80 text-[11px] leading-relaxed line-clamp-3" style={{ fontFamily: 'var(--font-ad-body)' }}>{primaryText}</p>
           <div className="flex justify-center pt-2">
-            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-bold text-black" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</div>
+            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-black" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</div>
           </div>
         </div>
       </div>
@@ -164,8 +164,8 @@ function AdMockup({ format, image, copy, facilityName }: {
               <ImageIcon size={32} className="text-[#6E6E73]" />
             </div>
           )}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12">
-            <p className="text-white text-base font-bold" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16">
+            <p className="text-white text-xl font-extrabold uppercase tracking-wide leading-none" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           </div>
         </div>
         <div className="flex items-center gap-4 px-3 py-2 text-[#F5F5F7]">
@@ -207,7 +207,7 @@ function AdMockup({ format, image, copy, facilityName }: {
         </div>
         <div className="px-3 py-2 border-t border-white/[0.06] bg-white/[0.02]">
           <p className="text-[10px] uppercase text-[#6E6E73]">storageads.com</p>
-          <p className="text-sm font-semibold text-[#F5F5F7] truncate" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <p className="text-base font-extrabold text-[#F5F5F7] uppercase tracking-wide truncate" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           <p className="text-xs text-[#6E6E73] truncate" style={{ fontFamily: 'var(--font-ad-body)' }}>{description}</p>
         </div>
         <div className="px-3 py-2 border-t border-white/[0.06] flex items-center justify-between">
@@ -234,11 +234,11 @@ function AdMockup({ format, image, copy, facilityName }: {
           <div className="absolute top-1 left-1 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded">Ad</div>
         </div>
         <div className="p-3 space-y-1.5">
-          <p className="text-sm font-bold leading-tight text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
-          <p className="text-[11px] text-[#6E6E73] line-clamp-2">{description || primaryText}</p>
+          <p className="text-base font-extrabold leading-tight text-[#F5F5F7] uppercase tracking-wide" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <p className="text-[11px] text-[#6E6E73] line-clamp-2" style={{ fontFamily: 'var(--font-ad-body)' }}>{description || primaryText}</p>
           <div className="flex items-center justify-between pt-1">
             <span className="text-[10px] text-[#6E6E73]">{facilityName}</span>
-            <button className="bg-[#3B82F6] text-white text-[10px] font-semibold px-3 py-1 rounded" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</button>
+            <button className="bg-[#3B82F6] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</button>
           </div>
         </div>
       </div>
