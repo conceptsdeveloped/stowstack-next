@@ -82,6 +82,15 @@ interface AdVariation {
   status: string;
   feedback: string | null;
   version: number;
+  compliance_status: string | null;
+  compliance_flags: ComplianceFlag[] | null;
+}
+
+interface ComplianceFlag {
+  severity: "warning" | "violation";
+  rule: string;
+  detail: string;
+  field: string;
 }
 
 type GenerationPlatform =
@@ -199,7 +208,7 @@ function VariationActions({
       {v.status !== "approved" && (
         <button
           onClick={onApprove}
-          disabled={saving}
+          disabled={saving || v.compliance_status === "failed"}
           className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-40 transition-colors"
         >
           {saving ? "..." : "Approve"}
@@ -318,6 +327,19 @@ function MetaVariationCard({
           >
             {v.status}
           </span>
+          {v.compliance_status && (
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                v.compliance_status === "passed"
+                  ? "bg-emerald-500/10 text-emerald-400"
+                  : v.compliance_status === "flagged"
+                    ? "bg-amber-500/10 text-amber-400"
+                    : "bg-red-500/10 text-red-400"
+              }`}
+            >
+              {v.compliance_status === "passed" ? "✓ Compliant" : v.compliance_status === "flagged" ? "⚠ Review" : "✕ Violation"}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-[#6E6E73]">v{v.version}</span>
@@ -480,6 +502,31 @@ function MetaVariationCard({
               <p className="text-[11px] text-[#6E6E73] px-1">
                 <span className="text-[#A1A1A6] font-medium">Targeting:</span> {content.targetingNote}
               </p>
+            )}
+
+            {v.compliance_flags && v.compliance_flags.length > 0 && (
+              <div className={`p-3 rounded-lg border text-sm ${
+                v.compliance_status === "failed"
+                  ? "bg-red-500/5 border-red-500/20"
+                  : "bg-amber-500/5 border-amber-500/20"
+              }`}>
+                <p className={`font-medium text-xs uppercase tracking-wide mb-2 ${
+                  v.compliance_status === "failed" ? "text-red-400" : "text-amber-400"
+                }`}>
+                  {v.compliance_status === "failed" ? "Policy Violations" : "Compliance Review Needed"}
+                </p>
+                <ul className="space-y-1.5">
+                  {v.compliance_flags.map((flag, i) => (
+                    <li key={i} className="text-xs">
+                      <span className={`font-medium ${flag.severity === "violation" ? "text-red-300" : "text-amber-300"}`}>
+                        {flag.rule}
+                      </span>
+                      <span className="text-[#A1A1A6]"> ({flag.field}): </span>
+                      <span className="text-[#6E6E73]">{flag.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
 
             {v.feedback && (

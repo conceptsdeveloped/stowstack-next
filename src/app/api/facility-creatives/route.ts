@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
+import { validateCompliance } from "@/lib/compliance";
 
 export const maxDuration = 60;
 
@@ -434,6 +435,18 @@ async function insertVariations(
   const inserted = [];
   for (const v of variations) {
     const angle = (v.angle as string) || (v.name as string) || platform;
+
+    // Run compliance check
+    let complianceStatus: string | null = null;
+    let complianceFlags: unknown = null;
+    try {
+      const result = await validateCompliance(v, platform);
+      complianceStatus = result.status;
+      complianceFlags = result.flags.length > 0 ? result.flags : null;
+    } catch {
+      // Non-fatal
+    }
+
     const row = await db.ad_variations.create({
       data: {
         facility_id: facilityId,
@@ -444,6 +457,8 @@ async function insertVariations(
         content_json: v as any,
         status: "draft",
         version: nextVersion,
+        compliance_status: complianceStatus,
+        compliance_flags: complianceFlags as any,
       },
     });
     inserted.push(row);
@@ -539,6 +554,7 @@ export async function POST(req: NextRequest) {
     if (platforms.includes("google_search")) {
       generators.push(
         generateGoogleRSA(context, feedback, apiKey).then(async (parsed) => {
+          const compliance = await validateCompliance(parsed.adGroup || parsed, "google_search").catch(() => ({ status: "passed" as const, flags: [] }));
           const row = await db.ad_variations.create({
             data: {
               facility_id: facilityId,
@@ -549,6 +565,8 @@ export async function POST(req: NextRequest) {
               content_json: parsed.adGroup as any,
               status: "draft",
               version: nextVersion,
+              compliance_status: compliance.status,
+              compliance_flags: compliance.flags.length > 0 ? (compliance.flags as any) : null,
             },
           });
           resultData.variations.push(row);
@@ -580,6 +598,7 @@ export async function POST(req: NextRequest) {
     if (platforms.includes("email_drip")) {
       generators.push(
         generateEmailDrip(context, feedback, apiKey).then(async (parsed) => {
+          const compliance = await validateCompliance(parsed, "sms").catch(() => ({ status: "passed" as const, flags: [] }));
           const row = await db.ad_variations.create({
             data: {
               facility_id: facilityId,
@@ -590,6 +609,8 @@ export async function POST(req: NextRequest) {
               content_json: parsed as any,
               status: "draft",
               version: nextVersion,
+              compliance_status: compliance.status,
+              compliance_flags: compliance.flags.length > 0 ? (compliance.flags as any) : null,
             },
           });
           resultData.variations.push(row);
