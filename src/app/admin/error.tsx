@@ -19,7 +19,7 @@ export default function AdminError({
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
       </div>
-      <h2 className="text-lg font-semibold mb-2" style={{ color: "#F5F5F7" }}>
+      <h2 className="text-lg font-semibold mb-2" style={{ color: "#111827" }}>
         Something went wrong
       </h2>
       <p className="text-sm mb-6 max-w-md" style={{ color: "#6E6E73" }}>

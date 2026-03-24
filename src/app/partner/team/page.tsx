@@ -29,7 +29,7 @@ const ROLE_LABELS: Record<string, string> = {
 const ROLE_COLORS: Record<string, string> = {
   org_admin: "bg-purple-500/10 text-purple-400",
   facility_manager: "bg-blue-500/10 text-blue-400",
-  viewer: "bg-white/[0.06] text-[#6E6E73]",
+  viewer: "bg-black/[0.04] text-[#9CA3AF]",
 };
 
 export default function TeamPage() {
@@ -107,7 +107,7 @@ export default function TeamPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#6E6E73]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
       </div>
     );
   }
@@ -117,13 +117,13 @@ export default function TeamPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[#A1A1A6]">
+        <h2 className="text-sm font-semibold text-[#6B7280]">
           {users.length} {users.length === 1 ? "member" : "members"}
         </h2>
         {isAdmin && (
           <button
             onClick={() => setShowInvite(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]"
+            className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-3 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB]"
           >
             <UserPlus className="h-4 w-4" />
             Invite Member
@@ -134,10 +134,10 @@ export default function TeamPage() {
       {showInvite && (
         <form
           onSubmit={invite}
-          className="rounded-xl border border-white/[0.06] bg-[#111111] p-5"
+          className="rounded-xl border border-black/[0.08] bg-white p-5"
         >
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#F5F5F7]">
+            <h3 className="text-sm font-semibold text-[#111827]">
               Invite Team Member
             </h3>
             <button
@@ -146,7 +146,7 @@ export default function TeamPage() {
                 setShowInvite(false);
                 setError("");
               }}
-              className="text-[#6E6E73] hover:text-[#A1A1A6]"
+              className="text-[#9CA3AF] hover:text-[#6B7280]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -157,19 +157,19 @@ export default function TeamPage() {
               placeholder="Name"
               value={inviteName}
               onChange={(e) => setInviteName(e.target.value)}
-              className="rounded-lg border border-white/[0.06] bg-[#1A1A1A] px-4 py-2.5 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none focus:border-[#3B82F6]"
+              className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
             />
             <input
               type="email"
               placeholder="Email"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
-              className="rounded-lg border border-white/[0.06] bg-[#1A1A1A] px-4 py-2.5 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none focus:border-[#3B82F6]"
+              className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
             />
             <select
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
-              className="rounded-lg border border-white/[0.06] bg-[#1A1A1A] px-4 py-2.5 text-sm text-[#F5F5F7] outline-none focus:border-[#3B82F6]"
+              className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] outline-none focus:border-[#3B82F6]"
             >
               <option value="viewer">Viewer</option>
               <option value="facility_manager">Manager</option>
@@ -180,7 +180,7 @@ export default function TeamPage() {
           <button
             type="submit"
             disabled={inviting || !inviteName.trim() || !inviteEmail.trim()}
-            className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+            className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
           >
             {inviting ? (
               <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -192,10 +192,10 @@ export default function TeamPage() {
       )}
 
       {users.length === 0 ? (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] py-16 text-center">
-          <UserPlus className="mx-auto mb-3 h-8 w-8 text-[#6E6E73]" />
-          <p className="text-sm text-[#A1A1A6]">No team members yet</p>
-          <p className="mt-1 text-xs text-[#6E6E73]">
+        <div className="rounded-xl border border-black/[0.08] bg-white py-16 text-center">
+          <UserPlus className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
+          <p className="text-sm text-[#6B7280]">No team members yet</p>
+          <p className="mt-1 text-xs text-[#9CA3AF]">
             Invite your first team member to get started
           </p>
         </div>
@@ -204,10 +204,10 @@ export default function TeamPage() {
           {users.map((u) => (
             <div
               key={u.id}
-              className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-[#111111] p-4"
+              className="flex items-center justify-between rounded-xl border border-black/[0.08] bg-white p-4"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.06] text-xs font-bold text-[#A1A1A6]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.04] text-xs font-bold text-[#6B7280]">
                   {u.name
                     .split(" ")
                     .map((w) => w[0])
@@ -217,7 +217,7 @@ export default function TeamPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-[#F5F5F7]">
+                    <span className="text-sm font-medium text-[#111827]">
                       {u.name}
                     </span>
                     <span
@@ -231,7 +231,7 @@ export default function TeamPage() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-0.5 flex items-center gap-3 text-xs text-[#6E6E73]">
+                  <div className="mt-0.5 flex items-center gap-3 text-xs text-[#9CA3AF]">
                     <span className="flex items-center gap-1">
                       <Mail className="h-3 w-3" />
                       {u.email}
@@ -248,7 +248,7 @@ export default function TeamPage() {
               {isAdmin && session && u.id !== session.user.id && (
                 <button
                   onClick={() => removeUser(u.id)}
-                  className="rounded-lg p-2 text-[#6E6E73] transition-colors hover:bg-red-500/10 hover:text-red-400"
+                  className="rounded-lg p-2 text-[#9CA3AF] transition-colors hover:bg-red-500/10 hover:text-red-400"
                   title="Remove user"
                 >
                   <Trash2 className="h-4 w-4" />

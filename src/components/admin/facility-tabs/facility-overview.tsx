@@ -183,7 +183,7 @@ const BUDGET_TIER_COLORS: Record<string, string> = {
   growth: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
   steady: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
   optimize: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
-  maintain: "bg-white/[0.06] text-[#A1A1A6] border border-white/[0.06]",
+  maintain: "bg-black/[0.04] text-[#6B7280] border border-black/[0.08]",
 }
 
 const OCCUPANCY_OPTIONS = [
@@ -220,7 +220,7 @@ function StarRating({ rating }: { rating: number }) {
         <Star key={i} size={12} fill="currentColor" />
       ))}
       {half && <Star size={12} fill="currentColor" className="opacity-50" />}
-      <span className="ml-1 text-[#F5F5F7]">{rating}</span>
+      <span className="ml-1 text-[#111827]">{rating}</span>
     </span>
   )
 }
@@ -237,16 +237,16 @@ function PhotoWithFallback({
   )
 
   return (
-    <div className="relative w-40 h-28 flex-shrink-0 overflow-hidden rounded-lg bg-[#111111]">
+    <div className="relative w-40 h-28 flex-shrink-0 overflow-hidden rounded-lg bg-white">
       {status === "loading" && (
-        <div className="absolute inset-0 bg-white/[0.04] animate-pulse flex items-center justify-center">
-          <ImageIcon size={16} className="text-[#6E6E73]" />
+        <div className="absolute inset-0 bg-black/[0.03] animate-pulse flex items-center justify-center">
+          <ImageIcon size={16} className="text-[#9CA3AF]" />
         </div>
       )}
       {status === "error" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-          <ImageOff size={16} className="text-[#6E6E73]" />
-          <span className="text-[10px] text-[#6E6E73]">Failed</span>
+          <ImageOff size={16} className="text-[#9CA3AF]" />
+          <span className="text-[10px] text-[#9CA3AF]">Failed</span>
         </div>
       )}
       <img
@@ -287,23 +287,23 @@ function CollapsibleSection({
 }) {
   const isOpen = expandedSection === id
   return (
-    <div className="border border-white/[0.06] rounded-lg overflow-hidden">
+    <div className="border border-black/[0.08] rounded-lg overflow-hidden">
       <button
         onClick={() => onToggle(id)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
+        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-black/[0.03] transition-colors"
       >
-        <Icon size={14} className="text-[#6E6E73]" />
-        <span className="text-sm font-medium flex-1 text-[#F5F5F7]">
+        <Icon size={14} className="text-[#9CA3AF]" />
+        <span className="text-sm font-medium flex-1 text-[#111827]">
           {title}
         </span>
         {isOpen ? (
-          <ChevronUp size={14} className="text-[#6E6E73]" />
+          <ChevronUp size={14} className="text-[#9CA3AF]" />
         ) : (
-          <ChevronDown size={14} className="text-[#6E6E73]" />
+          <ChevronDown size={14} className="text-[#9CA3AF]" />
         )}
       </button>
       {isOpen && (
-        <div className="px-4 pb-4 border-t border-white/[0.06]">
+        <div className="px-4 pb-4 border-t border-black/[0.08]">
           {children}
         </div>
       )}
@@ -574,18 +574,18 @@ export default function FacilityOverview({
       {/* ================================================================= */}
       {/* FACILITY INFO CARD — editable                                     */}
       {/* ================================================================= */}
-      <div className="border border-white/[0.06] rounded-xl bg-[#111111]">
+      <div className="border border-black/[0.08] rounded-xl bg-white">
         <div className="px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 size={14} className="text-[#3B82F6]" />
-            <h4 className="text-sm font-semibold text-[#F5F5F7]">
+            <h4 className="text-sm font-semibold text-[#111827]">
               {facility.name}
             </h4>
           </div>
           {!editing ? (
             <button
               onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 text-xs text-[#A1A1A6] hover:text-[#F5F5F7] transition-colors"
+              className="flex items-center gap-1.5 text-xs text-[#6B7280] hover:text-[#111827] transition-colors"
             >
               <Edit3 size={11} /> Edit
             </button>
@@ -594,7 +594,7 @@ export default function FacilityOverview({
               <button
                 onClick={saveFacilityEdits}
                 disabled={saving}
-                className="flex items-center gap-1 px-3 py-1 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#2563EB] disabled:opacity-40 transition-colors"
+                className="flex items-center gap-1 px-3 py-1 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#E5E7EB] disabled:opacity-40 transition-colors"
               >
                 {saving ? (
                   <Loader2 size={11} className="animate-spin" />
@@ -605,7 +605,7 @@ export default function FacilityOverview({
               </button>
               <button
                 onClick={() => setEditing(false)}
-                className="flex items-center gap-1 px-3 py-1 text-xs text-[#A1A1A6] hover:text-[#F5F5F7] transition-colors"
+                className="flex items-center gap-1 px-3 py-1 text-xs text-[#6B7280] hover:text-[#111827] transition-colors"
               >
                 <X size={11} /> Cancel
               </button>
@@ -613,12 +613,12 @@ export default function FacilityOverview({
           )}
         </div>
 
-        <div className="px-5 pb-5 border-t border-white/[0.06]">
+        <div className="px-5 pb-5 border-t border-black/[0.08]">
           {editing ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm pt-4">
               {/* Contact column */}
               <div className="space-y-2">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[#6E6E73]">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-[#9CA3AF]">
                   Contact
                 </p>
                 <input
@@ -627,7 +627,7 @@ export default function FacilityOverview({
                     setEditFields((f) => ({ ...f, name: e.target.value }))
                   }
                   placeholder="Facility name"
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 />
                 <input
                   value={editFields.contact_name}
@@ -638,7 +638,7 @@ export default function FacilityOverview({
                     }))
                   }
                   placeholder="Contact name"
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 />
                 <input
                   value={editFields.contact_email}
@@ -650,7 +650,7 @@ export default function FacilityOverview({
                   }
                   placeholder="Email"
                   type="email"
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 />
                 <input
                   value={editFields.contact_phone}
@@ -661,13 +661,13 @@ export default function FacilityOverview({
                     }))
                   }
                   placeholder="Phone"
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 />
               </div>
 
               {/* Facility info column */}
               <div className="space-y-2">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[#6E6E73]">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-[#9CA3AF]">
                   Facility Info
                 </p>
                 <input
@@ -676,7 +676,7 @@ export default function FacilityOverview({
                     setEditFields((f) => ({ ...f, website: e.target.value }))
                   }
                   placeholder="Website URL"
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 />
                 <input
                   value={editFields.google_address}
@@ -687,7 +687,7 @@ export default function FacilityOverview({
                     }))
                   }
                   placeholder="Google address"
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 />
                 <select
                   value={editFields.occupancy_range}
@@ -697,7 +697,7 @@ export default function FacilityOverview({
                       occupancy_range: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 >
                   {OCCUPANCY_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
@@ -715,13 +715,13 @@ export default function FacilityOverview({
                   }
                   placeholder="Total units"
                   type="number"
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 />
               </div>
 
               {/* Challenge column */}
               <div className="space-y-2">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[#6E6E73]">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-[#9CA3AF]">
                   Challenge
                 </p>
                 <select
@@ -732,7 +732,7 @@ export default function FacilityOverview({
                       biggest_issue: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 >
                   {BIGGEST_ISSUE_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
@@ -751,7 +751,7 @@ export default function FacilityOverview({
                   }
                   rows={3}
                   placeholder="Notes about this facility..."
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors resize-none"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors resize-none"
                 />
               </div>
             </div>
@@ -759,27 +759,27 @@ export default function FacilityOverview({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm pt-4">
               {/* Contact display */}
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[#6E6E73] mb-2">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-[#9CA3AF] mb-2">
                   Contact
                 </p>
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <User size={12} className="text-[#6E6E73]" />
-                    <p className="text-[#F5F5F7]">
+                    <User size={12} className="text-[#9CA3AF]" />
+                    <p className="text-[#111827]">
                       {facility.contact_name || (
-                        <span className="text-[#6E6E73]">--</span>
+                        <span className="text-[#9CA3AF]">--</span>
                       )}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail size={12} className="text-[#6E6E73]" />
-                    <p className="text-[#A1A1A6]">
+                    <Mail size={12} className="text-[#9CA3AF]" />
+                    <p className="text-[#6B7280]">
                       {facility.contact_email || "--"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Phone size={12} className="text-[#6E6E73]" />
-                    <p className="text-[#A1A1A6]">
+                    <Phone size={12} className="text-[#9CA3AF]" />
+                    <p className="text-[#6B7280]">
                       {facility.contact_phone || "--"}
                     </p>
                   </div>
@@ -788,17 +788,17 @@ export default function FacilityOverview({
 
               {/* Facility info display */}
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[#6E6E73] mb-2">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-[#9CA3AF] mb-2">
                   Facility Info
                 </p>
                 <div className="space-y-1.5">
-                  <p className="text-[#F5F5F7]">
+                  <p className="text-[#111827]">
                     Occupancy: {facility.occupancy_range || "--"}
                   </p>
-                  <p className="text-[#F5F5F7]">
+                  <p className="text-[#111827]">
                     Units: {facility.total_units || "--"}
                   </p>
-                  <p className="text-[#F5F5F7]">
+                  <p className="text-[#111827]">
                     Issue:{" "}
                     {facility.biggest_issue
                       ? BIGGEST_ISSUE_OPTIONS.find(
@@ -811,13 +811,13 @@ export default function FacilityOverview({
 
               {/* Google data display */}
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[#6E6E73] mb-2">
+                <p className="text-[10px] font-medium uppercase tracking-wider text-[#9CA3AF] mb-2">
                   Google Data
                 </p>
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <MapPin size={12} className="text-[#6E6E73]" />
-                    <p className="text-[#A1A1A6] text-xs">
+                    <MapPin size={12} className="text-[#9CA3AF]" />
+                    <p className="text-[#6B7280] text-xs">
                       {facility.google_address || "--"}
                     </p>
                   </div>
@@ -825,14 +825,14 @@ export default function FacilityOverview({
                     <StarRating rating={facility.google_rating} />
                   )}
                   {facility.review_count != null && (
-                    <p className="text-xs text-[#A1A1A6]">
+                    <p className="text-xs text-[#6B7280]">
                       {facility.review_count} reviews
                     </p>
                   )}
                   {facility.google_phone && (
                     <div className="flex items-center gap-2">
-                      <Phone size={12} className="text-[#6E6E73]" />
-                      <p className="text-xs text-[#A1A1A6]">
+                      <Phone size={12} className="text-[#9CA3AF]" />
+                      <p className="text-xs text-[#6B7280]">
                         {facility.google_phone}
                       </p>
                     </div>
@@ -867,10 +867,10 @@ export default function FacilityOverview({
               {/* Notes display */}
               {facility.notes && (
                 <div className="sm:col-span-3">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-[#6E6E73] mb-1">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-[#9CA3AF] mb-1">
                     Notes
                   </p>
-                  <p className="text-sm text-[#F5F5F7]">{facility.notes}</p>
+                  <p className="text-sm text-[#111827]">{facility.notes}</p>
                 </div>
               )}
             </div>
@@ -882,14 +882,14 @@ export default function FacilityOverview({
       {/* GOOGLE PLACES PHOTO GALLERY                                       */}
       {/* ================================================================= */}
       {googlePhotos.length > 0 && (
-        <div className="border border-white/[0.06] rounded-xl bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl bg-white">
           <div className="px-5 py-4">
             <div className="flex items-center gap-2">
               <ImageIcon size={14} className="text-[#3B82F6]" />
-              <h4 className="text-sm font-semibold text-[#F5F5F7]">
+              <h4 className="text-sm font-semibold text-[#111827]">
                 Google Photos
               </h4>
-              <span className="text-[10px] text-[#6E6E73]">
+              <span className="text-[10px] text-[#9CA3AF]">
                 ({googlePhotos.length})
               </span>
             </div>
@@ -915,14 +915,14 @@ export default function FacilityOverview({
       {/* GOOGLE REVIEWS                                                    */}
       {/* ================================================================= */}
       {googleReviews.length > 0 && (
-        <div className="border border-white/[0.06] rounded-xl bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl bg-white">
           <div className="px-5 py-4">
             <div className="flex items-center gap-2">
               <Star size={14} className="text-amber-400" />
-              <h4 className="text-sm font-semibold text-[#F5F5F7]">
+              <h4 className="text-sm font-semibold text-[#111827]">
                 Top Reviews
               </h4>
-              <span className="text-[10px] text-[#6E6E73]">
+              <span className="text-[10px] text-[#9CA3AF]">
                 ({googleReviews.length})
               </span>
             </div>
@@ -931,7 +931,7 @@ export default function FacilityOverview({
             {googleReviews.slice(0, 5).map((review, i) => (
               <div
                 key={i}
-                className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]"
+                className="p-3 rounded-lg bg-black/[0.02] border border-black/[0.06]"
               >
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="inline-flex items-center gap-0.5 text-amber-400">
@@ -939,17 +939,17 @@ export default function FacilityOverview({
                       <Star key={j} size={10} fill="currentColor" />
                     ))}
                   </span>
-                  <span className="text-xs font-medium text-[#F5F5F7]">
+                  <span className="text-xs font-medium text-[#111827]">
                     {review.author_name}
                   </span>
                   {review.relative_time_description && (
-                    <span className="text-[10px] text-[#6E6E73]">
+                    <span className="text-[10px] text-[#9CA3AF]">
                       {review.relative_time_description}
                     </span>
                   )}
                 </div>
                 {review.text && (
-                  <p className="text-xs text-[#A1A1A6] leading-relaxed line-clamp-3">
+                  <p className="text-xs text-[#6B7280] leading-relaxed line-clamp-3">
                     {review.text}
                   </p>
                 )}
@@ -963,20 +963,20 @@ export default function FacilityOverview({
       {/* MARKET INTELLIGENCE PREVIEW                                       */}
       {/* ================================================================= */}
       {competitorCount !== null && (
-        <div className="border border-white/[0.06] rounded-xl bg-[#111111] px-5 py-4">
+        <div className="border border-black/[0.08] rounded-xl bg-white px-5 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Target size={14} className="text-[#3B82F6]" />
-              <h4 className="text-sm font-semibold text-[#F5F5F7]">
+              <h4 className="text-sm font-semibold text-[#111827]">
                 Market Intelligence
               </h4>
             </div>
-            <span className="text-xs text-[#A1A1A6]">
+            <span className="text-xs text-[#6B7280]">
               {competitorCount} competitor{competitorCount !== 1 ? "s" : ""}{" "}
               found
             </span>
           </div>
-          <p className="text-xs text-[#6E6E73] mt-1">
+          <p className="text-xs text-[#9CA3AF] mt-1">
             View the Market Intel tab for full competitor analysis, demand
             drivers, and demographics.
           </p>
@@ -986,23 +986,23 @@ export default function FacilityOverview({
       {/* ================================================================= */}
       {/* CONTEXT DOCUMENTS                                                 */}
       {/* ================================================================= */}
-      <div className="border border-white/[0.06] rounded-xl bg-[#111111]">
+      <div className="border border-black/[0.08] rounded-xl bg-white">
         <div className="px-5 py-4 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
               <FileText size={14} className="text-[#3B82F6]" />
-              <h4 className="text-sm font-semibold text-[#F5F5F7]">
+              <h4 className="text-sm font-semibold text-[#111827]">
                 Business Context
               </h4>
             </div>
-            <p className="text-xs text-[#6E6E73] mt-0.5">
+            <p className="text-xs text-[#9CA3AF] mt-0.5">
               Upload competitor info, pricing sheets, branding docs — anything
               that informs the marketing strategy
             </p>
           </div>
           <button
             onClick={() => setAddingDoc(!addingDoc)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#2563EB] transition-colors flex-shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#E5E7EB] transition-colors flex-shrink-0"
           >
             <Plus size={12} /> Add Context
           </button>
@@ -1010,16 +1010,16 @@ export default function FacilityOverview({
 
         {/* Add new doc form */}
         {addingDoc && (
-          <div className="px-5 pb-4 space-y-3 border-t border-white/[0.06]">
+          <div className="px-5 pb-4 space-y-3 border-t border-black/[0.08]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
               <div>
-                <label className="text-xs text-[#6E6E73] block mb-1">
+                <label className="text-xs text-[#9CA3AF] block mb-1">
                   Type
                 </label>
                 <select
                   value={newDocType}
                   onChange={(e) => setNewDocType(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 >
                   {CONTEXT_TYPES.map((t) => (
                     <option key={t.id} value={t.id}>
@@ -1029,19 +1029,19 @@ export default function FacilityOverview({
                 </select>
               </div>
               <div>
-                <label className="text-xs text-[#6E6E73] block mb-1">
+                <label className="text-xs text-[#9CA3AF] block mb-1">
                   Title
                 </label>
                 <input
                   value={newDocTitle}
                   onChange={(e) => setNewDocTitle(e.target.value)}
                   placeholder="e.g., Local competitor analysis"
-                  className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
                 />
               </div>
             </div>
             <div>
-              <label className="text-xs text-[#6E6E73] block mb-1">
+              <label className="text-xs text-[#9CA3AF] block mb-1">
                 Content
               </label>
               <textarea
@@ -1049,20 +1049,20 @@ export default function FacilityOverview({
                 onChange={(e) => setNewDocContent(e.target.value)}
                 rows={4}
                 placeholder="Paste competitor info, pricing details, market notes, branding guidelines, or any business context that should inform the marketing plan..."
-                className="w-full px-3 py-2 bg-[#0A0A0A] border border-white/[0.06] rounded-lg text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 transition-colors resize-none"
+                className="w-full px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 transition-colors resize-none"
               />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={addContextDoc}
                 disabled={!newDocTitle.trim()}
-                className="px-4 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#2563EB] disabled:opacity-40 transition-colors"
+                className="px-4 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#E5E7EB] disabled:opacity-40 transition-colors"
               >
                 Save
               </button>
               <button
                 onClick={() => setAddingDoc(false)}
-                className="px-4 py-1.5 text-xs text-[#A1A1A6] hover:text-[#F5F5F7] transition-colors"
+                className="px-4 py-1.5 text-xs text-[#6B7280] hover:text-[#111827] transition-colors"
               >
                 Cancel
               </button>
@@ -1073,26 +1073,26 @@ export default function FacilityOverview({
         {/* Document list */}
         {contextDocs.length > 0 ? (
           <div
-            className={`px-5 pb-4 space-y-2 ${addingDoc ? "" : "border-t border-white/[0.06] pt-3"}`}
+            className={`px-5 pb-4 space-y-2 ${addingDoc ? "" : "border-t border-black/[0.08] pt-3"}`}
           >
             {contextDocs.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-start gap-3 p-3 rounded-lg bg-white/[0.02]"
+                className="flex items-start gap-3 p-3 rounded-lg bg-black/[0.02]"
               >
-                <FileText size={16} className="text-[#6E6E73] mt-0.5" />
+                <FileText size={16} className="text-[#9CA3AF] mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-[#F5F5F7]">
+                    <p className="text-sm font-medium text-[#111827]">
                       {doc.title}
                     </p>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6]">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/[0.04] text-[#6B7280]">
                       {CONTEXT_TYPES.find((t) => t.id === doc.type)?.label ||
                         doc.type}
                     </span>
                   </div>
                   {doc.content && (
-                    <p className="text-xs text-[#6E6E73] mt-1 line-clamp-2">
+                    <p className="text-xs text-[#9CA3AF] mt-1 line-clamp-2">
                       {doc.content}
                     </p>
                   )}
@@ -1113,8 +1113,8 @@ export default function FacilityOverview({
           </div>
         ) : (
           !addingDoc && (
-            <div className="px-5 pb-4 border-t border-white/[0.06] pt-3">
-              <p className="text-xs text-[#6E6E73] text-center py-4">
+            <div className="px-5 pb-4 border-t border-black/[0.08] pt-3">
+              <p className="text-xs text-[#9CA3AF] text-center py-4">
                 No context documents yet. Add competitor info, pricing sheets,
                 or branding guides to improve marketing plan quality.
               </p>
@@ -1126,7 +1126,7 @@ export default function FacilityOverview({
       {/* ================================================================= */}
       {/* SEASONAL PLAYBOOKS                                                */}
       {/* ================================================================= */}
-      <div className="border border-white/[0.06] rounded-xl bg-[#111111]">
+      <div className="border border-black/[0.08] rounded-xl bg-white">
         <button
           onClick={() => setShowPlaybooks(!showPlaybooks)}
           className="w-full px-5 py-4 flex items-center justify-between"
@@ -1134,24 +1134,24 @@ export default function FacilityOverview({
           <div className="text-left">
             <div className="flex items-center gap-2">
               <Calendar size={14} className="text-[#3B82F6]" />
-              <h4 className="text-sm font-semibold text-[#F5F5F7]">
+              <h4 className="text-sm font-semibold text-[#111827]">
                 Seasonal Playbooks
               </h4>
             </div>
-            <p className="text-xs text-[#6E6E73] mt-0.5">
+            <p className="text-xs text-[#9CA3AF] mt-0.5">
               {selectedPlaybooks.length
                 ? `${selectedPlaybooks.length} playbook${selectedPlaybooks.length !== 1 ? "s" : ""} selected`
                 : "Assign seasonal strategies to include in the marketing plan"}
             </p>
           </div>
           {showPlaybooks ? (
-            <ChevronUp size={14} className="text-[#6E6E73]" />
+            <ChevronUp size={14} className="text-[#9CA3AF]" />
           ) : (
-            <ChevronDown size={14} className="text-[#6E6E73]" />
+            <ChevronDown size={14} className="text-[#9CA3AF]" />
           )}
         </button>
         {showPlaybooks && (
-          <div className="px-5 pb-4 border-t border-white/[0.06]">
+          <div className="px-5 pb-4 border-t border-black/[0.08]">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-3">
               {PLAYBOOK_OPTIONS.map((pb) => {
                 const isSelected = selectedPlaybooks.includes(pb.id)
@@ -1162,12 +1162,12 @@ export default function FacilityOverview({
                     className={`text-left px-3 py-2.5 rounded-lg border transition-colors ${
                       isSelected
                         ? "bg-[#3B82F6]/10 text-[#60A5FA] border-[#3B82F6]/30"
-                        : "border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.02] hover:text-[#F5F5F7]"
+                        : "border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
                     }`}
                   >
                     <p className="text-xs font-medium">{pb.label}</p>
                     <p
-                      className={`text-[10px] mt-0.5 ${isSelected ? "text-[#3B82F6]/70" : "text-[#6E6E73]"}`}
+                      className={`text-[10px] mt-0.5 ${isSelected ? "text-[#3B82F6]/70" : "text-[#9CA3AF]"}`}
                     >
                       {pb.description}
                     </p>
@@ -1186,7 +1186,7 @@ export default function FacilityOverview({
         <button
           onClick={generatePlan}
           disabled={generating}
-          className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#3B82F6] text-white text-sm font-semibold rounded-xl hover:bg-[#2563EB] disabled:opacity-40 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#3B82F6] text-white text-sm font-semibold rounded-xl hover:bg-[#E5E7EB] disabled:opacity-40 transition-colors"
         >
           {generating ? (
             <>
@@ -1200,7 +1200,7 @@ export default function FacilityOverview({
             </>
           )}
         </button>
-        <p className="text-[10px] text-[#6E6E73] text-center mt-2">
+        <p className="text-[10px] text-[#9CA3AF] text-center mt-2">
           Uses facility data, business context, reviews, playbooks, and spend
           analysis
         </p>
@@ -1213,7 +1213,7 @@ export default function FacilityOverview({
         <div className="space-y-3">
           {/* Plan header with version selector */}
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#F5F5F7]">
+            <h4 className="text-sm font-semibold text-[#111827]">
               Marketing Plan v{plan.version}
             </h4>
             <div className="flex items-center gap-3">
@@ -1221,7 +1221,7 @@ export default function FacilityOverview({
                 <select
                   value={plan.id}
                   onChange={(e) => selectPlanVersion(e.target.value)}
-                  className="text-[10px] px-2 py-1 bg-[#0A0A0A] border border-white/[0.06] rounded text-[#A1A1A6] focus:outline-none"
+                  className="text-[10px] px-2 py-1 bg-[#F9FAFB] border border-black/[0.08] rounded text-[#6B7280] focus:outline-none"
                 >
                   {allPlans.map((ap) => (
                     <option key={ap.id} value={ap.id}>
@@ -1231,7 +1231,7 @@ export default function FacilityOverview({
                   ))}
                 </select>
               )}
-              <span className="text-[10px] text-[#6E6E73]">
+              <span className="text-[10px] text-[#9CA3AF]">
                 {new Date(plan.created_at).toLocaleDateString()}
               </span>
             </div>
@@ -1239,10 +1239,10 @@ export default function FacilityOverview({
 
           {/* Spend Recommendation Banner */}
           {plan.spend_recommendation && (
-            <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+            <div className="border border-black/[0.08] rounded-xl p-4 bg-white">
               <div className="flex items-center gap-3 mb-3">
                 <DollarSign size={16} className="text-emerald-400" />
-                <h5 className="text-sm font-semibold text-[#F5F5F7]">
+                <h5 className="text-sm font-semibold text-[#111827]">
                   Ad Spend Recommendation
                 </h5>
                 <span
@@ -1257,10 +1257,10 @@ export default function FacilityOverview({
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                 <div>
-                  <p className="text-[10px] uppercase text-[#6E6E73]">
+                  <p className="text-[10px] uppercase text-[#9CA3AF]">
                     Monthly Budget
                   </p>
-                  <p className="text-lg font-bold text-[#F5F5F7]">
+                  <p className="text-lg font-bold text-[#111827]">
                     $
                     {plan.spend_recommendation.monthlyBudget.min.toLocaleString()}{" "}
                     - $
@@ -1270,10 +1270,10 @@ export default function FacilityOverview({
                 {Object.entries(plan.spend_recommendation.channels).map(
                   ([ch, pct]) => (
                     <div key={ch}>
-                      <p className="text-[10px] uppercase text-[#6E6E73]">
+                      <p className="text-[10px] uppercase text-[#9CA3AF]">
                         {ch.replace(/_/g, " ")}
                       </p>
-                      <p className="text-sm font-semibold text-[#F5F5F7]">
+                      <p className="text-sm font-semibold text-[#111827]">
                         {pct}%
                       </p>
                     </div>
@@ -1284,7 +1284,7 @@ export default function FacilityOverview({
                 <div className="space-y-1">
                   {plan.spend_recommendation.reasoning.map(
                     (r: string, i: number) => (
-                      <p key={i} className="text-xs text-[#A1A1A6]">
+                      <p key={i} className="text-xs text-[#6B7280]">
                         &bull; {r}
                       </p>
                     )
@@ -1297,7 +1297,7 @@ export default function FacilityOverview({
           {/* Summary */}
           {p.summary && (
             <div className="p-4 rounded-xl bg-[#3B82F6]/5 border border-[#3B82F6]/20">
-              <p className="text-sm text-[#F5F5F7] leading-relaxed">
+              <p className="text-sm text-[#111827] leading-relaxed">
                 {p.summary}
               </p>
             </div>
@@ -1312,7 +1312,7 @@ export default function FacilityOverview({
               expandedSection={expandedSection}
               onToggle={toggleSection}
             >
-              <p className="text-sm text-[#F5F5F7] mt-3 leading-relaxed">
+              <p className="text-sm text-[#111827] mt-3 leading-relaxed">
                 {p.bottleneck_analysis}
               </p>
             </CollapsibleSection>
@@ -1331,7 +1331,7 @@ export default function FacilityOverview({
                 {p.strategic_rationale.map((r, i) => (
                   <p
                     key={i}
-                    className="text-sm text-[#F5F5F7] leading-relaxed"
+                    className="text-sm text-[#111827] leading-relaxed"
                   >
                     {r}
                   </p>
@@ -1353,23 +1353,23 @@ export default function FacilityOverview({
                 {p.target_audiences.map((a, i) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]"
+                    className="p-3 rounded-lg bg-black/[0.02] border border-black/[0.06]"
                   >
-                    <p className="text-sm font-semibold text-[#F5F5F7]">
+                    <p className="text-sm font-semibold text-[#111827]">
                       {a.segment}
                     </p>
-                    <p className="text-xs text-[#A1A1A6] mt-1">
+                    <p className="text-xs text-[#6B7280] mt-1">
                       {a.description}
                     </p>
-                    <p className="text-xs text-[#F5F5F7] mt-1">
-                      <span className="text-[#6E6E73]">Angle:</span>{" "}
+                    <p className="text-xs text-[#111827] mt-1">
+                      <span className="text-[#9CA3AF]">Angle:</span>{" "}
                       {a.messaging_angle}
                     </p>
                     <div className="flex gap-1 mt-1.5 flex-wrap">
                       {a.channels.map((ch) => (
                         <span
                           key={ch}
-                          className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6]"
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-black/[0.04] text-[#6B7280]"
                         >
                           {ch}
                         </span>
@@ -1394,15 +1394,15 @@ export default function FacilityOverview({
                 {p.messaging_pillars.map((m, i) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]"
+                    className="p-3 rounded-lg bg-black/[0.02] border border-black/[0.06]"
                   >
-                    <p className="text-sm font-semibold text-[#F5F5F7]">
+                    <p className="text-sm font-semibold text-[#111827]">
                       {m.pillar}
                     </p>
-                    <p className="text-xs text-[#A1A1A6] mt-1">
+                    <p className="text-xs text-[#6B7280] mt-1">
                       {m.rationale}
                     </p>
-                    <p className="text-xs italic text-[#F5F5F7] mt-1">
+                    <p className="text-xs italic text-[#111827] mt-1">
                       &ldquo;{m.example_headline}&rdquo;
                     </p>
                   </div>
@@ -1424,18 +1424,18 @@ export default function FacilityOverview({
                 {p.channel_strategy.map((ch, i) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]"
+                    className="p-3 rounded-lg bg-black/[0.02] border border-black/[0.06]"
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-semibold text-[#F5F5F7]">
+                      <p className="text-sm font-semibold text-[#111827]">
                         {ch.channel}
                       </p>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#3B82F6]/10 text-[#60A5FA] font-semibold">
                         {ch.budget_pct}%
                       </span>
                     </div>
-                    <p className="text-xs text-[#A1A1A6]">{ch.objective}</p>
-                    <ul className="text-xs text-[#F5F5F7] mt-1.5 space-y-0.5">
+                    <p className="text-xs text-[#6B7280]">{ch.objective}</p>
+                    <ul className="text-xs text-[#111827] mt-1.5 space-y-0.5">
                       {ch.tactics.map((t, j) => (
                         <li key={j}>&bull; {t}</li>
                       ))}
@@ -1459,15 +1459,15 @@ export default function FacilityOverview({
                 {p.content_calendar.map((w, i) => (
                   <div
                     key={i}
-                    className="flex gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]"
+                    className="flex gap-3 p-3 rounded-lg bg-black/[0.02] border border-black/[0.06]"
                   >
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.04]">
-                      <span className="text-xs font-bold text-[#F5F5F7]">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-black/[0.03]">
+                      <span className="text-xs font-bold text-[#111827]">
                         W{w.week}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[#F5F5F7]">
+                      <p className="text-sm font-semibold text-[#111827]">
                         {w.focus}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-1">
@@ -1500,15 +1500,15 @@ export default function FacilityOverview({
                 {p.kpis.map((kpi, i) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg text-center bg-white/[0.02] border border-white/[0.04]"
+                    className="p-3 rounded-lg text-center bg-black/[0.02] border border-black/[0.06]"
                   >
-                    <p className="text-lg font-bold text-[#F5F5F7]">
+                    <p className="text-lg font-bold text-[#111827]">
                       {kpi.target}
                     </p>
-                    <p className="text-[10px] uppercase text-[#6E6E73]">
+                    <p className="text-[10px] uppercase text-[#9CA3AF]">
                       {kpi.metric}
                     </p>
-                    <p className="text-[10px] text-[#6E6E73]">
+                    <p className="text-[10px] text-[#9CA3AF]">
                       {kpi.timeframe}
                     </p>
                   </div>
@@ -1530,7 +1530,7 @@ export default function FacilityOverview({
                 {p.quick_wins.map((win, i) => (
                   <div
                     key={i}
-                    className="flex items-start gap-2 text-sm text-[#F5F5F7]"
+                    className="flex items-start gap-2 text-sm text-[#111827]"
                   >
                     <Zap
                       size={12}

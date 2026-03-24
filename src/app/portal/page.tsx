@@ -83,22 +83,22 @@ function WelcomeBanner() {
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-gradient-to-br from-[#3B82F6]/[0.08] to-transparent p-5">
+    <div className="rounded-xl border border-black/[0.08] bg-gradient-to-br from-[#3B82F6]/[0.08] to-transparent p-5">
       <h1 className="text-xl font-bold tracking-tight">
         {greeting}, {firstName(client.name)}
       </h1>
-      <p className="mt-1 text-sm text-[#A1A1A6]">
+      <p className="mt-1 text-sm text-[#6B7280]">
         Here is what is happening at {client.facilityName}
       </p>
       {stats && (
         <div className="mt-4 flex gap-6">
           <div>
             <p className="text-2xl font-bold">{fmt(stats.leads)}</p>
-            <p className="text-xs text-[#6E6E73]">Total Leads (90d)</p>
+            <p className="text-xs text-[#9CA3AF]">Total Leads (90d)</p>
           </div>
           <div>
             <p className="text-2xl font-bold">{fmt(stats.moveIns)}</p>
-            <p className="text-xs text-[#6E6E73]">Move-Ins (90d)</p>
+            <p className="text-xs text-[#9CA3AF]">Move-Ins (90d)</p>
           </div>
         </div>
       )}
@@ -141,13 +141,13 @@ function OnboardingProgress() {
           <ClipboardCheck className="h-4 w-4 text-amber-400" />
           <h2 className="text-sm font-semibold">Onboarding</h2>
         </div>
-        <span className="text-xs text-[#A1A1A6]">{completedSteps}/{totalSteps} steps</span>
+        <span className="text-xs text-[#6B7280]">{completedSteps}/{totalSteps} steps</span>
       </div>
-      <div className="mb-3 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="mb-3 h-2 overflow-hidden rounded-full bg-black/[0.04]">
         <div className="h-full rounded-full bg-amber-400 transition-all duration-500" style={{ width: `${data.completionPct}%` }} />
       </div>
       <div className="flex items-center justify-between">
-        <p className="text-xs text-[#6E6E73]">{data.completionPct}% complete</p>
+        <p className="text-xs text-[#9CA3AF]">{data.completionPct}% complete</p>
         <a href="/portal/onboarding" className="inline-flex items-center gap-1 text-xs font-medium text-amber-400 hover:text-amber-300">
           Continue Setup <ChevronRight className="h-3 w-3" />
         </a>
@@ -178,7 +178,7 @@ function CampaignGoalProgress() {
   const onTrack = pct >= 50;
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+    <div className="rounded-xl border border-black/[0.08] bg-white p-5">
       <div className="mb-3 flex items-center gap-2">
         <Target className="h-4 w-4 text-[#3B82F6]" />
         <h2 className="text-sm font-semibold">Monthly Goal</h2>
@@ -186,14 +186,14 @@ function CampaignGoalProgress() {
       <div className="mb-2 flex items-end justify-between">
         <div>
           <span className="text-3xl font-bold">{moveIns}</span>
-          <span className="text-lg text-[#6E6E73]"> / {client.monthlyGoal}</span>
+          <span className="text-lg text-[#9CA3AF]"> / {client.monthlyGoal}</span>
         </div>
         <span className={`text-xs font-medium ${onTrack ? "text-green-400" : "text-amber-400"}`}>{pct}%</span>
       </div>
-      <div className="h-2.5 overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="h-2.5 overflow-hidden rounded-full bg-black/[0.04]">
         <div className={`h-full rounded-full transition-all duration-700 ${onTrack ? "bg-green-500" : "bg-amber-500"}`} style={{ width: `${pct}%` }} />
       </div>
-      <p className="mt-2 text-xs text-[#6E6E73]">Move-ins this month toward your target</p>
+      <p className="mt-2 text-xs text-[#9CA3AF]">Move-ins this month toward your target</p>
     </div>
   );
 }
@@ -242,9 +242,9 @@ function CampaignAlerts() {
               <div className="flex items-start gap-3">
                 <div className={`mt-0.5 ${cfg.text}`}>{cfg.icon}</div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-[#F5F5F7]">{alert.title}</p>
-                  <p className="mt-0.5 text-xs text-[#A1A1A6]">{alert.message}</p>
-                  <p className="mt-1 text-[10px] text-[#6E6E73]">{relativeTime(alert.created_at)}</p>
+                  <p className="text-sm font-medium text-[#111827]">{alert.title}</p>
+                  <p className="mt-0.5 text-xs text-[#6B7280]">{alert.message}</p>
+                  <p className="mt-1 text-[10px] text-[#9CA3AF]">{relativeTime(alert.created_at)}</p>
                 </div>
               </div>
             </div>
@@ -297,18 +297,18 @@ function RecentActivity() {
         <Activity className="h-4 w-4 text-[#3B82F6]" />
         <h2 className="text-sm font-semibold">Recent Activity</h2>
       </div>
-      <div className="max-h-96 overflow-y-auto rounded-xl border border-white/[0.06] bg-[#111111]">
+      <div className="max-h-96 overflow-y-auto rounded-xl border border-black/[0.08] bg-white">
         {items.map((item, i) => (
-          <div key={item.id} className={`flex items-start gap-3 px-4 py-3 ${i < items.length - 1 ? "border-b border-white/[0.03]" : ""}`}>
-            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] text-[#A1A1A6]">
+          <div key={item.id} className={`flex items-start gap-3 px-4 py-3 ${i < items.length - 1 ? "border-b border-black/[0.04]" : ""}`}>
+            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-black/[0.04] text-[#6B7280]">
               {typeIcons[item.type] || <Activity className="h-3.5 w-3.5" />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-[#F5F5F7]">{item.label}</p>
-              {item.detail && <p className="mt-0.5 truncate text-xs text-[#6E6E73]">{item.detail}</p>}
-              {item.leadName && <p className="mt-0.5 text-xs text-[#A1A1A6]">{item.leadName}</p>}
+              <p className="text-sm text-[#111827]">{item.label}</p>
+              {item.detail && <p className="mt-0.5 truncate text-xs text-[#9CA3AF]">{item.detail}</p>}
+              {item.leadName && <p className="mt-0.5 text-xs text-[#6B7280]">{item.leadName}</p>}
             </div>
-            <span className="shrink-0 text-[10px] text-[#6E6E73]">{relativeTime(item.createdAt)}</span>
+            <span className="shrink-0 text-[10px] text-[#9CA3AF]">{relativeTime(item.createdAt)}</span>
           </div>
         ))}
       </div>
@@ -325,7 +325,7 @@ function ContactCard() {
     : null;
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+    <div className="rounded-xl border border-black/[0.08] bg-white p-5">
       <div className="mb-3 flex items-center gap-2">
         <Phone className="h-4 w-4 text-[#3B82F6]" />
         <h2 className="text-sm font-semibold">Your Team</h2>
@@ -335,24 +335,24 @@ function ContactCard() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3B82F6]/10 text-sm font-bold text-[#3B82F6]">B</div>
           <div>
             <p className="text-sm font-medium">Blake</p>
-            <p className="text-xs text-[#6E6E73]">Account Manager</p>
+            <p className="text-xs text-[#9CA3AF]">Account Manager</p>
           </div>
         </div>
         <div className="space-y-2">
-          <a href="mailto:blake@storepawpaw.com" className="flex items-center gap-2 text-sm text-[#A1A1A6] hover:text-[#F5F5F7]">
+          <a href="mailto:blake@storepawpaw.com" className="flex items-center gap-2 text-sm text-[#6B7280] hover:text-[#111827]">
             <Mail className="h-3.5 w-3.5" /> blake@storepawpaw.com
           </a>
-          <a href="tel:+12699298541" className="flex items-center gap-2 text-sm text-[#A1A1A6] hover:text-[#F5F5F7]">
+          <a href="tel:+12699298541" className="flex items-center gap-2 text-sm text-[#6B7280] hover:text-[#111827]">
             <Phone className="h-3.5 w-3.5" /> (269) 929-8541
           </a>
         </div>
       </div>
-      <div className="mt-4 border-t border-white/[0.06] pt-4">
-        <div className="flex items-center justify-between text-xs text-[#6E6E73]">
+      <div className="mt-4 border-t border-black/[0.08] pt-4">
+        <div className="flex items-center justify-between text-xs text-[#9CA3AF]">
           <span>{client.facilityName}</span>
           {client.occupancyRange && <span>Occupancy at sign: {client.occupancyRange}</span>}
         </div>
-        {signedDate && <p className="mt-1 text-xs text-[#6E6E73]">Client since {signedDate}</p>}
+        {signedDate && <p className="mt-1 text-xs text-[#9CA3AF]">Client since {signedDate}</p>}
       </div>
     </div>
   );

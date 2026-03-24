@@ -459,7 +459,7 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className="rounded p-1.5 text-[#6E6E73] transition-colors hover:bg-white/[0.06] hover:text-[#A1A1A6]"
+      className="rounded p-1.5 text-[#9CA3AF] transition-colors hover:bg-black/[0.04] hover:text-[#6B7280]"
       title="Copy"
     >
       {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
@@ -471,11 +471,11 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111111] overflow-hidden">
+    <div className="rounded-xl border border-black/[0.08] bg-white overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-white/[0.02]"
+        className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-black/[0.03]"
       >
         <span
           className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-wider ${
@@ -484,35 +484,35 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
         >
           {endpoint.method}
         </span>
-        <code className="flex-1 text-sm font-medium text-[#F5F5F7]">{endpoint.path}</code>
-        <span className="text-xs text-[#6E6E73]">{endpoint.scope}</span>
+        <code className="flex-1 text-sm font-medium text-[#111827]">{endpoint.path}</code>
+        <span className="text-xs text-[#9CA3AF]">{endpoint.scope}</span>
         <ChevronRight
-          className={`h-4 w-4 shrink-0 text-[#6E6E73] transition-transform ${
+          className={`h-4 w-4 shrink-0 text-[#9CA3AF] transition-transform ${
             expanded ? "rotate-90" : ""
           }`}
         />
       </button>
 
       {expanded && (
-        <div className="border-t border-white/[0.06] px-5 py-4 space-y-4">
-          <p className="text-sm text-[#A1A1A6]">{endpoint.description}</p>
+        <div className="border-t border-black/[0.08] px-5 py-4 space-y-4">
+          <p className="text-sm text-[#6B7280]">{endpoint.description}</p>
 
           {endpoint.params && endpoint.params.length > 0 && (
             <div>
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#6E6E73]">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
                 Query Parameters
               </h4>
               <div className="space-y-1.5">
                 {endpoint.params.map((p) => (
                   <div key={p.name} className="flex items-start gap-3 text-sm">
-                    <code className="shrink-0 rounded bg-white/[0.04] px-1.5 py-0.5 text-xs text-[#F5F5F7]">
+                    <code className="shrink-0 rounded bg-black/[0.03] px-1.5 py-0.5 text-xs text-[#111827]">
                       {p.name}
                     </code>
-                    <span className="text-[10px] text-[#6E6E73] mt-0.5">{p.type}</span>
+                    <span className="text-[10px] text-[#9CA3AF] mt-0.5">{p.type}</span>
                     {p.required && (
                       <span className="text-[10px] font-medium text-red-400 mt-0.5">required</span>
                     )}
-                    <span className="text-xs text-[#A1A1A6]">{p.description}</span>
+                    <span className="text-xs text-[#6B7280]">{p.description}</span>
                   </div>
                 ))}
               </div>
@@ -521,20 +521,20 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
 
           {endpoint.body && endpoint.body.length > 0 && (
             <div>
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#6E6E73]">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
                 Request Body (JSON)
               </h4>
               <div className="space-y-1.5">
                 {endpoint.body.map((p) => (
                   <div key={p.name} className="flex items-start gap-3 text-sm">
-                    <code className="shrink-0 rounded bg-white/[0.04] px-1.5 py-0.5 text-xs text-[#F5F5F7]">
+                    <code className="shrink-0 rounded bg-black/[0.03] px-1.5 py-0.5 text-xs text-[#111827]">
                       {p.name}
                     </code>
-                    <span className="text-[10px] text-[#6E6E73] mt-0.5">{p.type}</span>
+                    <span className="text-[10px] text-[#9CA3AF] mt-0.5">{p.type}</span>
                     {p.required && (
                       <span className="text-[10px] font-medium text-red-400 mt-0.5">required</span>
                     )}
-                    <span className="text-xs text-[#A1A1A6]">{p.description}</span>
+                    <span className="text-xs text-[#6B7280]">{p.description}</span>
                   </div>
                 ))}
               </div>
@@ -544,12 +544,12 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
           {endpoint.responseExample && (
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-[#6E6E73]">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
                   Response Example
                 </h4>
                 <CopyButton text={endpoint.responseExample} />
               </div>
-              <pre className="overflow-x-auto rounded-lg bg-[#0A0A0A] p-4 text-xs leading-relaxed text-[#A1A1A6]">
+              <pre className="overflow-x-auto rounded-lg bg-[#F9FAFB] p-4 text-xs leading-relaxed text-[#6B7280]">
                 {endpoint.responseExample}
               </pre>
             </div>
@@ -568,29 +568,29 @@ export function DocsClient() {
   const section = SECTIONS.find((s) => s.slug === activeSection);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#F5F5F7]">
+    <div className="min-h-screen bg-white text-[#111827]">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#050505]/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-black/[0.08] bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
           <Link
             href="/"
-            className="flex items-center gap-2 text-[#6E6E73] transition-colors hover:text-[#F5F5F7]"
+            className="flex items-center gap-2 text-[#9CA3AF] transition-colors hover:text-[#111827]"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B82F6]">
-              <span className="text-sm font-bold text-white">S</span>
+              <span className="text-sm font-bold text-[#111827]">S</span>
             </div>
             <div>
               <h1 className="text-base font-bold tracking-tight">StowStack API</h1>
-              <p className="text-[10px] text-[#6E6E73]">v1 — REST API Documentation</p>
+              <p className="text-[10px] text-[#9CA3AF]">v1 — REST API Documentation</p>
             </div>
           </div>
           <div className="ml-auto">
             <Link
               href="/pricing"
-              className="rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB]"
+              className="rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB]"
             >
               Get API Access
             </Link>
@@ -600,10 +600,10 @@ export function DocsClient() {
 
       <div className="mx-auto flex max-w-7xl">
         {/* Sidebar */}
-        <aside className="hidden w-64 shrink-0 border-r border-white/[0.06] lg:block">
+        <aside className="hidden w-64 shrink-0 border-r border-black/[0.08] lg:block">
           <div className="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-6 px-4">
             <div className="mb-6">
-              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#6E6E73]">
+              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#9CA3AF]">
                 Getting Started
               </h3>
               <div className="space-y-1 text-sm">
@@ -613,7 +613,7 @@ export function DocsClient() {
                   className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${
                     activeSection === "auth"
                       ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                      : "text-[#A1A1A6] hover:bg-white/[0.04] hover:text-[#F5F5F7]"
+                      : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -624,7 +624,7 @@ export function DocsClient() {
               </div>
             </div>
             <div>
-              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#6E6E73]">
+              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#9CA3AF]">
                 Endpoints
               </h3>
               <div className="space-y-0.5 text-sm">
@@ -636,7 +636,7 @@ export function DocsClient() {
                     className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${
                       activeSection === s.slug
                         ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                        : "text-[#A1A1A6] hover:bg-white/[0.04] hover:text-[#F5F5F7]"
+                        : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -661,7 +661,7 @@ export function DocsClient() {
                 className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                   activeSection === "auth"
                     ? "bg-[#3B82F6] text-white"
-                    : "bg-white/[0.04] text-[#A1A1A6]"
+                    : "bg-black/[0.03] text-[#6B7280]"
                 }`}
               >
                 Auth
@@ -674,7 +674,7 @@ export function DocsClient() {
                   className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                     activeSection === s.slug
                       ? "bg-[#3B82F6] text-white"
-                      : "bg-white/[0.04] text-[#A1A1A6]"
+                      : "bg-black/[0.03] text-[#6B7280]"
                   }`}
                 >
                   {s.title}
@@ -687,33 +687,33 @@ export function DocsClient() {
             <div className="max-w-3xl space-y-8">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">Authentication</h2>
-                <p className="mt-2 text-sm leading-relaxed text-[#A1A1A6]">
+                <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">
                   All API requests require a Bearer token in the Authorization header.
                   API keys are scoped — each key has specific permissions that control
                   which endpoints it can access.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+              <div className="rounded-xl border border-black/[0.08] bg-white p-5">
                 <h3 className="mb-3 text-sm font-semibold">Making Requests</h3>
-                <div className="flex items-center justify-between rounded-lg bg-[#0A0A0A] px-4 py-3">
-                  <code className="text-xs text-[#A1A1A6]">
+                <div className="flex items-center justify-between rounded-lg bg-[#F9FAFB] px-4 py-3">
+                  <code className="text-xs text-[#6B7280]">
                     Authorization: Bearer sk_live_your_api_key_here
                   </code>
                   <CopyButton text="Authorization: Bearer sk_live_your_api_key_here" />
                 </div>
               </div>
 
-              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+              <div className="rounded-xl border border-black/[0.08] bg-white p-5">
                 <h3 className="mb-3 text-sm font-semibold">Example Request</h3>
-                <pre className="overflow-x-auto rounded-lg bg-[#0A0A0A] p-4 text-xs leading-relaxed text-[#A1A1A6]">
+                <pre className="overflow-x-auto rounded-lg bg-[#F9FAFB] p-4 text-xs leading-relaxed text-[#6B7280]">
 {`curl https://stowstack.co/api/v1/facilities \\
   -H "Authorization: Bearer sk_live_abc123" \\
   -H "Content-Type: application/json"`}
                 </pre>
               </div>
 
-              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+              <div className="rounded-xl border border-black/[0.08] bg-white p-5">
                 <h3 className="mb-3 text-sm font-semibold">Available Scopes</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
                   {[
@@ -731,7 +731,7 @@ export function DocsClient() {
                   ].map((scope) => (
                     <div
                       key={scope}
-                      className="rounded-lg bg-white/[0.04] px-3 py-2 font-mono text-[#A1A1A6]"
+                      className="rounded-lg bg-black/[0.03] px-3 py-2 font-mono text-[#6B7280]"
                     >
                       {scope}
                     </div>
@@ -739,34 +739,34 @@ export function DocsClient() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+              <div className="rounded-xl border border-black/[0.08] bg-white p-5">
                 <h3 className="mb-3 text-sm font-semibold">Rate Limiting</h3>
-                <p className="text-xs text-[#A1A1A6] leading-relaxed">
-                  Default rate limit is <strong className="text-[#F5F5F7]">60 requests/minute</strong> per API key.
+                <p className="text-xs text-[#6B7280] leading-relaxed">
+                  Default rate limit is <strong className="text-[#111827]">60 requests/minute</strong> per API key.
                   Rate limit headers are included in every response:
                 </p>
                 <div className="mt-3 space-y-1 text-xs">
                   <div className="flex gap-3">
-                    <code className="text-[#6E6E73]">X-RateLimit-Limit</code>
-                    <span className="text-[#A1A1A6]">Maximum requests per window</span>
+                    <code className="text-[#9CA3AF]">X-RateLimit-Limit</code>
+                    <span className="text-[#6B7280]">Maximum requests per window</span>
                   </div>
                   <div className="flex gap-3">
-                    <code className="text-[#6E6E73]">X-RateLimit-Remaining</code>
-                    <span className="text-[#A1A1A6]">Requests remaining</span>
+                    <code className="text-[#9CA3AF]">X-RateLimit-Remaining</code>
+                    <span className="text-[#6B7280]">Requests remaining</span>
                   </div>
                   <div className="flex gap-3">
-                    <code className="text-[#6E6E73]">X-RateLimit-Reset</code>
-                    <span className="text-[#A1A1A6]">Seconds until window resets</span>
+                    <code className="text-[#9CA3AF]">X-RateLimit-Reset</code>
+                    <span className="text-[#6B7280]">Seconds until window resets</span>
                   </div>
                 </div>
               </div>
 
               <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-5">
                 <h3 className="mb-2 text-sm font-semibold text-amber-400">Error Responses</h3>
-                <p className="text-xs text-[#A1A1A6] leading-relaxed mb-3">
+                <p className="text-xs text-[#6B7280] leading-relaxed mb-3">
                   All errors return a consistent JSON format:
                 </p>
-                <pre className="overflow-x-auto rounded-lg bg-[#0A0A0A] p-4 text-xs leading-relaxed text-[#A1A1A6]">
+                <pre className="overflow-x-auto rounded-lg bg-[#F9FAFB] p-4 text-xs leading-relaxed text-[#6B7280]">
 {`{
   "error": "Descriptive error message",
   "code": "INVALID_API_KEY",
@@ -785,7 +785,7 @@ export function DocsClient() {
                   </span>
                 </div>
                 <h2 className="text-2xl font-bold tracking-tight">{section.title}</h2>
-                <p className="mt-2 text-sm text-[#A1A1A6]">{section.description}</p>
+                <p className="mt-2 text-sm text-[#6B7280]">{section.description}</p>
               </div>
               <div className="space-y-3">
                 {section.endpoints.map((ep, i) => (

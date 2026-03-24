@@ -177,14 +177,14 @@ export function dateRangeParams(
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded bg-white/[0.04] ${className}`}
+      className={`animate-pulse rounded bg-black/[0.03] ${className}`}
     />
   );
 }
 
 export function CardSkeleton() {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+    <div className="rounded-xl border border-black/[0.08] bg-white p-5">
       <Skeleton className="mb-2 h-4 w-24" />
       <Skeleton className="h-7 w-16" />
       <Skeleton className="mt-2 h-3 w-32" />
@@ -194,7 +194,7 @@ export function CardSkeleton() {
 
 export function SectionSkeleton() {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+    <div className="rounded-xl border border-black/[0.08] bg-white p-5">
       <Skeleton className="mb-4 h-5 w-32" />
       <div className="space-y-3">
         <Skeleton className="h-10 w-full" />
@@ -218,7 +218,7 @@ export function ErrorState({
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-2 text-xs text-[#A1A1A6] underline transition-colors hover:text-[#F5F5F7]"
+          className="mt-2 text-xs text-[#6B7280] underline transition-colors hover:text-[#111827]"
         >
           Try again
         </button>

@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
 import { JetBrains_Mono, Libre_Franklin, Lato } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const mono = JetBrains_Mono({
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050505",
+  themeColor: "#FFFFFF",
   width: "device-width",
   initialScale: 1,
 };
@@ -85,12 +85,8 @@ export default function RootLayout({
   return (
     <ClerkProvider
       appearance={{
-        baseTheme: dark,
         variables: {
           colorPrimary: "#3B82F6",
-          colorBackground: "#0A0A0A",
-          colorInputBackground: "#1A1A1A",
-          colorText: "#F5F5F7",
         },
       }}
     >
@@ -113,17 +109,25 @@ export default function RootLayout({
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
           />
+          {/* Prevent flash of wrong theme */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var t=localStorage.getItem("stowstack-theme");if(t==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()`,
+            }}
+          />
         </head>
         <body>
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-500 focus:text-white focus:rounded"
-          >
-            Skip to content
-          </a>
-          <ScrollProgress />
-          <GrainOverlay />
-          {children}
+          <ThemeProvider>
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-500 focus:text-white focus:rounded"
+            >
+              Skip to content
+            </a>
+            <ScrollProgress />
+            <GrainOverlay />
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

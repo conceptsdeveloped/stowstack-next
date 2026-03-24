@@ -264,7 +264,7 @@ export default function WalkInAttributionPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3.5 rounded-xl text-base font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
+              className="w-full py-3.5 rounded-xl text-base font-semibold text-[#111827] bg-[var(--accent)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
             >
               {submitting ? "Saving..." : "Log Walk-In"}
             </button>

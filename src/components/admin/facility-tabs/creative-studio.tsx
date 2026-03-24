@@ -82,15 +82,6 @@ interface AdVariation {
   status: string;
   feedback: string | null;
   version: number;
-  compliance_status: string | null;
-  compliance_flags: ComplianceFlag[] | null;
-}
-
-interface ComplianceFlag {
-  severity: "warning" | "violation";
-  rule: string;
-  detail: string;
-  field: string;
 }
 
 type GenerationPlatform =
@@ -103,7 +94,7 @@ type GenerationPlatform =
 /* ── Constants ───────────────────────────────────────────────── */
 
 const VARIATION_STATUS_COLORS: Record<string, string> = {
-  draft: "bg-white/[0.06] text-[#A1A1A6]",
+  draft: "bg-black/[0.04] text-[#6B7280]",
   review: "bg-yellow-500/10 text-yellow-400",
   approved: "bg-emerald-500/10 text-emerald-400",
   published: "bg-green-500/10 text-green-400",
@@ -204,11 +195,11 @@ function VariationActions({
   if (v.status === "published" || rejecting) return null;
 
   return (
-    <div className="flex gap-2 pt-1 border-t border-white/[0.06]">
+    <div className="flex gap-2 mt-3">
       {v.status !== "approved" && (
         <button
           onClick={onApprove}
-          disabled={saving || v.compliance_status === "failed"}
+          disabled={saving}
           className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-40 transition-colors"
         >
           {saving ? "..." : "Approve"}
@@ -217,7 +208,7 @@ function VariationActions({
       {onEdit && (
         <button
           onClick={onEdit}
-          className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04] transition-colors"
+          className="px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03] transition-colors"
         >
           Edit
         </button>
@@ -234,7 +225,7 @@ function VariationActions({
         <button
           onClick={onUnapprove}
           disabled={saving}
-          className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04] disabled:opacity-40 transition-colors"
+          className="px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03] disabled:opacity-40 transition-colors"
         >
           Unapprove
         </button>
@@ -242,7 +233,7 @@ function VariationActions({
       <button
         onClick={onDelete}
         disabled={saving}
-        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#6E6E73] hover:text-red-400 hover:border-red-500/20 disabled:opacity-40 transition-colors ml-auto"
+        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#9CA3AF] hover:text-red-400 hover:border-red-500/20 disabled:opacity-40 transition-colors ml-auto"
       >
         <Trash2 size={12} />
       </button>
@@ -263,15 +254,15 @@ function CopyField({ label, value }: { label: string; value: string }) {
 
   return (
     <div className="group flex items-start gap-2">
-      <span className="text-[10px] font-medium uppercase tracking-wide text-[#6E6E73] w-20 shrink-0 pt-0.5">
+      <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF] w-20 shrink-0 pt-0.5">
         {label}
       </span>
-      <span className="text-sm text-[#F5F5F7] flex-1 leading-relaxed">
+      <span className="text-sm text-[#111827] flex-1 leading-relaxed">
         {value}
       </span>
       <button
         onClick={handleCopy}
-        className="opacity-0 group-hover:opacity-100 shrink-0 p-1 text-[#6E6E73] hover:text-[#A1A1A6] transition-all"
+        className="opacity-0 group-hover:opacity-100 shrink-0 p-1 text-[#9CA3AF] hover:text-[#6B7280] transition-all"
       >
         {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
       </button>
@@ -315,45 +306,32 @@ function MetaVariationCard({
   }
 
   return (
-    <div className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+    <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-lg">{ANGLE_ICONS[v.angle] || "📝"}</span>
-          <span className="text-sm font-semibold text-[#F5F5F7]">
+          <span className="text-sm font-semibold text-[#111827]">
             {content.angleLabel || v.angle}
           </span>
           <span
-            className={`px-2 py-0.5 rounded-full text-xs font-medium ${VARIATION_STATUS_COLORS[v.status] || "bg-white/[0.06] text-[#6E6E73]"}`}
+            className={`px-2 py-0.5 rounded-full text-xs font-medium ${VARIATION_STATUS_COLORS[v.status] || "bg-black/[0.04] text-[#9CA3AF]"}`}
           >
             {v.status}
           </span>
-          {v.compliance_status && (
-            <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                v.compliance_status === "passed"
-                  ? "bg-emerald-500/10 text-emerald-400"
-                  : v.compliance_status === "flagged"
-                    ? "bg-amber-500/10 text-amber-400"
-                    : "bg-red-500/10 text-red-400"
-              }`}
-            >
-              {v.compliance_status === "passed" ? "✓ Compliant" : v.compliance_status === "flagged" ? "⚠ Review" : "✕ Violation"}
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-[#6E6E73]">v{v.version}</span>
-          <span className="text-xs px-1.5 py-0.5 rounded bg-white/[0.04] text-[#6E6E73]">
+          <span className="text-xs text-[#9CA3AF]">v{v.version}</span>
+          <span className="text-xs px-1.5 py-0.5 rounded bg-black/[0.03] text-[#9CA3AF]">
             Meta
           </span>
         </div>
       </div>
 
-      <div className="border-t border-white/[0.06] px-4 py-4">
+      <div className="border-t border-black/[0.08] px-4 py-4">
         {editing ? (
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-medium uppercase text-[#6E6E73] block mb-1">
+              <label className="text-xs font-medium uppercase text-[#9CA3AF] block mb-1">
                 Primary Text
               </label>
               <textarea
@@ -362,16 +340,16 @@ function MetaVariationCard({
                   setEditFields({ ...editFields, primaryText: e.target.value })
                 }
                 rows={3}
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
               />
               <p
-                className={`text-xs mt-0.5 ${editFields.primaryText.length > 125 ? "text-red-400" : "text-[#6E6E73]"}`}
+                className={`text-xs mt-0.5 ${editFields.primaryText.length > 125 ? "text-red-400" : "text-[#9CA3AF]"}`}
               >
                 {editFields.primaryText.length}/125
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium uppercase text-[#6E6E73] block mb-1">
+              <label className="text-xs font-medium uppercase text-[#9CA3AF] block mb-1">
                 Headline
               </label>
               <input
@@ -379,16 +357,16 @@ function MetaVariationCard({
                 onChange={(e) =>
                   setEditFields({ ...editFields, headline: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
               />
               <p
-                className={`text-xs mt-0.5 ${editFields.headline.length > 40 ? "text-red-400" : "text-[#6E6E73]"}`}
+                className={`text-xs mt-0.5 ${editFields.headline.length > 40 ? "text-red-400" : "text-[#9CA3AF]"}`}
               >
                 {editFields.headline.length}/40
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium uppercase text-[#6E6E73] block mb-1">
+              <label className="text-xs font-medium uppercase text-[#9CA3AF] block mb-1">
                 Description
               </label>
               <input
@@ -396,17 +374,17 @@ function MetaVariationCard({
                 onChange={(e) =>
                   setEditFields({ ...editFields, description: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
               />
               <p
-                className={`text-xs mt-0.5 ${editFields.description.length > 30 ? "text-red-400" : "text-[#6E6E73]"}`}
+                className={`text-xs mt-0.5 ${editFields.description.length > 30 ? "text-red-400" : "text-[#9CA3AF]"}`}
               >
                 {editFields.description.length}/30
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-medium uppercase text-[#6E6E73] block mb-1">
+                <label className="text-xs font-medium uppercase text-[#9CA3AF] block mb-1">
                   CTA
                 </label>
                 <select
@@ -414,7 +392,7 @@ function MetaVariationCard({
                   onChange={(e) =>
                     setEditFields({ ...editFields, cta: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                  className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
                 >
                   {CTA_OPTIONS.map((c) => (
                     <option key={c} value={c}>
@@ -424,7 +402,7 @@ function MetaVariationCard({
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium uppercase text-[#6E6E73] block mb-1">
+                <label className="text-xs font-medium uppercase text-[#9CA3AF] block mb-1">
                   Targeting
                 </label>
                 <input
@@ -435,7 +413,7 @@ function MetaVariationCard({
                       targetingNote: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                  className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
                 />
               </div>
             </div>
@@ -459,7 +437,7 @@ function MetaVariationCard({
                   setEditing(false);
                 }}
                 disabled={saving}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04] disabled:opacity-40 transition-colors"
+                className="px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03] disabled:opacity-40 transition-colors"
               >
                 Save Draft
               </button>
@@ -468,69 +446,41 @@ function MetaVariationCard({
                   setEditing(false);
                   setEditFields(content);
                 }}
-                className="px-3 py-1.5 text-xs text-[#6E6E73] hover:underline"
+                className="px-3 py-1.5 text-xs text-[#9CA3AF] hover:underline"
               >
                 Cancel
               </button>
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="rounded-lg p-4 bg-[#0A0A0A]">
-              <p className="text-sm leading-relaxed text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-body)' }}>
+          <>
+            <div className="rounded-lg p-4 bg-[#F9FAFB]">
+              <p className="text-sm leading-relaxed text-[#111827]">
                 {content.primaryText}
               </p>
-              <div className="mt-3 border-t border-white/[0.06] pt-3">
-                <p className="text-xs uppercase tracking-wide text-[#6E6E73]">
-                  storageads.com
+              <div className="mt-3 border-t border-black/[0.08] pt-3">
+                <p className="text-xs uppercase tracking-wide text-[#9CA3AF]">
+                  stowstack.co
                 </p>
-                <p className="font-semibold text-sm text-[#F5F5F7] mt-0.5" style={{ fontFamily: 'var(--font-ad-headline)' }}>
+                <p className="font-semibold text-sm text-[#111827]">
                   {content.headline}
                 </p>
-                {content.description && (
-                  <p className="text-xs text-[#6E6E73] mt-0.5">{content.description}</p>
-                )}
+                <p className="text-xs text-[#9CA3AF]">{content.description}</p>
               </div>
-              <div className="mt-3">
-                <span className="text-xs px-2.5 py-1 rounded font-medium bg-white/[0.06] text-[#A1A1A6]">
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-xs px-2 py-1 rounded font-medium bg-black/[0.04] text-[#6B7280]">
                   {content.cta}
                 </span>
+                {content.targetingNote && (
+                  <span className="text-xs text-[#9CA3AF]">
+                    {content.targetingNote}
+                  </span>
+                )}
               </div>
             </div>
 
-            {content.targetingNote && (
-              <p className="text-[11px] text-[#6E6E73] px-1">
-                <span className="text-[#A1A1A6] font-medium">Targeting:</span> {content.targetingNote}
-              </p>
-            )}
-
-            {v.compliance_flags && v.compliance_flags.length > 0 && (
-              <div className={`p-3 rounded-lg border text-sm ${
-                v.compliance_status === "failed"
-                  ? "bg-red-500/5 border-red-500/20"
-                  : "bg-amber-500/5 border-amber-500/20"
-              }`}>
-                <p className={`font-medium text-xs uppercase tracking-wide mb-2 ${
-                  v.compliance_status === "failed" ? "text-red-400" : "text-amber-400"
-                }`}>
-                  {v.compliance_status === "failed" ? "Policy Violations" : "Compliance Review Needed"}
-                </p>
-                <ul className="space-y-1.5">
-                  {v.compliance_flags.map((flag, i) => (
-                    <li key={i} className="text-xs">
-                      <span className={`font-medium ${flag.severity === "violation" ? "text-red-300" : "text-amber-300"}`}>
-                        {flag.rule}
-                      </span>
-                      <span className="text-[#A1A1A6]"> ({flag.field}): </span>
-                      <span className="text-[#6E6E73]">{flag.detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
             {v.feedback && (
-              <div className="p-3 rounded-lg border bg-red-500/5 border-red-500/20 text-red-300 text-sm">
+              <div className="mt-3 p-3 rounded-lg border bg-red-500/5 border-red-500/20 text-red-300 text-sm">
                 <p className="font-medium text-xs uppercase tracking-wide mb-1">
                   Feedback
                 </p>
@@ -539,13 +489,13 @@ function MetaVariationCard({
             )}
 
             {rejecting && (
-              <div className="space-y-2">
+              <div className="mt-3 space-y-2">
                 <textarea
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                   placeholder="What needs to change? Be specific so we can regenerate better copy..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                  className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6] transition-colors"
                 />
                 <div className="flex gap-2">
                   <button
@@ -564,7 +514,7 @@ function MetaVariationCard({
                       setRejecting(false);
                       setFeedback("");
                     }}
-                    className="px-3 py-1.5 text-xs text-[#6E6E73] hover:underline"
+                    className="px-3 py-1.5 text-xs text-[#9CA3AF] hover:underline"
                   >
                     Cancel
                   </button>
@@ -582,7 +532,7 @@ function MetaVariationCard({
               onDelete={() => onDelete(v.id)}
               rejecting={rejecting}
             />
-          </div>
+          </>
         )}
       </div>
     </div>
@@ -633,22 +583,22 @@ function GoogleRSACard({
   const sitelinks = content.sitelinks || [];
 
   return (
-    <div className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+    <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Search size={16} className="text-[#3B82F6]" />
-          <span className="text-sm font-semibold text-[#F5F5F7]">
+          <span className="text-sm font-semibold text-[#111827]">
             Google Responsive Search Ad
           </span>
           <span
-            className={`px-2 py-0.5 rounded-full text-xs font-medium ${VARIATION_STATUS_COLORS[v.status] || "bg-white/[0.06] text-[#6E6E73]"}`}
+            className={`px-2 py-0.5 rounded-full text-xs font-medium ${VARIATION_STATUS_COLORS[v.status] || "bg-black/[0.04] text-[#9CA3AF]"}`}
           >
             {v.status}
           </span>
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs text-[#6E6E73] hover:text-[#A1A1A6] flex items-center gap-1 transition-colors"
+          className="text-xs text-[#9CA3AF] hover:text-[#6B7280] flex items-center gap-1 transition-colors"
         >
           {expanded ? (
             <>
@@ -662,9 +612,9 @@ function GoogleRSACard({
         </button>
       </div>
 
-      <div className="border-t border-white/[0.06] px-4 py-4">
+      <div className="border-t border-black/[0.08] px-4 py-4">
         {/* Google Search Preview */}
-        <div className="rounded-lg p-4 bg-[#0A0A0A]">
+        <div className="rounded-lg p-4 bg-[#F9FAFB]">
           <p className="text-xs text-green-400 mb-0.5">
             Ad · stowstack.co{content.finalUrl || "/"}
           </p>
@@ -674,7 +624,7 @@ function GoogleRSACard({
               .map((h) => h.text)
               .join(" | ")}
           </p>
-          <p className="text-sm text-[#A1A1A6] mt-1 leading-relaxed">
+          <p className="text-sm text-[#6B7280] mt-1 leading-relaxed">
             {descriptions[0]?.text || ""}
           </p>
         </div>
@@ -684,7 +634,7 @@ function GoogleRSACard({
             {/* Headlines */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
                   Headlines ({headlines.length}/15)
                 </p>
                 <button
@@ -694,7 +644,7 @@ function GoogleRSACard({
                       "headlines"
                     )
                   }
-                  className="text-xs flex items-center gap-1 text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                  className="text-xs flex items-center gap-1 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
                 >
                   {copied === "headlines" ? (
                     <>
@@ -711,11 +661,11 @@ function GoogleRSACard({
                 {headlines.map((h, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between px-3 py-1.5 rounded text-sm bg-white/[0.03] border border-white/[0.04]"
+                    className="flex items-center justify-between px-3 py-1.5 rounded text-sm bg-black/[0.02] border border-black/[0.06]"
                   >
-                    <span className="text-[#F5F5F7]">{h.text}</span>
+                    <span className="text-[#111827]">{h.text}</span>
                     <span
-                      className={`text-[10px] ${h.text.length > 30 ? "text-red-400" : "text-[#6E6E73]"}`}
+                      className={`text-[10px] ${h.text.length > 30 ? "text-red-400" : "text-[#9CA3AF]"}`}
                     >
                       {h.text.length}/30
                     </span>
@@ -727,7 +677,7 @@ function GoogleRSACard({
             {/* Descriptions */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
                   Descriptions ({descriptions.length}/4)
                 </p>
                 <button
@@ -737,7 +687,7 @@ function GoogleRSACard({
                       "descriptions"
                     )
                   }
-                  className="text-xs flex items-center gap-1 text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                  className="text-xs flex items-center gap-1 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
                 >
                   {copied === "descriptions" ? (
                     <>
@@ -753,11 +703,11 @@ function GoogleRSACard({
               {descriptions.map((d, i) => (
                 <div
                   key={i}
-                  className="px-3 py-2 rounded text-sm mb-1 bg-white/[0.03] border border-white/[0.04]"
+                  className="px-3 py-2 rounded text-sm mb-1 bg-black/[0.02] border border-black/[0.06]"
                 >
-                  <span className="text-[#F5F5F7]">{d.text}</span>
+                  <span className="text-[#111827]">{d.text}</span>
                   <span
-                    className={`text-[10px] ml-2 ${d.text.length > 90 ? "text-red-400" : "text-[#6E6E73]"}`}
+                    className={`text-[10px] ml-2 ${d.text.length > 90 ? "text-red-400" : "text-[#9CA3AF]"}`}
                   >
                     {d.text.length}/90
                   </span>
@@ -768,19 +718,19 @@ function GoogleRSACard({
             {/* Sitelinks */}
             {sitelinks.length > 0 && (
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73] mb-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF] mb-2">
                   Sitelink Extensions
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {sitelinks.map((s, i) => (
                     <div
                       key={i}
-                      className="px-3 py-2 rounded bg-white/[0.03] border border-white/[0.04]"
+                      className="px-3 py-2 rounded bg-black/[0.02] border border-black/[0.06]"
                     >
                       <p className="text-sm font-medium text-[#3B82F6]">
                         {s.title}
                       </p>
-                      <p className="text-xs text-[#6E6E73]">{s.description}</p>
+                      <p className="text-xs text-[#9CA3AF]">{s.description}</p>
                     </div>
                   ))}
                 </div>
@@ -790,14 +740,14 @@ function GoogleRSACard({
             {/* Keywords */}
             {content.keywords?.length ? (
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73] mb-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF] mb-2">
                   Suggested Keywords
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {content.keywords.map((kw, i) => (
                     <span
                       key={i}
-                      className="text-xs px-2 py-1 rounded bg-white/[0.04] text-[#A1A1A6]"
+                      className="text-xs px-2 py-1 rounded bg-black/[0.03] text-[#6B7280]"
                     >
                       {kw}
                     </span>
@@ -872,25 +822,25 @@ function LandingPageCard({
     | undefined;
 
   return (
-    <div className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+    <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText size={16} className="text-indigo-400" />
-          <span className="text-sm font-semibold text-[#F5F5F7]">
+          <span className="text-sm font-semibold text-[#111827]">
             Landing Page Copy
           </span>
           <span
-            className={`px-2 py-0.5 rounded-full text-xs font-medium ${VARIATION_STATUS_COLORS[v.status] || "bg-white/[0.06] text-[#6E6E73]"}`}
+            className={`px-2 py-0.5 rounded-full text-xs font-medium ${VARIATION_STATUS_COLORS[v.status] || "bg-black/[0.04] text-[#9CA3AF]"}`}
           >
             {v.status}
           </span>
-          <span className="text-xs text-[#6E6E73]">
+          <span className="text-xs text-[#9CA3AF]">
             {sections.length} sections
           </span>
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs text-[#6E6E73] hover:text-[#A1A1A6] flex items-center gap-1 transition-colors"
+          className="text-xs text-[#9CA3AF] hover:text-[#6B7280] flex items-center gap-1 transition-colors"
         >
           {expanded ? (
             <>
@@ -904,10 +854,10 @@ function LandingPageCard({
         </button>
       </div>
 
-      <div className="border-t border-white/[0.06] px-4 py-4">
+      <div className="border-t border-black/[0.08] px-4 py-4">
         {/* Hero preview */}
         {heroConfig && (
-          <div className="rounded-lg p-5 bg-gradient-to-br from-[#0A0A0A] to-[#1a1a2e] text-white">
+          <div className="rounded-lg p-5 bg-gradient-to-br from-[#F9FAFB] to-[#1a1a2e] text-white">
             {heroConfig.badgeText && (
               <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-3">
                 {heroConfig.badgeText}
@@ -916,7 +866,7 @@ function LandingPageCard({
             <h3 className="text-lg font-bold leading-tight mb-2">
               {heroConfig.headline}
             </h3>
-            <p className="text-sm text-white/60 leading-relaxed">
+            <p className="text-sm text-[#6B7280] leading-relaxed">
               {heroConfig.subheadline}
             </p>
             {heroConfig.ctaText && (
@@ -929,12 +879,12 @@ function LandingPageCard({
 
         {/* SEO meta preview */}
         {content.meta_title && (
-          <div className="mt-3 p-3 rounded-lg bg-[#0A0A0A]">
+          <div className="mt-3 p-3 rounded-lg bg-[#F9FAFB]">
             <p className="text-xs text-green-400">stowstack.co/storage/...</p>
             <p className="text-sm font-medium text-[#3B82F6]">
               {content.meta_title}
             </p>
-            <p className="text-xs text-[#6E6E73] mt-0.5">
+            <p className="text-xs text-[#9CA3AF] mt-0.5">
               {content.meta_description}
             </p>
           </div>
@@ -947,23 +897,23 @@ function LandingPageCard({
               return (
                 <div
                   key={i}
-                  className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.04]"
+                  className="p-3 rounded-lg bg-black/[0.02] border border-black/[0.06]"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase bg-white/[0.06] text-[#A1A1A6]">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase bg-black/[0.04] text-[#6B7280]">
                       {section.section_type.replace("_", " ")}
                     </span>
-                    <span className="text-xs text-[#6E6E73]">
+                    <span className="text-xs text-[#9CA3AF]">
                       #{section.sort_order}
                     </span>
                   </div>
                   {(cfg.headline as string) && (
-                    <p className="text-sm font-semibold text-[#F5F5F7]">
+                    <p className="text-sm font-semibold text-[#111827]">
                       {cfg.headline as string}
                     </p>
                   )}
                   {(cfg.subheadline as string) && (
-                    <p className="text-xs text-[#6E6E73] mt-0.5">
+                    <p className="text-xs text-[#9CA3AF] mt-0.5">
                       {cfg.subheadline as string}
                     </p>
                   )}
@@ -978,7 +928,7 @@ function LandingPageCard({
                       )
                         .slice(0, 3)
                         .map((item, j) => (
-                          <li key={j} className="text-xs text-[#6E6E73]">
+                          <li key={j} className="text-xs text-[#9CA3AF]">
                             {"\u2022"}{" "}
                             {item.title ||
                               item.text ||
@@ -987,7 +937,7 @@ function LandingPageCard({
                           </li>
                         ))}
                       {(cfg.items as unknown[]).length > 3 && (
-                        <li className="text-xs text-[#6E6E73]">
+                        <li className="text-xs text-[#9CA3AF]">
                           ...and {(cfg.items as unknown[]).length - 3} more
                         </li>
                       )}
@@ -1031,7 +981,7 @@ function LandingPageCard({
         )}
 
         {v.status === "published" && !deployResult && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-[#6E6E73]">
+          <div className="mt-3 flex items-center gap-2 text-xs text-[#9CA3AF]">
             <Check size={12} className="text-emerald-400" /> Published to
             landing page
           </div>
@@ -1095,62 +1045,62 @@ function EmailDripCard({
   const sequence = content.sequence || [];
 
   return (
-    <div className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+    <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Mail size={16} className="text-amber-400" />
-          <span className="text-sm font-semibold text-[#F5F5F7]">
+          <span className="text-sm font-semibold text-[#111827]">
             Email Drip Sequence
           </span>
           <span
-            className={`px-2 py-0.5 rounded-full text-xs font-medium ${VARIATION_STATUS_COLORS[v.status] || "bg-white/[0.06] text-[#6E6E73]"}`}
+            className={`px-2 py-0.5 rounded-full text-xs font-medium ${VARIATION_STATUS_COLORS[v.status] || "bg-black/[0.04] text-[#9CA3AF]"}`}
           >
             {v.status}
           </span>
-          <span className="text-xs text-[#6E6E73]">
+          <span className="text-xs text-[#9CA3AF]">
             {sequence.length} emails
           </span>
         </div>
       </div>
 
-      <div className="border-t border-white/[0.06] px-4 py-4 space-y-2">
+      <div className="border-t border-black/[0.08] px-4 py-4 space-y-2">
         {sequence.map((email, i) => (
           <div
             key={i}
-            className="rounded-lg overflow-hidden bg-white/[0.03] border border-white/[0.04]"
+            className="rounded-lg overflow-hidden bg-black/[0.02] border border-black/[0.06]"
           >
             <button
               onClick={() =>
                 setExpandedEmail(expandedEmail === i ? null : i)
               }
-              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
+              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-black/[0.03] transition-colors"
             >
               <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6]">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-black/[0.04] text-[#6B7280]">
                   Day {email.delayDays}
                 </span>
                 <div>
-                  <p className="text-sm font-medium text-[#F5F5F7]">
+                  <p className="text-sm font-medium text-[#111827]">
                     {email.subject}
                   </p>
-                  <p className="text-xs text-[#6E6E73]">{email.label}</p>
+                  <p className="text-xs text-[#9CA3AF]">{email.label}</p>
                 </div>
               </div>
               {expandedEmail === i ? (
-                <ChevronUp size={14} className="text-[#6E6E73]" />
+                <ChevronUp size={14} className="text-[#9CA3AF]" />
               ) : (
-                <ChevronDown size={14} className="text-[#6E6E73]" />
+                <ChevronDown size={14} className="text-[#9CA3AF]" />
               )}
             </button>
 
             {expandedEmail === i && (
-              <div className="px-4 pb-4 border-t border-white/[0.06]">
+              <div className="px-4 pb-4 border-t border-black/[0.08]">
                 {email.preheader && (
-                  <p className="text-xs text-[#6E6E73] mt-3 mb-2 italic">
+                  <p className="text-xs text-[#9CA3AF] mt-3 mb-2 italic">
                     Preheader: {email.preheader}
                   </p>
                 )}
-                <div className="text-sm text-[#F5F5F7] leading-relaxed whitespace-pre-line mt-2">
+                <div className="text-sm text-[#111827] leading-relaxed whitespace-pre-line mt-2">
                   {email.body}
                 </div>
                 {email.ctaText && (
@@ -1195,7 +1145,7 @@ function EmailDripCard({
         )}
 
         {v.status === "published" && !dripActivated && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-[#6E6E73]">
+          <div className="mt-3 flex items-center gap-2 text-xs text-[#9CA3AF]">
             <Check size={12} className="text-emerald-400" /> Drip sequence
             activated
           </div>
@@ -1321,11 +1271,6 @@ export default function CreativeStudio({
           body: JSON.stringify(body),
         });
         const data = await res.json();
-        if (!res.ok || data.error) {
-          setError(data.error || `Generation failed (${res.status})`);
-          setGenPlatform(null);
-          return;
-        }
         if (data.variations)
           setVariations((prev) => [...data.variations, ...prev]);
         setShowRegenInput(false);
@@ -1385,113 +1330,123 @@ export default function CreativeStudio({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 mb-4">
           <p className="flex-1 text-sm text-red-300">{error}</p>
           <button type="button" onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
             <X className="h-4 w-4" />
           </button>
         </div>
       )}
-
       {/* Header */}
-      <div>
-        <h3 className="font-semibold text-[#F5F5F7]">Creative Studio</h3>
-        {total > 0 && (
-          <p className="text-sm text-[#6E6E73] mt-1">
-            {approved}/{total} approved across {platforms.length} platform
-            {platforms.length !== 1 ? "s" : ""}
-          </p>
-        )}
-      </div>
-
-      {/* Regenerate with notes */}
-      {showRegenInput && (
-        <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111] space-y-3">
-          <label className="text-xs font-medium text-[#A1A1A6] block">Direction for new variations</label>
-          <textarea
-            value={regenFeedback}
-            onChange={(e) => setRegenFeedback(e.target.value)}
-            placeholder="e.g., More urgency, mention the spring special, target families..."
-            rows={2}
-            className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6] transition-colors"
-          />
-          <div className="flex flex-wrap gap-2">
-            {GENERATION_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
-              <button
-                key={opt.id}
-                onClick={() => generateCopy(opt.id, regenFeedback || undefined)}
-                disabled={generating}
-                className="px-3 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 whitespace-nowrap transition-colors"
-              >
-                {generating && genPlatform === opt.id ? "Generating..." : `${opt.icon} ${opt.label}`}
-              </button>
-            ))}
-            <button
-              onClick={() => { setShowRegenInput(false); setRegenFeedback(""); }}
-              className="px-3 py-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h3 className="font-semibold text-[#111827]">Creative Studio</h3>
+          {total > 0 && (
+            <p className="text-sm text-[#9CA3AF]">
+              {approved}/{total} approved across {platforms.length} platform
+              {platforms.length !== 1 ? "s" : ""}
+            </p>
+          )}
         </div>
-      )}
+        <div className="flex gap-2">
+          {showRegenInput ? (
+            <div className="flex items-end gap-2">
+              <textarea
+                value={regenFeedback}
+                onChange={(e) => setRegenFeedback(e.target.value)}
+                placeholder="Direction for new variations..."
+                rows={2}
+                className="w-full sm:w-64 px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6] transition-colors"
+              />
+              <div className="flex flex-col gap-1">
+                {GENERATION_OPTIONS.filter((o) => o.id !== "all").map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() =>
+                      generateCopy(opt.id, regenFeedback || undefined)
+                    }
+                    disabled={generating}
+                    className="px-3 py-1 bg-[#3B82F6] text-white text-[11px] font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 whitespace-nowrap transition-colors"
+                  >
+                    {generating && genPlatform === opt.id
+                      ? "Generating..."
+                      : `${opt.icon} ${opt.label}`}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                  setShowRegenInput(false);
+                  setRegenFeedback("");
+                }}
+                className="text-xs text-[#9CA3AF] hover:underline whitespace-nowrap"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <>
+              {total > 0 && (
+                <button
+                  onClick={() => setShowRegenInput(true)}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03] flex items-center gap-1.5 transition-colors"
+                >
+                  <RefreshCw size={12} /> Regenerate with Notes
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
       {/* Generation buttons */}
       {!showRegenInput && (
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {GENERATION_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                onClick={() => generateCopy(opt.id)}
-                disabled={generating}
-                className={`flex flex-col items-start p-4 border rounded-xl transition-all ${
-                  generating && genPlatform === opt.id
-                    ? "border-[#3B82F6] bg-[#3B82F6]/10"
-                    : "border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02]"
-                } disabled:opacity-50`}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-lg">{opt.icon}</span>
-                  <span className="text-sm font-semibold text-[#F5F5F7]">{opt.label}</span>
-                </div>
-                <span className="text-[11px] text-[#6E6E73] leading-snug">
-                  {generating && genPlatform === opt.id ? (
-                    <span className="flex items-center gap-1">
-                      <Loader2 size={10} className="animate-spin" /> Generating...
-                    </span>
-                  ) : (
-                    opt.desc
-                  )}
-                </span>
-              </button>
-            ))}
-          </div>
-          {total > 0 && (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
+          {GENERATION_OPTIONS.map((opt) => (
             <button
-              onClick={() => setShowRegenInput(true)}
-              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04] flex items-center gap-1.5 transition-colors"
+              key={opt.id}
+              onClick={() => generateCopy(opt.id)}
+              disabled={generating}
+              className={`flex flex-col items-start p-3 border rounded-xl transition-all ${
+                generating && genPlatform === opt.id
+                  ? "border-[#3B82F6] bg-[#3B82F6]/10"
+                  : "border-black/[0.08] hover:border-black/[0.12] hover:bg-black/[0.03]"
+              } disabled:opacity-50`}
             >
-              <RefreshCw size={12} /> Regenerate with Notes
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-lg">{opt.icon}</span>
+                <span className="text-sm font-semibold text-[#111827]">
+                  {opt.label}
+                </span>
+              </div>
+              <span className="text-[11px] text-[#9CA3AF] leading-snug">
+                {generating && genPlatform === opt.id ? (
+                  <span className="flex items-center gap-1">
+                    <Loader2 size={10} className="animate-spin" /> Generating...
+                  </span>
+                ) : (
+                  opt.desc
+                )}
+              </span>
             </button>
-          )}
+          ))}
         </div>
       )}
 
       {/* Filters: platform + status */}
       {(platforms.length > 1 || statuses.length > 1) && (
-        <div className="flex gap-4 flex-wrap items-center border-t border-white/[0.06] pt-6">
+        <div className="flex gap-4 flex-wrap items-center">
           {platforms.length > 1 && (
-            <div className="flex gap-1.5 flex-wrap items-center">
-              <Filter size={12} className="text-[#6E6E73] mr-1" />
+            <div className="flex gap-1 flex-wrap items-center">
+              <Filter size={12} className="text-[#9CA3AF] mr-1" />
               <button
                 onClick={() => setFilterPlatform("all")}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                   filterPlatform === "all"
                     ? "bg-[#3B82F6] text-white"
-                    : "text-[#6E6E73] hover:bg-white/[0.04]"
+                    : "text-[#9CA3AF] hover:bg-black/[0.03]"
                 }`}
               >
                 All ({total})
@@ -1500,26 +1455,29 @@ export default function CreativeStudio({
                 <button
                   key={p}
                   onClick={() => setFilterPlatform(p)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                  className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                     filterPlatform === p
                       ? "bg-[#3B82F6] text-white"
-                      : "text-[#6E6E73] hover:bg-white/[0.04]"
+                      : "text-[#9CA3AF] hover:bg-black/[0.03]"
                   }`}
                 >
-                  {PLATFORM_ICONS[p] || "📝"} {PLATFORM_LABELS[p] || p} ({variations.filter((v) => v.platform === p).length})
+                  {PLATFORM_ICONS[p] || "📝"} {PLATFORM_LABELS[p] || p} (
+                  {variations.filter((v) => v.platform === p).length})
                 </button>
               ))}
             </div>
           )}
           {statuses.length > 1 && (
-            <div className="flex gap-1.5 flex-wrap items-center">
-              <span className="text-[10px] uppercase tracking-wide text-[#6E6E73] mr-1">Status:</span>
+            <div className="flex gap-1 flex-wrap items-center">
+              <span className="text-[10px] uppercase tracking-wide text-[#9CA3AF] mr-1">
+                Status:
+              </span>
               <button
                 onClick={() => setFilterStatus("all")}
-                className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
+                className={`px-2.5 py-0.5 text-xs font-medium rounded-lg transition-colors ${
                   filterStatus === "all"
                     ? "bg-[#3B82F6] text-white"
-                    : "text-[#6E6E73] hover:bg-white/[0.04]"
+                    : "text-[#9CA3AF] hover:bg-black/[0.03]"
                 }`}
               >
                 All
@@ -1528,10 +1486,10 @@ export default function CreativeStudio({
                 <button
                   key={s}
                   onClick={() => setFilterStatus(s)}
-                  className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
+                  className={`px-2.5 py-0.5 text-xs font-medium rounded-lg transition-colors ${
                     filterStatus === s
                       ? "bg-[#3B82F6] text-white"
-                      : "text-[#6E6E73] hover:bg-white/[0.04]"
+                      : "text-[#9CA3AF] hover:bg-black/[0.03]"
                   }`}
                 >
                   {s} ({variations.filter((v) => v.status === s).length})
@@ -1544,11 +1502,15 @@ export default function CreativeStudio({
 
       {/* Empty state */}
       {total === 0 && !generating && (
-        <div className="text-center py-16 rounded-xl border-2 border-dashed border-white/[0.06]">
-          <Sparkles size={32} className="mx-auto mb-3 text-[#6E6E73]" />
-          <p className="font-medium text-[#F5F5F7]">No creative content yet</p>
-          <p className="text-sm text-[#6E6E73] mt-1 max-w-md mx-auto">
-            Choose a platform above to generate ad copy, landing page content, or email sequences using AI — enriched with your facility&apos;s real data.
+        <div className="text-center py-16 rounded-xl border-2 border-dashed border-black/[0.08]">
+          <Sparkles size={32} className="mx-auto mb-3 text-[#9CA3AF]" />
+          <p className="font-medium text-[#111827]">
+            No creative content yet
+          </p>
+          <p className="text-sm text-[#9CA3AF] mt-1 max-w-md mx-auto">
+            Choose a platform above to generate ad copy, landing page content,
+            or email sequences using AI — enriched with your facility&apos;s
+            real data.
           </p>
         </div>
       )}
@@ -1561,21 +1523,27 @@ export default function CreativeStudio({
           ].sort((a, b) => b - a);
           return versions.map((ver) => {
             const batch = filtered.filter((v) => v.version === ver);
-            const batchPlatforms = [...new Set(batch.map((v) => v.platform))];
+            const batchPlatforms = [
+              ...new Set(batch.map((v) => v.platform)),
+            ];
 
             return (
-              <div key={ver} className="space-y-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">
-                  Version {ver} &middot; {new Date(batch[0].created_at).toLocaleDateString()}
+              <div key={ver}>
+                <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF] mb-3">
+                  Version {ver} &middot;{" "}
+                  {new Date(batch[0].created_at).toLocaleDateString()}
                 </p>
                 {batchPlatforms.map((plat) => {
-                  const platBatch = batch.filter((v) => v.platform === plat);
+                  const platBatch = batch.filter(
+                    (v) => v.platform === plat
+                  );
                   const isMetaFeed = plat === "meta_feed";
                   return (
-                    <div key={plat} className="space-y-3">
+                    <div key={plat} className="mb-4">
                       {batchPlatforms.length > 1 && (
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6E6E73] flex items-center gap-1.5">
-                          {PLATFORM_ICONS[plat]} {PLATFORM_LABELS[plat] || plat}
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2 flex items-center gap-1.5">
+                          {PLATFORM_ICONS[plat]}{" "}
+                          {PLATFORM_LABELS[plat] || plat}
                         </p>
                       )}
                       <div

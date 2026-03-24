@@ -80,9 +80,9 @@ function currencyDecimal(n: number): string {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
-      <div className="mb-3 h-4 w-24 animate-pulse rounded bg-white/[0.06]" />
-      <div className="h-8 w-32 animate-pulse rounded bg-white/[0.06]" />
+    <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+      <div className="mb-3 h-4 w-24 animate-pulse rounded bg-black/[0.04]" />
+      <div className="h-8 w-32 animate-pulse rounded bg-black/[0.04]" />
     </div>
   );
 }
@@ -93,7 +93,7 @@ function SkeletonTable() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="h-12 w-full animate-pulse rounded bg-white/[0.06]"
+          className="h-12 w-full animate-pulse rounded bg-black/[0.04]"
         />
       ))}
     </div>
@@ -102,7 +102,7 @@ function SkeletonTable() {
 
 function SkeletonChart() {
   return (
-    <div className="h-72 w-full animate-pulse rounded-xl bg-white/[0.06]" />
+    <div className="h-72 w-full animate-pulse rounded-xl bg-black/[0.04]" />
   );
 }
 
@@ -147,18 +147,18 @@ function KPICard({ label, value, icon, accent, change }: KPICardProps) {
       className={`rounded-xl border p-5 ${
         accent
           ? "border-[#3B82F6]/30 bg-[#3B82F6]/[0.08]"
-          : "border-white/[0.06] bg-[#111111]"
+          : "border-black/[0.08] bg-white"
       }`}
     >
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm text-[#6E6E73]">{label}</span>
-        <span className={accent ? "text-[#3B82F6]" : "text-[#A1A1A6]"}>
+        <span className="text-sm text-[#9CA3AF]">{label}</span>
+        <span className={accent ? "text-[#3B82F6]" : "text-[#6B7280]"}>
           {icon}
         </span>
       </div>
       <p
         className={`text-2xl font-bold ${
-          accent ? "text-[#3B82F6]" : "text-[#F5F5F7]"
+          accent ? "text-[#3B82F6]" : "text-[#111827]"
         }`}
       >
         {value}
@@ -196,16 +196,16 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-white/[0.06] bg-[#1A1A1A] px-3 py-2 shadow-xl">
-      <p className="mb-1 text-xs text-[#6E6E73]">{label}</p>
+    <div className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-3 py-2 shadow-xl">
+      <p className="mb-1 text-xs text-[#9CA3AF]">{label}</p>
       {payload.map((entry) => (
         <div key={entry.name} className="flex items-center gap-2 text-sm">
           <span
             className="h-2 w-2 rounded-full"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-[#A1A1A6]">{entry.name}:</span>
-          <span className="font-medium text-[#F5F5F7]">
+          <span className="text-[#6B7280]">{entry.name}:</span>
+          <span className="font-medium text-[#111827]">
             {entry.name === "Spend" ? currency(entry.value) : entry.value}
           </span>
         </div>
@@ -449,16 +449,16 @@ export default function PortfolioPage() {
           />
         </div>
       ) : (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-8 text-center">
-          <p className="text-[#6E6E73]">No portfolio data available yet.</p>
+        <div className="rounded-xl border border-black/[0.08] bg-white p-8 text-center">
+          <p className="text-[#9CA3AF]">No portfolio data available yet.</p>
         </div>
       )}
 
       {/* charts */}
       <div className="grid gap-6 xl:grid-cols-2">
         {/* monthly performance area chart */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
-          <h2 className="mb-4 text-sm font-semibold text-[#F5F5F7]">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+          <h2 className="mb-4 text-sm font-semibold text-[#111827]">
             Monthly Campaign Performance
           </h2>
           {loading ? (
@@ -502,7 +502,7 @@ export default function PortfolioPage() {
                   cursor={{ stroke: "rgba(255,255,255,0.1)" }}
                 />
                 <Legend
-                  wrapperStyle={{ color: "#A1A1A6", fontSize: 12 }}
+                  wrapperStyle={{ color: "#6B7280", fontSize: 12 }}
                 />
                 <Area
                   type="monotone"
@@ -522,7 +522,7 @@ export default function PortfolioPage() {
             </ResponsiveContainer>
           ) : (
             <div className="flex h-72 items-center justify-center">
-              <p className="text-sm text-[#6E6E73]">
+              <p className="text-sm text-[#9CA3AF]">
                 No monthly data available.
               </p>
             </div>
@@ -530,8 +530,8 @@ export default function PortfolioPage() {
         </div>
 
         {/* spend bar chart */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
-          <h2 className="mb-4 text-sm font-semibold text-[#F5F5F7]">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+          <h2 className="mb-4 text-sm font-semibold text-[#111827]">
             Monthly Ad Spend
           </h2>
           {loading ? (
@@ -569,7 +569,7 @@ export default function PortfolioPage() {
             </ResponsiveContainer>
           ) : (
             <div className="flex h-72 items-center justify-center">
-              <p className="text-sm text-[#6E6E73]">
+              <p className="text-sm text-[#9CA3AF]">
                 No spend data available.
               </p>
             </div>
@@ -578,8 +578,8 @@ export default function PortfolioPage() {
       </div>
 
       {/* client rankings */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
-        <h2 className="mb-4 text-sm font-semibold text-[#F5F5F7]">
+      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+        <h2 className="mb-4 text-sm font-semibold text-[#111827]">
           Client Rankings
         </h2>
         {loading ? (
@@ -588,7 +588,7 @@ export default function PortfolioPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06] text-left text-[#6E6E73]">
+                <tr className="border-b border-black/[0.08] text-left text-[#9CA3AF]">
                   <th className="pb-3 pr-4 font-medium">#</th>
                   <th className="pb-3 pr-4 font-medium">Client</th>
                   <th className="pb-3 pr-4 font-medium">Facility</th>
@@ -605,28 +605,28 @@ export default function PortfolioPage() {
                 {clientRankings.map((row, i) => (
                   <tr
                     key={row.client}
-                    className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]"
+                    className="border-b border-black/[0.06] transition-colors hover:bg-black/[0.03]"
                   >
-                    <td className="py-3 pr-4 text-[#6E6E73]">{i + 1}</td>
-                    <td className="py-3 pr-4 font-medium text-[#F5F5F7]">
+                    <td className="py-3 pr-4 text-[#9CA3AF]">{i + 1}</td>
+                    <td className="py-3 pr-4 font-medium text-[#111827]">
                       {row.client}
                     </td>
-                    <td className="py-3 pr-4 text-[#A1A1A6]">
+                    <td className="py-3 pr-4 text-[#6B7280]">
                       {row.facility}
                     </td>
-                    <td className="py-3 pr-4 text-right text-[#A1A1A6]">
+                    <td className="py-3 pr-4 text-right text-[#6B7280]">
                       {currency(row.spend)}
                     </td>
-                    <td className="py-3 pr-4 text-right text-[#A1A1A6]">
+                    <td className="py-3 pr-4 text-right text-[#6B7280]">
                       {row.leads}
                     </td>
                     <td className="py-3 pr-4 text-right font-medium text-[#3B82F6]">
                       {row.moveIns}
                     </td>
-                    <td className="py-3 pr-4 text-right text-[#A1A1A6]">
+                    <td className="py-3 pr-4 text-right text-[#6B7280]">
                       {currencyDecimal(row.cpl)}
                     </td>
-                    <td className="py-3 text-right text-[#A1A1A6]">
+                    <td className="py-3 text-right text-[#6B7280]">
                       {row.roas.toFixed(1)}x
                     </td>
                   </tr>
@@ -636,7 +636,7 @@ export default function PortfolioPage() {
           </div>
         ) : (
           <div className="py-8 text-center">
-            <p className="text-sm text-[#6E6E73]">
+            <p className="text-sm text-[#9CA3AF]">
               No client data available yet.
             </p>
           </div>

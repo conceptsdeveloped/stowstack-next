@@ -127,7 +127,7 @@ function HeroSection({
             alt=""
             className="w-full h-full object-cover opacity-20"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 to-[#050505]/95" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/80 to-white/95" />
         </div>
       )}
 
@@ -167,7 +167,7 @@ function HeroSection({
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
                 href={(config.ctaUrl as string) || "#cta"}
-                className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-semibold text-white shadow-lg transition-all ${pc ? "" : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/25"}`}
+                className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-semibold text-[#111827] shadow-lg transition-all ${pc ? "" : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/25"}`}
                 style={
                   pc
                     ? {
@@ -541,7 +541,7 @@ function CTASection({
         </h2>
         {typeof config.subheadline === "string" && config.subheadline && (
           <p
-            className={`text-lg leading-relaxed max-w-2xl mx-auto mb-8 ${isGradient ? "text-white/60" : "text-slate-500"}`}
+            className={`text-lg leading-relaxed max-w-2xl mx-auto mb-8 ${isGradient ? "text-[#6B7280]" : "text-slate-500"}`}
           >
             {config.subheadline}
           </p>
@@ -565,7 +565,7 @@ function CTASection({
             {typeof config.ctaText === "string" && config.ctaText && (
               <a
                 href={(config.ctaUrl as string) || "#"}
-                className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-semibold text-white shadow-lg transition-all ${theme?.primaryColor ? "" : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/25"}`}
+                className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-semibold text-[#111827] shadow-lg transition-all ${theme?.primaryColor ? "" : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/25"}`}
                 style={
                   theme?.primaryColor
                     ? {
@@ -584,7 +584,7 @@ function CTASection({
                 href={`tel:${(config.phone as string).replace(/[^+\d]/g, "")}`}
                 className={`inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-base font-medium border transition-colors ${
                   isGradient
-                    ? "border-white/20 text-white hover:bg-white/10"
+                    ? "border-white/20 text-white hover:bg-black/5"
                     : "border-slate-200 text-slate-700 hover:bg-slate-50"
                 }`}
               >
@@ -597,7 +597,7 @@ function CTASection({
         {typeof config.email === "string" && config.email && (
           <a
             href={`mailto:${config.email}`}
-            className={`inline-flex items-center gap-2 text-sm ${isGradient ? "text-white/40 hover:text-white/70" : "text-slate-400 hover:text-slate-600"} transition-colors`}
+            className={`inline-flex items-center gap-2 text-sm ${isGradient ? "text-[#9CA3AF] hover:text-[#111827]/70" : "text-slate-400 hover:text-slate-600"} transition-colors`}
           >
             <Mail size={14} /> {config.email as string}
           </a>
@@ -986,7 +986,7 @@ function LeadCaptureFormSection({
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3.5 rounded-xl text-base font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl text-base font-semibold text-[#111827] transition-opacity hover:opacity-90 disabled:opacity-50"
             style={{ background: pc }}
           >
             {submitting
@@ -1164,7 +1164,7 @@ function ExitIntentPopup({
                 />
                 <button
                   type="submit"
-                  className="px-5 py-3 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                  className="px-5 py-3 rounded-xl text-sm font-semibold text-[#111827] transition-opacity hover:opacity-90"
                   style={{ background: pc }}
                 >
                   Save My Spot
@@ -1213,7 +1213,7 @@ function LandingPageNav({
         </div>
         <a
           href="#cta"
-          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold text-white transition-colors ${pc ? "" : "bg-blue-600 hover:bg-blue-700"}`}
+          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold text-[#111827] transition-colors ${pc ? "" : "bg-blue-600 hover:bg-blue-700"}`}
           style={pc ? { background: pc } : undefined}
         >
           Reserve Now
@@ -1230,7 +1230,7 @@ function LandingPageFooter({
 }) {
   const hideStowStack = orgBranding?.whiteLabel;
   return (
-    <footer className="py-8 bg-[#050505] text-center">
+    <footer className="py-8 bg-white text-center">
       {hideStowStack ? (
         orgBranding?.orgName && (
           <p className="text-xs text-slate-500">{orgBranding.orgName}</p>
@@ -1523,7 +1523,7 @@ export default function LandingPageRoute() {
           <div className="flex items-center gap-3 px-4 py-3">
             <a
               href={`tel:${displayPhone.replace(/[^+\d]/g, "")}`}
-              className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white"
+              className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-[#111827]"
               style={{
                 background: page.theme?.primaryColor || "#3B82F6",
               }}

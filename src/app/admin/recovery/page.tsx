@@ -50,10 +50,10 @@ function StatsSkeleton() {
         <div
           key={i}
           className="rounded-xl border p-5 animate-pulse"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
-          <div className="h-3 w-20 rounded bg-white/5 mb-3" />
-          <div className="h-8 w-12 rounded bg-white/5" />
+          <div className="h-3 w-20 rounded bg-black/5 mb-3" />
+          <div className="h-8 w-12 rounded bg-black/5" />
         </div>
       ))}
     </div>
@@ -64,7 +64,7 @@ function TableSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-16 rounded-lg animate-pulse" style={{ backgroundColor: "#111111" }} />
+        <div key={i} className="h-16 rounded-lg animate-pulse" style={{ backgroundColor: "#FFFFFF" }} />
       ))}
     </div>
   );
@@ -128,7 +128,7 @@ export default function RecoveryPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>Lead Recovery</h1>
+        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Lead Recovery</h1>
         <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
           Recover abandoned form submissions and partial leads
         </p>
@@ -144,13 +144,13 @@ export default function RecoveryPage() {
               <div
                 key={s.label}
                 className="rounded-xl border p-5"
-                style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={16} style={{ color: s.color }} />
                   <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>{s.label}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "#F5F5F7" }}>{s.value}</p>
+                <p className="text-2xl font-bold" style={{ color: "#111827" }}>{s.value}</p>
               </div>
             );
           })}
@@ -195,16 +195,16 @@ export default function RecoveryPage() {
             return (
               <div
                 key={lead.id}
-                className="rounded-xl border p-4 transition-colors hover:bg-white/[0.01]"
-                style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+                className="rounded-xl border p-4 transition-colors hover:bg-black/[0.02]"
+                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       {lead.name ? (
-                        <span className="text-sm font-medium" style={{ color: "#F5F5F7" }}>{lead.name}</span>
+                        <span className="text-sm font-medium" style={{ color: "#111827" }}>{lead.name}</span>
                       ) : (
-                        <span className="text-sm font-mono" style={{ color: "#A1A1A6" }}>
+                        <span className="text-sm font-mono" style={{ color: "#6B7280" }}>
                           {lead.session_id.slice(0, 12)}...
                         </span>
                       )}

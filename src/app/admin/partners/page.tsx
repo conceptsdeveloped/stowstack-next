@@ -56,13 +56,13 @@ function OrgSkeleton() {
         <div
           key={i}
           className="rounded-xl border p-5 animate-pulse"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
           <div className="flex items-center gap-4">
-            <div className="h-4 w-40 rounded bg-white/5" />
-            <div className="h-4 w-16 rounded bg-white/5" />
+            <div className="h-4 w-40 rounded bg-black/5" />
+            <div className="h-4 w-16 rounded bg-black/5" />
             <div className="flex-1" />
-            <div className="h-4 w-20 rounded bg-white/5" />
+            <div className="h-4 w-20 rounded bg-black/5" />
           </div>
         </div>
       ))}
@@ -81,7 +81,7 @@ export default function PartnersPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>Partners</h1>
+        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Partners</h1>
         <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
           Organization management and partner details
         </p>
@@ -89,26 +89,26 @@ export default function PartnersPage() {
 
       {orgs && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-xl border p-5" style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}>
+          <div className="rounded-xl border p-5" style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Building2 size={16} style={{ color: "#3B82F6" }} />
               <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>Total Partners</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "#F5F5F7" }}>{orgs.length}</p>
+            <p className="text-2xl font-bold" style={{ color: "#111827" }}>{orgs.length}</p>
           </div>
-          <div className="rounded-xl border p-5" style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}>
+          <div className="rounded-xl border p-5" style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Users size={16} style={{ color: "#22C55E" }} />
               <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>Active</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "#F5F5F7" }}>{activeCount}</p>
+            <p className="text-2xl font-bold" style={{ color: "#111827" }}>{activeCount}</p>
           </div>
-          <div className="rounded-xl border p-5" style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}>
+          <div className="rounded-xl border p-5" style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}>
             <div className="flex items-center gap-2 mb-2">
               <DollarSign size={16} style={{ color: "#EAB308" }} />
               <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>Total MRR</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "#F5F5F7" }}>${totalMrr.toLocaleString()}</p>
+            <p className="text-2xl font-bold" style={{ color: "#111827" }}>${totalMrr.toLocaleString()}</p>
           </div>
         </div>
       )}
@@ -132,14 +132,14 @@ export default function PartnersPage() {
               <div
                 key={org.id}
                 className="rounded-xl border overflow-hidden"
-                style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
               >
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : org.id)}
-                  className="w-full flex items-center justify-between p-4 text-left hover:bg-white/[0.02] transition-colors"
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-black/[0.03] transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-wrap">
-                    <span className="text-sm font-medium" style={{ color: "#F5F5F7" }}>{org.name}</span>
+                    <span className="text-sm font-medium" style={{ color: "#111827" }}>{org.name}</span>
                     <span
                       className="text-xs font-medium px-2 py-0.5 rounded-full capitalize"
                       style={{ backgroundColor: statusStyle.bg, color: statusStyle.text }}
@@ -169,7 +169,7 @@ export default function PartnersPage() {
                 </button>
 
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t space-y-4" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  <div className="px-4 pb-4 border-t space-y-4" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
                     {org.revenue_share_tier && (
                       <div className="pt-3">
                         <span className="text-xs" style={{ color: "#6E6E73" }}>Revenue Share Tier: </span>
@@ -188,11 +188,11 @@ export default function PartnersPage() {
                             <div
                               key={user.id}
                               className="rounded-lg p-2.5 text-xs"
-                              style={{ backgroundColor: "#0A0A0A" }}
+                              style={{ backgroundColor: "#F9FAFB" }}
                             >
-                              <p style={{ color: "#F5F5F7" }}>{user.name}</p>
+                              <p style={{ color: "#111827" }}>{user.name}</p>
                               <p style={{ color: "#6E6E73" }}>{user.email}</p>
-                              <p className="capitalize mt-0.5" style={{ color: "#A1A1A6" }}>{user.role}</p>
+                              <p className="capitalize mt-0.5" style={{ color: "#6B7280" }}>{user.role}</p>
                             </div>
                           ))}
                         </div>
@@ -210,9 +210,9 @@ export default function PartnersPage() {
                             <div
                               key={fac.id}
                               className="rounded-lg p-2.5 text-xs"
-                              style={{ backgroundColor: "#0A0A0A" }}
+                              style={{ backgroundColor: "#F9FAFB" }}
                             >
-                              <p style={{ color: "#F5F5F7" }}>{fac.name}</p>
+                              <p style={{ color: "#111827" }}>{fac.name}</p>
                               <p style={{ color: "#6E6E73" }}>{fac.location}</p>
                             </div>
                           ))}

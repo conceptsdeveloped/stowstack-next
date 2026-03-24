@@ -143,17 +143,17 @@ type Section = "posts" | "reviews" | "qa" | "insights" | "sync" | "settings"
 // Helpers
 // ---------------------------------------------------------------------------
 
-const card = "bg-[#111111] border border-white/[0.06] rounded-xl"
-const textPrimary = "text-[#F5F5F7]"
-const textSecondary = "text-[#A1A1A6]"
-const textTertiary = "text-[#6E6E73]"
+const card = "bg-white border border-black/[0.08] rounded-xl"
+const textPrimary = "text-[#111827]"
+const textSecondary = "text-[#6B7280]"
+const textTertiary = "text-[#9CA3AF]"
 const accent = "bg-[#3B82F6]"
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border border-white/[0.06] bg-[#0A0A0A] text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]"
+  "w-full px-3 py-2 rounded-lg border border-black/[0.08] bg-[#F9FAFB] text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]"
 const btnPrimary =
   "px-4 py-2 text-xs font-semibold bg-[#3B82F6] text-white rounded-lg hover:bg-[#3B82F6]/90 disabled:opacity-50 transition-colors"
 const btnSecondary =
-  "px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04] transition-colors"
+  "px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03] transition-colors"
 
 function formatDate(iso: string | null) {
   if (!iso) return "\u2014"
@@ -167,7 +167,7 @@ function formatDate(iso: string | null) {
 }
 
 const postStatusColors: Record<string, string> = {
-  draft: "bg-white/[0.06] text-[#A1A1A6]",
+  draft: "bg-black/[0.04] text-[#6B7280]",
   scheduled: "bg-blue-500/10 text-blue-400",
   published: "bg-emerald-500/10 text-emerald-400",
   failed: "bg-red-500/10 text-red-400",
@@ -177,11 +177,11 @@ const responseStatusColors: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-400",
   ai_drafted: "bg-purple-500/10 text-purple-400",
   published: "bg-emerald-500/10 text-emerald-400",
-  skipped: "bg-white/[0.06] text-[#6E6E73]",
+  skipped: "bg-black/[0.04] text-[#9CA3AF]",
 }
 
 function chipClass(status: string, colorMap: Record<string, string>) {
-  return `px-2 py-0.5 rounded-full text-xs font-semibold ${colorMap[status] || "bg-white/[0.06] text-[#A1A1A6]"}`
+  return `px-2 py-0.5 rounded-full text-xs font-semibold ${colorMap[status] || "bg-black/[0.04] text-[#6B7280]"}`
 }
 
 // ---------------------------------------------------------------------------
@@ -719,7 +719,7 @@ export default function GBPFull({
               className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 connection?.status === "connected"
                   ? "bg-emerald-500/10"
-                  : "bg-white/[0.04]"
+                  : "bg-black/[0.03]"
               }`}
             >
               <MapPin
@@ -794,7 +794,7 @@ export default function GBPFull({
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
               section === id
                 ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                : "text-[#A1A1A6] hover:bg-white/[0.04]"
+                : "text-[#6B7280] hover:bg-black/[0.03]"
             }`}
           >
             <Icon size={13} /> {label}
@@ -1040,7 +1040,7 @@ export default function GBPFull({
               </p>
             </div>
           ) : (
-            <div className={`${card} divide-y divide-white/[0.06]`}>
+            <div className={`${card} divide-y divide-black/[0.08]`}>
               {posts.map((post) => (
                 <div key={post.id} className="p-4">
                   <div className="flex items-start gap-3">
@@ -1051,7 +1051,7 @@ export default function GBPFull({
                         >
                           {post.status}
                         </span>
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6]">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-black/[0.04] text-[#6B7280]">
                           {post.post_type}
                         </span>
                         {post.ai_generated && (
@@ -1098,7 +1098,7 @@ export default function GBPFull({
                     </div>
                     <button
                       onClick={() => deletePost(post.id)}
-                      className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10 text-[#6E6E73] hover:text-red-400"
+                      className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10 text-[#9CA3AF] hover:text-red-400"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -1170,7 +1170,7 @@ export default function GBPFull({
                       <span className={`text-xs w-8 text-right ${textPrimary}`}>
                         {rating} \u2605
                       </span>
-                      <div className="flex-1 h-4 rounded-full overflow-hidden bg-white/[0.06]">
+                      <div className="flex-1 h-4 rounded-full overflow-hidden bg-black/[0.04]">
                         <div
                           className={`h-full rounded-full transition-all ${
                             rating >= 4
@@ -1201,7 +1201,7 @@ export default function GBPFull({
                   className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                     reviewFilter === f
                       ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                      : "text-[#A1A1A6] hover:bg-white/[0.04]"
+                      : "text-[#6B7280] hover:bg-black/[0.03]"
                   }`}
                 >
                   {f === "all"
@@ -1443,7 +1443,7 @@ export default function GBPFull({
                   className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                     qaFilter === f
                       ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                      : "text-[#A1A1A6] hover:bg-white/[0.04]"
+                      : "text-[#6B7280] hover:bg-black/[0.03]"
                   }`}
                 >
                   {f === "all"
@@ -1656,7 +1656,7 @@ export default function GBPFull({
                     className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                       insightsRange === val
                         ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                        : "text-[#A1A1A6] hover:bg-white/[0.04]"
+                        : "text-[#6B7280] hover:bg-black/[0.03]"
                     }`}
                   >
                     {label}
@@ -1780,7 +1780,7 @@ export default function GBPFull({
                     Action Rate
                   </h4>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-6 rounded-full overflow-hidden bg-white/[0.06]">
+                    <div className="flex-1 h-6 rounded-full overflow-hidden bg-black/[0.04]">
                       <div
                         className="h-full rounded-full bg-emerald-500 transition-all"
                         style={{
@@ -1840,10 +1840,10 @@ export default function GBPFull({
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "#111111",
+                          backgroundColor: "#FFFFFF",
                           border: "1px solid rgba(255,255,255,0.06)",
                           borderRadius: "8px",
-                          color: "#F5F5F7",
+                          color: "#111827",
                           fontSize: "12px",
                         }}
                       />
@@ -1871,7 +1871,7 @@ export default function GBPFull({
               {/* Historical table */}
               {insights.length > 1 && (
                 <div className={card}>
-                  <div className="p-4 border-b border-white/[0.06]">
+                  <div className="p-4 border-b border-black/[0.08]">
                     <h4 className={`text-sm font-semibold ${textPrimary}`}>
                       Historical Performance
                     </h4>
@@ -1900,11 +1900,11 @@ export default function GBPFull({
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/[0.06]">
+                      <tbody className="divide-y divide-black/[0.08]">
                         {insights.map((i) => (
                           <tr
                             key={i.id}
-                            className="hover:bg-white/[0.02]"
+                            className="hover:bg-black/[0.03]"
                           >
                             <td className={`px-4 py-2 ${textPrimary}`}>
                               {i.period_start} \u2014 {i.period_end}
@@ -2049,12 +2049,12 @@ export default function GBPFull({
 
           {syncLog.length > 0 && (
             <div className={card}>
-              <div className="p-4 border-b border-white/[0.06]">
+              <div className="p-4 border-b border-black/[0.08]">
                 <h4 className={`text-sm font-semibold ${textPrimary}`}>
                   Sync History
                 </h4>
               </div>
-              <div className="divide-y divide-white/[0.06]">
+              <div className="divide-y divide-black/[0.08]">
                 {syncLog.map((log) => (
                   <div
                     key={log.id}
@@ -2156,7 +2156,7 @@ export default function GBPFull({
                           setting.key as keyof typeof connection.sync_config
                         ]
                           ? "bg-[#3B82F6]"
-                          : "bg-white/[0.1]"
+                          : "bg-black/[0.06]"
                       } ${!connection ? "opacity-40" : ""}`}
                     >
                       <span
@@ -2200,7 +2200,7 @@ export default function GBPFull({
                     className={`relative w-11 h-6 rounded-full transition-colors ${
                       reviewSettings.auto_respond
                         ? "bg-[#3B82F6]"
-                        : "bg-white/[0.1]"
+                        : "bg-black/[0.06]"
                     }`}
                   >
                     <span
@@ -2239,7 +2239,7 @@ export default function GBPFull({
                     }
                     className="w-full accent-[#3B82F6]"
                   />
-                  <div className="flex justify-between text-[10px] text-[#6E6E73] mt-0.5">
+                  <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-0.5">
                     <span>1 star</span>
                     <span>2 stars</span>
                     <span>3 stars</span>
@@ -2281,7 +2281,7 @@ export default function GBPFull({
                         className={`px-3 py-2 rounded-lg border text-left transition-all ${
                           reviewSettings.response_tone === t.value
                             ? "bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]"
-                            : "border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]"
+                            : "border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03]"
                         }`}
                       >
                         <p className="text-xs font-medium">{t.label}</p>

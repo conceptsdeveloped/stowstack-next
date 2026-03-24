@@ -76,7 +76,7 @@ const AD_FORMATS: {
 ];
 
 const STATUS_BADGE: Record<string, string> = {
-  draft: "bg-white/[0.06] text-[#A1A1A6]",
+  draft: "bg-black/[0.04] text-[#6B7280]",
   approved: "bg-emerald-500/10 text-emerald-400",
   published: "bg-green-500/10 text-green-400",
   rejected: "bg-red-500/10 text-red-400",
@@ -110,7 +110,7 @@ function AdMockup({
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a2e] to-[#0A0A0A]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a2e] to-[#F9FAFB]" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         {/* Story progress dots */}
@@ -128,7 +128,7 @@ function AdMockup({
             <p className="text-white text-[10px] font-semibold">
               {facilityName}
             </p>
-            <p className="text-white/60 text-[8px]">Sponsored</p>
+            <p className="text-[#6B7280] text-[8px]">Sponsored</p>
           </div>
         </div>
         {/* Content area */}
@@ -136,7 +136,7 @@ function AdMockup({
           <p className="text-white text-sm font-bold leading-tight">
             {headline}
           </p>
-          <p className="text-white/80 text-[11px] leading-relaxed line-clamp-3">
+          <p className="text-[#111827]/80 text-[11px] leading-relaxed line-clamp-3">
             {primaryText}
           </p>
           {/* Swipe-up CTA */}
@@ -152,27 +152,27 @@ function AdMockup({
 
   if (format === "instagram_post") {
     return (
-      <div className="w-[320px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[#111111]">
+      <div className="w-[320px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-white">
         {/* Account header */}
         <div className="flex items-center gap-2 p-3">
           <div className="w-8 h-8 bg-[#3B82F6] rounded-full flex items-center justify-center text-white text-[10px] font-bold">
             SS
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-[#F5F5F7]">
+            <p className="text-xs font-semibold text-[#111827]">
               {facilityName.toLowerCase().replace(/\s+/g, "")}
             </p>
-            <p className="text-[10px] text-[#6E6E73]">Sponsored</p>
+            <p className="text-[10px] text-[#9CA3AF]">Sponsored</p>
           </div>
-          <MoreHorizontal size={16} className="text-[#6E6E73]" />
+          <MoreHorizontal size={16} className="text-[#9CA3AF]" />
         </div>
         {/* Image with text overlay */}
-        <div className="w-full aspect-square bg-[#1a1a1a] relative">
+        <div className="w-full aspect-square bg-[#F3F4F6] relative">
           {image ? (
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#0A0A0A]">
-              <ImageIcon size={32} className="text-[#6E6E73]" />
+            <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB]">
+              <ImageIcon size={32} className="text-[#9CA3AF]" />
             </div>
           )}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12">
@@ -180,7 +180,7 @@ function AdMockup({
           </div>
         </div>
         {/* Like/comment/share icons */}
-        <div className="flex items-center gap-4 px-3 py-2 text-[#F5F5F7]">
+        <div className="flex items-center gap-4 px-3 py-2 text-[#111827]">
           <Heart size={20} />
           <MessageCircle size={20} />
           <Send size={20} />
@@ -189,14 +189,14 @@ function AdMockup({
         </div>
         {/* Caption area */}
         <div className="px-3 pb-3">
-          <p className="text-xs text-[#F5F5F7]">
+          <p className="text-xs text-[#111827]">
             <span className="font-semibold">
               {facilityName.toLowerCase().replace(/\s+/g, "")}{" "}
             </span>
             {primaryText}
           </p>
           {description && (
-            <p className="text-[10px] text-[#6E6E73] mt-1">{description}</p>
+            <p className="text-[10px] text-[#9CA3AF] mt-1">{description}</p>
           )}
           <div className="mt-2">
             <span className="inline-block bg-[#3B82F6] text-white text-[10px] font-semibold px-3 py-1 rounded">
@@ -210,50 +210,50 @@ function AdMockup({
 
   if (format === "facebook_feed") {
     return (
-      <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[#111111]">
+      <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-white">
         {/* Profile header */}
         <div className="flex items-center gap-2 p-3">
           <div className="w-10 h-10 bg-[#3B82F6] rounded-full flex items-center justify-center text-white text-xs font-bold">
             SS
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-[#F5F5F7]">
+            <p className="text-sm font-semibold text-[#111827]">
               {facilityName}
             </p>
-            <p className="text-[11px] text-[#6E6E73]">
+            <p className="text-[11px] text-[#9CA3AF]">
               Sponsored &middot;{" "}
               <Globe size={10} className="inline" />
             </p>
           </div>
-          <MoreHorizontal size={18} className="text-[#6E6E73]" />
+          <MoreHorizontal size={18} className="text-[#9CA3AF]" />
         </div>
         <div className="px-3 pb-2">
-          <p className="text-sm text-[#F5F5F7]">{primaryText}</p>
+          <p className="text-sm text-[#111827]">{primaryText}</p>
         </div>
         {/* Image */}
-        <div className="w-full aspect-[1.91/1] bg-[#1a1a1a] relative">
+        <div className="w-full aspect-[1.91/1] bg-[#F3F4F6] relative">
           {image ? (
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#0A0A0A]">
-              <ImageIcon size={32} className="text-[#6E6E73]" />
+            <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB]">
+              <ImageIcon size={32} className="text-[#9CA3AF]" />
             </div>
           )}
         </div>
         {/* Headline + link description */}
-        <div className="px-3 py-2 border-t border-white/[0.06] bg-white/[0.02]">
-          <p className="text-[10px] uppercase text-[#6E6E73]">stowstack.co</p>
-          <p className="text-sm font-semibold text-[#F5F5F7] truncate">
+        <div className="px-3 py-2 border-t border-black/[0.08] bg-black/[0.02]">
+          <p className="text-[10px] uppercase text-[#9CA3AF]">stowstack.co</p>
+          <p className="text-sm font-semibold text-[#111827] truncate">
             {headline}
           </p>
-          <p className="text-xs text-[#6E6E73] truncate">{description}</p>
+          <p className="text-xs text-[#9CA3AF] truncate">{description}</p>
         </div>
         {/* Reactions bar */}
-        <div className="px-3 py-2 border-t border-white/[0.06] flex items-center justify-between">
-          <button className="px-4 py-1.5 text-xs font-semibold rounded bg-white/[0.06] text-[#F5F5F7]">
+        <div className="px-3 py-2 border-t border-black/[0.08] flex items-center justify-between">
+          <button className="px-4 py-1.5 text-xs font-semibold rounded bg-black/[0.04] text-[#111827]">
             {cta}
           </button>
-          <div className="flex gap-4 text-[#6E6E73]">
+          <div className="flex gap-4 text-[#9CA3AF]">
             <span className="text-xs">Like</span>
             <span className="text-xs">Comment</span>
             <span className="text-xs">Share</span>
@@ -265,14 +265,14 @@ function AdMockup({
 
   if (format === "google_display") {
     return (
-      <div className="w-[300px] border border-white/[0.06] rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[#111111]">
+      <div className="w-[300px] border border-black/[0.08] rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-white">
         {/* Banner image */}
-        <div className="w-full h-[150px] bg-[#1a1a1a] relative">
+        <div className="w-full h-[150px] bg-[#F3F4F6] relative">
           {image ? (
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#0A0A0A]">
-              <ImageIcon size={24} className="text-[#6E6E73]" />
+            <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB]">
+              <ImageIcon size={24} className="text-[#9CA3AF]" />
             </div>
           )}
           <div className="absolute top-1 left-1 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded">
@@ -281,14 +281,14 @@ function AdMockup({
         </div>
         {/* Headline, description, CTA button, display URL */}
         <div className="p-3 space-y-1.5">
-          <p className="text-sm font-bold leading-tight text-[#F5F5F7]">
+          <p className="text-sm font-bold leading-tight text-[#111827]">
             {headline}
           </p>
-          <p className="text-[11px] text-[#6E6E73] line-clamp-2">
+          <p className="text-[11px] text-[#9CA3AF] line-clamp-2">
             {description || primaryText}
           </p>
           <div className="flex items-center justify-between pt-1">
-            <span className="text-[10px] text-[#6E6E73]">{facilityName}</span>
+            <span className="text-[10px] text-[#9CA3AF]">{facilityName}</span>
             <button className="bg-[#3B82F6] text-white text-[10px] font-semibold px-3 py-1 rounded">
               {cta}
             </button>
@@ -367,10 +367,10 @@ export default function AdMockupPreview({
 
   if (!variations.length) {
     return (
-      <div className="text-center py-12 border border-white/[0.06] rounded-xl bg-[#111111]">
-        <ImageIcon size={32} className="mx-auto mb-3 text-[#6E6E73]" />
-        <p className="font-medium text-[#F5F5F7]">No ad copy available</p>
-        <p className="text-sm text-[#6E6E73] mt-1">
+      <div className="text-center py-12 border border-black/[0.08] rounded-xl bg-white">
+        <ImageIcon size={32} className="mx-auto mb-3 text-[#9CA3AF]" />
+        <p className="font-medium text-[#111827]">No ad copy available</p>
+        <p className="text-sm text-[#9CA3AF] mt-1">
           Go to the Creative Studio first to generate ad variations, then return
           here to preview mockups.
         </p>
@@ -395,12 +395,12 @@ export default function AdMockupPreview({
             className={`px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
               activeFormat === f.id
                 ? "bg-[#3B82F6] text-white border-[#3B82F6]"
-                : "border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]"
+                : "border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03]"
             }`}
           >
             {f.label}
             <span
-              className={`ml-1.5 text-[10px] ${activeFormat === f.id ? "text-blue-200" : "text-[#6E6E73]"}`}
+              className={`ml-1.5 text-[10px] ${activeFormat === f.id ? "text-blue-200" : "text-[#9CA3AF]"}`}
             >
               {f.width}x{f.height}
             </span>
@@ -411,7 +411,7 @@ export default function AdMockupPreview({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Ad Preview */}
         <div className="space-y-4">
-          <h4 className="text-sm font-semibold text-[#F5F5F7]">Preview</h4>
+          <h4 className="text-sm font-semibold text-[#111827]">Preview</h4>
           <div className="flex justify-center" ref={previewRef}>
             <AdMockup
               format={activeFormat}
@@ -422,7 +422,7 @@ export default function AdMockupPreview({
           </div>
           <button
             onClick={handleCopyPreview}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-white/[0.06] text-[#A1A1A6] text-sm font-medium rounded-lg hover:bg-white/[0.04] transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-black/[0.08] text-[#6B7280] text-sm font-medium rounded-lg hover:bg-black/[0.03] transition-colors"
           >
             {copied ? (
               <>
@@ -441,7 +441,7 @@ export default function AdMockupPreview({
         <div className="space-y-5">
           {/* Copy variation selector dropdown */}
           <div>
-            <h4 className="text-sm font-semibold text-[#F5F5F7] mb-2">
+            <h4 className="text-sm font-semibold text-[#111827] mb-2">
               Ad Copy
             </h4>
             <div className="space-y-2">
@@ -456,11 +456,11 @@ export default function AdMockupPreview({
                       className={`w-full text-left p-3 border rounded-lg transition-colors ${
                         selectedVariation?.id === v.id
                           ? "border-[#3B82F6] bg-[#3B82F6]/10"
-                          : "border-white/[0.06] bg-[#111111] hover:bg-white/[0.02]"
+                          : "border-black/[0.08] bg-white hover:bg-black/[0.03]"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase bg-white/[0.06] text-[#A1A1A6]">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase bg-black/[0.04] text-[#6B7280]">
                           {c.angleLabel || v.angle}
                         </span>
                         <span
@@ -469,10 +469,10 @@ export default function AdMockupPreview({
                           {v.status}
                         </span>
                       </div>
-                      <p className="text-xs font-medium text-[#F5F5F7] truncate">
+                      <p className="text-xs font-medium text-[#111827] truncate">
                         {c.headline}
                       </p>
-                      <p className="text-[11px] text-[#6E6E73] line-clamp-2 mt-0.5">
+                      <p className="text-[11px] text-[#9CA3AF] line-clamp-2 mt-0.5">
                         {c.primaryText}
                       </p>
                     </button>
@@ -484,14 +484,14 @@ export default function AdMockupPreview({
           {/* Image selector */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-sm font-semibold text-[#F5F5F7]">Image</h4>
+              <h4 className="text-sm font-semibold text-[#111827]">Image</h4>
               <div className="flex gap-1 ml-auto">
                 <button
                   onClick={() => setImageSource("assets")}
                   className={`px-2 py-1 text-[11px] rounded transition-colors ${
                     imageSource === "assets"
                       ? "bg-[#3B82F6] text-white"
-                      : "text-[#6E6E73] hover:bg-white/[0.04]"
+                      : "text-[#9CA3AF] hover:bg-black/[0.03]"
                   }`}
                 >
                   Facility ({assets.length})
@@ -501,7 +501,7 @@ export default function AdMockupPreview({
                   className={`px-2 py-1 text-[11px] rounded transition-colors ${
                     imageSource === "stock"
                       ? "bg-[#3B82F6] text-white"
-                      : "text-[#6E6E73] hover:bg-white/[0.04]"
+                      : "text-[#9CA3AF] hover:bg-black/[0.03]"
                   }`}
                 >
                   Stock
@@ -531,7 +531,7 @@ export default function AdMockupPreview({
                 </button>
               ))}
               {assets.length === 0 && (
-                <p className="col-span-4 text-center text-xs text-[#6E6E73] py-4">
+                <p className="col-span-4 text-center text-xs text-[#9CA3AF] py-4">
                   {imageSource === "assets"
                     ? "No facility photos. Upload images in the Media Library tab."
                     : "No stock images available."}

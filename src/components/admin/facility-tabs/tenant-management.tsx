@@ -349,7 +349,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
   return (
     <div className="space-y-6">
       {/* Sub-nav */}
-      <div className="flex gap-1 rounded-lg border border-white/[0.06] bg-[#0A0A0A] p-1">
+      <div className="flex gap-1 rounded-lg border border-black/[0.08] bg-[#F9FAFB] p-1">
         {[
           { key: "list" as ViewMode, label: "Tenants", icon: <Users className="h-3.5 w-3.5" /> },
           { key: "churn" as ViewMode, label: "Churn Risk", icon: <ShieldAlert className="h-3.5 w-3.5" /> },
@@ -359,7 +359,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
             key={tab.key}
             onClick={() => setViewMode(tab.key)}
             className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-xs font-medium transition-colors ${
-              viewMode === tab.key ? "bg-[#3B82F6]/20 text-[#3B82F6]" : "text-[#6E6E73] hover:text-[#A1A1A6]"
+              viewMode === tab.key ? "bg-[#3B82F6]/20 text-[#3B82F6]" : "text-[#9CA3AF] hover:text-[#6B7280]"
             }`}
           >
             {tab.icon} {tab.label}
@@ -379,30 +379,30 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
         <KPICard label="Avg Rate" value={`$${Math.round(stats.avgRate || 0)}`} icon={<TrendingUp className="h-4 w-4" />} />
         <KPICard label="Collection Rate" value={`${Math.round(stats.collectionRate || 0)}%`} icon={<CreditCard className="h-4 w-4" />} color={stats.collectionRate >= 90 ? "text-emerald-400" : "text-amber-400"} />
         <KPICard label="AutoPay Rate" value={`${Math.round(stats.autopayRate || 0)}%`} icon={<Zap className="h-4 w-4" />} />
-        <KPICard label="Moved Out" value={stats.movedOut} icon={<XCircle className="h-4 w-4" />} color="text-[#6E6E73]" />
+        <KPICard label="Moved Out" value={stats.movedOut} icon={<XCircle className="h-4 w-4" />} color="text-[#9CA3AF]" />
       </div>
 
       {/* Actions Bar */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
           <input
             type="text"
             placeholder="Search tenants..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-white/[0.06] bg-[#111111] py-2 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] focus:border-[#3B82F6]/50 focus:outline-none"
+            className="w-full rounded-lg border border-black/[0.08] bg-white py-2 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] focus:border-[#3B82F6]/50 focus:outline-none"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6E6E73] hover:text-[#A1A1A6]">
+            <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280]">
               <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
 
         {/* Status Filter */}
-        <div className="flex rounded-lg border border-white/[0.06] bg-[#111111]">
+        <div className="flex rounded-lg border border-black/[0.08] bg-white">
           {(["all", "active", "delinquent", "moved_out", "notice"] as StatusFilter[]).map(s => (
             <button
               key={s}
@@ -410,7 +410,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
               className={`px-3 py-2 text-xs font-medium capitalize transition-colors ${
                 statusFilter === s
                   ? "bg-[#3B82F6]/20 text-[#3B82F6]"
-                  : "text-[#6E6E73] hover:text-[#A1A1A6]"
+                  : "text-[#9CA3AF] hover:text-[#6B7280]"
               }`}
             >
               {s === "moved_out" ? "Moved Out" : s === "notice" ? "On Notice" : s}
@@ -437,38 +437,38 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
 
         <button
           onClick={() => setShowImportModal(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-white/[0.06] px-3 py-2 text-xs font-medium text-[#A1A1A6] hover:bg-white/[0.1]"
+          className="flex items-center gap-1.5 rounded-lg bg-black/[0.04] px-3 py-2 text-xs font-medium text-[#6B7280] hover:bg-black/[0.06]"
         >
           <Upload className="h-3.5 w-3.5" /> Import CSV
         </button>
       </div>
 
       {/* Results info */}
-      <div className="flex items-center justify-between text-xs text-[#6E6E73]">
+      <div className="flex items-center justify-between text-xs text-[#9CA3AF]">
         <span>{filtered.length} tenant{filtered.length !== 1 ? "s" : ""} found</span>
         <span>Page {page} of {totalPages || 1}</span>
       </div>
 
       {/* Tenant Table */}
-      <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-[#111111]">
+      <div className="overflow-x-auto rounded-xl border border-black/[0.08] bg-white">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/[0.06]">
+            <tr className="border-b border-black/[0.08]">
               <SortableHeader label="Name" field="name" current={sortField} dir={sortDir} onSort={toggleSort} />
               <SortableHeader label="Unit" field="unit_number" current={sortField} dir={sortDir} onSort={toggleSort} />
               <SortableHeader label="Rate" field="monthly_rate" current={sortField} dir={sortDir} onSort={toggleSort} />
               <SortableHeader label="Balance" field="balance" current={sortField} dir={sortDir} onSort={toggleSort} />
               <SortableHeader label="Days Late" field="days_delinquent" current={sortField} dir={sortDir} onSort={toggleSort} />
-              <th className="px-4 py-3 text-left text-xs font-medium text-[#6E6E73]">Risk</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-[#6E6E73]">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[#9CA3AF]">Risk</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[#9CA3AF]">Status</th>
               <SortableHeader label="Move-In" field="move_in_date" current={sortField} dir={sortDir} onSort={toggleSort} />
-              <th className="px-4 py-3 text-right text-xs font-medium text-[#6E6E73]">Actions</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-[#9CA3AF]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {paginated.length === 0 ? (
               <tr>
-                <td colSpan={9} className="py-12 text-center text-sm text-[#6E6E73]">
+                <td colSpan={9} className="py-12 text-center text-sm text-[#9CA3AF]">
                   {searchQuery || statusFilter !== "all" ? "No tenants match your filters" : "No tenants yet — add one or import a CSV"}
                 </td>
               </tr>
@@ -493,7 +493,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="rounded-lg border border-white/[0.06] bg-[#111111] p-2 text-[#A1A1A6] hover:bg-white/[0.06] disabled:opacity-30"
+            className="rounded-lg border border-black/[0.08] bg-white p-2 text-[#6B7280] hover:bg-black/[0.04] disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -506,7 +506,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
                 key={p}
                 onClick={() => setPage(p)}
                 className={`h-8 w-8 rounded-lg text-xs font-medium ${
-                  p === page ? "bg-[#3B82F6] text-white" : "border border-white/[0.06] bg-[#111111] text-[#A1A1A6] hover:bg-white/[0.06]"
+                  p === page ? "bg-[#3B82F6] text-white" : "border border-black/[0.08] bg-white text-[#6B7280] hover:bg-black/[0.04]"
                 }`}
               >
                 {p}
@@ -516,7 +516,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="rounded-lg border border-white/[0.06] bg-[#111111] p-2 text-[#A1A1A6] hover:bg-white/[0.06] disabled:opacity-30"
+            className="rounded-lg border border-black/[0.08] bg-white p-2 text-[#6B7280] hover:bg-black/[0.04] disabled:opacity-30"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -548,12 +548,12 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
 
 function KPICard({ label, value, icon, color }: { label: string; value: string | number; icon: React.ReactNode; color?: string }) {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+    <div className="rounded-xl border border-black/[0.08] bg-white p-4">
       <div className="flex items-center gap-2">
-        <div className={`${color || "text-[#A1A1A6]"}`}>{icon}</div>
-        <span className="text-xs text-[#6E6E73]">{label}</span>
+        <div className={`${color || "text-[#6B7280]"}`}>{icon}</div>
+        <span className="text-xs text-[#9CA3AF]">{label}</span>
       </div>
-      <p className={`mt-2 text-xl font-bold ${color || "text-[#F5F5F7]"}`}>{value}</p>
+      <p className={`mt-2 text-xl font-bold ${color || "text-[#111827]"}`}>{value}</p>
     </div>
   );
 }
@@ -570,7 +570,7 @@ function SortableHeader({ label, field, current, dir, onSort }: {
   const active = current === field;
   return (
     <th className="px-4 py-3 text-left">
-      <button onClick={() => onSort(field)} className="flex items-center gap-1 text-xs font-medium text-[#6E6E73] hover:text-[#A1A1A6]">
+      <button onClick={() => onSort(field)} className="flex items-center gap-1 text-xs font-medium text-[#9CA3AF] hover:text-[#6B7280]">
         {label}
         {active ? (
           dir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
@@ -585,7 +585,7 @@ function SortableHeader({ label, field, current, dir, onSort }: {
 /* ─── risk badge ─── */
 
 function RiskBadge({ prediction }: { prediction?: ChurnPrediction }) {
-  if (!prediction) return <span className="text-xs text-[#6E6E73]">—</span>;
+  if (!prediction) return <span className="text-xs text-[#9CA3AF]">—</span>;
   const colors: Record<string, string> = {
     low: "bg-emerald-500/20 text-emerald-400",
     medium: "bg-yellow-500/20 text-yellow-400",
@@ -602,7 +602,7 @@ function RiskBadge({ prediction }: { prediction?: ChurnPrediction }) {
 /* ─── tenant status badge ─── */
 
 function TenantStatusBadge({ tenant }: { tenant: Tenant }) {
-  if (tenant.status === "moved_out") return <span className="inline-flex items-center rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-[#6E6E73]">Moved Out</span>;
+  if (tenant.status === "moved_out") return <span className="inline-flex items-center rounded-full bg-black/[0.04] px-2 py-0.5 text-[10px] font-medium text-[#9CA3AF]">Moved Out</span>;
   if ((tenant.days_delinquent || 0) > 0) return <span className="inline-flex items-center rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-medium text-red-400">{tenant.days_delinquent}d late</span>;
   return <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400">Current</span>;
 }
@@ -617,35 +617,35 @@ function TenantRow({ tenant, onClick, onEscalate, actionLoading }: {
 }) {
   return (
     <tr
-      className="cursor-pointer border-b border-white/[0.03] transition-colors hover:bg-white/[0.02]"
+      className="cursor-pointer border-b border-black/[0.04] transition-colors hover:bg-black/[0.03]"
       onClick={onClick}
     >
       <td className="px-4 py-3">
         <div>
-          <p className="font-medium text-[#F5F5F7]">{tenant.name}</p>
-          {tenant.email && <p className="text-[10px] text-[#6E6E73]">{tenant.email}</p>}
+          <p className="font-medium text-[#111827]">{tenant.name}</p>
+          {tenant.email && <p className="text-[10px] text-[#9CA3AF]">{tenant.email}</p>}
         </div>
       </td>
-      <td className="px-4 py-3 text-[#A1A1A6]">
+      <td className="px-4 py-3 text-[#6B7280]">
         <div>
           <span>{tenant.unit_number}</span>
-          {tenant.unit_size && <span className="ml-1 text-[10px] text-[#6E6E73]">({tenant.unit_size})</span>}
+          {tenant.unit_size && <span className="ml-1 text-[10px] text-[#9CA3AF]">({tenant.unit_size})</span>}
         </div>
       </td>
-      <td className="px-4 py-3 text-[#A1A1A6]">${Number(tenant.monthly_rate).toLocaleString()}</td>
+      <td className="px-4 py-3 text-[#6B7280]">${Number(tenant.monthly_rate).toLocaleString()}</td>
       <td className="px-4 py-3">
-        <span className={(Number(tenant.balance) || 0) > 0 ? "text-red-400" : "text-[#A1A1A6]"}>
+        <span className={(Number(tenant.balance) || 0) > 0 ? "text-red-400" : "text-[#6B7280]"}>
           ${Number(tenant.balance || 0).toLocaleString()}
         </span>
       </td>
       <td className="px-4 py-3">
-        <span className={(tenant.days_delinquent || 0) > 0 ? "font-medium text-red-400" : "text-[#A1A1A6]"}>
+        <span className={(tenant.days_delinquent || 0) > 0 ? "font-medium text-red-400" : "text-[#6B7280]"}>
           {tenant.days_delinquent || 0}
         </span>
       </td>
       <td className="px-4 py-3"><RiskBadge prediction={tenant.churn_predictions} /></td>
       <td className="px-4 py-3"><TenantStatusBadge tenant={tenant} /></td>
-      <td className="px-4 py-3 text-xs text-[#6E6E73]">
+      <td className="px-4 py-3 text-xs text-[#9CA3AF]">
         {new Date(tenant.move_in_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" })}
       </td>
       <td className="px-4 py-3 text-right">
@@ -660,7 +660,7 @@ function TenantRow({ tenant, onClick, onEscalate, actionLoading }: {
               <AlertTriangle className="h-3.5 w-3.5" />
             </button>
           )}
-          <button className="rounded p-1.5 text-[#6E6E73] hover:bg-white/[0.06]" title="View details">
+          <button className="rounded p-1.5 text-[#9CA3AF] hover:bg-black/[0.04]" title="View details">
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -698,34 +698,34 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="rounded-lg border border-white/[0.06] bg-[#111111] p-2 hover:bg-white/[0.06]">
-          <ChevronLeft className="h-4 w-4 text-[#A1A1A6]" />
+        <button onClick={onBack} className="rounded-lg border border-black/[0.08] bg-white p-2 hover:bg-black/[0.04]">
+          <ChevronLeft className="h-4 w-4 text-[#6B7280]" />
         </button>
         <div className="flex-1">
-          <h2 className="text-lg font-bold text-[#F5F5F7]">{tenant.name}</h2>
-          <p className="text-xs text-[#6E6E73]">Unit {tenant.unit_number}{tenant.unit_size ? ` • ${tenant.unit_size}` : ""}{tenant.unit_type ? ` • ${tenant.unit_type}` : ""}</p>
+          <h2 className="text-lg font-bold text-[#111827]">{tenant.name}</h2>
+          <p className="text-xs text-[#9CA3AF]">Unit {tenant.unit_number}{tenant.unit_size ? ` • ${tenant.unit_size}` : ""}{tenant.unit_type ? ` • ${tenant.unit_type}` : ""}</p>
         </div>
         <TenantStatusBadge tenant={tenant} />
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
-          <p className="text-xs text-[#6E6E73]">Monthly Rate</p>
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+          <p className="text-xs text-[#9CA3AF]">Monthly Rate</p>
           <p className="mt-1 text-lg font-bold">${Number(tenant.monthly_rate).toLocaleString()}</p>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
-          <p className="text-xs text-[#6E6E73]">Balance Due</p>
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+          <p className="text-xs text-[#9CA3AF]">Balance Due</p>
           <p className={`mt-1 text-lg font-bold ${(Number(tenant.balance) || 0) > 0 ? "text-red-400" : "text-emerald-400"}`}>
             ${Number(tenant.balance || 0).toLocaleString()}
           </p>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
-          <p className="text-xs text-[#6E6E73]">Tenure</p>
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+          <p className="text-xs text-[#9CA3AF]">Tenure</p>
           <p className="mt-1 text-lg font-bold">{tenure} mo</p>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
-          <p className="text-xs text-[#6E6E73]">AutoPay</p>
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+          <p className="text-xs text-[#9CA3AF]">AutoPay</p>
           <p className={`mt-1 text-lg font-bold ${tenant.autopay_enabled ? "text-emerald-400" : "text-amber-400"}`}>
             {tenant.autopay_enabled ? "On" : "Off"}
           </p>
@@ -734,24 +734,24 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
 
       {/* Contact & Details */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <h3 className="mb-3 text-sm font-semibold">Contact Info</h3>
           <div className="space-y-2 text-sm">
             {tenant.email && (
-              <a href={`mailto:${tenant.email}`} className="flex items-center gap-2 text-[#A1A1A6] hover:text-[#F5F5F7]">
+              <a href={`mailto:${tenant.email}`} className="flex items-center gap-2 text-[#6B7280] hover:text-[#111827]">
                 <Mail className="h-3.5 w-3.5" /> {tenant.email}
               </a>
             )}
             {tenant.phone && (
-              <a href={`tel:${tenant.phone}`} className="flex items-center gap-2 text-[#A1A1A6] hover:text-[#F5F5F7]">
+              <a href={`tel:${tenant.phone}`} className="flex items-center gap-2 text-[#6B7280] hover:text-[#111827]">
                 <Phone className="h-3.5 w-3.5" /> {tenant.phone}
               </a>
             )}
-            <div className="flex items-center gap-2 text-[#6E6E73]">
+            <div className="flex items-center gap-2 text-[#9CA3AF]">
               <Calendar className="h-3.5 w-3.5" /> Move-in: {new Date(tenant.move_in_date).toLocaleDateString()}
             </div>
             {tenant.lease_end_date && (
-              <div className="flex items-center gap-2 text-[#6E6E73]">
+              <div className="flex items-center gap-2 text-[#9CA3AF]">
                 <Calendar className="h-3.5 w-3.5" /> Lease ends: {new Date(tenant.lease_end_date).toLocaleDateString()}
               </div>
             )}
@@ -764,17 +764,17 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
         </div>
 
         {/* Churn Risk */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <h3 className="mb-3 text-sm font-semibold">Churn Risk</h3>
           {prediction ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <RiskBadge prediction={prediction} />
-                <span className="text-xs text-[#6E6E73]">
+                <span className="text-xs text-[#9CA3AF]">
                   Score: {prediction.risk_score}/100
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
+              <div className="h-2 overflow-hidden rounded-full bg-black/[0.04]">
                 <div
                   className={`h-full rounded-full transition-all ${
                     prediction.risk_score >= 75 ? "bg-red-500" :
@@ -791,18 +791,18 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
               )}
               {prediction.factors && Object.keys(prediction.factors).length > 0 && (
                 <div className="space-y-1">
-                  <p className="text-[10px] font-medium text-[#6E6E73]">Risk Factors</p>
+                  <p className="text-[10px] font-medium text-[#9CA3AF]">Risk Factors</p>
                   {Object.entries(prediction.factors).map(([k, v]) => (
                     <div key={k} className="flex items-center justify-between text-xs">
-                      <span className="capitalize text-[#A1A1A6]">{k.replace(/_/g, " ")}</span>
-                      <span className="text-[#6E6E73]">+{v}</span>
+                      <span className="capitalize text-[#6B7280]">{k.replace(/_/g, " ")}</span>
+                      <span className="text-[#9CA3AF]">+{v}</span>
                     </div>
                   ))}
                 </div>
               )}
               {prediction.recommended_actions && prediction.recommended_actions.length > 0 && (
                 <div className="space-y-1">
-                  <p className="text-[10px] font-medium text-[#6E6E73]">Recommended Actions</p>
+                  <p className="text-[10px] font-medium text-[#9CA3AF]">Recommended Actions</p>
                   {prediction.recommended_actions.map((a, i) => (
                     <p key={i} className="text-xs capitalize text-[#3B82F6]">{a.replace(/_/g, " ")}</p>
                   ))}
@@ -810,7 +810,7 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
               )}
             </div>
           ) : (
-            <p className="text-xs text-[#6E6E73]">No churn score — run scoring to generate</p>
+            <p className="text-xs text-[#9CA3AF]">No churn score — run scoring to generate</p>
           )}
         </div>
       </div>
@@ -848,21 +848,21 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
           <h4 className="mb-3 text-sm font-semibold text-emerald-400">Record Payment</h4>
           <div className="flex flex-wrap gap-3">
             <div>
-              <label className="mb-1 block text-[10px] text-[#6E6E73]">Amount</label>
+              <label className="mb-1 block text-[10px] text-[#9CA3AF]">Amount</label>
               <input
                 type="number"
                 step="0.01"
                 value={paymentAmount}
                 onChange={e => setPaymentAmount(e.target.value)}
-                className="w-32 rounded-lg border border-white/[0.06] bg-[#0A0A0A] px-3 py-2 text-sm text-[#F5F5F7] focus:border-emerald-500/50 focus:outline-none"
+                className="w-32 rounded-lg border border-black/[0.08] bg-[#F9FAFB] px-3 py-2 text-sm text-[#111827] focus:border-emerald-500/50 focus:outline-none"
               />
             </div>
             <div>
-              <label className="mb-1 block text-[10px] text-[#6E6E73]">Method</label>
+              <label className="mb-1 block text-[10px] text-[#9CA3AF]">Method</label>
               <select
                 value={paymentMethod}
                 onChange={e => setPaymentMethod(e.target.value)}
-                className="rounded-lg border border-white/[0.06] bg-[#0A0A0A] px-3 py-2 text-sm text-[#F5F5F7] focus:border-emerald-500/50 focus:outline-none"
+                className="rounded-lg border border-black/[0.08] bg-[#F9FAFB] px-3 py-2 text-sm text-[#111827] focus:border-emerald-500/50 focus:outline-none"
               >
                 <option value="cash">Cash</option>
                 <option value="check">Check</option>
@@ -878,7 +878,7 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
                   setShowPaymentForm(false);
                 }}
                 disabled={!paymentAmount || actionLoading === tenant.id}
-                className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-medium text-white hover:bg-emerald-600 disabled:opacity-50"
+                className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-medium text-[#111827] hover:bg-emerald-600 disabled:opacity-50"
               >
                 Submit
               </button>
@@ -893,11 +893,11 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
           <h4 className="mb-3 text-sm font-semibold text-red-400">Move Out Tenant</h4>
           <div className="flex flex-wrap gap-3">
             <div className="flex-1 min-w-[200px]">
-              <label className="mb-1 block text-[10px] text-[#6E6E73]">Reason</label>
+              <label className="mb-1 block text-[10px] text-[#9CA3AF]">Reason</label>
               <select
                 value={moveOutReason}
                 onChange={e => setMoveOutReason(e.target.value)}
-                className="w-full rounded-lg border border-white/[0.06] bg-[#0A0A0A] px-3 py-2 text-sm text-[#F5F5F7] focus:border-red-500/50 focus:outline-none"
+                className="w-full rounded-lg border border-black/[0.08] bg-[#F9FAFB] px-3 py-2 text-sm text-[#111827] focus:border-red-500/50 focus:outline-none"
               >
                 <option value="">Select reason...</option>
                 <option value="voluntary">Voluntary</option>
@@ -917,7 +917,7 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
                   setShowMoveOutForm(false);
                 }}
                 disabled={!moveOutReason || actionLoading === tenant.id}
-                className="rounded-lg bg-red-500 px-4 py-2 text-xs font-medium text-white hover:bg-red-600 disabled:opacity-50"
+                className="rounded-lg bg-red-500 px-4 py-2 text-xs font-medium text-[#111827] hover:bg-red-600 disabled:opacity-50"
               >
                 Confirm Move-Out
               </button>
@@ -928,16 +928,16 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
 
       {/* Escalation History */}
       {escalations.length > 0 && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <h3 className="mb-3 text-sm font-semibold">Escalation History</h3>
           <div className="space-y-2">
             {escalations.map(esc => (
-              <div key={esc.id} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2">
+              <div key={esc.id} className="flex items-center justify-between rounded-lg bg-black/[0.02] px-3 py-2">
                 <div className="flex items-center gap-2">
                   <EscalationStageBadge stage={esc.stage} />
-                  {esc.notes && <span className="text-xs text-[#6E6E73]">{esc.notes}</span>}
+                  {esc.notes && <span className="text-xs text-[#9CA3AF]">{esc.notes}</span>}
                 </div>
-                <span className="text-[10px] text-[#6E6E73]">
+                <span className="text-[10px] text-[#9CA3AF]">
                   {new Date(esc.stage_entered_at).toLocaleDateString()}
                 </span>
               </div>
@@ -948,16 +948,16 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
 
       {/* Upsell Opportunities */}
       {upsells.length > 0 && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
             <Target className="h-4 w-4 text-[#3B82F6]" /> Upsell Opportunities
           </h3>
           <div className="space-y-2">
             {upsells.map(u => (
-              <div key={u.id} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2">
+              <div key={u.id} className="flex items-center justify-between rounded-lg bg-black/[0.02] px-3 py-2">
                 <div>
-                  <p className="text-sm font-medium text-[#F5F5F7]">{u.title}</p>
-                  {u.description && <p className="text-xs text-[#6E6E73]">{u.description}</p>}
+                  <p className="text-sm font-medium text-[#111827]">{u.title}</p>
+                  {u.description && <p className="text-xs text-[#9CA3AF]">{u.description}</p>}
                 </div>
                 <div className="text-right">
                   {u.monthly_uplift && (
@@ -967,7 +967,7 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
                     u.status === "accepted" ? "text-emerald-400" :
                     u.status === "sent" ? "text-[#3B82F6]" :
                     u.status === "declined" ? "text-red-400" :
-                    "text-[#6E6E73]"
+                    "text-[#9CA3AF]"
                   }`}>
                     {u.status || "identified"}
                   </span>
@@ -980,17 +980,17 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
 
       {/* Payment History */}
       {payments.length > 0 && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <h3 className="mb-3 text-sm font-semibold">Payment History</h3>
           <div className="space-y-1">
             {payments.slice(0, 10).map(p => (
-              <div key={p.id} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2 text-sm">
+              <div key={p.id} className="flex items-center justify-between rounded-lg bg-black/[0.02] px-3 py-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="h-3.5 w-3.5 text-[#6E6E73]" />
+                  <CreditCard className="h-3.5 w-3.5 text-[#9CA3AF]" />
                   <span className="font-medium text-emerald-400">${Number(p.amount).toLocaleString()}</span>
-                  {p.method && <span className="text-[10px] capitalize text-[#6E6E73]">{p.method}</span>}
+                  {p.method && <span className="text-[10px] capitalize text-[#9CA3AF]">{p.method}</span>}
                 </div>
-                <span className="text-xs text-[#6E6E73]">{new Date(p.payment_date).toLocaleDateString()}</span>
+                <span className="text-xs text-[#9CA3AF]">{new Date(p.payment_date).toLocaleDateString()}</span>
               </div>
             ))}
           </div>
@@ -999,30 +999,30 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
 
       {/* Communication Log */}
       {comms.length > 0 && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
             <MessageSquare className="h-4 w-4 text-[#3B82F6]" /> Communications
           </h3>
           <div className="space-y-2">
             {comms.slice(0, 10).map(c => (
-              <div key={c.id} className="rounded-lg bg-white/[0.02] px-3 py-2">
+              <div key={c.id} className="rounded-lg bg-black/[0.02] px-3 py-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-medium uppercase ${
                       c.channel === "email" ? "text-[#3B82F6]" :
                       c.channel === "sms" ? "text-emerald-400" :
-                      "text-[#A1A1A6]"
+                      "text-[#6B7280]"
                     }`}>
                       {c.channel}
                     </span>
-                    <span className="text-[10px] capitalize text-[#6E6E73]">{c.direction}</span>
+                    <span className="text-[10px] capitalize text-[#9CA3AF]">{c.direction}</span>
                   </div>
-                  <span className="text-[10px] text-[#6E6E73]">
+                  <span className="text-[10px] text-[#9CA3AF]">
                     {new Date(c.sent_at || c.created_at || "").toLocaleDateString()}
                   </span>
                 </div>
-                {c.subject && <p className="mt-1 text-xs font-medium text-[#F5F5F7]">{c.subject}</p>}
-                {c.body && <p className="mt-0.5 text-xs text-[#A1A1A6] line-clamp-2">{c.body}</p>}
+                {c.subject && <p className="mt-1 text-xs font-medium text-[#111827]">{c.subject}</p>}
+                {c.body && <p className="mt-0.5 text-xs text-[#6B7280] line-clamp-2">{c.body}</p>}
               </div>
             ))}
           </div>
@@ -1041,10 +1041,10 @@ function EscalationStageBadge({ stage }: { stage: string }) {
     final_notice: "bg-red-500/20 text-red-400",
     lien_filed: "bg-red-500/20 text-red-300",
     auction_scheduled: "bg-red-900/20 text-red-300",
-    auction_complete: "bg-white/[0.06] text-[#6E6E73]",
+    auction_complete: "bg-black/[0.04] text-[#9CA3AF]",
   };
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium capitalize ${stageColors[stage] || "bg-white/[0.06] text-[#6E6E73]"}`}>
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium capitalize ${stageColors[stage] || "bg-black/[0.04] text-[#9CA3AF]"}`}>
       {stage.replace(/_/g, " ")}
     </span>
   );
@@ -1086,10 +1086,10 @@ function AddTenantModal({ facilityId, onClose, onSuccess }: { facilityId: string
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="mx-4 w-full max-w-lg rounded-2xl border border-white/[0.06] bg-[#0A0A0A] p-6" onClick={e => e.stopPropagation()}>
+      <div className="mx-4 w-full max-w-lg rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-bold">Add Tenant</h3>
-          <button onClick={onClose} className="text-[#6E6E73] hover:text-[#A1A1A6]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#6B7280]"><X className="h-5 w-5" /></button>
         </div>
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
         <div className="grid gap-3 sm:grid-cols-2">
@@ -1099,8 +1099,8 @@ function AddTenantModal({ facilityId, onClose, onSuccess }: { facilityId: string
           <Field label="Unit # *" value={form.unit_number} onChange={v => setForm({ ...form, unit_number: v })} />
           <Field label="Unit Size" value={form.unit_size} onChange={v => setForm({ ...form, unit_size: v })} placeholder="e.g. 10x10" />
           <div>
-            <label className="mb-1 block text-[10px] text-[#6E6E73]">Unit Type</label>
-            <select value={form.unit_type} onChange={e => setForm({ ...form, unit_type: e.target.value })} className="w-full rounded-lg border border-white/[0.06] bg-[#111111] px-3 py-2 text-sm text-[#F5F5F7] focus:border-[#3B82F6]/50 focus:outline-none">
+            <label className="mb-1 block text-[10px] text-[#9CA3AF]">Unit Type</label>
+            <select value={form.unit_type} onChange={e => setForm({ ...form, unit_type: e.target.value })} className="w-full rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-sm text-[#111827] focus:border-[#3B82F6]/50 focus:outline-none">
               <option value="standard">Standard</option>
               <option value="climate">Climate Controlled</option>
               <option value="drive_up">Drive-Up</option>
@@ -1112,18 +1112,18 @@ function AddTenantModal({ facilityId, onClose, onSuccess }: { facilityId: string
           <Field label="Move-In Date" value={form.move_in_date} onChange={v => setForm({ ...form, move_in_date: v })} type="date" />
         </div>
         <div className="mt-3 flex gap-4">
-          <label className="flex items-center gap-2 text-xs text-[#A1A1A6]">
+          <label className="flex items-center gap-2 text-xs text-[#6B7280]">
             <input type="checkbox" checked={form.autopay_enabled} onChange={e => setForm({ ...form, autopay_enabled: e.target.checked })} className="rounded" />
             AutoPay
           </label>
-          <label className="flex items-center gap-2 text-xs text-[#A1A1A6]">
+          <label className="flex items-center gap-2 text-xs text-[#6B7280]">
             <input type="checkbox" checked={form.has_insurance} onChange={e => setForm({ ...form, has_insurance: e.target.checked })} className="rounded" />
             Insurance
           </label>
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-[#A1A1A6] hover:text-[#F5F5F7]">Cancel</button>
-          <button onClick={handleSubmit} disabled={submitting} className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white hover:bg-[#2563EB] disabled:opacity-50">
+          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-[#6B7280] hover:text-[#111827]">Cancel</button>
+          <button onClick={handleSubmit} disabled={submitting} className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] hover:bg-[#E5E7EB] disabled:opacity-50">
             {submitting ? "Adding..." : "Add Tenant"}
           </button>
         </div>
@@ -1215,10 +1215,10 @@ function ImportCSVModal({ facilityId, onClose, onSuccess }: { facilityId: string
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="mx-4 w-full max-w-2xl rounded-2xl border border-white/[0.06] bg-[#0A0A0A] p-6" onClick={e => e.stopPropagation()}>
+      <div className="mx-4 w-full max-w-2xl rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-bold">Import Tenants from CSV</h3>
-          <button onClick={onClose} className="text-[#6E6E73] hover:text-[#A1A1A6]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#6B7280]"><X className="h-5 w-5" /></button>
         </div>
 
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
@@ -1228,42 +1228,42 @@ function ImportCSVModal({ facilityId, onClose, onSuccess }: { facilityId: string
             <div className="rounded-xl bg-emerald-500/10 p-4 text-center">
               <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-400" />
               <p className="mt-2 text-sm font-medium">Import Complete</p>
-              <p className="mt-1 text-xs text-[#A1A1A6]">
+              <p className="mt-1 text-xs text-[#6B7280]">
                 {result.imported} imported, {result.skipped} skipped, {result.errors} errors
               </p>
             </div>
             <div className="flex justify-end">
-              <button onClick={onSuccess} className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white">Done</button>
+              <button onClick={onSuccess} className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827]">Done</button>
             </div>
           </div>
         ) : (
           <>
             <div className="mb-4">
-              <p className="mb-2 text-xs text-[#6E6E73]">Expected columns: name, email, phone, unit_number, unit_size, monthly_rate, move_in_date, balance, autopay</p>
-              <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-white/[0.1] p-8 transition-colors hover:border-[#3B82F6]/30">
-                <Upload className="h-8 w-8 text-[#6E6E73]" />
-                <span className="text-sm text-[#A1A1A6]">{file ? file.name : "Click to select CSV file"}</span>
+              <p className="mb-2 text-xs text-[#9CA3AF]">Expected columns: name, email, phone, unit_number, unit_size, monthly_rate, move_in_date, balance, autopay</p>
+              <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-black/[0.1] p-8 transition-colors hover:border-[#3B82F6]/30">
+                <Upload className="h-8 w-8 text-[#9CA3AF]" />
+                <span className="text-sm text-[#6B7280]">{file ? file.name : "Click to select CSV file"}</span>
                 <input type="file" accept=".csv" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
               </label>
             </div>
 
             {preview.length > 0 && (
               <div className="mb-4">
-                <p className="mb-2 text-xs font-medium text-[#6E6E73]">Preview (first {preview.length} rows)</p>
-                <div className="max-h-48 overflow-auto rounded-lg border border-white/[0.06] bg-[#111111]">
+                <p className="mb-2 text-xs font-medium text-[#9CA3AF]">Preview (first {preview.length} rows)</p>
+                <div className="max-h-48 overflow-auto rounded-lg border border-black/[0.08] bg-white">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="border-b border-white/[0.06]">
+                      <tr className="border-b border-black/[0.08]">
                         {Object.keys(preview[0]).slice(0, 6).map(h => (
-                          <th key={h} className="px-2 py-1.5 text-left text-[#6E6E73]">{h}</th>
+                          <th key={h} className="px-2 py-1.5 text-left text-[#9CA3AF]">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {preview.map((row, i) => (
-                        <tr key={i} className="border-b border-white/[0.03]">
+                        <tr key={i} className="border-b border-black/[0.04]">
                           {Object.values(row).slice(0, 6).map((v, j) => (
-                            <td key={j} className="px-2 py-1.5 text-[#A1A1A6]">{v}</td>
+                            <td key={j} className="px-2 py-1.5 text-[#6B7280]">{v}</td>
                           ))}
                         </tr>
                       ))}
@@ -1274,8 +1274,8 @@ function ImportCSVModal({ facilityId, onClose, onSuccess }: { facilityId: string
             )}
 
             <div className="flex justify-end gap-2">
-              <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-[#A1A1A6] hover:text-[#F5F5F7]">Cancel</button>
-              <button onClick={handleImport} disabled={!file || importing} className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white hover:bg-[#2563EB] disabled:opacity-50">
+              <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-[#6B7280] hover:text-[#111827]">Cancel</button>
+              <button onClick={handleImport} disabled={!file || importing} className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] hover:bg-[#E5E7EB] disabled:opacity-50">
                 {importing ? "Importing..." : "Import"}
               </button>
             </div>
@@ -1293,13 +1293,13 @@ function Field({ label, value, onChange, type = "text", placeholder }: {
 }) {
   return (
     <div>
-      <label className="mb-1 block text-[10px] text-[#6E6E73]">{label}</label>
+      <label className="mb-1 block text-[10px] text-[#9CA3AF]">{label}</label>
       <input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-white/[0.06] bg-[#111111] px-3 py-2 text-sm text-[#F5F5F7] placeholder-[#6E6E73] focus:border-[#3B82F6]/50 focus:outline-none"
+        className="w-full rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-sm text-[#111827] placeholder-[#9CA3AF] focus:border-[#3B82F6]/50 focus:outline-none"
       />
     </div>
   );
@@ -1364,14 +1364,14 @@ function ChurnDashboard({ facilityId, onBack }: { facilityId: string; onBack: ()
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="rounded-lg border border-white/[0.06] bg-[#111111] p-2 hover:bg-white/[0.06]">
-          <ChevronLeft className="h-4 w-4 text-[#A1A1A6]" />
+        <button onClick={onBack} className="rounded-lg border border-black/[0.08] bg-white p-2 hover:bg-black/[0.04]">
+          <ChevronLeft className="h-4 w-4 text-[#6B7280]" />
         </button>
         <h2 className="flex-1 text-lg font-bold">Churn Risk Dashboard</h2>
         <button
           onClick={runScoring}
           disabled={scoring}
-          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-medium text-white hover:bg-[#2563EB] disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-medium text-[#111827] hover:bg-[#E5E7EB] disabled:opacity-50"
         >
           {scoring ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <ShieldAlert className="h-3.5 w-3.5" />}
           {scoring ? "Scoring..." : "Run Churn Scoring"}
@@ -1389,7 +1389,7 @@ function ChurnDashboard({ facilityId, onBack }: { facilityId: string; onBack: ()
           </div>
 
           {/* Risk Distribution */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+          <div className="rounded-xl border border-black/[0.08] bg-white p-4">
             <h3 className="mb-3 text-sm font-semibold">Risk Distribution</h3>
             <div className="flex gap-2">
               {[
@@ -1405,11 +1405,11 @@ function ChurnDashboard({ facilityId, onBack }: { facilityId: string; onBack: ()
                     onClick={() => setRiskFilter(riskFilter === level ? "all" : level)}
                     className={`flex-1 rounded-lg p-3 text-center transition-colors ${
                       riskFilter === level ? "ring-2 ring-[#3B82F6]" : ""
-                    } bg-white/[0.02] hover:bg-white/[0.04]`}
+                    } bg-black/[0.02] hover:bg-black/[0.03]`}
                   >
                     <div className={`mx-auto mb-1 h-2 w-12 rounded-full ${color}`} style={{ opacity: 0.3 + (pct / 100) * 0.7 }} />
                     <p className="text-lg font-bold">{count}</p>
-                    <p className="text-[10px] text-[#6E6E73]">{label} ({Math.round(pct)}%)</p>
+                    <p className="text-[10px] text-[#9CA3AF]">{label} ({Math.round(pct)}%)</p>
                   </button>
                 );
               })}
@@ -1419,24 +1419,24 @@ function ChurnDashboard({ facilityId, onBack }: { facilityId: string; onBack: ()
       )}
 
       {/* At-Risk Tenant List */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
-        <div className="border-b border-white/[0.06] px-4 py-3">
+      <div className="rounded-xl border border-black/[0.08] bg-white">
+        <div className="border-b border-black/[0.08] px-4 py-3">
           <h3 className="text-sm font-semibold">
             {riskFilter === "all" ? "All Scored Tenants" : `${riskFilter.charAt(0).toUpperCase() + riskFilter.slice(1)} Risk Tenants`}
-            <span className="ml-2 text-xs text-[#6E6E73]">({filtered.length})</span>
+            <span className="ml-2 text-xs text-[#9CA3AF]">({filtered.length})</span>
           </h3>
         </div>
         {filtered.length === 0 ? (
-          <div className="py-12 text-center text-sm text-[#6E6E73]">
+          <div className="py-12 text-center text-sm text-[#9CA3AF]">
             {predictions.length === 0 ? "No churn scores yet — click \"Run Churn Scoring\" to generate" : "No tenants match this filter"}
           </div>
         ) : (
           <div className="max-h-[500px] overflow-y-auto">
             {filtered.sort((a, b) => b.risk_score - a.risk_score).map(pred => (
-              <div key={pred.id} className="flex items-center gap-3 border-b border-white/[0.03] px-4 py-3">
+              <div key={pred.id} className="flex items-center gap-3 border-b border-black/[0.04] px-4 py-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#F5F5F7]">{pred.tenants?.name || "Unknown"}</p>
-                  <p className="text-xs text-[#6E6E73]">
+                  <p className="text-sm font-medium text-[#111827]">{pred.tenants?.name || "Unknown"}</p>
+                  <p className="text-xs text-[#9CA3AF]">
                     Unit {pred.tenants?.unit_number} • ${Number(pred.tenants?.monthly_rate || 0).toLocaleString()}/mo
                     {(pred.tenants?.days_delinquent || 0) > 0 && (
                       <span className="text-red-400"> • {pred.tenants?.days_delinquent}d late</span>
@@ -1453,7 +1453,7 @@ function ChurnDashboard({ facilityId, onBack }: { facilityId: string; onBack: ()
                   pred.retention_status === "enrolled" ? "text-[#3B82F6]" :
                   pred.retention_status === "retained" ? "text-emerald-400" :
                   pred.retention_status === "churned" ? "text-red-400" :
-                  "text-[#6E6E73]"
+                  "text-[#9CA3AF]"
                 }`}>
                   {pred.retention_status || "none"}
                 </span>
@@ -1539,37 +1539,37 @@ function RetentionDashboard({ facilityId, onBack }: { facilityId: string; onBack
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="rounded-lg border border-white/[0.06] bg-[#111111] p-2 hover:bg-white/[0.06]">
-          <ChevronLeft className="h-4 w-4 text-[#A1A1A6]" />
+        <button onClick={onBack} className="rounded-lg border border-black/[0.08] bg-white p-2 hover:bg-black/[0.04]">
+          <ChevronLeft className="h-4 w-4 text-[#6B7280]" />
         </button>
         <h2 className="flex-1 text-lg font-bold">Retention Campaigns</h2>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-medium text-white hover:bg-[#2563EB]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-medium text-[#111827] hover:bg-[#E5E7EB]"
         >
           <UserPlus className="h-3.5 w-3.5" /> Create Campaign
         </button>
       </div>
 
       {campaigns.length === 0 ? (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] py-16 text-center">
-          <Target className="mx-auto h-8 w-8 text-[#6E6E73]" />
-          <p className="mt-3 text-sm text-[#6E6E73]">No retention campaigns yet</p>
-          <p className="mt-1 text-xs text-[#6E6E73]">Create a campaign to automatically engage at-risk tenants</p>
+        <div className="rounded-xl border border-black/[0.08] bg-white py-16 text-center">
+          <Target className="mx-auto h-8 w-8 text-[#9CA3AF]" />
+          <p className="mt-3 text-sm text-[#9CA3AF]">No retention campaigns yet</p>
+          <p className="mt-1 text-xs text-[#9CA3AF]">Create a campaign to automatically engage at-risk tenants</p>
         </div>
       ) : (
         <div className="space-y-3">
           {campaigns.map(c => (
-            <div key={c.id} className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+            <div key={c.id} className="rounded-xl border border-black/[0.08] bg-white p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold">{c.name}</h3>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${c.active ? "bg-emerald-500/20 text-emerald-400" : "bg-white/[0.06] text-[#6E6E73]"}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${c.active ? "bg-emerald-500/20 text-emerald-400" : "bg-black/[0.04] text-[#9CA3AF]"}`}>
                       {c.active ? "Active" : "Paused"}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-xs text-[#6E6E73]">
+                  <p className="mt-0.5 text-xs text-[#9CA3AF]">
                     Trigger: {c.trigger_risk_level || "high"} risk • {c.sequence_steps?.length || 0} steps
                   </p>
                 </div>
@@ -1584,7 +1584,7 @@ function RetentionDashboard({ facilityId, onBack }: { facilityId: string; onBack
                   <button
                     onClick={() => toggleCampaign(c.id, c.active || false)}
                     disabled={actionLoading === c.id}
-                    className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-[10px] font-medium text-[#A1A1A6] hover:bg-white/[0.1] disabled:opacity-50"
+                    className="rounded-lg bg-black/[0.04] px-3 py-1.5 text-[10px] font-medium text-[#6B7280] hover:bg-black/[0.06] disabled:opacity-50"
                   >
                     {c.active ? "Pause" : "Resume"}
                   </button>
@@ -1598,27 +1598,27 @@ function RetentionDashboard({ facilityId, onBack }: { facilityId: string; onBack
                 </div>
               </div>
               <div className="mt-3 grid grid-cols-3 gap-3">
-                <div className="rounded-lg bg-white/[0.02] p-2 text-center">
+                <div className="rounded-lg bg-black/[0.02] p-2 text-center">
                   <p className="text-lg font-bold">{c.enrolled_count || 0}</p>
-                  <p className="text-[10px] text-[#6E6E73]">Enrolled</p>
+                  <p className="text-[10px] text-[#9CA3AF]">Enrolled</p>
                 </div>
-                <div className="rounded-lg bg-white/[0.02] p-2 text-center">
+                <div className="rounded-lg bg-black/[0.02] p-2 text-center">
                   <p className="text-lg font-bold text-emerald-400">{c.retained_count || 0}</p>
-                  <p className="text-[10px] text-[#6E6E73]">Retained</p>
+                  <p className="text-[10px] text-[#9CA3AF]">Retained</p>
                 </div>
-                <div className="rounded-lg bg-white/[0.02] p-2 text-center">
+                <div className="rounded-lg bg-black/[0.02] p-2 text-center">
                   <p className="text-lg font-bold">
                     {(c.enrolled_count || 0) > 0 ? Math.round(((c.retained_count || 0) / c.enrolled_count!) * 100) : 0}%
                   </p>
-                  <p className="text-[10px] text-[#6E6E73]">Retention Rate</p>
+                  <p className="text-[10px] text-[#9CA3AF]">Retention Rate</p>
                 </div>
               </div>
               {c.sequence_steps && c.sequence_steps.length > 0 && (
                 <div className="mt-3 flex gap-2 overflow-x-auto">
                   {c.sequence_steps.map((step, i) => (
-                    <div key={i} className="shrink-0 rounded-lg bg-white/[0.02] px-3 py-1.5">
-                      <p className="text-[10px] font-medium text-[#A1A1A6]">Day {step.day}</p>
-                      <p className="text-[10px] capitalize text-[#6E6E73]">{step.channel}: {step.template}</p>
+                    <div key={i} className="shrink-0 rounded-lg bg-black/[0.02] px-3 py-1.5">
+                      <p className="text-[10px] font-medium text-[#6B7280]">Day {step.day}</p>
+                      <p className="text-[10px] capitalize text-[#9CA3AF]">{step.channel}: {step.template}</p>
                     </div>
                   ))}
                 </div>
@@ -1694,10 +1694,10 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="mx-4 w-full max-w-lg rounded-2xl border border-white/[0.06] bg-[#0A0A0A] p-6" onClick={e => e.stopPropagation()}>
+      <div className="mx-4 w-full max-w-lg rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-bold">Create Retention Campaign</h3>
-          <button onClick={onClose} className="text-[#6E6E73] hover:text-[#A1A1A6]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#6B7280]"><X className="h-5 w-5" /></button>
         </div>
 
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
@@ -1706,8 +1706,8 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
           <Field label="Campaign Name" value={name} onChange={setName} placeholder="e.g. High Risk Personal Outreach" />
 
           <div>
-            <label className="mb-1 block text-[10px] text-[#6E6E73]">Trigger Risk Level</label>
-            <select value={triggerLevel} onChange={e => setTriggerLevel(e.target.value)} className="w-full rounded-lg border border-white/[0.06] bg-[#111111] px-3 py-2 text-sm text-[#F5F5F7] focus:border-[#3B82F6]/50 focus:outline-none">
+            <label className="mb-1 block text-[10px] text-[#9CA3AF]">Trigger Risk Level</label>
+            <select value={triggerLevel} onChange={e => setTriggerLevel(e.target.value)} className="w-full rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-sm text-[#111827] focus:border-[#3B82F6]/50 focus:outline-none">
               <option value="critical">Critical (75+)</option>
               <option value="high">High (50+)</option>
               <option value="medium">Medium (25+)</option>
@@ -1716,27 +1716,27 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
 
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-[10px] text-[#6E6E73]">Sequence Steps</label>
+              <label className="text-[10px] text-[#9CA3AF]">Sequence Steps</label>
               <button onClick={addStep} className="text-[10px] text-[#3B82F6] hover:underline">+ Add Step</button>
             </div>
             <div className="space-y-2">
               {steps.map((step, i) => (
-                <div key={i} className="flex items-center gap-2 rounded-lg bg-white/[0.02] p-2">
+                <div key={i} className="flex items-center gap-2 rounded-lg bg-black/[0.02] p-2">
                   <div className="w-16">
-                    <label className="mb-0.5 block text-[9px] text-[#6E6E73]">Day</label>
+                    <label className="mb-0.5 block text-[9px] text-[#9CA3AF]">Day</label>
                     <input
                       type="number"
                       value={step.day}
                       onChange={e => updateStep(i, "day", Number(e.target.value))}
-                      className="w-full rounded border border-white/[0.06] bg-[#0A0A0A] px-2 py-1 text-xs text-[#F5F5F7] focus:outline-none"
+                      className="w-full rounded border border-black/[0.08] bg-[#F9FAFB] px-2 py-1 text-xs text-[#111827] focus:outline-none"
                     />
                   </div>
                   <div className="w-24">
-                    <label className="mb-0.5 block text-[9px] text-[#6E6E73]">Channel</label>
+                    <label className="mb-0.5 block text-[9px] text-[#9CA3AF]">Channel</label>
                     <select
                       value={step.channel}
                       onChange={e => updateStep(i, "channel", e.target.value)}
-                      className="w-full rounded border border-white/[0.06] bg-[#0A0A0A] px-2 py-1 text-xs text-[#F5F5F7] focus:outline-none"
+                      className="w-full rounded border border-black/[0.08] bg-[#F9FAFB] px-2 py-1 text-xs text-[#111827] focus:outline-none"
                     >
                       <option value="email">Email</option>
                       <option value="sms">SMS</option>
@@ -1744,11 +1744,11 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
                     </select>
                   </div>
                   <div className="flex-1">
-                    <label className="mb-0.5 block text-[9px] text-[#6E6E73]">Template</label>
+                    <label className="mb-0.5 block text-[9px] text-[#9CA3AF]">Template</label>
                     <select
                       value={step.template}
                       onChange={e => updateStep(i, "template", e.target.value)}
-                      className="w-full rounded border border-white/[0.06] bg-[#0A0A0A] px-2 py-1 text-xs text-[#F5F5F7] focus:outline-none"
+                      className="w-full rounded border border-black/[0.08] bg-[#F9FAFB] px-2 py-1 text-xs text-[#111827] focus:outline-none"
                     >
                       <option value="retention_check_in">Check-In</option>
                       <option value="special_offer">Special Offer</option>
@@ -1759,7 +1759,7 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
                       <option value="follow_up">Follow Up</option>
                     </select>
                   </div>
-                  <button onClick={() => removeStep(i)} className="mt-3 text-[#6E6E73] hover:text-red-400">
+                  <button onClick={() => removeStep(i)} className="mt-3 text-[#9CA3AF] hover:text-red-400">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -1769,8 +1769,8 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
         </div>
 
         <div className="mt-4 flex justify-end gap-2">
-          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-[#A1A1A6] hover:text-[#F5F5F7]">Cancel</button>
-          <button onClick={handleSubmit} disabled={submitting} className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white hover:bg-[#2563EB] disabled:opacity-50">
+          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-[#6B7280] hover:text-[#111827]">Cancel</button>
+          <button onClick={handleSubmit} disabled={submitting} className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] hover:bg-[#E5E7EB] disabled:opacity-50">
             {submitting ? "Creating..." : "Create Campaign"}
           </button>
         </div>
@@ -1786,13 +1786,13 @@ function LoadingSkeleton() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="h-20 animate-pulse rounded-xl bg-white/[0.06]" />
+          <div key={i} className="h-20 animate-pulse rounded-xl bg-black/[0.04]" />
         ))}
       </div>
-      <div className="h-10 animate-pulse rounded-lg bg-white/[0.06]" />
+      <div className="h-10 animate-pulse rounded-lg bg-black/[0.04]" />
       <div className="space-y-2">
         {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className="h-14 animate-pulse rounded-lg bg-white/[0.06]" />
+          <div key={i} className="h-14 animate-pulse rounded-lg bg-black/[0.04]" />
         ))}
       </div>
     </div>

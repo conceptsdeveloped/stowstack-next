@@ -358,8 +358,8 @@ export default function TikTokCreator({ facilityId, adminKey }: {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-semibold text-[#F5F5F7]">TikTok Content Creator</h4>
-          <p className="text-xs text-[#6E6E73] mt-0.5">Build slideshows for organic TikTok posting</p>
+          <h4 className="text-sm font-semibold text-[#111827]">TikTok Content Creator</h4>
+          <p className="text-xs text-[#9CA3AF] mt-0.5">Build slideshows for organic TikTok posting</p>
         </div>
         <div className="flex gap-2 items-center">
           <button
@@ -370,16 +370,16 @@ export default function TikTokCreator({ facilityId, adminKey }: {
             {generating ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
             Auto-Generate
           </button>
-          <span className="flex items-center gap-1 text-xs text-[#6E6E73]">
+          <span className="flex items-center gap-1 text-xs text-[#9CA3AF]">
             <Clock size={12} /> {totalDuration.toFixed(1)}s
           </span>
         </div>
       </div>
 
       {slides.length === 0 ? (
-        <div className="text-center py-12 border border-white/[0.06] rounded-xl bg-[#111111]">
-          <ImageIcon size={32} className="mx-auto mb-3 text-[#6E6E73]" />
-          <p className="text-sm text-[#A1A1A6]">
+        <div className="text-center py-12 border border-black/[0.08] rounded-xl bg-white">
+          <ImageIcon size={32} className="mx-auto mb-3 text-[#9CA3AF]" />
+          <p className="text-sm text-[#6B7280]">
             {assets.length === 0
               ? 'No images available. Upload images in the Assets tab first.'
               : 'Click "Auto-Generate" to create a slideshow, or add slides manually below.'}
@@ -411,10 +411,10 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                 {/* TikTok UI chrome - top bar */}
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-white/60 text-[10px] font-semibold">Following</span>
+                    <span className="text-[#6B7280] text-[10px] font-semibold">Following</span>
                     <span className="text-white text-[10px] font-semibold border-b border-white pb-0.5">For You</span>
                   </div>
-                  <Search size={14} className="text-white/80" />
+                  <Search size={14} className="text-[#111827]/80" />
                 </div>
 
                 {/* Progress bar */}
@@ -451,7 +451,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                     )}
                     {activeSlide.subText && (
                       <p
-                        className="text-white/80 text-xs mt-1"
+                        className="text-[#111827]/80 text-xs mt-1"
                         style={{
                           textShadow: '0 1px 4px rgba(0,0,0,0.7)',
                           ...(playing ? { animation: 'fadeInUp 0.4s ease-out 0.2s forwards', opacity: 0 } : {}),
@@ -496,9 +496,9 @@ export default function TikTokCreator({ facilityId, adminKey }: {
               <button
                 onClick={() => setActiveSlideIdx(Math.max(0, activeSlideIdx - 1))}
                 disabled={playing}
-                className="p-2 rounded-lg hover:bg-white/[0.06] disabled:opacity-30 transition-colors"
+                className="p-2 rounded-lg hover:bg-black/[0.04] disabled:opacity-30 transition-colors"
               >
-                <ChevronLeft size={16} className="text-[#A1A1A6]" />
+                <ChevronLeft size={16} className="text-[#6B7280]" />
               </button>
               <button
                 onClick={togglePlay}
@@ -509,9 +509,9 @@ export default function TikTokCreator({ facilityId, adminKey }: {
               <button
                 onClick={() => setActiveSlideIdx(Math.min(slides.length - 1, activeSlideIdx + 1))}
                 disabled={playing}
-                className="p-2 rounded-lg hover:bg-white/[0.06] disabled:opacity-30 transition-colors"
+                className="p-2 rounded-lg hover:bg-black/[0.04] disabled:opacity-30 transition-colors"
               >
-                <ChevronRight size={16} className="text-[#A1A1A6]" />
+                <ChevronRight size={16} className="text-[#6B7280]" />
               </button>
             </div>
           </div>
@@ -521,8 +521,8 @@ export default function TikTokCreator({ facilityId, adminKey }: {
             {/* Caption & Hashtags */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-medium text-[#A1A1A6]">Caption & Hashtags</label>
-                <span className="text-[10px] text-[#6E6E73]">{caption.length}/2200</span>
+                <label className="text-xs font-medium text-[#6B7280]">Caption & Hashtags</label>
+                <span className="text-[10px] text-[#9CA3AF]">{caption.length}/2200</span>
               </div>
               <textarea
                 value={caption}
@@ -530,13 +530,13 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                 rows={3}
                 maxLength={2200}
                 placeholder="Write your TikTok caption... #selfstorage #moving"
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6] resize-none"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-black/[0.02] text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#3B82F6] resize-none"
               />
             </div>
 
             {/* Hashtag quick-insert */}
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] flex items-center gap-1 mb-1.5">
+              <label className="text-xs font-medium text-[#6B7280] flex items-center gap-1 mb-1.5">
                 <Hash size={11} /> Quick Hashtag Sets
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -544,7 +544,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                   <button
                     key={i}
                     onClick={() => setCaption(prev => prev + (prev.endsWith('\n') || prev === '' ? '' : '\n\n') + set)}
-                    className="text-[10px] px-2 py-1 rounded border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.06] hover:text-[#F5F5F7] transition-colors truncate max-w-[200px]"
+                    className="text-[10px] px-2 py-1 rounded border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.04] hover:text-[#111827] transition-colors truncate max-w-[200px]"
                   >
                     {set}
                   </button>
@@ -554,7 +554,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
 
             {/* Storage hooks */}
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] flex items-center gap-1 mb-1.5">
+              <label className="text-xs font-medium text-[#6B7280] flex items-center gap-1 mb-1.5">
                 <Type size={11} /> Storage Hooks (tap to use as headline)
               </label>
               <div className="grid grid-cols-1 gap-1 max-h-[120px] overflow-y-auto pr-1">
@@ -566,7 +566,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                         updateSlide(activeSlideIdx, { textOverlay: hook })
                       }
                     }}
-                    className="text-left text-[11px] px-2.5 py-1.5 rounded border border-white/[0.06] text-[#A1A1A6] hover:bg-[#3B82F6]/10 hover:text-[#F5F5F7] hover:border-[#3B82F6]/30 transition-colors"
+                    className="text-left text-[11px] px-2.5 py-1.5 rounded border border-black/[0.08] text-[#6B7280] hover:bg-[#3B82F6]/10 hover:text-[#111827] hover:border-[#3B82F6]/30 transition-colors"
                   >
                     {hook}
                   </button>
@@ -577,7 +577,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
             {/* Slide list */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-medium text-[#A1A1A6]">Slides ({slides.length})</label>
+                <label className="text-xs font-medium text-[#6B7280]">Slides ({slides.length})</label>
               </div>
               <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
                 {slides.map((slide, idx) => (
@@ -587,7 +587,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                     className={`flex gap-3 p-2 border rounded-lg cursor-pointer transition-colors ${
                       idx === activeSlideIdx
                         ? 'border-[#3B82F6] bg-[#3B82F6]/5'
-                        : 'border-white/[0.06] bg-[#111111] hover:border-white/[0.12]'
+                        : 'border-black/[0.08] bg-white hover:border-black/[0.12]'
                     }`}
                   >
                     <img
@@ -602,7 +602,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                         value={slide.textOverlay}
                         onChange={e => updateSlide(idx, { textOverlay: e.target.value })}
                         placeholder="Headline text..."
-                        className="w-full text-xs px-1.5 py-0.5 rounded bg-transparent text-[#F5F5F7] placeholder-[#6E6E73] border-none outline-none focus:bg-white/[0.03]"
+                        className="w-full text-xs px-1.5 py-0.5 rounded bg-transparent text-[#111827] placeholder-[#9CA3AF] border-none outline-none focus:bg-black/[0.02]"
                         onClick={e => e.stopPropagation()}
                       />
                       {/* Subtext input */}
@@ -610,7 +610,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                         value={slide.subText}
                         onChange={e => updateSlide(idx, { subText: e.target.value })}
                         placeholder="Subtext..."
-                        className="w-full text-[10px] px-1.5 py-0.5 rounded bg-transparent text-[#A1A1A6] placeholder-[#6E6E73] border-none outline-none focus:bg-white/[0.03]"
+                        className="w-full text-[10px] px-1.5 py-0.5 rounded bg-transparent text-[#6B7280] placeholder-[#9CA3AF] border-none outline-none focus:bg-black/[0.02]"
                         onClick={e => e.stopPropagation()}
                       />
                       <div className="flex gap-1.5 items-center">
@@ -619,7 +619,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                           value={slide.duration}
                           onChange={e => updateSlide(idx, { duration: parseFloat(e.target.value) })}
                           onClick={e => e.stopPropagation()}
-                          className="text-[10px] px-1 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6] border-none outline-none"
+                          className="text-[10px] px-1 py-0.5 rounded bg-black/[0.04] text-[#6B7280] border-none outline-none"
                         >
                           {[1, 1.5, 2, 2.5, 3, 4, 5].map(d => (
                             <option key={d} value={d}>{d}s</option>
@@ -630,7 +630,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                           value={slide.kenBurns}
                           onChange={e => updateSlide(idx, { kenBurns: e.target.value as Slide['kenBurns'] })}
                           onClick={e => e.stopPropagation()}
-                          className="text-[10px] px-1 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6] border-none outline-none"
+                          className="text-[10px] px-1 py-0.5 rounded bg-black/[0.04] text-[#6B7280] border-none outline-none"
                         >
                           <option value="zoom-in">Zoom In</option>
                           <option value="zoom-out">Zoom Out</option>
@@ -643,7 +643,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                           value={slide.textPosition}
                           onChange={e => updateSlide(idx, { textPosition: e.target.value as Slide['textPosition'] })}
                           onClick={e => e.stopPropagation()}
-                          className="text-[10px] px-1 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6] border-none outline-none"
+                          className="text-[10px] px-1 py-0.5 rounded bg-black/[0.04] text-[#6B7280] border-none outline-none"
                         >
                           <option value="top">Top</option>
                           <option value="center">Center</option>
@@ -651,8 +651,8 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                         </select>
                         <div className="flex-1" />
                         {/* Move controls */}
-                        <button onClick={e => { e.stopPropagation(); moveSlide(idx, -1) }} disabled={idx === 0} className="p-0.5 text-[#6E6E73] disabled:opacity-20 hover:text-[#F5F5F7]"><ChevronLeft size={11} /></button>
-                        <button onClick={e => { e.stopPropagation(); moveSlide(idx, 1) }} disabled={idx === slides.length - 1} className="p-0.5 text-[#6E6E73] disabled:opacity-20 hover:text-[#F5F5F7]"><ChevronRight size={11} /></button>
+                        <button onClick={e => { e.stopPropagation(); moveSlide(idx, -1) }} disabled={idx === 0} className="p-0.5 text-[#9CA3AF] disabled:opacity-20 hover:text-[#111827]"><ChevronLeft size={11} /></button>
+                        <button onClick={e => { e.stopPropagation(); moveSlide(idx, 1) }} disabled={idx === slides.length - 1} className="p-0.5 text-[#9CA3AF] disabled:opacity-20 hover:text-[#111827]"><ChevronRight size={11} /></button>
                         <button onClick={e => { e.stopPropagation(); removeSlide(idx) }} className="p-0.5 text-red-400 hover:text-red-300"><Trash2 size={11} /></button>
                       </div>
                     </div>
@@ -663,9 +663,9 @@ export default function TikTokCreator({ facilityId, adminKey }: {
 
             {/* Add slide from assets */}
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Add Image</label>
+              <label className="text-xs font-medium text-[#6B7280] block mb-1.5">Add Image</label>
               {assets.filter(a => !slides.some(s => s.imageUrl === a.url)).length === 0 ? (
-                <p className="text-[10px] text-[#6E6E73]">All available images are in the slideshow.</p>
+                <p className="text-[10px] text-[#9CA3AF]">All available images are in the slideshow.</p>
               ) : (
                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 max-h-24 overflow-y-auto">
                   {assets.filter(a => !slides.some(s => s.imageUrl === a.url)).map(a => (
@@ -703,7 +703,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                   alert(msg)
                 }}
                 disabled={slides.length === 0}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white/[0.06] text-[#F5F5F7] text-sm font-medium rounded-lg hover:bg-white/[0.1] disabled:opacity-40 transition-colors border border-white/[0.06]"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-black/[0.04] text-[#111827] text-sm font-medium rounded-lg hover:bg-black/[0.06] disabled:opacity-40 transition-colors border border-black/[0.08]"
               >
                 <Send size={14} /> Publish as Carousel ({slides.length} slides)
               </button>

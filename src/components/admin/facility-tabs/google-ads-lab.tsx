@@ -61,7 +61,7 @@ interface PMSData {
 const INTENT_COLORS: Record<string, string> = {
   high: 'bg-emerald-500/20 text-emerald-400',
   medium: 'bg-amber-500/20 text-amber-400',
-  low: 'bg-white/[0.06] text-[#6E6E73]',
+  low: 'bg-black/[0.04] text-[#9CA3AF]',
 }
 
 const COMPETITION_COLORS: Record<string, string> = {
@@ -318,13 +318,13 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h4 className="text-sm font-semibold text-[#F5F5F7]">Google Ads Laboratory</h4>
-        <p className="text-xs text-[#6E6E73] mt-0.5">Build, score, and optimize Google Search campaigns</p>
+        <h4 className="text-sm font-semibold text-[#111827]">Google Ads Laboratory</h4>
+        <p className="text-xs text-[#9CA3AF] mt-0.5">Build, score, and optimize Google Search campaigns</p>
       </div>
 
       {/* PMS Context Bar */}
       {pmsLoading && (
-        <div className="flex items-center gap-2 text-xs text-[#6E6E73]">
+        <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
           <Loader2 size={12} className="animate-spin" /> Loading PMS data...
         </div>
       )}
@@ -337,27 +337,27 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
             <div>
-              <p className="text-lg font-bold text-[#F5F5F7]">{pmsData.vacantUnits}</p>
-              <p className="text-xs text-[#6E6E73]">Vacant Units</p>
+              <p className="text-lg font-bold text-[#111827]">{pmsData.vacantUnits}</p>
+              <p className="text-xs text-[#9CA3AF]">Vacant Units</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-[#F5F5F7]">{pmsStrategy.occ.toFixed(1)}%</p>
-              <p className="text-xs text-[#6E6E73]">Occupancy</p>
+              <p className="text-lg font-bold text-[#111827]">{pmsStrategy.occ.toFixed(1)}%</p>
+              <p className="text-xs text-[#9CA3AF]">Occupancy</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-[#F5F5F7]">${pmsStrategy.lowestPrice}</p>
-              <p className="text-xs text-[#6E6E73]">Starting Price</p>
+              <p className="text-lg font-bold text-[#111827]">${pmsStrategy.lowestPrice}</p>
+              <p className="text-xs text-[#9CA3AF]">Starting Price</p>
             </div>
             <div>
               <p className="text-lg font-bold text-red-400">${pmsStrategy.monthlyRevenueGap.toLocaleString()}</p>
-              <p className="text-xs text-[#6E6E73]">Monthly Revenue Gap</p>
+              <p className="text-xs text-[#9CA3AF]">Monthly Revenue Gap</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-[#F5F5F7]">${suggestedBudget}/day</p>
-              <p className="text-xs text-[#6E6E73]">Suggested Budget</p>
+              <p className="text-lg font-bold text-[#111827]">${suggestedBudget}/day</p>
+              <p className="text-xs text-[#9CA3AF]">Suggested Budget</p>
             </div>
           </div>
-          <div className="text-xs text-[#A1A1A6] border-t border-blue-500/20 pt-2">
+          <div className="text-xs text-[#6B7280] border-t border-blue-500/20 pt-2">
             <p><strong className={pmsStrategy.strategyColor}>Strategy:</strong> {pmsStrategy.strategyDetail}</p>
             {pmsStrategy.topVacant.length > 0 && (
               <p className="mt-1"><strong>Priority units:</strong> {pmsStrategy.topVacant.map(u => `${u.type} (${u.vacant} vacant x $${u.rate} = $${(u.vacant * u.rate).toLocaleString()}/mo gap)`).join(' | ')}</p>
@@ -372,12 +372,12 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
 
       {/* Campaign Score */}
       {score && (
-        <div className="border border-white/[0.06] rounded-xl p-5 bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl p-5 bg-white">
           <div className="flex items-center gap-4 mb-4">
             <div className={`text-3xl font-bold ${scoreColor(score.overall)}`}>{score.overall}</div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-[#F5F5F7]">Campaign Score</p>
-              <p className="text-xs text-[#6E6E73]">
+              <p className="text-sm font-semibold text-[#111827]">Campaign Score</p>
+              <p className="text-xs text-[#9CA3AF]">
                 {score.overall >= 80 ? 'Strong campaign -- ready to launch' :
                  score.overall >= 60 ? 'Decent foundation -- review suggestions below' :
                  'Needs work -- address warnings before launching'}
@@ -391,7 +391,7 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
             {Object.entries(score.breakdown).map(([key, val]) => (
               <div key={key} className="text-center">
                 <div className={`text-lg font-bold ${scoreColor(val)}`}>{val}</div>
-                <p className="text-[9px] uppercase text-[#6E6E73]">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                <p className="text-[9px] uppercase text-[#9CA3AF]">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
               </div>
             ))}
           </div>
@@ -422,58 +422,58 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
 
       {/* Revenue Impact Projections */}
       {revenueProjection && (
-        <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl p-4 bg-white">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp size={14} className="text-[#3B82F6]" />
-            <h5 className="text-xs font-semibold text-[#F5F5F7]">Revenue Impact Projections</h5>
+            <h5 className="text-xs font-semibold text-[#111827]">Revenue Impact Projections</h5>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="text-center p-2 rounded-lg bg-white/[0.03]">
-              <p className="text-sm font-bold text-[#F5F5F7]">{revenueProjection.monthlyLeads.toFixed(1)}</p>
-              <p className="text-[9px] uppercase text-[#6E6E73]">Monthly Leads</p>
+            <div className="text-center p-2 rounded-lg bg-black/[0.02]">
+              <p className="text-sm font-bold text-[#111827]">{revenueProjection.monthlyLeads.toFixed(1)}</p>
+              <p className="text-[9px] uppercase text-[#9CA3AF]">Monthly Leads</p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-white/[0.03]">
-              <p className="text-sm font-bold text-[#F5F5F7]">{revenueProjection.monthlyMoveIns.toFixed(1)}</p>
-              <p className="text-[9px] uppercase text-[#6E6E73]">Monthly Move-Ins</p>
+            <div className="text-center p-2 rounded-lg bg-black/[0.02]">
+              <p className="text-sm font-bold text-[#111827]">{revenueProjection.monthlyMoveIns.toFixed(1)}</p>
+              <p className="text-[9px] uppercase text-[#9CA3AF]">Monthly Move-Ins</p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-white/[0.03]">
+            <div className="text-center p-2 rounded-lg bg-black/[0.02]">
               <p className="text-sm font-bold text-emerald-400">${revenueProjection.monthlyRevenueImpact.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-              <p className="text-[9px] uppercase text-[#6E6E73]">Monthly Revenue</p>
+              <p className="text-[9px] uppercase text-[#9CA3AF]">Monthly Revenue</p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-white/[0.03]">
+            <div className="text-center p-2 rounded-lg bg-black/[0.02]">
               <p className="text-sm font-bold text-[#3B82F6]">{revenueProjection.roas.toFixed(1)}x</p>
-              <p className="text-[9px] uppercase text-[#6E6E73]">Annual ROAS</p>
+              <p className="text-[9px] uppercase text-[#9CA3AF]">Annual ROAS</p>
             </div>
           </div>
-          <p className="text-[10px] text-[#6E6E73] mt-2">Based on 8% click-to-lead conversion, 35% lead-to-move-in close rate, 10-month avg tenant stay.</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-2">Based on 8% click-to-lead conversion, 35% lead-to-move-in close rate, 10-month avg tenant stay.</p>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Campaign Config */}
         <div className="space-y-4">
-          <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
-            <h5 className="text-xs font-semibold text-[#F5F5F7] mb-3">Campaign Settings</h5>
+          <div className="border border-black/[0.08] rounded-xl p-4 bg-white">
+            <h5 className="text-xs font-semibold text-[#111827] mb-3">Campaign Settings</h5>
 
             <div className="space-y-3">
               {/* Daily Budget */}
               <div>
-                <label className="text-[10px] uppercase text-[#6E6E73] block mb-1">Daily Budget</label>
+                <label className="text-[10px] uppercase text-[#9CA3AF] block mb-1">Daily Budget</label>
                 <div className="flex items-center gap-2">
-                  <DollarSign size={14} className="text-[#6E6E73]" />
+                  <DollarSign size={14} className="text-[#9CA3AF]" />
                   <input
                     type="number"
                     value={config.dailyBudget}
                     onChange={e => setConfig(prev => ({ ...prev, dailyBudget: parseFloat(e.target.value) || 0 }))}
-                    className="w-24 px-2 py-1.5 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6]"
+                    className="w-24 px-2 py-1.5 border border-black/[0.08] rounded-lg text-sm bg-black/[0.02] text-[#111827] focus:outline-none focus:border-[#3B82F6]"
                   />
-                  <span className="text-xs text-[#6E6E73]">/ day (${(config.dailyBudget * 30).toLocaleString()}/mo)</span>
+                  <span className="text-xs text-[#9CA3AF]">/ day (${(config.dailyBudget * 30).toLocaleString()}/mo)</span>
                 </div>
               </div>
 
               {/* Geo Radius */}
               <div>
-                <label className="text-[10px] uppercase text-[#6E6E73] block mb-1">
+                <label className="text-[10px] uppercase text-[#9CA3AF] block mb-1">
                   <MapPin size={10} className="inline mr-1" />
                   Geo Radius
                 </label>
@@ -484,13 +484,13 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
                     onChange={e => setConfig(prev => ({ ...prev, geoRadius: parseInt(e.target.value) }))}
                     className="flex-1 accent-[#3B82F6] h-1"
                   />
-                  <span className="text-sm font-medium text-[#F5F5F7] w-20">{config.geoRadius} miles</span>
+                  <span className="text-sm font-medium text-[#111827] w-20">{config.geoRadius} miles</span>
                 </div>
               </div>
 
               {/* Bid Strategy */}
               <div>
-                <label className="text-[10px] uppercase text-[#6E6E73] block mb-2">
+                <label className="text-[10px] uppercase text-[#9CA3AF] block mb-2">
                   <Target size={10} className="inline mr-1" />
                   Bid Strategy
                 </label>
@@ -502,11 +502,11 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
                       className={`w-full text-left px-3 py-2 rounded-lg border text-xs transition-colors ${
                         config.bidStrategy === bs.id
                           ? 'border-[#3B82F6] bg-[#3B82F6]/10'
-                          : 'border-white/[0.06] bg-[#111111] hover:border-white/[0.12]'
+                          : 'border-black/[0.08] bg-white hover:border-black/[0.12]'
                       }`}
                     >
-                      <span className="font-medium text-[#F5F5F7]">{bs.label}</span>
-                      <span className="block text-[#6E6E73] mt-0.5">{bs.description}</span>
+                      <span className="font-medium text-[#111827]">{bs.label}</span>
+                      <span className="block text-[#9CA3AF] mt-0.5">{bs.description}</span>
                     </button>
                   ))}
                 </div>
@@ -515,24 +515,24 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
               {/* Target CPA */}
               {config.bidStrategy === 'target_cpa' && (
                 <div>
-                  <label className="text-[10px] uppercase text-[#6E6E73] block mb-1">Target CPA</label>
+                  <label className="text-[10px] uppercase text-[#9CA3AF] block mb-1">Target CPA</label>
                   <div className="flex items-center gap-2">
-                    <DollarSign size={14} className="text-[#6E6E73]" />
+                    <DollarSign size={14} className="text-[#9CA3AF]" />
                     <input
                       type="number"
                       value={config.targetCPA || ''}
                       onChange={e => setConfig(prev => ({ ...prev, targetCPA: parseFloat(e.target.value) || null }))}
                       placeholder="e.g., 25"
-                      className="w-24 px-2 py-1.5 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                      className="w-24 px-2 py-1.5 border border-black/[0.08] rounded-lg text-sm bg-black/[0.02] text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]"
                     />
-                    <span className="text-xs text-[#6E6E73]">per lead</span>
+                    <span className="text-xs text-[#9CA3AF]">per lead</span>
                   </div>
                 </div>
               )}
 
               {/* Ad Schedule */}
               <div>
-                <label className="text-[10px] uppercase text-[#6E6E73] block mb-1">Ad Schedule</label>
+                <label className="text-[10px] uppercase text-[#9CA3AF] block mb-1">Ad Schedule</label>
                 <div className="space-y-1">
                   {config.adSchedule.map((sched, idx) => (
                     <div key={idx} className="flex items-center gap-2">
@@ -543,7 +543,7 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
                           newSchedule[idx] = e.target.value
                           setConfig(prev => ({ ...prev, adSchedule: newSchedule }))
                         }}
-                        className="flex-1 px-2 py-1 border border-white/[0.06] rounded text-xs bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6]"
+                        className="flex-1 px-2 py-1 border border-black/[0.08] rounded text-xs bg-black/[0.02] text-[#111827] focus:outline-none focus:border-[#3B82F6]"
                       />
                       <button
                         onClick={() => setConfig(prev => ({ ...prev, adSchedule: prev.adSchedule.filter((_, i) => i !== idx) }))}
@@ -565,9 +565,9 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
           </div>
 
           {/* Negative Keywords */}
-          <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
-            <h5 className="text-xs font-semibold text-[#F5F5F7] mb-2">Negative Keywords ({config.negativeKeywords.length})</h5>
-            <p className="text-[10px] text-[#6E6E73] mb-2">Prevent your ads from showing on these searches</p>
+          <div className="border border-black/[0.08] rounded-xl p-4 bg-white">
+            <h5 className="text-xs font-semibold text-[#111827] mb-2">Negative Keywords ({config.negativeKeywords.length})</h5>
+            <p className="text-[10px] text-[#9CA3AF] mb-2">Prevent your ads from showing on these searches</p>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {config.negativeKeywords.map(kw => (
                 <span key={kw} className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-red-500/10 text-red-300">
@@ -582,7 +582,7 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
                 onChange={e => setNewNegative(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') addNegative() }}
                 placeholder="Add negative keyword..."
-                className="flex-1 px-2 py-1 border border-white/[0.06] rounded text-xs bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="flex-1 px-2 py-1 border border-black/[0.08] rounded text-xs bg-black/[0.02] text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]"
               />
               <button onClick={addNegative} className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
                 <Plus size={11} />
@@ -594,7 +594,7 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
         {/* Right: Keywords */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h5 className="text-xs font-semibold text-[#F5F5F7]">Keywords ({config.keywords.length} selected)</h5>
+            <h5 className="text-xs font-semibold text-[#111827]">Keywords ({config.keywords.length} selected)</h5>
             <button
               onClick={generateKeywords}
               disabled={loading}
@@ -621,22 +621,22 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
             const estimatedCostDay = estimatedClicksDay * avgCPC
             const estimatedCostMonth = estimatedCostDay * 30
             return (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-lg bg-white/[0.03]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-lg bg-black/[0.02]">
                 <div className="text-center">
-                  <p className="text-sm font-bold text-[#F5F5F7]">${avgCPC.toFixed(2)}</p>
-                  <p className="text-[9px] uppercase text-[#6E6E73]">Avg CPC</p>
+                  <p className="text-sm font-bold text-[#111827]">${avgCPC.toFixed(2)}</p>
+                  <p className="text-[9px] uppercase text-[#9CA3AF]">Avg CPC</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-[#F5F5F7]">{Math.round(estimatedClicksDay)}</p>
-                  <p className="text-[9px] uppercase text-[#6E6E73]">Clicks/Day</p>
+                  <p className="text-sm font-bold text-[#111827]">{Math.round(estimatedClicksDay)}</p>
+                  <p className="text-[9px] uppercase text-[#9CA3AF]">Clicks/Day</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-[#F5F5F7]">${Math.round(estimatedCostDay)}</p>
-                  <p className="text-[9px] uppercase text-[#6E6E73]">Est. Cost/Day</p>
+                  <p className="text-sm font-bold text-[#111827]">${Math.round(estimatedCostDay)}</p>
+                  <p className="text-[9px] uppercase text-[#9CA3AF]">Est. Cost/Day</p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-bold text-emerald-400">${estimatedCostMonth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-                  <p className="text-[9px] uppercase text-[#6E6E73]">Est. Cost/Mo</p>
+                  <p className="text-[9px] uppercase text-[#9CA3AF]">Est. Cost/Mo</p>
                 </div>
               </div>
             )
@@ -644,10 +644,10 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
 
           {/* Empty state */}
           {keywords.length === 0 && !loading && (
-            <div className="text-center py-8 border border-white/[0.06] rounded-xl bg-[#111111]">
-              <Search size={24} className="mx-auto mb-2 text-[#6E6E73]" />
-              <p className="text-sm text-[#A1A1A6]">Generate AI-powered keyword suggestions</p>
-              <p className="text-[10px] text-[#6E6E73] mt-1">Based on facility data, location, and market analysis</p>
+            <div className="text-center py-8 border border-black/[0.08] rounded-xl bg-white">
+              <Search size={24} className="mx-auto mb-2 text-[#9CA3AF]" />
+              <p className="text-sm text-[#6B7280]">Generate AI-powered keyword suggestions</p>
+              <p className="text-[10px] text-[#9CA3AF] mt-1">Based on facility data, location, and market analysis</p>
             </div>
           )}
 
@@ -660,26 +660,26 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
 
           {/* Keyword groups */}
           {Object.entries(groups).map(([group, kws]) => (
-            <div key={group} className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+            <div key={group} className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
               <button
                 onClick={() => setExpandedGroup(expandedGroup === group ? null : group)}
-                className="w-full px-4 py-2.5 flex items-center gap-2 text-left hover:bg-white/[0.03] transition-colors"
+                className="w-full px-4 py-2.5 flex items-center gap-2 text-left hover:bg-black/[0.02] transition-colors"
               >
-                <span className="text-xs font-semibold flex-1 text-[#F5F5F7]">{group}</span>
-                <span className="text-[10px] text-[#6E6E73]">
+                <span className="text-xs font-semibold flex-1 text-[#111827]">{group}</span>
+                <span className="text-[10px] text-[#9CA3AF]">
                   {kws.filter(k => config.keywords.some(ck => ck.keyword === k.keyword)).length}/{kws.length}
                 </span>
-                {expandedGroup === group ? <ChevronUp size={12} className="text-[#6E6E73]" /> : <ChevronDown size={12} className="text-[#6E6E73]" />}
+                {expandedGroup === group ? <ChevronUp size={12} className="text-[#9CA3AF]" /> : <ChevronDown size={12} className="text-[#9CA3AF]" />}
               </button>
               {expandedGroup === group && (
-                <div className="border-t border-white/[0.06]">
+                <div className="border-t border-black/[0.08]">
                   {kws.map(kw => {
                     const selected = config.keywords.some(k => k.keyword === kw.keyword)
                     return (
                       <button
                         key={kw.keyword}
                         onClick={() => toggleKeyword(kw)}
-                        className={`w-full text-left px-4 py-2.5 flex items-center gap-3 border-b border-white/[0.03] last:border-0 transition-colors hover:bg-white/[0.03] ${
+                        className={`w-full text-left px-4 py-2.5 flex items-center gap-3 border-b border-black/[0.04] last:border-0 transition-colors hover:bg-black/[0.02] ${
                           selected ? 'bg-[#3B82F6]/5' : ''
                         }`}
                       >
@@ -689,13 +689,13 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
                           {selected && <span className="text-white text-[8px]">&#10003;</span>}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-[#F5F5F7]">{kw.keyword}</p>
-                          <p className="text-[10px] text-[#6E6E73] truncate">{kw.rationale}</p>
+                          <p className="text-sm text-[#111827]">{kw.keyword}</p>
+                          <p className="text-[10px] text-[#9CA3AF] truncate">{kw.rationale}</p>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <span className={`text-[10px] px-1.5 py-0.5 rounded ${INTENT_COLORS[kw.intent]}`}>{kw.intent}</span>
                           <span className={`text-[10px] font-mono ${COMPETITION_COLORS[kw.competition]}`}>${kw.estimatedCPC.toFixed(2)}</span>
-                          <span className="text-[10px] text-[#6E6E73]">{kw.estimatedVolume}/mo</span>
+                          <span className="text-[10px] text-[#9CA3AF]">{kw.estimatedVolume}/mo</span>
                         </div>
                       </button>
                     )

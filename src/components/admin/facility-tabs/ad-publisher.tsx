@@ -97,7 +97,7 @@ interface PublishLogEntry {
 const PLATFORM_COLORS: Record<string, string> = {
   meta: "bg-blue-600",
   google: "bg-red-500",
-  tiktok: "bg-black border border-white/[0.12]",
+  tiktok: "bg-black border border-black/[0.12]",
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -300,7 +300,7 @@ export default function AdPublisher({
 
       {/* Platform Connections */}
       <div>
-        <h4 className="text-sm font-semibold text-[#F5F5F7] mb-3 flex items-center gap-2">
+        <h4 className="text-sm font-semibold text-[#111827] mb-3 flex items-center gap-2">
           <Plug size={14} className="text-[#3B82F6]" />
           Platform Connections
         </h4>
@@ -311,7 +311,7 @@ export default function AdPublisher({
             return (
               <div
                 key={platform.id}
-                className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]"
+                className="border border-black/[0.08] rounded-xl p-4 bg-white"
               >
                 <div className="flex items-start gap-3">
                   <div
@@ -320,10 +320,10 @@ export default function AdPublisher({
                     {PLATFORM_LETTERS[platform.id] || "?"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#F5F5F7]">
+                    <p className="text-sm font-semibold text-[#111827]">
                       {platform.name}
                     </p>
-                    <p className="text-xs text-[#6E6E73] mt-0.5">
+                    <p className="text-xs text-[#9CA3AF] mt-0.5">
                       {platform.description}
                     </p>
 
@@ -336,12 +336,12 @@ export default function AdPublisher({
                           </span>
                         </div>
                         {conn.account_name && (
-                          <p className="text-xs text-[#6E6E73]">
+                          <p className="text-xs text-[#9CA3AF]">
                             Account: {conn.account_name}
                           </p>
                         )}
                         {conn.page_name && (
-                          <p className="text-xs text-[#6E6E73]">
+                          <p className="text-xs text-[#9CA3AF]">
                             Page: {conn.page_name}
                           </p>
                         )}
@@ -353,10 +353,10 @@ export default function AdPublisher({
                                 className="text-amber-400"
                               />
                             ) : (
-                              <Clock size={10} className="text-[#6E6E73]" />
+                              <Clock size={10} className="text-[#9CA3AF]" />
                             )}
                             <p
-                              className={`text-[10px] ${expiring ? "text-amber-400" : "text-[#6E6E73]"}`}
+                              className={`text-[10px] ${expiring ? "text-amber-400" : "text-[#9CA3AF]"}`}
                             >
                               Token expires:{" "}
                               {new Date(
@@ -388,21 +388,21 @@ export default function AdPublisher({
                             {PLATFORM_LABELS[platform.id] || platform.name}
                           </a>
                         ) : (
-                          <div className="p-3 rounded-lg border border-dashed border-white/[0.08]">
+                          <div className="p-3 rounded-lg border border-dashed border-black/[0.1]">
                             <div className="flex items-start gap-2">
                               <Shield
                                 size={12}
-                                className="text-[#6E6E73] mt-0.5 shrink-0"
+                                className="text-[#9CA3AF] mt-0.5 shrink-0"
                               />
                               <div>
-                                <p className="text-xs text-[#6E6E73]">
+                                <p className="text-xs text-[#9CA3AF]">
                                   {platform.id === "meta"
                                     ? "Requires META_APP_ID and META_APP_SECRET environment variables."
                                     : platform.id === "tiktok"
                                       ? "Requires TIKTOK_CLIENT_KEY and TIKTOK_CLIENT_SECRET environment variables."
                                       : "Requires GOOGLE_ADS_CLIENT_ID, GOOGLE_ADS_CLIENT_SECRET, and GOOGLE_ADS_DEVELOPER_TOKEN environment variables."}
                                 </p>
-                                <p className="text-[10px] text-[#6E6E73] mt-1">
+                                <p className="text-[10px] text-[#9CA3AF] mt-1">
                                   Add these in Vercel &rarr; Settings &rarr;
                                   Environment Variables
                                 </p>
@@ -419,9 +419,9 @@ export default function AdPublisher({
           })}
 
           {platforms.length === 0 && (
-            <div className="col-span-full text-center py-8 border border-white/[0.06] rounded-xl bg-[#111111]">
-              <Plug size={24} className="mx-auto mb-2 text-[#6E6E73]" />
-              <p className="text-sm text-[#6E6E73]">
+            <div className="col-span-full text-center py-8 border border-black/[0.08] rounded-xl bg-white">
+              <Plug size={24} className="mx-auto mb-2 text-[#9CA3AF]" />
+              <p className="text-sm text-[#9CA3AF]">
                 No platform configurations found.
               </p>
             </div>
@@ -431,8 +431,8 @@ export default function AdPublisher({
 
       {/* Publish Controls */}
       {connectedPlatforms.length > 0 && variations.length > 0 && (
-        <div className="border border-white/[0.06] rounded-xl p-5 bg-[#111111]">
-          <h4 className="text-sm font-semibold text-[#F5F5F7] mb-4 flex items-center gap-2">
+        <div className="border border-black/[0.08] rounded-xl p-5 bg-white">
+          <h4 className="text-sm font-semibold text-[#111827] mb-4 flex items-center gap-2">
             <Send size={14} className="text-[#3B82F6]" />
             Publish an Ad
           </h4>
@@ -440,13 +440,13 @@ export default function AdPublisher({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Ad Variation selector */}
             <div>
-              <label className="text-xs font-medium text-[#6E6E73] block mb-1.5">
+              <label className="text-xs font-medium text-[#9CA3AF] block mb-1.5">
                 Ad Copy
               </label>
               <select
                 value={selectedVariation}
                 onChange={(e) => setSelectedVariation(e.target.value)}
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
               >
                 {variations.map((v) => {
                   const c = v.content_json as MetaAdContent;
@@ -462,13 +462,13 @@ export default function AdPublisher({
 
             {/* Platform selector */}
             <div>
-              <label className="text-xs font-medium text-[#6E6E73] block mb-1.5">
+              <label className="text-xs font-medium text-[#9CA3AF] block mb-1.5">
                 Platform
               </label>
               <select
                 value={selectedConnection}
                 onChange={(e) => setSelectedConnection(e.target.value)}
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
               >
                 <option value="">Select platform...</option>
                 {connectedPlatforms.map((c) => (
@@ -482,13 +482,13 @@ export default function AdPublisher({
 
             {/* Image selector */}
             <div>
-              <label className="text-xs font-medium text-[#6E6E73] block mb-1.5">
+              <label className="text-xs font-medium text-[#9CA3AF] block mb-1.5">
                 Image
               </label>
               <select
                 value={selectedImage}
                 onChange={(e) => setSelectedImage(e.target.value)}
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
               >
                 <option value="">No image</option>
                 {assets.map((a, i) => (
@@ -506,14 +506,14 @@ export default function AdPublisher({
 
             {/* CTA Override */}
             <div>
-              <label className="text-xs font-medium text-[#6E6E73] block mb-1.5">
+              <label className="text-xs font-medium text-[#9CA3AF] block mb-1.5">
                 CTA Override
               </label>
               <input
                 value={ctaOverride}
                 onChange={(e) => setCtaOverride(e.target.value)}
                 placeholder="Optional custom CTA..."
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#0A0A0A] text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6] transition-colors"
               />
             </div>
           </div>
@@ -541,13 +541,13 @@ export default function AdPublisher({
                 <img
                   src={selectedImage}
                   alt=""
-                  className="h-10 w-16 object-cover rounded border border-white/[0.06]"
+                  className="h-10 w-16 object-cover rounded border border-black/[0.08]"
                 />
               )}
             </div>
-            <p className="text-xs text-[#6E6E73]">
+            <p className="text-xs text-[#9CA3AF]">
               Ad will be created as{" "}
-              <span className="font-semibold text-[#A1A1A6]">PAUSED</span> in
+              <span className="font-semibold text-[#6B7280]">PAUSED</span> in
               Ads Manager. Review targeting and budget there, then activate when
               ready.
             </p>
@@ -581,8 +581,8 @@ export default function AdPublisher({
 
       {/* No approved variations message */}
       {connectedPlatforms.length > 0 && variations.length === 0 && (
-        <div className="text-center py-6 border border-white/[0.06] rounded-xl bg-[#111111]">
-          <p className="text-sm text-[#6E6E73]">
+        <div className="text-center py-6 border border-black/[0.08] rounded-xl bg-white">
+          <p className="text-sm text-[#9CA3AF]">
             No approved ad variations yet. Go to the Creative Studio to approve
             some ads first.
           </p>
@@ -592,24 +592,24 @@ export default function AdPublisher({
       {/* Publish History */}
       {publishLog.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-[#F5F5F7] mb-3 flex items-center gap-2">
-            <Clock size={14} className="text-[#6E6E73]" />
+          <h4 className="text-sm font-semibold text-[#111827] mb-3 flex items-center gap-2">
+            <Clock size={14} className="text-[#9CA3AF]" />
             Publish History
           </h4>
-          <div className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+          <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
             {/* Table header */}
-            <div className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-2.5 border-b border-white/[0.06] bg-white/[0.02]">
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#6E6E73]" />
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#6E6E73]">
+            <div className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-2.5 border-b border-black/[0.08] bg-black/[0.02]">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]" />
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">
                 Variation
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#6E6E73]">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">
                 Date
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#6E6E73]">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">
                 Status
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#6E6E73]">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">
                 Link
               </span>
             </div>
@@ -617,7 +617,7 @@ export default function AdPublisher({
             {publishLog.map((log) => (
               <div
                 key={log.id}
-                className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-3 border-b border-white/[0.04] last:border-b-0 items-center hover:bg-white/[0.01] transition-colors"
+                className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-3 border-b border-black/[0.06] last:border-b-0 items-center hover:bg-black/[0.02] transition-colors"
               >
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold ${PLATFORM_COLORS[log.platform] || "bg-[#3B82F6]"}`}
@@ -625,7 +625,7 @@ export default function AdPublisher({
                   {PLATFORM_LETTERS[log.platform] || "?"}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-medium text-[#F5F5F7] truncate">
+                  <p className="text-xs font-medium text-[#111827] truncate">
                     {log.content_json?.headline ||
                       log.angle ||
                       "Ad variation"}
@@ -639,11 +639,11 @@ export default function AdPublisher({
                     </p>
                   )}
                 </div>
-                <p className="text-[10px] text-[#6E6E73]">
+                <p className="text-[10px] text-[#9CA3AF]">
                   {new Date(log.created_at).toLocaleDateString()}
                 </p>
                 <span
-                  className={`text-xs px-2 py-1 rounded font-medium text-center ${PUBLISH_STATUS_STYLES[log.status] || "bg-white/[0.06] text-[#6E6E73]"}`}
+                  className={`text-xs px-2 py-1 rounded font-medium text-center ${PUBLISH_STATUS_STYLES[log.status] || "bg-black/[0.04] text-[#9CA3AF]"}`}
                 >
                   {log.status}
                 </span>
@@ -667,9 +667,9 @@ export default function AdPublisher({
 
       {/* Empty publish log */}
       {publishLog.length === 0 && connectedPlatforms.length > 0 && (
-        <div className="text-center py-6 border border-white/[0.06] rounded-xl bg-[#111111]">
-          <Clock size={24} className="mx-auto mb-2 text-[#6E6E73]" />
-          <p className="text-sm text-[#6E6E73]">
+        <div className="text-center py-6 border border-black/[0.08] rounded-xl bg-white">
+          <Clock size={24} className="mx-auto mb-2 text-[#9CA3AF]" />
+          <p className="text-sm text-[#9CA3AF]">
             No publish history yet. Publish your first ad above.
           </p>
         </div>

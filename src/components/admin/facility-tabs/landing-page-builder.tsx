@@ -202,14 +202,14 @@ function AssetPickerModal({
     >
       <div className="absolute inset-0 bg-black/60" />
       <div
-        className="relative w-full max-w-2xl max-h-[70vh] rounded-2xl border border-white/[0.06] bg-[#111111] overflow-hidden flex flex-col"
+        className="relative w-full max-w-2xl max-h-[70vh] rounded-2xl border border-black/[0.08] bg-white overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-          <h3 className="text-sm font-bold text-[#F5F5F7]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.08]">
+          <h3 className="text-sm font-bold text-[#111827]">
             Select from Assets
           </h3>
-          <button onClick={onClose} className="text-[#6E6E73]">
+          <button onClick={onClose} className="text-[#9CA3AF]">
             <XIcon size={16} />
           </button>
         </div>
@@ -220,7 +220,7 @@ function AssetPickerModal({
             </div>
           )}
           {!loading && assets.length === 0 && (
-            <p className="text-sm text-center py-8 text-[#6E6E73]">
+            <p className="text-sm text-center py-8 text-[#9CA3AF]">
               No images found. Upload some in the Assets tab first.
             </p>
           )}
@@ -232,7 +232,7 @@ function AssetPickerModal({
                   onSelect(a.url)
                   onClose()
                 }}
-                className="rounded-lg overflow-hidden border-2 border-white/[0.06] hover:border-[#3B82F6] transition-colors aspect-square"
+                className="rounded-lg overflow-hidden border-2 border-black/[0.08] hover:border-[#3B82F6] transition-colors aspect-square"
               >
                 <img
                   src={a.url}
@@ -276,9 +276,9 @@ function SectionEditor({
   const config = section.config
 
   const inputCls =
-    "w-full h-9 px-3 rounded-lg text-sm outline-none transition-all bg-[#0A0A0A] border border-white/[0.06] text-[#F5F5F7] focus:border-[#3B82F6]/50 placeholder:text-[#6E6E73]"
+    "w-full h-9 px-3 rounded-lg text-sm outline-none transition-all bg-[#F9FAFB] border border-black/[0.08] text-[#111827] focus:border-[#3B82F6]/50 placeholder:text-[#9CA3AF]"
   const textareaCls =
-    "w-full px-3 py-2 rounded-lg text-sm outline-none transition-all resize-none bg-[#0A0A0A] border border-white/[0.06] text-[#F5F5F7] focus:border-[#3B82F6]/50 placeholder:text-[#6E6E73]"
+    "w-full px-3 py-2 rounded-lg text-sm outline-none transition-all resize-none bg-[#F9FAFB] border border-black/[0.08] text-[#111827] focus:border-[#3B82F6]/50 placeholder:text-[#9CA3AF]"
 
   function set(key: string, val: unknown) {
     onUpdate({ ...config, [key]: val })
@@ -312,17 +312,17 @@ function SectionEditor({
   }
 
   return (
-    <div className="border border-white/[0.06] rounded-xl overflow-hidden">
+    <div className="border border-black/[0.08] rounded-xl overflow-hidden">
       {/* Section header */}
       <div
-        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/[0.02]"
+        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-black/[0.03]"
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex items-center gap-2">
           <span className="w-6 h-6 rounded bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center text-xs font-bold">
             {meta?.icon || "?"}
           </span>
-          <span className="text-sm font-medium text-[#F5F5F7]">
+          <span className="text-sm font-medium text-[#111827]">
             {meta?.label || section.section_type}
           </span>
         </div>
@@ -333,9 +333,9 @@ function SectionEditor({
                 e.stopPropagation()
                 onMove("up")
               }}
-              className="p-1 rounded hover:bg-white/[0.06]"
+              className="p-1 rounded hover:bg-black/[0.04]"
             >
-              <ChevronUp size={12} className="text-[#6E6E73]" />
+              <ChevronUp size={12} className="text-[#9CA3AF]" />
             </button>
           )}
           {!isLast && (
@@ -344,9 +344,9 @@ function SectionEditor({
                 e.stopPropagation()
                 onMove("down")
               }}
-              className="p-1 rounded hover:bg-white/[0.06]"
+              className="p-1 rounded hover:bg-black/[0.04]"
             >
-              <ChevronDown size={12} className="text-[#6E6E73]" />
+              <ChevronDown size={12} className="text-[#9CA3AF]" />
             </button>
           )}
           <button
@@ -354,26 +354,26 @@ function SectionEditor({
               e.stopPropagation()
               onRemove()
             }}
-            className="p-1 rounded hover:bg-white/[0.06]"
+            className="p-1 rounded hover:bg-black/[0.04]"
           >
             <Trash2 size={12} className="text-red-400" />
           </button>
           {expanded ? (
-            <ChevronUp size={14} className="text-[#6E6E73]" />
+            <ChevronUp size={14} className="text-[#9CA3AF]" />
           ) : (
-            <ChevronDown size={14} className="text-[#6E6E73]" />
+            <ChevronDown size={14} className="text-[#9CA3AF]" />
           )}
         </div>
       </div>
 
       {/* Section config form */}
       {expanded && (
-        <div className="px-4 pb-4 pt-1 space-y-3 border-t border-white/[0.06]">
+        <div className="px-4 pb-4 pt-1 space-y-3 border-t border-black/[0.08]">
           {/* Hero */}
           {section.section_type === "hero" && (
             <>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Headline
                 </label>
                 <input
@@ -384,7 +384,7 @@ function SectionEditor({
                 />
               </div>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Subheadline
                 </label>
                 <textarea
@@ -397,7 +397,7 @@ function SectionEditor({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-[#6E6E73] mb-1 block">
+                  <label className="text-xs text-[#9CA3AF] mb-1 block">
                     CTA Text
                   </label>
                   <input
@@ -407,7 +407,7 @@ function SectionEditor({
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-[#6E6E73] mb-1 block">
+                  <label className="text-xs text-[#9CA3AF] mb-1 block">
                     Badge Text
                   </label>
                   <input
@@ -420,7 +420,7 @@ function SectionEditor({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-[#6E6E73] mb-1 block">
+                  <label className="text-xs text-[#9CA3AF] mb-1 block">
                     Background Image URL
                   </label>
                   <div className="flex gap-1">
@@ -435,7 +435,7 @@ function SectionEditor({
                     {onPickAsset && (
                       <button
                         onClick={() => onPickAsset("backgroundImage")}
-                        className="shrink-0 px-2 rounded-lg text-xs font-medium bg-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.1]"
+                        className="shrink-0 px-2 rounded-lg text-xs font-medium bg-black/[0.04] text-[#6B7280] hover:bg-black/[0.06]"
                         title="Browse assets"
                       >
                         <ImageIcon size={14} />
@@ -444,7 +444,7 @@ function SectionEditor({
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-[#6E6E73] mb-1 block">
+                  <label className="text-xs text-[#9CA3AF] mb-1 block">
                     Style
                   </label>
                   <select
@@ -512,7 +512,7 @@ function SectionEditor({
           {section.section_type === "features" && (
             <>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Headline
                 </label>
                 <input
@@ -525,10 +525,10 @@ function SectionEditor({
                 (item: Record<string, string>, i: number) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg border border-white/[0.06]"
+                    className="p-3 rounded-lg border border-black/[0.08]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-[#6E6E73]">
+                      <span className="text-xs font-medium text-[#9CA3AF]">
                         Feature {i + 1}
                       </span>
                       <button
@@ -573,7 +573,7 @@ function SectionEditor({
           {section.section_type === "unit_types" && (
             <>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Headline
                 </label>
                 <input
@@ -586,10 +586,10 @@ function SectionEditor({
                 (unit: Record<string, string>, i: number) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg border border-white/[0.06]"
+                    className="p-3 rounded-lg border border-black/[0.08]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-[#6E6E73]">
+                      <span className="text-xs font-medium text-[#9CA3AF]">
                         Unit {i + 1}
                       </span>
                       <button
@@ -648,7 +648,7 @@ function SectionEditor({
           {section.section_type === "gallery" && (
             <>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Headline
                 </label>
                 <input
@@ -673,7 +673,7 @@ function SectionEditor({
                         onClick={() =>
                           onPickAsset("url", "images", i)
                         }
-                        className="shrink-0 px-2 py-1.5 rounded-lg bg-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.1]"
+                        className="shrink-0 px-2 py-1.5 rounded-lg bg-black/[0.04] text-[#6B7280] hover:bg-black/[0.06]"
                         title="Browse assets"
                       >
                         <ImageIcon size={12} />
@@ -709,7 +709,7 @@ function SectionEditor({
           {section.section_type === "testimonials" && (
             <>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Headline
                 </label>
                 <input
@@ -722,10 +722,10 @@ function SectionEditor({
                 (item: Record<string, string>, i: number) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg border border-white/[0.06]"
+                    className="p-3 rounded-lg border border-black/[0.08]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-[#6E6E73]">
+                      <span className="text-xs font-medium text-[#9CA3AF]">
                         Review {i + 1}
                       </span>
                       <button
@@ -785,7 +785,7 @@ function SectionEditor({
           {section.section_type === "faq" && (
             <>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Headline
                 </label>
                 <input
@@ -798,10 +798,10 @@ function SectionEditor({
                 (item: Record<string, string>, i: number) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg border border-white/[0.06]"
+                    className="p-3 rounded-lg border border-black/[0.08]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-[#6E6E73]">
+                      <span className="text-xs font-medium text-[#9CA3AF]">
                         Q{i + 1}
                       </span>
                       <button
@@ -844,7 +844,7 @@ function SectionEditor({
           {section.section_type === "cta" && (
             <>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Headline
                 </label>
                 <input
@@ -854,7 +854,7 @@ function SectionEditor({
                 />
               </div>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Subheadline
                 </label>
                 <textarea
@@ -866,7 +866,7 @@ function SectionEditor({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-[#6E6E73] mb-1 block">
+                  <label className="text-xs text-[#9CA3AF] mb-1 block">
                     CTA Text
                   </label>
                   <input
@@ -876,7 +876,7 @@ function SectionEditor({
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-[#6E6E73] mb-1 block">
+                  <label className="text-xs text-[#9CA3AF] mb-1 block">
                     CTA URL
                   </label>
                   <input
@@ -889,7 +889,7 @@ function SectionEditor({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-[#6E6E73] mb-1 block">
+                  <label className="text-xs text-[#9CA3AF] mb-1 block">
                     Phone
                   </label>
                   <input
@@ -900,7 +900,7 @@ function SectionEditor({
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-[#6E6E73] mb-1 block">
+                  <label className="text-xs text-[#9CA3AF] mb-1 block">
                     Style
                   </label>
                   <select
@@ -920,7 +920,7 @@ function SectionEditor({
           {section.section_type === "location_map" && (
             <>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Headline
                 </label>
                 <input
@@ -930,7 +930,7 @@ function SectionEditor({
                 />
               </div>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Address
                 </label>
                 <input
@@ -941,7 +941,7 @@ function SectionEditor({
                 />
               </div>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Directions / Notes
                 </label>
                 <textarea
@@ -953,7 +953,7 @@ function SectionEditor({
                 />
               </div>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Google Maps Embed URL (optional)
                 </label>
                 <input
@@ -999,7 +999,7 @@ export default function LandingPageBuilder({
   } | null>(null)
 
   const inputCls =
-    "w-full h-9 px-3 rounded-lg text-sm outline-none transition-all bg-[#0A0A0A] border border-white/[0.06] text-[#F5F5F7] focus:border-[#3B82F6]/50 placeholder:text-[#6E6E73]"
+    "w-full h-9 px-3 rounded-lg text-sm outline-none transition-all bg-[#F9FAFB] border border-black/[0.08] text-[#111827] focus:border-[#3B82F6]/50 placeholder:text-[#9CA3AF]"
 
   const fetchPages = useCallback(async () => {
     try {
@@ -1242,20 +1242,20 @@ export default function LandingPageBuilder({
   /* ── TEMPLATE PICKER ── */
   if (showTemplatePicker) {
     return (
-      <div className="border border-white/[0.06] rounded-xl bg-[#111111]">
+      <div className="border border-black/[0.08] rounded-xl bg-white">
         <div className="p-5">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-lg font-bold text-[#F5F5F7]">
+              <h3 className="text-lg font-bold text-[#111827]">
                 Choose a Template
               </h3>
-              <p className="text-sm text-[#6E6E73]">
+              <p className="text-sm text-[#9CA3AF]">
                 Pick a starting layout for your landing page
               </p>
             </div>
             <button
               onClick={() => setShowTemplatePicker(false)}
-              className="text-[#6E6E73]"
+              className="text-[#9CA3AF]"
             >
               <XIcon size={18} />
             </button>
@@ -1266,20 +1266,20 @@ export default function LandingPageBuilder({
               <button
                 key={key}
                 onClick={() => createFromTemplate(key)}
-                className="p-5 rounded-xl border border-white/[0.06] text-left transition-all hover:border-[#3B82F6]/50 hover:bg-white/[0.02]"
+                className="p-5 rounded-xl border border-black/[0.08] text-left transition-all hover:border-[#3B82F6]/50 hover:bg-black/[0.03]"
               >
-                <p className="text-sm font-semibold text-[#F5F5F7] mb-1">
+                <p className="text-sm font-semibold text-[#111827] mb-1">
                   {tmpl.label}
                 </p>
-                <p className="text-xs text-[#6E6E73]">{tmpl.desc}</p>
+                <p className="text-xs text-[#9CA3AF]">{tmpl.desc}</p>
               </button>
             ))}
           </div>
 
           {/* Clone from existing */}
           {pages.length > 0 && (
-            <div className="border-t border-white/[0.06] pt-4">
-              <p className="text-xs font-semibold text-[#A1A1A6] mb-3">
+            <div className="border-t border-black/[0.08] pt-4">
+              <p className="text-xs font-semibold text-[#6B7280] mb-3">
                 Or clone an existing page
               </p>
               <div className="space-y-2">
@@ -1287,17 +1287,17 @@ export default function LandingPageBuilder({
                   <button
                     key={p.id}
                     onClick={() => clonePage(p.id)}
-                    className="w-full flex items-center justify-between p-3 rounded-lg border border-white/[0.06] text-left hover:bg-white/[0.02] transition-colors"
+                    className="w-full flex items-center justify-between p-3 rounded-lg border border-black/[0.08] text-left hover:bg-black/[0.03] transition-colors"
                   >
                     <div>
-                      <p className="text-sm font-medium text-[#F5F5F7]">
+                      <p className="text-sm font-medium text-[#111827]">
                         {p.title}
                       </p>
-                      <p className="text-xs text-[#6E6E73]">
+                      <p className="text-xs text-[#9CA3AF]">
                         /lp/{p.slug}
                       </p>
                     </div>
-                    <Copy size={14} className="text-[#6E6E73]" />
+                    <Copy size={14} className="text-[#9CA3AF]" />
                   </button>
                 ))}
               </div>
@@ -1312,20 +1312,20 @@ export default function LandingPageBuilder({
   if (!editingPage) {
     return (
       <div className="space-y-4">
-        <div className="border border-white/[0.06] rounded-xl bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl bg-white">
           <div className="p-5">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-lg font-bold text-[#F5F5F7]">
+                <h3 className="text-lg font-bold text-[#111827]">
                   Landing Pages
                 </h3>
-                <p className="text-sm text-[#6E6E73]">
+                <p className="text-sm text-[#9CA3AF]">
                   Ad-specific pages for this facility
                 </p>
               </div>
               <button
                 onClick={() => setShowTemplatePicker(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#3B82F6]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#111827] bg-[#3B82F6] hover:bg-[#3B82F6]/90 transition-colors"
               >
                 <Plus size={14} /> Create Page
               </button>
@@ -1341,21 +1341,21 @@ export default function LandingPageBuilder({
             )}
 
             {!loading && pages.length === 0 && (
-              <div className="text-center py-12 rounded-xl border-2 border-dashed border-white/[0.06]">
+              <div className="text-center py-12 rounded-xl border-2 border-dashed border-black/[0.08]">
                 <FileText
                   size={32}
-                  className="mx-auto mb-3 text-[#6E6E73]"
+                  className="mx-auto mb-3 text-[#9CA3AF]"
                 />
-                <p className="text-sm font-medium text-[#F5F5F7] mb-1">
+                <p className="text-sm font-medium text-[#111827] mb-1">
                   No landing pages yet
                 </p>
-                <p className="text-xs text-[#6E6E73] mb-4">
+                <p className="text-xs text-[#9CA3AF] mb-4">
                   Create your first ad-specific landing page for this
                   facility
                 </p>
                 <button
                   onClick={() => setShowTemplatePicker(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#3B82F6]/90"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#111827] bg-[#3B82F6] hover:bg-[#3B82F6]/90"
                 >
                   <Plus size={14} /> Create Page
                 </button>
@@ -1379,12 +1379,12 @@ export default function LandingPageBuilder({
                 {pages.map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center justify-between p-4 rounded-xl border border-white/[0.06] cursor-pointer hover:bg-white/[0.02] transition-all"
+                    className="flex items-center justify-between p-4 rounded-xl border border-black/[0.08] cursor-pointer hover:bg-black/[0.03] transition-all"
                     onClick={() => openPageForEdit(p.id)}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-[#F5F5F7] truncate">
+                        <p className="text-sm font-semibold text-[#111827] truncate">
                           {p.title}
                         </p>
                         <span
@@ -1392,7 +1392,7 @@ export default function LandingPageBuilder({
                             p.status === "published"
                               ? "bg-emerald-500/10 text-emerald-400"
                               : p.status === "archived"
-                                ? "bg-white/[0.06] text-[#6E6E73]"
+                                ? "bg-black/[0.04] text-[#9CA3AF]"
                                 : "bg-amber-500/10 text-amber-400"
                           }`}
                         >
@@ -1407,10 +1407,10 @@ export default function LandingPageBuilder({
                             </span>
                           )}
                       </div>
-                      <p className="text-xs text-[#6E6E73] mt-0.5">
+                      <p className="text-xs text-[#9CA3AF] mt-0.5">
                         /lp/{p.slug}
                       </p>
-                      <p className="text-xs text-[#6E6E73] mt-0.5">
+                      <p className="text-xs text-[#9CA3AF] mt-0.5">
                         Created{" "}
                         {new Date(p.created_at).toLocaleDateString()}
                       </p>
@@ -1421,12 +1421,12 @@ export default function LandingPageBuilder({
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="p-1.5 rounded-lg hover:bg-white/[0.06]"
+                        className="p-1.5 rounded-lg hover:bg-black/[0.04]"
                         title="Open preview"
                       >
                         <ExternalLink
                           size={14}
-                          className="text-[#6E6E73]"
+                          className="text-[#9CA3AF]"
                         />
                       </a>
                       <button
@@ -1434,17 +1434,17 @@ export default function LandingPageBuilder({
                           e.stopPropagation()
                           clonePage(p.id)
                         }}
-                        className="p-1.5 rounded-lg hover:bg-white/[0.06]"
+                        className="p-1.5 rounded-lg hover:bg-black/[0.04]"
                         title="Duplicate page"
                       >
-                        <Copy size={14} className="text-[#6E6E73]" />
+                        <Copy size={14} className="text-[#9CA3AF]" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           deletePage(p.id)
                         }}
-                        className="p-1.5 rounded-lg hover:bg-white/[0.06]"
+                        className="p-1.5 rounded-lg hover:bg-black/[0.04]"
                         title="Delete page"
                       >
                         <Trash2 size={14} className="text-red-400" />
@@ -1469,7 +1469,7 @@ export default function LandingPageBuilder({
       <div className="flex items-center justify-between">
         <button
           onClick={() => setEditingPage(null)}
-          className="flex items-center gap-2 text-sm text-[#6E6E73] hover:text-[#F5F5F7] transition-colors"
+          className="flex items-center gap-2 text-sm text-[#9CA3AF] hover:text-[#111827] transition-colors"
         >
           <ArrowLeft size={14} /> Back to pages
         </button>
@@ -1479,7 +1479,7 @@ export default function LandingPageBuilder({
               href={`/lp/${editingPage.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.06]"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.04]"
             >
               Preview
             </a>
@@ -1487,14 +1487,14 @@ export default function LandingPageBuilder({
           <button
             onClick={savePage}
             disabled={saving}
-            className="px-4 py-1.5 rounded-lg text-xs font-medium border border-white/[0.06] text-[#F5F5F7] hover:bg-white/[0.06] disabled:opacity-40"
+            className="px-4 py-1.5 rounded-lg text-xs font-medium border border-black/[0.08] text-[#111827] hover:bg-black/[0.04] disabled:opacity-40"
           >
             {saving ? "Saving..." : "Save Draft"}
           </button>
           <button
             onClick={publishPage}
             disabled={saving}
-            className="px-4 py-1.5 rounded-lg text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#3B82F6]/90 disabled:opacity-40"
+            className="px-4 py-1.5 rounded-lg text-xs font-medium text-[#111827] bg-[#3B82F6] hover:bg-[#3B82F6]/90 disabled:opacity-40"
           >
             {editingPage.status === "published" ? "Published" : "Publish"}
           </button>
@@ -1515,13 +1515,13 @@ export default function LandingPageBuilder({
 
       <div className="space-y-4">
         {/* Page settings */}
-        <div className="border border-white/[0.06] rounded-xl p-5 bg-[#111111]">
-          <h4 className="text-sm font-semibold text-[#F5F5F7] mb-3">
+        <div className="border border-black/[0.08] rounded-xl p-5 bg-white">
+          <h4 className="text-sm font-semibold text-[#111827] mb-3">
             Page Settings
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-[#6E6E73] mb-1 block">
+              <label className="text-xs font-medium text-[#9CA3AF] mb-1 block">
                 Page Title
               </label>
               <input
@@ -1540,11 +1540,11 @@ export default function LandingPageBuilder({
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#6E6E73] mb-1 block">
+              <label className="text-xs font-medium text-[#9CA3AF] mb-1 block">
                 URL Slug
               </label>
               <div className="flex items-center gap-0">
-                <span className="text-xs text-[#6E6E73] px-2 py-2 rounded-l-lg border border-r-0 border-white/[0.06] bg-[#0A0A0A]">
+                <span className="text-xs text-[#9CA3AF] px-2 py-2 rounded-l-lg border border-r-0 border-black/[0.08] bg-[#F9FAFB]">
                   /lp/
                 </span>
                 <input
@@ -1560,7 +1560,7 @@ export default function LandingPageBuilder({
               </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-[#6E6E73] mb-1 block">
+              <label className="text-xs font-medium text-[#9CA3AF] mb-1 block">
                 SEO Title
               </label>
               <input
@@ -1576,7 +1576,7 @@ export default function LandingPageBuilder({
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#6E6E73] mb-1 block">
+              <label className="text-xs font-medium text-[#9CA3AF] mb-1 block">
                 SEO Description
               </label>
               <input
@@ -1595,7 +1595,7 @@ export default function LandingPageBuilder({
 
           {/* storEDGE Widget URL */}
           <div className="mt-3">
-            <label className="text-xs font-medium text-[#6E6E73] mb-1 block">
+            <label className="text-xs font-medium text-[#9CA3AF] mb-1 block">
               storEDGE Widget URL
             </label>
             <input
@@ -1612,16 +1612,16 @@ export default function LandingPageBuilder({
           </div>
 
           {/* Theme */}
-          <div className="mt-4 pt-4 border-t border-white/[0.06]">
+          <div className="mt-4 pt-4 border-t border-black/[0.08]">
             <div className="flex items-center gap-2 mb-3">
-              <Palette size={14} className="text-[#6E6E73]" />
-              <span className="text-xs font-semibold text-[#F5F5F7]">
+              <Palette size={14} className="text-[#9CA3AF]" />
+              <span className="text-xs font-semibold text-[#111827]">
                 Theme Customization
               </span>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Accent Color
                 </label>
                 <div className="flex items-center gap-2">
@@ -1641,13 +1641,13 @@ export default function LandingPageBuilder({
                     }
                     className="w-8 h-8 rounded cursor-pointer border-0 p-0"
                   />
-                  <span className="text-xs text-[#6E6E73]">
+                  <span className="text-xs text-[#9CA3AF]">
                     {editingPage.theme?.primaryColor || "#10b981"}
                   </span>
                 </div>
               </div>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Background
                 </label>
                 <div className="flex items-center gap-2">
@@ -1667,13 +1667,13 @@ export default function LandingPageBuilder({
                     }
                     className="w-8 h-8 rounded cursor-pointer border-0 p-0"
                   />
-                  <span className="text-xs text-[#6E6E73]">
+                  <span className="text-xs text-[#9CA3AF]">
                     {editingPage.theme?.accentColor || "#0f172a"}
                   </span>
                 </div>
               </div>
               <div>
-                <label className="text-xs text-[#6E6E73] mb-1 block">
+                <label className="text-xs text-[#9CA3AF] mb-1 block">
                   Font
                 </label>
                 <select
@@ -1700,7 +1700,7 @@ export default function LandingPageBuilder({
               onClick={() =>
                 setEditingPage({ ...editingPage, theme: {} })
               }
-              className="text-xs text-[#6E6E73] hover:text-red-400 transition-colors mt-2"
+              className="text-xs text-[#9CA3AF] hover:text-red-400 transition-colors mt-2"
             >
               Reset to default
             </button>
@@ -1708,9 +1708,9 @@ export default function LandingPageBuilder({
         </div>
 
         {/* Sections */}
-        <div className="border border-white/[0.06] rounded-xl bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl bg-white">
           <div className="p-5">
-            <h4 className="text-sm font-semibold text-[#F5F5F7] mb-3">
+            <h4 className="text-sm font-semibold text-[#111827] mb-3">
               Sections ({sections.length})
             </h4>
             <div className="space-y-3">
@@ -1742,14 +1742,14 @@ export default function LandingPageBuilder({
             {/* Add section */}
             <div className="mt-4">
               {showAddSection ? (
-                <div className="border border-white/[0.06] rounded-xl p-4">
+                <div className="border border-black/[0.08] rounded-xl p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-semibold text-[#F5F5F7]">
+                    <p className="text-xs font-semibold text-[#111827]">
                       Add Section
                     </p>
                     <button
                       onClick={() => setShowAddSection(false)}
-                      className="text-[#6E6E73]"
+                      className="text-[#9CA3AF]"
                     >
                       <XIcon size={14} />
                     </button>
@@ -1760,12 +1760,12 @@ export default function LandingPageBuilder({
                         <button
                           key={type}
                           onClick={() => addSection(type)}
-                          className="p-3 rounded-lg border border-white/[0.06] text-left transition-colors hover:border-[#3B82F6]/50 hover:bg-white/[0.02]"
+                          className="p-3 rounded-lg border border-black/[0.08] text-left transition-colors hover:border-[#3B82F6]/50 hover:bg-black/[0.03]"
                         >
                           <span className="w-6 h-6 rounded bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center text-xs font-bold">
                             {meta.icon}
                           </span>
-                          <p className="text-xs font-medium text-[#F5F5F7] mt-1">
+                          <p className="text-xs font-medium text-[#111827] mt-1">
                             {meta.label}
                           </p>
                         </button>
@@ -1776,7 +1776,7 @@ export default function LandingPageBuilder({
               ) : (
                 <button
                   onClick={() => setShowAddSection(true)}
-                  className="w-full py-3 rounded-xl border-2 border-dashed border-white/[0.06] text-sm font-medium text-[#6E6E73] transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6]"
+                  className="w-full py-3 rounded-xl border-2 border-dashed border-black/[0.08] text-sm font-medium text-[#9CA3AF] transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6]"
                 >
                   <Plus size={14} className="inline mr-1" /> Add Section
                 </button>

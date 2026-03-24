@@ -99,12 +99,12 @@ function KpiSkeleton() {
           key={i}
           className="rounded-xl border p-5 animate-pulse"
           style={{
-            backgroundColor: "#111111",
-            borderColor: "rgba(255,255,255,0.06)",
+            backgroundColor: "#FFFFFF",
+            borderColor: "rgba(0,0,0,0.08)",
           }}
         >
-          <div className="h-3 w-24 rounded bg-white/5 mb-3" />
-          <div className="h-8 w-16 rounded bg-white/5" />
+          <div className="h-3 w-24 rounded bg-black/5 mb-3" />
+          <div className="h-8 w-16 rounded bg-black/5" />
         </div>
       ))}
     </div>
@@ -118,12 +118,12 @@ function FeedSkeleton() {
         <div
           key={i}
           className="flex items-start gap-3 rounded-lg p-3 animate-pulse"
-          style={{ backgroundColor: "#111111" }}
+          style={{ backgroundColor: "#FFFFFF" }}
         >
-          <div className="h-8 w-8 rounded-full bg-white/5 shrink-0" />
+          <div className="h-8 w-8 rounded-full bg-black/5 shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-3/4 rounded bg-white/5" />
-            <div className="h-3 w-1/2 rounded bg-white/5" />
+            <div className="h-3 w-3/4 rounded bg-black/5" />
+            <div className="h-3 w-1/2 rounded bg-black/5" />
           </div>
         </div>
       ))}
@@ -205,7 +205,7 @@ export default function InsightsPage() {
   return (
     <div className="space-y-8 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>
           Performance Insights
         </h1>
         <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
@@ -237,8 +237,8 @@ export default function InsightsPage() {
                 key={kpi.label}
                 className="rounded-xl border p-5"
                 style={{
-                  backgroundColor: "#111111",
-                  borderColor: "rgba(255,255,255,0.06)",
+                  backgroundColor: "#FFFFFF",
+                  borderColor: "rgba(0,0,0,0.08)",
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -247,7 +247,7 @@ export default function InsightsPage() {
                     {kpi.label}
                   </span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "#F5F5F7" }}>
+                <p className="text-2xl font-bold" style={{ color: "#111827" }}>
                   {kpi.value}
                 </p>
               </div>
@@ -260,11 +260,11 @@ export default function InsightsPage() {
         <div
           className="rounded-xl border p-6"
           style={{
-            backgroundColor: "#111111",
-            borderColor: "rgba(255,255,255,0.06)",
+            backgroundColor: "#FFFFFF",
+            borderColor: "rgba(0,0,0,0.08)",
           }}
         >
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "#F5F5F7" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "#111827" }}>
             Conversion Funnel
           </h2>
           <div className="space-y-3">
@@ -282,7 +282,7 @@ export default function InsightsPage() {
                   <div className="flex items-center gap-3">
                     <span
                       className="text-xs w-32 shrink-0 text-right"
-                      style={{ color: "#A1A1A6" }}
+                      style={{ color: "#6B7280" }}
                     >
                       {step.label || step.stage.replace(/_/g, " ")}
                     </span>
@@ -298,7 +298,7 @@ export default function InsightsPage() {
                       >
                         <span
                           className="text-xs font-medium"
-                          style={{ color: "#F5F5F7" }}
+                          style={{ color: "#111827" }}
                         >
                           {step.count}
                         </span>
@@ -324,11 +324,11 @@ export default function InsightsPage() {
         <div
           className="rounded-xl border p-6"
           style={{
-            backgroundColor: "#111111",
-            borderColor: "rgba(255,255,255,0.06)",
+            backgroundColor: "#FFFFFF",
+            borderColor: "rgba(0,0,0,0.08)",
           }}
         >
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "#F5F5F7" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "#111827" }}>
             Weekly Lead Velocity
           </h2>
           <div className="h-64">
@@ -346,10 +346,10 @@ export default function InsightsPage() {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#1A1A1A",
+                    backgroundColor: "#F3F4F6",
                     border: "1px solid rgba(255,255,255,0.1)",
                     borderRadius: "8px",
-                    color: "#F5F5F7",
+                    color: "#111827",
                   }}
                 />
                 <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} />
@@ -362,11 +362,11 @@ export default function InsightsPage() {
       <div
         className="rounded-xl border p-6"
         style={{
-          backgroundColor: "#111111",
-          borderColor: "rgba(255,255,255,0.06)",
+          backgroundColor: "#FFFFFF",
+          borderColor: "rgba(0,0,0,0.08)",
         }}
       >
-        <h2 className="text-lg font-semibold mb-4" style={{ color: "#F5F5F7" }}>
+        <h2 className="text-lg font-semibold mb-4" style={{ color: "#111827" }}>
           Activity Feed
         </h2>
 
@@ -386,7 +386,7 @@ export default function InsightsPage() {
               return (
                 <div
                   key={event.id}
-                  className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-white/[0.02]"
+                  className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-black/[0.03]"
                 >
                   <div
                     className="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
@@ -395,7 +395,7 @@ export default function InsightsPage() {
                     <Icon size={14} style={{ color: config.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm" style={{ color: "#F5F5F7" }}>
+                    <p className="text-sm" style={{ color: "#111827" }}>
                       {event.description}
                     </p>
                     <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "#6E6E73" }}>

@@ -27,16 +27,16 @@ function ChangelogSkeleton() {
     <div className="space-y-8">
       {Array.from({ length: 3 }).map((_, gi) => (
         <div key={gi}>
-          <div className="h-4 w-32 rounded bg-white/5 mb-4 animate-pulse" />
+          <div className="h-4 w-32 rounded bg-black/5 mb-4 animate-pulse" />
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
                 className="rounded-xl border p-5 animate-pulse"
-                style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
               >
-                <div className="h-4 w-2/3 rounded bg-white/5 mb-2" />
-                <div className="h-3 w-full rounded bg-white/5" />
+                <div className="h-4 w-2/3 rounded bg-black/5 mb-2" />
+                <div className="h-3 w-full rounded bg-black/5" />
               </div>
             ))}
           </div>
@@ -78,7 +78,7 @@ export default function ChangelogPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>Changelog</h1>
+        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Changelog</h1>
         <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
           Recent updates and improvements
         </p>
@@ -112,8 +112,8 @@ export default function ChangelogPage() {
                   return (
                     <div
                       key={note.id}
-                      className="rounded-xl border p-5 transition-colors hover:bg-white/[0.01]"
-                      style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+                      className="rounded-xl border p-5 transition-colors hover:bg-black/[0.02]"
+                      style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -124,7 +124,7 @@ export default function ChangelogPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-sm font-medium" style={{ color: "#F5F5F7" }}>
+                            <h3 className="text-sm font-medium" style={{ color: "#111827" }}>
                               {note.title}
                             </h3>
                             <span
@@ -135,7 +135,7 @@ export default function ChangelogPage() {
                             </span>
                           </div>
                           {note.description && (
-                            <p className="text-sm leading-relaxed" style={{ color: "#A1A1A6" }}>
+                            <p className="text-sm leading-relaxed" style={{ color: "#6B7280" }}>
                               {note.description}
                             </p>
                           )}

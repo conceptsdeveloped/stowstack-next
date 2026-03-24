@@ -49,12 +49,12 @@ function EntrySkeleton() {
         <div
           key={i}
           className="flex items-start gap-3 rounded-lg p-4 animate-pulse"
-          style={{ backgroundColor: "#111111" }}
+          style={{ backgroundColor: "#FFFFFF" }}
         >
-          <div className="h-8 w-8 rounded-full bg-white/5 shrink-0" />
+          <div className="h-8 w-8 rounded-full bg-black/5 shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-3/4 rounded bg-white/5" />
-            <div className="h-3 w-1/2 rounded bg-white/5" />
+            <div className="h-3 w-3/4 rounded bg-black/5" />
+            <div className="h-3 w-1/2 rounded bg-black/5" />
           </div>
         </div>
       ))}
@@ -124,7 +124,7 @@ export default function ActivityPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>
           Activity Log
         </h1>
         <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
@@ -173,8 +173,8 @@ export default function ActivityPage() {
             return (
               <div
                 key={entry.id}
-                className="flex items-start gap-3 rounded-lg p-4 transition-colors hover:bg-white/[0.02]"
-                style={{ backgroundColor: "#111111" }}
+                className="flex items-start gap-3 rounded-lg p-4 transition-colors hover:bg-black/[0.03]"
+                style={{ backgroundColor: "#FFFFFF" }}
               >
                 <div
                   className="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
@@ -183,7 +183,7 @@ export default function ActivityPage() {
                   <Icon size={14} style={{ color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm" style={{ color: "#F5F5F7" }}>
+                  <p className="text-sm" style={{ color: "#111827" }}>
                     {entry.description}
                   </p>
                   <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "#6E6E73" }}>

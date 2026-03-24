@@ -129,11 +129,11 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#050505]">
-      <div className="w-full max-w-sm rounded-2xl border border-white/[0.06] bg-[#0A0A0A] p-8">
+    <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8">
         <div className="mb-8 text-center">
-          <h1 className="mb-1 text-2xl font-bold text-[#F5F5F7]">StowStack</h1>
-          <p className="text-sm text-[#6E6E73]">Admin Dashboard</p>
+          <h1 className="mb-1 text-2xl font-bold text-[#111827]">StowStack</h1>
+          <p className="text-sm text-[#9CA3AF]">Admin Dashboard</p>
         </div>
 
         {mode === "clerk" ? (
@@ -141,7 +141,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
             <SignInButton mode="modal">
               <button
                 type="button"
-                className="mb-4 w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
+                className="mb-4 w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB]"
               >
                 Sign In with Clerk
               </button>
@@ -149,17 +149,17 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/[0.06]" />
+                <div className="w-full border-t border-black/[0.08]" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-[#0A0A0A] px-3 text-[#6E6E73]">or</span>
+                <span className="bg-[#F9FAFB] px-3 text-[#9CA3AF]">or</span>
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => setMode("key")}
-              className="w-full rounded-lg border border-white/[0.06] px-4 py-2.5 text-sm font-medium text-[#A1A1A6] transition-colors hover:bg-white/[0.04] hover:text-[#F5F5F7]"
+              className="w-full rounded-lg border border-black/[0.08] px-4 py-2.5 text-sm font-medium text-[#6B7280] transition-colors hover:bg-black/[0.03] hover:text-[#111827]"
             >
               Use Admin Key
             </button>
@@ -167,11 +167,11 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="admin-key" className="mb-2 block text-sm font-medium text-[#A1A1A6]">
+              <label htmlFor="admin-key" className="mb-2 block text-sm font-medium text-[#6B7280]">
                 Admin Key
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
                 <input
                   id="admin-key"
                   type="password"
@@ -179,7 +179,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin key"
                   autoFocus
-                  className="w-full rounded-lg border border-white/[0.06] bg-[#1A1A1A] py-2.5 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
                 />
               </div>
             </div>
@@ -191,7 +191,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
             <button
               type="submit"
               disabled={loading || !password.trim()}
-              className="mb-3 w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+              className="mb-3 w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
             >
               {loading ? "Verifying..." : "Sign In"}
             </button>
@@ -199,7 +199,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
             <button
               type="button"
               onClick={() => setMode("clerk")}
-              className="w-full text-center text-xs text-[#6E6E73] transition-colors hover:text-[#A1A1A6]"
+              className="w-full text-center text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
             >
               ← Back to sign in options
             </button>
@@ -238,10 +238,10 @@ function Sidebar({
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Brand */}
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-black/[0.08] px-4">
         <Link
           href="/"
-          className={`text-lg font-bold text-[#F5F5F7] transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
+          className={`text-lg font-bold text-[#111827] transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
         >
           StowStack
         </Link>
@@ -268,7 +268,7 @@ function Sidebar({
         {filteredGroups.map((group) => (
           <div key={group.title} className="mb-6">
             {!collapsed && (
-              <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-[#6E6E73]">
+              <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-[#9CA3AF]">
                 {group.title}
               </p>
             )}
@@ -284,8 +284,8 @@ function Sidebar({
                       title={collapsed ? item.label : undefined}
                       className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
                         isActive
-                          ? "bg-[#3B82F6]/15 font-medium text-white"
-                          : "text-[#A1A1A6] hover:bg-white/[0.04] hover:text-[#F5F5F7]"
+                          ? "bg-[#3B82F6]/15 font-medium text-[#111827]"
+                          : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
                       } ${collapsed ? "justify-center" : ""}`}
                     >
                       <Icon
@@ -302,11 +302,11 @@ function Sidebar({
       </nav>
 
       {/* Collapse toggle (desktop only) */}
-      <div className="hidden shrink-0 border-t border-white/[0.06] p-3 md:block">
+      <div className="hidden shrink-0 border-t border-black/[0.08] p-3 md:block">
         <button
           type="button"
           onClick={() => onCollapse(!collapsed)}
-          className="flex w-full items-center justify-center rounded-lg p-2 text-[#6E6E73] transition-colors hover:bg-white/[0.04] hover:text-[#A1A1A6]"
+          className="flex w-full items-center justify-center rounded-lg p-2 text-[#9CA3AF] transition-colors hover:bg-black/[0.03] hover:text-[#6B7280]"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <ChevronLeft
@@ -330,7 +330,7 @@ function Sidebar({
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-white/[0.06] bg-[#0A0A0A] transition-transform duration-200 md:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-black/[0.08] bg-[#F9FAFB] transition-transform duration-200 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -339,7 +339,7 @@ function Sidebar({
 
       {/* Desktop sidebar */}
       <aside
-        className={`hidden shrink-0 border-r border-white/[0.06] bg-[#0A0A0A] transition-all duration-200 md:block ${
+        className={`hidden shrink-0 border-r border-black/[0.08] bg-[#F9FAFB] transition-all duration-200 md:block ${
           collapsed ? "w-16" : "w-64"
         }`}
       >
@@ -375,7 +375,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // Wait for both localStorage check and Clerk to load
   if (!checked || !clerkLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050505]">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
       </div>
     );
@@ -387,11 +387,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // If Clerk user is signed in but has wrong role, show access denied
   if (isSignedIn && !canAccessAdmin && !adminKey) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050505]">
-        <div className="w-full max-w-sm rounded-2xl border border-white/[0.06] bg-[#0A0A0A] p-8 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8 text-center">
           <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-red-400" />
-          <h2 className="mb-2 text-lg font-bold text-[#F5F5F7]">Access Denied</h2>
-          <p className="mb-6 text-sm text-[#A1A1A6]">
+          <h2 className="mb-2 text-lg font-bold text-[#111827]">Access Denied</h2>
+          <p className="mb-6 text-sm text-[#6B7280]">
             Your account ({user?.primaryEmailAddress?.emailAddress}) does not have admin access.
             Contact your administrator to request the appropriate role.
           </p>
@@ -407,7 +407,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminProvider initialKey={adminKey}>
-      <div className="flex h-screen overflow-hidden bg-[#050505]">
+      <div className="flex h-screen overflow-hidden bg-white">
         <Sidebar
           collapsed={sidebarCollapsed}
           onCollapse={setSidebarCollapsed}

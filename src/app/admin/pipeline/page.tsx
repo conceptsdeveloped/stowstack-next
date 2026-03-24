@@ -125,9 +125,9 @@ function getStage(status: string): Stage {
     STAGE_MAP.get(status) || {
       id: status,
       label: status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-      color: "text-[#6E6E73]",
-      bgColor: "bg-white/[0.04]",
-      borderColor: "border-white/[0.06]",
+      color: "text-[#9CA3AF]",
+      bgColor: "bg-black/[0.03]",
+      borderColor: "border-black/[0.08]",
       icon: <Building2 className="h-4 w-4" />,
       nextAction: "Review",
     }
@@ -177,7 +177,7 @@ function StageColumn({
       <div className={`mb-3 flex items-center gap-2 rounded-lg border px-3 py-2 ${stage.borderColor} ${stage.bgColor}`}>
         <div className={stage.color}>{stage.icon}</div>
         <h3 className={`text-xs font-semibold ${stage.color}`}>{stage.label}</h3>
-        <span className="ml-auto rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-[#A1A1A6]">
+        <span className="ml-auto rounded-full bg-black/[0.04] px-2 py-0.5 text-[10px] font-medium text-[#6B7280]">
           {facilities.length}
         </span>
       </div>
@@ -187,21 +187,21 @@ function StageColumn({
         {facilities.map((f) => (
           <div
             key={f.id}
-            className="rounded-xl border border-white/[0.06] bg-[#111111] p-4 transition-colors hover:border-white/[0.1]"
+            className="rounded-xl border border-black/[0.08] bg-white p-4 transition-colors hover:border-black/[0.1]"
           >
             <div className="mb-2 flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <h4 className="truncate text-sm font-semibold text-[#F5F5F7]">
+                <h4 className="truncate text-sm font-semibold text-[#111827]">
                   {f.facilityName || f.name || "Unnamed Facility"}
                 </h4>
                 {f.location && (
-                  <div className="mt-0.5 flex items-center gap-1 text-[10px] text-[#6E6E73]">
+                  <div className="mt-0.5 flex items-center gap-1 text-[10px] text-[#9CA3AF]">
                     <MapPin className="h-2.5 w-2.5" />
                     <span className="truncate">{f.location}</span>
                   </div>
                 )}
               </div>
-              <span className="shrink-0 text-[10px] text-[#6E6E73]">
+              <span className="shrink-0 text-[10px] text-[#9CA3AF]">
                 {relativeTime(f.updatedAt || f.createdAt)}
               </span>
             </div>
@@ -209,12 +209,12 @@ function StageColumn({
             {/* Contact */}
             <div className="mb-3 space-y-1">
               {f.name && (
-                <p className="text-xs text-[#A1A1A6]">{f.name}</p>
+                <p className="text-xs text-[#6B7280]">{f.name}</p>
               )}
               {f.email && (
                 <a
                   href={`mailto:${f.email}`}
-                  className="flex items-center gap-1 text-[10px] text-[#6E6E73] hover:text-[#3B82F6]"
+                  className="flex items-center gap-1 text-[10px] text-[#9CA3AF] hover:text-[#3B82F6]"
                 >
                   <Mail className="h-2.5 w-2.5" />
                   {f.email}
@@ -223,7 +223,7 @@ function StageColumn({
               {f.phone && (
                 <a
                   href={`tel:${f.phone}`}
-                  className="flex items-center gap-1 text-[10px] text-[#6E6E73] hover:text-[#3B82F6]"
+                  className="flex items-center gap-1 text-[10px] text-[#9CA3AF] hover:text-[#3B82F6]"
                 >
                   <Phone className="h-2.5 w-2.5" />
                   {f.phone}
@@ -234,17 +234,17 @@ function StageColumn({
             {/* Tags */}
             <div className="mb-3 flex flex-wrap gap-1.5">
               {f.occupancyRange && (
-                <span className="rounded-md bg-white/[0.04] px-2 py-0.5 text-[10px] text-[#A1A1A6]">
+                <span className="rounded-md bg-black/[0.03] px-2 py-0.5 text-[10px] text-[#6B7280]">
                   {occupancyLabel(f.occupancyRange)}
                 </span>
               )}
               {f.totalUnits && (
-                <span className="rounded-md bg-white/[0.04] px-2 py-0.5 text-[10px] text-[#A1A1A6]">
+                <span className="rounded-md bg-black/[0.03] px-2 py-0.5 text-[10px] text-[#6B7280]">
                   {f.totalUnits} units
                 </span>
               )}
               {f.biggestIssue && (
-                <span className="rounded-md bg-white/[0.04] px-2 py-0.5 text-[10px] text-[#A1A1A6]">
+                <span className="rounded-md bg-black/[0.03] px-2 py-0.5 text-[10px] text-[#6B7280]">
                   {f.biggestIssue.replace(/-/g, " ")}
                 </span>
               )}
@@ -278,7 +278,7 @@ function StageColumn({
               {(stage.id === "audit_generated" || stage.id === "audit_sent") && (
                 <a
                   href={`/admin/audits`}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.06] text-[#6E6E73] hover:bg-white/[0.04] hover:text-[#F5F5F7]"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/[0.08] text-[#9CA3AF] hover:bg-black/[0.03] hover:text-[#111827]"
                   title="View audits"
                 >
                   <ExternalLink className="h-3 w-3" />
@@ -289,8 +289,8 @@ function StageColumn({
         ))}
 
         {facilities.length === 0 && (
-          <div className="rounded-xl border border-dashed border-white/[0.06] p-6 text-center">
-            <p className="text-xs text-[#6E6E73]">No facilities at this stage</p>
+          <div className="rounded-xl border border-dashed border-black/[0.08] p-6 text-center">
+            <p className="text-xs text-[#9CA3AF]">No facilities at this stage</p>
           </div>
         )}
       </div>
@@ -372,17 +372,17 @@ export default function PipelinePage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#F5F5F7]">
+          <h1 className="text-xl font-bold tracking-tight text-[#111827]">
             Facility Pipeline
           </h1>
-          <p className="text-sm text-[#6E6E73]">
+          <p className="text-sm text-[#9CA3AF]">
             Track facilities from diagnostic to active client
           </p>
         </div>
         <div className="flex gap-2">
           <a
             href="/admin/audits"
-            className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-[#111111] px-4 py-2 text-xs font-medium text-[#A1A1A6] transition-colors hover:text-[#F5F5F7]"
+            className="flex items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-4 py-2 text-xs font-medium text-[#6B7280] transition-colors hover:text-[#111827]"
           >
             <FileText className="h-3.5 w-3.5" />
             Diagnostics
@@ -390,7 +390,7 @@ export default function PipelinePage() {
           <a
             href="/diagnostic"
             target="_blank"
-            className="flex items-center gap-2 rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB]"
+            className="flex items-center gap-2 rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB]"
           >
             <Zap className="h-3.5 w-3.5" />
             Share Diagnostic Form
@@ -400,42 +400,42 @@ export default function PipelinePage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <div className="mb-2 flex items-center gap-2">
             <Building2 className="h-4 w-4 text-[#3B82F6]" />
-            <span className="text-xs text-[#6E6E73]">Total Facilities</span>
+            <span className="text-xs text-[#9CA3AF]">Total Facilities</span>
           </div>
-          <p className="text-2xl font-bold text-[#F5F5F7]">
+          <p className="text-2xl font-bold text-[#111827]">
             {loading ? "—" : totalFacilities}
           </p>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <div className="mb-2 flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-amber-400" />
-            <span className="text-xs text-[#6E6E73]">Active Pipeline</span>
+            <span className="text-xs text-[#9CA3AF]">Active Pipeline</span>
           </div>
-          <p className="text-2xl font-bold text-[#F5F5F7]">
+          <p className="text-2xl font-bold text-[#111827]">
             {loading ? "—" : activePipeline}
           </p>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <div className="mb-2 flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-cyan-400" />
-            <span className="text-xs text-[#6E6E73]">In Diagnostics</span>
+            <span className="text-xs text-[#9CA3AF]">In Diagnostics</span>
           </div>
-          <p className="text-2xl font-bold text-[#F5F5F7]">
+          <p className="text-2xl font-bold text-[#111827]">
             {loading ? "—" : diagnostics}
           </p>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-4">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-4">
           <div className="mb-2 flex items-center gap-2">
             <Target className="h-4 w-4 text-emerald-400" />
-            <span className="text-xs text-[#6E6E73]">Conversion Rate</span>
+            <span className="text-xs text-[#9CA3AF]">Conversion Rate</span>
           </div>
-          <p className="text-2xl font-bold text-[#F5F5F7]">
+          <p className="text-2xl font-bold text-[#111827]">
             {loading ? "—" : `${conversionRate}%`}
           </p>
-          <p className="text-[10px] text-[#6E6E73]">
+          <p className="text-[10px] text-[#9CA3AF]">
             {signed} signed of {totalFacilities}
           </p>
         </div>
@@ -482,8 +482,8 @@ export default function PipelinePage() {
 
       {/* Funnel Visualization */}
       {!loading && !error && totalFacilities > 0 && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
-          <h3 className="mb-4 text-sm font-semibold text-[#F5F5F7]">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+          <h3 className="mb-4 text-sm font-semibold text-[#111827]">
             Conversion Funnel
           </h3>
           <div className="space-y-2">
@@ -501,7 +501,7 @@ export default function PipelinePage() {
                     </span>
                   </div>
                   <div className="flex-1">
-                    <div className="h-6 overflow-hidden rounded-md bg-white/[0.04]">
+                    <div className="h-6 overflow-hidden rounded-md bg-black/[0.03]">
                       <div
                         className={`h-full rounded-md transition-all duration-500 ${stage.bgColor}`}
                         style={{ width: `${pct}%`, minWidth: count > 0 ? "24px" : "0" }}
@@ -512,7 +512,7 @@ export default function PipelinePage() {
                       </div>
                     </div>
                   </div>
-                  <span className="w-12 text-right text-xs text-[#6E6E73]">
+                  <span className="w-12 text-right text-xs text-[#9CA3AF]">
                     {totalFacilities > 0
                       ? `${((count / totalFacilities) * 100).toFixed(0)}%`
                       : "0%"}

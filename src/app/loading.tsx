@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#050505]">
+    <div className="flex min-h-screen items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-4">
         <span className="animate-pulse text-2xl font-bold tracking-tight text-white">
           StowStack

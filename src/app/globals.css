@@ -1,32 +1,31 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════
-   STOWSTACK DESIGN TOKENS
-   Source: DESIGN_TOKENS.json
+   STOWSTACK DESIGN TOKENS — LIGHT (DEFAULT)
    ═══════════════════════════════════════════ */
 
 :root {
   /* Backgrounds */
-  --bg-void: #050505;
-  --bg-primary: #0A0A0A;
-  --bg-elevated: #111111;
-  --bg-surface: #1A1A1A;
-  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --bg-void: #FFFFFF;
+  --bg-primary: #F9FAFB;
+  --bg-elevated: #FFFFFF;
+  --bg-surface: #F3F4F6;
+  --bg-overlay: rgba(0, 0, 0, 0.4);
 
   /* Text */
-  --text-primary: #F5F5F7;
-  --text-secondary: #A1A1A6;
-  --text-tertiary: #6E6E73;
-  --text-inverse: #0A0A0A;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+  --text-inverse: #FFFFFF;
 
   /* Accent (blue) */
   --accent: #3B82F6;
   --accent-hover: #2563EB;
-  --accent-glow: rgba(59, 130, 246, 0.15);
+  --accent-glow: rgba(59, 130, 246, 0.08);
 
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.12);
 
   /* Utility */
   --color-error: rgba(239, 68, 68, 0.8);
@@ -35,6 +34,10 @@
   /* Doctrine fonts */
   --font-ad-headline: var(--font-franklin), 'Libre Franklin', 'Franklin Gothic', 'Arial Narrow', sans-serif;
   --font-ad-body: var(--font-lato), 'Lato', 'Gill Sans', 'Gill Sans MT', sans-serif;
+
+  /* Theme-aware opacity colors for Tailwind classes */
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-hover-bg: rgba(0, 0, 0, 0.03);
 
   /* Typography scale */
   --text-hero: clamp(2.5rem, 8vw, 5.5rem);
@@ -98,6 +101,36 @@
 }
 
 /* ═══════════════════════════════════════════
+   DARK THEME OVERRIDE
+   ═══════════════════════════════════════════ */
+
+:root[data-theme="dark"] {
+  --bg-void: #050505;
+  --bg-primary: #0A0A0A;
+  --bg-elevated: #111111;
+  --bg-surface: #1A1A1A;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+
+  --text-primary: #F5F5F7;
+  --text-secondary: #A1A1A6;
+  --text-tertiary: #6E6E73;
+  --text-inverse: #0A0A0A;
+
+  --accent: #3B82F6;
+  --accent-hover: #2563EB;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.12);
+
+  --color-error: rgba(239, 68, 68, 0.8);
+  --color-success: rgba(34, 197, 94, 0.8);
+
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-hover-bg: rgba(255, 255, 255, 0.03);
+}
+
+/* ═══════════════════════════════════════════
    TAILWIND THEME INTEGRATION
    ═══════════════════════════════════════════ */
 
@@ -142,7 +175,7 @@ body {
 
 ::selection {
   background: var(--accent);
-  color: var(--text-inverse);
+  color: white;
 }
 
 /* ═══════════════════════════════════════════
@@ -211,7 +244,7 @@ a:hover {
   gap: 0.5rem;
   padding: 14px 32px;
   background: var(--accent);
-  color: var(--text-inverse);
+  color: white;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: var(--text-body);
@@ -225,7 +258,7 @@ a:hover {
 
 .btn-primary:hover {
   background: var(--accent-hover);
-  color: var(--text-inverse);
+  color: white;
   transform: translateY(-1px);
 }
 
@@ -369,7 +402,7 @@ a:hover {
   border-left: 2px solid var(--accent);
   padding: 1rem 1.25rem;
   margin: 1.5rem 0;
-  background: var(--bg-elevated);
+  background: var(--bg-surface);
   border-radius: 0 8px 8px 0;
   color: var(--text-primary);
   font-style: italic;
@@ -434,6 +467,37 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* ═══════════════════════════════════════════
+   DARK MODE — CLASS OVERRIDES
+   When data-theme="dark", override hardcoded
+   light Tailwind colors back to dark variants.
+   Uses attribute selectors to avoid escaping issues.
+   ═══════════════════════════════════════════ */
+
+:root[data-theme="dark"] body {
+  color-scheme: dark;
+}
+
+/* Background overrides */
+:root[data-theme="dark"] .bg-white {
+  background-color: #111111 !important;
+}
+
+/* Border overrides */
+:root[data-theme="dark"] [class*="border-black"] {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Divider overrides */
+:root[data-theme="dark"] [class*="divide-black"] > :not(:first-child) {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Nav background */
+:root[data-theme="dark"] nav[aria-label="Main navigation"] {
+  background: rgba(5, 5, 5, 0.85) !important;
 }
 
 /* ═══════════════════════════════════════════

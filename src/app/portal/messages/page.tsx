@@ -97,8 +97,8 @@ export default function MessagesPage() {
             <ErrorState message={error} onRetry={fetchMessages} />
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <MessageSquare className="mb-3 h-10 w-10 text-[#6E6E73]" />
-              <p className="text-sm text-[#A1A1A6]">No messages yet. Start a conversation!</p>
+              <MessageSquare className="mb-3 h-10 w-10 text-[#9CA3AF]" />
+              <p className="text-sm text-[#6B7280]">No messages yet. Start a conversation!</p>
             </div>
           ) : (
             messages.map((msg) => (
@@ -110,13 +110,13 @@ export default function MessagesPage() {
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                     msg.from === "client"
                       ? "rounded-br-md bg-[#3B82F6] text-white"
-                      : "rounded-bl-md border border-white/[0.06] bg-[#1A1A1A] text-[#F5F5F7]"
+                      : "rounded-bl-md border border-black/[0.08] bg-[#F3F4F6] text-[#111827]"
                   }`}
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                   <p
                     className={`mt-1 text-[10px] ${
-                      msg.from === "client" ? "text-white/50" : "text-[#6E6E73]"
+                      msg.from === "client" ? "text-[#9CA3AF]" : "text-[#9CA3AF]"
                     }`}
                   >
                     {msg.from === "admin" ? "StowStack" : "You"} &middot;{" "}
@@ -131,7 +131,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Compose */}
-      <div className="shrink-0 border-t border-white/[0.06] bg-[#0A0A0A] p-4">
+      <div className="shrink-0 border-t border-black/[0.08] bg-[#F9FAFB] p-4">
         <form
           onSubmit={handleSend}
           className="mx-auto flex max-w-2xl items-end gap-3"
@@ -143,12 +143,12 @@ export default function MessagesPage() {
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 resize-none rounded-xl border border-white/[0.06] bg-[#111111] px-4 py-3 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+            className="flex-1 resize-none rounded-xl border border-black/[0.08] bg-white px-4 py-3 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
           />
           <button
             type="submit"
             disabled={!text.trim() || sending}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3B82F6] text-white transition-colors hover:bg-[#2563EB] disabled:opacity-40"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3B82F6] text-white transition-colors hover:bg-[#E5E7EB] disabled:opacity-40"
           >
             {sending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

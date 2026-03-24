@@ -65,7 +65,7 @@ export default function PartnerOverviewPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#6E6E73]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
       </div>
     );
   }
@@ -122,7 +122,7 @@ export default function PartnerOverviewPage() {
           return (
             <div
               key={kpi.label}
-              className="rounded-xl border border-white/[0.06] bg-[#111111] p-5"
+              className="rounded-xl border border-black/[0.08] bg-white p-5"
             >
               <div className="mb-3 flex items-center gap-2">
                 <div
@@ -131,8 +131,8 @@ export default function PartnerOverviewPage() {
                   <Icon className={`h-4 w-4 ${kpi.color}`} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-[#F5F5F7]">{kpi.value}</p>
-              <p className="mt-1 text-xs text-[#6E6E73]">{kpi.label}</p>
+              <p className="text-2xl font-bold text-[#111827]">{kpi.value}</p>
+              <p className="mt-1 text-xs text-[#9CA3AF]">{kpi.label}</p>
             </div>
           );
         })}
@@ -141,28 +141,28 @@ export default function PartnerOverviewPage() {
       {/* Quick Actions + Activity */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Quick Actions */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
-          <h2 className="mb-4 text-sm font-semibold text-[#F5F5F7]">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+          <h2 className="mb-4 text-sm font-semibold text-[#111827]">
             Quick Actions
           </h2>
           <div className="space-y-2">
             <Link
               href="/partner/facilities"
-              className="flex items-center gap-3 rounded-lg bg-white/[0.04] px-4 py-3 text-sm text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+              className="flex items-center gap-3 rounded-lg bg-black/[0.03] px-4 py-3 text-sm text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
             >
               <Plus className="h-4 w-4 text-[#3B82F6]" />
               Add Facility
             </Link>
             <Link
               href="/partner/team"
-              className="flex items-center gap-3 rounded-lg bg-white/[0.04] px-4 py-3 text-sm text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+              className="flex items-center gap-3 rounded-lg bg-black/[0.03] px-4 py-3 text-sm text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
             >
               <UserPlus className="h-4 w-4 text-purple-400" />
               Invite Team Member
             </Link>
             <Link
               href="/partner/revenue"
-              className="flex items-center gap-3 rounded-lg bg-white/[0.04] px-4 py-3 text-sm text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+              className="flex items-center gap-3 rounded-lg bg-black/[0.03] px-4 py-3 text-sm text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
             >
               <Target className="h-4 w-4 text-emerald-400" />
               View Revenue Share
@@ -171,25 +171,25 @@ export default function PartnerOverviewPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5 lg:col-span-2">
-          <h2 className="mb-4 text-sm font-semibold text-[#F5F5F7]">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5 lg:col-span-2">
+          <h2 className="mb-4 text-sm font-semibold text-[#111827]">
             Recent Activity
           </h2>
           {activity.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-sm text-[#6E6E73]">No recent activity</p>
+              <p className="text-sm text-[#9CA3AF]">No recent activity</p>
             </div>
           ) : (
             <div className="space-y-3">
               {activity.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-start gap-3 border-b border-white/[0.04] pb-3 last:border-0"
+                  className="flex items-start gap-3 border-b border-black/[0.06] pb-3 last:border-0"
                 >
                   <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-[#3B82F6]" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-[#A1A1A6]">{item.detail}</p>
-                    <p className="mt-0.5 text-[10px] text-[#6E6E73]">
+                    <p className="text-sm text-[#6B7280]">{item.detail}</p>
+                    <p className="mt-0.5 text-[10px] text-[#9CA3AF]">
                       {new Date(item.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -207,9 +207,9 @@ export default function PartnerOverviewPage() {
 
       {/* Facility Snapshot */}
       {facilities.length > 0 && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[#F5F5F7]">
+            <h2 className="text-sm font-semibold text-[#111827]">
               Facilities ({facilities.length})
             </h2>
             <Link
@@ -223,13 +223,13 @@ export default function PartnerOverviewPage() {
             {facilities.slice(0, 5).map((f) => (
               <div
                 key={f.id}
-                className="flex items-center justify-between rounded-lg bg-white/[0.02] px-4 py-3"
+                className="flex items-center justify-between rounded-lg bg-black/[0.02] px-4 py-3"
               >
                 <div>
-                  <p className="text-sm font-medium text-[#F5F5F7]">
+                  <p className="text-sm font-medium text-[#111827]">
                     {f.name}
                   </p>
-                  <p className="text-[10px] text-[#6E6E73]">{f.location}</p>
+                  <p className="text-[10px] text-[#9CA3AF]">{f.location}</p>
                 </div>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
@@ -239,7 +239,7 @@ export default function PartnerOverviewPage() {
                         ? "bg-teal-500/10 text-teal-400"
                         : f.status === "review"
                           ? "bg-amber-500/10 text-amber-400"
-                          : "bg-white/[0.06] text-[#6E6E73]"
+                          : "bg-black/[0.04] text-[#9CA3AF]"
                   }`}
                 >
                   {f.status}

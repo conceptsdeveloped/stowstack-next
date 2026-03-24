@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useAdmin } from "@/lib/admin-context";
+import ThemeToggle from "@/components/theme-toggle";
 
 const ROUTE_TITLES: Record<string, string> = {
   "/admin": "Dashboard",
@@ -99,17 +100,17 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-white/[0.06] bg-[#0A0A0A]/80 px-4 backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.08] bg-[#F9FAFB]/80 px-4 backdrop-blur-xl md:px-6">
       <button
         type="button"
         onClick={onToggleSidebar}
-        className="rounded-lg p-2 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7] md:hidden"
+        className="rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827] md:hidden"
         aria-label="Toggle sidebar"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="text-lg font-semibold text-[#F5F5F7]">
+      <h1 className="text-lg font-semibold text-[#111827]">
         {getPageTitle(pathname)}
       </h1>
 
@@ -117,7 +118,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         <button
           type="button"
           onClick={handleRefresh}
-          className="rounded-lg p-2 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+          className="rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
           aria-label="Refresh data"
         >
           <RefreshCw
@@ -128,7 +129,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         <button
           type="button"
           onClick={handleExport}
-          className="rounded-lg p-2 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+          className="rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
           aria-label="Export CSV"
         >
           <Download className="h-4 w-4" />
@@ -136,18 +137,20 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
 
         <button
           type="button"
-          className="relative rounded-lg p-2 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+          className="relative rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
           aria-label="Notifications"
         >
           <Bell className="h-4 w-4" />
           {notificationCount > 0 && (
-            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3B82F6] px-1 text-[10px] font-bold text-white">
+            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3B82F6] px-1 text-[10px] font-bold text-[#111827]">
               {notificationCount > 99 ? "99+" : notificationCount}
             </span>
           )}
         </button>
 
-        <div className="ml-2 h-6 w-px bg-white/[0.06]" />
+        <ThemeToggle />
+
+        <div className="ml-2 h-6 w-px bg-black/[0.04]" />
 
         {isSignedIn ? (
           <div className="ml-2">
@@ -163,7 +166,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           <button
             type="button"
             onClick={logout}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
             aria-label="Logout"
           >
             <User className="h-4 w-4" />

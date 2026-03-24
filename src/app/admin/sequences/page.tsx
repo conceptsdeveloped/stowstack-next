@@ -73,13 +73,13 @@ function SequenceCard({
   return (
     <div
       className="rounded-xl border p-4"
-      style={{ borderColor: "rgba(255,255,255,0.06)", backgroundColor: "#111111" }}
+      style={{ borderColor: "rgba(0,0,0,0.08)", backgroundColor: "#FFFFFF" }}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <Zap size={14} style={{ color: "#3B82F6" }} />
-            <h3 className="text-sm font-medium" style={{ color: "#F5F5F7" }}>
+            <h3 className="text-sm font-medium" style={{ color: "#111827" }}>
               {template.name}
             </h3>
           </div>
@@ -87,10 +87,10 @@ function SequenceCard({
             {template.description}
           </p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-xs" style={{ color: "#A1A1A6" }}>
+            <span className="text-xs" style={{ color: "#6B7280" }}>
               {template.steps.length} steps
             </span>
-            <span className="text-xs" style={{ color: "#A1A1A6" }}>
+            <span className="text-xs" style={{ color: "#6B7280" }}>
               {dripCount} enrolled
             </span>
           </div>
@@ -106,7 +106,7 @@ function SequenceCard({
           </button>
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <ChevronRight
               size={14}
@@ -143,7 +143,7 @@ function SequenceCard({
                       style={{ backgroundColor: "#3B82F6" }}
                     />
                     <div className="flex-1 flex items-center justify-between">
-                      <span className="text-xs" style={{ color: "#F5F5F7" }}>
+                      <span className="text-xs" style={{ color: "#111827" }}>
                         {step.label}
                       </span>
                       <span className="text-xs" style={{ color: "#6E6E73" }}>
@@ -198,13 +198,13 @@ function EnrollModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div
         className="w-full max-w-md rounded-2xl border p-6"
-        style={{ borderColor: "rgba(255,255,255,0.06)", backgroundColor: "#0A0A0A" }}
+        style={{ borderColor: "rgba(0,0,0,0.08)", backgroundColor: "#F9FAFB" }}
       >
-        <h3 className="text-lg font-semibold mb-4" style={{ color: "#F5F5F7" }}>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: "#111827" }}>
           Enroll in Sequence
         </h3>
         <form onSubmit={handleEnroll}>
-          <label className="block text-xs font-medium mb-2" style={{ color: "#A1A1A6" }}>
+          <label className="block text-xs font-medium mb-2" style={{ color: "#6B7280" }}>
             Facility ID (Lead)
           </label>
           <input
@@ -214,9 +214,9 @@ function EnrollModal({
             placeholder="Paste facility UUID"
             className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors"
             style={{
-              borderColor: "rgba(255,255,255,0.06)",
-              backgroundColor: "#1A1A1A",
-              color: "#F5F5F7",
+              borderColor: "rgba(0,0,0,0.08)",
+              backgroundColor: "#F3F4F6",
+              color: "#111827",
             }}
             autoFocus
           />
@@ -230,7 +230,7 @@ function EnrollModal({
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-sm rounded-lg transition-colors"
-              style={{ color: "#A1A1A6" }}
+              style={{ color: "#6B7280" }}
             >
               Cancel
             </button>
@@ -253,7 +253,7 @@ function TableSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-14 rounded-lg animate-pulse" style={{ backgroundColor: "#111111" }} />
+        <div key={i} className="h-14 rounded-lg animate-pulse" style={{ backgroundColor: "#FFFFFF" }} />
       ))}
     </div>
   );
@@ -306,7 +306,7 @@ export default function SequencesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>
           Email Sequences
         </h1>
         <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
@@ -322,7 +322,7 @@ export default function SequencesPage() {
       {/* Sequence templates */}
       {templates.length > 0 && (
         <div>
-          <h2 className="text-sm font-medium mb-3" style={{ color: "#A1A1A6" }}>
+          <h2 className="text-sm font-medium mb-3" style={{ color: "#6B7280" }}>
             Sequence Templates
           </h2>
           <div className="grid gap-3 md:grid-cols-2">
@@ -341,7 +341,7 @@ export default function SequencesPage() {
       {/* Drip enrollments */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium" style={{ color: "#A1A1A6" }}>
+          <h2 className="text-sm font-medium" style={{ color: "#6B7280" }}>
             Active Enrollments
           </h2>
           <div className="flex items-center gap-2">
@@ -383,11 +383,11 @@ export default function SequencesPage() {
         ) : drips.length > 0 ? (
           <div
             className="rounded-xl border overflow-hidden"
-            style={{ borderColor: "rgba(255,255,255,0.06)" }}
+            style={{ borderColor: "rgba(0,0,0,0.08)" }}
           >
             <table className="w-full">
               <thead>
-                <tr style={{ backgroundColor: "#111111" }}>
+                <tr style={{ backgroundColor: "#FFFFFF" }}>
                   <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>
                     Lead
                   </th>
@@ -420,12 +420,12 @@ export default function SequencesPage() {
                   return (
                     <tr
                       key={drip.leadId}
-                      className="border-t transition-colors hover:bg-white/[0.02]"
-                      style={{ borderColor: "rgba(255,255,255,0.06)" }}
+                      className="border-t transition-colors hover:bg-black/[0.03]"
+                      style={{ borderColor: "rgba(0,0,0,0.08)" }}
                     >
                       <td className="px-4 py-3">
                         <div>
-                          <div className="text-sm" style={{ color: "#F5F5F7" }}>
+                          <div className="text-sm" style={{ color: "#111827" }}>
                             {drip.leadName}
                           </div>
                           <div className="text-xs" style={{ color: "#6E6E73" }}>
@@ -433,7 +433,7 @@ export default function SequencesPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm" style={{ color: "#A1A1A6" }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: "#6B7280" }}>
                         {template?.name || drip.sequenceId}
                       </td>
                       <td className="px-4 py-3">
@@ -455,7 +455,7 @@ export default function SequencesPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm" style={{ color: "#A1A1A6" }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: "#6B7280" }}>
                         {drip.nextSendAt ? (
                           <div className="flex items-center gap-1">
                             <Clock size={12} />
@@ -482,7 +482,7 @@ export default function SequencesPage() {
                             <button
                               onClick={() => handleAction(drip.leadId, "pause")}
                               disabled={isLoading}
-                              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50"
+                              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors disabled:opacity-50"
                               title="Pause"
                             >
                               <Pause size={14} style={{ color: "#EAB308" }} />
@@ -492,7 +492,7 @@ export default function SequencesPage() {
                             <button
                               onClick={() => handleAction(drip.leadId, "resume")}
                               disabled={isLoading}
-                              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50"
+                              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors disabled:opacity-50"
                               title="Resume"
                             >
                               <Play size={14} style={{ color: "#22C55E" }} />
@@ -502,7 +502,7 @@ export default function SequencesPage() {
                             <button
                               onClick={() => handleAction(drip.leadId, "cancel")}
                               disabled={isLoading}
-                              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50"
+                              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors disabled:opacity-50"
                               title="Cancel"
                             >
                               <XCircle size={14} style={{ color: "#EF4444" }} />

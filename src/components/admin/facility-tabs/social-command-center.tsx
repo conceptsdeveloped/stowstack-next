@@ -117,7 +117,7 @@ const STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; text: string }
 > = {
-  draft: { label: "Draft", bg: "bg-white/[0.06]", text: "text-[#A1A1A6]" },
+  draft: { label: "Draft", bg: "bg-black/[0.04]", text: "text-[#6B7280]" },
   scheduled: {
     label: "Scheduled",
     bg: "bg-blue-500/10",
@@ -235,12 +235,12 @@ const SEASONAL_MARKERS: Record<string, { label: string; color: string }> = {
 // Style constants
 // ---------------------------------------------------------------------------
 
-const cardCls = "bg-[#111111] border border-white/[0.06] rounded-xl"
-const textPrimary = "text-[#F5F5F7]"
-const textSecondary = "text-[#A1A1A6]"
-const textTertiary = "text-[#6E6E73]"
+const cardCls = "bg-white border border-black/[0.08] rounded-xl"
+const textPrimary = "text-[#111827]"
+const textSecondary = "text-[#6B7280]"
+const textTertiary = "text-[#9CA3AF]"
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border border-white/[0.06] bg-[#0A0A0A] text-sm text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]"
+  "w-full px-3 py-2 rounded-lg border border-black/[0.08] bg-[#F9FAFB] text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]"
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -257,7 +257,7 @@ function MetricCard({
 }) {
   return (
     <div className={`rounded-xl px-3 py-2 ${cardCls}`}>
-      <p className="text-[10px] uppercase tracking-wider text-[#6E6E73]">
+      <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
         {label}
       </p>
       <p className={`text-lg font-bold ${accent || textPrimary}`}>{value}</p>
@@ -387,7 +387,7 @@ function PostCard({
 
   return (
     <div
-      className={`border border-white/[0.06] rounded-xl overflow-hidden transition-all bg-[#111111] ${expanded ? "ring-1 ring-[#3B82F6]/20" : ""}`}
+      className={`border border-black/[0.08] rounded-xl overflow-hidden transition-all bg-white ${expanded ? "ring-1 ring-[#3B82F6]/20" : ""}`}
     >
       <div className="flex items-start gap-3 p-3">
         <div
@@ -433,7 +433,7 @@ function PostCard({
                     setEditing(false)
                     setEditContent(post.content)
                   }}
-                  className="px-3 py-1 border border-white/[0.06] rounded-lg text-xs text-[#A1A1A6]"
+                  className="px-3 py-1 border border-black/[0.08] rounded-lg text-xs text-[#6B7280]"
                 >
                   Cancel
                 </button>
@@ -480,7 +480,7 @@ function PostCard({
           )}
 
           {expanded && post.suggested_image && (
-            <div className="mt-2 flex items-start gap-2 rounded-lg p-2 bg-white/[0.04]">
+            <div className="mt-2 flex items-start gap-2 rounded-lg p-2 bg-black/[0.03]">
               <ImageIcon size={14} className={textTertiary} />
               <p className={`text-xs ${textTertiary}`}>
                 {post.suggested_image}
@@ -501,7 +501,7 @@ function PostCard({
             (post.engagement.likes > 0 ||
               post.engagement.comments > 0 ||
               post.engagement.shares > 0) && (
-              <div className="flex items-center gap-4 mt-2 pt-2 border-t border-white/[0.06]">
+              <div className="flex items-center gap-4 mt-2 pt-2 border-t border-black/[0.08]">
                 {post.engagement.impressions > 0 && (
                   <span className={`text-xs ${textTertiary}`}>
                     {post.engagement.impressions.toLocaleString()} impressions
@@ -537,7 +537,7 @@ function PostCard({
             <>
               <button
                 onClick={handleSchedule}
-                className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.04]"
+                className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
                 title="Schedule"
               >
                 <Clock size={14} className="text-blue-400" />
@@ -545,7 +545,7 @@ function PostCard({
               <button
                 onClick={handlePublish}
                 disabled={publishing}
-                className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.04]"
+                className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
                 title="Publish now"
               >
                 {publishing ? (
@@ -560,7 +560,7 @@ function PostCard({
             <button
               onClick={handlePublish}
               disabled={publishing}
-              className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.04]"
+              className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
               title="Publish now"
             >
               {publishing ? (
@@ -577,7 +577,7 @@ function PostCard({
                   setEditing(true)
                   setExpanded(true)
                 }}
-                className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.04]"
+                className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
                 title="Edit"
               >
                 <Pencil size={14} className={textTertiary} />
@@ -585,7 +585,7 @@ function PostCard({
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.04]"
+                className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
                 title="Delete"
               >
                 <Trash2 size={14} className="text-red-400" />
@@ -597,7 +597,7 @@ function PostCard({
               href={post.external_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.04]"
+              className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
               title="View post"
             >
               <CheckCircle2 size={14} className="text-emerald-400" />
@@ -605,7 +605,7 @@ function PostCard({
           )}
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-1.5 rounded-lg transition-colors hover:bg-white/[0.04]"
+            className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
           >
             {expanded ? (
               <ChevronUp size={14} className={textTertiary} />
@@ -687,7 +687,7 @@ function ContentCalendar({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setViewMonth(new Date(year, month - 1))}
-            className="p-1.5 rounded-lg border border-white/[0.06] hover:bg-white/[0.04]"
+            className="p-1.5 rounded-lg border border-black/[0.08] hover:bg-black/[0.03]"
           >
             <ChevronLeft size={16} className={textTertiary} />
           </button>
@@ -696,13 +696,13 @@ function ContentCalendar({
           </h3>
           <button
             onClick={() => setViewMonth(new Date(year, month + 1))}
-            className="p-1.5 rounded-lg border border-white/[0.06] hover:bg-white/[0.04]"
+            className="p-1.5 rounded-lg border border-black/[0.08] hover:bg-black/[0.03]"
           >
             <ChevronRight size={16} className={textTertiary} />
           </button>
           <button
             onClick={() => setViewMonth(new Date())}
-            className="text-xs px-2 py-1 rounded-lg bg-white/[0.06] text-[#A1A1A6]"
+            className="text-xs px-2 py-1 rounded-lg bg-black/[0.04] text-[#6B7280]"
           >
             Today
           </button>
@@ -712,7 +712,7 @@ function ContentCalendar({
             {totalDraft} draft &middot; {totalScheduled} scheduled &middot;{" "}
             {totalPublished} published
           </span>
-          <div className="flex gap-1 p-0.5 rounded-lg bg-white/[0.06]">
+          <div className="flex gap-1 p-0.5 rounded-lg bg-black/[0.04]">
             <button
               onClick={() => {
                 setViewMode("calendar")
@@ -746,12 +746,12 @@ function ContentCalendar({
 
       {/* Calendar View */}
       {viewMode === "calendar" && (
-        <div className={`border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]`}>
+        <div className={`border border-black/[0.08] rounded-xl overflow-hidden bg-white`}>
           <div className="grid grid-cols-7">
             {DAYS.map((d) => (
               <div
                 key={d}
-                className="text-center text-xs font-medium py-2 text-[#6E6E73] border-b border-white/[0.06]"
+                className="text-center text-xs font-medium py-2 text-[#9CA3AF] border-b border-black/[0.08]"
               >
                 {d}
               </div>
@@ -763,7 +763,7 @@ function ContentCalendar({
                 return (
                   <div
                     key={i}
-                    className="min-h-[80px] border-b border-r border-white/[0.04] bg-[#0A0A0A]/30"
+                    className="min-h-[80px] border-b border-r border-black/[0.06] bg-[#F9FAFB]/30"
                   />
                 )
               }
@@ -775,9 +775,9 @@ function ContentCalendar({
                   onClick={() =>
                     setSelectedDay(isSelected ? null : String(day))
                   }
-                  className={`min-h-[80px] border-b border-r border-white/[0.04] p-1.5 cursor-pointer transition-colors ${
+                  className={`min-h-[80px] border-b border-r border-black/[0.06] p-1.5 cursor-pointer transition-colors ${
                     isSelected ? "bg-[#3B82F6]/10" : ""
-                  } ${isToday(day) ? "bg-[#3B82F6]/5" : ""} hover:bg-white/[0.02]`}
+                  } ${isToday(day) ? "bg-[#3B82F6]/5" : ""} hover:bg-black/[0.03]`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span
@@ -786,7 +786,7 @@ function ContentCalendar({
                       {day}
                     </span>
                     {dayPosts.length > 0 && (
-                      <span className="text-[10px] px-1 rounded bg-white/[0.06] text-[#A1A1A6]">
+                      <span className="text-[10px] px-1 rounded bg-black/[0.04] text-[#6B7280]">
                         {dayPosts.length}
                       </span>
                     )}
@@ -964,7 +964,7 @@ function BatchGenerator({
       onClick={onClose}
     >
       <div
-        className="border border-white/[0.06] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto bg-[#111111]"
+        className="border border-black/[0.08] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5 space-y-5">
@@ -1001,7 +1001,7 @@ function BatchGenerator({
                   className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
                     platforms.includes(key)
                       ? `${config.color} text-white border-transparent`
-                      : "border-white/[0.06] text-[#A1A1A6]"
+                      : "border-black/[0.08] text-[#6B7280]"
                   }`}
                 >
                   {config.icon} {config.label}
@@ -1028,7 +1028,7 @@ function BatchGenerator({
                   className={`px-3 py-2 rounded-lg text-xs font-medium border text-left transition-all ${
                     postTypes.includes(key)
                       ? "bg-[#3B82F6] text-white border-transparent"
-                      : "border-white/[0.06] text-[#A1A1A6]"
+                      : "border-black/[0.08] text-[#6B7280]"
                   }`}
                 >
                   {config.icon} {config.label}
@@ -1085,7 +1085,7 @@ function BatchGenerator({
                   className={`px-3 py-2 rounded-lg border text-left transition-all ${
                     tone === t.value
                       ? "bg-[#3B82F6] text-white border-transparent"
-                      : "border-white/[0.06] text-[#A1A1A6]"
+                      : "border-black/[0.08] text-[#6B7280]"
                   }`}
                 >
                   <p className="text-xs font-medium">{t.label}</p>
@@ -1138,7 +1138,7 @@ function BatchGenerator({
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2.5 border border-white/[0.06] rounded-xl text-sm font-medium text-[#A1A1A6] hover:bg-white/[0.04]"
+              className="px-4 py-2.5 border border-black/[0.08] rounded-xl text-sm font-medium text-[#6B7280] hover:bg-black/[0.03]"
             >
               {result ? "Done" : "Cancel"}
             </button>
@@ -1260,7 +1260,7 @@ function PostComposer({
       onClick={onClose}
     >
       <div
-        className="border border-white/[0.06] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto bg-[#111111]"
+        className="border border-black/[0.08] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5 space-y-4">
@@ -1268,7 +1268,7 @@ function PostComposer({
             <h3 className={`font-bold ${textPrimary}`}>Create Post</h3>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-white/[0.04]"
+              className="p-1.5 rounded-lg hover:bg-black/[0.03]"
             >
               <X size={16} className={textTertiary} />
             </button>
@@ -1288,7 +1288,7 @@ function PostComposer({
                 className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   platform === key
                     ? `${config.color} text-white`
-                    : "bg-white/[0.06] text-[#A1A1A6]"
+                    : "bg-black/[0.04] text-[#6B7280]"
                 }`}
               >
                 {config.icon} {config.label}
@@ -1376,7 +1376,7 @@ function PostComposer({
                       prev ? `${prev} ${tags.join(" ")}` : tags.join(" ")
                     )
                   }
-                  className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.1] transition-colors capitalize"
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-black/[0.04] text-[#6B7280] hover:bg-black/[0.06] transition-colors capitalize"
                 >
                   + {key}
                 </button>
@@ -1411,7 +1411,7 @@ function PostComposer({
           </div>
 
           {/* Preview hint */}
-          <div className="rounded-lg p-3 bg-white/[0.04]">
+          <div className="rounded-lg p-3 bg-black/[0.03]">
             <div className="flex items-center gap-2 mb-1">
               <span
                 className={`w-2 h-2 rounded-full ${platformConfig.dotColor}`}
@@ -1439,7 +1439,7 @@ function PostComposer({
             <button
               onClick={() => handleSave(false)}
               disabled={saving || !content.trim()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-white/[0.06] rounded-xl text-sm font-medium transition-colors disabled:opacity-50 text-[#A1A1A6] hover:bg-white/[0.04]"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-black/[0.08] rounded-xl text-sm font-medium transition-colors disabled:opacity-50 text-[#6B7280] hover:bg-black/[0.03]"
             >
               <Save size={14} /> {scheduledAt ? "Schedule" : "Save Draft"}
             </button>
@@ -1569,7 +1569,7 @@ export default function SocialCommandCenter({
             </button>
             <button
               onClick={fetchPosts}
-              className="p-2 rounded-xl border border-white/[0.06] transition-colors hover:bg-white/[0.04]"
+              className="p-2 rounded-xl border border-black/[0.08] transition-colors hover:bg-black/[0.03]"
             >
               <RefreshCw size={14} className={textTertiary} />
             </button>
@@ -1617,7 +1617,7 @@ export default function SocialCommandCenter({
               className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                 filterPlatform === p
                   ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                  : "text-[#A1A1A6] hover:bg-white/[0.04]"
+                  : "text-[#6B7280] hover:bg-black/[0.03]"
               }`}
             >
               {p === "all"
@@ -1634,7 +1634,7 @@ export default function SocialCommandCenter({
               className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                 filterStatus === s
                   ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                  : "text-[#A1A1A6] hover:bg-white/[0.04]"
+                  : "text-[#6B7280] hover:bg-black/[0.03]"
               }`}
             >
               {s === "all" ? "All Status" : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -1644,7 +1644,7 @@ export default function SocialCommandCenter({
       </div>
 
       {/* Sub-view tabs */}
-      <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04]">
+      <div className="flex gap-1 p-1 rounded-xl bg-black/[0.03]">
         {(
           [
             ["calendar", "Calendar", CalendarDays],
@@ -1659,7 +1659,7 @@ export default function SocialCommandCenter({
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium transition-all ${
               subView === key
                 ? "bg-[#3B82F6] text-white shadow-lg"
-                : "text-[#A1A1A6] hover:text-[#F5F5F7]"
+                : "text-[#6B7280] hover:text-[#111827]"
             }`}
           >
             <Icon size={13} /> {label}
@@ -1799,7 +1799,7 @@ export default function SocialCommandCenter({
                         {count} total &middot; {pubCount} published
                       </span>
                     </div>
-                    <div className="w-full h-3 rounded-full overflow-hidden bg-white/[0.06]">
+                    <div className="w-full h-3 rounded-full overflow-hidden bg-black/[0.04]">
                       <div
                         className={`h-3 rounded-full ${config.color} transition-all`}
                         style={{
@@ -1829,7 +1829,7 @@ export default function SocialCommandCenter({
                 .map(([type, count]) => (
                   <div
                     key={type}
-                    className="rounded-lg p-3 text-center bg-white/[0.04]"
+                    className="rounded-lg p-3 text-center bg-black/[0.03]"
                   >
                     <p className={`text-lg font-bold ${textPrimary}`}>
                       {count}
@@ -1852,7 +1852,7 @@ export default function SocialCommandCenter({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 onClick={() => setShowGenerator(true)}
-                className="p-3 rounded-lg border border-white/[0.06] text-left transition-colors hover:bg-white/[0.04]"
+                className="p-3 rounded-lg border border-black/[0.08] text-left transition-colors hover:bg-black/[0.03]"
               >
                 <Sparkles size={16} className="text-violet-400 mb-1" />
                 <p className={`text-xs font-medium ${textPrimary}`}>
@@ -1864,7 +1864,7 @@ export default function SocialCommandCenter({
               </button>
               <button
                 onClick={() => setShowComposer(true)}
-                className="p-3 rounded-lg border border-white/[0.06] text-left transition-colors hover:bg-white/[0.04]"
+                className="p-3 rounded-lg border border-black/[0.08] text-left transition-colors hover:bg-black/[0.03]"
               >
                 <Plus size={16} className="text-[#3B82F6] mb-1" />
                 <p className={`text-xs font-medium ${textPrimary}`}>
@@ -1880,7 +1880,7 @@ export default function SocialCommandCenter({
                     handlePublishAll(scheduled.map((p) => p.id))
                 }}
                 disabled={scheduled.length === 0}
-                className="p-3 rounded-lg border border-white/[0.06] text-left transition-colors disabled:opacity-40 hover:bg-white/[0.04]"
+                className="p-3 rounded-lg border border-black/[0.08] text-left transition-colors disabled:opacity-40 hover:bg-black/[0.03]"
               >
                 <Send size={16} className="text-blue-400 mb-1" />
                 <p className={`text-xs font-medium ${textPrimary}`}>

@@ -88,15 +88,15 @@ function ImageWithFallback({
       <div className="absolute inset-0" />
 
       {status === "loading" && (
-        <div className="absolute inset-0 bg-white/[0.04] animate-pulse flex items-center justify-center z-10">
-          <Image size={16} className="text-[#6E6E73]" />
+        <div className="absolute inset-0 bg-black/[0.03] animate-pulse flex items-center justify-center z-10">
+          <Image size={16} className="text-[#9CA3AF]" />
         </div>
       )}
 
       {status === "error" && (
-        <div className="absolute inset-0 bg-[#111111] flex flex-col items-center justify-center gap-1 z-10">
-          <ImageOff size={16} className="text-[#6E6E73]" />
-          <span className="text-[10px] text-[#6E6E73]">Failed to load</span>
+        <div className="absolute inset-0 bg-white flex flex-col items-center justify-center gap-1 z-10">
+          <ImageOff size={16} className="text-[#9CA3AF]" />
+          <span className="text-[10px] text-[#9CA3AF]">Failed to load</span>
         </div>
       )}
 
@@ -373,7 +373,7 @@ export default function MediaLibrary({
               <div className="flex-1 relative">
                 <Globe
                   size={15}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6E6E73]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
                 />
                 <input
                   value={scrapeUrl}
@@ -382,7 +382,7 @@ export default function MediaLibrary({
                     if (e.key === "Enter") scrapeWebsite()
                   }}
                   placeholder="Enter facility website URL to scrape..."
-                  className="w-full pl-9 pr-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#111111] text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+                  className="w-full pl-9 pr-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-white text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
                 />
               </div>
               <button
@@ -410,7 +410,7 @@ export default function MediaLibrary({
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
               showLibrary
                 ? "bg-[#3B82F6] text-white border-[#3B82F6]"
-                : "border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]"
+                : "border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03]"
             }`}
           >
             <Image size={14} />
@@ -423,7 +423,7 @@ export default function MediaLibrary({
           <div className="flex-1 relative">
             <Link
               size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6E6E73]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
             />
             <input
               value={addUrl}
@@ -432,13 +432,13 @@ export default function MediaLibrary({
                 if (e.key === "Enter") handleAddUrl()
               }}
               placeholder="Paste image URL to add to library..."
-              className="w-full pl-9 pr-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-[#111111] text-[#F5F5F7] placeholder:text-[#6E6E73] focus:outline-none focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+              className="w-full pl-9 pr-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-white text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
             />
           </div>
           <button
             onClick={handleAddUrl}
             disabled={addingUrl || !addUrl.trim()}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#111111] border border-white/[0.06] text-[#F5F5F7] text-xs font-medium rounded-lg hover:bg-white/[0.04] disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-black/[0.08] text-[#111827] text-xs font-medium rounded-lg hover:bg-black/[0.03] disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
           >
             {addingUrl ? (
               <Loader2 size={14} className="animate-spin" />
@@ -452,28 +452,28 @@ export default function MediaLibrary({
 
       {/* ---- Scrape results ---- */}
       {scrapeResult && (
-        <div className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
           <div className="px-4 py-3 flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#F5F5F7]">
+            <h4 className="text-sm font-semibold text-[#111827]">
               Scraped from Website
               {scrapeResult.pagesScraped && (
-                <span className="ml-2 text-xs font-normal text-[#6E6E73]">
+                <span className="ml-2 text-xs font-normal text-[#9CA3AF]">
                   ({scrapeResult.pagesScraped} pages crawled)
                 </span>
               )}
             </h4>
             <button
               onClick={() => setScrapeResult(null)}
-              className="p-1 text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+              className="p-1 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
             >
               <X size={14} />
             </button>
           </div>
-          <div className="border-t border-white/[0.06] px-4 py-4 space-y-4">
+          <div className="border-t border-black/[0.08] px-4 py-4 space-y-4">
             {/* Images */}
             {scrapeResult.images && scrapeResult.images.length > 0 ? (
               <>
-                <p className="text-xs text-[#6E6E73] mb-2">
+                <p className="text-xs text-[#9CA3AF] mb-2">
                   {scrapeResult.images.length} images found
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
@@ -506,7 +506,7 @@ export default function MediaLibrary({
                 </div>
               </>
             ) : (
-              <p className="text-sm text-[#6E6E73]">
+              <p className="text-sm text-[#9CA3AF]">
                 No usable images found. The site may use JavaScript-rendered
                 images that require a browser to load.
               </p>
@@ -515,14 +515,14 @@ export default function MediaLibrary({
             {/* Services */}
             {scrapeResult.services && scrapeResult.services.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-[#6E6E73] mb-1">
+                <p className="text-xs font-medium text-[#9CA3AF] mb-1">
                   Services / Features Found:
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {scrapeResult.services.slice(0, 12).map((s, i) => (
                     <span
                       key={i}
-                      className="text-xs px-2 py-1 rounded-lg bg-white/[0.04] text-[#A1A1A6]"
+                      className="text-xs px-2 py-1 rounded-lg bg-black/[0.03] text-[#6B7280]"
                     >
                       {s.heading || s.description?.slice(0, 60)}
                     </span>
@@ -535,13 +535,13 @@ export default function MediaLibrary({
             {scrapeResult.promotions &&
               scrapeResult.promotions.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-[#6E6E73] mb-1">
+                  <p className="text-xs font-medium text-[#9CA3AF] mb-1">
                     Promotions / Specials:
                   </p>
                   {scrapeResult.promotions.slice(0, 5).map((p, i) => (
                     <p
                       key={i}
-                      className="text-xs text-[#F5F5F7] p-2 rounded-lg mb-1 bg-blue-500/10"
+                      className="text-xs text-[#111827] p-2 rounded-lg mb-1 bg-blue-500/10"
                     >
                       {p.text}
                     </p>
@@ -551,7 +551,7 @@ export default function MediaLibrary({
 
             {/* Page copy */}
             {scrapeResult.pageCopy && scrapeResult.pageCopy.length > 0 && (
-              <details className="text-xs text-[#6E6E73]">
+              <details className="text-xs text-[#9CA3AF]">
                 <summary className="font-medium cursor-pointer hover:underline">
                   Site Copy ({scrapeResult.pageCopy.length} paragraphs
                   extracted)
@@ -560,7 +560,7 @@ export default function MediaLibrary({
                   {scrapeResult.pageCopy.slice(0, 20).map((t, i) => (
                     <p
                       key={i}
-                      className="text-xs text-[#F5F5F7] p-2 rounded bg-white/[0.04]"
+                      className="text-xs text-[#111827] p-2 rounded bg-black/[0.03]"
                     >
                       {t}
                     </p>
@@ -572,7 +572,7 @@ export default function MediaLibrary({
             {/* Videos */}
             {scrapeResult.videos && scrapeResult.videos.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-[#6E6E73] mb-1">
+                <p className="text-xs font-medium text-[#9CA3AF] mb-1">
                   Videos found:
                 </p>
                 {scrapeResult.videos.map((v, i) => (
@@ -596,11 +596,11 @@ export default function MediaLibrary({
                 <div className="flex gap-4">
                   {scrapeResult.contact.phones.length > 0 && (
                     <div>
-                      <p className="text-xs font-medium text-[#6E6E73] mb-1">
+                      <p className="text-xs font-medium text-[#9CA3AF] mb-1">
                         Phones:
                       </p>
                       {scrapeResult.contact.phones.map((p, i) => (
-                        <p key={i} className="text-xs text-[#F5F5F7]">
+                        <p key={i} className="text-xs text-[#111827]">
                           {p}
                         </p>
                       ))}
@@ -608,11 +608,11 @@ export default function MediaLibrary({
                   )}
                   {scrapeResult.contact.emails.length > 0 && (
                     <div>
-                      <p className="text-xs font-medium text-[#6E6E73] mb-1">
+                      <p className="text-xs font-medium text-[#9CA3AF] mb-1">
                         Emails:
                       </p>
                       {scrapeResult.contact.emails.map((e, i) => (
-                        <p key={i} className="text-xs text-[#F5F5F7]">
+                        <p key={i} className="text-xs text-[#111827]">
                           {e}
                         </p>
                       ))}
@@ -624,7 +624,7 @@ export default function MediaLibrary({
             {/* Pages crawled */}
             {scrapeResult.pagesCrawled &&
               scrapeResult.pagesCrawled.length > 1 && (
-                <details className="text-xs text-[#6E6E73]">
+                <details className="text-xs text-[#9CA3AF]">
                   <summary className="font-medium cursor-pointer hover:underline">
                     Pages crawled ({scrapeResult.pagesCrawled.length})
                   </summary>
@@ -649,9 +649,9 @@ export default function MediaLibrary({
 
       {/* ---- Stock library ---- */}
       {showLibrary && (
-        <div className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
           <div className="px-4 py-3 flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#F5F5F7]">
+            <h4 className="text-sm font-semibold text-[#111827]">
               Stock Library — Self-Storage Images
             </h4>
             <div className="flex gap-1 flex-wrap">
@@ -662,7 +662,7 @@ export default function MediaLibrary({
                   className={`px-2 py-1 text-xs rounded-md transition-colors ${
                     libraryFilter === cat
                       ? "bg-[#3B82F6] text-white"
-                      : "text-[#6E6E73] hover:bg-white/[0.04]"
+                      : "text-[#9CA3AF] hover:bg-black/[0.03]"
                   }`}
                 >
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -670,7 +670,7 @@ export default function MediaLibrary({
               ))}
             </div>
           </div>
-          <div className="border-t border-white/[0.06] px-4 py-4">
+          <div className="border-t border-black/[0.08] px-4 py-4">
             {stockLoading ? (
               <div className="flex justify-center py-6">
                 <Loader2
@@ -705,14 +705,14 @@ export default function MediaLibrary({
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-[#6E6E73] mt-1 truncate">
+                      <p className="text-xs text-[#9CA3AF] mt-1 truncate">
                         {stock.alt}
                       </p>
                     </div>
                   )
                 })}
                 {stockImages.length === 0 && (
-                  <p className="col-span-6 text-center text-xs text-[#6E6E73] py-4">
+                  <p className="col-span-6 text-center text-xs text-[#9CA3AF] py-4">
                     No images found for this category.
                   </p>
                 )}
@@ -724,7 +724,7 @@ export default function MediaLibrary({
 
       {/* ---- Image type filter tabs ---- */}
       {assets.length > 0 && (
-        <div className="flex items-center gap-1 border-b border-white/[0.06] pb-px">
+        <div className="flex items-center gap-1 border-b border-black/[0.08] pb-px">
           {IMAGE_TYPE_FILTERS.map((f) => {
             const count =
               f.value === "all"
@@ -739,12 +739,12 @@ export default function MediaLibrary({
                 onClick={() => setTypeFilter(f.value)}
                 className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                   typeFilter === f.value
-                    ? "border-[#3B82F6] text-[#F5F5F7]"
-                    : "border-transparent text-[#6E6E73] hover:text-[#A1A1A6]"
+                    ? "border-[#3B82F6] text-[#111827]"
+                    : "border-transparent text-[#9CA3AF] hover:text-[#6B7280]"
                 }`}
               >
                 {f.label}
-                <span className="ml-1 text-[#6E6E73]">({count})</span>
+                <span className="ml-1 text-[#9CA3AF]">({count})</span>
               </button>
             )
           })}
@@ -758,11 +758,11 @@ export default function MediaLibrary({
           {photos.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Image size={15} className="text-[#6E6E73]" />
-                <h4 className="text-sm font-semibold text-[#F5F5F7]">
+                <Image size={15} className="text-[#9CA3AF]" />
+                <h4 className="text-sm font-semibold text-[#111827]">
                   Images
                 </h4>
-                <span className="text-xs text-[#6E6E73]">
+                <span className="text-xs text-[#9CA3AF]">
                   ({photos.length})
                 </span>
               </div>
@@ -776,7 +776,7 @@ export default function MediaLibrary({
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-end p-2">
                       <div className="flex gap-1 w-full items-center">
-                        <span className="flex-1 text-xs text-white/80 truncate">
+                        <span className="flex-1 text-xs text-[#111827]/80 truncate">
                           {asset.source === "uploaded"
                             ? "Uploaded"
                             : asset.source === "website_scrape"
@@ -822,11 +822,11 @@ export default function MediaLibrary({
           {videoAssets.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Film size={15} className="text-[#6E6E73]" />
-                <h4 className="text-sm font-semibold text-[#F5F5F7]">
+                <Film size={15} className="text-[#9CA3AF]" />
+                <h4 className="text-sm font-semibold text-[#111827]">
                   Videos
                 </h4>
-                <span className="text-xs text-[#6E6E73]">
+                <span className="text-xs text-[#9CA3AF]">
                   ({videoAssets.length})
                 </span>
               </div>
@@ -834,7 +834,7 @@ export default function MediaLibrary({
                 {videoAssets.map((asset) => (
                   <div
                     key={asset.id}
-                    className="relative border border-white/[0.06] rounded-lg overflow-hidden bg-[#111111]"
+                    className="relative border border-black/[0.08] rounded-lg overflow-hidden bg-white"
                   >
                     <video
                       src={asset.url}
@@ -842,7 +842,7 @@ export default function MediaLibrary({
                       preload="metadata"
                     />
                     <div className="p-2 flex items-center justify-between">
-                      <span className="text-xs text-[#6E6E73] truncate">
+                      <span className="text-xs text-[#9CA3AF] truncate">
                         {(asset.metadata as { filename?: string })?.filename ||
                           "Video"}
                       </span>
@@ -868,11 +868,11 @@ export default function MediaLibrary({
           {documents.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <FileText size={15} className="text-[#6E6E73]" />
-                <h4 className="text-sm font-semibold text-[#F5F5F7]">
+                <FileText size={15} className="text-[#9CA3AF]" />
+                <h4 className="text-sm font-semibold text-[#111827]">
                   Documents
                 </h4>
-                <span className="text-xs text-[#6E6E73]">
+                <span className="text-xs text-[#9CA3AF]">
                   ({documents.length})
                 </span>
               </div>
@@ -880,19 +880,19 @@ export default function MediaLibrary({
                 {documents.map((asset) => (
                   <div
                     key={asset.id}
-                    className="flex items-center gap-3 p-3 border border-white/[0.06] rounded-lg bg-[#111111]"
+                    className="flex items-center gap-3 p-3 border border-black/[0.08] rounded-lg bg-white"
                   >
-                    <FileText size={18} className="text-[#6E6E73]" />
+                    <FileText size={18} className="text-[#9CA3AF]" />
                     <a
                       href={asset.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 text-sm text-[#F5F5F7] hover:underline truncate"
+                      className="flex-1 text-sm text-[#111827] hover:underline truncate"
                     >
                       {(asset.metadata as { filename?: string })?.filename ||
                         "Document"}
                     </a>
-                    <span className="text-xs text-[#6E6E73]">
+                    <span className="text-xs text-[#9CA3AF]">
                       {asset.source}
                     </span>
                     <button
@@ -917,10 +917,10 @@ export default function MediaLibrary({
       {/* ---- Empty state ---- */}
       {assets.length === 0 && !scrapeResult && !showLibrary && (
         <div className="text-center py-12">
-          <div className="mx-auto w-12 h-12 rounded-full bg-white/[0.04] flex items-center justify-center mb-3">
-            <Image size={20} className="text-[#6E6E73]" />
+          <div className="mx-auto w-12 h-12 rounded-full bg-black/[0.03] flex items-center justify-center mb-3">
+            <Image size={20} className="text-[#9CA3AF]" />
           </div>
-          <p className="text-sm text-[#A1A1A6]">
+          <p className="text-sm text-[#6B7280]">
             No assets yet. Scrape a website, browse the stock library, or paste
             an image URL to get started.
           </p>
@@ -930,7 +930,7 @@ export default function MediaLibrary({
       {/* Filtered empty state */}
       {assets.length > 0 && filteredAssets.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-sm text-[#6E6E73]">
+          <p className="text-sm text-[#9CA3AF]">
             No assets match the selected filter.
           </p>
         </div>

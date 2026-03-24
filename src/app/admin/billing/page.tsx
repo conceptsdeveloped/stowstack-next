@@ -97,10 +97,10 @@ function CardSkeleton({ count = 4 }: { count?: number }) {
         <div
           key={i}
           className="rounded-xl border p-5 animate-pulse"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
-          <div className="h-3 w-24 rounded bg-white/5 mb-3" />
-          <div className="h-8 w-20 rounded bg-white/5" />
+          <div className="h-3 w-24 rounded bg-black/5 mb-3" />
+          <div className="h-8 w-20 rounded bg-black/5" />
         </div>
       ))}
     </div>
@@ -114,7 +114,7 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
         <div
           key={i}
           className="h-12 rounded-lg animate-pulse"
-          style={{ backgroundColor: "#111111" }}
+          style={{ backgroundColor: "#FFFFFF" }}
         />
       ))}
     </div>
@@ -144,7 +144,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="p-1 rounded hover:bg-white/5 transition-colors"
+      className="p-1 rounded hover:bg-black/5 transition-colors"
       title="Copy"
     >
       {copied ? (
@@ -203,13 +203,13 @@ function OverviewTab() {
             <div
               key={kpi.label}
               className="rounded-xl border p-5"
-              style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+              style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
             >
               <div className="flex items-center gap-2 mb-2">
                 <Icon size={16} style={{ color: kpi.color }} />
                 <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>{kpi.label}</span>
               </div>
-              <p className="text-2xl font-bold" style={{ color: "#F5F5F7" }}>{kpi.value}</p>
+              <p className="text-2xl font-bold" style={{ color: "#111827" }}>{kpi.value}</p>
             </div>
           );
         })}
@@ -218,9 +218,9 @@ function OverviewTab() {
       {data.trend && data.trend.length > 0 && (
         <div
           className="rounded-xl border p-6"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
-          <h3 className="text-sm font-semibold mb-4" style={{ color: "#F5F5F7" }}>Revenue Trend</h3>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: "#111827" }}>Revenue Trend</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.trend}>
@@ -228,7 +228,7 @@ function OverviewTab() {
                 <XAxis dataKey="month" tick={{ fill: "#6E6E73", fontSize: 12 }} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} />
                 <YAxis tick={{ fill: "#6E6E73", fontSize: 12 }} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#1A1A1A", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#F5F5F7" }}
+                  contentStyle={{ backgroundColor: "#F3F4F6", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#111827" }}
                   formatter={(value) => [`$${Number(value).toLocaleString()}`, "Revenue"]}
                 />
                 <Area type="monotone" dataKey="revenue" stroke="#3B82F6" fill="rgba(59,130,246,0.1)" strokeWidth={2} />
@@ -241,15 +241,15 @@ function OverviewTab() {
       {data.top_clients && data.top_clients.length > 0 && (
         <div
           className="rounded-xl border p-6"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
-          <h3 className="text-sm font-semibold mb-4" style={{ color: "#F5F5F7" }}>Top Clients by Revenue</h3>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: "#111827" }}>Top Clients by Revenue</h3>
           <div className="space-y-3">
             {data.top_clients.map((client, idx) => (
               <div key={client.name} className="flex items-center justify-between py-2">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-mono w-5" style={{ color: "#6E6E73" }}>{idx + 1}</span>
-                  <span className="text-sm" style={{ color: "#F5F5F7" }}>{client.name}</span>
+                  <span className="text-sm" style={{ color: "#111827" }}>{client.name}</span>
                 </div>
                 <span className="text-sm font-medium" style={{ color: "#22C55E" }}>
                   ${client.revenue.toLocaleString()}
@@ -303,7 +303,7 @@ function InvoicesTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold" style={{ color: "#F5F5F7" }}>Invoices</h3>
+        <h3 className="text-sm font-semibold" style={{ color: "#111827" }}>Invoices</h3>
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
@@ -315,7 +315,7 @@ function InvoicesTab() {
       </div>
 
       {showForm && (
-        <div className="rounded-xl border p-5 space-y-4" style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}>
+        <div className="rounded-xl border p-5 space-y-4" style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <input
               type="text"
@@ -323,7 +323,7 @@ function InvoicesTab() {
               value={formData.client}
               onChange={(e) => setFormData({ ...formData, client: e.target.value })}
               className="rounded-lg border px-3 py-2 text-sm outline-none"
-              style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)", color: "#F5F5F7" }}
+              style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
             />
             <input
               type="number"
@@ -331,14 +331,14 @@ function InvoicesTab() {
               value={formData.amount}
               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               className="rounded-lg border px-3 py-2 text-sm outline-none"
-              style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)", color: "#F5F5F7" }}
+              style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
             />
             <input
               type="date"
               value={formData.due_date}
               onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
               className="rounded-lg border px-3 py-2 text-sm outline-none"
-              style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)", color: "#F5F5F7" }}
+              style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
             />
           </div>
           <textarea
@@ -347,13 +347,13 @@ function InvoicesTab() {
             onChange={(e) => setFormData({ ...formData, line_items: e.target.value })}
             rows={3}
             className="w-full rounded-lg border px-3 py-2 text-sm outline-none resize-none"
-            style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)", color: "#F5F5F7" }}
+            style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
           />
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setShowForm(false)}
-              className="text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
-              style={{ color: "#A1A1A6" }}
+              className="text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-black/5"
+              style={{ color: "#6B7280" }}
             >
               Cancel
             </button>
@@ -372,10 +372,10 @@ function InvoicesTab() {
       {loading ? (
         <TableSkeleton />
       ) : invoices && invoices.length > 0 ? (
-        <div className="rounded-xl border overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+        <div className="rounded-xl border overflow-hidden" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
           <table className="w-full">
             <thead>
-              <tr style={{ backgroundColor: "#111111" }}>
+              <tr style={{ backgroundColor: "#FFFFFF" }}>
                 <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Date</th>
                 <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Client</th>
                 <th className="text-right text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Amount</th>
@@ -386,14 +386,14 @@ function InvoicesTab() {
               {invoices.map((inv) => (
                 <tr
                   key={inv.id}
-                  className="border-t transition-colors hover:bg-white/[0.02]"
-                  style={{ borderColor: "rgba(255,255,255,0.06)" }}
+                  className="border-t transition-colors hover:bg-black/[0.03]"
+                  style={{ borderColor: "rgba(0,0,0,0.08)" }}
                 >
-                  <td className="px-4 py-3 text-sm" style={{ color: "#A1A1A6" }}>
+                  <td className="px-4 py-3 text-sm" style={{ color: "#6B7280" }}>
                     {new Date(inv.date).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3 text-sm" style={{ color: "#F5F5F7" }}>{inv.client}</td>
-                  <td className="px-4 py-3 text-sm text-right" style={{ color: "#F5F5F7" }}>
+                  <td className="px-4 py-3 text-sm" style={{ color: "#111827" }}>{inv.client}</td>
+                  <td className="px-4 py-3 text-sm text-right" style={{ color: "#111827" }}>
                     ${inv.amount.toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -444,14 +444,14 @@ function ClientAccountsTab() {
         <div
           key={org.id}
           className="rounded-xl border overflow-hidden"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
           <button
             onClick={() => setExpandedId(expandedId === org.id ? null : org.id)}
-            className="w-full flex items-center justify-between p-4 text-left hover:bg-white/[0.02] transition-colors"
+            className="w-full flex items-center justify-between p-4 text-left hover:bg-black/[0.03] transition-colors"
           >
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium" style={{ color: "#F5F5F7" }}>{org.name}</span>
+              <span className="text-sm font-medium" style={{ color: "#111827" }}>{org.name}</span>
               <StatusBadge status={org.status} />
               <span className="text-xs" style={{ color: "#6E6E73" }}>{org.plan_tier}</span>
             </div>
@@ -467,20 +467,20 @@ function ClientAccountsTab() {
             </div>
           </button>
           {expandedId === org.id && (
-            <div className="px-4 pb-4 border-t space-y-2" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+            <div className="px-4 pb-4 border-t space-y-2" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 text-xs">
                 <div>
                   <span style={{ color: "#6E6E73" }}>Contact</span>
-                  <p style={{ color: "#F5F5F7" }}>{org.contact_name || "N/A"}</p>
+                  <p style={{ color: "#111827" }}>{org.contact_name || "N/A"}</p>
                 </div>
                 <div>
                   <span style={{ color: "#6E6E73" }}>Billing Email</span>
-                  <p style={{ color: "#F5F5F7" }}>{org.billing_email || "N/A"}</p>
+                  <p style={{ color: "#111827" }}>{org.billing_email || "N/A"}</p>
                 </div>
                 <div>
                   <span style={{ color: "#6E6E73" }}>Access Code</span>
                   <div className="flex items-center gap-1">
-                    <code className="font-mono text-sm" style={{ color: "#F5F5F7" }}>
+                    <code className="font-mono text-sm" style={{ color: "#111827" }}>
                       {org.access_code || "N/A"}
                     </code>
                     {org.access_code && <CopyButton text={org.access_code} />}
@@ -526,7 +526,7 @@ function ReferralsTab() {
       {referralCode && (
         <div
           className="rounded-xl border p-5"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
           <p className="text-xs font-medium mb-2" style={{ color: "#6E6E73" }}>Your Referral Code</p>
           <div className="flex items-center gap-2">
@@ -539,10 +539,10 @@ function ReferralsTab() {
       )}
 
       {referrals.length > 0 ? (
-        <div className="rounded-xl border overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+        <div className="rounded-xl border overflow-hidden" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
           <table className="w-full">
             <thead>
-              <tr style={{ backgroundColor: "#111111" }}>
+              <tr style={{ backgroundColor: "#FFFFFF" }}>
                 <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Referrer</th>
                 <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Referred</th>
                 <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Status</th>
@@ -551,9 +551,9 @@ function ReferralsTab() {
             </thead>
             <tbody>
               {referrals.map((ref) => (
-                <tr key={ref.id} className="border-t hover:bg-white/[0.02]" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                  <td className="px-4 py-3 text-sm" style={{ color: "#F5F5F7" }}>{ref.referrer}</td>
-                  <td className="px-4 py-3 text-sm" style={{ color: "#A1A1A6" }}>{ref.referred}</td>
+                <tr key={ref.id} className="border-t hover:bg-black/[0.03]" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+                  <td className="px-4 py-3 text-sm" style={{ color: "#111827" }}>{ref.referrer}</td>
+                  <td className="px-4 py-3 text-sm" style={{ color: "#6B7280" }}>{ref.referred}</td>
                   <td className="px-4 py-3"><StatusBadge status={ref.status} /></td>
                   <td className="px-4 py-3 text-sm text-right" style={{ color: "#22C55E" }}>
                     ${ref.commission.toLocaleString()}
@@ -587,7 +587,7 @@ export default function BillingPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>
           Billing & Invoices
         </h1>
         <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
@@ -595,7 +595,7 @@ export default function BillingPage() {
         </p>
       </div>
 
-      <div className="flex gap-1 rounded-lg p-1" style={{ backgroundColor: "#111111" }}>
+      <div className="flex gap-1 rounded-lg p-1" style={{ backgroundColor: "#FFFFFF" }}>
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;

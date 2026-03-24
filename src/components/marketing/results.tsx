@@ -57,14 +57,14 @@ export default function Results() {
           {CASE_STUDIES.map((study, i) => (
             <div
               key={study.name}
-              className={`bg-white/[0.03] border border-white/5 rounded-2xl p-6 md:p-8 transition-all duration-700 ${
+              className={`bg-black/[0.02] border border-white/5 rounded-2xl p-6 md:p-8 transition-all duration-700 ${
                 isVisible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-6"
               }`}
               style={{ transitionDelay: `${200 + i * 200}ms` }}
             >
-              <h3 className="text-lg font-bold text-white mb-3">
+              <h3 className="text-lg font-bold text-[#111827] mb-3">
                 {study.name}
               </h3>
               <p

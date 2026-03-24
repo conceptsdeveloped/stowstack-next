@@ -19,6 +19,7 @@ import {
   Users,
   Webhook,
 } from "lucide-react";
+import ThemeToggle from "@/components/theme-toggle";
 
 const STORAGE_KEY = "stowstack_partner_session";
 
@@ -136,16 +137,16 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#050505]">
-      <div className="w-full max-w-sm rounded-2xl border border-white/[0.06] bg-[#0A0A0A] p-8">
+    <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#3B82F6]">
             <Lock className="h-6 w-6 text-white" />
           </div>
-          <h1 className="mb-1 text-2xl font-bold text-[#F5F5F7]">
+          <h1 className="mb-1 text-2xl font-bold text-[#111827]">
             {step === "request" ? "Reset Password" : "Set New Password"}
           </h1>
-          <p className="text-sm text-[#6E6E73]">
+          <p className="text-sm text-[#9CA3AF]">
             {step === "request"
               ? "Enter your details to receive a reset link"
               : "Choose a new password for your account"}
@@ -159,30 +160,30 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
         ) : step === "request" ? (
           <form onSubmit={handleRequestReset} className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#A1A1A6]">Organization</label>
+              <label className="mb-2 block text-sm font-medium text-[#6B7280]">Organization</label>
               <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+                <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
                 <input
                   type="text"
                   value={orgSlug}
                   onChange={(e) => setOrgSlug(e.target.value)}
                   placeholder="Organization slug"
                   required
-                  className="w-full rounded-lg border border-white/[0.06] bg-[#1A1A1A] py-2.5 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
                 />
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#A1A1A6]">Email</label>
+              <label className="mb-2 block text-sm font-medium text-[#6B7280]">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
                   required
-                  className="w-full rounded-lg border border-white/[0.06] bg-[#1A1A1A] py-2.5 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
                 />
               </div>
             </div>
@@ -190,7 +191,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+              className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
             >
               {loading ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : "Send Reset Link"}
             </button>
@@ -198,9 +199,9 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#A1A1A6]">New Password</label>
+              <label className="mb-2 block text-sm font-medium text-[#6B7280]">New Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
                 <input
                   type="password"
                   value={newPassword}
@@ -208,21 +209,21 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
                   placeholder="At least 8 characters"
                   required
                   minLength={8}
-                  className="w-full rounded-lg border border-white/[0.06] bg-[#1A1A1A] py-2.5 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
                 />
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#A1A1A6]">Confirm Password</label>
+              <label className="mb-2 block text-sm font-medium text-[#6B7280]">Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your password"
                   required
-                  className="w-full rounded-lg border border-white/[0.06] bg-[#1A1A1A] py-2.5 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
                 />
               </div>
             </div>
@@ -230,7 +231,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+              className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
             >
               {loading ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : "Reset Password"}
             </button>
@@ -240,7 +241,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={onBack}
-          className="mt-4 w-full text-center text-xs text-[#6E6E73] transition-colors hover:text-[#A1A1A6]"
+          className="mt-4 w-full text-center text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
         >
           Back to sign in
         </button>
@@ -305,66 +306,66 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#050505]">
+    <div className="flex min-h-screen items-center justify-center bg-white">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl border border-white/[0.06] bg-[#0A0A0A] p-8"
+        className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8"
       >
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#3B82F6]">
             <Building2 className="h-6 w-6 text-white" />
           </div>
-          <h1 className="mb-1 text-2xl font-bold text-[#F5F5F7]">Partner Portal</h1>
-          <p className="text-sm text-[#6E6E73]">Sign in to your management dashboard</p>
+          <h1 className="mb-1 text-2xl font-bold text-[#111827]">Partner Portal</h1>
+          <p className="text-sm text-[#9CA3AF]">Sign in to your management dashboard</p>
         </div>
 
         <div className="mb-4">
-          <label htmlFor="org-slug" className="mb-2 block text-sm font-medium text-[#A1A1A6]">
+          <label htmlFor="org-slug" className="mb-2 block text-sm font-medium text-[#6B7280]">
             Organization
           </label>
           <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+            <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
             <input
               id="org-slug"
               type="text"
               value={orgSlug}
               onChange={(e) => setOrgSlug(e.target.value)}
               placeholder="Organization slug"
-              className="w-full rounded-lg border border-white/[0.06] bg-[#1A1A1A] py-2.5 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
             />
           </div>
         </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#A1A1A6]">
+          <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#6B7280]">
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
-              className="w-full rounded-lg border border-white/[0.06] bg-[#1A1A1A] py-2.5 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
             />
           </div>
         </div>
 
         <div className="mb-2">
-          <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#A1A1A6]">
+          <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#6B7280]">
             Password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E73]" />
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
-              className="w-full rounded-lg border border-white/[0.06] bg-[#1A1A1A] py-2.5 pl-10 pr-4 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
             />
           </div>
         </div>
@@ -373,7 +374,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
           <button
             type="button"
             onClick={() => setShowReset(true)}
-            className="text-xs text-[#6E6E73] transition-colors hover:text-[#3B82F6]"
+            className="text-xs text-[#9CA3AF] transition-colors hover:text-[#3B82F6]"
           >
             Forgot password?
           </button>
@@ -384,7 +385,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
         <button
           type="submit"
           disabled={loading || !email.trim() || !password.trim() || !orgSlug.trim()}
-          className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+          className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -414,16 +415,16 @@ function Sidebar({
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-white/[0.06] px-4">
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.08] px-4">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#3B82F6]">
           <Building2 className="h-4 w-4 text-white" />
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[#F5F5F7]">
+            <p className="truncate text-sm font-semibold text-[#111827]">
               {session.organization.name}
             </p>
-            <p className="truncate text-[10px] text-[#6E6E73]">
+            <p className="truncate text-[10px] text-[#9CA3AF]">
               {session.user.name}
             </p>
           </div>
@@ -446,8 +447,8 @@ function Sidebar({
                   title={collapsed ? item.label : undefined}
                   className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
                     isActive
-                      ? "bg-[#3B82F6]/15 font-medium text-white"
-                      : "text-[#A1A1A6] hover:bg-white/[0.04] hover:text-[#F5F5F7]"
+                      ? "bg-[#3B82F6]/15 font-medium text-[#111827]"
+                      : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
                   } ${collapsed ? "justify-center" : ""}`}
                 >
                   <Icon
@@ -461,11 +462,11 @@ function Sidebar({
         </ul>
       </nav>
 
-      <div className="hidden shrink-0 border-t border-white/[0.06] p-3 md:block">
+      <div className="hidden shrink-0 border-t border-black/[0.08] p-3 md:block">
         <button
           type="button"
           onClick={() => onCollapse(!collapsed)}
-          className="flex w-full items-center justify-center rounded-lg p-2 text-[#6E6E73] transition-colors hover:bg-white/[0.04] hover:text-[#A1A1A6]"
+          className="flex w-full items-center justify-center rounded-lg p-2 text-[#9CA3AF] transition-colors hover:bg-black/[0.03] hover:text-[#6B7280]"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <ChevronLeft
@@ -487,7 +488,7 @@ function Sidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-white/[0.06] bg-[#0A0A0A] transition-transform duration-200 md:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-black/[0.08] bg-[#F9FAFB] transition-transform duration-200 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -495,7 +496,7 @@ function Sidebar({
       </aside>
 
       <aside
-        className={`hidden shrink-0 border-r border-white/[0.06] bg-[#0A0A0A] transition-all duration-200 md:block ${
+        className={`hidden shrink-0 border-r border-black/[0.08] bg-[#F9FAFB] transition-all duration-200 md:block ${
           collapsed ? "w-16" : "w-64"
         }`}
       >
@@ -527,31 +528,32 @@ function PartnerHeader({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-white/[0.06] bg-[#0A0A0A]/80 px-4 backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.08] bg-[#F9FAFB]/80 px-4 backdrop-blur-xl md:px-6">
       <button
         type="button"
         onClick={onToggleSidebar}
-        className="rounded-lg p-2 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7] md:hidden"
+        className="rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827] md:hidden"
         aria-label="Toggle sidebar"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="text-lg font-semibold text-[#F5F5F7]">
+      <h1 className="text-lg font-semibold text-[#111827]">
         {ROUTE_TITLES[pathname] ?? "Partner Dashboard"}
       </h1>
 
       <div className="ml-auto flex items-center gap-3">
-        <span className="hidden text-sm text-[#6E6E73] sm:inline">
+        <span className="hidden text-sm text-[#9CA3AF] sm:inline">
           {session.user.email}
         </span>
-        <span className="hidden rounded-full bg-white/[0.06] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#A1A1A6] sm:inline">
+        <ThemeToggle />
+        <span className="hidden rounded-full bg-black/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#6B7280] sm:inline">
           {session.organization.plan}
         </span>
         <button
           type="button"
           onClick={onLogout}
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#A1A1A6] transition-colors hover:bg-white/[0.06] hover:text-[#F5F5F7]"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
           aria-label="Sign out"
         >
           <LogOut className="h-4 w-4" />
@@ -591,7 +593,7 @@ export function PartnerShell({ children }: { children: React.ReactNode }) {
 
   if (!checked) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050505]">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
       </div>
     );
@@ -602,7 +604,7 @@ export function PartnerShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#050505]">
+    <div className="flex h-screen overflow-hidden bg-white">
       <Sidebar
         session={session}
         collapsed={sidebarCollapsed}

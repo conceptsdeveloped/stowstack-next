@@ -39,7 +39,7 @@ interface OrgFacility {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  intake: "bg-white/[0.06] text-[#6E6E73]",
+  intake: "bg-black/[0.04] text-[#9CA3AF]",
   scraped: "bg-blue-500/10 text-blue-400",
   briefed: "bg-indigo-500/10 text-indigo-400",
   generating: "bg-purple-500/10 text-purple-400",
@@ -122,7 +122,7 @@ export default function FacilitiesPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#6E6E73]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
       </div>
     );
   }
@@ -143,17 +143,17 @@ export default function FacilitiesPage() {
       <div className="space-y-6">
         <button
           onClick={() => setSelectedFacility(null)}
-          className="flex items-center gap-1 text-sm text-[#A1A1A6] transition-colors hover:text-[#F5F5F7]"
+          className="flex items-center gap-1 text-sm text-[#6B7280] transition-colors hover:text-[#111827]"
         >
           <ChevronRight className="h-4 w-4 rotate-180" />
           Back to facilities
         </button>
 
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-6">
+        <div className="rounded-xl border border-black/[0.08] bg-white p-6">
           <div className="mb-6 flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-[#F5F5F7]">{f.name}</h2>
-              <p className="mt-1 flex items-center gap-1 text-sm text-[#6E6E73]">
+              <h2 className="text-xl font-bold text-[#111827]">{f.name}</h2>
+              <p className="mt-1 flex items-center gap-1 text-sm text-[#9CA3AF]">
                 <MapPin className="h-3 w-3" />
                 {f.location}
               </p>
@@ -166,27 +166,27 @@ export default function FacilitiesPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-lg bg-white/[0.04] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#6E6E73]">
+            <div className="rounded-lg bg-black/[0.03] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
                 Units
               </p>
-              <p className="mt-1 text-lg font-bold text-[#F5F5F7]">
+              <p className="mt-1 text-lg font-bold text-[#111827]">
                 {f.total_units || "N/A"}
               </p>
             </div>
-            <div className="rounded-lg bg-white/[0.04] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#6E6E73]">
+            <div className="rounded-lg bg-black/[0.03] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
                 Occupancy
               </p>
-              <p className="mt-1 text-lg font-bold text-[#F5F5F7]">
+              <p className="mt-1 text-lg font-bold text-[#111827]">
                 {OCCUPANCY_LABELS[f.occupancy_range] || f.occupancy_range || "N/A"}
               </p>
             </div>
-            <div className="rounded-lg bg-white/[0.04] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#6E6E73]">
+            <div className="rounded-lg bg-black/[0.03] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
                 Rating
               </p>
-              <p className="mt-1 flex items-center gap-1 text-lg font-bold text-[#F5F5F7]">
+              <p className="mt-1 flex items-center gap-1 text-lg font-bold text-[#111827]">
                 {f.google_rating ? (
                   <>
                     <Star className="h-4 w-4 text-amber-400" />
@@ -197,11 +197,11 @@ export default function FacilitiesPage() {
                 )}
               </p>
             </div>
-            <div className="rounded-lg bg-white/[0.04] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#6E6E73]">
+            <div className="rounded-lg bg-black/[0.03] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
                 Live Pages
               </p>
-              <p className="mt-1 text-lg font-bold text-[#F5F5F7]">
+              <p className="mt-1 text-lg font-bold text-[#111827]">
                 {f.live_pages}
               </p>
             </div>
@@ -209,19 +209,19 @@ export default function FacilitiesPage() {
         </div>
 
         {campaigns.length > 0 && (
-          <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
-            <h3 className="mb-4 text-sm font-semibold text-[#F5F5F7]">
+          <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+            <h3 className="mb-4 text-sm font-semibold text-[#111827]">
               Campaign History
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/[0.06]">
+                  <tr className="border-b border-black/[0.08]">
                     {["Month", "Spend", "Leads", "CPL", "Move-Ins", "ROAS"].map(
                       (h) => (
                         <th
                           key={h}
-                          className="px-4 py-2 text-right text-xs font-medium text-[#6E6E73] first:text-left"
+                          className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF] first:text-left"
                         >
                           {h}
                         </th>
@@ -233,26 +233,26 @@ export default function FacilitiesPage() {
                   {campaigns.map((c) => (
                     <tr
                       key={c.month}
-                      className="border-b border-white/[0.04] last:border-0"
+                      className="border-b border-black/[0.06] last:border-0"
                     >
-                      <td className="px-4 py-2.5 font-medium text-[#F5F5F7]">
+                      <td className="px-4 py-2.5 font-medium text-[#111827]">
                         {c.month}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-[#A1A1A6]">
+                      <td className="px-4 py-2.5 text-right text-[#6B7280]">
                         ${Number(c.spend).toLocaleString()}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-[#A1A1A6]">
+                      <td className="px-4 py-2.5 text-right text-[#6B7280]">
                         {c.leads}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-[#A1A1A6]">
+                      <td className="px-4 py-2.5 text-right text-[#6B7280]">
                         ${Number(c.cpl).toFixed(0)}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-[#A1A1A6]">
+                      <td className="px-4 py-2.5 text-right text-[#6B7280]">
                         {c.moveIns}
                       </td>
                       <td
                         className={`px-4 py-2.5 text-right font-medium ${
-                          Number(c.roas) >= 3 ? "text-emerald-400" : "text-[#A1A1A6]"
+                          Number(c.roas) >= 3 ? "text-emerald-400" : "text-[#6B7280]"
                         }`}
                       >
                         {Number(c.roas).toFixed(1)}x
@@ -261,23 +261,23 @@ export default function FacilitiesPage() {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="border-t border-white/[0.06] bg-white/[0.02]">
-                    <td className="px-4 py-2.5 font-semibold text-[#F5F5F7]">
+                  <tr className="border-t border-black/[0.08] bg-black/[0.02]">
+                    <td className="px-4 py-2.5 font-semibold text-[#111827]">
                       Total
                     </td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-[#F5F5F7]">
+                    <td className="px-4 py-2.5 text-right font-semibold text-[#111827]">
                       ${totals.spend.toLocaleString()}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-[#F5F5F7]">
+                    <td className="px-4 py-2.5 text-right font-semibold text-[#111827]">
                       {totals.leads}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-[#F5F5F7]">
+                    <td className="px-4 py-2.5 text-right font-semibold text-[#111827]">
                       ${totals.leads > 0 ? (totals.spend / totals.leads).toFixed(0) : "0"}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-[#F5F5F7]">
+                    <td className="px-4 py-2.5 text-right font-semibold text-[#111827]">
                       {totals.moveIns}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-[#6E6E73]">
+                    <td className="px-4 py-2.5 text-right text-[#9CA3AF]">
                       --
                     </td>
                   </tr>
@@ -300,12 +300,12 @@ export default function FacilitiesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[#A1A1A6]">
+        <h2 className="text-sm font-semibold text-[#6B7280]">
           {facilities.length} {facilities.length === 1 ? "facility" : "facilities"}
         </h2>
         <button
           onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-3 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB]"
         >
           <Plus className="h-4 w-4" />
           Add Facility
@@ -315,16 +315,16 @@ export default function FacilitiesPage() {
       {showAddForm && (
         <form
           onSubmit={addFacility}
-          className="rounded-xl border border-white/[0.06] bg-[#111111] p-5"
+          className="rounded-xl border border-black/[0.08] bg-white p-5"
         >
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#F5F5F7]">
+            <h3 className="text-sm font-semibold text-[#111827]">
               Add New Facility
             </h3>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="text-[#6E6E73] hover:text-[#A1A1A6]"
+              className="text-[#9CA3AF] hover:text-[#6B7280]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -335,20 +335,20 @@ export default function FacilitiesPage() {
               placeholder="Facility name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="rounded-lg border border-white/[0.06] bg-[#1A1A1A] px-4 py-2.5 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none focus:border-[#3B82F6]"
+              className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
             />
             <input
               type="text"
               placeholder="City, State"
               value={newLocation}
               onChange={(e) => setNewLocation(e.target.value)}
-              className="rounded-lg border border-white/[0.06] bg-[#1A1A1A] px-4 py-2.5 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none focus:border-[#3B82F6]"
+              className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
             />
           </div>
           <button
             type="submit"
             disabled={adding || !newName.trim() || !newLocation.trim()}
-            className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+            className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
           >
             {adding ? (
               <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -360,10 +360,10 @@ export default function FacilitiesPage() {
       )}
 
       {facilities.length === 0 ? (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] py-16 text-center">
-          <Building2 className="mx-auto mb-3 h-8 w-8 text-[#6E6E73]" />
-          <p className="text-sm text-[#A1A1A6]">No facilities yet</p>
-          <p className="mt-1 text-xs text-[#6E6E73]">
+        <div className="rounded-xl border border-black/[0.08] bg-white py-16 text-center">
+          <Building2 className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
+          <p className="text-sm text-[#6B7280]">No facilities yet</p>
+          <p className="mt-1 text-xs text-[#9CA3AF]">
             Add your first facility to get started
           </p>
         </div>
@@ -378,11 +378,11 @@ export default function FacilitiesPage() {
               <button
                 key={f.id}
                 onClick={() => setSelectedFacility(f)}
-                className="flex w-full items-center justify-between rounded-xl border border-white/[0.06] bg-[#111111] p-4 text-left transition-colors hover:border-white/[0.1] hover:bg-[#151515]"
+                className="flex w-full items-center justify-between rounded-xl border border-black/[0.08] bg-white p-4 text-left transition-colors hover:border-black/[0.1] hover:bg-[#F3F4F6]"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium text-[#F5F5F7]">
+                    <p className="truncate text-sm font-medium text-[#111827]">
                       {f.name}
                     </p>
                     <span
@@ -391,7 +391,7 @@ export default function FacilitiesPage() {
                       {f.status}
                     </span>
                   </div>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-[#6E6E73]">
+                  <div className="mt-1 flex items-center gap-3 text-xs text-[#9CA3AF]">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
                       {f.location}
@@ -405,7 +405,7 @@ export default function FacilitiesPage() {
                     {f.live_pages > 0 && <span>{f.live_pages} pages</span>}
                   </div>
                 </div>
-                <ChevronRight className="ml-2 h-4 w-4 shrink-0 text-[#6E6E73]" />
+                <ChevronRight className="ml-2 h-4 w-4 shrink-0 text-[#9CA3AF]" />
               </button>
             );
           })}

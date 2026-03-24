@@ -179,7 +179,7 @@ export default function DemandEngineVisual() {
                 style={{ transitionDelay: `${200 + i * 80}ms` }}
               >
                 <Icon size={24} className={`mx-auto mb-2 ${comp.color}`} />
-                <p className="text-xs font-semibold text-white leading-tight">
+                <p className="text-xs font-semibold text-[#111827] leading-tight">
                   {comp.title}
                 </p>
                 <p
@@ -220,7 +220,7 @@ export default function DemandEngineVisual() {
         </div>
 
         {activeComponent && (
-          <div className="bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 transition-all duration-300">
+          <div className="bg-black/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 transition-all duration-300">
             <div className="flex items-start gap-4">
               <div
                 className={`w-12 h-12 rounded-xl ${activeComponent.bg} flex items-center justify-center flex-shrink-0`}
@@ -231,7 +231,7 @@ export default function DemandEngineVisual() {
                 />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-[#111827]">
                   {activeComponent.title}
                 </h3>
                 <p

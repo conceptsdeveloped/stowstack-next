@@ -179,22 +179,22 @@ function TextOverlayEditor({ videoUrl, adminKey }: {
   }
 
   return (
-    <div className="border border-white/[0.06] rounded-lg p-4 space-y-3 bg-white/[0.02]">
+    <div className="border border-black/[0.08] rounded-lg p-4 space-y-3 bg-black/[0.02]">
       <div className="flex items-center justify-between">
-        <h5 className="text-xs font-semibold text-[#F5F5F7]">Text Overlays</h5>
-        <button onClick={() => setExpanded(false)} className="text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors">Collapse</button>
+        <h5 className="text-xs font-semibold text-[#111827]">Text Overlays</h5>
+        <button onClick={() => setExpanded(false)} className="text-xs text-[#9CA3AF] hover:text-[#6B7280] transition-colors">Collapse</button>
       </div>
 
       {/* Layer list */}
       <div className="space-y-2">
         {layers.map((layer, idx) => (
-          <div key={idx} className="p-3 rounded-lg border border-white/[0.06] space-y-2 bg-white/[0.02]">
+          <div key={idx} className="p-3 rounded-lg border border-black/[0.08] space-y-2 bg-black/[0.02]">
             <div className="flex gap-2 items-start">
               <input
                 value={layer.text}
                 onChange={e => updateLayer(idx, { text: e.target.value })}
                 placeholder={layer.style === 'headline' ? 'Your headline...' : layer.style === 'cta' ? 'Call to action...' : 'Text...'}
-                className="flex-1 px-2 py-1.5 border border-white/[0.06] rounded text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="flex-1 px-2 py-1.5 border border-black/[0.08] rounded text-sm bg-black/[0.02] text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]"
               />
               <button onClick={() => removeLayer(idx)} className="p-1 text-red-400 hover:text-red-300 mt-1"><Trash2 size={12} /></button>
             </div>
@@ -205,33 +205,33 @@ function TextOverlayEditor({ videoUrl, adminKey }: {
                   key={s.id}
                   onClick={() => updateLayer(idx, { style: s.id })}
                   className={`px-2 py-0.5 text-[10px] rounded transition-colors ${
-                    layer.style === s.id ? 'bg-[#3B82F6] text-white' : 'bg-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.1]'
+                    layer.style === s.id ? 'bg-[#3B82F6] text-white' : 'bg-black/[0.04] text-[#6B7280] hover:bg-black/[0.06]'
                   }`}
                 >
                   {s.label}
                 </button>
               ))}
-              <span className="text-[10px] text-[#6E6E73] mx-1">|</span>
+              <span className="text-[10px] text-[#9CA3AF] mx-1">|</span>
               {/* Position */}
               {POSITION_OPTIONS.map(p => (
                 <button
                   key={p.id}
                   onClick={() => updateLayer(idx, { position: p.id })}
                   className={`px-2 py-0.5 text-[10px] rounded transition-colors ${
-                    layer.position === p.id ? 'bg-[#3B82F6] text-white' : 'bg-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.1]'
+                    layer.position === p.id ? 'bg-[#3B82F6] text-white' : 'bg-black/[0.04] text-[#6B7280] hover:bg-black/[0.06]'
                   }`}
                 >
                   {p.label}
                 </button>
               ))}
-              <span className="text-[10px] text-[#6E6E73] mx-1">|</span>
+              <span className="text-[10px] text-[#9CA3AF] mx-1">|</span>
               {/* Animation */}
               {ANIM_OPTIONS.map(a => (
                 <button
                   key={a.id}
                   onClick={() => updateLayer(idx, { animation: a.id })}
                   className={`px-2 py-0.5 text-[10px] rounded transition-colors ${
-                    layer.animation === a.id ? 'bg-[#3B82F6] text-white' : 'bg-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.1]'
+                    layer.animation === a.id ? 'bg-[#3B82F6] text-white' : 'bg-black/[0.04] text-[#6B7280] hover:bg-black/[0.06]'
                   }`}
                 >
                   {a.label}
@@ -240,7 +240,7 @@ function TextOverlayEditor({ videoUrl, adminKey }: {
             </div>
             {/* Timing */}
             <div className="flex gap-3 items-center">
-              <label className="text-[10px] text-[#6E6E73]">Appears:</label>
+              <label className="text-[10px] text-[#9CA3AF]">Appears:</label>
               <input
                 type="range"
                 min={0} max={1} step={0.05}
@@ -248,8 +248,8 @@ function TextOverlayEditor({ videoUrl, adminKey }: {
                 onChange={e => updateLayer(idx, { enterAt: parseFloat(e.target.value) })}
                 className="flex-1 h-1 accent-[#3B82F6]"
               />
-              <span className="text-[10px] text-[#6E6E73] w-8">{Math.round(layer.enterAt * 100)}%</span>
-              <label className="text-[10px] text-[#6E6E73]">Exits:</label>
+              <span className="text-[10px] text-[#9CA3AF] w-8">{Math.round(layer.enterAt * 100)}%</span>
+              <label className="text-[10px] text-[#9CA3AF]">Exits:</label>
               <input
                 type="range"
                 min={0} max={1} step={0.05}
@@ -257,7 +257,7 @@ function TextOverlayEditor({ videoUrl, adminKey }: {
                 onChange={e => updateLayer(idx, { exitAt: parseFloat(e.target.value) })}
                 className="flex-1 h-1 accent-[#3B82F6]"
               />
-              <span className="text-[10px] text-[#6E6E73] w-8">{Math.round(layer.exitAt * 100)}%</span>
+              <span className="text-[10px] text-[#9CA3AF] w-8">{Math.round(layer.exitAt * 100)}%</span>
             </div>
           </div>
         ))}
@@ -266,7 +266,7 @@ function TextOverlayEditor({ videoUrl, adminKey }: {
       {/* Add layer */}
       <button
         onClick={addLayer}
-        className="flex items-center gap-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+        className="flex items-center gap-1.5 text-xs text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
       >
         <Plus size={11} /> Add text layer
       </button>
@@ -284,7 +284,7 @@ function TextOverlayEditor({ videoUrl, adminKey }: {
         )}
       </button>
       {compositing && (
-        <div className="w-full h-1.5 rounded-full overflow-hidden bg-white/[0.06]">
+        <div className="w-full h-1.5 rounded-full overflow-hidden bg-black/[0.04]">
           <div className="h-full bg-[#3B82F6] transition-all duration-300 rounded-full" style={{ width: `${compositProgress}%` }} />
         </div>
       )}
@@ -437,19 +437,19 @@ export default function VideoGenerator({ facilityId, adminKey }: {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h4 className="text-sm font-semibold text-[#F5F5F7]">AI Video Generator</h4>
-        <p className="text-xs text-[#6E6E73] mt-0.5">Generate professional marketing videos using AI</p>
+        <h4 className="text-sm font-semibold text-[#111827]">AI Video Generator</h4>
+        <p className="text-xs text-[#9CA3AF] mt-0.5">Generate professional marketing videos using AI</p>
       </div>
 
       {/* API key warning */}
       {!configured && (
-        <div className="p-4 rounded-xl border border-dashed border-white/[0.12]">
+        <div className="p-4 rounded-xl border border-dashed border-black/[0.12]">
           <div className="flex items-start gap-3">
             <AlertTriangle size={18} className="text-amber-400 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-[#F5F5F7]">Runway ML API Key Required</p>
-              <p className="text-xs text-[#6E6E73] mt-1">
-                Add <code className="px-1 py-0.5 rounded bg-white/[0.06] text-xs text-[#A1A1A6]">RUNWAY_API_KEY</code> to your environment variables.
+              <p className="text-sm font-medium text-[#111827]">Runway ML API Key Required</p>
+              <p className="text-xs text-[#9CA3AF] mt-1">
+                Add <code className="px-1 py-0.5 rounded bg-black/[0.04] text-xs text-[#6B7280]">RUNWAY_API_KEY</code> to your environment variables.
                 Get one at <a href="https://dev.runwayml.com" target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:underline">dev.runwayml.com</a>
               </p>
             </div>
@@ -459,7 +459,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
 
       {/* Template selector */}
       <div>
-        <label className="text-xs font-medium text-[#A1A1A6] block mb-2">Choose a Video Type</label>
+        <label className="text-xs font-medium text-[#6B7280] block mb-2">Choose a Video Type</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {templates.map(template => (
             <button
@@ -472,14 +472,14 @@ export default function VideoGenerator({ facilityId, adminKey }: {
               className={`text-left p-4 border rounded-xl transition-all ${
                 selectedTemplate === template.id
                   ? 'border-[#3B82F6] bg-[#3B82F6]/10'
-                  : 'border-white/[0.06] bg-[#111111] hover:border-white/[0.12]'
+                  : 'border-black/[0.08] bg-white hover:border-black/[0.12]'
               }`}
             >
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-[#A1A1A6]">{TEMPLATE_ICONS[template.id] || <Play size={18} />}</span>
-                <span className="text-sm font-semibold text-[#F5F5F7]">{template.name}</span>
+                <span className="text-[#6B7280]">{TEMPLATE_ICONS[template.id] || <Play size={18} />}</span>
+                <span className="text-sm font-semibold text-[#111827]">{template.name}</span>
               </div>
-              <p className="text-xs text-[#6E6E73] leading-relaxed">{template.description}</p>
+              <p className="text-xs text-[#9CA3AF] leading-relaxed">{template.description}</p>
               {template.mode === 'image_to_video' && (
                 <span className="inline-block mt-2 text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400">
                   <ImageIcon size={9} className="inline mr-0.5" /> Uses facility photo
@@ -490,10 +490,10 @@ export default function VideoGenerator({ facilityId, adminKey }: {
 
           {/* Fallback if no templates loaded */}
           {templates.length === 0 && (
-            <div className="col-span-full text-center py-8 border border-white/[0.06] rounded-xl bg-[#111111]">
-              <Play size={24} className="mx-auto mb-2 text-[#6E6E73]" />
-              <p className="text-sm text-[#A1A1A6]">No templates available</p>
-              <p className="text-[10px] text-[#6E6E73] mt-1">Check API configuration and try again</p>
+            <div className="col-span-full text-center py-8 border border-black/[0.08] rounded-xl bg-white">
+              <Play size={24} className="mx-auto mb-2 text-[#9CA3AF]" />
+              <p className="text-sm text-[#6B7280]">No templates available</p>
+              <p className="text-[10px] text-[#9CA3AF] mt-1">Check API configuration and try again</p>
             </div>
           )}
         </div>
@@ -501,18 +501,18 @@ export default function VideoGenerator({ facilityId, adminKey }: {
 
       {/* Generation controls */}
       {activeTemplate && (
-        <div className="border border-white/[0.06] rounded-xl p-5 bg-[#111111]">
+        <div className="border border-black/[0.08] rounded-xl p-5 bg-white">
           <div className="flex-1 space-y-4">
             {/* Preview description */}
             <div>
-              <p className="text-xs font-medium text-[#A1A1A6] mb-1">What you will get:</p>
-              <p className="text-sm text-[#F5F5F7]">{TEMPLATE_PREVIEWS[activeTemplate.id] || activeTemplate.description}</p>
+              <p className="text-xs font-medium text-[#6B7280] mb-1">What you will get:</p>
+              <p className="text-sm text-[#111827]">{TEMPLATE_PREVIEWS[activeTemplate.id] || activeTemplate.description}</p>
             </div>
 
             {/* Image selector for image_to_video */}
             {activeTemplate.mode === 'image_to_video' && (
               <div>
-                <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Source Image</label>
+                <label className="text-xs font-medium text-[#6B7280] block mb-1.5">Source Image</label>
                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                   {assets.slice(0, 12).map(a => (
                     <button
@@ -526,7 +526,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                     </button>
                   ))}
                   {assets.length === 0 && (
-                    <p className="col-span-6 text-xs text-[#6E6E73] py-2">No images. Upload or scrape in Assets tab.</p>
+                    <p className="col-span-6 text-xs text-[#9CA3AF] py-2">No images. Upload or scrape in Assets tab.</p>
                   )}
                 </div>
               </div>
@@ -535,7 +535,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
             {/* Style presets */}
             {styles.length > 0 && (
               <div>
-                <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Visual Style</label>
+                <label className="text-xs font-medium text-[#6B7280] block mb-1.5">Visual Style</label>
                 <div className="flex flex-wrap gap-1.5">
                   {styles.map(style => (
                     <button
@@ -544,7 +544,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                       className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
                         selectedStyle === style.id
                           ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-                          : 'border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.06]'
+                          : 'border-black/[0.08] text-[#6B7280] hover:bg-black/[0.04]'
                       }`}
                     >
                       {style.name}
@@ -556,12 +556,12 @@ export default function VideoGenerator({ facilityId, adminKey }: {
 
             {/* Custom notes */}
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Custom Notes (optional)</label>
+              <label className="text-xs font-medium text-[#6B7280] block mb-1.5">Custom Notes (optional)</label>
               <input
                 value={customNotes}
                 onChange={e => setCustomNotes(e.target.value)}
                 placeholder="e.g., Mention first month free, emphasize 24/7 access..."
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-black/[0.02] text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]"
               />
             </div>
 
@@ -569,7 +569,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
             <div>
               <button
                 onClick={() => setShowPromptEditor(!showPromptEditor)}
-                className="flex items-center gap-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                className="flex items-center gap-1.5 text-xs text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
               >
                 <Edit3 size={11} /> {showPromptEditor ? 'Hide' : 'Edit'} AI prompt directly
               </button>
@@ -580,9 +580,9 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                     onChange={e => setPromptOverride(e.target.value)}
                     rows={4}
                     placeholder="Write your own video generation prompt... Leave blank to use the auto-generated prompt based on the template and facility data."
-                    className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-xs font-mono bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6] resize-none"
+                    className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-xs font-mono bg-black/[0.02] text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#3B82F6] resize-none"
                   />
-                  <p className="text-[10px] text-[#6E6E73] mt-1">This overrides the auto-generated prompt. Be descriptive about camera movement, lighting, and scene composition.</p>
+                  <p className="text-[10px] text-[#9CA3AF] mt-1">This overrides the auto-generated prompt. Be descriptive about camera movement, lighting, and scene composition.</p>
                 </div>
               )}
             </div>
@@ -599,7 +599,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                 <><Sparkles size={14} /> Generate {activeTemplate.name} Video</>
               )}
             </button>
-            <p className="text-[10px] text-[#6E6E73]">Takes 1-3 minutes. You can start multiple generations.</p>
+            <p className="text-[10px] text-[#9CA3AF]">Takes 1-3 minutes. You can start multiple generations.</p>
           </div>
         </div>
       )}
@@ -607,22 +607,22 @@ export default function VideoGenerator({ facilityId, adminKey }: {
       {/* Generated videos / Job queue */}
       {jobs.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-[#F5F5F7] mb-3">Generated Videos</h4>
+          <h4 className="text-sm font-semibold text-[#111827] mb-3">Generated Videos</h4>
           <div className="space-y-3">
             {jobs.map(job => (
-              <div key={job.taskId} className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+              <div key={job.taskId} className="border border-black/[0.08] rounded-xl p-4 bg-white">
                 <div className="flex items-start gap-3">
                   {/* Template icon */}
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                     job.status === 'SUCCEEDED' ? 'bg-emerald-500/20 text-emerald-400' :
                     job.status === 'FAILED' ? 'bg-red-500/20 text-red-400' :
-                    'bg-white/[0.06] text-[#A1A1A6]'
+                    'bg-black/[0.04] text-[#6B7280]'
                   }`}>
                     {TEMPLATE_ICONS[job.templateId] || <Play size={18} />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-[#F5F5F7]">{job.templateName}</p>
+                      <p className="text-sm font-medium text-[#111827]">{job.templateName}</p>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                         job.status === 'SUCCEEDED' ? 'bg-emerald-500/20 text-emerald-400' :
                         job.status === 'FAILED' ? 'bg-red-500/20 text-red-400' :
@@ -637,12 +637,12 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                       <div className="mt-2 space-y-2">
                         <div className="flex items-center gap-2">
                           <Loader2 size={13} className="animate-spin text-[#3B82F6]" />
-                          <p className="text-xs text-[#6E6E73]">
+                          <p className="text-xs text-[#9CA3AF]">
                             AI is generating your video... ({Math.round((Date.now() - job.startedAt) / 1000)}s)
                           </p>
                         </div>
                         {/* Progress indicator */}
-                        <div className="w-full h-1 rounded-full overflow-hidden bg-white/[0.06]">
+                        <div className="w-full h-1 rounded-full overflow-hidden bg-black/[0.04]">
                           <div
                             className="h-full bg-[#3B82F6] rounded-full animate-pulse"
                             style={{ width: job.status === 'RUNNING' ? '60%' : '20%', transition: 'width 2s ease' }}
@@ -657,7 +657,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                         <video
                           src={job.videoUrl}
                           controls
-                          className="w-full max-w-sm rounded-lg border border-white/[0.06]"
+                          className="w-full max-w-sm rounded-lg border border-black/[0.08]"
                           preload="metadata"
                         />
                         <div className="flex flex-wrap gap-2">
@@ -673,13 +673,13 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                               setEditingJobPrompt(job.taskId)
                               setEditedPrompt(job.prompt)
                             }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.06] transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.04] transition-colors"
                           >
                             <RefreshCw size={12} /> Regenerate
                           </button>
                           <button
                             onClick={() => { if (navigator.clipboard && job.videoUrl) navigator.clipboard.writeText(job.videoUrl) }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.06] transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.04] transition-colors"
                           >
                             <Copy size={12} /> Copy URL
                           </button>
@@ -705,7 +705,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                               setEditingJobPrompt(job.taskId)
                               setEditedPrompt(job.prompt)
                             }}
-                            className="flex items-center gap-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                            className="flex items-center gap-1.5 text-xs text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
                           >
                             <Edit3 size={11} /> Edit prompt and retry
                           </button>
@@ -715,7 +715,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                             setSelectedTemplate(job.templateId)
                             startGeneration(job.prompt || undefined, job.imageUrl || undefined)
                           }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.06] transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.04] transition-colors"
                         >
                           <RefreshCw size={12} /> Retry
                         </button>
@@ -725,12 +725,12 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                     {/* Prompt viewer/editor for this job */}
                     {editingJobPrompt === job.taskId ? (
                       <div className="mt-3 space-y-2">
-                        <label className="text-xs font-medium text-[#A1A1A6]">Edit prompt and regenerate:</label>
+                        <label className="text-xs font-medium text-[#6B7280]">Edit prompt and regenerate:</label>
                         <textarea
                           value={editedPrompt}
                           onChange={e => setEditedPrompt(e.target.value)}
                           rows={5}
-                          className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-xs font-mono bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6] resize-none"
+                          className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-xs font-mono bg-black/[0.02] text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#3B82F6] resize-none"
                         />
                         <div className="flex gap-2">
                           <button
@@ -742,16 +742,16 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                           </button>
                           <button
                             onClick={() => { setEditingJobPrompt(null); setEditedPrompt('') }}
-                            className="px-3 py-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                            className="px-3 py-1.5 text-xs text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
                           >
                             Cancel
                           </button>
                         </div>
                       </div>
                     ) : job.prompt ? (
-                      <details className="mt-2 text-xs text-[#6E6E73]">
-                        <summary className="cursor-pointer hover:text-[#A1A1A6] transition-colors">View prompt</summary>
-                        <p className="mt-1 p-2 rounded text-xs whitespace-pre-wrap bg-white/[0.03] text-[#A1A1A6]">{job.prompt}</p>
+                      <details className="mt-2 text-xs text-[#9CA3AF]">
+                        <summary className="cursor-pointer hover:text-[#6B7280] transition-colors">View prompt</summary>
+                        <p className="mt-1 p-2 rounded text-xs whitespace-pre-wrap bg-black/[0.02] text-[#6B7280]">{job.prompt}</p>
                       </details>
                     ) : null}
                   </div>
@@ -765,7 +765,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
       {/* Empty state when no jobs */}
       {jobs.length === 0 && activeTemplate && (
         <div className="text-center py-6">
-          <p className="text-xs text-[#6E6E73]">Your generated videos will appear here</p>
+          <p className="text-xs text-[#9CA3AF]">Your generated videos will appear here</p>
         </div>
       )}
     </div>

@@ -84,10 +84,10 @@ export default function CampaignsPage() {
       {/* Header + range selector */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-[#F5F5F7]">Campaign Performance</h2>
-          <p className="text-sm text-[#6E6E73]">Ad spend, leads, and attribution overview</p>
+          <h2 className="text-lg font-semibold text-[#111827]">Campaign Performance</h2>
+          <p className="text-sm text-[#9CA3AF]">Ad spend, leads, and attribution overview</p>
         </div>
-        <div className="flex gap-1 rounded-lg border border-white/[0.06] bg-[#111111] p-1">
+        <div className="flex gap-1 rounded-lg border border-black/[0.08] bg-white p-1">
           {RANGES.map((r) => (
             <button
               key={r.value}
@@ -95,7 +95,7 @@ export default function CampaignsPage() {
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                 range === r.value
                   ? "bg-[#3B82F6] text-white"
-                  : "text-[#A1A1A6] hover:text-[#F5F5F7]"
+                  : "text-[#6B7280] hover:text-[#111827]"
               }`}
             >
               {r.label}
@@ -121,21 +121,21 @@ export default function CampaignsPage() {
             return (
               <div
                 key={kpi.label}
-                className="rounded-xl border border-white/[0.06] bg-[#111111] p-4"
+                className="rounded-xl border border-black/[0.08] bg-white p-4"
               >
                 <div className="mb-2 flex items-center gap-2">
                   <Icon className="h-4 w-4 text-[#3B82F6]" />
-                  <span className="text-xs text-[#6E6E73]">{kpi.label}</span>
+                  <span className="text-xs text-[#9CA3AF]">{kpi.label}</span>
                 </div>
-                <p className="text-xl font-bold text-[#F5F5F7]">{kpi.value}</p>
+                <p className="text-xl font-bold text-[#111827]">{kpi.value}</p>
               </div>
             );
           })}
         </div>
       ) : !error ? (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-8 text-center">
-          <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[#6E6E73]" />
-          <p className="text-sm text-[#A1A1A6]">No campaign data for this period.</p>
+        <div className="rounded-xl border border-black/[0.08] bg-white p-8 text-center">
+          <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
+          <p className="text-sm text-[#6B7280]">No campaign data for this period.</p>
         </div>
       ) : null}
 
@@ -143,14 +143,14 @@ export default function CampaignsPage() {
       {loading ? (
         <SectionSkeleton />
       ) : data?.hasData && data.campaigns.length > 0 ? (
-        <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#111111]">
-          <div className="border-b border-white/[0.06] px-5 py-4">
-            <h3 className="text-sm font-semibold text-[#F5F5F7]">Campaigns</h3>
+        <div className="overflow-hidden rounded-xl border border-black/[0.08] bg-white">
+          <div className="border-b border-black/[0.08] px-5 py-4">
+            <h3 className="text-sm font-semibold text-[#111827]">Campaigns</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06] text-[#6E6E73]">
+                <tr className="border-b border-black/[0.08] text-[#9CA3AF]">
                   <th className="px-5 py-3 font-medium">Campaign</th>
                   <th className="px-4 py-3 text-right font-medium">Spend</th>
                   <th className="px-4 py-3 text-right font-medium">Impressions</th>
@@ -166,29 +166,29 @@ export default function CampaignsPage() {
                 {data.campaigns.map((c, i) => (
                   <tr
                     key={i}
-                    className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02]"
+                    className="border-b border-black/[0.06] last:border-0 hover:bg-black/[0.03]"
                   >
-                    <td className="px-5 py-3 font-medium text-[#F5F5F7]">
+                    <td className="px-5 py-3 font-medium text-[#111827]">
                       {c.campaign || "Unattributed"}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#A1A1A6]">
+                    <td className="px-4 py-3 text-right text-[#6B7280]">
                       {fmtCurrency(c.spend)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#A1A1A6]">
+                    <td className="px-4 py-3 text-right text-[#6B7280]">
                       {fmt(c.impressions)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#A1A1A6]">{fmt(c.clicks)}</td>
-                    <td className="px-4 py-3 text-right text-[#A1A1A6]">{fmt(c.leads)}</td>
-                    <td className="px-4 py-3 text-right text-[#A1A1A6]">
+                    <td className="px-4 py-3 text-right text-[#6B7280]">{fmt(c.clicks)}</td>
+                    <td className="px-4 py-3 text-right text-[#6B7280]">{fmt(c.leads)}</td>
+                    <td className="px-4 py-3 text-right text-[#6B7280]">
                       {fmt(c.move_ins)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#A1A1A6]">
+                    <td className="px-4 py-3 text-right text-[#6B7280]">
                       {fmtCurrency(c.revenue)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#A1A1A6]">
+                    <td className="px-4 py-3 text-right text-[#6B7280]">
                       {fmtCurrency(c.cpl)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#A1A1A6]">
+                    <td className="px-4 py-3 text-right text-[#6B7280]">
                       {c.roas.toFixed(1)}x
                     </td>
                   </tr>
@@ -203,22 +203,22 @@ export default function CampaignsPage() {
       {loading ? (
         <SectionSkeleton />
       ) : data?.hasData && data.monthlyTrend && data.monthlyTrend.length > 0 ? (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
-          <h3 className="mb-4 text-sm font-semibold text-[#F5F5F7]">Monthly Trend</h3>
+        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+          <h3 className="mb-4 text-sm font-semibold text-[#111827]">Monthly Trend</h3>
           <div className="space-y-3">
             {data.monthlyTrend.map((m) => (
               <div key={m.month} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#A1A1A6]">{m.month}</span>
+                  <span className="text-[#6B7280]">{m.month}</span>
                   <div className="flex gap-4">
-                    <span className="text-[#6E6E73]">
-                      Spend: <span className="text-[#A1A1A6]">{fmtCurrency(m.spend)}</span>
+                    <span className="text-[#9CA3AF]">
+                      Spend: <span className="text-[#6B7280]">{fmtCurrency(m.spend)}</span>
                     </span>
-                    <span className="text-[#6E6E73]">
-                      Rev: <span className="text-[#A1A1A6]">{fmtCurrency(m.revenue)}</span>
+                    <span className="text-[#9CA3AF]">
+                      Rev: <span className="text-[#6B7280]">{fmtCurrency(m.revenue)}</span>
                     </span>
-                    <span className="text-[#6E6E73]">
-                      Leads: <span className="text-[#A1A1A6]">{fmt(m.leads)}</span>
+                    <span className="text-[#9CA3AF]">
+                      Leads: <span className="text-[#6B7280]">{fmt(m.leads)}</span>
                     </span>
                   </div>
                 </div>
@@ -231,7 +231,7 @@ export default function CampaignsPage() {
               </div>
             ))}
           </div>
-          <div className="mt-4 flex gap-4 text-[10px] text-[#6E6E73]">
+          <div className="mt-4 flex gap-4 text-[10px] text-[#9CA3AF]">
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-2 w-2 rounded-full bg-[#3B82F6]/30" />
               Spend

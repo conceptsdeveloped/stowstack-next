@@ -108,7 +108,7 @@ export default function ThreeWayComparison() {
         >
           <div />
           <div className="flex items-center gap-2 px-4">
-            <div className="w-6 h-6 bg-white/5 rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-black/5 rounded-full flex items-center justify-center">
               <Minus size={12} className="text-stone-500" />
             </div>
             <span
@@ -158,12 +158,12 @@ export default function ThreeWayComparison() {
               style={{ transitionDelay: `${200 + i * 50}ms` }}
             >
               <div className="flex items-center px-4 py-2">
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold text-[#111827]">
                   {row.label}
                 </span>
               </div>
 
-              <div className="bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3">
+              <div className="bg-black/[0.02] border border-white/5 rounded-xl px-4 py-3">
                 <span
                   className="md:hidden text-[10px] font-bold uppercase"
                   style={{

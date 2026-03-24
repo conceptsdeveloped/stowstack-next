@@ -47,7 +47,7 @@ export default function QuickCalculator() {
             </h2>
           </div>
 
-          <div className="max-w-4xl mx-auto bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8">
+          <div className="max-w-4xl mx-auto bg-black/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>

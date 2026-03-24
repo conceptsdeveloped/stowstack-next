@@ -27,7 +27,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand */}
           <div>
-            <p className="text-lg font-bold text-white mb-2">StowStack</p>
+            <p className="text-lg font-bold text-[#111827] mb-2">StowStack</p>
             <p
               className="text-sm"
               style={{ color: "var(--text-tertiary)" }}

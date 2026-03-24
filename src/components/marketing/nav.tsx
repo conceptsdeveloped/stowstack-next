@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import ThemeToggle from "@/components/theme-toggle";
 
 const NAV_LINKS = [
   { label: "How It Works", href: "#how-it-works" },
@@ -51,8 +52,8 @@ export default function Nav() {
           zIndex: "var(--z-nav)",
           height: "var(--nav-height)",
           background: isScrolled
-            ? "rgba(5, 5, 5, 0.85)"
-            : "rgba(5, 5, 5, 0.4)",
+            ? "rgba(255, 255, 255, 0.85)"
+            : "rgba(255, 255, 255, 0.4)",
           backdropFilter: isScrolled
             ? "blur(24px) saturate(180%)"
             : "blur(12px)",
@@ -65,7 +66,7 @@ export default function Nav() {
         }}
       >
         <div className="max-w-[1200px] mx-auto h-full flex items-center justify-between px-6">
-          <Link href="/" className="text-lg font-bold text-white hover:text-white">
+          <Link href="/" className="text-lg font-bold text-[#111827] hover:text-[#111827]">
             StowStack
           </Link>
 
@@ -75,7 +76,7 @@ export default function Nav() {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-sm font-medium transition-colors hover:text-white"
+                className="text-sm font-medium transition-colors hover:text-[#111827]"
                 style={{ color: "var(--text-secondary)" }}
               >
                 {link.label}
@@ -85,17 +86,18 @@ export default function Nav() {
               href={CALCOM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium transition-colors hover:text-white"
+              className="text-sm font-medium transition-colors hover:text-[#111827]"
               style={{ color: "var(--text-secondary)" }}
             >
               Book a Call
             </a>
+            <ThemeToggle />
             <a
               href="#cta"
               className="px-5 py-2 rounded-md text-sm font-semibold transition-all hover:opacity-90"
               style={{
                 background: "var(--accent)",
-                color: "var(--text-inverse)",
+                color: "white",
                 borderRadius: "6px",
               }}
             >

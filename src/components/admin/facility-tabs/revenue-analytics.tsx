@@ -164,7 +164,7 @@ function pct(val: number | null | undefined) {
 const RATE_COLORS: Record<string, { bg: string; text: string; label: string }> = {
   premium: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', label: 'Premium' },
   above: { bg: 'bg-green-500/10', text: 'text-green-400', label: 'Above Street' },
-  neutral: { bg: 'bg-white/[0.06]', text: 'text-[#A1A1A6]', label: 'At Street' },
+  neutral: { bg: 'bg-black/[0.04]', text: 'text-[#6B7280]', label: 'At Street' },
   below: { bg: 'bg-amber-500/10', text: 'text-amber-400', label: 'Below Street' },
   underpriced: { bg: 'bg-red-500/10', text: 'text-red-400', label: 'Underpriced' },
 }
@@ -177,7 +177,7 @@ const OCC_COLORS: Record<string, { bg: string; text: string; label: string }> = 
 }
 
 function Badge({ signal, map }: { signal: string; map: Record<string, { bg: string; text: string; label: string }> }) {
-  const s = map[signal] || map.neutral || { bg: 'bg-white/[0.06]', text: 'text-[#A1A1A6]', label: signal }
+  const s = map[signal] || map.neutral || { bg: 'bg-black/[0.04]', text: 'text-[#6B7280]', label: signal }
   return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.bg} ${s.text}`}>{s.label}</span>
 }
 
@@ -192,13 +192,13 @@ function SectionHeader({ icon, title, subtitle, expanded, onToggle, rightContent
       <div className="flex items-center gap-3">
         {icon}
         <div>
-          <h3 className="font-semibold text-[#F5F5F7]">{title}</h3>
-          <p className="text-xs text-[#6E6E73]">{subtitle}</p>
+          <h3 className="font-semibold text-[#111827]">{title}</h3>
+          <p className="text-xs text-[#9CA3AF]">{subtitle}</p>
         </div>
       </div>
       <div className="flex items-center gap-3">
         {rightContent}
-        {expanded ? <ChevronUp size={18} className="text-[#6E6E73]" /> : <ChevronDown size={18} className="text-[#6E6E73]" />}
+        {expanded ? <ChevronUp size={18} className="text-[#9CA3AF]" /> : <ChevronDown size={18} className="text-[#9CA3AF]" />}
       </div>
     </button>
   )
@@ -242,16 +242,16 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-12 text-center">
+      <div className="rounded-xl border border-black/[0.08] bg-white p-12 text-center">
         <Loader2 className="animate-spin mx-auto mb-2 text-[#3B82F6]" size={24} />
-        <p className="text-[#A1A1A6]">Loading revenue intelligence...</p>
+        <p className="text-[#6B7280]">Loading revenue intelligence...</p>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-8 text-center">
+      <div className="rounded-xl border border-black/[0.08] bg-white p-8 text-center">
         <AlertCircle className="mx-auto mb-2 text-red-500" size={24} />
         <p className="text-red-500 text-sm">{error}</p>
         <button onClick={fetchData} className="mt-3 text-sm text-[#3B82F6] hover:underline">Try again</button>
@@ -261,10 +261,10 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
 
   if (!data || data.units.length === 0) {
     return (
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-12 text-center">
-        <BarChart3 className="mx-auto mb-3 text-[#6E6E73]" size={40} />
-        <h3 className="text-lg font-semibold text-[#F5F5F7]">No PMS Data Yet</h3>
-        <p className="text-sm mt-1 text-[#A1A1A6]">
+      <div className="rounded-xl border border-black/[0.08] bg-white p-12 text-center">
+        <BarChart3 className="mx-auto mb-3 text-[#9CA3AF]" size={40} />
+        <h3 className="text-lg font-semibold text-[#111827]">No PMS Data Yet</h3>
+        <p className="text-sm mt-1 text-[#6B7280]">
           Import a storEDGE Consolidated Occupancy report in the PMS Data tab to power revenue intelligence.
         </p>
       </div>
@@ -276,17 +276,17 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
   return (
     <div className="space-y-4">
       {/* ═══ METRICS STRIP ═══ */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">Gross Potential</p>
-            <p className="text-2xl font-bold text-[#F5F5F7]">{money(s.total_gross_potential)}</p>
-            <p className="text-xs text-[#6E6E73]">at street rates</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">Gross Potential</p>
+            <p className="text-2xl font-bold text-[#111827]">{money(s.total_gross_potential)}</p>
+            <p className="text-xs text-[#9CA3AF]">at street rates</p>
           </div>
           <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">Actual MRR</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">Actual MRR</p>
             <p className="text-2xl font-bold text-emerald-500">{money(s.total_actual_revenue)}</p>
-            <p className="text-xs text-[#6E6E73]">
+            <p className="text-xs text-[#9CA3AF]">
               {s.revenue_trend_pct != null && (
                 <span className={s.revenue_trend_pct >= 0 ? 'text-emerald-500' : 'text-red-500'}>
                   {s.revenue_trend_pct >= 0 ? '\u2191' : '\u2193'} {Math.abs(s.revenue_trend_pct)}% MoM
@@ -295,39 +295,39 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
             </p>
           </div>
           <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">Lost to Vacancy</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">Lost to Vacancy</p>
             <p className="text-2xl font-bold text-red-500">{money(s.total_lost_revenue)}</p>
-            <p className="text-xs text-[#6E6E73]">{money(s.total_lost_revenue * 12)}/yr</p>
+            <p className="text-xs text-[#9CA3AF]">{money(s.total_lost_revenue * 12)}/yr</p>
           </div>
           <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">Revenue Capture</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">Revenue Capture</p>
             <p className={`text-2xl font-bold ${s.revenue_capture_pct >= 85 ? 'text-emerald-500' : s.revenue_capture_pct >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
               {pct(s.revenue_capture_pct)}
             </p>
-            <p className="text-xs text-[#6E6E73]">actual &divide; potential</p>
+            <p className="text-xs text-[#9CA3AF]">actual &divide; potential</p>
           </div>
           <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">ECRI Opportunity</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">ECRI Opportunity</p>
             <p className="text-2xl font-bold text-[#3B82F6]">{money(s.ecri_monthly_lift)}</p>
-            <p className="text-xs text-[#6E6E73]">{s.ecri_eligible_count} tenants &middot; {money(s.ecri_annual_lift)}/yr</p>
+            <p className="text-xs text-[#9CA3AF]">{s.ecri_eligible_count} tenants &middot; {money(s.ecri_annual_lift)}/yr</p>
           </div>
           <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6E6E73]">Rate Position</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">Rate Position</p>
             <div className="flex items-center justify-center gap-1 mt-1">
               <span className="text-emerald-500 text-sm font-bold">{s.tenants_above_street}</span>
               <ArrowUpRight size={14} className="text-emerald-500" />
-              <span className="text-sm font-bold text-[#A1A1A6]">{s.tenants_at_street}</span>
-              <Minus size={14} className="text-[#A1A1A6]" />
+              <span className="text-sm font-bold text-[#6B7280]">{s.tenants_at_street}</span>
+              <Minus size={14} className="text-[#6B7280]" />
               <span className="text-red-500 text-sm font-bold">{s.tenants_below_street}</span>
               <ArrowDownRight size={14} className="text-red-500" />
             </div>
-            <p className="text-xs text-[#6E6E73]">{s.total_tenants_rated} rated</p>
+            <p className="text-xs text-[#9CA3AF]">{s.total_tenants_rated} rated</p>
           </div>
         </div>
       </div>
 
       {/* ═══ UNIT MIX TABLE ═══ */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+      <div className="rounded-xl border border-black/[0.08] bg-white">
         <SectionHeader
           icon={<BarChart3 size={18} className="text-emerald-500" />}
           title="Unit Mix Intelligence"
@@ -336,30 +336,30 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
           onToggle={() => toggle('overview')}
         />
         {expandedSection === 'overview' && (
-          <div className="border-t border-white/[0.06]">
+          <div className="border-t border-black/[0.08]">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-white/[0.02]">
+                  <tr className="bg-black/[0.02]">
                     {['Unit Type', 'Total', 'Occupied', 'Vacant', 'Street Rate', 'Avg Actual', 'Gross Potential', 'Actual Rev', 'Rate', 'Occ', 'Action'].map((h, i) => (
-                      <th key={i} className={`${i === 0 || i === 10 ? 'text-left' : i < 4 ? 'text-center' : i < 8 ? 'text-right' : 'text-center'} px-3 py-2 font-medium text-[#6E6E73] ${i === 0 ? 'pl-4' : ''}`}>{h}</th>
+                      <th key={i} className={`${i === 0 || i === 10 ? 'text-left' : i < 4 ? 'text-center' : i < 8 ? 'text-right' : 'text-center'} px-3 py-2 font-medium text-[#9CA3AF] ${i === 0 ? 'pl-4' : ''}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.04]">
+                <tbody className="divide-y divide-black/[0.06]">
                   {units.map((u, i) => (
-                    <tr key={i} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-2 font-medium text-[#F5F5F7]"><div>{u.unit_type}</div><div className="text-xs text-[#6E6E73]">{u.size_label}</div></td>
-                      <td className="px-3 py-2 text-center text-[#F5F5F7]">{u.total_count}</td>
+                    <tr key={i} className="hover:bg-black/[0.03]">
+                      <td className="px-4 py-2 font-medium text-[#111827]"><div>{u.unit_type}</div><div className="text-xs text-[#9CA3AF]">{u.size_label}</div></td>
+                      <td className="px-3 py-2 text-center text-[#111827]">{u.total_count}</td>
                       <td className="px-3 py-2 text-center text-emerald-500 font-medium">{u.occupied_count}</td>
-                      <td className={`px-3 py-2 text-center ${u.vacant_count > 0 ? 'text-red-500 font-medium' : 'text-[#6E6E73]'}`}>{u.vacant_count}</td>
-                      <td className="px-3 py-2 text-right font-mono text-[#F5F5F7]">${u.street_rate?.toFixed(0)}</td>
+                      <td className={`px-3 py-2 text-center ${u.vacant_count > 0 ? 'text-red-500 font-medium' : 'text-[#9CA3AF]'}`}>{u.vacant_count}</td>
+                      <td className="px-3 py-2 text-right font-mono text-[#111827]">${u.street_rate?.toFixed(0)}</td>
                       <td className={`px-3 py-2 text-right font-mono ${u.actual_avg_rate < u.street_rate ? 'text-amber-500' : 'text-emerald-500'}`}>${u.actual_avg_rate?.toFixed(0)}</td>
-                      <td className="px-3 py-2 text-right font-mono text-[#6E6E73]">{money(u.gross_potential)}</td>
-                      <td className="px-3 py-2 text-right font-mono font-medium text-[#F5F5F7]">{money(u.actual_revenue)}</td>
+                      <td className="px-3 py-2 text-right font-mono text-[#9CA3AF]">{money(u.gross_potential)}</td>
+                      <td className="px-3 py-2 text-right font-mono font-medium text-[#111827]">{money(u.actual_revenue)}</td>
                       <td className="px-3 py-2 text-center"><Badge signal={u.rate_signal} map={RATE_COLORS} /></td>
                       <td className="px-3 py-2 text-center"><Badge signal={u.occ_signal} map={OCC_COLORS} /></td>
-                      <td className="px-3 py-2 text-[#F5F5F7]">
+                      <td className="px-3 py-2 text-[#111827]">
                         <div className="flex items-center gap-1">
                           {u.action.toLowerCase().includes('raise') && <Zap size={12} className="text-amber-500" />}
                           {u.action.toLowerCase().includes('fill') && <AlertTriangle size={12} className="text-red-500" />}
@@ -371,16 +371,16 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="font-semibold bg-white/[0.03] border-t border-white/[0.08]">
-                    <td className="px-4 py-2 text-[#F5F5F7]">Totals</td>
-                    <td className="px-3 py-2 text-center text-[#F5F5F7]">{units.reduce((sum, u) => sum + u.total_count, 0)}</td>
+                  <tr className="font-semibold bg-black/[0.02] border-t border-black/[0.1]">
+                    <td className="px-4 py-2 text-[#111827]">Totals</td>
+                    <td className="px-3 py-2 text-center text-[#111827]">{units.reduce((sum, u) => sum + u.total_count, 0)}</td>
                     <td className="px-3 py-2 text-center text-emerald-500">{units.reduce((sum, u) => sum + u.occupied_count, 0)}</td>
                     <td className="px-3 py-2 text-center text-red-500">{units.reduce((sum, u) => sum + u.vacant_count, 0)}</td>
-                    <td className="px-3 py-2 text-right text-[#6E6E73]">&mdash;</td>
-                    <td className="px-3 py-2 text-right text-[#6E6E73]">&mdash;</td>
-                    <td className="px-3 py-2 text-right font-mono text-[#F5F5F7]">{money(s.total_gross_potential)}</td>
-                    <td className="px-3 py-2 text-right font-mono text-[#F5F5F7]">{money(s.total_actual_revenue)}</td>
-                    <td colSpan={3} className="px-3 py-2 text-center text-xs text-[#6E6E73]">Capture: {pct(s.revenue_capture_pct)}</td>
+                    <td className="px-3 py-2 text-right text-[#9CA3AF]">&mdash;</td>
+                    <td className="px-3 py-2 text-right text-[#9CA3AF]">&mdash;</td>
+                    <td className="px-3 py-2 text-right font-mono text-[#111827]">{money(s.total_gross_potential)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-[#111827]">{money(s.total_actual_revenue)}</td>
+                    <td colSpan={3} className="px-3 py-2 text-center text-xs text-[#9CA3AF]">Capture: {pct(s.revenue_capture_pct)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -395,7 +395,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
         if (vacantUnits.length === 0) return null
         const maxLost = Math.max(...vacantUnits.map(u => u.vacant_lost_monthly), 1)
         return (
-          <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+          <div className="rounded-xl border border-black/[0.08] bg-white">
             <SectionHeader
               icon={<PiggyBank size={18} className="text-red-500" />}
               title="Lost Revenue Calculator"
@@ -404,21 +404,21 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
               onToggle={() => toggle('lost')}
             />
             {expandedSection === 'lost' && (
-              <div className="border-t border-white/[0.06] p-4">
+              <div className="border-t border-black/[0.08] p-4">
                 <div className="space-y-3">
                   {vacantUnits.map((u, i) => (
                     <div key={i}>
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-[#F5F5F7]">{u.unit_type}</span>
-                          <span className="text-xs text-[#6E6E73]">{u.vacant_count} vacant @ ${u.street_rate?.toFixed(0)}/mo</span>
+                          <span className="text-sm font-medium text-[#111827]">{u.unit_type}</span>
+                          <span className="text-xs text-[#9CA3AF]">{u.vacant_count} vacant @ ${u.street_rate?.toFixed(0)}/mo</span>
                         </div>
                         <div className="text-right">
                           <span className="text-sm font-bold text-red-500">{money(u.vacant_lost_monthly)}/mo</span>
-                          <span className="text-xs ml-2 text-[#6E6E73]">{money(u.vacant_lost_annual)}/yr</span>
+                          <span className="text-xs ml-2 text-[#9CA3AF]">{money(u.vacant_lost_annual)}/yr</span>
                         </div>
                       </div>
-                      <div className="w-full h-3 rounded bg-white/[0.04]">
+                      <div className="w-full h-3 rounded bg-black/[0.03]">
                         <div className="h-3 rounded bg-gradient-to-r from-red-400 to-red-500" style={{ width: `${(u.vacant_lost_monthly / maxLost) * 100}%` }} />
                       </div>
                     </div>
@@ -426,16 +426,16 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                   <div className="rounded-lg p-4 mt-2 bg-red-500/5 border border-red-500/20">
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
-                        <p className="text-xs font-medium text-[#6E6E73]">Monthly Lost Revenue</p>
+                        <p className="text-xs font-medium text-[#9CA3AF]">Monthly Lost Revenue</p>
                         <p className="text-xl font-bold text-red-500">{money(s.total_lost_revenue)}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-[#6E6E73]">Annual Impact</p>
+                        <p className="text-xs font-medium text-[#9CA3AF]">Annual Impact</p>
                         <p className="text-xl font-bold text-red-500">{money(s.total_lost_revenue * 12)}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-[#6E6E73]">% of Potential</p>
-                        <p className="text-xl font-bold text-[#F5F5F7]">
+                        <p className="text-xs font-medium text-[#9CA3AF]">% of Potential</p>
+                        <p className="text-xl font-bold text-[#111827]">
                           {s.total_gross_potential > 0 ? (s.total_lost_revenue / s.total_gross_potential * 100).toFixed(1) : 0}%
                         </p>
                       </div>
@@ -449,7 +449,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
       })()}
 
       {/* ═══ ECRI TABLE ═══ */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+      <div className="rounded-xl border border-black/[0.08] bg-white">
         <SectionHeader
           icon={<TrendingUp size={18} className="text-[#3B82F6]" />}
           title="ECRI Recommendations"
@@ -458,31 +458,31 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
           onToggle={() => toggle('ecri')}
         />
         {expandedSection === 'ecri' && ecri_tenants.length > 0 && (
-          <div className="border-t border-white/[0.06]">
+          <div className="border-t border-black/[0.08]">
             <div className="p-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="rounded-lg p-3 bg-[#3B82F6]/5 border border-[#3B82F6]/20">
-                  <p className="text-xs font-medium text-[#6E6E73]">Eligible Tenants</p>
+                  <p className="text-xs font-medium text-[#9CA3AF]">Eligible Tenants</p>
                   <p className="text-xl font-bold text-[#3B82F6]">{ecri_tenants.length}</p>
                 </div>
                 <div className="rounded-lg p-3 bg-emerald-500/5 border border-emerald-500/20">
-                  <p className="text-xs font-medium text-[#6E6E73]">Monthly Lift</p>
+                  <p className="text-xs font-medium text-[#9CA3AF]">Monthly Lift</p>
                   <p className="text-xl font-bold text-emerald-500">{money(s.ecri_monthly_lift)}</p>
                 </div>
                 <div className="rounded-lg p-3 bg-emerald-500/5 border border-emerald-500/20">
-                  <p className="text-xs font-medium text-[#6E6E73]">Annual Lift</p>
+                  <p className="text-xs font-medium text-[#9CA3AF]">Annual Lift</p>
                   <p className="text-xl font-bold text-emerald-500">{money(s.ecri_annual_lift)}</p>
                 </div>
-                <div className="rounded-lg p-3 bg-white/[0.03] border border-white/[0.06]">
-                  <p className="text-xs font-medium text-[#6E6E73]">Avg Tenure</p>
-                  <p className="text-xl font-bold text-[#F5F5F7]">
+                <div className="rounded-lg p-3 bg-black/[0.02] border border-black/[0.08]">
+                  <p className="text-xs font-medium text-[#9CA3AF]">Avg Tenure</p>
+                  <p className="text-xl font-bold text-[#111827]">
                     {Math.round(ecri_tenants.reduce((sum, t) => sum + (t.days_as_tenant || 0), 0) / ecri_tenants.length / 30)}mo
                   </p>
                 </div>
               </div>
             </div>
             <div className="px-4 pb-2 flex gap-2">
-              <span className="text-xs text-[#6E6E73] self-center">Sort by:</span>
+              <span className="text-xs text-[#9CA3AF] self-center">Sort by:</span>
               {(['lift', 'variance', 'days'] as const).map(sortKey => (
                 <button
                   key={sortKey}
@@ -490,7 +490,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                   className={`px-2 py-1 rounded text-xs font-medium ${
                     ecriSort === sortKey
                       ? 'bg-[#3B82F6] text-white'
-                      : 'bg-white/[0.04] text-[#A1A1A6]'
+                      : 'bg-black/[0.03] text-[#6B7280]'
                   }`}
                 >
                   {sortKey === 'lift' ? 'Revenue Lift' : sortKey === 'variance' ? 'Underpaying' : 'Tenure'}
@@ -500,23 +500,23 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-white/[0.02]">
+                  <tr className="bg-black/[0.02]">
                     {['Unit', 'Tenant', 'Tenure', 'Street', 'Paying', 'Gap', 'Suggested', 'Monthly Lift'].map((h, i) => (
-                      <th key={i} className={`${i < 2 ? 'text-left' : i === 2 ? 'text-center' : 'text-right'} ${i === 0 ? 'px-4' : i === 7 ? 'px-4' : 'px-3'} py-2 font-medium text-[#6E6E73]`}>{h}</th>
+                      <th key={i} className={`${i < 2 ? 'text-left' : i === 2 ? 'text-center' : 'text-right'} ${i === 0 ? 'px-4' : i === 7 ? 'px-4' : 'px-3'} py-2 font-medium text-[#9CA3AF]`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.04]">
+                <tbody className="divide-y divide-black/[0.06]">
                   {[...ecri_tenants].sort((a, b) => {
                     if (ecriSort === 'lift') return (b.ecri_revenue_lift || 0) - (a.ecri_revenue_lift || 0)
                     if (ecriSort === 'variance') return (a.rate_variance || 0) - (b.rate_variance || 0)
                     return (b.days_as_tenant || 0) - (a.days_as_tenant || 0)
                   }).map((t, i) => (
-                    <tr key={i} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-2 font-medium text-[#F5F5F7]">{t.unit}</td>
-                      <td className="px-3 py-2 text-[#F5F5F7]">{t.tenant_name}</td>
-                      <td className="px-3 py-2 text-center text-[#6E6E73]">{Math.round((t.days_as_tenant || 0) / 30)}mo</td>
-                      <td className="px-3 py-2 text-right font-mono text-[#6E6E73]">${t.standard_rate?.toFixed(0)}</td>
+                    <tr key={i} className="hover:bg-black/[0.03]">
+                      <td className="px-4 py-2 font-medium text-[#111827]">{t.unit}</td>
+                      <td className="px-3 py-2 text-[#111827]">{t.tenant_name}</td>
+                      <td className="px-3 py-2 text-center text-[#9CA3AF]">{Math.round((t.days_as_tenant || 0) / 30)}mo</td>
+                      <td className="px-3 py-2 text-right font-mono text-[#9CA3AF]">${t.standard_rate?.toFixed(0)}</td>
                       <td className="px-3 py-2 text-right font-mono text-red-500">${t.actual_rate?.toFixed(0)}</td>
                       <td className="px-3 py-2 text-right font-mono text-red-500">-${Math.abs(t.rate_variance || 0).toFixed(0)}</td>
                       <td className="px-3 py-2 text-right font-mono text-[#3B82F6]">${t.ecri_suggested?.toFixed(0)}</td>
@@ -529,17 +529,17 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
           </div>
         )}
         {expandedSection === 'ecri' && ecri_tenants.length === 0 && (
-          <div className="border-t border-white/[0.06] p-6 text-center">
-            <Users className="mx-auto mb-2 text-[#6E6E73]" size={32} />
-            <p className="text-sm text-[#F5F5F7]">No ECRI data available</p>
-            <p className="text-xs mt-1 text-[#6E6E73]">Upload a &quot;Rent Rates by Tenant&quot; CSV from storEDGE to see tenant-level rate analysis</p>
+          <div className="border-t border-black/[0.08] p-6 text-center">
+            <Users className="mx-auto mb-2 text-[#9CA3AF]" size={32} />
+            <p className="text-sm text-[#111827]">No ECRI data available</p>
+            <p className="text-xs mt-1 text-[#9CA3AF]">Upload a &quot;Rent Rates by Tenant&quot; CSV from storEDGE to see tenant-level rate analysis</p>
           </div>
         )}
       </div>
 
       {/* ═══ RATE VARIANCE HEATMAP ═══ */}
       {(rate_distribution.below.length > 0 || rate_distribution.above.length > 0) && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+        <div className="rounded-xl border border-black/[0.08] bg-white">
           <SectionHeader
             icon={<TrendingUp size={18} className="text-amber-500" />}
             title="Rate Variance Heatmap"
@@ -548,32 +548,32 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
             onToggle={() => toggle('rates')}
           />
           {expandedSection === 'rates' && (
-            <div className="border-t border-white/[0.06] p-4">
+            <div className="border-t border-black/[0.08] p-4">
               {/* Distribution bar */}
               <div className="mb-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-medium text-[#6E6E73]">Rate Distribution</span>
+                  <span className="text-xs font-medium text-[#9CA3AF]">Rate Distribution</span>
                 </div>
                 <div className="flex h-8 rounded-lg overflow-hidden">
                   {rate_distribution.below.length > 0 && (
                     <div className="bg-gradient-to-r from-red-500 to-red-400 flex items-center justify-center" style={{ width: `${(rate_distribution.below.length / s.total_tenants_rated) * 100}%` }}>
-                      <span className="text-xs font-bold text-white">{rate_distribution.below.length}</span>
+                      <span className="text-xs font-bold text-[#111827]">{rate_distribution.below.length}</span>
                     </div>
                   )}
                   {s.tenants_at_street > 0 && (
-                    <div className="bg-white/[0.08] flex items-center justify-center" style={{ width: `${(s.tenants_at_street / s.total_tenants_rated) * 100}%` }}>
-                      <span className="text-xs font-bold text-[#A1A1A6]">{s.tenants_at_street}</span>
+                    <div className="bg-black/[0.06] flex items-center justify-center" style={{ width: `${(s.tenants_at_street / s.total_tenants_rated) * 100}%` }}>
+                      <span className="text-xs font-bold text-[#6B7280]">{s.tenants_at_street}</span>
                     </div>
                   )}
                   {rate_distribution.above.length > 0 && (
                     <div className="bg-gradient-to-r from-emerald-400 to-emerald-500 flex items-center justify-center" style={{ width: `${(rate_distribution.above.length / s.total_tenants_rated) * 100}%` }}>
-                      <span className="text-xs font-bold text-white">{rate_distribution.above.length}</span>
+                      <span className="text-xs font-bold text-[#111827]">{rate_distribution.above.length}</span>
                     </div>
                   )}
                 </div>
                 <div className="flex justify-between mt-1">
                   <span className="text-xs text-red-500">Below Street</span>
-                  <span className="text-xs text-[#6E6E73]">At Street</span>
+                  <span className="text-xs text-[#9CA3AF]">At Street</span>
                   <span className="text-xs text-emerald-500">Above Street</span>
                 </div>
               </div>
@@ -584,16 +584,16 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                 const maxVar = Math.abs(entries[0]?.variance || 1)
                 return (
                   <div>
-                    <h4 className="text-sm font-semibold mb-2 text-[#F5F5F7]">Largest Gaps (Below Street Rate)</h4>
+                    <h4 className="text-sm font-semibold mb-2 text-[#111827]">Largest Gaps (Below Street Rate)</h4>
                     <div className="space-y-1.5">
                       {entries.map((t, i) => {
                         const barW = Math.abs(t.variance) / maxVar * 100
                         return (
                           <div key={i} className="flex items-center gap-3">
-                            <span className="text-xs w-24 truncate text-[#F5F5F7]">{t.unit}</span>
-                            <span className="text-xs w-32 truncate text-[#6E6E73]">{t.tenant}</span>
+                            <span className="text-xs w-24 truncate text-[#111827]">{t.unit}</span>
+                            <span className="text-xs w-32 truncate text-[#9CA3AF]">{t.tenant}</span>
                             <div className="flex-1 flex items-center gap-2">
-                              <div className="flex-1 h-4 rounded bg-white/[0.04]">
+                              <div className="flex-1 h-4 rounded bg-black/[0.03]">
                                 <div className={`h-4 rounded ${t.ecri ? 'bg-gradient-to-r from-red-500 to-blue-500' : 'bg-red-400'}`} style={{ width: `${barW}%` }} />
                               </div>
                               <span className="text-xs font-mono w-12 text-right text-red-500">-${Math.abs(t.variance).toFixed(0)}</span>
@@ -613,16 +613,16 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                 const maxVar = Math.abs(entries[0]?.variance || 1)
                 return (
                   <div className="mt-4">
-                    <h4 className="text-sm font-semibold mb-2 text-[#F5F5F7]">Highest Premium Tenants (Above Street Rate)</h4>
+                    <h4 className="text-sm font-semibold mb-2 text-[#111827]">Highest Premium Tenants (Above Street Rate)</h4>
                     <div className="space-y-1.5">
                       {entries.map((t, i) => {
                         const barW = Math.abs(t.variance) / maxVar * 100
                         return (
                           <div key={i} className="flex items-center gap-3">
-                            <span className="text-xs w-24 truncate text-[#F5F5F7]">{t.unit}</span>
-                            <span className="text-xs w-32 truncate text-[#6E6E73]">{t.tenant}</span>
+                            <span className="text-xs w-24 truncate text-[#111827]">{t.unit}</span>
+                            <span className="text-xs w-32 truncate text-[#9CA3AF]">{t.tenant}</span>
                             <div className="flex-1 flex items-center gap-2">
-                              <div className="flex-1 h-4 rounded bg-white/[0.04]">
+                              <div className="flex-1 h-4 rounded bg-black/[0.03]">
                                 <div className="h-4 rounded bg-gradient-to-r from-emerald-400 to-emerald-500" style={{ width: `${barW}%` }} />
                               </div>
                               <span className="text-xs font-mono w-12 text-right text-emerald-500">+${Math.abs(t.variance).toFixed(0)}</span>
@@ -643,7 +643,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
       {revenue_history.length > 0 && (() => {
         const maxRevenue = Math.max(...revenue_history.map(r => r.revenue || 0), 1)
         return (
-          <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+          <div className="rounded-xl border border-black/[0.08] bg-white">
             <SectionHeader
               icon={<TrendingUp size={18} className="text-indigo-500" />}
               title="Revenue Trend"
@@ -652,7 +652,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
               onToggle={() => toggle('trend')}
             />
             {expandedSection === 'trend' && (
-              <div className="border-t border-white/[0.06] p-4">
+              <div className="border-t border-black/[0.08] p-4">
                 <div className="flex items-end gap-1 h-40 mb-3">
                   {revenue_history.map((m, i) => {
                     const h = maxRevenue > 0 ? (m.revenue / maxRevenue * 100) : 0
@@ -665,7 +665,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                             style={{ height: `${Math.max(h, 2)}%`, minHeight: '2px' }}
                           />
                         </div>
-                        <div className="absolute bottom-full mb-1 hidden group-hover:block z-10 px-2 py-1 rounded text-xs whitespace-nowrap bg-[#1a1a1a] text-[#F5F5F7] border border-white/[0.06]">
+                        <div className="absolute bottom-full mb-1 hidden group-hover:block z-10 px-2 py-1 rounded text-xs whitespace-nowrap bg-[#F3F4F6] text-[#111827] border border-black/[0.08]">
                           {m.month.slice(0, 3)} {m.year}: {money(m.revenue)}<br />{'\u2191'}{m.move_ins} {'\u2193'}{m.move_outs}
                         </div>
                       </div>
@@ -675,17 +675,17 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                 <div className="flex gap-1">
                   {revenue_history.map((m, i) => (
                     <div key={i} className="flex-1 text-center">
-                      {i % 3 === 0 && <span className="text-[9px] text-[#6E6E73]">{m.month.slice(0, 3)} &apos;{String(m.year).slice(2)}</span>}
+                      {i % 3 === 0 && <span className="text-[9px] text-[#9CA3AF]">{m.month.slice(0, 3)} &apos;{String(m.year).slice(2)}</span>}
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-4">
                   <div className="rounded-lg p-3 bg-emerald-500/5 border border-emerald-500/20">
-                    <p className="text-xs font-medium text-[#6E6E73]">Total Move-Ins (shown period)</p>
+                    <p className="text-xs font-medium text-[#9CA3AF]">Total Move-Ins (shown period)</p>
                     <p className="text-lg font-bold text-emerald-500">{revenue_history.reduce((sum, m) => sum + (m.move_ins || 0), 0)}</p>
                   </div>
                   <div className="rounded-lg p-3 bg-red-500/5 border border-red-500/20">
-                    <p className="text-xs font-medium text-[#6E6E73]">Total Move-Outs (shown period)</p>
+                    <p className="text-xs font-medium text-[#9CA3AF]">Total Move-Outs (shown period)</p>
                     <p className="text-lg font-bold text-red-500">{revenue_history.reduce((sum, m) => sum + (m.move_outs || 0), 0)}</p>
                   </div>
                 </div>
@@ -697,7 +697,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
 
       {/* ═══ HEALTH SCORE ═══ */}
       {health && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+        <div className="rounded-xl border border-black/[0.08] bg-white">
           <SectionHeader
             icon={<Activity size={18} className={health.overall >= 75 ? 'text-emerald-500' : health.overall >= 50 ? 'text-amber-500' : 'text-red-500'} />}
             title="Facility Health Score"
@@ -711,7 +711,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
             }
           />
           {expandedSection === 'health' && (
-            <div className="border-t border-white/[0.06] p-4 space-y-5">
+            <div className="border-t border-black/[0.08] p-4 space-y-5">
               {/* Big gauge */}
               <div className="flex justify-center">
                 <div className="relative w-48 h-24 overflow-hidden">
@@ -730,7 +730,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     <span className={`text-4xl font-black ${health.overall >= 75 ? 'text-emerald-500' : health.overall >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
                       {health.overall}
                     </span>
-                    <span className="text-sm ml-1 mb-1 text-[#6E6E73]">/100</span>
+                    <span className="text-sm ml-1 mb-1 text-[#9CA3AF]">/100</span>
                   </div>
                 </div>
               </div>
@@ -748,17 +748,17 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <span className={item.data.score >= 75 ? 'text-emerald-500' : item.data.score >= 50 ? 'text-amber-500' : 'text-red-500'}>{item.icon}</span>
-                        <span className="text-sm font-medium text-[#F5F5F7]">{item.label}</span>
-                        <span className="text-xs text-[#6E6E73]">({item.data.weight}%)</span>
+                        <span className="text-sm font-medium text-[#111827]">{item.label}</span>
+                        <span className="text-xs text-[#9CA3AF]">({item.data.weight}%)</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#6E6E73]">{item.detail}</span>
+                        <span className="text-xs text-[#9CA3AF]">{item.detail}</span>
                         <span className={`text-sm font-bold ${item.data.score >= 75 ? 'text-emerald-500' : item.data.score >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
                           {item.data.score}
                         </span>
                       </div>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-white/[0.04]">
+                    <div className="w-full h-2 rounded-full bg-black/[0.03]">
                       <div
                         className={`h-2 rounded-full transition-all ${item.data.score >= 75 ? 'bg-emerald-500' : item.data.score >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
                         style={{ width: `${item.data.score}%` }}
@@ -774,7 +774,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
 
       {/* ═══ WATERFALL ═══ */}
       {waterfall && (
-        <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+        <div className="rounded-xl border border-black/[0.08] bg-white">
           <SectionHeader
             icon={<Droplets size={18} className="text-cyan-500" />}
             title="Revenue Waterfall"
@@ -783,7 +783,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
             onToggle={() => toggle('waterfall')}
           />
           {expandedSection === 'waterfall' && (
-            <div className="border-t border-white/[0.06] p-4">
+            <div className="border-t border-black/[0.08] p-4">
               {(() => {
                 const maxVal = waterfall.gross_potential || 1
                 const steps = [
@@ -804,12 +804,12 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                       return (
                         <div key={i}>
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-[#F5F5F7]">{step.label}</span>
-                            <span className={`text-sm font-bold ${isLoss ? 'text-red-500' : i === steps.length - 1 ? 'text-emerald-500' : 'text-[#F5F5F7]'}`}>
+                            <span className="text-sm font-medium text-[#111827]">{step.label}</span>
+                            <span className={`text-sm font-bold ${isLoss ? 'text-red-500' : i === steps.length - 1 ? 'text-emerald-500' : 'text-[#111827]'}`}>
                               {isLoss ? '-' : ''}{money(Math.abs(step.value))}
                             </span>
                           </div>
-                          <div className="w-full h-6 rounded bg-white/[0.04] relative">
+                          <div className="w-full h-6 rounded bg-black/[0.03] relative">
                             <div
                               className={`h-6 rounded ${step.color} transition-all`}
                               style={{ width: `${barWidth}%`, marginLeft: isLoss ? `${offset}%` : '0' }}
@@ -818,24 +818,24 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                         </div>
                       )
                     })}
-                    <div className="rounded-lg p-3 mt-2 bg-white/[0.03] border border-white/[0.06]">
+                    <div className="rounded-lg p-3 mt-2 bg-black/[0.02] border border-black/[0.08]">
                       <div className="grid grid-cols-3 gap-4 text-center">
                         <div>
-                          <p className="text-xs text-[#6E6E73]">Total Leakage</p>
+                          <p className="text-xs text-[#9CA3AF]">Total Leakage</p>
                           <p className="text-lg font-bold text-red-500">
                             {money(waterfall.vacancy_loss + waterfall.rate_gap_loss + waterfall.delinquency_loss)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-[#6E6E73]">Leakage Rate</p>
-                          <p className="text-lg font-bold text-[#F5F5F7]">
+                          <p className="text-xs text-[#9CA3AF]">Leakage Rate</p>
+                          <p className="text-lg font-bold text-[#111827]">
                             {waterfall.gross_potential > 0
                               ? ((waterfall.vacancy_loss + waterfall.rate_gap_loss + waterfall.delinquency_loss) / waterfall.gross_potential * 100).toFixed(1)
                               : 0}%
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-[#6E6E73]">Collection Rate</p>
+                          <p className="text-xs text-[#9CA3AF]">Collection Rate</p>
                           <p className="text-lg font-bold text-emerald-500">
                             {waterfall.gross_potential > 0 ? (waterfall.actual_collected / waterfall.gross_potential * 100).toFixed(1) : 0}%
                           </p>
@@ -851,7 +851,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
       )}
 
       {/* ═══ SCENARIO MODELER ═══ */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+      <div className="rounded-xl border border-black/[0.08] bg-white">
         <SectionHeader
           icon={<SlidersHorizontal size={18} className="text-violet-500" />}
           title="Revenue Scenario Modeler"
@@ -860,7 +860,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
           onToggle={() => toggle('scenario')}
         />
         {expandedSection === 'scenario' && (
-          <div className="border-t border-white/[0.06] p-4 space-y-5">
+          <div className="border-t border-black/[0.08] p-4 space-y-5">
             {(() => {
               const totalVacant = units.reduce((sum, u) => sum + u.vacant_count, 0)
               const avgStreetRate = units.reduce((sum, u) => sum + (u.street_rate || 0) * u.vacant_count, 0) / (totalVacant || 1)
@@ -875,34 +875,34 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-sm font-medium text-[#F5F5F7]">Fill Vacancies</label>
+                        <label className="text-sm font-medium text-[#111827]">Fill Vacancies</label>
                         <span className="text-sm font-bold text-emerald-500">{scenVacancyFill}%</span>
                       </div>
                       <input type="range" min={0} max={100} step={5} value={scenVacancyFill} onChange={e => setScenVacancyFill(Number(e.target.value))} className="w-full accent-emerald-500" />
                       <div className="flex justify-between mt-1">
-                        <span className="text-xs text-[#6E6E73]">{Math.round(totalVacant * scenVacancyFill / 100)} of {totalVacant} units</span>
+                        <span className="text-xs text-[#9CA3AF]">{Math.round(totalVacant * scenVacancyFill / 100)} of {totalVacant} units</span>
                         <span className="text-xs text-emerald-500">+{money(vacancyRecovery)}/mo</span>
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-sm font-medium text-[#F5F5F7]">Rate Increase</label>
+                        <label className="text-sm font-medium text-[#111827]">Rate Increase</label>
                         <span className="text-sm font-bold text-[#3B82F6]">{scenRateIncrease}%</span>
                       </div>
                       <input type="range" min={0} max={15} step={1} value={scenRateIncrease} onChange={e => setScenRateIncrease(Number(e.target.value))} className="w-full accent-[#3B82F6]" />
                       <div className="flex justify-between mt-1">
-                        <span className="text-xs text-[#6E6E73]">Across all occupied units</span>
+                        <span className="text-xs text-[#9CA3AF]">Across all occupied units</span>
                         <span className="text-xs text-[#3B82F6]">+{money(rateIncreaseGain)}/mo</span>
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-sm font-medium text-[#F5F5F7]">Apply ECRI</label>
+                        <label className="text-sm font-medium text-[#111827]">Apply ECRI</label>
                         <span className="text-sm font-bold text-violet-500">{scenEcriApply}%</span>
                       </div>
                       <input type="range" min={0} max={100} step={10} value={scenEcriApply} onChange={e => setScenEcriApply(Number(e.target.value))} className="w-full accent-violet-500" />
                       <div className="flex justify-between mt-1">
-                        <span className="text-xs text-[#6E6E73]">{Math.round(s.ecri_eligible_count * scenEcriApply / 100)} of {s.ecri_eligible_count} tenants</span>
+                        <span className="text-xs text-[#9CA3AF]">{Math.round(s.ecri_eligible_count * scenEcriApply / 100)} of {s.ecri_eligible_count} tenants</span>
                         <span className="text-xs text-violet-500">+{money(ecriRecovery)}/mo</span>
                       </div>
                     </div>
@@ -911,45 +911,45 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                   <div className="rounded-xl p-5 bg-gradient-to-r from-emerald-500/5 to-[#3B82F6]/5 border border-emerald-500/20">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                       <div>
-                        <p className="text-xs font-medium text-[#6E6E73]">Current MRR</p>
-                        <p className="text-xl font-bold text-[#F5F5F7]">{money(s.total_actual_revenue)}</p>
+                        <p className="text-xs font-medium text-[#9CA3AF]">Current MRR</p>
+                        <p className="text-xl font-bold text-[#111827]">{money(s.total_actual_revenue)}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-[#6E6E73]">Scenario Gain</p>
+                        <p className="text-xs font-medium text-[#9CA3AF]">Scenario Gain</p>
                         <p className="text-xl font-bold text-emerald-500">+{money(totalScenarioGain)}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-[#6E6E73]">Projected MRR</p>
+                        <p className="text-xs font-medium text-[#9CA3AF]">Projected MRR</p>
                         <p className="text-xl font-bold text-[#3B82F6]">{money(projectedMRR)}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-[#6E6E73]">Annual Impact</p>
+                        <p className="text-xs font-medium text-[#9CA3AF]">Annual Impact</p>
                         <p className="text-xl font-bold text-violet-500">+{money(totalScenarioGain * 12)}/yr</p>
                       </div>
                     </div>
                     <div className="mt-4">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-[#6E6E73]">Revenue Position</span>
+                        <span className="text-xs text-[#9CA3AF]">Revenue Position</span>
                       </div>
-                      <div className="w-full h-8 rounded-lg overflow-hidden flex bg-white/[0.04]">
+                      <div className="w-full h-8 rounded-lg overflow-hidden flex bg-black/[0.03]">
                         <div
                           className="h-8 bg-emerald-500 flex items-center justify-center transition-all"
                           style={{ width: `${s.total_gross_potential > 0 ? (s.total_actual_revenue / s.total_gross_potential * 100) : 0}%` }}
                         >
-                          <span className="text-xs font-bold text-white">Current</span>
+                          <span className="text-xs font-bold text-[#111827]">Current</span>
                         </div>
                         {totalScenarioGain > 0 && (
                           <div
                             className="h-8 bg-[#3B82F6] flex items-center justify-center transition-all"
                             style={{ width: `${s.total_gross_potential > 0 ? (totalScenarioGain / s.total_gross_potential * 100) : 0}%` }}
                           >
-                            <span className="text-xs font-bold text-white">+Scenario</span>
+                            <span className="text-xs font-bold text-[#111827]">+Scenario</span>
                           </div>
                         )}
                       </div>
                       <div className="flex justify-between mt-1">
-                        <span className="text-xs text-[#6E6E73]">{money(0)}</span>
-                        <span className="text-xs text-[#6E6E73]">Gross Potential: {money(s.total_gross_potential)}</span>
+                        <span className="text-xs text-[#9CA3AF]">{money(0)}</span>
+                        <span className="text-xs text-[#9CA3AF]">Gross Potential: {money(s.total_gross_potential)}</span>
                       </div>
                     </div>
                   </div>
@@ -965,7 +965,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
         const sorted = [...sqft_analysis].sort((a, b) => b.actual_per_sqft - a.actual_per_sqft)
         const maxPerSqft = Math.max(...sorted.map(s => s.actual_per_sqft), 1)
         return (
-          <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+          <div className="rounded-xl border border-black/[0.08] bg-white">
             <SectionHeader
               icon={<Maximize2 size={18} className="text-orange-500" />}
               title="Revenue per Square Foot"
@@ -974,26 +974,26 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
               onToggle={() => toggle('sqft')}
             />
             {expandedSection === 'sqft' && (
-              <div className="border-t border-white/[0.06] p-4">
+              <div className="border-t border-black/[0.08] p-4">
                 <div className="space-y-3">
                   {sorted.map((u, i) => (
                     <div key={i}>
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-[#F5F5F7]">{u.unit_type}</span>
-                          <span className="text-xs text-[#6E6E73]">{u.sqft} sqft</span>
+                          <span className="text-sm font-medium text-[#111827]">{u.unit_type}</span>
+                          <span className="text-xs text-[#9CA3AF]">{u.sqft} sqft</span>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="text-right">
-                            <span className="text-xs text-[#6E6E73]">Street: </span>
-                            <span className="text-xs font-mono text-[#6E6E73]">${u.street_per_sqft.toFixed(2)}/sf</span>
+                            <span className="text-xs text-[#9CA3AF]">Street: </span>
+                            <span className="text-xs font-mono text-[#9CA3AF]">${u.street_per_sqft.toFixed(2)}/sf</span>
                           </div>
                           <span className={`text-sm font-bold ${u.actual_per_sqft >= u.street_per_sqft ? 'text-emerald-500' : 'text-amber-500'}`}>
                             ${u.actual_per_sqft.toFixed(2)}/sf
                           </span>
                         </div>
                       </div>
-                      <div className="w-full h-5 rounded bg-white/[0.04] relative overflow-hidden">
+                      <div className="w-full h-5 rounded bg-black/[0.03] relative overflow-hidden">
                         <div className="absolute top-0 bottom-0 w-0.5 bg-[#6E6E73] z-10" style={{ left: `${(u.street_per_sqft / maxPerSqft * 100)}%` }} />
                         <div
                           className={`h-5 rounded transition-all ${i === 0 ? 'bg-gradient-to-r from-orange-500 to-orange-400' : u.actual_per_sqft >= u.street_per_sqft ? 'bg-emerald-400' : 'bg-amber-400'}`}
@@ -1003,9 +1003,9 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     </div>
                   ))}
                   <div className="flex items-center gap-4 mt-2">
-                    <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-400" /><span className="text-xs text-[#6E6E73]">Above street $/sf</span></div>
-                    <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-amber-400" /><span className="text-xs text-[#6E6E73]">Below street $/sf</span></div>
-                    <div className="flex items-center gap-1"><div className="w-0.5 h-3 bg-[#6E6E73]" /><span className="text-xs text-[#6E6E73]">Street rate line</span></div>
+                    <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-400" /><span className="text-xs text-[#9CA3AF]">Above street $/sf</span></div>
+                    <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-amber-400" /><span className="text-xs text-[#9CA3AF]">Below street $/sf</span></div>
+                    <div className="flex items-center gap-1"><div className="w-0.5 h-3 bg-[#6E6E73]" /><span className="text-xs text-[#9CA3AF]">Street rate line</span></div>
                   </div>
                 </div>
               </div>
@@ -1028,7 +1028,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
         const worstNetMonth = seasonal_pattern.reduce((best, m) => (m.avg_move_ins - m.avg_move_outs) < (best.avg_move_ins - best.avg_move_outs) ? m : best)
 
         return (
-          <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+          <div className="rounded-xl border border-black/[0.08] bg-white">
             <SectionHeader
               icon={<Sun size={18} className="text-yellow-500" />}
               title="Seasonal Patterns"
@@ -1037,7 +1037,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
               onToggle={() => toggle('seasonal')}
             />
             {expandedSection === 'seasonal' && (
-              <div className="border-t border-white/[0.06] p-4">
+              <div className="border-t border-black/[0.08] p-4">
                 <div className="space-y-4">
                   <div className="flex items-end gap-1 h-36">
                     {seasonal_pattern.map((m, i) => {
@@ -1049,7 +1049,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                             <div className="w-[45%] rounded-t bg-emerald-500 transition-all" style={{ height: `${Math.max(inH, 3)}%` }} />
                             <div className="w-[45%] rounded-t bg-red-400 transition-all" style={{ height: `${Math.max(outH, 3)}%` }} />
                           </div>
-                          <div className="absolute bottom-full mb-1 hidden group-hover:block z-10 px-2 py-1 rounded text-xs whitespace-nowrap bg-[#1a1a1a] text-[#F5F5F7] border border-white/[0.06]">
+                          <div className="absolute bottom-full mb-1 hidden group-hover:block z-10 px-2 py-1 rounded text-xs whitespace-nowrap bg-[#F3F4F6] text-[#111827] border border-black/[0.08]">
                             {m.month}: {'\u2191'}{m.avg_move_ins.toFixed(1)} {'\u2193'}{m.avg_move_outs.toFixed(1)} (net {(m.avg_move_ins - m.avg_move_outs) >= 0 ? '+' : ''}{(m.avg_move_ins - m.avg_move_outs).toFixed(1)})<br />Avg Rev: {money(m.avg_revenue)}
                           </div>
                         </div>
@@ -1067,13 +1067,13 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-500" /><span className="text-xs text-[#6E6E73]">Avg Move-Ins</span></div>
-                      <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-red-400" /><span className="text-xs text-[#6E6E73]">Avg Move-Outs</span></div>
+                      <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-500" /><span className="text-xs text-[#9CA3AF]">Avg Move-Ins</span></div>
+                      <div className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-red-400" /><span className="text-xs text-[#9CA3AF]">Avg Move-Outs</span></div>
                     </div>
-                    <span className="text-xs text-[#6E6E73]">Based on {seasonal_pattern[0]?.years_of_data || 0} year(s) of data</span>
+                    <span className="text-xs text-[#9CA3AF]">Based on {seasonal_pattern[0]?.years_of_data || 0} year(s) of data</span>
                   </div>
                   <div className="rounded-lg p-3 bg-yellow-500/5 border border-yellow-500/20">
-                    <p className="text-xs text-[#F5F5F7]">
+                    <p className="text-xs text-[#111827]">
                       <span className="font-semibold">Insight:</span>{' '}
                       Peak move-in month is <span className="font-bold text-emerald-500">{peakMonth.month}</span> ({peakMonth.avg_move_ins.toFixed(1)} avg).
                       Slowest is <span className="font-bold text-amber-500">{troughMonth.month}</span> ({troughMonth.avg_move_ins.toFixed(1)} avg).
@@ -1103,7 +1103,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
         const projectedWriteOff = total - expectedRecovery
 
         return (
-          <div className="rounded-xl border border-white/[0.06] bg-[#111111]">
+          <div className="rounded-xl border border-black/[0.08] bg-white">
             <SectionHeader
               icon={<ShieldAlert size={18} className="text-orange-500" />}
               title="Delinquency Risk Dashboard"
@@ -1112,37 +1112,37 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
               onToggle={() => toggle('delinquency')}
             />
             {expandedSection === 'delinquency' && (
-              <div className="border-t border-white/[0.06] p-4 space-y-4">
+              <div className="border-t border-black/[0.08] p-4 space-y-4">
                 <div className="grid grid-cols-5 gap-2">
                   {buckets.map((b, i) => (
-                    <div key={i} className="rounded-lg p-3 text-center border border-white/[0.06]">
-                      <div className="w-full h-16 rounded flex items-end justify-center bg-white/[0.04]">
+                    <div key={i} className="rounded-lg p-3 text-center border border-black/[0.08]">
+                      <div className="w-full h-16 rounded flex items-end justify-center bg-black/[0.03]">
                         <div className={`w-3/4 rounded-t ${b.color} transition-all`} style={{ height: `${(b.value / maxBucket * 100)}%`, minHeight: b.value > 0 ? '4px' : '0' }} />
                       </div>
-                      <p className="text-xs font-medium mt-2 text-[#F5F5F7]">{b.label}</p>
-                      <p className={`text-sm font-bold ${b.value > 0 ? 'text-red-500' : 'text-[#6E6E73]'}`}>{money(b.value)}</p>
-                      <p className="text-[10px] text-[#6E6E73]">{(b.recovery * 100).toFixed(0)}% recovery</p>
+                      <p className="text-xs font-medium mt-2 text-[#111827]">{b.label}</p>
+                      <p className={`text-sm font-bold ${b.value > 0 ? 'text-red-500' : 'text-[#9CA3AF]'}`}>{money(b.value)}</p>
+                      <p className="text-[10px] text-[#9CA3AF]">{(b.recovery * 100).toFixed(0)}% recovery</p>
                     </div>
                   ))}
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="rounded-lg p-3 text-center bg-red-500/5 border border-red-500/20">
-                    <p className="text-xs font-medium text-[#6E6E73]">Total Outstanding</p>
+                    <p className="text-xs font-medium text-[#9CA3AF]">Total Outstanding</p>
                     <p className="text-lg font-bold text-red-500">{money(total)}</p>
                   </div>
                   <div className="rounded-lg p-3 text-center bg-emerald-500/5 border border-emerald-500/20">
-                    <p className="text-xs font-medium text-[#6E6E73]">Expected Recovery</p>
+                    <p className="text-xs font-medium text-[#9CA3AF]">Expected Recovery</p>
                     <p className="text-lg font-bold text-emerald-500">{money(expectedRecovery)}</p>
                   </div>
-                  <div className="rounded-lg p-3 text-center bg-white/[0.03] border border-white/[0.06]">
-                    <p className="text-xs font-medium text-[#6E6E73]">Projected Write-Off</p>
-                    <p className="text-lg font-bold text-[#F5F5F7]">{money(projectedWriteOff)}</p>
+                  <div className="rounded-lg p-3 text-center bg-black/[0.02] border border-black/[0.08]">
+                    <p className="text-xs font-medium text-[#9CA3AF]">Projected Write-Off</p>
+                    <p className="text-lg font-bold text-[#111827]">{money(projectedWriteOff)}</p>
                   </div>
                 </div>
                 <div className="rounded-lg p-3 bg-orange-500/5 border border-orange-500/20">
                   <div className="flex items-center gap-2">
                     <AlertTriangle size={16} className="text-orange-500" />
-                    <p className="text-xs text-[#F5F5F7]">
+                    <p className="text-xs text-[#111827]">
                       <span className="font-semibold">Delinquency Rate:</span>{' '}
                       {s.total_actual_revenue > 0 ? (total / s.total_actual_revenue * 100).toFixed(1) : 0}% of MRR
                       {aging.moved_out_count > 0 && (

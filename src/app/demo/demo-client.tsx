@@ -164,7 +164,7 @@ export default function DemoDashboardClient() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         {/* Welcome Banner */}
         <div className="rounded-xl p-6 mb-6 relative overflow-hidden" style={{ background: "var(--accent)" }}>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-black/5 rounded-full -translate-y-32 translate-x-32" />
           <div className="relative" style={{ color: "var(--text-inverse)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={14} style={{ opacity: 0.7 }} />
@@ -235,8 +235,8 @@ export default function DemoDashboardClient() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} />
                 <YAxis domain={[55, 100]} tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
-                <Tooltip formatter={(v) => [`${v}%`, "Occupancy"]} contentStyle={{ borderRadius: "8px", background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.12)", fontSize: "12px", color: "#F5F5F7" }} />
-                <Area type="monotone" dataKey="occupancy" stroke="#3B82F6" strokeWidth={2.5} fill="url(#occGrad)" dot={{ r: 4, fill: "#3B82F6", strokeWidth: 2, stroke: "#0A0A0A" }} />
+                <Tooltip formatter={(v) => [`${v}%`, "Occupancy"]} contentStyle={{ borderRadius: "8px", background: "#F3F4F6", border: "1px solid rgba(0,0,0,0.08)", fontSize: "12px", color: "#111827" }} />
+                <Area type="monotone" dataKey="occupancy" stroke="#3B82F6" strokeWidth={2.5} fill="url(#occGrad)" dot={{ r: 4, fill: "#3B82F6", strokeWidth: 2, stroke: "#FFFFFF" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -255,7 +255,7 @@ export default function DemoDashboardClient() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
-                <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, "CPL"]} contentStyle={{ borderRadius: "8px", background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.12)", fontSize: "12px", color: "#F5F5F7" }} />
+                <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, "CPL"]} contentStyle={{ borderRadius: "8px", background: "#F3F4F6", border: "1px solid rgba(0,0,0,0.08)", fontSize: "12px", color: "#111827" }} />
                 <Bar dataKey="cpl" radius={[6, 6, 0, 0]} maxBarSize={40}>
                   {visibleData.map((_, i) => (
                     <Cell key={i} fill={i === visibleData.length - 1 ? "#3B82F6" : "#6E6E73"} opacity={0.4 + (i / visibleData.length) * 0.6} />
@@ -280,7 +280,7 @@ export default function DemoDashboardClient() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
               <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={{ borderRadius: "8px", background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.12)", fontSize: "12px", color: "#F5F5F7" }} />
+              <Tooltip contentStyle={{ borderRadius: "8px", background: "#F3F4F6", border: "1px solid rgba(0,0,0,0.08)", fontSize: "12px", color: "#111827" }} />
               <Bar dataKey="leads" name="Leads" fill="#6E6E73" radius={[4, 4, 0, 0]} maxBarSize={28} />
               <Bar dataKey="moveIns" name="Move-Ins" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={28} />
             </BarChart>

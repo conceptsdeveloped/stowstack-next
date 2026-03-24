@@ -118,16 +118,16 @@ export default function InactionTimeline() {
                     <p className="text-[10px] text-red-100 uppercase leading-none">
                       Month
                     </p>
-                    <p className="text-lg font-bold text-white leading-none">
+                    <p className="text-lg font-bold text-[#111827] leading-none">
                       {m.month}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex-1 bg-white/[0.03] backdrop-blur-sm border border-white/5 rounded-xl p-4 hover:border-red-500/20 transition-colors">
+                <div className="flex-1 bg-black/[0.02] backdrop-blur-sm border border-white/5 rounded-xl p-4 hover:border-red-500/20 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="font-semibold text-white">{m.title}</h3>
+                      <h3 className="font-semibold text-[#111827]">{m.title}</h3>
                       <p
                         className="text-sm mt-0.5"
                         style={{ color: "var(--text-secondary)" }}
@@ -148,7 +148,7 @@ export default function InactionTimeline() {
                     </div>
                   </div>
 
-                  <div className="mt-3 w-full h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div className="mt-3 w-full h-2 rounded-full bg-black/5 overflow-hidden">
                     <div
                       className={`h-2 rounded-full ${m.severity} transition-all duration-1000`}
                       style={{

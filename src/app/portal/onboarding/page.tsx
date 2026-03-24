@@ -141,7 +141,7 @@ function getSession(): PortalSession | null {
 
 function Skeleton({ className = "" }: { className?: string }) {
   return (
-    <div className={`animate-pulse rounded bg-white/[0.06] ${className}`} />
+    <div className={`animate-pulse rounded bg-black/[0.04] ${className}`} />
   );
 }
 
@@ -155,10 +155,10 @@ function ErrorState({
   return (
     <div className="flex flex-col items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/[0.05] p-6 text-center">
       <AlertCircle className="h-8 w-8 text-red-400" />
-      <p className="text-sm text-[#A1A1A6]">{message}</p>
+      <p className="text-sm text-[#6B7280]">{message}</p>
       <button
         onClick={onRetry}
-        className="inline-flex items-center gap-2 rounded-lg bg-white/[0.06] px-4 py-2 text-sm font-medium text-[#F5F5F7] transition-colors hover:bg-white/[0.1]"
+        className="inline-flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-black/[0.06]"
       >
         <RefreshCw className="h-4 w-4" />
         Retry
@@ -169,7 +169,7 @@ function ErrorState({
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="mb-1.5 block text-xs font-medium text-[#A1A1A6]">
+    <label className="mb-1.5 block text-xs font-medium text-[#6B7280]">
       {children}
     </label>
   );
@@ -193,7 +193,7 @@ function TextInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       maxLength={maxLength}
-      className="w-full rounded-lg border border-white/[0.06] bg-[#111111] px-3 py-2.5 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+      className="w-full rounded-lg border border-black/[0.08] bg-white px-3 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
     />
   );
 }
@@ -215,7 +215,7 @@ function TextArea({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full rounded-lg border border-white/[0.06] bg-[#111111] px-3 py-2.5 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25 resize-none"
+      className="w-full rounded-lg border border-black/[0.08] bg-white px-3 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25 resize-none"
     />
   );
 }
@@ -241,7 +241,7 @@ function NumberInput({
       min={min}
       max={max}
       placeholder={placeholder}
-      className="w-full rounded-lg border border-white/[0.06] bg-[#111111] px-3 py-2.5 text-sm text-[#F5F5F7] placeholder-[#6E6E73] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+      className="w-full rounded-lg border border-black/[0.08] bg-white px-3 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
     />
   );
 }
@@ -259,7 +259,7 @@ function SelectInput({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-lg border border-white/[0.06] bg-[#111111] px-3 py-2.5 text-sm text-[#F5F5F7] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+      className="w-full rounded-lg border border-black/[0.08] bg-white px-3 py-2.5 text-sm text-[#111827] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
     >
       <option value="">Select...</option>
       {options.map((o) => (
@@ -288,7 +288,7 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-11 rounded-full transition-colors ${
-          checked ? "bg-[#3B82F6]" : "bg-white/[0.1]"
+          checked ? "bg-[#3B82F6]" : "bg-black/[0.06]"
         }`}
       >
         <span
@@ -297,7 +297,7 @@ function Toggle({
           }`}
         />
       </button>
-      <span className="text-sm text-[#A1A1A6]">{label}</span>
+      <span className="text-sm text-[#6B7280]">{label}</span>
     </label>
   );
 }
@@ -432,7 +432,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
       {/* back to portal */}
       <a
         href="/portal"
-        className="mb-6 inline-flex items-center gap-1 text-xs text-[#6E6E73] transition-colors hover:text-[#A1A1A6]"
+        className="mb-6 inline-flex items-center gap-1 text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
       >
         <ChevronLeft className="h-3 w-3" />
         Back to Portal
@@ -460,8 +460,8 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
                       : isComplete
                         ? "bg-green-500/20 text-green-400"
                         : isPast
-                          ? "bg-white/[0.1] text-[#A1A1A6]"
-                          : "bg-white/[0.06] text-[#6E6E73]"
+                          ? "bg-black/[0.06] text-[#6B7280]"
+                          : "bg-black/[0.04] text-[#9CA3AF]"
                   }`}
                 >
                   {isComplete ? (
@@ -475,7 +475,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
                     className={`mx-1 h-px flex-1 ${
                       isComplete || isPast
                         ? "bg-[#3B82F6]/30"
-                        : "bg-white/[0.06]"
+                        : "bg-black/[0.04]"
                     }`}
                   />
                 )}
@@ -483,13 +483,13 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
             );
           })}
         </div>
-        <p className="mt-3 text-center text-sm font-medium text-[#A1A1A6]">
+        <p className="mt-3 text-center text-sm font-medium text-[#6B7280]">
           {STEP_META[stepKey].label}
         </p>
       </div>
 
       {/* step content */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#111111] p-5">
+      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
         {stepKey === "facilityDetails" && (
           <FacilityDetailsStep
             data={steps.facilityDetails?.data || {}}
@@ -550,7 +550,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
         <button
           onClick={handleBack}
           disabled={currentStep === 0}
-          className="flex items-center gap-1 rounded-lg border border-white/[0.06] bg-[#111111] px-4 py-2 text-sm font-medium text-[#A1A1A6] transition-colors hover:text-[#F5F5F7] disabled:opacity-30"
+          className="flex items-center gap-1 rounded-lg border border-black/[0.08] bg-white px-4 py-2 text-sm font-medium text-[#6B7280] transition-colors hover:text-[#111827] disabled:opacity-30"
         >
           <ChevronLeft className="h-4 w-4" />
           Back
@@ -559,7 +559,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
         {stepKey !== "review" && (
           <button
             onClick={handleNext}
-            className="flex items-center gap-1 text-sm text-[#6E6E73] transition-colors hover:text-[#A1A1A6]"
+            className="flex items-center gap-1 text-sm text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
           >
             Skip
             <ChevronRight className="h-4 w-4" />
@@ -619,7 +619,7 @@ function FacilityDetailsStep({
           placeholder="Describe your facility's brand, vibe, and what makes it unique..."
           rows={4}
         />
-        <p className="mt-1 text-[10px] text-[#6E6E73]">
+        <p className="mt-1 text-[10px] text-[#9CA3AF]">
           {brandDescription.length}/500
         </p>
       </div>
@@ -647,7 +647,7 @@ function FacilityDetailsStep({
                 <button
                   type="button"
                   onClick={() => removePoint(i)}
-                  className="shrink-0 rounded-lg p-2 text-[#6E6E73] transition-colors hover:text-red-400"
+                  className="shrink-0 rounded-lg p-2 text-[#9CA3AF] transition-colors hover:text-red-400"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -672,7 +672,7 @@ function FacilityDetailsStep({
           onSave({ brandDescription, brandColors, sellingPoints })
         }
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -791,7 +791,7 @@ function TargetDemographicsStep({
           })
         }
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -856,17 +856,17 @@ function UnitMixStep({
         {units.map((unit, i) => (
           <div
             key={i}
-            className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4"
+            className="rounded-lg border border-black/[0.08] bg-black/[0.02] p-4"
           >
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-medium text-[#A1A1A6]">
+              <span className="text-xs font-medium text-[#6B7280]">
                 Unit {i + 1}
               </span>
               {units.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeUnit(i)}
-                  className="text-[#6E6E73] transition-colors hover:text-red-400"
+                  className="text-[#9CA3AF] transition-colors hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -913,7 +913,7 @@ function UnitMixStep({
           <button
             type="button"
             onClick={addUnit}
-            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-white/[0.1] py-3 text-xs text-[#6E6E73] transition-colors hover:border-[#3B82F6]/30 hover:text-[#3B82F6]"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-black/[0.1] py-3 text-xs text-[#9CA3AF] transition-colors hover:border-[#3B82F6]/30 hover:text-[#3B82F6]"
           >
             <Plus className="h-3 w-3" />
             Add unit type
@@ -933,7 +933,7 @@ function UnitMixStep({
       <button
         onClick={() => onSave({ units, specials })}
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1004,17 +1004,17 @@ function CompetitorIntelStep({
         {competitors.map((comp, i) => (
           <div
             key={i}
-            className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4"
+            className="rounded-lg border border-black/[0.08] bg-black/[0.02] p-4"
           >
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-medium text-[#A1A1A6]">
+              <span className="text-xs font-medium text-[#6B7280]">
                 Competitor {i + 1}
               </span>
               {competitors.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeCompetitor(i)}
-                  className="text-[#6E6E73] transition-colors hover:text-red-400"
+                  className="text-[#9CA3AF] transition-colors hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -1057,7 +1057,7 @@ function CompetitorIntelStep({
           <button
             type="button"
             onClick={addCompetitor}
-            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-white/[0.1] py-3 text-xs text-[#6E6E73] transition-colors hover:border-[#3B82F6]/30 hover:text-[#3B82F6]"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-black/[0.1] py-3 text-xs text-[#9CA3AF] transition-colors hover:border-[#3B82F6]/30 hover:text-[#3B82F6]"
           >
             <Plus className="h-3 w-3" />
             Add competitor
@@ -1078,7 +1078,7 @@ function CompetitorIntelStep({
       <button
         onClick={() => onSave({ competitors, differentiation })}
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1177,7 +1177,7 @@ function AdPreferencesStep({
           })
         }
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1318,12 +1318,12 @@ function ReviewStep({
           <Check className="h-8 w-8 text-green-400" />
         </div>
         <h2 className="text-lg font-bold">Onboarding Complete</h2>
-        <p className="mt-2 text-sm text-[#A1A1A6]">
+        <p className="mt-2 text-sm text-[#6B7280]">
           Your setup is finished. The StowStack team is building your campaigns.
         </p>
         <a
           href="/portal"
-          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#3B82F6] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
+          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#3B82F6] px-6 py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB]"
         >
           Back to Dashboard
         </a>
@@ -1333,7 +1333,7 @@ function ReviewStep({
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-[#A1A1A6]">
+      <p className="text-sm text-[#6B7280]">
         Review your information below. Go back to any step to make changes.
       </p>
 
@@ -1364,8 +1364,8 @@ function ReviewStep({
             <div className="space-y-1">
               {section.items.map((item) => (
                 <div key={item.label} className="flex justify-between text-xs">
-                  <span className="text-[#6E6E73]">{item.label}</span>
-                  <span className="max-w-[60%] truncate text-right text-[#A1A1A6]">
+                  <span className="text-[#9CA3AF]">{item.label}</span>
+                  <span className="max-w-[60%] truncate text-right text-[#6B7280]">
                     {item.value}
                   </span>
                 </div>

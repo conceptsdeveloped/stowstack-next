@@ -46,11 +46,11 @@ function SectionCard({
   return (
     <div
       className="rounded-xl border p-6"
-      style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+      style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
     >
       <div className="flex items-center gap-2 mb-5">
         <Icon size={18} style={{ color: "#3B82F6" }} />
-        <h2 className="text-base font-semibold" style={{ color: "#F5F5F7" }}>{title}</h2>
+        <h2 className="text-base font-semibold" style={{ color: "#111827" }}>{title}</h2>
       </div>
       {children}
     </div>
@@ -81,7 +81,7 @@ function InputField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500/50"
-        style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)", color: "#F5F5F7" }}
+        style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
       />
     </div>
   );
@@ -98,7 +98,7 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center justify-between py-2">
-      <span className="text-sm" style={{ color: "#F5F5F7" }}>{label}</span>
+      <span className="text-sm" style={{ color: "#111827" }}>{label}</span>
       <button
         onClick={() => onChange(!checked)}
         className="relative w-10 h-5 rounded-full transition-colors"
@@ -120,12 +120,12 @@ function SettingsSkeleton() {
         <div
           key={i}
           className="rounded-xl border p-6 animate-pulse"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
-          <div className="h-5 w-32 rounded bg-white/5 mb-5" />
+          <div className="h-5 w-32 rounded bg-black/5 mb-5" />
           <div className="space-y-4">
-            <div className="h-10 rounded bg-white/5" />
-            <div className="h-10 rounded bg-white/5" />
+            <div className="h-10 rounded bg-black/5" />
+            <div className="h-10 rounded bg-black/5" />
           </div>
         </div>
       ))}
@@ -186,8 +186,8 @@ function DeletionRequestsSection() {
     return (
       <SectionCard title="Data Deletion Requests" icon={Shield}>
         <div className="animate-pulse space-y-3">
-          <div className="h-10 rounded bg-white/5" />
-          <div className="h-10 rounded bg-white/5" />
+          <div className="h-10 rounded bg-black/5" />
+          <div className="h-10 rounded bg-black/5" />
         </div>
       </SectionCard>
     );
@@ -211,7 +211,7 @@ function DeletionRequestsSection() {
             <div
               key={req.id}
               className="rounded-lg border p-3"
-              style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)" }}
+              style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)" }}
             >
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
@@ -219,7 +219,7 @@ function DeletionRequestsSection() {
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: statusColor(req.status) }}
                   />
-                  <span className="text-sm font-medium" style={{ color: "#F5F5F7" }}>
+                  <span className="text-sm font-medium" style={{ color: "#111827" }}>
                     {req.email}
                   </span>
                   {req.name && (
@@ -235,7 +235,7 @@ function DeletionRequestsSection() {
                   </span>
                   <button
                     onClick={() => setExpanded(expanded === req.id ? null : req.id)}
-                    className="p-1 rounded transition-colors hover:bg-white/5"
+                    className="p-1 rounded transition-colors hover:bg-black/5"
                   >
                     <Eye size={14} style={{ color: "#6E6E73" }} />
                   </button>
@@ -254,17 +254,17 @@ function DeletionRequestsSection() {
 
               {/* Expanded details */}
               {expanded === req.id && (
-                <div className="mt-3 pt-3 border-t space-y-2" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                <div className="mt-3 pt-3 border-t space-y-2" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
                   {req.reason && (
                     <div>
                       <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>Reason: </span>
-                      <span className="text-xs" style={{ color: "#A1A1A6" }}>{req.reason}</span>
+                      <span className="text-xs" style={{ color: "#6B7280" }}>{req.reason}</span>
                     </div>
                   )}
                   {req.data_found && Object.keys(req.data_found).length > 0 && (
                     <div>
                       <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>Data found: </span>
-                      <span className="text-xs" style={{ color: "#A1A1A6" }}>
+                      <span className="text-xs" style={{ color: "#6B7280" }}>
                         {Object.entries(req.data_found).map(([k, v]) => `${k}: ${v}`).join(", ")}
                       </span>
                     </div>
@@ -372,7 +372,7 @@ export default function SettingsPage() {
     return (
       <div className="space-y-6 p-6">
         <div>
-          <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>Settings</h1>
+          <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Settings</h1>
           <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>Manage your account and preferences</p>
         </div>
         <SettingsSkeleton />
@@ -396,7 +396,7 @@ export default function SettingsPage() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>Settings</h1>
+          <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Settings</h1>
           <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>Manage your account and preferences</p>
         </div>
         <div className="flex items-center gap-3">
@@ -505,7 +505,7 @@ export default function SettingsPage() {
 
       <div
         className="rounded-xl border p-6"
-        style={{ backgroundColor: "#111111", borderColor: "rgba(239,68,68,0.2)" }}
+        style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(239,68,68,0.2)" }}
       >
         <div className="flex items-center gap-2 mb-5">
           <AlertTriangle size={18} style={{ color: "#EF4444" }} />

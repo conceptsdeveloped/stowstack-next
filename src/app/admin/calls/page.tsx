@@ -47,10 +47,10 @@ function StatsSkeleton() {
         <div
           key={i}
           className="rounded-xl border p-5 animate-pulse"
-          style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
         >
-          <div className="h-3 w-20 rounded bg-white/5 mb-3" />
-          <div className="h-8 w-16 rounded bg-white/5" />
+          <div className="h-3 w-20 rounded bg-black/5 mb-3" />
+          <div className="h-8 w-16 rounded bg-black/5" />
         </div>
       ))}
     </div>
@@ -61,7 +61,7 @@ function TableSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="h-12 rounded-lg animate-pulse" style={{ backgroundColor: "#111111" }} />
+        <div key={i} className="h-12 rounded-lg animate-pulse" style={{ backgroundColor: "#FFFFFF" }} />
       ))}
     </div>
   );
@@ -101,7 +101,7 @@ export default function CallsPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#F5F5F7" }}>Call Tracking</h1>
+        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Call Tracking</h1>
         <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>Monitor and analyze call activity</p>
       </div>
 
@@ -121,13 +121,13 @@ export default function CallsPage() {
               <div
                 key={kpi.label}
                 className="rounded-xl border p-5"
-                style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={16} style={{ color: kpi.color }} />
                   <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>{kpi.label}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "#F5F5F7" }}>{kpi.value}</p>
+                <p className="text-2xl font-bold" style={{ color: "#111827" }}>{kpi.value}</p>
               </div>
             );
           })}
@@ -136,7 +136,7 @@ export default function CallsPage() {
 
       <div
         className="rounded-xl border p-6"
-        style={{ backgroundColor: "#111111", borderColor: "rgba(255,255,255,0.06)" }}
+        style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
       >
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <Filter size={14} style={{ color: "#6E6E73" }} />
@@ -144,7 +144,7 @@ export default function CallsPage() {
             value={facilityFilter}
             onChange={(e) => setFacilityFilter(e.target.value)}
             className="rounded-lg border px-3 py-1.5 text-xs outline-none"
-            style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)", color: "#F5F5F7" }}
+            style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
           >
             <option value="">All Facilities</option>
             {facilities.map((f) => (
@@ -156,7 +156,7 @@ export default function CallsPage() {
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
             className="rounded-lg border px-3 py-1.5 text-xs outline-none"
-            style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)", color: "#F5F5F7" }}
+            style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
             placeholder="From"
           />
           <input
@@ -164,7 +164,7 @@ export default function CallsPage() {
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
             className="rounded-lg border px-3 py-1.5 text-xs outline-none"
-            style={{ backgroundColor: "#0A0A0A", borderColor: "rgba(255,255,255,0.06)", color: "#F5F5F7" }}
+            style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
             placeholder="To"
           />
         </div>
@@ -179,7 +179,7 @@ export default function CallsPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                <tr className="border-b" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
                   <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Date/Time</th>
                   <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Caller</th>
                   <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Facility</th>
@@ -194,19 +194,19 @@ export default function CallsPage() {
                   return (
                     <tr
                       key={log.id}
-                      className="border-t transition-colors hover:bg-white/[0.02]"
-                      style={{ borderColor: "rgba(255,255,255,0.06)" }}
+                      className="border-t transition-colors hover:bg-black/[0.03]"
+                      style={{ borderColor: "rgba(0,0,0,0.08)" }}
                     >
-                      <td className="px-4 py-3 text-sm" style={{ color: "#A1A1A6" }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: "#6B7280" }}>
                         {new Date(log.date).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-sm font-mono" style={{ color: "#F5F5F7" }}>
+                      <td className="px-4 py-3 text-sm font-mono" style={{ color: "#111827" }}>
                         {log.caller_number}
                       </td>
-                      <td className="px-4 py-3 text-sm" style={{ color: "#F5F5F7" }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: "#111827" }}>
                         {log.facility || "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm" style={{ color: "#A1A1A6" }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: "#6B7280" }}>
                         {formatDuration(log.duration)}
                       </td>
                       <td className="px-4 py-3">
