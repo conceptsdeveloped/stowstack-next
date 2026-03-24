@@ -72,6 +72,8 @@ model ad_variations {
   version                 Int?                      @default(1)
   compliance_status       String?
   compliance_flags        Json?
+  funnel_config           Json?
+  funnel_metrics          Json?
   creative_briefs         creative_briefs?          @relation(fields: [brief_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   facilities              facilities?               @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   drip_sequence_templates drip_sequence_templates[]

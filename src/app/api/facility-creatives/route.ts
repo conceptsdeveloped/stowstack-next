@@ -651,7 +651,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { variationId, status, feedback, content_json, deploy } = body || {};
+    const { variationId, status, feedback, content_json, funnel_config, deploy } = body || {};
     if (!variationId) return errorResponse("variationId required", 400, origin);
 
     const VALID = ["draft", "review", "approved", "published", "rejected"];
@@ -661,6 +661,7 @@ export async function PATCH(req: NextRequest) {
     if (status) updateData.status = status;
     if (feedback !== undefined) updateData.feedback = feedback;
     if (content_json) updateData.content_json = content_json;
+    if (funnel_config) updateData.funnel_config = funnel_config;
 
     if (!Object.keys(updateData).length && !deploy) return errorResponse("Nothing to update", 400, origin);
 

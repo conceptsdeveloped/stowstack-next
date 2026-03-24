@@ -39,6 +39,13 @@ interface MetaAdContent {
   targetingNote: string
 }
 
+interface FunnelConfig {
+  landingHero: string
+  landingFeatures: string[]
+  postConversion: { channel: 'sms' | 'email'; message: string; timing: string }[]
+  retargeting: string
+}
+
 interface AdVariation {
   id: string
   facility_id: string
@@ -52,6 +59,8 @@ interface AdVariation {
   status: string
   feedback: string | null
   version: number
+  funnel_config?: FunnelConfig | null
+  funnel_metrics?: Record<string, unknown> | null
 }
 
 interface Asset {
@@ -309,21 +318,171 @@ const ARCHETYPE_FUNNELS: Record<string, {
 
 /* ── Funnel Test Component ── */
 
-function FunnelTest({ copy, image, facilityName }: {
+function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedConfig, onSave }: {
   copy: Record<string, string>
   image: string | null
   facilityName: string
+  variationId: string | null
+  adminKey: string
+  savedConfig: FunnelConfig | null
+  onSave: (config: FunnelConfig) => void
 }) {
   const angle = copy.angle || 'lifestyle'
-  const funnel = ARCHETYPE_FUNNELS[angle] || ARCHETYPE_FUNNELS.lifestyle
+  const defaults = ARCHETYPE_FUNNELS[angle] || ARCHETYPE_FUNNELS.lifestyle
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [showMetrics, setShowMetrics] = useState(false)
+
+  const [config, setConfig] = useState<FunnelConfig>(() => savedConfig || {
+    landingHero: defaults.landingHero,
+    landingFeatures: [...defaults.landingFeatures],
+    postConversion: defaults.postConversion.map(p => ({ ...p })),
+    retargeting: defaults.retargeting || '',
+  })
+
+  // Sync when variation changes
+  useEffect(() => {
+    if (savedConfig) {
+      setConfig(savedConfig)
+    } else {
+      const d = ARCHETYPE_FUNNELS[copy.angle || 'lifestyle'] || ARCHETYPE_FUNNELS.lifestyle
+      setConfig({
+        landingHero: d.landingHero,
+        landingFeatures: [...d.landingFeatures],
+        postConversion: d.postConversion.map(p => ({ ...p })),
+        retargeting: d.retargeting || '',
+      })
+    }
+  }, [variationId, savedConfig, copy.angle])
+
+  async function handleSave() {
+    if (!variationId) return
+    setSaving(true)
+    try {
+      await fetch('/api/facility-creatives', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+        body: JSON.stringify({ variationId, funnel_config: config }),
+      })
+      onSave(config)
+      setEditing(false)
+    } catch { /* */ } finally {
+      setSaving(false)
+    }
+  }
+
+  function fillVars(text: string) {
+    return text
+      .replace(/\[Facility\]/g, facilityName)
+      .replace(/\[count\]/g, '247').replace(/\[Rating\]/g, '4.8')
+      .replace(/\[Street\]/g, 'Main St').replace(/\[Address\]/g, '123 Main St')
+      .replace(/\[X\]/g, '49').replace(/\[code\]/g, '4829')
+      .replace(/\[size\]/g, '10×10')
+  }
+
+  function updatePostConversion(index: number, field: string, value: string) {
+    setConfig(prev => ({
+      ...prev,
+      postConversion: prev.postConversion.map((p, i) =>
+        i === index ? { ...p, [field]: value } : p
+      ),
+    }))
+  }
+
+  function addPostConversion() {
+    setConfig(prev => ({
+      ...prev,
+      postConversion: [...prev.postConversion, { channel: 'email' as const, message: '', timing: '' }],
+    }))
+  }
+
+  function removePostConversion(index: number) {
+    setConfig(prev => ({
+      ...prev,
+      postConversion: prev.postConversion.filter((_, i) => i !== index),
+    }))
+  }
+
+  // Simulated metrics (will be real once tracking is wired)
+  const metrics = {
+    impressions: null as number | null,
+    clicks: null as number | null,
+    pageViews: null as number | null,
+    reservationStarts: null as number | null,
+    reservationCompletes: null as number | null,
+    moveIns: null as number | null,
+  }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <Layout size={14} className="text-[#3B82F6]" />
-        <p className="text-xs font-semibold text-[#F5F5F7]">Funnel: {funnel.name}</p>
+        <p className="text-xs font-semibold text-[#F5F5F7]">Funnel: {defaults.name}</p>
         <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6] uppercase">{angle}</span>
+        <div className="ml-auto flex gap-1.5">
+          <button
+            onClick={() => setShowMetrics(!showMetrics)}
+            className={`px-2.5 py-1 text-[10px] font-medium rounded-lg border transition-colors ${
+              showMetrics ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'border-white/[0.06] text-[#6E6E73] hover:text-[#A1A1A6]'
+            }`}
+          >
+            Metrics
+          </button>
+          {!editing ? (
+            <button
+              onClick={() => setEditing(true)}
+              className="px-2.5 py-1 text-[10px] font-medium rounded-lg border border-white/[0.06] text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+            >
+              <Pencil size={10} className="inline mr-1" />Edit Funnel
+            </button>
+          ) : (
+            <div className="flex gap-1">
+              <button onClick={handleSave} disabled={saving} className="px-2.5 py-1 text-[10px] font-medium rounded-lg bg-[#3B82F6] text-white disabled:opacity-40">
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              <button onClick={() => setEditing(false)} className="px-2.5 py-1 text-[10px] text-[#6E6E73]">Cancel</button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Funnel Metrics Panel */}
+      {showMetrics && (
+        <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+          <p className="text-xs font-semibold text-[#F5F5F7] mb-3">Funnel Performance</p>
+          <div className="space-y-2">
+            {[
+              { label: 'Impressions', value: metrics.impressions, next: metrics.clicks, nextLabel: 'CTR' },
+              { label: 'Clicks', value: metrics.clicks, next: metrics.pageViews, nextLabel: 'Page Views' },
+              { label: 'Page Views', value: metrics.pageViews, next: metrics.reservationStarts, nextLabel: 'Conv. Rate' },
+              { label: 'Reservations Started', value: metrics.reservationStarts, next: metrics.reservationCompletes, nextLabel: 'Completion' },
+              { label: 'Reservations Complete', value: metrics.reservationCompletes, next: metrics.moveIns, nextLabel: 'Show-up' },
+              { label: 'Move-Ins', value: metrics.moveIns, next: null, nextLabel: null },
+            ].map((step, i) => {
+              const rate = step.value && step.next ? ((step.next / step.value) * 100).toFixed(1) + '%' : null
+              return (
+                <div key={i}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-[#A1A1A6]">{step.label}</span>
+                    <span className="text-[11px] font-medium text-[#F5F5F7]">
+                      {step.value !== null ? step.value.toLocaleString() : '—'}
+                    </span>
+                  </div>
+                  {step.next !== null && step.nextLabel && (
+                    <div className="flex items-center gap-2 ml-4 mt-0.5">
+                      <div className="h-3 border-l border-dashed border-white/[0.08]" />
+                      <span className="text-[10px] text-[#6E6E73]">{step.nextLabel}: {rate || '—'}</span>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          {metrics.impressions === null && (
+            <p className="text-[10px] text-[#6E6E73] mt-3 italic">No performance data yet. Metrics will populate once the campaign is live and events are flowing.</p>
+          )}
+        </div>
+      )}
 
       {/* Step 1: Ad */}
       <div className="relative">
@@ -345,7 +504,7 @@ function FunnelTest({ copy, image, facilityName }: {
         <div className="flex justify-center py-1"><ArrowDown size={16} className="text-[#3B82F6]" /></div>
       </div>
 
-      {/* Step 2: Click → Landing Page */}
+      {/* Step 2: Landing Page */}
       <div className="relative">
         <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
           <div className="flex items-center gap-2 mb-3">
@@ -354,17 +513,37 @@ function FunnelTest({ copy, image, facilityName }: {
             <span className="text-[10px] text-[#6E6E73] ml-auto">storageads.com/{facilityName.toLowerCase().replace(/\s+/g, '-')}</span>
           </div>
           <div className="border border-white/[0.08] rounded-lg p-3 bg-[#0A0A0A]">
-            <p className="text-sm font-bold text-[#F5F5F7] mb-2" style={{ fontFamily: 'var(--font-ad-headline)' }}>
-              {funnel.landingHero.replace('[Facility]', facilityName).replace('[count]', '247').replace('[Rating]', '4.8').replace('[Street]', 'Main St').replace('[X]', '12')}
-            </p>
-            <div className="space-y-1.5">
-              {funnel.landingFeatures.map((f, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div className="w-1 h-1 rounded-full bg-[#3B82F6] shrink-0" />
-                  <span className="text-[11px] text-[#A1A1A6]">{f}</span>
+            {editing ? (
+              <div className="space-y-2">
+                <label className="text-[10px] text-[#6E6E73] uppercase">Hero Text</label>
+                <input
+                  value={config.landingHero}
+                  onChange={e => setConfig(prev => ({ ...prev, landingHero: e.target.value }))}
+                  className="w-full px-2 py-1.5 border border-white/[0.08] rounded text-sm bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6]"
+                />
+                <label className="text-[10px] text-[#6E6E73] uppercase mt-2 block">Features (one per line)</label>
+                <textarea
+                  value={config.landingFeatures.join('\n')}
+                  onChange={e => setConfig(prev => ({ ...prev, landingFeatures: e.target.value.split('\n') }))}
+                  rows={4}
+                  className="w-full px-2 py-1.5 border border-white/[0.08] rounded text-[11px] bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] resize-none"
+                />
+              </div>
+            ) : (
+              <>
+                <p className="text-sm font-bold text-[#F5F5F7] mb-2" style={{ fontFamily: 'var(--font-ad-headline)' }}>
+                  {fillVars(config.landingHero)}
+                </p>
+                <div className="space-y-1.5">
+                  {config.landingFeatures.filter(Boolean).map((f, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-[#3B82F6] shrink-0" />
+                      <span className="text-[11px] text-[#A1A1A6]">{f}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
             <div className="mt-3 pt-3 border-t border-white/[0.06]">
               <div className="flex items-center gap-2">
                 <MousePointer size={12} className="text-[#3B82F6]" />
@@ -384,19 +563,22 @@ function FunnelTest({ copy, image, facilityName }: {
             <span className="text-xs font-semibold text-emerald-400">Reservation Complete</span>
             <span className="text-[10px] text-emerald-400/60 ml-auto">Event fires → CAPI</span>
           </div>
-          <p className="text-[11px] text-emerald-300/80">Full attribution captured: ad click → page view → reservation start → reservation complete</p>
+          <p className="text-[11px] text-emerald-300/80">Full attribution: ad click → page view → reservation start → complete</p>
         </div>
         <div className="flex justify-center py-1"><ArrowDown size={16} className="text-emerald-500" /></div>
       </div>
 
-      {/* Step 4: Post-conversion sequence */}
+      {/* Step 4: Post-conversion */}
       <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-[10px] font-bold">4</div>
           <span className="text-xs font-semibold text-[#F5F5F7]">Post-Conversion Sequence</span>
+          {editing && (
+            <button onClick={addPostConversion} className="ml-auto text-[10px] text-[#3B82F6] hover:text-blue-400">+ Add Step</button>
+          )}
         </div>
         <div className="space-y-2.5">
-          {funnel.postConversion.map((msg, i) => (
+          {config.postConversion.map((msg, i) => (
             <div key={i} className="flex items-start gap-2.5">
               <div className="mt-0.5 shrink-0">
                 {msg.channel === 'sms' ? (
@@ -405,38 +587,68 @@ function FunnelTest({ copy, image, facilityName }: {
                   <Mail size={13} className="text-blue-400" />
                 )}
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-medium text-[#A1A1A6] uppercase">{msg.channel}</span>
-                  <span className="text-[10px] text-[#6E6E73]">{msg.timing}</span>
+              {editing ? (
+                <div className="flex-1 space-y-1">
+                  <div className="flex gap-2">
+                    <select
+                      value={msg.channel}
+                      onChange={e => updatePostConversion(i, 'channel', e.target.value)}
+                      className="px-1.5 py-1 text-[10px] bg-white/[0.03] border border-white/[0.08] rounded text-[#F5F5F7]"
+                    >
+                      <option value="sms">SMS</option>
+                      <option value="email">Email</option>
+                    </select>
+                    <input
+                      value={msg.timing}
+                      onChange={e => updatePostConversion(i, 'timing', e.target.value)}
+                      placeholder="e.g., Immediate, Day 2"
+                      className="flex-1 px-2 py-1 text-[10px] bg-white/[0.03] border border-white/[0.08] rounded text-[#F5F5F7] placeholder-[#6E6E73]"
+                    />
+                    <button onClick={() => removePostConversion(i)} className="text-[#6E6E73] hover:text-red-400 text-[10px]">×</button>
+                  </div>
+                  <input
+                    value={msg.message}
+                    onChange={e => updatePostConversion(i, 'message', e.target.value)}
+                    className="w-full px-2 py-1 text-[11px] bg-white/[0.03] border border-white/[0.08] rounded text-[#F5F5F7]"
+                  />
                 </div>
-                <p className="text-[11px] text-[#F5F5F7] mt-0.5">
-                  {msg.message.replace('[Facility]', facilityName).replace('[Address]', '123 Main St').replace('[code]', '4829').replace('[size]', '10×10').replace('[Rating]', '4.8').replace('[count]', '247')}
-                </p>
-              </div>
+              ) : (
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-medium text-[#A1A1A6] uppercase">{msg.channel}</span>
+                    <span className="text-[10px] text-[#6E6E73]">{msg.timing}</span>
+                  </div>
+                  <p className="text-[11px] text-[#F5F5F7] mt-0.5">{fillVars(msg.message)}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
       {/* Retargeting */}
-      {funnel.retargeting && (
-        <div className="border border-amber-500/20 rounded-xl p-4 bg-amber-500/5">
-          <div className="flex items-center gap-2 mb-2">
-            <Eye size={13} className="text-amber-400" />
-            <span className="text-xs font-semibold text-amber-400">Retargeting (if no conversion)</span>
-            <span className="text-[10px] text-amber-400/60 ml-auto">Day 3 + Day 7</span>
-          </div>
-          <p className="text-[11px] text-amber-300/80 italic">
-            {funnel.retargeting.replace('[Facility]', facilityName).replace('[Rating]', '4.8').replace('[count]', '247').replace('[size]', '10×10').replace('[X]', '49')}
-          </p>
+      <div className="border border-amber-500/20 rounded-xl p-4 bg-amber-500/5">
+        <div className="flex items-center gap-2 mb-2">
+          <Eye size={13} className="text-amber-400" />
+          <span className="text-xs font-semibold text-amber-400">Retargeting (if no conversion)</span>
+          <span className="text-[10px] text-amber-400/60 ml-auto">Day 3 + Day 7</span>
         </div>
-      )}
+        {editing ? (
+          <input
+            value={config.retargeting}
+            onChange={e => setConfig(prev => ({ ...prev, retargeting: e.target.value }))}
+            className="w-full px-2 py-1.5 text-[11px] bg-amber-500/5 border border-amber-500/20 rounded text-amber-300 placeholder-amber-400/40 focus:outline-none"
+            placeholder="Retargeting ad copy..."
+          />
+        ) : (
+          <p className="text-[11px] text-amber-300/80 italic">{fillVars(config.retargeting)}</p>
+        )}
+      </div>
 
       {/* Funnel principle */}
       <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
         <p className="text-[10px] text-[#6E6E73] uppercase tracking-wide font-medium mb-1">Funnel Principle</p>
-        <p className="text-xs text-[#A1A1A6] italic">{funnel.principle}</p>
+        <p className="text-xs text-[#A1A1A6] italic">{defaults.principle}</p>
       </div>
     </div>
   )
@@ -1039,6 +1251,16 @@ export default function AdStudio({ facilityId, adminKey }: {
                 copy={selectedCopy}
                 image={selectedImage}
                 facilityName={facilityName}
+                variationId={selectedVariation?.id || null}
+                adminKey={adminKey}
+                savedConfig={selectedVariation?.funnel_config || null}
+                onSave={(config) => {
+                  if (selectedVariation) {
+                    setVariations(prev => prev.map(v =>
+                      v.id === selectedVariation.id ? { ...v, funnel_config: config } as AdVariation : v
+                    ))
+                  }
+                }}
               />
             </div>
           )}
