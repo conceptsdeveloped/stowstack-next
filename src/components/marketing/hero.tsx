@@ -2,6 +2,7 @@
 
 import { ArrowRight, Shield, Zap, Target, BarChart3, Megaphone } from "lucide-react";
 import { useInView } from "./use-in-view";
+import AnimatedTextCycle from "@/components/animated-text-cycle";
 
 const CALCOM_URL =
   process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/stowstack/30min";
@@ -66,8 +67,21 @@ export default function Hero() {
             letterSpacing: "var(--tracking-tight)",
           }}
         >
-          Every ad has its own page. Every page has its own rental flow. Every
-          move-in traces back to the ad that produced it.
+          Stop losing units to{" "}
+          <AnimatedTextCycle
+            words={[
+              "bad marketing",
+              "invisible ads",
+              "broken attribution",
+              "wasted ad spend",
+              "slow landing pages",
+            ]}
+            interval={2800}
+          />
+          <br />
+          <span style={{ color: "var(--text-primary)" }}>
+            Start proving every dollar.
+          </span>
         </h1>
 
         {/* Subheadline */}
@@ -82,10 +96,9 @@ export default function Hero() {
             lineHeight: "var(--leading-normal)",
           }}
         >
-          StowStack is a full-funnel acquisition and conversion system for
-          self-storage. We build ad-specific landing pages with embedded online
-          reservation and move-in functionality — then track exactly which
-          campaigns produce revenue.
+          StorageAds is a full-funnel acquisition and conversion system for
+          self-storage. Ad-specific landing pages, embedded reservation,
+          and full attribution — from ad click to move-in.
         </p>
 
         {/* CTAs */}
