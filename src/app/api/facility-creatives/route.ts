@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
 import { validateCompliance } from "@/lib/compliance";
+import { funnelConfigToDripSteps } from "@/lib/drip-sequences";
 
 export const maxDuration = 60;
 
@@ -678,6 +679,36 @@ export async function PATCH(req: NextRequest) {
     }
 
     const resultData: Record<string, unknown> = { variation };
+
+    // Sync funnel config to drip_sequence_templates for real execution
+    if (funnel_config && variation.facility_id) {
+      try {
+        const fConfig = funnel_config as { postConversion?: { channel: 'sms' | 'email'; message: string; timing: string }[] };
+        if (fConfig.postConversion?.length) {
+          const dripSteps = funnelConfigToDripSteps(fConfig.postConversion);
+          await db.drip_sequence_templates.upsert({
+            where: {
+              facility_id_variation_id: {
+                facility_id: variation.facility_id,
+                variation_id: variationId,
+              },
+            },
+            create: {
+              facility_id: variation.facility_id,
+              variation_id: variationId,
+              name: `Funnel: ${(variation.angle || 'ad')} sequence`,
+              steps: dripSteps as any,
+            },
+            update: {
+              name: `Funnel: ${(variation.angle || 'ad')} sequence`,
+              steps: dripSteps as any,
+            },
+          });
+        }
+      } catch {
+        // Non-fatal — drip template sync failure shouldn't block the save
+      }
+    }
 
     if (status === "approved" && variation.facility_id) {
       const pending = await db.ad_variations.count({

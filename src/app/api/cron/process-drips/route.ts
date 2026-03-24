@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { SEQUENCES } from "@/lib/drip-sequences";
+import { SEQUENCES, type DripStep } from "@/lib/drip-sequences";
 import { verifyCronSecret } from "@/lib/cron-auth";
 
 export const maxDuration = 60;
@@ -21,19 +21,25 @@ function logActivity(params: {
   `.catch(() => {});
 }
 
-async function sendTemplateEmail(templateId: string, lead: { id: string }) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+function getBaseUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL
     || (process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
-  const adminKey = process.env.ADMIN_SECRET;
-  if (!adminKey) throw new Error("ADMIN_SECRET environment variable is not set");
+}
 
-  const res = await fetch(`${baseUrl}/api/send-template`, {
+function getAdminKey() {
+  const key = process.env.ADMIN_SECRET;
+  if (!key) throw new Error("ADMIN_SECRET environment variable is not set");
+  return key;
+}
+
+async function sendTemplateEmail(templateId: string, lead: { id: string }) {
+  const res = await fetch(`${getBaseUrl()}/api/send-template`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Admin-Key": adminKey,
+      "X-Admin-Key": getAdminKey(),
     },
     body: JSON.stringify({ templateId, leadId: lead.id }),
   });
@@ -44,6 +50,42 @@ async function sendTemplateEmail(templateId: string, lead: { id: string }) {
   }
 
   return res.json();
+}
+
+async function sendSms(to: string, body: string, facilityId?: string) {
+  const res = await fetch(`${getBaseUrl()}/api/sms-send`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Admin-Key": getAdminKey(),
+    },
+    body: JSON.stringify({ to, body, facilityId }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`sms-send failed (${res.status}): ${text}`);
+  }
+
+  return res.json();
+}
+
+/**
+ * Look up custom drip steps from drip_sequence_templates.
+ * Funnel-based sequences use sequence_id format: "funnel_{variationId}"
+ */
+async function getCustomSteps(sequenceId: string): Promise<DripStep[] | null> {
+  if (!sequenceId.startsWith("funnel_")) return null;
+  const variationId = sequenceId.replace("funnel_", "");
+  try {
+    const template = await db.drip_sequence_templates.findFirst({
+      where: { variation_id: variationId },
+      select: { steps: true },
+    });
+    return template?.steps as DripStep[] | null;
+  } catch {
+    return null;
+  }
 }
 
 interface DripRow {
@@ -111,10 +153,13 @@ export async function GET(request: NextRequest) {
         const nextSendAt = new Date(drip.next_send_at);
         if (nextSendAt > now) continue;
 
+        // Look up steps: custom funnel template or hardcoded sequence
+        const customSteps = await getCustomSteps(drip.sequence_id);
         const sequence = SEQUENCES[drip.sequence_id];
-        if (!sequence) continue;
+        const steps = customSteps || sequence?.steps;
+        if (!steps) continue;
 
-        const step = sequence.steps[drip.current_step];
+        const step = steps[drip.current_step];
         if (!step) {
           await db.$executeRaw`
             UPDATE drip_sequences SET status = 'completed', completed_at = NOW() WHERE id = ${drip.id}::uuid
@@ -134,7 +179,23 @@ export async function GET(request: NextRequest) {
         };
 
         try {
-          await sendTemplateEmail(step.templateId, lead);
+          // Dispatch based on channel
+          if (step.channel === 'sms' && step.customMessage) {
+            // SMS: replace variables and send via Twilio
+            const phone = drip.contact_email; // TODO: use actual phone field when available
+            const smsBody = (step.customMessage || '')
+              .replace(/\[Facility\]/g, drip.facility_name || '')
+              .replace(/\[Name\]/g, drip.contact_name || '');
+            if (phone && phone.match(/^\+?\d/)) {
+              await sendSms(phone, smsBody, drip.facility_id);
+            }
+          } else if (step.customMessage) {
+            // Custom email from funnel config — use send-template with custom body
+            // For now, falls through to template email with the funnel templateId
+            await sendTemplateEmail(step.templateId, lead);
+          } else {
+            await sendTemplateEmail(step.templateId, lead);
+          }
 
           const history = [
             ...(drip.history || []),
@@ -147,19 +208,19 @@ export async function GET(request: NextRequest) {
 
           const nextStep = drip.current_step + 1;
 
-          if (nextStep >= sequence.steps.length) {
+          if (nextStep >= steps.length) {
             await db.$executeRaw`
               UPDATE drip_sequences SET status = 'completed', completed_at = NOW(),
               current_step = ${nextStep}, history = ${JSON.stringify(history)}::jsonb WHERE id = ${drip.id}::uuid
             `;
             results.completed++;
           } else {
-            const nextStepDef = sequence.steps[nextStep];
+            const nextStepDef = steps[nextStep];
             const enrolledAt = new Date(drip.enrolled_at);
-            const newNextSendAt = new Date(
-              enrolledAt.getTime() +
-                (nextStepDef.delayDays || 0) * 24 * 60 * 60 * 1000
-            );
+            const delayMs =
+              ((nextStepDef.delayDays || 0) * 24 * 60 * 60 * 1000) +
+              ((nextStepDef.delayHours || 0) * 60 * 60 * 1000);
+            const newNextSendAt = new Date(enrolledAt.getTime() + delayMs);
 
             await db.$executeRaw`
               UPDATE drip_sequences SET current_step = ${nextStep},
