@@ -148,16 +148,103 @@ Refine into a visually compelling prompt. Return ONLY the prompt, nothing else.`
   );
 }
 
+/* ── FAL.ai Wan2.2 Video Generation ── */
+
+async function callFal(
+  prompt: string,
+  imageUrl: string | null,
+  mode: string,
+): Promise<{ id: string; provider: "fal" }> {
+  const falKey = process.env.FAL_KEY;
+  if (!falKey) throw new Error("NO_FAL_KEY");
+
+  const model =
+    mode === "image_to_video"
+      ? "fal-ai/wan/v2.2-a14b/image-to-video"
+      : "fal-ai/wan/v2.2-a14b/text-to-video";
+
+  const input: Record<string, unknown> = {
+    prompt: prompt.slice(0, 500),
+    num_frames: 81, // ~5 seconds at 16fps
+    frames_per_second: 16,
+    resolution: "480p",
+    aspect_ratio: "9:16",
+    num_inference_steps: 27,
+    guidance_scale: 3.5,
+  };
+
+  if (mode === "image_to_video" && imageUrl) {
+    input.image_url = imageUrl;
+  }
+
+  // Submit async job
+  const res = await fetch(`https://queue.fal.run/${model}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Key ${falKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(
+      data.detail || data.message || JSON.stringify(data) || `FAL error: ${res.status}`,
+    );
+  }
+
+  return { id: data.request_id, provider: "fal" };
+}
+
+async function pollFal(requestId: string, model: string) {
+  const falKey = process.env.FAL_KEY;
+  if (!falKey) throw new Error("FAL_KEY not configured");
+
+  const res = await fetch(
+    `https://queue.fal.run/${model}/requests/${requestId}/status`,
+    { headers: { Authorization: `Key ${falKey}` } },
+  );
+  const data = await res.json();
+
+  return {
+    status: data.status === "COMPLETED"
+      ? "SUCCEEDED"
+      : data.status === "FAILED"
+        ? "FAILED"
+        : "PENDING",
+    progress: data.progress || null,
+    videoUrl: null as string | null,
+    error: data.status === "FAILED" ? (data.error || "Generation failed") : null,
+  };
+}
+
+async function getFalResult(requestId: string, model: string) {
+  const falKey = process.env.FAL_KEY;
+  if (!falKey) throw new Error("FAL_KEY not configured");
+
+  const res = await fetch(
+    `https://queue.fal.run/${model}/requests/${requestId}`,
+    { headers: { Authorization: `Key ${falKey}` } },
+  );
+  const data = await res.json();
+
+  return {
+    status: "SUCCEEDED" as const,
+    videoUrl: data.video?.url || null,
+    error: null,
+  };
+}
+
+/* ── Runway Video Generation (fallback) ── */
+
 async function callRunway(
   prompt: string,
   imageUrl: string | null,
   mode: string,
-) {
+): Promise<{ id: string; provider: "runway" }> {
   const runwayKey = process.env.RUNWAY_API_KEY;
-  if (!runwayKey)
-    throw new Error(
-      "RUNWAY_API_KEY not configured. Add it in Vercel Settings Environment Variables.",
-    );
+  if (!runwayKey) throw new Error("NO_RUNWAY_KEY");
 
   const baseUrl = "https://api.dev.runwayml.com/v1";
   const endpoint =
@@ -201,7 +288,39 @@ async function callRunway(
     );
   }
 
-  return data;
+  return { id: data.id, provider: "runway" };
+}
+
+/* ── Provider selection: FAL → Runway ── */
+
+async function generateVideo(
+  prompt: string,
+  imageUrl: string | null,
+  mode: string,
+): Promise<{ id: string; provider: "fal" | "runway" }> {
+  // Try FAL first (Wan2.2), fall back to Runway
+  try {
+    return await callFal(prompt, imageUrl, mode);
+  } catch (falErr) {
+    const msg = (falErr as Error).message;
+    if (msg === "NO_FAL_KEY") {
+      // FAL not configured, try Runway
+    } else {
+      console.error("FAL failed, falling back to Runway:", msg);
+    }
+  }
+
+  try {
+    return await callRunway(prompt, imageUrl, mode);
+  } catch (runwayErr) {
+    const msg = (runwayErr as Error).message;
+    if (msg === "NO_RUNWAY_KEY") {
+      throw new Error(
+        "No video API configured. Add FAL_KEY (Wan2.2) or RUNWAY_API_KEY to your environment variables.",
+      );
+    }
+    throw runwayErr;
+  }
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -213,9 +332,55 @@ export async function GET(req: NextRequest) {
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   const taskId = req.nextUrl.searchParams.get("taskId");
+  const provider = req.nextUrl.searchParams.get("provider") || "runway";
 
   if (taskId) {
     try {
+      if (provider === "fal") {
+        // Poll FAL.ai
+        const falKey = process.env.FAL_KEY;
+        if (!falKey) return errorResponse("FAL_KEY not configured", 500, origin);
+
+        // Try to get status first
+        const model = "fal-ai/wan/v2.2-a14b/text-to-video";
+        const statusRes = await fetch(
+          `https://queue.fal.run/${model}/requests/${taskId}/status`,
+          { headers: { Authorization: `Key ${falKey}` } },
+        );
+        const statusData = await statusRes.json();
+
+        if (statusData.status === "COMPLETED") {
+          // Fetch full result with video URL
+          const resultRes = await fetch(
+            `https://queue.fal.run/${model}/requests/${taskId}`,
+            { headers: { Authorization: `Key ${falKey}` } },
+          );
+          const resultData = await resultRes.json();
+          return jsonResponse(
+            {
+              status: "SUCCEEDED",
+              progress: 100,
+              videoUrl: resultData.video?.url || null,
+              error: null,
+            },
+            200,
+            origin,
+          );
+        }
+
+        return jsonResponse(
+          {
+            status: statusData.status === "FAILED" ? "FAILED" : "PENDING",
+            progress: statusData.progress || null,
+            videoUrl: null,
+            error: statusData.status === "FAILED" ? (statusData.error || "Generation failed") : null,
+          },
+          200,
+          origin,
+        );
+      }
+
+      // Runway polling
       const runwayKey = process.env.RUNWAY_API_KEY;
       if (!runwayKey)
         return errorResponse("RUNWAY_API_KEY not configured", 500, origin);
@@ -265,7 +430,7 @@ export async function GET(req: NextRequest) {
   }));
 
   return jsonResponse(
-    { templates, styles, configured: !!process.env.RUNWAY_API_KEY },
+    { templates, styles, configured: !!(process.env.FAL_KEY || process.env.RUNWAY_API_KEY), provider: process.env.FAL_KEY ? "fal" : "runway" },
     200,
     origin,
   );
@@ -334,11 +499,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const result = await callRunway(prompt, sourceImage, template.mode);
+    const result = await generateVideo(prompt, sourceImage, template.mode);
 
     return jsonResponse(
       {
         taskId: result.id,
+        provider: result.provider,
         prompt,
         template: templateId,
         status: "PENDING",

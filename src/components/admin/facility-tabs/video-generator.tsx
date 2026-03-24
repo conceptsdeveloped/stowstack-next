@@ -34,6 +34,7 @@ interface GenerationJob {
   prompt: string
   imageUrl: string | null
   startedAt: number
+  provider: 'fal' | 'runway'
 }
 
 interface StylePreset {
@@ -341,7 +342,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
     const interval = setInterval(async () => {
       for (const job of activeJobs) {
         try {
-          const res = await fetch(`/api/generate-video?taskId=${job.taskId}`, {
+          const res = await fetch(`/api/generate-video?taskId=${job.taskId}&provider=${job.provider}`, {
             headers: { 'X-Admin-Key': adminKey },
           })
           const data = await res.json()
@@ -392,6 +393,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           prompt: data.prompt || overridePrompt || '',
           imageUrl: overrideImage || selectedImage || null,
           startedAt: Date.now(),
+          provider: data.provider || 'runway',
         }, ...prev])
       } else if (data.error) {
         setJobs(prev => [{
@@ -404,6 +406,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           prompt: '',
           imageUrl: null,
           startedAt: Date.now(),
+          provider: 'fal',
         }, ...prev])
       }
     } catch (err) {
