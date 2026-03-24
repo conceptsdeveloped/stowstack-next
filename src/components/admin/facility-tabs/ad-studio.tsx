@@ -5,7 +5,8 @@ import {
   Loader2, Download, Sparkles, AlertTriangle, Edit3, RefreshCw,
   ImageIcon, Package, Star, Sunrise, Type, Pencil,
   Send, MoreHorizontal, Heart, MessageCircle, Bookmark, Globe,
-  Copy, Check, ChevronRight, Eye, Wand2,
+  Copy, Check, ChevronRight, Eye, Wand2, ArrowDown, Smartphone,
+  Mail, MessageSquare, MousePointer, Layout,
 } from 'lucide-react'
 
 /* ── Types ── */
@@ -248,6 +249,199 @@ function AdMockup({ format, image, copy, facilityName }: {
   return null
 }
 
+/* ── Funnel Archetype Map ── */
+
+const ARCHETYPE_FUNNELS: Record<string, {
+  name: string
+  landingHero: string
+  landingFeatures: string[]
+  postConversion: { channel: 'sms' | 'email'; message: string; timing: string }[]
+  retargeting: string | null
+  principle: string
+}> = {
+  social_proof: {
+    name: 'The Trusted Choice',
+    landingHero: 'Join [count] families who trust [Facility]. [Rating]★ rated.',
+    landingFeatures: ['Review highlights', 'Move-in count this month', 'Years in business', 'storEDGE reservation embed'],
+    postConversion: [
+      { channel: 'sms', message: 'Your unit is reserved! Here\'s your access info.', timing: 'Immediate' },
+      { channel: 'email', message: 'Welcome to [Facility] — here\'s what your neighbors say about us.', timing: 'Day 1' },
+    ],
+    retargeting: '"Still looking? [Rating]★ from [count] reviews. Your unit is waiting."',
+    principle: 'Trust builds conversion. Lead with proof, reinforce with community.',
+  },
+  convenience: {
+    name: 'The Easy Move',
+    landingHero: '[Facility] on [Street] — 5 min from you. Reserve in 60 seconds.',
+    landingFeatures: ['Map/proximity emphasis', 'No lease required', 'Online reservation', 'storEDGE embed with all sizes'],
+    postConversion: [
+      { channel: 'sms', message: 'Reserved! Your unit is at [Address]. Access code: [code].', timing: 'Immediate' },
+      { channel: 'sms', message: 'Moving tip: here\'s what fits in your [size] unit.', timing: 'Day 2' },
+    ],
+    retargeting: '"[Facility] is 5 minutes away. $X/mo, no lease. Reserve now."',
+    principle: 'Remove every friction point. Speed and proximity are the value.',
+  },
+  urgency: {
+    name: 'The Last Chance',
+    landingHero: '[X] units left at $X/mo. This rate won\'t last.',
+    landingFeatures: ['Live availability count', 'Rate lock messaging', 'Countdown or scarcity indicator', 'storEDGE embed filtered to available'],
+    postConversion: [
+      { channel: 'sms', message: 'Locked in! Your $X/mo rate is secured.', timing: 'Immediate' },
+      { channel: 'email', message: 'Smart move — rates are going up next month. You\'re set.', timing: 'Day 1' },
+    ],
+    retargeting: '"The [size] at $X/mo you looked at is still available — for now."',
+    principle: 'Real urgency only. Inventory-backed scarcity, not manufactured fear.',
+  },
+  lifestyle: {
+    name: 'The Fresh Start',
+    landingHero: 'Finally, room to breathe. Climate-controlled from $X/mo.',
+    landingFeatures: ['Emotional imagery — clean spaces, organized life', 'Climate-controlled emphasis', 'Before/after visualization', 'storEDGE embed with small/medium units'],
+    postConversion: [
+      { channel: 'email', message: 'What to store and what to let go — a simple guide.', timing: 'Day 2' },
+      { channel: 'email', message: 'How [Facility] keeps your belongings safe.', timing: 'Day 5' },
+      { channel: 'email', message: 'Your neighbors trust us — [Rating]★ from [count] reviews.', timing: 'Day 9' },
+      { channel: 'email', message: 'Your space is waiting. Lock in $X/mo.', timing: 'Day 14' },
+    ],
+    retargeting: '"Still thinking about it? Your [size] at $X/mo is waiting."',
+    principle: 'Sell the feeling, not the feature. Nurture over 2 weeks — no pressure.',
+  },
+}
+
+/* ── Funnel Test Component ── */
+
+function FunnelTest({ copy, image, facilityName }: {
+  copy: Record<string, string>
+  image: string | null
+  facilityName: string
+}) {
+  const angle = copy.angle || 'lifestyle'
+  const funnel = ARCHETYPE_FUNNELS[angle] || ARCHETYPE_FUNNELS.lifestyle
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-2">
+        <Layout size={14} className="text-[#3B82F6]" />
+        <p className="text-xs font-semibold text-[#F5F5F7]">Funnel: {funnel.name}</p>
+        <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6] uppercase">{angle}</span>
+      </div>
+
+      {/* Step 1: Ad */}
+      <div className="relative">
+        <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-[10px] font-bold">1</div>
+            <span className="text-xs font-semibold text-[#F5F5F7]">Ad Impression</span>
+            <span className="text-[10px] text-[#6E6E73] ml-auto">Meta / Google</span>
+          </div>
+          <div className="flex gap-3">
+            {image && <img src={image} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />}
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#F5F5F7] uppercase tracking-wide" style={{ fontFamily: 'var(--font-ad-headline)' }}>{copy.headline || 'Headline'}</p>
+              <p className="text-[11px] text-[#A1A1A6] mt-1 line-clamp-2" style={{ fontFamily: 'var(--font-ad-body)' }}>{copy.primaryText || 'Primary text'}</p>
+              <p className="text-[10px] text-[#3B82F6] mt-1">{copy.cta || 'Learn More'} →</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center py-1"><ArrowDown size={16} className="text-[#3B82F6]" /></div>
+      </div>
+
+      {/* Step 2: Click → Landing Page */}
+      <div className="relative">
+        <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-[10px] font-bold">2</div>
+            <span className="text-xs font-semibold text-[#F5F5F7]">Landing Page</span>
+            <span className="text-[10px] text-[#6E6E73] ml-auto">storageads.com/{facilityName.toLowerCase().replace(/\s+/g, '-')}</span>
+          </div>
+          <div className="border border-white/[0.08] rounded-lg p-3 bg-[#0A0A0A]">
+            <p className="text-sm font-bold text-[#F5F5F7] mb-2" style={{ fontFamily: 'var(--font-ad-headline)' }}>
+              {funnel.landingHero.replace('[Facility]', facilityName).replace('[count]', '247').replace('[Rating]', '4.8').replace('[Street]', 'Main St').replace('[X]', '12')}
+            </p>
+            <div className="space-y-1.5">
+              {funnel.landingFeatures.map((f, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-1 h-1 rounded-full bg-[#3B82F6] shrink-0" />
+                  <span className="text-[11px] text-[#A1A1A6]">{f}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 pt-3 border-t border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <MousePointer size={12} className="text-[#3B82F6]" />
+                <span className="text-[10px] text-[#3B82F6] font-medium">→ storEDGE embed: Reserve / Move-In</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center py-1"><ArrowDown size={16} className="text-[#3B82F6]" /></div>
+      </div>
+
+      {/* Step 3: Conversion */}
+      <div className="relative">
+        <div className="border border-emerald-500/20 rounded-xl p-4 bg-emerald-500/5">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[10px] font-bold">3</div>
+            <span className="text-xs font-semibold text-emerald-400">Reservation Complete</span>
+            <span className="text-[10px] text-emerald-400/60 ml-auto">Event fires → CAPI</span>
+          </div>
+          <p className="text-[11px] text-emerald-300/80">Full attribution captured: ad click → page view → reservation start → reservation complete</p>
+        </div>
+        <div className="flex justify-center py-1"><ArrowDown size={16} className="text-emerald-500" /></div>
+      </div>
+
+      {/* Step 4: Post-conversion sequence */}
+      <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-[10px] font-bold">4</div>
+          <span className="text-xs font-semibold text-[#F5F5F7]">Post-Conversion Sequence</span>
+        </div>
+        <div className="space-y-2.5">
+          {funnel.postConversion.map((msg, i) => (
+            <div key={i} className="flex items-start gap-2.5">
+              <div className="mt-0.5 shrink-0">
+                {msg.channel === 'sms' ? (
+                  <MessageSquare size={13} className="text-green-400" />
+                ) : (
+                  <Mail size={13} className="text-blue-400" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-medium text-[#A1A1A6] uppercase">{msg.channel}</span>
+                  <span className="text-[10px] text-[#6E6E73]">{msg.timing}</span>
+                </div>
+                <p className="text-[11px] text-[#F5F5F7] mt-0.5">
+                  {msg.message.replace('[Facility]', facilityName).replace('[Address]', '123 Main St').replace('[code]', '4829').replace('[size]', '10×10').replace('[Rating]', '4.8').replace('[count]', '247')}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Retargeting */}
+      {funnel.retargeting && (
+        <div className="border border-amber-500/20 rounded-xl p-4 bg-amber-500/5">
+          <div className="flex items-center gap-2 mb-2">
+            <Eye size={13} className="text-amber-400" />
+            <span className="text-xs font-semibold text-amber-400">Retargeting (if no conversion)</span>
+            <span className="text-[10px] text-amber-400/60 ml-auto">Day 3 + Day 7</span>
+          </div>
+          <p className="text-[11px] text-amber-300/80 italic">
+            {funnel.retargeting.replace('[Facility]', facilityName).replace('[Rating]', '4.8').replace('[count]', '247').replace('[size]', '10×10').replace('[X]', '49')}
+          </p>
+        </div>
+      )}
+
+      {/* Funnel principle */}
+      <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+        <p className="text-[10px] text-[#6E6E73] uppercase tracking-wide font-medium mb-1">Funnel Principle</p>
+        <p className="text-xs text-[#A1A1A6] italic">{funnel.principle}</p>
+      </div>
+    </div>
+  )
+}
+
 /* ── Step Indicator ── */
 
 function StepIndicator({ current, onStep }: { current: StudioStep; onStep: (s: StudioStep) => void }) {
@@ -312,6 +506,7 @@ export default function AdStudio({ facilityId, adminKey }: {
   // Preview state
   const [activeFormat, setActiveFormat] = useState<AdFormat>('instagram_post')
   const [copied, setCopied] = useState(false)
+  const [previewMode, setPreviewMode] = useState<'mockup' | 'funnel'>('mockup')
 
   // Loading
   const [loading, setLoading] = useState(true)
@@ -689,8 +884,32 @@ export default function AdStudio({ facilityId, adminKey }: {
       {/* ─── STEP 3: PREVIEW & PUBLISH ─── */}
       {step === 'preview' && (
         <div className="space-y-6">
-          {/* Format selector */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {/* Mode toggle: Mockup vs Funnel */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPreviewMode('mockup')}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
+                previewMode === 'mockup'
+                  ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
+                  : 'border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]'
+              }`}
+            >
+              <Smartphone size={13} /> Ad Mockup
+            </button>
+            <button
+              onClick={() => setPreviewMode('funnel')}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
+                previewMode === 'funnel'
+                  ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
+                  : 'border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]'
+              }`}
+            >
+              <Layout size={13} /> Test Funnel
+            </button>
+          </div>
+
+          {/* Format selector — only show in mockup mode */}
+          {previewMode === 'mockup' && <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
             {AD_FORMATS.map(f => (
               <button
                 key={f.id}
@@ -707,9 +926,10 @@ export default function AdStudio({ facilityId, adminKey }: {
                 </span>
               </button>
             ))}
-          </div>
+          </div>}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* ── MOCKUP VIEW ── */}
+          {previewMode === 'mockup' && <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left: Live preview */}
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-[#F5F5F7]">Live Preview</h4>
@@ -810,7 +1030,18 @@ export default function AdStudio({ facilityId, adminKey }: {
                 </div>
               </div>
             </div>
-          </div>
+          </div>}
+
+          {/* ── FUNNEL VIEW ── */}
+          {previewMode === 'funnel' && (
+            <div className="max-w-xl">
+              <FunnelTest
+                copy={selectedCopy}
+                image={selectedImage}
+                facilityName={facilityName}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
