@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
+import { synthesizeStyleReference } from "@/lib/synthesis";
 import {
   jsonResponse,
   errorResponse,
@@ -240,6 +241,9 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
         },
       });
 
+      // Auto-synthesize into CREATIVE.md (non-blocking)
+      synthesizeStyleReference(ref.analysis as Record<string, unknown>, ref.title || undefined).catch(() => {});
+
       return jsonResponse({ reference: ref }, 200, origin);
     }
 
@@ -319,7 +323,10 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
           },
         });
 
-        return jsonResponse({ reference: ref }, 200, origin);
+        // Auto-synthesize into CREATIVE.md (non-blocking)
+      synthesizeStyleReference(ref.analysis as Record<string, unknown>, ref.title || undefined).catch(() => {});
+
+      return jsonResponse({ reference: ref }, 200, origin);
       }
 
       // Ensure it's a valid image type for Vision API
