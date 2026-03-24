@@ -5,8 +5,8 @@ import {
   Loader2, Download, Sparkles, AlertTriangle, Edit3, RefreshCw,
   ImageIcon, Package, Star, Sunrise, Type, Pencil,
   Send, MoreHorizontal, Heart, MessageCircle, Bookmark, Globe,
-  Copy, Check, ChevronRight, Eye, Wand2, ArrowDown, Smartphone,
-  Mail, MessageSquare, MousePointer, Layout,
+  Copy, Check, ChevronRight, Eye, Wand2, ArrowDown, ArrowUp, Smartphone,
+  Mail, MessageSquare, MousePointer, Layout, GripVertical,
 } from 'lucide-react'
 
 /* ── Types ── */
@@ -403,6 +403,16 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
     }))
   }
 
+  function movePostConversion(index: number, direction: -1 | 1) {
+    setConfig(prev => {
+      const arr = [...prev.postConversion]
+      const target = index + direction
+      if (target < 0 || target >= arr.length) return prev
+      ;[arr[index], arr[target]] = [arr[target], arr[index]]
+      return { ...prev, postConversion: arr }
+    })
+  }
+
   // Simulated metrics (will be real once tracking is wired)
   const metrics = {
     impressions: null as number | null,
@@ -589,7 +599,23 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
               </div>
               {editing ? (
                 <div className="flex-1 space-y-1">
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5 items-center">
+                    <div className="flex flex-col gap-0.5 shrink-0">
+                      <button
+                        onClick={() => movePostConversion(i, -1)}
+                        disabled={i === 0}
+                        className="p-0.5 text-[#6E6E73] hover:text-[#A1A1A6] disabled:opacity-20 disabled:cursor-default"
+                      >
+                        <ArrowUp size={10} />
+                      </button>
+                      <button
+                        onClick={() => movePostConversion(i, 1)}
+                        disabled={i === config.postConversion.length - 1}
+                        className="p-0.5 text-[#6E6E73] hover:text-[#A1A1A6] disabled:opacity-20 disabled:cursor-default"
+                      >
+                        <ArrowDown size={10} />
+                      </button>
+                    </div>
                     <select
                       value={msg.channel}
                       onChange={e => updatePostConversion(i, 'channel', e.target.value)}
@@ -604,7 +630,7 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
                       placeholder="e.g., Immediate, Day 2"
                       className="flex-1 px-2 py-1 text-[10px] bg-white/[0.03] border border-white/[0.08] rounded text-[#F5F5F7] placeholder-[#6E6E73]"
                     />
-                    <button onClick={() => removePostConversion(i)} className="text-[#6E6E73] hover:text-red-400 text-[10px]">×</button>
+                    <button onClick={() => removePostConversion(i)} className="text-[#6E6E73] hover:text-red-400 text-[10px] shrink-0">×</button>
                   </div>
                   <input
                     value={msg.message}
