@@ -129,7 +129,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
+    <div data-admin="" className="flex min-h-screen items-center justify-center" style={{ background: 'var(--admin-bg, white)' }}>
       <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8">
         <div className="mb-8 text-center">
           <h1 className="mb-1 text-2xl font-bold text-[#111827]">StowStack</h1>
@@ -238,12 +238,13 @@ function Sidebar({
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Brand */}
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-black/[0.08] px-4">
+      <div className="flex h-16 shrink-0 items-center justify-between px-4" style={{ borderBottom: '1px solid var(--admin-border, rgba(0,0,0,0.08))' }}>
         <Link
           href="/"
-          className={`text-lg font-bold text-[#111827] transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
+          className={`text-lg font-bold transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
+          style={{ color: 'var(--admin-text-on-dark, #111827)' }}
         >
-          StowStack
+          StorageAds
         </Link>
         {!collapsed && (
           <Link
@@ -268,7 +269,7 @@ function Sidebar({
         {filteredGroups.map((group) => (
           <div key={group.title} className="mb-6">
             {!collapsed && (
-              <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-[#9CA3AF]">
+              <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--admin-text-on-dark-secondary, #9CA3AF)' }}>
                 {group.title}
               </p>
             )}
@@ -282,11 +283,12 @@ function Sidebar({
                       href={item.href}
                       onClick={onMobileClose}
                       title={collapsed ? item.label : undefined}
-                      className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
-                        isActive
-                          ? "bg-[#3B82F6]/15 font-medium text-[#111827]"
-                          : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
-                      } ${collapsed ? "justify-center" : ""}`}
+                      className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${collapsed ? "justify-center" : ""}`}
+                      style={{
+                        background: isActive ? 'var(--admin-sidebar-active, rgba(59,130,246,0.15))' : 'transparent',
+                        color: isActive ? 'var(--admin-text-on-dark, #111827)' : 'var(--admin-text-on-dark-secondary, #6B7280)',
+                        fontWeight: isActive ? 500 : 400,
+                      }}
                     >
                       <Icon
                         className={`h-4 w-4 shrink-0 ${isActive ? "text-[#3B82F6]" : ""}`}
@@ -330,18 +332,20 @@ function Sidebar({
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-black/[0.08] bg-[#F9FAFB] transition-transform duration-200 md:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-r admin-sidebar transition-transform duration-200 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{ borderColor: 'var(--admin-border, rgba(0,0,0,0.08))', background: 'var(--admin-sidebar, #F9FAFB)' }}
       >
         {sidebarContent}
       </aside>
 
       {/* Desktop sidebar */}
       <aside
-        className={`hidden shrink-0 border-r border-black/[0.08] bg-[#F9FAFB] transition-all duration-200 md:block ${
+        className={`hidden shrink-0 border-r admin-sidebar transition-all duration-200 md:block ${
           collapsed ? "w-16" : "w-64"
         }`}
+        style={{ borderColor: 'var(--admin-border, rgba(0,0,0,0.08))', background: 'var(--admin-sidebar, #F9FAFB)' }}
       >
         {sidebarContent}
       </aside>
@@ -375,7 +379,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // Wait for both localStorage check and Clerk to load
   if (!checked || !clerkLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
+      <div data-admin="" className="flex min-h-screen items-center justify-center" style={{ background: 'var(--admin-bg, white)' }}>
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
       </div>
     );
@@ -387,7 +391,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // If Clerk user is signed in but has wrong role, show access denied
   if (isSignedIn && !canAccessAdmin && !adminKey) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
+      <div data-admin="" className="flex min-h-screen items-center justify-center" style={{ background: 'var(--admin-bg, white)' }}>
         <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8 text-center">
           <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-red-400" />
           <h2 className="mb-2 text-lg font-bold text-[#111827]">Access Denied</h2>
@@ -407,7 +411,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminProvider initialKey={adminKey}>
-      <div className="flex h-screen overflow-hidden bg-white">
+      <div data-admin="" className="flex h-screen overflow-hidden admin-shell">
         <Sidebar
           collapsed={sidebarCollapsed}
           onCollapse={setSidebarCollapsed}
@@ -417,7 +421,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         />
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <AdminHeader onToggleSidebar={() => setMobileOpen((v) => !v)} />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-6">
+          <main className="admin-main flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-6" style={{ background: 'var(--admin-bg, white)' }}>
             {children}
           </main>
         </div>

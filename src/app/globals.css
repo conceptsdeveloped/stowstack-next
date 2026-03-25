@@ -518,3 +518,98 @@ body {
 @layer base {
   body { overflow-x: hidden; }
 }
+
+/* ═══════════════════════════════════════════
+   ADMIN BACKEND THEME — Ableton Classic Medium Light
+   Scoped to [data-admin] — does NOT affect marketing site
+   ═══════════════════════════════════════════ */
+
+[data-admin] {
+  --admin-bg: #D0CCC4;
+  --admin-bg-alt: #C8C3BA;
+  --admin-surface: #DBD7D0;
+  --admin-surface-elevated: #E4E0D9;
+  --admin-sidebar: #8C8985;
+  --admin-sidebar-hover: #9C9994;
+  --admin-sidebar-active: #7A7773;
+  --admin-toolbar: #A09D98;
+  --admin-info-bar: #6E6A64;
+  --admin-border: rgba(0, 0, 0, 0.1);
+  --admin-border-strong: rgba(0, 0, 0, 0.18);
+  --admin-text: #3A3632;
+  --admin-text-secondary: #5C5853;
+  --admin-text-muted: #8A8680;
+  --admin-text-on-dark: #E8E5E0;
+  --admin-text-on-dark-secondary: #B8B4AE;
+  --admin-accent: #B58B3F;
+  --admin-accent-hover: #9E7A36;
+  --admin-pop-orange: #E8943A;
+  --admin-pop-green: #5DAA68;
+  --admin-pop-blue: #5B98C8;
+  --admin-pop-magenta: #C85B98;
+  --admin-pop-coral: #E86850;
+  --admin-pop-teal: #48A8A0;
+  --admin-card: #D8D4CC;
+  --admin-card-hover: #CEC9C0;
+  --admin-input-bg: #C8C3BA;
+  --admin-input-border: rgba(0, 0, 0, 0.12);
+  --admin-input-focus: #B58B3F;
+}
+
+/* Admin shell overrides */
+[data-admin] .admin-shell { background: var(--admin-bg); }
+[data-admin] .admin-sidebar { background: var(--admin-sidebar); }
+[data-admin] .admin-header { background: var(--admin-toolbar); border-color: var(--admin-border); }
+[data-admin] .admin-main { background: var(--admin-bg); }
+
+/* Override Tailwind bg-white in admin context */
+[data-admin] .bg-white { background-color: var(--admin-surface-elevated) !important; }
+[data-admin] .bg-\[\#F9FAFB\] { background-color: var(--admin-surface) !important; }
+[data-admin] .bg-\[\#F3F4F6\] { background-color: var(--admin-card) !important; }
+
+/* Override text colors */
+[data-admin] .text-\[\#111827\] { color: var(--admin-text) !important; }
+[data-admin] .text-\[\#6B7280\] { color: var(--admin-text-secondary) !important; }
+[data-admin] .text-\[\#9CA3AF\] { color: var(--admin-text-muted) !important; }
+[data-admin] .text-\[\#374151\] { color: var(--admin-text) !important; }
+
+/* Override borders */
+[data-admin] [class*="border-black"] { border-color: var(--admin-border) !important; }
+[data-admin] [class*="divide-black"] > :not(:first-child) { border-color: var(--admin-border) !important; }
+
+/* Override hover states */
+[data-admin] .hover\:bg-black\/\[0\.03\]:hover { background-color: var(--admin-card-hover) !important; }
+[data-admin] .hover\:bg-black\/\[0\.04\]:hover { background-color: var(--admin-card-hover) !important; }
+
+/* Override inputs */
+[data-admin] input, [data-admin] textarea, [data-admin] select {
+  background-color: var(--admin-input-bg) !important;
+  border-color: var(--admin-input-border) !important;
+  color: var(--admin-text) !important;
+}
+[data-admin] input:focus, [data-admin] textarea:focus, [data-admin] select:focus {
+  border-color: var(--admin-input-focus) !important;
+}
+[data-admin] input::placeholder, [data-admin] textarea::placeholder {
+  color: var(--admin-text-muted) !important;
+}
+
+/* Cards and elevated surfaces */
+[data-admin] .rounded-xl { background-color: var(--admin-card); border-color: var(--admin-border); }
+[data-admin] .rounded-2xl { background-color: var(--admin-surface-elevated); }
+
+/* Gold accent stays */
+[data-admin] .bg-\[\#3B82F6\] { background-color: var(--admin-accent) !important; }
+[data-admin] .text-\[\#3B82F6\] { color: var(--admin-accent) !important; }
+[data-admin] .border-\[\#3B82F6\] { border-color: var(--admin-accent) !important; }
+[data-admin] .hover\:bg-blue-600:hover { background-color: var(--admin-accent-hover) !important; }
+
+/* Status pops of color */
+[data-admin] .bg-emerald-500\/20 { background-color: rgba(93, 170, 104, 0.15) !important; }
+[data-admin] .text-emerald-400 { color: var(--admin-pop-green) !important; }
+[data-admin] .bg-amber-500\/20 { background-color: rgba(232, 148, 58, 0.15) !important; }
+[data-admin] .text-amber-400 { color: var(--admin-pop-orange) !important; }
+[data-admin] .bg-red-500\/20 { background-color: rgba(232, 104, 80, 0.12) !important; }
+[data-admin] .text-red-400 { color: var(--admin-pop-coral) !important; }
+[data-admin] .bg-blue-500\/20 { background-color: rgba(91, 152, 200, 0.15) !important; }
+[data-admin] .text-blue-400 { color: var(--admin-pop-blue) !important; }
