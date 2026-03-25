@@ -181,10 +181,10 @@ export default function ImageGenerator({ facilityId, adminKey }: {
           <div className="flex items-start gap-3">
             <AlertTriangle size={18} className="text-amber-400 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-[var(--color-dark)]">Image Generation API Required</p>
+              <p className="text-sm font-medium text-[var(--color-dark)]">FAL.ai API Key Required</p>
               <p className="text-xs text-[var(--color-mid-gray)] mt-1">
-                Add <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">REPLICATE_API_TOKEN</code> or{' '}
-                <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">GEMINI_API_KEY</code> (with billing) to your environment variables.
+                Add <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">FAL_KEY</code> to your environment variables.
+                Get one at <a href="https://fal.ai" target="_blank" rel="noopener noreferrer" className="text-[var(--color-gold)] hover:underline">fal.ai</a>
               </p>
             </div>
           </div>

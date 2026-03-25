@@ -34,7 +34,7 @@ interface GenerationJob {
   prompt: string
   imageUrl: string | null
   startedAt: number
-  provider: 'fal' | 'runway'
+  provider: 'fal'
 }
 
 interface StylePreset {
@@ -393,7 +393,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           prompt: data.prompt || overridePrompt || '',
           imageUrl: overrideImage || selectedImage || null,
           startedAt: Date.now(),
-          provider: data.provider || 'runway',
+          provider: 'fal',
         }, ...prev])
       } else if (data.error) {
         setJobs(prev => [{
@@ -447,10 +447,10 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           <div className="flex items-start gap-3">
             <AlertTriangle size={18} className="text-amber-400 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-[var(--color-dark)]">Runway ML API Key Required</p>
+              <p className="text-sm font-medium text-[var(--color-dark)]">FAL.ai API Key Required</p>
               <p className="text-xs text-[var(--color-mid-gray)] mt-1">
-                Add <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">RUNWAY_API_KEY</code> to your environment variables.
-                Get one at <a href="https://dev.runwayml.com" target="_blank" rel="noopener noreferrer" className="text-[var(--color-gold)] hover:underline">dev.runwayml.com</a>
+                Add <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">FAL_KEY</code> to your environment variables.
+                Get one at <a href="https://fal.ai" target="_blank" rel="noopener noreferrer" className="text-[var(--color-gold)] hover:underline">fal.ai</a>
               </p>
             </div>
           </div>
