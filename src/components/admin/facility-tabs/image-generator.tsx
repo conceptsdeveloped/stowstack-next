@@ -175,22 +175,6 @@ export default function ImageGenerator({ facilityId, adminKey }: {
         <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">Generate ad creatives, lifestyle imagery, and social graphics</p>
       </div>
 
-      {/* API key warning */}
-      {!configured && (
-        <div className="p-4 rounded-xl border border-dashed border-[var(--border-medium)]">
-          <div className="flex items-start gap-3">
-            <AlertTriangle size={18} className="text-amber-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-[var(--color-dark)]">FAL.ai API Key Required</p>
-              <p className="text-xs text-[var(--color-mid-gray)] mt-1">
-                Add <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">FAL_KEY</code> to your environment variables.
-                Get one at <a href="https://fal.ai" target="_blank" rel="noopener noreferrer" className="text-[var(--color-gold)] hover:underline">fal.ai</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Template grid */}
       <div>
         <label className="text-xs font-medium text-[var(--color-body-text)] block mb-2">Choose Image Type</label>
