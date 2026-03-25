@@ -160,8 +160,8 @@ async function callFal(
 
   const model =
     mode === "image_to_video"
-      ? "fal-ai/wan/v2.2/i2v-fast"
-      : "fal-ai/wan/v2.2/t2v-fast";
+      ? "fal-ai/wan-i2v"
+      : "fal-ai/wan-t2v";
 
   const input: Record<string, unknown> = {
     prompt: prompt.slice(0, 500),
