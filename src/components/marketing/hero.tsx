@@ -510,18 +510,21 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
 
 const BECAUSE_LINES = [
   "a sign on a chainlink fence is not an acquisition strategy",
-  "your nephew's Facebook boost is not a campaign",
-  "a 3-star Google rating shouldn't be your best marketing asset",
-  "yelling 'FIRST MONTH FREE' into the void isn't targeting",
-  "your website loads slower than your tenants pay rent",
-  "you're still counting clicks instead of counting leases",
-  "your competitor's billboard has more strategy than your ad account",
   "no one has ever impulse-rented a 10x20",
-  "your CPA should stand for Cost Per Acquisition, not Can't Prove Anything",
-  "that QR code on your business card goes to a homepage from 2019",
-  "the last 'marketing guy' couldn't tell you your cost per move-in",
-  "your Google Ads are bidding on your own facility name and calling it growth",
-  "paying $200 per move-in when it should be $14 is not a business model",
+  "'we're on page 2 of Google' is not a marketing plan",
+  "your gate code has more security than your ad account",
+  "a Craigslist post from 2021 is not 'digital presence'",
+  "your competitor filled 40 units last month and you don't know how",
+  "the Yellow Pages called. They want their strategy back.",
+  "you're paying $200 per move-in and calling it 'brand awareness'",
+  "your 'marketing guy' thinks ROAS is a type of roast",
+  "that drone footage of your roof isn't converting anyone",
+  "you just paid $6 per click for someone googling your own name",
+  "'my son does our social media' is how you lose to Public Storage",
+  "your last 'campaign' was a Vistaprint banner zip-tied to a stop sign",
+  "you have 47 empty units and a 'we'll wait for spring' strategy",
+  "your SpareFoot listing is doing more work than your entire marketing budget",
+  "the 'marketing meeting' was you and your manager staring at Google reviews",
 ];
 
 function BecauseLetterboard() {
