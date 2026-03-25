@@ -22,6 +22,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { useInView } from "./use-in-view";
+import { SplitFlap as SplitFlapComponent } from "./split-flap";
 
 const CALCOM_URL =
   process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min";
@@ -505,104 +506,54 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
 }
 
 /* ═══════════════════════════════════════════
-   "BECAUSE" — FULL SENTENCE LETTERBOARD
+   "BECAUSE" — SPLIT-FLAP FULL SENTENCES
    ═══════════════════════════════════════════ */
 
-const BECAUSE_LINES = [
-  "a sign on a chainlink fence is not an acquisition strategy",
-  "'we're on page 2 of Google' is not a marketing plan",
-  "your competitor filled 40 units last month and you have no idea how",
-  "the last agency showed you clicks. you asked about move-ins. they changed the subject.",
-  "you're paying $200 per move-in and calling it 'brand awareness'",
-  "your manager just asked what ROAS means and nobody in the room knew",
-  "drone footage of your roof has 200 views and zero reservations",
-  "you just paid Google $6 so someone could click your ad to pay their bill",
-  "Extra Space is running 14 campaigns in your zip code and you're running vibes",
-  "your best ad is a photo of your unit doors that got 3 likes — two were employees",
-  "you've been 'about to launch a campaign' since Q2 of last year",
-  "your SpareFoot listing is doing more work than your entire marketing budget",
-  "the 'marketing meeting' was you and your manager staring at Google reviews",
+const BECAUSE_MESSAGES = [
+  "A SIGN ON A CHAINLINK FENCE IS NOT AN ACQUISITION STRATEGY",
+  "WE'RE ON PAGE 2 OF GOOGLE IS NOT A MARKETING PLAN",
+  "YOUR COMPETITOR FILLED 40 UNITS LAST MONTH AND YOU HAVE NO IDEA HOW",
+  "THE LAST AGENCY SHOWED YOU CLICKS YOU ASKED ABOUT MOVE-INS THEY CHANGED THE SUBJECT",
+  "YOU'RE PAYING $200 PER MOVE-IN AND CALLING IT BRAND AWARENESS",
+  "YOUR MANAGER JUST ASKED WHAT ROAS MEANS AND NOBODY IN THE ROOM KNEW",
+  "DRONE FOOTAGE OF YOUR ROOF HAS 200 VIEWS AND ZERO RESERVATIONS",
+  "YOU JUST PAID GOOGLE $6 SO SOMEONE COULD CLICK YOUR AD TO PAY THEIR BILL",
+  "EXTRA SPACE IS RUNNING 14 CAMPAIGNS IN YOUR ZIP CODE AND YOU'RE RUNNING VIBES",
+  "YOUR BEST AD GOT 3 LIKES AND TWO WERE EMPLOYEES",
+  "YOU'VE BEEN ABOUT TO LAUNCH A CAMPAIGN SINCE Q2 OF LAST YEAR",
+  "YOUR SPAREFOOT LISTING IS DOING MORE WORK THAN YOUR ENTIRE MARKETING BUDGET",
+  "THE MARKETING MEETING WAS YOU AND YOUR MANAGER STARING AT GOOGLE REVIEWS",
 ];
 
+// Dynamic cols = longest message length
+const FLAP_COLS = Math.max(...BECAUSE_MESSAGES.map((m) => m.length));
+
 function BecauseLetterboard() {
-  const { ref, isVisible } = useInView(0.3);
-  const [lineIdx, setLineIdx] = useState(0);
-  const [animState, setAnimState] = useState<'visible' | 'exiting' | 'entering'>('visible');
-
-  useEffect(() => {
-    if (!isVisible) return;
-    const interval = setInterval(() => {
-      setAnimState('exiting');
-      setTimeout(() => {
-        setLineIdx((i) => (i + 1) % BECAUSE_LINES.length);
-        setAnimState('entering');
-        setTimeout(() => setAnimState('visible'), 50);
-      }, 400);
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [isVisible]);
-
   return (
     <div
-      ref={ref}
       className="relative border-t overflow-hidden"
       style={{ borderColor: "var(--border-subtle)", background: "var(--color-dark)" }}
     >
-      <style>{`
-        @keyframes because-slide-in {
-          0% { transform: translateY(40px); opacity: 0; }
-          100% { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes because-slide-out {
-          0% { transform: translateY(0); opacity: 1; }
-          100% { transform: translateY(-40px); opacity: 0; }
-        }
-      `}</style>
-
-      <div className="max-w-[900px] mx-auto px-5 sm:px-10 lg:px-14 py-10 sm:py-14 text-center">
-        {/* "storageads.com" */}
-        <div
-          className={`transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-        >
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-10 py-8 sm:py-12 text-center">
+        {/* "storageads.com — because" label */}
+        <div className="mb-4 sm:mb-6">
           <span
             className="text-sm sm:text-base font-semibold tracking-wide"
             style={{ fontFamily: "var(--font-heading)", color: "var(--color-gold)", letterSpacing: "0.05em" }}
           >
             storageads.com
           </span>
-        </div>
-
-        {/* "because" */}
-        <div
-          className={`mt-2 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          style={{ transitionDelay: "150ms" }}
-        >
           <span
-            className="text-xs sm:text-sm uppercase tracking-[0.2em] font-medium"
-            style={{ fontFamily: "var(--font-heading)", color: "rgba(250,249,245,0.35)" }}
+            className="mx-2 sm:mx-3 text-xs sm:text-sm uppercase tracking-[0.2em] font-medium"
+            style={{ fontFamily: "var(--font-heading)", color: "rgba(250,249,245,0.25)" }}
           >
             because
           </span>
         </div>
 
-        {/* The cycling line — full sentences, wrapping allowed */}
-        <div
-          className={`mt-4 sm:mt-5 min-h-[3em] sm:min-h-[2.4em] flex items-center justify-center transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          style={{ transitionDelay: "300ms" }}
-        >
-          <p
-            key={lineIdx}
-            className="text-lg sm:text-xl md:text-2xl lg:text-[1.65rem] font-medium leading-snug"
-            style={{
-              fontFamily: "var(--font-body)",
-              color: "var(--color-light)",
-              animation: animState === 'exiting'
-                ? "because-slide-out 0.4s ease-in forwards"
-                : "because-slide-in 0.4s ease-out forwards",
-            }}
-          >
-            {BECAUSE_LINES[lineIdx]}
-          </p>
+        {/* The split-flap display — full sentences */}
+        <div className="overflow-x-auto">
+          <SplitFlapComponent messages={BECAUSE_MESSAGES} cols={FLAP_COLS} holdTime={4500} />
         </div>
       </div>
     </div>
