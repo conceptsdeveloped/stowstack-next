@@ -525,16 +525,13 @@ const BECAUSE_MESSAGES = [
   "THE MARKETING MEETING WAS YOU AND YOUR MANAGER STARING AT GOOGLE REVIEWS",
 ];
 
-// Dynamic cols = longest message length
-const FLAP_COLS = Math.max(...BECAUSE_MESSAGES.map((m) => m.length));
-
 function BecauseLetterboard() {
   return (
     <div
       className="relative border-t overflow-hidden"
       style={{ borderColor: "var(--border-subtle)", background: "var(--color-dark)" }}
     >
-      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-10 py-8 sm:py-12 text-center">
+      <div className="max-w-[1280px] mx-auto px-3 sm:px-6 lg:px-10 py-8 sm:py-12 text-center">
         {/* "storageads.com — because" label */}
         <div className="mb-4 sm:mb-6">
           <span
@@ -551,10 +548,8 @@ function BecauseLetterboard() {
           </span>
         </div>
 
-        {/* The split-flap display — full sentences */}
-        <div className="overflow-x-auto">
-          <SplitFlapComponent messages={BECAUSE_MESSAGES} cols={FLAP_COLS} holdTime={4500} />
-        </div>
+        {/* Split-flap display — 30 cols x 3 rows, word-wrapped */}
+        <SplitFlapComponent messages={BECAUSE_MESSAGES} cols={30} rows={3} holdTime={4500} />
       </div>
     </div>
   );
