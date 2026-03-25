@@ -35,6 +35,8 @@ interface GenerationJob {
   imageUrl: string | null
   startedAt: number
   provider: 'fal'
+  statusUrl: string | null
+  responseUrl: string | null
 }
 
 interface StylePreset {
@@ -342,7 +344,10 @@ export default function VideoGenerator({ facilityId, adminKey }: {
     const interval = setInterval(async () => {
       for (const job of activeJobs) {
         try {
-          const res = await fetch(`/api/generate-video?taskId=${job.taskId}&provider=${job.provider}`, {
+          const params = new URLSearchParams({ taskId: job.taskId, provider: job.provider })
+          if (job.statusUrl) params.set('statusUrl', job.statusUrl)
+          if (job.responseUrl) params.set('responseUrl', job.responseUrl)
+          const res = await fetch(`/api/generate-video?${params}`, {
             headers: { 'X-Admin-Key': adminKey },
           })
           const data = await res.json()
@@ -394,6 +399,8 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           imageUrl: overrideImage || selectedImage || null,
           startedAt: Date.now(),
           provider: 'fal',
+          statusUrl: data.statusUrl || null,
+          responseUrl: data.responseUrl || null,
         }, ...prev])
       } else if (data.error) {
         setJobs(prev => [{
@@ -407,6 +414,8 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           imageUrl: null,
           startedAt: Date.now(),
           provider: 'fal',
+          statusUrl: null,
+          responseUrl: null,
         }, ...prev])
       }
     } catch (err) {

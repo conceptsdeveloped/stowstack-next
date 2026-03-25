@@ -194,7 +194,12 @@ async function callFal(
     );
   }
 
-  return { id: data.request_id, provider: "fal" };
+  return {
+    id: data.request_id,
+    provider: "fal" as const,
+    statusUrl: data.status_url as string,
+    responseUrl: data.response_url as string,
+  };
 }
 
 async function pollFal(requestId: string, model: string) {
@@ -255,53 +260,50 @@ export async function GET(req: NextRequest) {
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   const taskId = req.nextUrl.searchParams.get("taskId");
+  const statusUrl = req.nextUrl.searchParams.get("statusUrl");
+  const responseUrl = req.nextUrl.searchParams.get("responseUrl");
 
   if (taskId) {
     try {
-      {
-        // Poll FAL.ai
-        const falKey = process.env.FAL_KEY;
-        if (!falKey) return errorResponse("FAL_KEY not configured", 500, origin);
+      const falKey = process.env.FAL_KEY;
+      if (!falKey) return errorResponse("FAL_KEY not configured", 500, origin);
 
-        // Try to get status first
-        const model = "fal-ai/wan/v2.2/t2v-fast";
-        const statusRes = await fetch(
-          `https://queue.fal.run/${model}/requests/${taskId}/status`,
-          { headers: { Authorization: `Key ${falKey}` } },
-        );
-        const statusData = await statusRes.json();
+      // Use the exact URLs FAL returned, or fall back to constructing them
+      const pollUrl = statusUrl || `https://queue.fal.run/fal-ai/wan/requests/${taskId}/status`;
+      const resultUrl = responseUrl || `https://queue.fal.run/fal-ai/wan/requests/${taskId}`;
 
-        if (statusData.status === "COMPLETED") {
-          // Fetch full result with video URL
-          const resultRes = await fetch(
-            `https://queue.fal.run/${model}/requests/${taskId}`,
-            { headers: { Authorization: `Key ${falKey}` } },
-          );
-          const resultData = await resultRes.json();
-          return jsonResponse(
-            {
-              status: "SUCCEEDED",
-              progress: 100,
-              videoUrl: resultData.video?.url || null,
-              error: null,
-            },
-            200,
-            origin,
-          );
-        }
+      const statusRes = await fetch(pollUrl, {
+        headers: { Authorization: `Key ${falKey}` },
+      });
+      const statusData = await statusRes.json();
 
+      if (statusData.status === "COMPLETED") {
+        const resultRes = await fetch(resultUrl, {
+          headers: { Authorization: `Key ${falKey}` },
+        });
+        const resultData = await resultRes.json();
         return jsonResponse(
           {
-            status: statusData.status === "FAILED" ? "FAILED" : "PENDING",
-            progress: statusData.progress || null,
-            videoUrl: null,
-            error: statusData.status === "FAILED" ? (statusData.error || "Generation failed") : null,
+            status: "SUCCEEDED",
+            progress: 100,
+            videoUrl: resultData.video?.url || null,
+            error: null,
           },
           200,
           origin,
         );
       }
 
+      return jsonResponse(
+        {
+          status: statusData.status === "FAILED" ? "FAILED" : "PENDING",
+          progress: statusData.progress || null,
+          videoUrl: null,
+          error: statusData.status === "FAILED" ? (statusData.error || "Generation failed") : null,
+        },
+        200,
+        origin,
+      );
     } catch (err) {
       return errorResponse(
         err instanceof Error ? err.message : "Unknown error",
@@ -398,11 +400,11 @@ export async function POST(req: NextRequest) {
       {
         taskId: result.id,
         provider: result.provider,
+        statusUrl: result.statusUrl,
+        responseUrl: result.responseUrl,
         prompt,
         template: templateId,
         status: "PENDING",
-        message:
-          "Video generation started. Poll the task status endpoint to check progress.",
       },
       200,
       origin,
