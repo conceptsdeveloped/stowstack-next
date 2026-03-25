@@ -100,7 +100,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   }
 
   return (
-    <header className="admin-header sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 px-4 backdrop-blur-xl md:px-6" style={{ background: 'var(--admin-toolbar, #F9FAFB)', borderBottom: '1px solid var(--admin-border, rgba(0,0,0,0.08))' }}>
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.08] bg-[#F9FAFB]/80 px-4 backdrop-blur-xl md:px-6">
       <button
         type="button"
         onClick={onToggleSidebar}
@@ -110,7 +110,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="text-lg font-semibold" style={{ color: 'var(--admin-text, #111827)' }}>
+      <h1 className="text-lg font-semibold text-[#111827]">
         {getPageTitle(pathname)}
       </h1>
 
