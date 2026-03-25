@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Split-Flap Display</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'IBM Plex Mono', monospace;
+    overflow: hidden;
+  }
+
+  .board-frame {
+    background: #0d0d0d;
+    border: 2px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 32px 40px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 20px 60px rgba(0,0,0,0.8),
+      inset 0 1px 0 rgba(255,255,255,0.02);
+    position: relative;
+  }
+
+  .board-frame::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  }
+
+  .board-row {
+    display: flex;
+    gap: 3px;
+    margin: 4px 0;
+  }
+
+  /* ─── SINGLE FLAP UNIT ─── */
+  .flap-unit {
+    width: 42px;
+    height: 60px;
+    position: relative;
+    perspective: 300px;
+  }
+
+  /* Shared card-half styles */
+  .flap-unit .top,
+  .flap-unit .bottom,
+  .flap-unit .flip-top,
+  .flap-unit .flip-bottom {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    overflow: hidden;
+    background: #151515;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .flap-unit .top,
+  .flap-unit .flip-top {
+    top: 0;
+    border-radius: 3px 3px 0 0;
+    align-items: flex-end;
+    border-bottom: none;
+  }
+
+  .flap-unit .bottom,
+  .flap-unit .flip-bottom {
+    bottom: 0;
+    border-radius: 0 0 3px 3px;
+    align-items: flex-start;
+    border-top: none;
+  }
+
+  /* Inner shadow and depth on static halves */
+  .flap-unit .top {
+    z-index: 2;
+    box-shadow:
+      inset 0 -1px 2px rgba(0,0,0,0.6),
+      0 1px 1px rgba(0,0,0,0.3);
+  }
+
+  .flap-unit .bottom {
+    z-index: 1;
+    box-shadow:
+      inset 0 1px 3px rgba(0,0,0,0.7),
+      0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  /* The center split line */
+  .flap-unit::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: #000;
+    z-index: 10;
+    box-shadow: 0 0.5px 1px rgba(0,0,0,0.8);
+    transform: translateY(-50%);
+  }
+
+  /* Text inside cards */
+  .flap-char {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 34px;
+    font-weight: 700;
+    color: #e8e4d9;
+    line-height: 60px;
+    height: 60px;
+    text-shadow: 0 0 8px rgba(232,228,217,0.08);
+    user-select: none;
+  }
+
+  .flap-unit .top .flap-char,
+  .flap-unit .flip-top .flap-char {
+    transform: translateY(50%);
+  }
+
+  .flap-unit .bottom .flap-char,
+  .flap-unit .flip-bottom .flap-char {
+    transform: translateY(-50%);
+  }
+
+  /* ─── FLIP ANIMATION PIECES ─── */
+  .flap-unit .flip-top {
+    z-index: 5;
+    transform-origin: bottom center;
+    transform: rotateX(0deg);
+    background: #151515;
+    box-shadow:
+      inset 0 -1px 2px rgba(0,0,0,0.6),
+      0 3px 8px rgba(0,0,0,0.5);
+  }
+
+  .flap-unit .flip-top.flipping {
+    animation: flipDown 0.18s ease-in forwards;
+  }
+
+  .flap-unit .flip-bottom {
+    z-index: 4;
+    transform-origin: top center;
+    transform: rotateX(90deg);
+    background: #181818;
+    box-shadow:
+      inset 0 2px 4px rgba(0,0,0,0.5),
+      0 2px 4px rgba(0,0,0,0.4);
+  }
+
+  .flap-unit .flip-bottom.flipping {
+    animation: flipUp 0.15s 0.12s ease-out forwards;
+  }
+
+  @keyframes flipDown {
+    0% {
+      transform: rotateX(0deg);
+      background: #151515;
+    }
+    50% {
+      background: #111;
+    }
+    100% {
+      transform: rotateX(-90deg);
+      background: #0e0e0e;
+    }
+  }
+
+  @keyframes flipUp {
+    0% {
+      transform: rotateX(90deg);
+      background: #181818;
+    }
+    60% {
+      background: #161616;
+    }
+    100% {
+      transform: rotateX(0deg);
+      background: #151515;
+    }
+  }
+
+  /* Shadow that appears during flip */
+  .flap-unit .flip-shadow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    z-index: 3;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 100%);
+    opacity: 0;
+    border-radius: 0 0 3px 3px;
+    pointer-events: none;
+  }
+
+  .flap-unit .flip-shadow.visible {
+    animation: shadowPulse 0.3s ease-out forwards;
+  }
+
+  @keyframes shadowPulse {
+    0% { opacity: 0; }
+    30% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Subtle ambient light on top edge of each card */
+  .flap-unit .top::before,
+  .flap-unit .flip-top::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.04) 50%, transparent 90%);
+    z-index: 1;
+  }
+
+  /* Small rivets / mounting detail on the board frame */
+  .board-rivet {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 1px solid #222;
+    position: absolute;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
+  }
+
+  .board-rivet.tl { top: 12px; left: 12px; }
+  .board-rivet.tr { top: 12px; right: 12px; }
+  .board-rivet.bl { bottom: 12px; left: 12px; }
+  .board-rivet.br { bottom: 12px; right: 12px; }
+
+  /* Word separator — slightly larger gap */
+  .flap-unit.spacer {
+    width: 20px;
+  }
+  .flap-unit.spacer::after {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="board-frame" id="board">
+  <div class="board-rivet tl"></div>
+  <div class="board-rivet tr"></div>
+  <div class="board-rivet bl"></div>
+  <div class="board-rivet br"></div>
+</div>
+
+<script>
+const MESSAGES = [
+  "STOWSTACK",
+  "DEMAND ENGINE",
+  "FILL UNITS",
+  "NOT AN AGENCY",
+  "OPERATOR BUILT",
+  "AD TO MOVE-IN",
+  "FULL FUNNEL",
+];
+
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@&!?+-=';
+const COLS = 16;
+const ROWS = 1;
+const CASCADE_DELAY = 70;    // ms between each column starting
+const FLIP_INTERVAL_START = 35;  // ms — fast initial flip speed
+const FLIP_INTERVAL_END = 60;    // ms — slower as it settles
+const RAND_FLIPS_MIN = 4;
+const RAND_FLIPS_MAX = 12;
+const MESSAGE_HOLD = 4000;  // ms to hold each message
+
+let currentChars = new Array(COLS).fill(' ');
+
+// ─── BUILD THE DOM ───
+function buildBoard() {
+  const board = document.getElementById('board');
+  for (let r = 0; r < ROWS; r++) {
+    const row = document.createElement('div');
+    row.className = 'board-row';
+    row.id = `row-${r}`;
+    for (let c = 0; c < COLS; c++) {
+      const unit = document.createElement('div');
+      unit.className = 'flap-unit';
+      unit.id = `flap-${r}-${c}`;
+      unit.innerHTML = `
+        <div class="top"><span class="flap-char">&nbsp;</span></div>
+        <div class="bottom"><span class="flap-char">&nbsp;</span></div>
+        <div class="flip-top"><span class="flap-char">&nbsp;</span></div>
+        <div class="flip-bottom"><span class="flap-char">&nbsp;</span></div>
+        <div class="flip-shadow"></div>
+      `;
+      row.appendChild(unit);
+    }
+    board.insertBefore(row, board.querySelector('.board-rivet.bl') || null);
+  }
+}
+
+// ─── SET STATIC DISPLAY (no animation) ───
+function setChar(col, char) {
+  const unit = document.getElementById(`flap-0-${col}`);
+  if (!unit) return;
+  const display = char === ' ' ? '\u00A0' : char;
+  unit.querySelector('.top .flap-char').textContent = display;
+  unit.querySelector('.bottom .flap-char').textContent = display;
+  unit.querySelector('.flip-top .flap-char').textContent = display;
+  unit.querySelector('.flip-bottom .flap-char').textContent = display;
+  currentChars[col] = char;
+}
+
+// ─── ANIMATE A SINGLE FLAP FLIP ───
+function flipOnce(col, fromChar, toChar) {
+  return new Promise((resolve) => {
+    const unit = document.getElementById(`flap-0-${col}`);
+    if (!unit) { resolve(); return; }
+
+    const fromDisplay = fromChar === ' ' ? '\u00A0' : fromChar;
+    const toDisplay = toChar === ' ' ? '\u00A0' : toChar;
+
+    const topEl = unit.querySelector('.top');
+    const bottomEl = unit.querySelector('.bottom');
+    const flipTopEl = unit.querySelector('.flip-top');
+    const flipBottomEl = unit.querySelector('.flip-bottom');
+    const shadowEl = unit.querySelector('.flip-shadow');
+
+    // Current state: top and bottom show fromChar
+    topEl.querySelector('.flap-char').textContent = fromDisplay;
+    bottomEl.querySelector('.flap-char').textContent = fromDisplay;
+
+    // Flip-top shows the OLD char (it will fold down and disappear)
+    flipTopEl.querySelector('.flap-char').textContent = fromDisplay;
+
+    // Flip-bottom shows the NEW char (it will fold up into place)
+    flipBottomEl.querySelector('.flap-char').textContent = toDisplay;
+
+    // The static bottom should already show the NEW char
+    // (it's revealed as flip-top folds away)
+    bottomEl.querySelector('.flap-char').textContent = toDisplay;
+
+    // Reset animations
+    flipTopEl.classList.remove('flipping');
+    flipBottomEl.classList.remove('flipping');
+    shadowEl.classList.remove('visible');
+
+    // Force reflow
+    void flipTopEl.offsetWidth;
+    void flipBottomEl.offsetWidth;
+    void shadowEl.offsetWidth;
+
+    // Trigger
+    flipTopEl.classList.add('flipping');
+    flipBottomEl.classList.add('flipping');
+    shadowEl.classList.add('visible');
+
+    // After animation completes, set final state
+    const totalDuration = 320; // covers both animations
+    setTimeout(() => {
+      flipTopEl.classList.remove('flipping');
+      flipBottomEl.classList.remove('flipping');
+      shadowEl.classList.remove('visible');
+
+      // Reset flip pieces
+      flipTopEl.style.transform = '';
+      flipBottomEl.style.transform = '';
+
+      // Set everything to the new char
+      topEl.querySelector('.flap-char').textContent = toDisplay;
+      bottomEl.querySelector('.flap-char').textContent = toDisplay;
+      flipTopEl.querySelector('.flap-char').textContent = toDisplay;
+      flipBottomEl.querySelector('.flap-char').textContent = toDisplay;
+
+      currentChars[col] = toChar;
+      resolve();
+    }, totalDuration);
+  });
+}
+
+// ─── ANIMATE A COLUMN THROUGH RANDOM CHARS THEN LAND ───
+async function animateColumn(col, targetChar) {
+  if (currentChars[col] === targetChar) return;
+
+  const numFlips = RAND_FLIPS_MIN + Math.floor(Math.random() * (RAND_FLIPS_MAX - RAND_FLIPS_MIN));
+
+  for (let i = 0; i < numFlips; i++) {
+    const intermediateChar = CHARS[Math.floor(Math.random() * CHARS.length)];
+    const progress = i / numFlips;
+    const interval = FLIP_INTERVAL_START + (FLIP_INTERVAL_END - FLIP_INTERVAL_START) * progress;
+
+    await flipOnce(col, currentChars[col], intermediateChar);
+    await sleep(interval);
+  }
+
+  // Final flip to target
+  await flipOnce(col, currentChars[col], targetChar);
+}
+
+// ─── TRANSITION TO A NEW MESSAGE ───
+function transitionTo(message) {
+  // Pad or truncate
+  const padded = message.padEnd(COLS, ' ').substring(0, COLS).toUpperCase();
+
+  const promises = [];
+  for (let c = 0; c < COLS; c++) {
+    const targetChar = padded[c];
+    const delay = c * CASCADE_DELAY;
+
+    const p = new Promise((resolve) => {
+      setTimeout(() => {
+        animateColumn(c, targetChar).then(resolve);
+      }, delay);
+    });
+    promises.push(p);
+  }
+
+  return Promise.all(promises);
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+// ─── MAIN LOOP ───
+async function run() {
+  buildBoard();
+
+  // Initialize all to blank
+  for (let c = 0; c < COLS; c++) {
+    setChar(c, ' ');
+  }
+
+  await sleep(600);
+
+  let idx = 0;
+  while (true) {
+    const msg = MESSAGES[idx % MESSAGES.length];
+
+    // Center the message
+    const pad = Math.max(0, Math.floor((COLS - msg.length) / 2));
+    const centered = ' '.repeat(pad) + msg;
+
+    await transitionTo(centered);
+    await sleep(MESSAGE_HOLD);
+    idx++;
+  }
+}
+
+run();
+</script>
+
+</body>
+</html>
