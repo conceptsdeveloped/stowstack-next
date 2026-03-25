@@ -510,21 +510,19 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
 
 const BECAUSE_LINES = [
   "a sign on a chainlink fence is not an acquisition strategy",
-  "no one has ever impulse-rented a 10x20",
   "'we're on page 2 of Google' is not a marketing plan",
-  "your gate code has more security than your ad account",
-  "a Craigslist post from 2021 is not 'digital presence'",
-  "your competitor filled 40 units last month and you don't know how",
-  "the Yellow Pages called. They want their strategy back.",
+  "your competitor filled 40 units last month and you have no idea how",
+  "the last agency showed you clicks. you asked about move-ins. they changed the subject.",
   "you're paying $200 per move-in and calling it 'brand awareness'",
-  "your 'marketing guy' thinks ROAS is a type of roast",
-  "that drone footage of your roof isn't converting anyone",
-  "you just paid $6 per click for someone googling your own name",
-  "'my son does our social media' is how you lose to Public Storage",
-  "your last 'campaign' was a Vistaprint banner zip-tied to a stop sign",
-  "you have 47 empty units and a 'we'll wait for spring' strategy",
+  "your manager just asked what ROAS means and nobody in the room knew",
+  "drone footage of your roof has 200 views and zero reservations",
+  "you just paid Google $6 so someone could click your ad to pay their bill",
+  "Extra Space is running 14 campaigns in your zip code and you're running vibes",
+  "your best ad is a photo of your unit doors that got 3 likes — two were employees",
+  "you've been 'about to launch a campaign' since Q2 of last year",
   "your SpareFoot listing is doing more work than your entire marketing budget",
   "the 'marketing meeting' was you and your manager staring at Google reviews",
+  "you spent more on the facility sign than on the ads that actually fill it",
 ];
 
 function BecauseLetterboard() {
