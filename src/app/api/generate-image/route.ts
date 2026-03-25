@@ -171,7 +171,7 @@ Return ONLY the enhanced prompt. Nothing else.`,
   }
 }
 
-/* ── Generate image — tries Gemini → Replicate/Flux → Pollinations.ai ── */
+/* ── Generate image via FAL.ai (Flux) ── */
 
 interface GenerateImageResult {
   imageUrl: string;
@@ -181,139 +181,47 @@ interface GenerateImageResult {
 async function generateImage(
   prompt: string,
   aspect: string,
-  keys: { gemini?: string; replicate?: string },
 ): Promise<GenerateImageResult> {
-  // Try Gemini first
-  if (keys.gemini) {
-    try {
-      const aspectMap: Record<string, string> = {
-        "1:1": "1:1",
-        "16:9": "16:9",
-        "4:5": "3:4",
-        "9:16": "9:16",
-      };
-      const model = "gemini-2.5-flash-image";
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": keys.gemini,
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              responseModalities: ["TEXT", "IMAGE"],
-              imageConfig: { aspectRatio: aspectMap[aspect] || "1:1" },
-            },
-          }),
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        const parts = data.candidates?.[0]?.content?.parts || [];
-        const imagePart = parts.find(
-          (p: { inline_data?: { mimeType?: string; data?: string } }) =>
-            p.inline_data?.mimeType?.startsWith("image/"),
-        );
-        if (imagePart) {
-          return {
-            imageUrl: `data:${imagePart.inline_data.mimeType};base64,${imagePart.inline_data.data}`,
-            predictionId: null,
-          };
-        }
-      }
-    } catch {
-      // Fall through to Replicate
-    }
-  }
+  const falKey = process.env.FAL_KEY;
+  if (!falKey)
+    throw new Error("FAL_KEY not configured. Add it to your environment variables. Get a key at fal.ai");
 
-  // Fallback: Replicate/Flux
-  if (keys.replicate) {
-    try {
-      const dims = ASPECT_RATIOS[aspect] || ASPECT_RATIOS["1:1"];
-      const startRes = await fetch(
-        "https://api.replicate.com/v1/models/black-forest-labs/flux-1.1-pro/predictions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${keys.replicate}`,
-            "Content-Type": "application/json",
-            Prefer: "wait",
-          },
-          body: JSON.stringify({
-            input: {
-              prompt,
-              width: dims.width,
-              height: dims.height,
-              num_inference_steps: 25,
-              guidance: 3.5,
-              output_format: "webp",
-              output_quality: 90,
-            },
-          }),
-        },
-      );
-      if (startRes.ok) {
-        const prediction = await startRes.json();
-        if (prediction.status === "succeeded" && prediction.output) {
-          const output = Array.isArray(prediction.output)
-            ? prediction.output[0]
-            : prediction.output;
-          return { imageUrl: output, predictionId: prediction.id };
-        }
-        // Poll if not immediately ready
-        for (let i = 0; i < 30; i++) {
-          await new Promise((r) => setTimeout(r, 2000));
-          const pollRes = await fetch(
-            `https://api.replicate.com/v1/predictions/${prediction.id}`,
-            { headers: { Authorization: `Bearer ${keys.replicate}` } },
-          );
-          const data = await pollRes.json();
-          if (data.status === "succeeded") {
-            return {
-              imageUrl: Array.isArray(data.output) ? data.output[0] : data.output,
-              predictionId: prediction.id,
-            };
-          }
-          if (data.status === "failed") break;
-        }
-      }
-    } catch {
-      // Fall through to Hugging Face
-    }
-  }
+  const dims = ASPECT_RATIOS[aspect] || ASPECT_RATIOS["1:1"];
+  const aspectRatio = aspect === "16:9" ? "16:9"
+    : aspect === "9:16" ? "9:16"
+    : aspect === "4:5" ? "4:5"
+    : "1:1";
 
-  // Fallback: Pollinations.ai (free, no key required — optional POLLINATIONS_API_KEY for no rate limits)
-  {
-    const dims = ASPECT_RATIOS[aspect] || ASPECT_RATIOS["1:1"];
-    const pollinationsKey = process.env.POLLINATIONS_API_KEY;
-    const params = new URLSearchParams({
-      width: String(dims.width),
-      height: String(dims.height),
-      model: "flux",
-    });
-    if (pollinationsKey) {
-      params.set("key", pollinationsKey);
-      params.set("nologo", "true");
-      params.set("enhance", "true");
-    }
-    const url = `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?${params}`;
+  // Use FAL Flux for image generation (synchronous endpoint)
+  const res = await fetch("https://fal.run/fal-ai/flux/dev", {
+    method: "POST",
+    headers: {
+      Authorization: `Key ${falKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt,
+      image_size: {
+        width: dims.width,
+        height: dims.height,
+      },
+      num_inference_steps: 28,
+      guidance_scale: 3.5,
+      num_images: 1,
+      enable_safety_checker: false,
+    }),
+  });
 
-    const res = await fetch(url);
-    if (res.ok) {
-      const buffer = Buffer.from(await res.arrayBuffer());
-      const base64 = buffer.toString("base64");
-      const contentType = res.headers.get("content-type") || "image/jpeg";
-      return {
-        imageUrl: `data:${contentType};base64,${base64}`,
-        predictionId: null,
-      };
-    }
+  if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`Pollinations error: ${res.status} ${errText.slice(0, 100)}`);
+    throw new Error(`FAL image generation failed (${res.status}): ${errText.slice(0, 200)}`);
   }
+
+  const data = await res.json();
+  const imageUrl = data.images?.[0]?.url;
+  if (!imageUrl) throw new Error("FAL returned no image URL");
+
+  return { imageUrl, predictionId: null };
 }
 
 /* ── Route Handlers ── */
@@ -336,7 +244,7 @@ export async function GET(req: NextRequest) {
   return jsonResponse(
     {
       templates,
-      configured: true, // Pollinations.ai fallback requires no API key
+      configured: !!process.env.FAL_KEY,
     },
     200,
     origin,
@@ -359,11 +267,6 @@ export async function POST(req: NextRequest) {
         origin,
       );
     }
-
-    const keys = {
-      gemini: process.env.GEMINI_API_KEY,
-      replicate: process.env.REPLICATE_API_TOKEN,
-    };
 
     const template = IMAGE_TEMPLATES[templateId];
     if (!template) return errorResponse("Invalid template", 400, origin);
@@ -392,11 +295,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate — tries Gemini first, falls back to Flux
+    // Generate via FAL.ai
     const result = await generateImage(
       prompt,
       aspect || template.aspect,
-      keys,
     );
 
     // Upload to Vercel Blob for permanent URL
