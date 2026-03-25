@@ -80,7 +80,7 @@ export function SplitFlap({ messages, cols: colsProp, rows: rowsProp, holdTime =
 
       // Account for: outer section padding, board frame padding, inter-flap gaps
       const sectionPadding = 24; // px-3 = 12px each side
-      const boardPadding = 28;   // board frame padding (12px + 2px border each side)
+      const boardPadding = 44;   // board frame padding (20px + 2px border each side)
       const totalGaps = (cols - 1) * 2; // 2px gap between each flap
       const availableForFlaps = containerWidth - sectionPadding - boardPadding - totalGaps;
       const maxFlapW = Math.floor(availableForFlaps / cols);
