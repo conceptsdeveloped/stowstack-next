@@ -548,8 +548,8 @@ function BecauseLetterboard() {
           </span>
         </div>
 
-        {/* Split-flap display — 30 cols x 3 rows, word-wrapped */}
-        <SplitFlapComponent messages={BECAUSE_MESSAGES} cols={30} rows={3} holdTime={4500} />
+        {/* Split-flap display — 42 cols x 3 rows, word-wrapped */}
+        <SplitFlapComponent messages={BECAUSE_MESSAGES} cols={42} rows={3} holdTime={4500} />
       </div>
     </div>
   );
