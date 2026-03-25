@@ -55,9 +55,9 @@ async function deliverWebhook(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-StowStack-Event": event,
-        "X-StowStack-Signature": `sha256=${signature}`,
-        "X-StowStack-Delivery": deliveryId,
+        "X-StorageAds-Event": event,
+        "X-StorageAds-Signature": `sha256=${signature}`,
+        "X-StorageAds-Delivery": deliveryId,
       },
       body,
       signal: controller.signal,

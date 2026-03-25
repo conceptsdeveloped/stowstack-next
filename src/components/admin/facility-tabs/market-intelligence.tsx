@@ -74,7 +74,7 @@ const CATEGORY_ICONS: Record<string, typeof Building2> = {
 /* ── Star Rating ── */
 
 function StarRating({ rating }: { rating: number | null }) {
-  if (!rating) return <span className="text-xs text-[#9CA3AF]">No rating</span>
+  if (!rating) return <span className="text-xs text-[var(--color-mid-gray)]">No rating</span>
   const full = Math.floor(rating)
   const half = rating - full >= 0.5
   return (
@@ -159,9 +159,9 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-black/[0.08] bg-white p-6">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6">
         <div className="flex justify-center py-4">
-          <Loader2 size={20} className="animate-spin text-[#3B82F6]" />
+          <Loader2 size={20} className="animate-spin text-[var(--color-gold)]" />
         </div>
       </div>
     )
@@ -187,16 +187,16 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
     .join(', ')
 
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
       {/* Header */}
       <div className="px-5 py-4 flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-semibold flex items-center gap-2 text-[#111827]">
-            <Radar size={14} className="text-[#3B82F6]" />
+          <h4 className="text-sm font-semibold flex items-center gap-2 text-[var(--color-dark)]">
+            <Radar size={14} className="text-[var(--color-gold)]" />
             Market Intelligence
           </h4>
           {intel?.last_scanned && (
-            <p className="text-xs text-[#9CA3AF] mt-0.5">
+            <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">
               Last scanned{' '}
               {new Date(intel.last_scanned).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
@@ -207,7 +207,7 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
         <button
           onClick={runScan}
           disabled={scanning}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#3B82F6]/80 disabled:opacity-40 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded-lg hover:bg-[var(--color-gold)]/80 disabled:opacity-40 transition-colors"
         >
           {scanning ? <Loader2 size={12} className="animate-spin" /> : <ScanSearch size={12} />}
           {scanning ? 'Scanning...' : 'Scan Market'}
@@ -225,8 +225,8 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
 
       {/* Empty state */}
       {!intel && !scanning && (
-        <div className="px-5 pb-5 border-t border-black/[0.08]">
-          <p className="text-sm text-[#6B7280] py-6 text-center">
+        <div className="px-5 pb-5 border-t border-[var(--border-subtle)]">
+          <p className="text-sm text-[var(--color-body-text)] py-6 text-center">
             No market data yet. Click &quot;Scan Market&quot; to analyze competitors, demand drivers, and local demographics.
           </p>
         </div>
@@ -234,26 +234,26 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
 
       {/* Scanning state */}
       {scanning && (
-        <div className="px-5 pb-5 border-t border-black/[0.08]">
+        <div className="px-5 pb-5 border-t border-[var(--border-subtle)]">
           <div className="flex flex-col items-center gap-2 py-8">
-            <Loader2 size={24} className="animate-spin text-[#3B82F6]" />
-            <p className="text-sm text-[#111827]">Scanning market environment...</p>
-            <p className="text-xs text-[#9CA3AF]">Searching competitors, demand drivers, and census data</p>
+            <Loader2 size={24} className="animate-spin text-[var(--color-gold)]" />
+            <p className="text-sm text-[var(--color-dark)]">Scanning market environment...</p>
+            <p className="text-xs text-[var(--color-mid-gray)]">Searching competitors, demand drivers, and census data</p>
           </div>
         </div>
       )}
 
       {/* Data loaded */}
       {intel && !scanning && (
-        <div className="border-t border-black/[0.08]">
+        <div className="border-t border-[var(--border-subtle)]">
           {/* Competitors Section */}
           <div className="px-5 py-4">
             <div className="flex items-center justify-between mb-3">
-              <h5 className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+              <h5 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-mid-gray)]">
                 Competitive Landscape
               </h5>
               {competitors.length > 0 && (
-                <span className="text-xs text-[#9CA3AF]">
+                <span className="text-xs text-[var(--color-mid-gray)]">
                   {competitors.length} competitor{competitors.length !== 1 ? 's' : ''} within 15 miles
                   {avgRating > 0 ? `, avg rating ${avgRating}` : ''}
                   {avgRating > 0 && <Star size={10} className="inline ml-0.5 text-amber-500" fill="currentColor" />}
@@ -261,24 +261,24 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
               )}
             </div>
             {competitors.length === 0 ? (
-              <p className="text-sm text-[#6B7280]">No competitors found nearby.</p>
+              <p className="text-sm text-[var(--color-body-text)]">No competitors found nearby.</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {competitors.map((c, i) => (
-                  <div key={i} className="p-3 rounded-lg bg-black/[0.02]">
+                  <div key={i} className="p-3 rounded-lg bg-[var(--color-light-gray)]">
                     <div className="flex items-start justify-between">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate text-[#111827]">{c.name}</p>
-                        <p className="text-xs text-[#9CA3AF] truncate mt-0.5">{c.address}</p>
+                        <p className="text-sm font-medium truncate text-[var(--color-dark)]">{c.name}</p>
+                        <p className="text-xs text-[var(--color-mid-gray)] truncate mt-0.5">{c.address}</p>
                       </div>
                       <div className="flex gap-1.5 ml-2 flex-shrink-0">
                         {c.mapsUrl && (
-                          <a href={c.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:text-[#3B82F6]/80">
+                          <a href={c.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--color-gold)] hover:text-[var(--color-gold)]/80">
                             <MapPin size={12} />
                           </a>
                         )}
                         {c.website && (
-                          <a href={c.website} target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] hover:text-[#3B82F6]/80">
+                          <a href={c.website} target="_blank" rel="noopener noreferrer" className="text-[var(--color-gold)] hover:text-[var(--color-gold)]/80">
                             <ExternalLink size={12} />
                           </a>
                         )}
@@ -286,9 +286,9 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
                     </div>
                     <div className="flex items-center gap-3 mt-2">
                       <StarRating rating={c.rating} />
-                      {c.reviewCount > 0 && <span className="text-xs text-[#9CA3AF]">({c.reviewCount} reviews)</span>}
+                      {c.reviewCount > 0 && <span className="text-xs text-[var(--color-mid-gray)]">({c.reviewCount} reviews)</span>}
                       {c.distance_miles !== null && (
-                        <span className="text-xs text-[#9CA3AF] ml-auto">{c.distance_miles} mi</span>
+                        <span className="text-xs text-[var(--color-mid-gray)] ml-auto">{c.distance_miles} mi</span>
                       )}
                     </div>
                   </div>
@@ -298,33 +298,33 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
           </div>
 
           {/* Demand Drivers Section */}
-          <div className="px-5 py-4 border-t border-black/[0.08]">
+          <div className="px-5 py-4 border-t border-[var(--border-subtle)]">
             <div className="flex items-center justify-between mb-3">
-              <h5 className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+              <h5 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-mid-gray)]">
                 Local Demand Drivers
               </h5>
               {demandDrivers.length > 0 && (
-                <span className="text-xs text-[#9CA3AF]">{driverSummary} within 5 miles</span>
+                <span className="text-xs text-[var(--color-mid-gray)]">{driverSummary} within 5 miles</span>
               )}
             </div>
             {demandDrivers.length === 0 ? (
-              <p className="text-sm text-[#6B7280]">No demand drivers found nearby.</p>
+              <p className="text-sm text-[var(--color-body-text)]">No demand drivers found nearby.</p>
             ) : (
               <div className="space-y-3">
                 {Object.entries(driversByCategory).map(([cat, items]) => {
                   const Icon = CATEGORY_ICONS[cat] || Building2
                   return (
                     <div key={cat}>
-                      <p className="text-xs font-medium flex items-center gap-1.5 mb-1.5 text-[#111827]">
-                        <Icon size={12} className="text-[#3B82F6]" />
+                      <p className="text-xs font-medium flex items-center gap-1.5 mb-1.5 text-[var(--color-dark)]">
+                        <Icon size={12} className="text-[var(--color-gold)]" />
                         {CATEGORY_LABELS[cat] || cat} ({items.length})
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
                         {items.map((d, i) => (
-                          <div key={i} className="flex items-center justify-between px-2.5 py-1.5 rounded bg-black/[0.02]">
-                            <span className="text-xs truncate text-[#111827]">{d.name}</span>
+                          <div key={i} className="flex items-center justify-between px-2.5 py-1.5 rounded bg-[var(--color-light-gray)]">
+                            <span className="text-xs truncate text-[var(--color-dark)]">{d.name}</span>
                             {d.distance_miles !== null && (
-                              <span className="text-xs text-[#9CA3AF] ml-2 flex-shrink-0">{d.distance_miles} mi</span>
+                              <span className="text-xs text-[var(--color-mid-gray)] ml-2 flex-shrink-0">{d.distance_miles} mi</span>
                             )}
                           </div>
                         ))}
@@ -337,57 +337,57 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
           </div>
 
           {/* Demographics Section */}
-          <div className="px-5 py-4 border-t border-black/[0.08]">
-            <h5 className="text-xs font-semibold uppercase tracking-wide mb-3 text-[#9CA3AF]">
+          <div className="px-5 py-4 border-t border-[var(--border-subtle)]">
+            <h5 className="text-xs font-semibold uppercase tracking-wide mb-3 text-[var(--color-mid-gray)]">
               Market Demographics {demographics.zip ? `(${demographics.zip})` : ''}
             </h5>
             {!hasDemographics ? (
-              <p className="text-sm text-[#6B7280]">No demographic data available.</p>
+              <p className="text-sm text-[var(--color-body-text)]">No demographic data available.</p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                <div className="p-3 rounded-lg text-center bg-black/[0.02]">
-                  <Users size={14} className="mx-auto mb-1 text-[#9CA3AF]" />
-                  <p className="text-lg font-bold text-[#111827]">{demographics.population?.toLocaleString() || '\u2014'}</p>
-                  <p className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">Population</p>
+                <div className="p-3 rounded-lg text-center bg-[var(--color-light-gray)]">
+                  <Users size={14} className="mx-auto mb-1 text-[var(--color-mid-gray)]" />
+                  <p className="text-lg font-bold text-[var(--color-dark)]">{demographics.population?.toLocaleString() || '\u2014'}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)]">Population</p>
                 </div>
-                <div className="p-3 rounded-lg text-center bg-black/[0.02]">
-                  <DollarSign size={14} className="mx-auto mb-1 text-[#9CA3AF]" />
-                  <p className="text-lg font-bold text-[#111827]">
+                <div className="p-3 rounded-lg text-center bg-[var(--color-light-gray)]">
+                  <DollarSign size={14} className="mx-auto mb-1 text-[var(--color-mid-gray)]" />
+                  <p className="text-lg font-bold text-[var(--color-dark)]">
                     {demographics.median_income ? `$${(demographics.median_income / 1000).toFixed(0)}k` : '\u2014'}
                   </p>
-                  <p className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">Median Income</p>
+                  <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)]">Median Income</p>
                 </div>
-                <div className="p-3 rounded-lg text-center bg-black/[0.02]">
-                  <Calendar size={14} className="mx-auto mb-1 text-[#9CA3AF]" />
-                  <p className="text-lg font-bold text-[#111827]">{demographics.median_age || '\u2014'}</p>
-                  <p className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">Median Age</p>
+                <div className="p-3 rounded-lg text-center bg-[var(--color-light-gray)]">
+                  <Calendar size={14} className="mx-auto mb-1 text-[var(--color-mid-gray)]" />
+                  <p className="text-lg font-bold text-[var(--color-dark)]">{demographics.median_age || '\u2014'}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)]">Median Age</p>
                 </div>
-                <div className={`p-3 rounded-lg text-center ${(demographics.renter_pct || 0) > 40 ? 'bg-emerald-500/5 border border-emerald-500/20' : 'bg-black/[0.02]'}`}>
-                  <TrendingUp size={14} className={`mx-auto mb-1 ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-500' : 'text-[#9CA3AF]'}`} />
-                  <p className={`text-lg font-bold ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-400' : 'text-[#111827]'}`}>
+                <div className={`p-3 rounded-lg text-center ${(demographics.renter_pct || 0) > 40 ? 'bg-emerald-500/5 border border-emerald-500/20' : 'bg-[var(--color-light-gray)]'}`}>
+                  <TrendingUp size={14} className={`mx-auto mb-1 ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-500' : 'text-[var(--color-mid-gray)]'}`} />
+                  <p className={`text-lg font-bold ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-400' : 'text-[var(--color-dark)]'}`}>
                     {demographics.renter_pct != null ? `${demographics.renter_pct}%` : '\u2014'}
                   </p>
-                  <p className={`text-[10px] uppercase tracking-wide ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-500' : 'text-[#9CA3AF]'}`}>
+                  <p className={`text-[10px] uppercase tracking-wide ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-500' : 'text-[var(--color-mid-gray)]'}`}>
                     Renter %{(demographics.renter_pct || 0) > 40 ? ' (Strong)' : ''}
                   </p>
                 </div>
-                <div className="p-3 rounded-lg text-center bg-black/[0.02]">
-                  <Home size={14} className="mx-auto mb-1 text-[#9CA3AF]" />
-                  <p className="text-lg font-bold text-[#111827]">
+                <div className="p-3 rounded-lg text-center bg-[var(--color-light-gray)]">
+                  <Home size={14} className="mx-auto mb-1 text-[var(--color-mid-gray)]" />
+                  <p className="text-lg font-bold text-[var(--color-dark)]">
                     {demographics.median_home_value ? `$${(demographics.median_home_value / 1000).toFixed(0)}k` : '\u2014'}
                   </p>
-                  <p className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">Home Value</p>
+                  <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)]">Home Value</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* Manual Notes Section */}
-          <div className="px-5 py-4 border-t border-black/[0.08]">
-            <h5 className="text-xs font-semibold uppercase tracking-wide mb-2 text-[#9CA3AF]">
+          <div className="px-5 py-4 border-t border-[var(--border-subtle)]">
+            <h5 className="text-xs font-semibold uppercase tracking-wide mb-2 text-[var(--color-mid-gray)]">
               Operator Market Notes
             </h5>
-            <p className="text-xs text-[#9CA3AF] mb-2">
+            <p className="text-xs text-[var(--color-mid-gray)] mb-2">
               Add context the scan cannot find: new developments, competitor pricing changes, local trends, etc.
             </p>
             <textarea
@@ -395,13 +395,13 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
               onChange={e => { setNotes(e.target.value); setNotesSaved(false) }}
               rows={3}
               placeholder="e.g., New 200-unit apartment complex breaking ground on Oak St... Public Storage down the road has been raising prices aggressively..."
-              className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]"
+              className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light)] text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
             />
             <div className="flex items-center gap-2 mt-2">
               <button
                 onClick={saveNotes}
                 disabled={savingNotes}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#3B82F6]/80 disabled:opacity-40 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded-lg hover:bg-[var(--color-gold)]/80 disabled:opacity-40 transition-colors"
               >
                 {savingNotes ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
                 Save Notes

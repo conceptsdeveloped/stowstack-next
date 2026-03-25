@@ -1,7 +1,7 @@
 import { PartnerShell } from "@/components/partner/partner-shell";
 
 export const metadata = {
-  title: "Partner Dashboard | StowStack",
+  title: "Partner Dashboard | StorageAds",
   robots: { index: false, follow: false },
 };
 

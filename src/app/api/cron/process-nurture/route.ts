@@ -109,7 +109,7 @@ async function sendEmail(
   facilityName: string | null
 ) {
   const result = await getResend().emails.send({
-    from: `${facilityName || "StowStack"} <notifications@stowstack.co>`,
+    from: `${facilityName || "StorageAds"} <notifications@storageads.com>`,
     to: [to],
     subject,
     text: body,
@@ -269,7 +269,7 @@ export async function GET(request: NextRequest) {
           const emailResult = await sendEmail(
             toAddress,
             resolvedSubject ||
-              `Message from ${(facility?.name as string) || "StowStack"}`,
+              `Message from ${(facility?.name as string) || "StorageAds"}`,
             resolvedBody,
             (facility?.name as string) || null
           );

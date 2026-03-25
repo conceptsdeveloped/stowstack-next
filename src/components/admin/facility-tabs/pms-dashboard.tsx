@@ -202,8 +202,8 @@ export default function PmsDashboard({ facilityId }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-[#3B82F6]" />
-        <span className="ml-3 text-[#6B7280]">Loading PMS data...</span>
+        <Loader2 className="w-6 h-6 animate-spin text-[var(--color-gold)]" />
+        <span className="ml-3 text-[var(--color-body-text)]">Loading PMS data...</span>
       </div>
     );
   }
@@ -215,7 +215,7 @@ export default function PmsDashboard({ facilityId }: Props) {
         <p className="text-red-400">{error}</p>
         <button
           onClick={refetch}
-          className="px-4 py-2 bg-[#3B82F6] text-white rounded-lg text-sm hover:bg-[#3B82F6]/80 transition"
+          className="px-4 py-2 bg-[var(--color-gold)] text-[var(--color-light)] rounded-lg text-sm hover:bg-[var(--color-gold)]/80 transition"
         >
           Retry
         </button>
@@ -228,7 +228,7 @@ export default function PmsDashboard({ facilityId }: Props) {
   return (
     <div className="space-y-6">
       {/* Sub-tab navigation */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-black/[0.08]">
+      <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-[var(--border-subtle)]">
         {SUB_TABS.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.key;
@@ -238,8 +238,8 @@ export default function PmsDashboard({ facilityId }: Props) {
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-lg whitespace-nowrap transition ${
                 active
-                  ? "bg-black/[0.04] text-[#111827] border-b-2 border-[#3B82F6]"
-                  : "text-[#9CA3AF] hover:text-[#6B7280] hover:bg-black/[0.02]"
+                  ? "bg-[var(--color-light-gray)] text-[var(--color-dark)] border-b-2 border-[var(--color-gold)]"
+                  : "text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -249,7 +249,7 @@ export default function PmsDashboard({ facilityId }: Props) {
         })}
         <button
           onClick={refetch}
-          className="ml-auto flex items-center gap-1.5 px-3 py-2 text-xs text-[#9CA3AF] hover:text-[#6B7280] transition"
+          className="ml-auto flex items-center gap-1.5 px-3 py-2 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition"
           title="Refresh data"
         >
           <RefreshCw className="w-3.5 h-3.5" />
@@ -283,13 +283,13 @@ function OverviewTab({ data }: { data: PmsData }) {
       label: "Total Units",
       value: fmt(s?.total_units),
       icon: Building2,
-      color: "#3B82F6",
+      color: "var(--color-gold)",
     },
     {
       label: "Occupied",
       value: fmt(s?.occupied_units),
       icon: Users,
-      color: "#10B981",
+      color: "var(--color-green)",
     },
     {
       label: "Occupancy",
@@ -307,7 +307,7 @@ function OverviewTab({ data }: { data: PmsData }) {
       label: "Actual Revenue",
       value: fmtCurrency(s?.actual_revenue),
       icon: DollarSign,
-      color: "#10B981",
+      color: "var(--color-green)",
     },
     {
       label: "Delinquency",
@@ -329,7 +329,7 @@ function OverviewTab({ data }: { data: PmsData }) {
     <div className="space-y-6">
       {/* Snapshot date badge */}
       {s && (
-        <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
+        <div className="flex items-center gap-2 text-xs text-[var(--color-mid-gray)]">
           <CalendarDays className="w-3.5 h-3.5" />
           Snapshot: {fmtDate(s.snapshot_date)}
           {s.move_ins_mtd != null && (
@@ -352,13 +352,13 @@ function OverviewTab({ data }: { data: PmsData }) {
           return (
             <div
               key={kpi.label}
-              className="bg-white border border-black/[0.08] rounded-xl p-4"
+              className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4"
             >
               <div className="flex items-center gap-2 mb-2">
                 <Icon className="w-4 h-4" style={{ color: kpi.color }} />
-                <span className="text-xs text-[#9CA3AF]">{kpi.label}</span>
+                <span className="text-xs text-[var(--color-mid-gray)]">{kpi.label}</span>
               </div>
-              <div className="text-xl font-semibold text-[#111827]">
+              <div className="text-xl font-semibold text-[var(--color-dark)]">
                 {kpi.value}
               </div>
             </div>
@@ -368,9 +368,9 @@ function OverviewTab({ data }: { data: PmsData }) {
 
       {/* Trend chart */}
       {trend.length > 1 && (
-        <div className="bg-white border border-black/[0.08] rounded-xl p-6">
-          <h3 className="text-sm font-medium text-[#111827] mb-4 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-[#3B82F6]" />
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-6">
+          <h3 className="text-sm font-medium text-[var(--color-dark)] mb-4 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-[var(--color-gold)]" />
             Occupancy Trend (Last {trend.length} Snapshots)
           </h3>
           <div className="flex items-end gap-2 h-40">
@@ -382,7 +382,7 @@ function OverviewTab({ data }: { data: PmsData }) {
                   key={t.id || i}
                   className="flex-1 flex flex-col items-center gap-1"
                 >
-                  <span className="text-[10px] text-[#6B7280]">
+                  <span className="text-[10px] text-[var(--color-body-text)]">
                     {fmtPct(pct)}
                   </span>
                   <div
@@ -391,14 +391,14 @@ function OverviewTab({ data }: { data: PmsData }) {
                       height: `${height}%`,
                       backgroundColor:
                         pct >= 90
-                          ? "#10B981"
+                          ? "var(--color-green)"
                           : pct >= 75
                             ? "#F59E0B"
                             : "#EF4444",
                       minHeight: "4px",
                     }}
                   />
-                  <span className="text-[9px] text-[#9CA3AF] truncate w-full text-center">
+                  <span className="text-[9px] text-[var(--color-mid-gray)] truncate w-full text-center">
                     {fmtShortDate(t.snapshot_date)}
                   </span>
                 </div>
@@ -409,7 +409,7 @@ function OverviewTab({ data }: { data: PmsData }) {
       )}
 
       {!s && (
-        <div className="text-center py-12 text-[#9CA3AF]">
+        <div className="text-center py-12 text-[var(--color-mid-gray)]">
           <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p>No PMS snapshot data available yet.</p>
           <p className="text-xs mt-1">
@@ -472,9 +472,9 @@ function RentRollTab({ data }: { data: PmsData }) {
     if (sortKey !== col)
       return <ArrowUpDown className="w-3 h-3 opacity-30" />;
     return sortDir === "asc" ? (
-      <ArrowUp className="w-3 h-3 text-[#3B82F6]" />
+      <ArrowUp className="w-3 h-3 text-[var(--color-gold)]" />
     ) : (
-      <ArrowDown className="w-3 h-3 text-[#3B82F6]" />
+      <ArrowDown className="w-3 h-3 text-[var(--color-gold)]" />
     );
   };
 
@@ -509,30 +509,30 @@ function RentRollTab({ data }: { data: PmsData }) {
     <div className="space-y-4">
       {/* Search bar */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-mid-gray)]" />
         <input
           type="text"
           placeholder="Search unit, tenant, account..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50"
+          className="w-full pl-9 pr-4 py-2 bg-[var(--color-light)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]/50"
         />
       </div>
 
-      <div className="text-xs text-[#9CA3AF]">
+      <div className="text-xs text-[var(--color-mid-gray)]">
         {filtered.length} of {rows.length} units
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-black/[0.08]">
+      <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-black/[0.02]">
+            <tr className="bg-[var(--color-light-gray)]">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   onClick={() => toggleSort(col.key)}
-                  className={`px-3 py-2.5 text-xs font-medium text-[#9CA3AF] cursor-pointer hover:text-[#6B7280] select-none whitespace-nowrap ${
+                  className={`px-3 py-2.5 text-xs font-medium text-[var(--color-mid-gray)] cursor-pointer hover:text-[var(--color-body-text)] select-none whitespace-nowrap ${
                     col.align === "right" ? "text-right" : "text-left"
                   }`}
                 >
@@ -544,39 +544,39 @@ function RentRollTab({ data }: { data: PmsData }) {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-black/[0.06]">
+          <tbody className="divide-y divide-[var(--border-subtle)]">
             {filtered.map((r) => (
               <tr
                 key={r.id}
-                className="hover:bg-black/[0.02] transition"
+                className="hover:bg-[var(--color-light-gray)] transition"
               >
-                <td className="px-3 py-2 text-[#111827] font-mono text-xs">
+                <td className="px-3 py-2 text-[var(--color-dark)] font-mono text-xs">
                   {r.unit}
                 </td>
-                <td className="px-3 py-2 text-[#6B7280]">
+                <td className="px-3 py-2 text-[var(--color-body-text)]">
                   {r.size_label ?? "—"}
                 </td>
-                <td className="px-3 py-2 text-[#111827]">
+                <td className="px-3 py-2 text-[var(--color-dark)]">
                   {r.tenant_name || (
-                    <span className="text-[#9CA3AF] italic">Vacant</span>
+                    <span className="text-[var(--color-mid-gray)] italic">Vacant</span>
                   )}
                 </td>
-                <td className="px-3 py-2 text-[#6B7280] font-mono text-xs">
+                <td className="px-3 py-2 text-[var(--color-body-text)] font-mono text-xs">
                   {r.account ?? "—"}
                 </td>
-                <td className="px-3 py-2 text-[#6B7280]">
+                <td className="px-3 py-2 text-[var(--color-body-text)]">
                   {fmtDate(r.rental_start)}
                 </td>
-                <td className="px-3 py-2 text-[#6B7280]">
+                <td className="px-3 py-2 text-[var(--color-body-text)]">
                   {fmtDate(r.paid_thru)}
                 </td>
-                <td className="px-3 py-2 text-right text-[#111827]">
+                <td className="px-3 py-2 text-right text-[var(--color-dark)]">
                   {fmtCurrency(r.rent_rate)}
                 </td>
-                <td className="px-3 py-2 text-right text-[#6B7280]">
+                <td className="px-3 py-2 text-right text-[var(--color-body-text)]">
                   {fmtCurrency(r.insurance_premium)}
                 </td>
-                <td className="px-3 py-2 text-right text-[#111827] font-medium">
+                <td className="px-3 py-2 text-right text-[var(--color-dark)] font-medium">
                   {fmtCurrency(r.total_due)}
                 </td>
                 <td
@@ -593,20 +593,20 @@ function RentRollTab({ data }: { data: PmsData }) {
           </tbody>
           {/* Totals row */}
           <tfoot>
-            <tr className="bg-black/[0.02] border-t border-black/[0.08]">
+            <tr className="bg-[var(--color-light-gray)] border-t border-[var(--border-subtle)]">
               <td
                 colSpan={6}
-                className="px-3 py-2.5 text-xs font-medium text-[#6B7280]"
+                className="px-3 py-2.5 text-xs font-medium text-[var(--color-body-text)]"
               >
                 Totals ({filtered.length} units)
               </td>
-              <td className="px-3 py-2.5 text-right text-sm font-semibold text-[#111827]">
+              <td className="px-3 py-2.5 text-right text-sm font-semibold text-[var(--color-dark)]">
                 {fmtCurrency(totalRent)}
               </td>
-              <td className="px-3 py-2.5 text-right text-sm font-semibold text-[#6B7280]">
+              <td className="px-3 py-2.5 text-right text-sm font-semibold text-[var(--color-body-text)]">
                 {fmtCurrency(totalInsurance)}
               </td>
-              <td className="px-3 py-2.5 text-right text-sm font-semibold text-[#111827]">
+              <td className="px-3 py-2.5 text-right text-sm font-semibold text-[var(--color-dark)]">
                 {fmtCurrency(totalDue)}
               </td>
               <td />
@@ -616,7 +616,7 @@ function RentRollTab({ data }: { data: PmsData }) {
       </div>
 
       {rows.length === 0 && (
-        <div className="text-center py-12 text-[#9CA3AF]">
+        <div className="text-center py-12 text-[var(--color-mid-gray)]">
           <FileSpreadsheet className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p>No rent roll data yet.</p>
         </div>
@@ -662,7 +662,7 @@ function AgingTab({ data }: { data: PmsData }) {
   );
 
   const bucketData = [
-    { label: "0-30 days", value: buckets.b0_30, color: "#10B981" },
+    { label: "0-30 days", value: buckets.b0_30, color: "var(--color-green)" },
     { label: "31-60 days", value: buckets.b31_60, color: "#F59E0B" },
     { label: "61-90 days", value: buckets.b61_90, color: "#F97316" },
     { label: "91-120 days", value: buckets.b91_120, color: "#EF4444" },
@@ -673,27 +673,27 @@ function AgingTab({ data }: { data: PmsData }) {
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-          <div className="text-xs text-[#9CA3AF] mb-1">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+          <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Total Outstanding
           </div>
-          <div className="text-2xl font-bold text-[#111827]">
+          <div className="text-2xl font-bold text-[var(--color-dark)]">
             {fmtCurrency(buckets.total)}
           </div>
         </div>
-        <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-          <div className="text-xs text-[#9CA3AF] mb-1">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+          <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Delinquent Accounts
           </div>
-          <div className="text-2xl font-bold text-[#111827]">
+          <div className="text-2xl font-bold text-[var(--color-dark)]">
             {rows.length}
           </div>
         </div>
-        <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-          <div className="text-xs text-[#9CA3AF] mb-1">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+          <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Avg Outstanding
           </div>
-          <div className="text-2xl font-bold text-[#111827]">
+          <div className="text-2xl font-bold text-[var(--color-dark)]">
             {rows.length > 0
               ? fmtCurrency(buckets.total / rows.length)
               : "—"}
@@ -702,9 +702,9 @@ function AgingTab({ data }: { data: PmsData }) {
       </div>
 
       {/* Bucket distribution bars */}
-      <div className="bg-white border border-black/[0.08] rounded-xl p-6">
-        <h3 className="text-sm font-medium text-[#111827] mb-4 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-[#3B82F6]" />
+      <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-6">
+        <h3 className="text-sm font-medium text-[var(--color-dark)] mb-4 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-[var(--color-gold)]" />
           Aging Distribution
         </h3>
         <div className="space-y-3">
@@ -712,10 +712,10 @@ function AgingTab({ data }: { data: PmsData }) {
             const pct = maxBucket > 0 ? (b.value / maxBucket) * 100 : 0;
             return (
               <div key={b.label} className="flex items-center gap-3">
-                <span className="text-xs text-[#6B7280] w-24 shrink-0">
+                <span className="text-xs text-[var(--color-body-text)] w-24 shrink-0">
                   {b.label}
                 </span>
-                <div className="flex-1 h-6 bg-black/[0.02] rounded overflow-hidden">
+                <div className="flex-1 h-6 bg-[var(--color-light-gray)] rounded overflow-hidden">
                   <div
                     className="h-full rounded transition-all"
                     style={{
@@ -725,7 +725,7 @@ function AgingTab({ data }: { data: PmsData }) {
                     }}
                   />
                 </div>
-                <span className="text-xs text-[#111827] font-medium w-24 text-right">
+                <span className="text-xs text-[var(--color-dark)] font-medium w-24 text-right">
                   {fmtCurrency(b.value)}
                 </span>
               </div>
@@ -736,90 +736,90 @@ function AgingTab({ data }: { data: PmsData }) {
 
       {/* Detail table */}
       {rows.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-black/[0.08]">
+        <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/[0.02]">
-                <th className="px-3 py-2.5 text-left text-xs font-medium text-[#9CA3AF]">
+              <tr className="bg-[var(--color-light-gray)]">
+                <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                   Unit
                 </th>
-                <th className="px-3 py-2.5 text-left text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                   Tenant
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   0-30
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   31-60
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   61-90
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   91-120
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   120+
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   Total
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/[0.06]">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {rows.map((r) => (
-                <tr key={r.id} className="hover:bg-black/[0.02] transition">
-                  <td className="px-3 py-2 text-[#111827] font-mono text-xs">
+                <tr key={r.id} className="hover:bg-[var(--color-light-gray)] transition">
+                  <td className="px-3 py-2 text-[var(--color-dark)] font-mono text-xs">
                     {r.unit}
                   </td>
-                  <td className="px-3 py-2 text-[#111827]">
+                  <td className="px-3 py-2 text-[var(--color-dark)]">
                     {r.tenant_name ?? "—"}
                   </td>
-                  <td className="px-3 py-2 text-right text-[#6B7280]">
+                  <td className="px-3 py-2 text-right text-[var(--color-body-text)]">
                     {fmtCurrency(r.bucket_0_30)}
                   </td>
-                  <td className="px-3 py-2 text-right text-[#6B7280]">
+                  <td className="px-3 py-2 text-right text-[var(--color-body-text)]">
                     {fmtCurrency(r.bucket_31_60)}
                   </td>
-                  <td className="px-3 py-2 text-right text-[#6B7280]">
+                  <td className="px-3 py-2 text-right text-[var(--color-body-text)]">
                     {fmtCurrency(r.bucket_61_90)}
                   </td>
-                  <td className="px-3 py-2 text-right text-[#6B7280]">
+                  <td className="px-3 py-2 text-right text-[var(--color-body-text)]">
                     {fmtCurrency(r.bucket_91_120)}
                   </td>
                   <td className="px-3 py-2 text-right text-red-400">
                     {fmtCurrency(r.bucket_120_plus)}
                   </td>
-                  <td className="px-3 py-2 text-right text-[#111827] font-medium">
+                  <td className="px-3 py-2 text-right text-[var(--color-dark)] font-medium">
                     {fmtCurrency(r.total)}
                   </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-black/[0.02] border-t border-black/[0.08]">
+              <tr className="bg-[var(--color-light-gray)] border-t border-[var(--border-subtle)]">
                 <td
                   colSpan={2}
-                  className="px-3 py-2.5 text-xs font-medium text-[#6B7280]"
+                  className="px-3 py-2.5 text-xs font-medium text-[var(--color-body-text)]"
                 >
                   Totals
                 </td>
-                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[#6B7280]">
+                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[var(--color-body-text)]">
                   {fmtCurrency(buckets.b0_30)}
                 </td>
-                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[#6B7280]">
+                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[var(--color-body-text)]">
                   {fmtCurrency(buckets.b31_60)}
                 </td>
-                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[#6B7280]">
+                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[var(--color-body-text)]">
                   {fmtCurrency(buckets.b61_90)}
                 </td>
-                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[#6B7280]">
+                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[var(--color-body-text)]">
                   {fmtCurrency(buckets.b91_120)}
                 </td>
                 <td className="px-3 py-2.5 text-right text-sm font-semibold text-red-400">
                   {fmtCurrency(buckets.b120_plus)}
                 </td>
-                <td className="px-3 py-2.5 text-right text-sm font-bold text-[#111827]">
+                <td className="px-3 py-2.5 text-right text-sm font-bold text-[var(--color-dark)]">
                   {fmtCurrency(buckets.total)}
                 </td>
               </tr>
@@ -829,7 +829,7 @@ function AgingTab({ data }: { data: PmsData }) {
       )}
 
       {rows.length === 0 && (
-        <div className="text-center py-12 text-[#9CA3AF]">
+        <div className="text-center py-12 text-[var(--color-mid-gray)]">
           <AlertTriangle className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p>No aging data available yet.</p>
         </div>
@@ -892,24 +892,24 @@ function RevenueTab({ data }: { data: PmsData }) {
       {/* YoY summary */}
       {yoyData && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-            <div className="text-xs text-[#9CA3AF] mb-1">
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+            <div className="text-xs text-[var(--color-mid-gray)] mb-1">
               {yoyData.currentYear} Revenue (YTD)
             </div>
-            <div className="text-2xl font-bold text-[#111827]">
+            <div className="text-2xl font-bold text-[var(--color-dark)]">
               {fmtCurrency(yoyData.curTotal)}
             </div>
           </div>
-          <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-            <div className="text-xs text-[#9CA3AF] mb-1">
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+            <div className="text-xs text-[var(--color-mid-gray)] mb-1">
               {yoyData.prevYear} Revenue
             </div>
-            <div className="text-2xl font-bold text-[#6B7280]">
+            <div className="text-2xl font-bold text-[var(--color-body-text)]">
               {fmtCurrency(yoyData.prevTotal)}
             </div>
           </div>
-          <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-            <div className="text-xs text-[#9CA3AF] mb-1">YoY Change</div>
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+            <div className="text-xs text-[var(--color-mid-gray)] mb-1">YoY Change</div>
             <div
               className={`text-2xl font-bold ${
                 yoyData.pctChange >= 0 ? "text-green-400" : "text-red-400"
@@ -924,9 +924,9 @@ function RevenueTab({ data }: { data: PmsData }) {
 
       {/* Revenue trend bars */}
       {sorted.length > 0 && (
-        <div className="bg-white border border-black/[0.08] rounded-xl p-6">
-          <h3 className="text-sm font-medium text-[#111827] mb-4 flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-[#10B981]" />
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-6">
+          <h3 className="text-sm font-medium text-[var(--color-dark)] mb-4 flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-[var(--color-green)]" />
             Monthly Revenue
           </h3>
           <div className="flex items-end gap-1.5 h-44 overflow-x-auto">
@@ -938,17 +938,17 @@ function RevenueTab({ data }: { data: PmsData }) {
                   key={r.id || i}
                   className="flex-1 min-w-[28px] flex flex-col items-center gap-1"
                 >
-                  <span className="text-[9px] text-[#6B7280] truncate">
+                  <span className="text-[9px] text-[var(--color-body-text)] truncate">
                     {fmtCurrency(rev)}
                   </span>
                   <div
-                    className="w-full rounded-t transition-all bg-[#3B82F6]"
+                    className="w-full rounded-t transition-all bg-[var(--color-gold)]"
                     style={{
                       height: `${height}%`,
                       minHeight: rev > 0 ? "4px" : "0",
                     }}
                   />
-                  <span className="text-[8px] text-[#9CA3AF] truncate w-full text-center">
+                  <span className="text-[8px] text-[var(--color-mid-gray)] truncate w-full text-center">
                     {r.month.slice(0, 3)} {String(r.year).slice(2)}
                   </span>
                 </div>
@@ -960,12 +960,12 @@ function RevenueTab({ data }: { data: PmsData }) {
 
       {/* Move-in / Move-out comparison */}
       {sorted.length > 0 && (
-        <div className="bg-white border border-black/[0.08] rounded-xl p-6">
-          <h3 className="text-sm font-medium text-[#111827] mb-4 flex items-center gap-2">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-6">
+          <h3 className="text-sm font-medium text-[var(--color-dark)] mb-4 flex items-center gap-2">
             <Users className="w-4 h-4 text-[#8B5CF6]" />
             Move-Ins vs Move-Outs
           </h3>
-          <div className="flex items-center gap-4 text-xs text-[#6B7280] mb-3">
+          <div className="flex items-center gap-4 text-xs text-[var(--color-body-text)] mb-3">
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-sm bg-green-500" />
               Move-Ins
@@ -1002,7 +1002,7 @@ function RevenueTab({ data }: { data: PmsData }) {
                       }}
                     />
                   </div>
-                  <span className="text-[8px] text-[#9CA3AF] truncate w-full text-center">
+                  <span className="text-[8px] text-[var(--color-mid-gray)] truncate w-full text-center">
                     {r.month.slice(0, 3)} {String(r.year).slice(2)}
                   </span>
                 </div>
@@ -1014,46 +1014,46 @@ function RevenueTab({ data }: { data: PmsData }) {
 
       {/* Revenue detail table */}
       {sorted.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-black/[0.08]">
+        <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/[0.02]">
-                <th className="px-3 py-2.5 text-left text-xs font-medium text-[#9CA3AF]">
+              <tr className="bg-[var(--color-light-gray)]">
+                <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                   Period
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   Revenue
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   Tax
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   Move-Ins
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   Move-Outs
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   Net
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/[0.06]">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {[...sorted].reverse().map((r) => {
                 const net =
                   (Number(r.move_ins) || 0) - (Number(r.move_outs) || 0);
                 return (
                   <tr
                     key={r.id}
-                    className="hover:bg-black/[0.02] transition"
+                    className="hover:bg-[var(--color-light-gray)] transition"
                   >
-                    <td className="px-3 py-2 text-[#111827]">
+                    <td className="px-3 py-2 text-[var(--color-dark)]">
                       {r.month} {r.year}
                     </td>
-                    <td className="px-3 py-2 text-right text-[#111827] font-medium">
+                    <td className="px-3 py-2 text-right text-[var(--color-dark)] font-medium">
                       {fmtCurrency(r.revenue)}
                     </td>
-                    <td className="px-3 py-2 text-right text-[#6B7280]">
+                    <td className="px-3 py-2 text-right text-[var(--color-body-text)]">
                       {fmtCurrency(r.monthly_tax)}
                     </td>
                     <td className="px-3 py-2 text-right text-green-400">
@@ -1079,7 +1079,7 @@ function RevenueTab({ data }: { data: PmsData }) {
       )}
 
       {rows.length === 0 && (
-        <div className="text-center py-12 text-[#9CA3AF]">
+        <div className="text-center py-12 text-[var(--color-mid-gray)]">
           <DollarSign className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p>No revenue data available yet.</p>
         </div>
@@ -1141,47 +1141,47 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-          <div className="text-xs text-[#9CA3AF] mb-1">Total Records</div>
-          <div className="text-2xl font-bold text-[#111827]">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+          <div className="text-xs text-[var(--color-mid-gray)] mb-1">Total Records</div>
+          <div className="text-2xl font-bold text-[var(--color-dark)]">
             {stats.total}
           </div>
         </div>
-        <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-          <div className="text-xs text-[#9CA3AF] mb-1">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+          <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Average Stay
           </div>
-          <div className="text-2xl font-bold text-[#3B82F6]">
+          <div className="text-2xl font-bold text-[var(--color-gold)]">
             {fmt(stats.avg)} days
           </div>
-          <div className="text-xs text-[#9CA3AF] mt-0.5">
+          <div className="text-xs text-[var(--color-mid-gray)] mt-0.5">
             ~{fmt(stats.avg / 30)} months
           </div>
         </div>
-        <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-          <div className="text-xs text-[#9CA3AF] mb-1">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+          <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Median Stay
           </div>
           <div className="text-2xl font-bold text-[#8B5CF6]">
             {fmt(stats.median)} days
           </div>
-          <div className="text-xs text-[#9CA3AF] mt-0.5">
+          <div className="text-xs text-[var(--color-mid-gray)] mt-0.5">
             ~{fmt(stats.median / 30)} months
           </div>
         </div>
-        <div className="bg-white border border-black/[0.08] rounded-xl p-4">
-          <div className="text-xs text-[#9CA3AF] mb-1">Active / Moved Out</div>
-          <div className="text-2xl font-bold text-[#111827]">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
+          <div className="text-xs text-[var(--color-mid-gray)] mb-1">Active / Moved Out</div>
+          <div className="text-2xl font-bold text-[var(--color-dark)]">
             <span className="text-green-400">{activeCount}</span>
-            <span className="text-[#9CA3AF] mx-1">/</span>
+            <span className="text-[var(--color-mid-gray)] mx-1">/</span>
             <span className="text-red-400">{movedOutCount}</span>
           </div>
         </div>
       </div>
 
       {/* Distribution bars */}
-      <div className="bg-white border border-black/[0.08] rounded-xl p-6">
-        <h3 className="text-sm font-medium text-[#111827] mb-4 flex items-center gap-2">
+      <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-6">
+        <h3 className="text-sm font-medium text-[var(--color-dark)] mb-4 flex items-center gap-2">
           <Clock className="w-4 h-4 text-[#8B5CF6]" />
           Stay Duration Distribution
         </h3>
@@ -1190,10 +1190,10 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
             const pct = (b.count / maxCount) * 100;
             return (
               <div key={b.label} className="flex items-center gap-3">
-                <span className="text-xs text-[#6B7280] w-28 shrink-0">
+                <span className="text-xs text-[var(--color-body-text)] w-28 shrink-0">
                   {b.label}
                 </span>
-                <div className="flex-1 h-6 bg-black/[0.02] rounded overflow-hidden">
+                <div className="flex-1 h-6 bg-[var(--color-light-gray)] rounded overflow-hidden">
                   <div
                     className="h-full rounded transition-all bg-[#8B5CF6]"
                     style={{
@@ -1202,7 +1202,7 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
                     }}
                   />
                 </div>
-                <span className="text-xs text-[#111827] font-medium w-12 text-right">
+                <span className="text-xs text-[var(--color-dark)] font-medium w-12 text-right">
                   {b.count}
                 </span>
               </div>
@@ -1213,53 +1213,53 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
 
       {/* Detail table */}
       {rows.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-black/[0.08]">
+        <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/[0.02]">
-                <th className="px-3 py-2.5 text-left text-xs font-medium text-[#9CA3AF]">
+              <tr className="bg-[var(--color-light-gray)]">
+                <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                   Tenant
                 </th>
-                <th className="px-3 py-2.5 text-left text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                   Unit
                 </th>
-                <th className="px-3 py-2.5 text-left text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                   Move In
                 </th>
-                <th className="px-3 py-2.5 text-left text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                   Move Out
                 </th>
-                <th className="px-3 py-2.5 text-right text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                   Days
                 </th>
-                <th className="px-3 py-2.5 text-left text-xs font-medium text-[#9CA3AF]">
+                <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                   Source
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/[0.06]">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {rows.slice(0, 100).map((r) => (
-                <tr key={r.id} className="hover:bg-black/[0.02] transition">
-                  <td className="px-3 py-2 text-[#111827]">
+                <tr key={r.id} className="hover:bg-[var(--color-light-gray)] transition">
+                  <td className="px-3 py-2 text-[var(--color-dark)]">
                     {r.tenant_name}
                   </td>
-                  <td className="px-3 py-2 text-[#6B7280] font-mono text-xs">
+                  <td className="px-3 py-2 text-[var(--color-body-text)] font-mono text-xs">
                     {r.latest_unit ?? "—"}
                   </td>
-                  <td className="px-3 py-2 text-[#6B7280]">
+                  <td className="px-3 py-2 text-[var(--color-body-text)]">
                     {fmtDate(r.move_in)}
                   </td>
-                  <td className="px-3 py-2 text-[#6B7280]">
+                  <td className="px-3 py-2 text-[var(--color-body-text)]">
                     {r.move_out ? (
                       fmtDate(r.move_out)
                     ) : (
                       <span className="text-green-400 text-xs">Active</span>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-right text-[#111827] font-medium">
+                  <td className="px-3 py-2 text-right text-[var(--color-dark)] font-medium">
                     {fmt(r.days_in_unit)}
                   </td>
-                  <td className="px-3 py-2 text-[#9CA3AF] text-xs">
+                  <td className="px-3 py-2 text-[var(--color-mid-gray)] text-xs">
                     {r.lead_source ?? "—"}
                   </td>
                 </tr>
@@ -1267,7 +1267,7 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
             </tbody>
           </table>
           {rows.length > 100 && (
-            <div className="px-3 py-2 text-xs text-[#9CA3AF] bg-black/[0.02]">
+            <div className="px-3 py-2 text-xs text-[var(--color-mid-gray)] bg-[var(--color-light-gray)]">
               Showing first 100 of {rows.length} records
             </div>
           )}
@@ -1275,7 +1275,7 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
       )}
 
       {rows.length === 0 && (
-        <div className="text-center py-12 text-[#9CA3AF]">
+        <div className="text-center py-12 text-[var(--color-mid-gray)]">
           <Clock className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p>No length of stay data available yet.</p>
         </div>
@@ -1510,12 +1510,12 @@ function UploadTab({
             }}
             className={`p-4 rounded-xl border text-left transition ${
               uploadType === t.key
-                ? "bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#111827]"
-                : "bg-white border-black/[0.08] text-[#6B7280] hover:border-black/[0.12]"
+                ? "bg-[var(--color-gold)]/10 border-[var(--color-gold)]/30 text-[var(--color-dark)]"
+                : "bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-[var(--color-body-text)] hover:border-[var(--border-medium)]"
             }`}
           >
             <div className="text-sm font-medium">{t.label}</div>
-            <div className="text-xs text-[#9CA3AF] mt-1">{t.desc}</div>
+            <div className="text-xs text-[var(--color-mid-gray)] mt-1">{t.desc}</div>
           </button>
         ))}
       </div>
@@ -1523,19 +1523,19 @@ function UploadTab({
       {/* Date picker (for rent_roll and aging) */}
       {uploadType !== "revenue" && (
         <div className="flex items-center gap-3">
-          <label className="text-sm text-[#6B7280]">Snapshot Date:</label>
+          <label className="text-sm text-[var(--color-body-text)]">Snapshot Date:</label>
           <input
             type="date"
             value={snapshotDate}
             onChange={(e) => setSnapshotDate(e.target.value)}
-            className="px-3 py-2 bg-[#F9FAFB] border border-black/[0.08] rounded-lg text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6]/50"
+            className="px-3 py-2 bg-[var(--color-light)] border border-[var(--border-subtle)] rounded-lg text-sm text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)]/50"
           />
         </div>
       )}
 
       {/* File upload */}
       <div
-        className="border-2 border-dashed border-black/[0.1] rounded-xl p-8 text-center hover:border-[#3B82F6]/30 transition cursor-pointer"
+        className="border-2 border-dashed border-[var(--border-medium)] rounded-xl p-8 text-center hover:border-[var(--color-gold)]/30 transition cursor-pointer"
         onClick={() => fileRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -1560,9 +1560,9 @@ function UploadTab({
         />
         {file ? (
           <div className="space-y-2">
-            <FileSpreadsheet className="w-8 h-8 mx-auto text-[#3B82F6]" />
-            <p className="text-sm text-[#111827] font-medium">{file.name}</p>
-            <p className="text-xs text-[#9CA3AF]">
+            <FileSpreadsheet className="w-8 h-8 mx-auto text-[var(--color-gold)]" />
+            <p className="text-sm text-[var(--color-dark)] font-medium">{file.name}</p>
+            <p className="text-xs text-[var(--color-mid-gray)]">
               {parsedRows.length} rows parsed |{" "}
               {parsedHeaders.length} columns detected
             </p>
@@ -1578,11 +1578,11 @@ function UploadTab({
           </div>
         ) : (
           <div className="space-y-2">
-            <Upload className="w-8 h-8 mx-auto text-[#9CA3AF]" />
-            <p className="text-sm text-[#6B7280]">
+            <Upload className="w-8 h-8 mx-auto text-[var(--color-mid-gray)]" />
+            <p className="text-sm text-[var(--color-body-text)]">
               Click or drag a CSV file here
             </p>
-            <p className="text-xs text-[#9CA3AF]">
+            <p className="text-xs text-[var(--color-mid-gray)]">
               Supports .csv files
             </p>
           </div>
@@ -1591,24 +1591,24 @@ function UploadTab({
 
       {/* Column mapping */}
       {parsedHeaders.length > 0 && (
-        <div className="bg-white border border-black/[0.08] rounded-xl p-6">
-          <h3 className="text-sm font-medium text-[#111827] mb-4 flex items-center gap-2">
-            <Info className="w-4 h-4 text-[#3B82F6]" />
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-6">
+          <h3 className="text-sm font-medium text-[var(--color-dark)] mb-4 flex items-center gap-2">
+            <Info className="w-4 h-4 text-[var(--color-gold)]" />
             Column Mapping
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {expected.map((exp) => (
               <div key={exp} className="flex items-center gap-3">
-                <span className="text-xs text-[#6B7280] w-36 shrink-0 font-mono">
+                <span className="text-xs text-[var(--color-body-text)] w-36 shrink-0 font-mono">
                   {exp}
                 </span>
-                <ChevronRight className="w-3 h-3 text-[#9CA3AF] shrink-0" />
+                <ChevronRight className="w-3 h-3 text-[var(--color-mid-gray)] shrink-0" />
                 <select
                   value={columnMap[exp] ?? ""}
                   onChange={(e) =>
                     setColumnMap((m) => ({ ...m, [exp]: e.target.value }))
                   }
-                  className="flex-1 px-2 py-1.5 bg-[#F9FAFB] border border-black/[0.08] rounded text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6]/50"
+                  className="flex-1 px-2 py-1.5 bg-[var(--color-light)] border border-[var(--border-subtle)] rounded text-sm text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)]/50"
                 >
                   <option value="">— select —</option>
                   {parsedHeaders.map((h) => (
@@ -1630,25 +1630,25 @@ function UploadTab({
 
       {/* Preview */}
       {parsedRows.length > 0 && (
-        <div className="bg-white border border-black/[0.08] rounded-xl p-6">
-          <h3 className="text-sm font-medium text-[#111827] mb-4">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-6">
+          <h3 className="text-sm font-medium text-[var(--color-dark)] mb-4">
             Preview (first {Math.min(parsedRows.length, 5)} rows)
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-black/[0.02]">
+                <tr className="bg-[var(--color-light-gray)]">
                   {expected.map((col) => (
                     <th
                       key={col}
-                      className="px-2 py-1.5 text-left font-medium text-[#9CA3AF] whitespace-nowrap"
+                      className="px-2 py-1.5 text-left font-medium text-[var(--color-mid-gray)] whitespace-nowrap"
                     >
                       {col}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/[0.06]">
+              <tbody className="divide-y divide-[var(--border-subtle)]">
                 {parsedRows.slice(0, 5).map((row, i) => (
                   <tr key={i}>
                     {expected.map((exp) => {
@@ -1656,7 +1656,7 @@ function UploadTab({
                       return (
                         <td
                           key={exp}
-                          className="px-2 py-1.5 text-[#6B7280] whitespace-nowrap max-w-[150px] truncate"
+                          className="px-2 py-1.5 text-[var(--color-body-text)] whitespace-nowrap max-w-[150px] truncate"
                         >
                           {srcCol ? row[srcCol] ?? "" : "—"}
                         </td>
@@ -1676,7 +1676,7 @@ function UploadTab({
           <button
             onClick={handleImport}
             disabled={importing || !allMapped}
-            className="px-6 py-2.5 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-[#3B82F6]/80 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold)]/80 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {importing ? (
               <>
@@ -1719,9 +1719,9 @@ function UploadTab({
       )}
 
       {/* Recent uploads */}
-      <div className="bg-white border border-black/[0.08] rounded-xl p-6">
-        <h3 className="text-sm font-medium text-[#111827] mb-4 flex items-center gap-2">
-          <FileSpreadsheet className="w-4 h-4 text-[#9CA3AF]" />
+      <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-6">
+        <h3 className="text-sm font-medium text-[var(--color-dark)] mb-4 flex items-center gap-2">
+          <FileSpreadsheet className="w-4 h-4 text-[var(--color-mid-gray)]" />
           Recent PMS Report Uploads
         </h3>
         <RecentUploads facilityId={facilityId} />
@@ -1736,7 +1736,7 @@ function RecentUploads({ facilityId }: { facilityId: string }) {
 
   if (reports.length === 0) {
     return (
-      <p className="text-xs text-[#9CA3AF]">No uploads found.</p>
+      <p className="text-xs text-[var(--color-mid-gray)]">No uploads found.</p>
     );
   }
 
@@ -1745,16 +1745,16 @@ function RecentUploads({ facilityId }: { facilityId: string }) {
       {reports.map((r) => (
         <div
           key={r.id}
-          className="flex items-center gap-3 px-3 py-2 bg-black/[0.02] rounded-lg"
+          className="flex items-center gap-3 px-3 py-2 bg-[var(--color-light-gray)] rounded-lg"
         >
-          <FileSpreadsheet className="w-4 h-4 text-[#9CA3AF]" />
-          <span className="text-sm text-[#111827] flex-1">
+          <FileSpreadsheet className="w-4 h-4 text-[var(--color-mid-gray)]" />
+          <span className="text-sm text-[var(--color-dark)] flex-1">
             {r.file_name ?? "report.csv"}
           </span>
-          <span className="text-xs text-[#9CA3AF] px-2 py-0.5 bg-black/[0.04] rounded">
+          <span className="text-xs text-[var(--color-mid-gray)] px-2 py-0.5 bg-[var(--color-light-gray)] rounded">
             {r.report_type ?? "unknown"}
           </span>
-          <span className="text-xs text-[#9CA3AF]">
+          <span className="text-xs text-[var(--color-mid-gray)]">
             {fmtDate(r.uploaded_at)}
           </span>
         </div>

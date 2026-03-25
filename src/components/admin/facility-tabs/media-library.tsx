@@ -88,15 +88,15 @@ function ImageWithFallback({
       <div className="absolute inset-0" />
 
       {status === "loading" && (
-        <div className="absolute inset-0 bg-black/[0.03] animate-pulse flex items-center justify-center z-10">
-          <Image size={16} className="text-[#9CA3AF]" />
+        <div className="absolute inset-0 bg-[var(--color-light-gray)] animate-pulse flex items-center justify-center z-10">
+          <Image size={16} className="text-[var(--color-mid-gray)]" />
         </div>
       )}
 
       {status === "error" && (
-        <div className="absolute inset-0 bg-white flex flex-col items-center justify-center gap-1 z-10">
-          <ImageOff size={16} className="text-[#9CA3AF]" />
-          <span className="text-[10px] text-[#9CA3AF]">Failed to load</span>
+        <div className="absolute inset-0 bg-[var(--bg-elevated)] flex flex-col items-center justify-center gap-1 z-10">
+          <ImageOff size={16} className="text-[var(--color-mid-gray)]" />
+          <span className="text-[10px] text-[var(--color-mid-gray)]">Failed to load</span>
         </div>
       )}
 
@@ -330,7 +330,7 @@ export default function MediaLibrary({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 size={20} className="animate-spin text-[#3B82F6]" />
+        <Loader2 size={20} className="animate-spin text-[var(--color-gold)]" />
       </div>
     )
   }
@@ -345,7 +345,7 @@ export default function MediaLibrary({
             setLoading(true)
             fetchAssets()
           }}
-          className="mt-3 text-xs text-[#3B82F6] hover:underline"
+          className="mt-3 text-xs text-[var(--color-gold)] hover:underline"
         >
           Retry
         </button>
@@ -373,7 +373,7 @@ export default function MediaLibrary({
               <div className="flex-1 relative">
                 <Globe
                   size={15}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-mid-gray)]"
                 />
                 <input
                   value={scrapeUrl}
@@ -382,13 +382,13 @@ export default function MediaLibrary({
                     if (e.key === "Enter") scrapeWebsite()
                   }}
                   placeholder="Enter facility website URL to scrape..."
-                  className="w-full pl-9 pr-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-white text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+                  className="w-full pl-9 pr-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--bg-elevated)] text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
                 />
               </div>
               <button
                 onClick={scrapeWebsite}
                 disabled={scraping || !scrapeUrl.trim()}
-                className="flex items-center gap-1.5 px-4 py-2 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-[#3B82F6]/90 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded-lg hover:bg-[var(--color-gold)]/90 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
               >
                 {scraping ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -409,8 +409,8 @@ export default function MediaLibrary({
             }}
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
               showLibrary
-                ? "bg-[#3B82F6] text-white border-[#3B82F6]"
-                : "border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03]"
+                ? "bg-[var(--color-gold)] text-[var(--color-light)] border-[var(--color-gold)]"
+                : "border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
             }`}
           >
             <Image size={14} />
@@ -423,7 +423,7 @@ export default function MediaLibrary({
           <div className="flex-1 relative">
             <Link
               size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-mid-gray)]"
             />
             <input
               value={addUrl}
@@ -432,13 +432,13 @@ export default function MediaLibrary({
                 if (e.key === "Enter") handleAddUrl()
               }}
               placeholder="Paste image URL to add to library..."
-              className="w-full pl-9 pr-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-white text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+              className="w-full pl-9 pr-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--bg-elevated)] text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
             />
           </div>
           <button
             onClick={handleAddUrl}
             disabled={addingUrl || !addUrl.trim()}
-            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-black/[0.08] text-[#111827] text-xs font-medium rounded-lg hover:bg-black/[0.03] disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--color-dark)] text-xs font-medium rounded-lg hover:bg-[var(--color-light-gray)] disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
           >
             {addingUrl ? (
               <Loader2 size={14} className="animate-spin" />
@@ -452,28 +452,28 @@ export default function MediaLibrary({
 
       {/* ---- Scrape results ---- */}
       {scrapeResult && (
-        <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
+        <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--bg-elevated)]">
           <div className="px-4 py-3 flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#111827]">
+            <h4 className="text-sm font-semibold text-[var(--color-dark)]">
               Scraped from Website
               {scrapeResult.pagesScraped && (
-                <span className="ml-2 text-xs font-normal text-[#9CA3AF]">
+                <span className="ml-2 text-xs font-normal text-[var(--color-mid-gray)]">
                   ({scrapeResult.pagesScraped} pages crawled)
                 </span>
               )}
             </h4>
             <button
               onClick={() => setScrapeResult(null)}
-              className="p-1 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
+              className="p-1 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
             >
               <X size={14} />
             </button>
           </div>
-          <div className="border-t border-black/[0.08] px-4 py-4 space-y-4">
+          <div className="border-t border-[var(--border-subtle)] px-4 py-4 space-y-4">
             {/* Images */}
             {scrapeResult.images && scrapeResult.images.length > 0 ? (
               <>
-                <p className="text-xs text-[#9CA3AF] mb-2">
+                <p className="text-xs text-[var(--color-mid-gray)] mb-2">
                   {scrapeResult.images.length} images found
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
@@ -494,7 +494,7 @@ export default function MediaLibrary({
                           ) : (
                             <button
                               onClick={() => addScrapedImage(img)}
-                              className="px-2 py-1 bg-[#3B82F6] text-white text-xs font-medium rounded hover:bg-[#3B82F6]/80 transition-colors"
+                              className="px-2 py-1 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded hover:bg-[var(--color-gold)]/80 transition-colors"
                             >
                               + Add to Library
                             </button>
@@ -506,7 +506,7 @@ export default function MediaLibrary({
                 </div>
               </>
             ) : (
-              <p className="text-sm text-[#9CA3AF]">
+              <p className="text-sm text-[var(--color-mid-gray)]">
                 No usable images found. The site may use JavaScript-rendered
                 images that require a browser to load.
               </p>
@@ -515,14 +515,14 @@ export default function MediaLibrary({
             {/* Services */}
             {scrapeResult.services && scrapeResult.services.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-[#9CA3AF] mb-1">
+                <p className="text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                   Services / Features Found:
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {scrapeResult.services.slice(0, 12).map((s, i) => (
                     <span
                       key={i}
-                      className="text-xs px-2 py-1 rounded-lg bg-black/[0.03] text-[#6B7280]"
+                      className="text-xs px-2 py-1 rounded-lg bg-[var(--color-light-gray)] text-[var(--color-body-text)]"
                     >
                       {s.heading || s.description?.slice(0, 60)}
                     </span>
@@ -535,13 +535,13 @@ export default function MediaLibrary({
             {scrapeResult.promotions &&
               scrapeResult.promotions.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-[#9CA3AF] mb-1">
+                  <p className="text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                     Promotions / Specials:
                   </p>
                   {scrapeResult.promotions.slice(0, 5).map((p, i) => (
                     <p
                       key={i}
-                      className="text-xs text-[#111827] p-2 rounded-lg mb-1 bg-blue-500/10"
+                      className="text-xs text-[var(--color-dark)] p-2 rounded-lg mb-1 bg-[var(--color-blue)]/10"
                     >
                       {p.text}
                     </p>
@@ -551,7 +551,7 @@ export default function MediaLibrary({
 
             {/* Page copy */}
             {scrapeResult.pageCopy && scrapeResult.pageCopy.length > 0 && (
-              <details className="text-xs text-[#9CA3AF]">
+              <details className="text-xs text-[var(--color-mid-gray)]">
                 <summary className="font-medium cursor-pointer hover:underline">
                   Site Copy ({scrapeResult.pageCopy.length} paragraphs
                   extracted)
@@ -560,7 +560,7 @@ export default function MediaLibrary({
                   {scrapeResult.pageCopy.slice(0, 20).map((t, i) => (
                     <p
                       key={i}
-                      className="text-xs text-[#111827] p-2 rounded bg-black/[0.03]"
+                      className="text-xs text-[var(--color-dark)] p-2 rounded bg-[var(--color-light-gray)]"
                     >
                       {t}
                     </p>
@@ -572,7 +572,7 @@ export default function MediaLibrary({
             {/* Videos */}
             {scrapeResult.videos && scrapeResult.videos.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-[#9CA3AF] mb-1">
+                <p className="text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                   Videos found:
                 </p>
                 {scrapeResult.videos.map((v, i) => (
@@ -581,7 +581,7 @@ export default function MediaLibrary({
                     href={v.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs text-[#3B82F6] hover:underline"
+                    className="flex items-center gap-1.5 text-xs text-[var(--color-gold)] hover:underline"
                   >
                     <Film size={12} /> {v.url.slice(0, 80)}...
                   </a>
@@ -596,11 +596,11 @@ export default function MediaLibrary({
                 <div className="flex gap-4">
                   {scrapeResult.contact.phones.length > 0 && (
                     <div>
-                      <p className="text-xs font-medium text-[#9CA3AF] mb-1">
+                      <p className="text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                         Phones:
                       </p>
                       {scrapeResult.contact.phones.map((p, i) => (
-                        <p key={i} className="text-xs text-[#111827]">
+                        <p key={i} className="text-xs text-[var(--color-dark)]">
                           {p}
                         </p>
                       ))}
@@ -608,11 +608,11 @@ export default function MediaLibrary({
                   )}
                   {scrapeResult.contact.emails.length > 0 && (
                     <div>
-                      <p className="text-xs font-medium text-[#9CA3AF] mb-1">
+                      <p className="text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                         Emails:
                       </p>
                       {scrapeResult.contact.emails.map((e, i) => (
-                        <p key={i} className="text-xs text-[#111827]">
+                        <p key={i} className="text-xs text-[var(--color-dark)]">
                           {e}
                         </p>
                       ))}
@@ -624,7 +624,7 @@ export default function MediaLibrary({
             {/* Pages crawled */}
             {scrapeResult.pagesCrawled &&
               scrapeResult.pagesCrawled.length > 1 && (
-                <details className="text-xs text-[#9CA3AF]">
+                <details className="text-xs text-[var(--color-mid-gray)]">
                   <summary className="font-medium cursor-pointer hover:underline">
                     Pages crawled ({scrapeResult.pagesCrawled.length})
                   </summary>
@@ -635,7 +635,7 @@ export default function MediaLibrary({
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block text-[#3B82F6] hover:underline truncate"
+                        className="block text-[var(--color-gold)] hover:underline truncate"
                       >
                         {url}
                       </a>
@@ -649,9 +649,9 @@ export default function MediaLibrary({
 
       {/* ---- Stock library ---- */}
       {showLibrary && (
-        <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
+        <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--bg-elevated)]">
           <div className="px-4 py-3 flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#111827]">
+            <h4 className="text-sm font-semibold text-[var(--color-dark)]">
               Stock Library — Self-Storage Images
             </h4>
             <div className="flex gap-1 flex-wrap">
@@ -661,8 +661,8 @@ export default function MediaLibrary({
                   onClick={() => loadStockImages(cat)}
                   className={`px-2 py-1 text-xs rounded-md transition-colors ${
                     libraryFilter === cat
-                      ? "bg-[#3B82F6] text-white"
-                      : "text-[#9CA3AF] hover:bg-black/[0.03]"
+                      ? "bg-[var(--color-gold)] text-[var(--color-light)]"
+                      : "text-[var(--color-mid-gray)] hover:bg-[var(--color-light-gray)]"
                   }`}
                 >
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -670,12 +670,12 @@ export default function MediaLibrary({
               ))}
             </div>
           </div>
-          <div className="border-t border-black/[0.08] px-4 py-4">
+          <div className="border-t border-[var(--border-subtle)] px-4 py-4">
             {stockLoading ? (
               <div className="flex justify-center py-6">
                 <Loader2
                   size={18}
-                  className="animate-spin text-[#3B82F6]"
+                  className="animate-spin text-[var(--color-gold)]"
                 />
               </div>
             ) : (
@@ -699,20 +699,20 @@ export default function MediaLibrary({
                         ) : (
                           <button
                             onClick={() => addStockImage(stock)}
-                            className="px-2 py-1 bg-[#3B82F6] text-white text-xs font-medium rounded hover:bg-[#3B82F6]/80 transition-colors"
+                            className="px-2 py-1 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded hover:bg-[var(--color-gold)]/80 transition-colors"
                           >
                             + Add to Library
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-[#9CA3AF] mt-1 truncate">
+                      <p className="text-xs text-[var(--color-mid-gray)] mt-1 truncate">
                         {stock.alt}
                       </p>
                     </div>
                   )
                 })}
                 {stockImages.length === 0 && (
-                  <p className="col-span-6 text-center text-xs text-[#9CA3AF] py-4">
+                  <p className="col-span-6 text-center text-xs text-[var(--color-mid-gray)] py-4">
                     No images found for this category.
                   </p>
                 )}
@@ -724,7 +724,7 @@ export default function MediaLibrary({
 
       {/* ---- Image type filter tabs ---- */}
       {assets.length > 0 && (
-        <div className="flex items-center gap-1 border-b border-black/[0.08] pb-px">
+        <div className="flex items-center gap-1 border-b border-[var(--border-subtle)] pb-px">
           {IMAGE_TYPE_FILTERS.map((f) => {
             const count =
               f.value === "all"
@@ -739,12 +739,12 @@ export default function MediaLibrary({
                 onClick={() => setTypeFilter(f.value)}
                 className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                   typeFilter === f.value
-                    ? "border-[#3B82F6] text-[#111827]"
-                    : "border-transparent text-[#9CA3AF] hover:text-[#6B7280]"
+                    ? "border-[var(--color-gold)] text-[var(--color-dark)]"
+                    : "border-transparent text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
                 }`}
               >
                 {f.label}
-                <span className="ml-1 text-[#9CA3AF]">({count})</span>
+                <span className="ml-1 text-[var(--color-mid-gray)]">({count})</span>
               </button>
             )
           })}
@@ -758,11 +758,11 @@ export default function MediaLibrary({
           {photos.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Image size={15} className="text-[#9CA3AF]" />
-                <h4 className="text-sm font-semibold text-[#111827]">
+                <Image size={15} className="text-[var(--color-mid-gray)]" />
+                <h4 className="text-sm font-semibold text-[var(--color-dark)]">
                   Images
                 </h4>
-                <span className="text-xs text-[#9CA3AF]">
+                <span className="text-xs text-[var(--color-mid-gray)]">
                   ({photos.length})
                 </span>
               </div>
@@ -776,7 +776,7 @@ export default function MediaLibrary({
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-end p-2">
                       <div className="flex gap-1 w-full items-center">
-                        <span className="flex-1 text-xs text-[#111827]/80 truncate">
+                        <span className="flex-1 text-xs text-white/80 truncate">
                           {asset.source === "uploaded"
                             ? "Uploaded"
                             : asset.source === "website_scrape"
@@ -792,7 +792,7 @@ export default function MediaLibrary({
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="p-1 bg-white/20 rounded hover:bg-white/30 text-white transition-colors"
+                          className="p-1 bg-[var(--color-dark)]/20 rounded hover:bg-[var(--color-dark)]/30 text-white transition-colors"
                         >
                           <Eye size={12} />
                         </a>
@@ -822,11 +822,11 @@ export default function MediaLibrary({
           {videoAssets.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Film size={15} className="text-[#9CA3AF]" />
-                <h4 className="text-sm font-semibold text-[#111827]">
+                <Film size={15} className="text-[var(--color-mid-gray)]" />
+                <h4 className="text-sm font-semibold text-[var(--color-dark)]">
                   Videos
                 </h4>
-                <span className="text-xs text-[#9CA3AF]">
+                <span className="text-xs text-[var(--color-mid-gray)]">
                   ({videoAssets.length})
                 </span>
               </div>
@@ -834,7 +834,7 @@ export default function MediaLibrary({
                 {videoAssets.map((asset) => (
                   <div
                     key={asset.id}
-                    className="relative border border-black/[0.08] rounded-lg overflow-hidden bg-white"
+                    className="relative border border-[var(--border-subtle)] rounded-lg overflow-hidden bg-[var(--bg-elevated)]"
                   >
                     <video
                       src={asset.url}
@@ -842,7 +842,7 @@ export default function MediaLibrary({
                       preload="metadata"
                     />
                     <div className="p-2 flex items-center justify-between">
-                      <span className="text-xs text-[#9CA3AF] truncate">
+                      <span className="text-xs text-[var(--color-mid-gray)] truncate">
                         {(asset.metadata as { filename?: string })?.filename ||
                           "Video"}
                       </span>
@@ -868,11 +868,11 @@ export default function MediaLibrary({
           {documents.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <FileText size={15} className="text-[#9CA3AF]" />
-                <h4 className="text-sm font-semibold text-[#111827]">
+                <FileText size={15} className="text-[var(--color-mid-gray)]" />
+                <h4 className="text-sm font-semibold text-[var(--color-dark)]">
                   Documents
                 </h4>
-                <span className="text-xs text-[#9CA3AF]">
+                <span className="text-xs text-[var(--color-mid-gray)]">
                   ({documents.length})
                 </span>
               </div>
@@ -880,19 +880,19 @@ export default function MediaLibrary({
                 {documents.map((asset) => (
                   <div
                     key={asset.id}
-                    className="flex items-center gap-3 p-3 border border-black/[0.08] rounded-lg bg-white"
+                    className="flex items-center gap-3 p-3 border border-[var(--border-subtle)] rounded-lg bg-[var(--bg-elevated)]"
                   >
-                    <FileText size={18} className="text-[#9CA3AF]" />
+                    <FileText size={18} className="text-[var(--color-mid-gray)]" />
                     <a
                       href={asset.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 text-sm text-[#111827] hover:underline truncate"
+                      className="flex-1 text-sm text-[var(--color-dark)] hover:underline truncate"
                     >
                       {(asset.metadata as { filename?: string })?.filename ||
                         "Document"}
                     </a>
-                    <span className="text-xs text-[#9CA3AF]">
+                    <span className="text-xs text-[var(--color-mid-gray)]">
                       {asset.source}
                     </span>
                     <button
@@ -917,10 +917,10 @@ export default function MediaLibrary({
       {/* ---- Empty state ---- */}
       {assets.length === 0 && !scrapeResult && !showLibrary && (
         <div className="text-center py-12">
-          <div className="mx-auto w-12 h-12 rounded-full bg-black/[0.03] flex items-center justify-center mb-3">
-            <Image size={20} className="text-[#9CA3AF]" />
+          <div className="mx-auto w-12 h-12 rounded-full bg-[var(--color-light-gray)] flex items-center justify-center mb-3">
+            <Image size={20} className="text-[var(--color-mid-gray)]" />
           </div>
-          <p className="text-sm text-[#6B7280]">
+          <p className="text-sm text-[var(--color-body-text)]">
             No assets yet. Scrape a website, browse the stock library, or paste
             an image URL to get started.
           </p>
@@ -930,7 +930,7 @@ export default function MediaLibrary({
       {/* Filtered empty state */}
       {assets.length > 0 && filteredAssets.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-sm text-[#9CA3AF]">
+          <p className="text-sm text-[var(--color-mid-gray)]">
             No assets match the selected filter.
           </p>
         </div>

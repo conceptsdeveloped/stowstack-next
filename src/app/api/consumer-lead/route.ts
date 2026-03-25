@@ -11,7 +11,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { sessionId, email, phone, name, unitSize, facilityId, landingPageId, fbclid, gclid } = body;
+    const {
+      sessionId, email, phone, name, unitSize, facilityId, landingPageId,
+      fbclid, gclid, fbc, fbp,
+      utm_source, utm_medium, utm_campaign, utm_content, utm_term,
+    } = body;
 
     if (!sessionId) {
       return errorResponse("Session ID is required", 400, origin);
@@ -37,6 +41,10 @@ export async function POST(req: NextRequest) {
           lead_status: "new",
           fbclid: fbclid || existingPartial.fbclid,
           gclid: gclid || existingPartial.gclid,
+          utm_source: utm_source || existingPartial.utm_source,
+          utm_medium: utm_medium || existingPartial.utm_medium,
+          utm_campaign: utm_campaign || existingPartial.utm_campaign,
+          utm_content: utm_content || existingPartial.utm_content,
         },
       });
       return jsonResponse({ success: true, id: updated.id, status: "updated" }, 200, origin);
@@ -56,6 +64,10 @@ export async function POST(req: NextRequest) {
         lead_status: "new",
         fbclid: fbclid || null,
         gclid: gclid || null,
+        utm_source: utm_source || null,
+        utm_medium: utm_medium || null,
+        utm_campaign: utm_campaign || null,
+        utm_content: utm_content || null,
       },
     });
 

@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: "Client Guide",
   description:
-    "Everything you need to know about your StowStack portal — dashboard, campaign data, and getting the most out of your ad campaigns.",
+    "Everything you need to know about your StorageAds portal — dashboard, campaign data, and getting the most out of your ad campaigns.",
 };
 
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
@@ -59,7 +59,7 @@ function Section({
         }}
       >
         <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
-          <Icon size={20} className="text-blue-500" /> {title}
+          <Icon size={20} className="text-[var(--color-blue)]" /> {title}
         </h2>
         <div className="space-y-4">{children}</div>
       </div>
@@ -90,7 +90,7 @@ function InfoBox({ children }: { children: React.ReactNode }) {
       className="rounded-lg px-4 py-3 text-sm"
       style={{
         background: "var(--accent-glow)",
-        border: "1px solid rgba(59,130,246,0.2)",
+        border: "1px solid rgba(181,139,63,0.2)",
         color: "var(--text-secondary)",
       }}
     >
@@ -100,7 +100,7 @@ function InfoBox({ children }: { children: React.ReactNode }) {
 }
 
 const tocItems = [
-  { id: "welcome", label: "Welcome to StowStack by StorageAds.com" },
+  { id: "welcome", label: "Welcome to StorageAds by StorageAds.com" },
   { id: "getting-started", label: "Getting Started" },
   { id: "dashboard", label: "Your Dashboard" },
   { id: "charts", label: "Understanding Your Charts" },
@@ -114,11 +114,11 @@ const tocItems = [
 const faqs = [
   {
     q: "How often does my dashboard update?",
-    a: "Your StowStack team enters new campaign data monthly. You'll see updated numbers shortly after each month closes.",
+    a: "Your StorageAds team enters new campaign data monthly. You'll see updated numbers shortly after each month closes.",
   },
   {
     q: "What if my access code doesn't work?",
-    a: "Double-check for typos (codes are case-sensitive). If it still doesn't work, contact your StowStack team and they'll issue a new code.",
+    a: "Double-check for typos (codes are case-sensitive). If it still doesn't work, contact your StorageAds team and they'll issue a new code.",
   },
   {
     q: "Who do I contact if I have questions?",
@@ -184,7 +184,7 @@ export default function GuidePage() {
             Client Guide
           </h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            Everything you need to know about your StowStack portal — your
+            Everything you need to know about your StorageAds portal — your
             dashboard, campaign data, and how to get the most out of your ad
             campaigns.
           </p>
@@ -221,20 +221,20 @@ export default function GuidePage() {
         </nav>
 
         <div className="space-y-6">
-          <Section id="welcome" icon={Building2} title="Welcome to StowStack by StorageAds.com">
+          <Section id="welcome" icon={Building2} title="Welcome to StorageAds by StorageAds.com">
             <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-              StowStack is a marketing platform built specifically for
+              StorageAds is a marketing platform built specifically for
               self-storage operators. We run targeted Facebook and Instagram ad
               campaigns to fill your vacant units with qualified tenants.
             </p>
             <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-              As a StowStack client, you get access to your own portal where you
+              As a StorageAds client, you get access to your own portal where you
               can track campaign performance, see how many leads and move-ins
               your ads are generating, communicate with your account team, and
               monitor your return on investment — all in one place.
             </p>
             <InfoBox>
-              Your portal updates as your StowStack team enters new campaign
+              Your portal updates as your StorageAds team enters new campaign
               data each month. Check back regularly to see the latest numbers.
             </InfoBox>
           </Section>
@@ -247,15 +247,15 @@ export default function GuidePage() {
                   className="text-xs px-1.5 py-0.5 rounded"
                   style={{ background: "var(--bg-surface)" }}
                 >
-                  stowstack.co/portal
+                  storageads.com/portal
                 </code>{" "}
                 or click &ldquo;Client Login&rdquo; in the website navigation.
               </Step>
               <Step n={2}>
-                Enter the email address associated with your StowStack account.
+                Enter the email address associated with your StorageAds account.
               </Step>
               <Step n={3}>
-                Enter the access code provided by your StowStack team. It looks
+                Enter the access code provided by your StorageAds team. It looks
                 like{" "}
                 <code
                   className="text-xs px-1.5 py-0.5 rounded font-mono"
@@ -269,7 +269,7 @@ export default function GuidePage() {
             <InfoBox>
               Your login stays saved in your browser, so you won&apos;t need to
               re-enter your credentials each time you visit. If you lose your
-              access code, contact your StowStack team and they&apos;ll send you a
+              access code, contact your StorageAds team and they&apos;ll send you a
               new one.
             </InfoBox>
           </Section>
@@ -433,7 +433,7 @@ export default function GuidePage() {
           <Section id="messages" icon={MessageSquare} title="Messages">
             <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
               The Messages card on your dashboard lets you communicate directly
-              with your StowStack account team. Use it to ask questions, share
+              with your StorageAds account team. Use it to ask questions, share
               feedback, or request changes to your campaigns.
             </p>
             <Step n={1}>
@@ -443,7 +443,7 @@ export default function GuidePage() {
               Type your message in the text box and click Send.
             </Step>
             <Step n={3}>
-              Replies from your StowStack team will appear in the same
+              Replies from your StorageAds team will appear in the same
               conversation thread.
             </Step>
             <InfoBox>
@@ -455,7 +455,7 @@ export default function GuidePage() {
 
           <Section id="goals" icon={Target} title="Campaign Goals">
             <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              Your StowStack team may set a monthly move-in target for your
+              Your StorageAds team may set a monthly move-in target for your
               campaigns. When a goal is active, you&apos;ll see a progress bar on
               your dashboard showing how you&apos;re tracking against it.
             </p>
@@ -549,10 +549,10 @@ export default function GuidePage() {
           <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
             Questions? Contact{" "}
             <a
-              href="mailto:blake@storepawpaw.com"
+              href="mailto:blake@storageads.com"
               style={{ color: "var(--accent)" }}
             >
-              blake@storepawpaw.com
+              blake@storageads.com
             </a>{" "}
             or call{" "}
             <a href="tel:+12699298541" style={{ color: "var(--accent)" }}>

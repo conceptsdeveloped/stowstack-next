@@ -35,9 +35,9 @@ const COMPONENTS = [
     icon: Megaphone,
     title: "Ad Engine",
     subtitle: "Create demand",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10 border-blue-500/30",
-    activeBg: "bg-blue-500/20 border-blue-400 shadow-blue-500/20",
+    color: "text-orange-400",
+    bg: "bg-orange-500/10 border-orange-500/30",
+    activeBg: "bg-orange-500/20 border-orange-400 shadow-orange-500/20",
     detail:
       "Meta ads create new demand. Google PPC captures search intent. Retargeting brings back visitors. All three channels, managed together.",
     bullets: [
@@ -51,9 +51,9 @@ const COMPONENTS = [
     icon: FileText,
     title: "Landing Pages",
     subtitle: "Catch the click",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10 border-blue-500/30",
-    activeBg: "bg-blue-500/20 border-blue-400 shadow-blue-500/20",
+    color: "text-orange-400",
+    bg: "bg-orange-500/10 border-orange-500/30",
+    activeBg: "bg-orange-500/20 border-orange-400 shadow-orange-500/20",
     detail:
       "Every ad gets its own page with its own headline, offer, and tracking. Not your homepage. A conversion-optimized page built for that specific audience.",
     bullets: [
@@ -121,15 +121,15 @@ export default function DemandEngineVisual() {
   return (
     <section
       id="demand-engine"
-      aria-label="The six components of the StowStack demand engine"
+      aria-label="The six components of the StorageAds demand engine"
       className="section relative overflow-hidden"
-      style={{ background: "var(--bg-void)" }}
+      style={{ background: "var(--color-light)" }}
     >
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, rgba(59,130,246,0.06), transparent 70%)",
+            "radial-gradient(ellipse at center, rgba(181,139,63,0.04), transparent 70%)",
         }}
       />
 
@@ -141,7 +141,7 @@ export default function DemandEngineVisual() {
               : "opacity-0 translate-y-4"
           }`}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/30 text-[var(--color-gold)] text-sm font-medium mb-6">
             This isn't an ad agency. This is a revenue machine.
           </div>
           <h2
@@ -149,7 +149,7 @@ export default function DemandEngineVisual() {
             style={{ fontSize: "var(--text-section-head)" }}
           >
             6 Systems Working Together to{" "}
-            <span className="text-blue-400">Fill Your Units</span>
+            <span style={{ color: "var(--color-gold)" }}>Fill Your Units</span>
           </h2>
           <p className="mt-4 text-lg" style={{ color: "var(--text-secondary)" }}>
             Click any component to see how it works. Together, they form a
@@ -170,7 +170,7 @@ export default function DemandEngineVisual() {
                 className={`relative rounded-xl p-4 border text-center transition-all duration-300 cursor-pointer ${
                   isActive
                     ? `${comp.activeBg} shadow-lg`
-                    : `${comp.bg} hover:border-white/20`
+                    : `${comp.bg} hover:border-[var(--color-dark)]/20`
                 } ${
                   isVisible
                     ? "opacity-100 translate-y-0"
@@ -179,7 +179,7 @@ export default function DemandEngineVisual() {
                 style={{ transitionDelay: `${200 + i * 80}ms` }}
               >
                 <Icon size={24} className={`mx-auto mb-2 ${comp.color}`} />
-                <p className="text-xs font-semibold text-[#111827] leading-tight">
+                <p className="text-xs font-semibold text-[var(--color-dark)] leading-tight">
                   {comp.title}
                 </p>
                 <p
@@ -213,14 +213,14 @@ export default function DemandEngineVisual() {
                 )} opacity-60`}
               />
               {i < COMPONENTS.length - 1 && (
-                <div className="w-12 h-px bg-gradient-to-r from-white/10 to-white/10 mx-1" />
+                <div className="w-12 h-px bg-gradient-to-r from-[var(--color-dark)]/10 to-[var(--color-dark)]/10 mx-1" />
               )}
             </div>
           ))}
         </div>
 
         {activeComponent && (
-          <div className="bg-black/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 transition-all duration-300">
+          <div className="bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-2xl p-6 md:p-8 transition-all duration-300">
             <div className="flex items-start gap-4">
               <div
                 className={`w-12 h-12 rounded-xl ${activeComponent.bg} flex items-center justify-center flex-shrink-0`}
@@ -231,7 +231,7 @@ export default function DemandEngineVisual() {
                 />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-[#111827]">
+                <h3 className="text-xl font-bold text-[var(--color-dark)]">
                   {activeComponent.title}
                 </h3>
                 <p

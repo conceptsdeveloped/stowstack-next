@@ -47,10 +47,10 @@ function StatsSkeleton() {
         <div
           key={i}
           className="rounded-xl border p-5 animate-pulse"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+          style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
         >
-          <div className="h-3 w-20 rounded bg-black/5 mb-3" />
-          <div className="h-8 w-16 rounded bg-black/5" />
+          <div className="h-3 w-20 rounded bg-[var(--color-dark)]/5 mb-3" />
+          <div className="h-8 w-16 rounded bg-[var(--color-dark)]/5" />
         </div>
       ))}
     </div>
@@ -61,7 +61,7 @@ function TableSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="h-12 rounded-lg animate-pulse" style={{ backgroundColor: "#FFFFFF" }} />
+        <div key={i} className="h-12 rounded-lg animate-pulse" style={{ backgroundColor: "var(--bg-elevated)" }} />
       ))}
     </div>
   );
@@ -91,7 +91,7 @@ export default function CallsPage() {
 
   const kpis = stats
     ? [
-        { label: "Total Calls", value: stats.total_calls.toLocaleString(), icon: Phone, color: "#3B82F6" },
+        { label: "Total Calls", value: stats.total_calls.toLocaleString(), icon: Phone, color: "var(--color-gold)" },
         { label: "Completed", value: stats.completed.toLocaleString(), icon: PhoneCall, color: "#22C55E" },
         { label: "Avg Duration", value: formatDuration(stats.avg_duration), icon: Clock, color: "#EAB308" },
         { label: "Missed %", value: `${stats.missed_pct.toFixed(1)}%`, icon: PhoneOff, color: "#EF4444" },
@@ -101,8 +101,8 @@ export default function CallsPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Call Tracking</h1>
-        <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>Monitor and analyze call activity</p>
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>Call Tracking</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--color-mid-gray)" }}>Monitor and analyze call activity</p>
       </div>
 
       {statsError && (
@@ -121,13 +121,13 @@ export default function CallsPage() {
               <div
                 key={kpi.label}
                 className="rounded-xl border p-5"
-                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+                style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={16} style={{ color: kpi.color }} />
-                  <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>{kpi.label}</span>
+                  <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>{kpi.label}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "#111827" }}>{kpi.value}</p>
+                <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{kpi.value}</p>
               </div>
             );
           })}
@@ -136,15 +136,15 @@ export default function CallsPage() {
 
       <div
         className="rounded-xl border p-6"
-        style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+        style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
       >
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <Filter size={14} style={{ color: "#6E6E73" }} />
+          <Filter size={14} style={{ color: "var(--color-mid-gray)" }} />
           <select
             value={facilityFilter}
             onChange={(e) => setFacilityFilter(e.target.value)}
             className="rounded-lg border px-3 py-1.5 text-xs outline-none"
-            style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
+            style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
           >
             <option value="">All Facilities</option>
             {facilities.map((f) => (
@@ -156,7 +156,7 @@ export default function CallsPage() {
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
             className="rounded-lg border px-3 py-1.5 text-xs outline-none"
-            style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
+            style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
             placeholder="From"
           />
           <input
@@ -164,7 +164,7 @@ export default function CallsPage() {
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
             className="rounded-lg border px-3 py-1.5 text-xs outline-none"
-            style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
+            style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
             placeholder="To"
           />
         </div>
@@ -179,12 +179,12 @@ export default function CallsPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
-                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Date/Time</th>
-                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Caller</th>
-                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Facility</th>
-                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Duration</th>
-                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "#6E6E73" }}>Status</th>
+                <tr className="border-b" style={{ borderColor: "var(--border-subtle)" }}>
+                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "var(--color-mid-gray)" }}>Date/Time</th>
+                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "var(--color-mid-gray)" }}>Caller</th>
+                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "var(--color-mid-gray)" }}>Facility</th>
+                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "var(--color-mid-gray)" }}>Duration</th>
+                  <th className="text-left text-xs font-medium px-4 py-3" style={{ color: "var(--color-mid-gray)" }}>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -194,19 +194,19 @@ export default function CallsPage() {
                   return (
                     <tr
                       key={log.id}
-                      className="border-t transition-colors hover:bg-black/[0.03]"
-                      style={{ borderColor: "rgba(0,0,0,0.08)" }}
+                      className="border-t transition-colors hover:bg-[var(--color-light-gray)]"
+                      style={{ borderColor: "var(--border-subtle)" }}
                     >
-                      <td className="px-4 py-3 text-sm" style={{ color: "#6B7280" }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: "var(--color-body-text)" }}>
                         {new Date(log.date).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-sm font-mono" style={{ color: "#111827" }}>
+                      <td className="px-4 py-3 text-sm font-mono" style={{ color: "var(--color-dark)" }}>
                         {log.caller_number}
                       </td>
-                      <td className="px-4 py-3 text-sm" style={{ color: "#111827" }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: "var(--color-dark)" }}>
                         {log.facility || "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm" style={{ color: "#6B7280" }}>
+                      <td className="px-4 py-3 text-sm" style={{ color: "var(--color-body-text)" }}>
                         {formatDuration(log.duration)}
                       </td>
                       <td className="px-4 py-3">
@@ -225,8 +225,8 @@ export default function CallsPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <Phone size={32} className="mx-auto mb-3" style={{ color: "#6E6E73" }} />
-            <p className="text-sm" style={{ color: "#6E6E73" }}>No call logs found</p>
+            <Phone size={32} className="mx-auto mb-3" style={{ color: "var(--color-mid-gray)" }} />
+            <p className="text-sm" style={{ color: "var(--color-mid-gray)" }}>No call logs found</p>
           </div>
         )}
       </div>

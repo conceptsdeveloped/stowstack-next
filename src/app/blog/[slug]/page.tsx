@@ -24,9 +24,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) return { title: "Not Found" };
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com";
+  const postUrl = `${siteUrl}/blog/${slug}`;
+  const author = getAuthor();
+
   return {
-    title: `${post.title} — StowStack Blog`,
+    title: `${post.title} — StorageAds Blog`,
     description: post.description,
+    keywords: post.tags,
+    authors: author ? [{ name: author.name }] : undefined,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      url: postUrl,
+      siteName: "StorageAds",
+      type: "article",
+      publishedTime: post.date,
+      authors: author ? [author.name] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+    },
+    alternates: {
+      canonical: postUrl,
+    },
   };
 }
 
@@ -179,7 +203,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               Share
             </span>
             <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://stowstack.co/blog/${post.slug}`)}`}
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://storageads.com/blog/${post.slug}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-lg transition-colors hover:opacity-80"
@@ -191,7 +215,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               </svg>
             </a>
             <a
-              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://stowstack.co/blog/${post.slug}`)}`}
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://storageads.com/blog/${post.slug}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-lg transition-colors hover:opacity-80"
@@ -203,7 +227,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               </svg>
             </a>
             <a
-              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://stowstack.co/blog/${post.slug}`)}`}
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://storageads.com/blog/${post.slug}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-lg transition-colors hover:opacity-80"

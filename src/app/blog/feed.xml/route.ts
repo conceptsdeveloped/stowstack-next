@@ -1,6 +1,6 @@
 import { getAllPosts, getAuthor } from "@/lib/blog";
 
-const SITE_URL = "https://stowstack.co";
+const SITE_URL = "https://storageads.com";
 
 function escapeXml(str: string): string {
   return str
@@ -32,7 +32,7 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>StowStack Blog</title>
+    <title>StorageAds Blog</title>
     <link>${SITE_URL}/blog</link>
     <description>Operator math, campaign insights, and hard-won lessons from running self-storage facilities and filling them with paid ads.</description>
     <language>en-us</language>

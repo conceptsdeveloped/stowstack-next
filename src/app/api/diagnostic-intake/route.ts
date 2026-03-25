@@ -261,8 +261,8 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${resendKey}`,
         },
         body: JSON.stringify({
-          from: "StowStack <notifications@stowstack.co>",
-          to: ["blake@storepawpaw.com"],
+          from: "StorageAds <notifications@storageads.com>",
+          to: ["blake@storageads.com"],
           subject: `New Diagnostic Submission: ${facilityName}`,
           html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -276,7 +276,7 @@ export async function POST(req: NextRequest) {
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Issue</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${biggestIssueRaw || "N/A"}</td></tr>
               </table>
               <p style="margin-top: 20px;">
-                <a href="https://stowstack.co/admin/audits" style="display: inline-block; padding: 12px 24px; background: #3B82F6; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Generate Audit</a>
+                <a href="https://storageads.com/admin/audits" style="display: inline-block; padding: 12px 24px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Generate Audit</a>
               </p>
             </div>`,
         }),

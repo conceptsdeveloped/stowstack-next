@@ -129,8 +129,8 @@ function CopyButton({ text }: { text: string }) {
     setTimeout(() => setCopied(false), 2000);
   }, [text]);
   return (
-    <button onClick={handleCopy} className="p-1 rounded hover:bg-black/5 transition-colors" title="Copy link">
-      {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className="text-[#9CA3AF]" />}
+    <button onClick={handleCopy} className="p-1 rounded hover:bg-[var(--color-dark)]/5 transition-colors" title="Copy link">
+      {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className="text-[var(--color-mid-gray)]" />}
     </button>
   );
 }
@@ -139,7 +139,7 @@ function StatusBadge({ status }: { status: "idle" | "generating" | "done" | "err
   switch (status) {
     case "generating":
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/15 text-blue-400">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[var(--color-blue)]/15 text-[var(--color-blue)]">
           <Loader2 size={10} className="animate-spin" /> Generating
         </span>
       );
@@ -179,8 +179,8 @@ function DiagnosticDetail({ row }: { row: DiagnosticRow }) {
         <div className="mt-3 space-y-2 max-h-[400px] overflow-y-auto pr-2">
           {keys.map((key) => (
             <div key={key} className="text-xs">
-              <p className="text-[#9CA3AF] leading-snug">{key}</p>
-              <p className="text-[#6B7280] leading-snug mt-0.5">{row.raw[key]}</p>
+              <p className="text-[var(--color-mid-gray)] leading-snug">{key}</p>
+              <p className="text-[var(--color-body-text)] leading-snug mt-0.5">{row.raw[key]}</p>
             </div>
           ))}
         </div>
@@ -331,8 +331,8 @@ export default function AuditsPage() {
     <div className="space-y-8 p-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-[#111827]">Facility Diagnostics</h1>
-        <p className="text-sm mt-1 text-[#9CA3AF]">
+        <h1 className="text-2xl font-semibold text-[var(--color-dark)]">Facility Diagnostics</h1>
+        <p className="text-sm mt-1 text-[var(--color-mid-gray)]">
           Upload Google Forms responses, generate scored diagnostic audits, and share reports
         </p>
       </div>
@@ -340,17 +340,17 @@ export default function AuditsPage() {
       {/* ============================================================ */}
       {/*  SECTION 1: Diagnostic Import                                */}
       {/* ============================================================ */}
-      <div className="rounded-xl border border-black/[0.08] overflow-hidden">
-        <div className="px-5 py-4 border-b border-black/[0.08] bg-white">
+      <div className="rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Upload size={16} className="text-[var(--accent)]" />
-              <h2 className="text-sm font-semibold text-[#111827]">Import Diagnostic Responses</h2>
+              <h2 className="text-sm font-semibold text-[var(--color-dark)]">Import Diagnostic Responses</h2>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors"
+                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] text-[var(--color-light)] hover:bg-[var(--accent-hover)] transition-colors"
               >
                 Upload CSV
               </button>
@@ -367,17 +367,17 @@ export default function AuditsPage() {
 
         {diagnosticRows.length === 0 ? (
           <div className="p-8">
-            <div className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center">
-              <FileText size={32} className="mx-auto mb-3 text-[#9CA3AF]" />
-              <p className="text-sm text-[#6B7280] mb-2">
+            <div className="border-2 border-dashed border-[var(--color-dark)]/10 rounded-xl p-8 text-center">
+              <FileText size={32} className="mx-auto mb-3 text-[var(--color-mid-gray)]" />
+              <p className="text-sm text-[var(--color-body-text)] mb-2">
                 Upload a CSV export from Google Forms, or paste CSV text below
               </p>
-              <p className="text-xs text-[#9CA3AF] mb-4">
+              <p className="text-xs text-[var(--color-mid-gray)] mb-4">
                 Download from Google Sheets → File → Download → CSV
               </p>
               <textarea
                 placeholder="Paste CSV text here..."
-                className="w-full h-32 rounded-lg border border-white/10 bg-[#F9FAFB] text-sm text-[#6B7280] p-3 font-mono resize-none focus:outline-none focus:border-[var(--accent)] transition-colors"
+                className="w-full h-32 rounded-lg border border-[var(--color-dark)]/10 bg-[var(--color-light)] text-sm text-[var(--color-body-text)] p-3 font-mono resize-none focus:outline-none focus:border-[var(--accent)] transition-colors"
                 onPaste={(e) => {
                   const text = e.clipboardData.getData("text");
                   if (text) {
@@ -398,7 +398,7 @@ export default function AuditsPage() {
         ) : (
           <div>
             {/* Loaded responses */}
-            <div className="px-5 py-3 flex items-center justify-between bg-emerald-500/5 border-b border-black/[0.08]">
+            <div className="px-5 py-3 flex items-center justify-between bg-emerald-500/5 border-b border-[var(--border-subtle)]">
               <span className="text-xs text-emerald-400 font-medium">
                 {diagnosticRows.length} diagnostic response{diagnosticRows.length !== 1 ? "s" : ""} loaded
                 ({csvHeaders.length} fields per response)
@@ -413,14 +413,14 @@ export default function AuditsPage() {
                   setGenResults({});
                   setGenErrors({});
                 }}
-                className="text-xs text-[#9CA3AF] hover:text-red-400 transition-colors flex items-center gap-1"
+                className="text-xs text-[var(--color-mid-gray)] hover:text-red-400 transition-colors flex items-center gap-1"
               >
                 <Trash2 size={12} /> Clear
               </button>
             </div>
 
             {/* Response cards */}
-            <div className="divide-y divide-black/[0.08]">
+            <div className="divide-y divide-[var(--border-subtle)]">
               {diagnosticRows.map((row, idx) => {
                 const status = genStatus[idx] || "idle";
                 const result = genResults[idx];
@@ -431,12 +431,12 @@ export default function AuditsPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-sm font-semibold text-[#111827] truncate">
+                          <h3 className="text-sm font-semibold text-[var(--color-dark)] truncate">
                             {row.facilityName || "Unnamed Facility"}
                           </h3>
                           <StatusBadge status={status} />
                         </div>
-                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[#9CA3AF]">
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[var(--color-mid-gray)]">
                           <span>{row.facilityAddress}</span>
                           <span>{row.contactName} ({row.email})</span>
                           <span>{row.occupancy}</span>
@@ -478,7 +478,7 @@ export default function AuditsPage() {
                         {status === "idle" && (
                           <button
                             onClick={() => handleGenerate(idx)}
-                            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors flex items-center gap-1.5"
+                            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] text-[var(--color-light)] hover:bg-[var(--accent-hover)] transition-colors flex items-center gap-1.5"
                           >
                             <Sparkles size={12} />
                             Generate Audit
@@ -487,7 +487,7 @@ export default function AuditsPage() {
                         {status === "generating" && (
                           <button
                             disabled
-                            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)]/50 text-white/70 flex items-center gap-1.5 cursor-not-allowed"
+                            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)]/50 text-[var(--color-light)]/70 flex items-center gap-1.5 cursor-not-allowed"
                           >
                             <Loader2 size={12} className="animate-spin" />
                             Generating...
@@ -522,8 +522,8 @@ export default function AuditsPage() {
 
             {/* Batch generate */}
             {diagnosticRows.length > 1 && (
-              <div className="px-5 py-3 border-t border-black/[0.08] bg-[#F9FAFB] flex items-center justify-between">
-                <span className="text-xs text-[#9CA3AF]">
+              <div className="px-5 py-3 border-t border-[var(--border-subtle)] bg-[var(--color-light)] flex items-center justify-between">
+                <span className="text-xs text-[var(--color-mid-gray)]">
                   {Object.values(genStatus).filter((s) => s === "done").length} / {diagnosticRows.length} generated
                 </span>
                 <button
@@ -536,7 +536,7 @@ export default function AuditsPage() {
                     });
                   }}
                   disabled={Object.values(genStatus).some((s) => s === "generating")}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] text-[var(--color-light)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
                   <Sparkles size={12} />
                   Generate All Remaining
@@ -550,12 +550,12 @@ export default function AuditsPage() {
       {/* ============================================================ */}
       {/*  SECTION 2: Shared Audit Links                                */}
       {/* ============================================================ */}
-      <div className="rounded-xl border border-black/[0.08] overflow-hidden">
-        <div className="px-5 py-4 border-b border-black/[0.08] bg-white">
+      <div className="rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
           <div className="flex items-center gap-2">
             <Send size={16} className="text-[var(--accent)]" />
-            <h2 className="text-sm font-semibold text-[#111827]">Shared Audit Links</h2>
-            <span className="text-xs text-[#9CA3AF]">
+            <h2 className="text-sm font-semibold text-[var(--color-dark)]">Shared Audit Links</h2>
+            <span className="text-xs text-[var(--color-mid-gray)]">
               ({audits.length} total)
             </span>
           </div>
@@ -570,19 +570,19 @@ export default function AuditsPage() {
         {loading ? (
           <div className="p-5 space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-14 rounded-lg animate-pulse bg-white" />
+              <div key={i} className="h-14 rounded-lg animate-pulse bg-[var(--bg-elevated)]" />
             ))}
           </div>
         ) : audits.length > 0 ? (
           <table className="w-full">
             <thead>
-              <tr className="bg-[#F9FAFB]">
-                <th className="text-left text-xs font-medium px-5 py-3 text-[#9CA3AF]">Facility</th>
-                <th className="text-left text-xs font-medium px-5 py-3 text-[#9CA3AF]">Link</th>
-                <th className="text-center text-xs font-medium px-5 py-3 text-[#9CA3AF]">Views</th>
-                <th className="text-left text-xs font-medium px-5 py-3 text-[#9CA3AF]">Created</th>
-                <th className="text-left text-xs font-medium px-5 py-3 text-[#9CA3AF]">Expires</th>
-                <th className="text-right text-xs font-medium px-5 py-3 text-[#9CA3AF]">Actions</th>
+              <tr className="bg-[var(--color-light)]">
+                <th className="text-left text-xs font-medium px-5 py-3 text-[var(--color-mid-gray)]">Facility</th>
+                <th className="text-left text-xs font-medium px-5 py-3 text-[var(--color-mid-gray)]">Link</th>
+                <th className="text-center text-xs font-medium px-5 py-3 text-[var(--color-mid-gray)]">Views</th>
+                <th className="text-left text-xs font-medium px-5 py-3 text-[var(--color-mid-gray)]">Created</th>
+                <th className="text-left text-xs font-medium px-5 py-3 text-[var(--color-mid-gray)]">Expires</th>
+                <th className="text-right text-xs font-medium px-5 py-3 text-[var(--color-mid-gray)]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -593,10 +593,10 @@ export default function AuditsPage() {
                 return (
                   <tr
                     key={audit.id}
-                    className="border-t border-black/[0.08] transition-colors hover:bg-black/[0.03]"
+                    className="border-t border-[var(--border-subtle)] transition-colors hover:bg-[var(--color-light-gray)]"
                     style={{ opacity: audit.revoked ? 0.5 : 1 }}
                   >
-                    <td className="px-5 py-3 text-sm text-[#111827]">
+                    <td className="px-5 py-3 text-sm text-[var(--color-dark)]">
                       {audit.facility_name}
                     </td>
                     <td className="px-5 py-3">
@@ -609,31 +609,31 @@ export default function AuditsPage() {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1 rounded hover:bg-black/5 transition-colors"
+                          className="p-1 rounded hover:bg-[var(--color-dark)]/5 transition-colors"
                         >
-                          <ExternalLink size={12} className="text-[#9CA3AF]" />
+                          <ExternalLink size={12} className="text-[var(--color-mid-gray)]" />
                         </a>
                       </div>
                     </td>
                     <td className="px-5 py-3 text-center">
                       <div className="flex items-center justify-center gap-1">
-                        <Eye size={12} className="text-[#9CA3AF]" />
-                        <span className="text-sm text-[#6B7280]">{audit.view_count}</span>
+                        <Eye size={12} className="text-[var(--color-mid-gray)]" />
+                        <span className="text-sm text-[var(--color-body-text)]">{audit.view_count}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-sm text-[#6B7280]">
+                    <td className="px-5 py-3 text-sm text-[var(--color-body-text)]">
                       {new Date(audit.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-5 py-3">
                       {audit.expires_at ? (
                         <div className="flex items-center gap-1">
-                          <Clock size={12} className={expired ? "text-red-400" : "text-[#9CA3AF]"} />
-                          <span className={`text-sm ${expired ? "text-red-400" : "text-[#6B7280]"}`}>
+                          <Clock size={12} className={expired ? "text-red-400" : "text-[var(--color-mid-gray)]"} />
+                          <span className={`text-sm ${expired ? "text-red-400" : "text-[var(--color-body-text)]"}`}>
                             {new Date(audit.expires_at).toLocaleDateString()}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-sm text-[#9CA3AF]">Never</span>
+                        <span className="text-sm text-[var(--color-mid-gray)]">Never</span>
                       )}
                     </td>
                     <td className="px-5 py-3 text-right">
@@ -643,7 +643,7 @@ export default function AuditsPage() {
                             <button
                               onClick={() => handleExtend(audit.id)}
                               disabled={isLoading}
-                              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors disabled:opacity-50"
+                              className="p-1.5 rounded-lg hover:bg-[var(--color-dark)]/5 transition-colors disabled:opacity-50"
                               title="Extend +30 days"
                             >
                               <RotateCw size={14} className="text-[var(--accent)]" />
@@ -651,7 +651,7 @@ export default function AuditsPage() {
                             <button
                               onClick={() => handleRevoke(audit.id)}
                               disabled={isLoading}
-                              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors disabled:opacity-50"
+                              className="p-1.5 rounded-lg hover:bg-[var(--color-dark)]/5 transition-colors disabled:opacity-50"
                               title="Revoke"
                             >
                               <Ban size={14} className="text-red-400" />
@@ -667,9 +667,9 @@ export default function AuditsPage() {
           </table>
         ) : (
           <div className="text-center py-12">
-            <FileSearch size={32} className="mx-auto mb-3 text-[#9CA3AF]" />
-            <p className="text-sm text-[#9CA3AF]">No shared audit links yet</p>
-            <p className="text-xs text-[#9CA3AF] mt-1">Upload diagnostic responses above to generate your first audit</p>
+            <FileSearch size={32} className="mx-auto mb-3 text-[var(--color-mid-gray)]" />
+            <p className="text-sm text-[var(--color-mid-gray)]">No shared audit links yet</p>
+            <p className="text-xs text-[var(--color-mid-gray)] mt-1">Upload diagnostic responses above to generate your first audit</p>
           </div>
         )}
       </div>

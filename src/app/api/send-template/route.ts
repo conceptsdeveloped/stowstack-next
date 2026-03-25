@@ -52,9 +52,9 @@ const TEMPLATES: Record<string, Template> = {
           <p>No pressure at all \u2014 just want to make sure you have the full picture before deciding if we're a fit.</p>
           <p style="margin-top: 24px;">
             Blake Burkett<br/>
-            StowStack<br/>
-            <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a><br/>
-            <a href="mailto:blake@storepawpaw.com" style="color: #16a34a; text-decoration: none;">blake@storepawpaw.com</a>
+            StorageAds<br/>
+            <a href="tel:2699298541" style="color: #B58B3F; text-decoration: none;">269-929-8541</a><br/>
+            <a href="mailto:blake@storageads.com" style="color: #B58B3F; text-decoration: none;">blake@storageads.com</a>
           </p>
         </div>`;
     },
@@ -83,9 +83,9 @@ const TEMPLATES: Record<string, Template> = {
           <p>I'd love to walk you through the numbers on a quick call. What does your schedule look like this week?</p>
           <p style="margin-top: 24px;">
             Blake Burkett<br/>
-            StowStack<br/>
-            <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a><br/>
-            <a href="mailto:blake@storepawpaw.com" style="color: #16a34a; text-decoration: none;">blake@storepawpaw.com</a>
+            StorageAds<br/>
+            <a href="tel:2699298541" style="color: #B58B3F; text-decoration: none;">269-929-8541</a><br/>
+            <a href="mailto:blake@storageads.com" style="color: #B58B3F; text-decoration: none;">blake@storageads.com</a>
           </p>
         </div>`;
     },
@@ -95,13 +95,13 @@ const TEMPLATES: Record<string, Template> = {
     name: "Proposal",
     description: "Send pricing and next steps",
     subject: (lead) =>
-      `StowStack proposal for ${esc(lead.facilityName)}`,
+      `StorageAds proposal for ${esc(lead.facilityName)}`,
     body: (lead) => {
       const firstName = esc(lead.name.trim().split(" ")[0]);
       return `
         <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.7; color: #1a1a1a;">
           <p>Hey ${firstName},</p>
-          <p>Great talking with you about <strong>${esc(lead.facilityName)}</strong>. As discussed, here's what working with StowStack looks like:</p>
+          <p>Great talking with you about <strong>${esc(lead.facilityName)}</strong>. As discussed, here's what working with StorageAds looks like:</p>
           <div style="margin: 24px 0; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
             <p style="margin: 0 0 12px; font-weight: 600; color: #0f172a;">What's Included</p>
             <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 2;">
@@ -117,9 +117,9 @@ const TEMPLATES: Record<string, Template> = {
           <p>Ready to get started? Just reply to this email and we'll kick things off.</p>
           <p style="margin-top: 24px;">
             Blake Burkett<br/>
-            StowStack<br/>
-            <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a><br/>
-            <a href="mailto:blake@storepawpaw.com" style="color: #16a34a; text-decoration: none;">blake@storepawpaw.com</a>
+            StorageAds<br/>
+            <a href="tel:2699298541" style="color: #B58B3F; text-decoration: none;">269-929-8541</a><br/>
+            <a href="mailto:blake@storageads.com" style="color: #B58B3F; text-decoration: none;">blake@storageads.com</a>
           </p>
         </div>`;
     },
@@ -140,9 +140,9 @@ const TEMPLATES: Record<string, Template> = {
           <p>Either way, I appreciate you taking the time to fill out the audit form.</p>
           <p style="margin-top: 24px;">
             Blake Burkett<br/>
-            StowStack<br/>
-            <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a><br/>
-            <a href="mailto:blake@storepawpaw.com" style="color: #16a34a; text-decoration: none;">blake@storepawpaw.com</a>
+            StorageAds<br/>
+            <a href="tel:2699298541" style="color: #B58B3F; text-decoration: none;">269-929-8541</a><br/>
+            <a href="mailto:blake@storageads.com" style="color: #B58B3F; text-decoration: none;">blake@storageads.com</a>
           </p>
         </div>`;
     },
@@ -161,13 +161,13 @@ const TEMPLATES: Record<string, Template> = {
           <p>Just a quick reminder \u2014 we're getting your campaigns ready to launch, but we still need a few details from you to make sure everything is dialed in for <strong>${esc(lead.facilityName)}</strong>.</p>
           <div style="margin: 24px 0; padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
             <p style="margin: 0 0 12px; font-weight: 600; color: #166534;">Complete Your Campaign Setup</p>
-            <a href="https://stowstack.co/portal" style="display: inline-block; padding: 14px 28px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Open Your Portal</a>
+            <a href="https://storageads.com/portal" style="display: inline-block; padding: 14px 28px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Open Your Portal</a>
           </div>
           <p>It only takes about 5 minutes. The sooner we have your info, the sooner your ads go live.</p>
           <p style="margin-top: 24px;">
             Anna Almeida<br/>
-            StowStack<br/>
-            <a href="mailto:anna@storepawpaw.com" style="color: #16a34a; text-decoration: none;">anna@storepawpaw.com</a>
+            StorageAds<br/>
+            <a href="mailto:anna@storageads.com" style="color: #B58B3F; text-decoration: none;">anna@storageads.com</a>
           </p>
         </div>`;
     },
@@ -185,14 +185,14 @@ const TEMPLATES: Record<string, Template> = {
           <p>Here's a quick update on how your <strong>${esc(lead.facilityName)}</strong> campaigns are performing.</p>
           <p>You can always check your full dashboard with real-time metrics at any time:</p>
           <div style="margin: 24px 0; text-align: center;">
-            <a href="https://stowstack.co/portal" style="display: inline-block; padding: 14px 28px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">View Your Dashboard</a>
+            <a href="https://storageads.com/portal" style="display: inline-block; padding: 14px 28px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">View Your Dashboard</a>
           </div>
           <p>Let us know if you have any questions about the numbers or if there's anything you'd like us to adjust in the campaigns.</p>
           <p style="margin-top: 24px;">
             Blake Burkett<br/>
-            StowStack<br/>
-            <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a><br/>
-            <a href="mailto:blake@storepawpaw.com" style="color: #16a34a; text-decoration: none;">blake@storepawpaw.com</a>
+            StorageAds<br/>
+            <a href="tel:2699298541" style="color: #B58B3F; text-decoration: none;">269-929-8541</a><br/>
+            <a href="mailto:blake@storageads.com" style="color: #B58B3F; text-decoration: none;">blake@storageads.com</a>
           </p>
         </div>`;
     },
@@ -249,9 +249,9 @@ const TEMPLATES: Record<string, Template> = {
           <p>Happy to dig into this more if you are interested \u2014 no pitch, just sharing what is working in your market right now.</p>
           <p style="margin-top: 24px;">
             Blake Burkett<br/>
-            StowStack<br/>
-            <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a><br/>
-            <a href="mailto:blake@storepawpaw.com" style="color: #16a34a; text-decoration: none;">blake@storepawpaw.com</a>
+            StorageAds<br/>
+            <a href="tel:2699298541" style="color: #B58B3F; text-decoration: none;">269-929-8541</a><br/>
+            <a href="mailto:blake@storageads.com" style="color: #B58B3F; text-decoration: none;">blake@storageads.com</a>
           </p>
         </div>`;
     },
@@ -276,7 +276,7 @@ const TEMPLATES: Record<string, Template> = {
           <div style="margin: 24px 0; padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
             <p style="margin: 0 0 4px; font-weight: 600; color: #166534; font-size: 18px;">Your unit is still available</p>
             <p style="margin: 0 0 16px; font-size: 14px; color: #374151;">Pick up right where you left off \u2014 takes less than 60 seconds.</p>
-            <a href="${esc(lead.returnUrl || "https://stowstack.co")}" style="display: inline-block; padding: 14px 32px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Your Unit</a>
+            <a href="${esc(lead.returnUrl || "https://storageads.com")}" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Your Unit</a>
           </div>
           <p style="font-size: 13px; color: #6b7280;">Questions? Just reply to this email or call us at <a href="tel:2699298541" style="color: #16a34a;">269-929-8541</a>.</p>
         </div>`;
@@ -302,7 +302,7 @@ const TEMPLATES: Record<string, Template> = {
             <p style="margin: 4px 0 0; font-size: 14px; color: #78350f;">We can not guarantee pricing or availability beyond today. Lock in your rate now.</p>
           </div>
           <div style="margin: 24px 0; text-align: center;">
-            <a href="${esc(lead.returnUrl || "https://stowstack.co")}" style="display: inline-block; padding: 14px 32px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Now \u2014 Keep Your Rate</a>
+            <a href="${esc(lead.returnUrl || "https://storageads.com")}" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Now \u2014 Keep Your Rate</a>
           </div>
           <p style="font-size: 13px; color: #6b7280;">Need help deciding? Call us at <a href="tel:2699298541" style="color: #16a34a;">269-929-8541</a> \u2014 we will walk you through options.</p>
         </div>`;
@@ -327,7 +327,7 @@ const TEMPLATES: Record<string, Template> = {
             <p style="margin: 0 0 4px; font-size: 13px; color: #34d399; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Limited Time Offer</p>
             <p style="margin: 0 0 8px; font-size: 32px; font-weight: 800; color: white;">$1 First Month</p>
             <p style="margin: 0 0 20px; font-size: 14px; color: #94a3b8;">Reserve in the next 48 hours to lock this in.</p>
-            <a href="${esc(lead.returnUrl || "https://stowstack.co")}?promo=COMEBACK1" style="display: inline-block; padding: 14px 32px; background: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Claim Your $1 First Month</a>
+            <a href="${esc(lead.returnUrl || "https://storageads.com")}?promo=COMEBACK1" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Claim Your $1 First Month</a>
           </div>
           <p style="font-size: 13px; color: #6b7280;">This offer expires in 48 hours and is limited to new reservations only. Questions? Reply to this email or call <a href="tel:2699298541" style="color: #16a34a;">269-929-8541</a>.</p>
         </div>`;
@@ -350,9 +350,9 @@ const TEMPLATES: Record<string, Template> = {
           <p>Either way, wishing you the best with the facility.</p>
           <p style="margin-top: 24px;">
             Blake Burkett<br/>
-            StowStack<br/>
-            <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a><br/>
-            <a href="mailto:blake@storepawpaw.com" style="color: #16a34a; text-decoration: none;">blake@storepawpaw.com</a>
+            StorageAds<br/>
+            <a href="tel:2699298541" style="color: #B58B3F; text-decoration: none;">269-929-8541</a><br/>
+            <a href="mailto:blake@storageads.com" style="color: #B58B3F; text-decoration: none;">blake@storageads.com</a>
           </p>
         </div>`;
     },
@@ -471,11 +471,11 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from:
           templateId === "onboarding_reminder"
-            ? "Anna at StowStack <noreply@stowstack.co>"
-            : "Blake at StowStack <noreply@stowstack.co>",
+            ? "Anna at StorageAds <noreply@storageads.com>"
+            : "Blake at StorageAds <noreply@storageads.com>",
         to: lead.email,
-        cc: "anna@storepawpaw.com",
-        reply_to: ["blake@storepawpaw.com", "anna@storepawpaw.com"],
+        cc: "anna@storageads.com",
+        reply_to: ["blake@storageads.com", "anna@storageads.com"],
         subject,
         html,
       }),

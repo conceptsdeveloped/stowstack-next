@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "StowStack <noreply@stowstack.co>",
-            to: ["blake@stowstack.co"],
+            from: "StorageAds <noreply@storageads.com>",
+            to: ["blake@storageads.com"],
             subject: `New Audit Request: ${facilityName} (${location})`,
             html: `
               <h2>New Facility Audit Request</h2>

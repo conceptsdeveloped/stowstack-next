@@ -52,7 +52,7 @@ async function generateSummaries(
         messages: [
           {
             role: "user",
-            content: `You are summarizing a code commit for a self-storage SaaS called StowStack. Two audiences read this:
+            content: `You are summarizing a code commit for a self-storage SaaS called StorageAds. Two audiences read this:
 
 1. LAYMAN'S SUMMARY: For non-technical stakeholders. One sentence, plain English, no jargon. Focus on what changed for users or the business. Start with a verb.
 2. TECHNICAL SUMMARY: For developers. 1-2 sentences, concise, mention specific systems/components affected.

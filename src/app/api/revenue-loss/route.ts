@@ -477,7 +477,7 @@ export async function GET(request: NextRequest) {
     );
     const totalAnnualLoss = totalMonthlyLoss * 12;
 
-    const stowstackMonthlyFee = 999;
+    const storageadsMonthlyFee = 999;
     const projectedCPL = benchmarkCPL;
     const recommendedSpend = Math.max(
       1000,
@@ -488,16 +488,16 @@ export async function GET(request: NextRequest) {
     const projectedMonthlyRecovery = projectedMoveIns * avgRate;
     const projectedAnnualRecovery = projectedMonthlyRecovery * 12;
     const projectedROAS =
-      stowstackMonthlyFee + recommendedSpend > 0
+      storageadsMonthlyFee + recommendedSpend > 0
         ? Math.round(
             (projectedMonthlyRecovery /
-              (stowstackMonthlyFee + recommendedSpend)) *
+              (storageadsMonthlyFee + recommendedSpend)) *
               10
           ) / 10
         : 0;
     const breakevenUnits =
       avgRate > 0
-        ? Math.round((stowstackMonthlyFee / avgRate) * 10) / 10
+        ? Math.round((storageadsMonthlyFee / avgRate) * 10) / 10
         : 0;
 
     const recoveryTiers = [1, 3, 5, 10, 15, 20]
@@ -542,18 +542,18 @@ export async function GET(request: NextRequest) {
             : projectedMoveIns;
       recoveredUnits = Math.min(vacantUnits, recoveredUnits + fillsThisMonth);
       const currentVacant = Math.max(0, vacantUnits - recoveredUnits);
-      const stowstackCost = stowstackMonthlyFee + recommendedSpend;
-      const netGain = recoveredUnits * avgRate - stowstackCost;
+      const storageadsCost = storageadsMonthlyFee + recommendedSpend;
+      const netGain = recoveredUnits * avgRate - storageadsCost;
       actionTimeline.push({
         month: m,
         unitsFilled: recoveredUnits,
         vacantRemaining: currentVacant,
         monthlyRevenue: Math.round(recoveredUnits * avgRate),
-        stowstackCost,
+        storageadsCost,
         netGain: Math.round(netGain),
         cumulativeNetGain: Math.round(
           netGain * m -
-            stowstackCost *
+            storageadsCost *
               Math.max(0, recoveredUnits > 0 ? 0 : m)
         ),
       });
@@ -580,17 +580,17 @@ export async function GET(request: NextRequest) {
         },
         categories,
         recovery: {
-          stowstackPlan: "Growth",
-          stowstackMonthlyFee,
+          storageadsPlan: "Growth",
+          storageadsMonthlyFee,
           recommendedAdSpend: recommendedSpend,
-          totalMonthlyCost: stowstackMonthlyFee + recommendedSpend,
+          totalMonthlyCost: storageadsMonthlyFee + recommendedSpend,
           projectedLeadsPerMonth: projectedLeads,
           projectedMoveInsPerMonth: projectedMoveIns,
           projectedMonthlyRecovery: Math.round(projectedMonthlyRecovery),
           projectedAnnualRecovery: Math.round(projectedAnnualRecovery),
           projectedROAS,
           breakevenUnits,
-          breakevenMessage: `You need ${breakevenUnits} move-ins per month to cover StowStack. We project ${projectedMoveIns}.`,
+          breakevenMessage: `You need ${breakevenUnits} move-ins per month to cover StorageAds. We project ${projectedMoveIns}.`,
           timeToFirstLeads: "7 days",
           timeToFirstMoveIn: "14-21 days",
         },

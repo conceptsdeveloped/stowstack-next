@@ -61,7 +61,7 @@ export default function InactionTimeline() {
     <section
       aria-label="The cost of inaction over six months"
       className="section relative overflow-hidden"
-      style={{ background: "var(--bg-void)" }}
+      style={{ background: "var(--color-light)" }}
     >
       <div
         className="absolute inset-0"
@@ -86,7 +86,7 @@ export default function InactionTimeline() {
             className="font-bold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Every Month You Wait Costs More Than StowStack
+            Every Month You Wait Costs More Than StorageAds
           </h2>
           <p
             className="mt-4 text-lg mx-auto"
@@ -115,19 +115,19 @@ export default function InactionTimeline() {
                   className={`w-16 h-16 rounded-full ${m.severity} flex items-center justify-center flex-shrink-0 border-2 border-red-500/30`}
                 >
                   <div className="text-center">
-                    <p className="text-[10px] text-red-100 uppercase leading-none">
+                    <p className="text-[10px] text-red-900 uppercase leading-none">
                       Month
                     </p>
-                    <p className="text-lg font-bold text-[#111827] leading-none">
+                    <p className="text-lg font-bold text-[var(--color-dark)] leading-none">
                       {m.month}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex-1 bg-black/[0.02] backdrop-blur-sm border border-white/5 rounded-xl p-4 hover:border-red-500/20 transition-colors">
+                <div className="flex-1 bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-xl p-4 hover:border-red-500/20 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="font-semibold text-[#111827]">{m.title}</h3>
+                      <h3 className="font-semibold text-[var(--color-dark)]">{m.title}</h3>
                       <p
                         className="text-sm mt-0.5"
                         style={{ color: "var(--text-secondary)" }}
@@ -148,7 +148,7 @@ export default function InactionTimeline() {
                     </div>
                   </div>
 
-                  <div className="mt-3 w-full h-2 rounded-full bg-black/5 overflow-hidden">
+                  <div className="mt-3 w-full h-2 rounded-full bg-[var(--color-dark)]/5 overflow-hidden">
                     <div
                       className={`h-2 rounded-full ${m.severity} transition-all duration-1000`}
                       style={{
@@ -188,18 +188,18 @@ export default function InactionTimeline() {
               And it only gets worse from here
             </p>
           </div>
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-6 text-center">
+          <div className="bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/20 rounded-2xl p-6 text-center">
             <TrendingDown
               size={24}
-              className="text-blue-400 mx-auto mb-2 rotate-180"
+              className="text-[var(--color-gold)] mx-auto mb-2 rotate-180"
             />
             <p
-              className="text-xs uppercase mb-1 text-blue-400"
+              className="text-xs uppercase mb-1 text-[var(--color-gold)]"
               style={{ letterSpacing: "var(--tracking-wide)" }}
             >
-              6 Months with StowStack
+              6 Months with StorageAds
             </p>
-            <p className="text-3xl font-black text-blue-400">+$43,200</p>
+            <p className="text-3xl font-black text-[var(--color-gold)]">+$43,200</p>
             <p
               className="text-sm mt-1"
               style={{ color: "var(--text-secondary)" }}

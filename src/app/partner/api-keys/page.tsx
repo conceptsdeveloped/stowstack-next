@@ -95,7 +95,7 @@ export default function ApiKeysPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-mid-gray)]" />
       </div>
     );
   }
@@ -103,13 +103,13 @@ export default function ApiKeysPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[#6B7280]">
+        <h2 className="text-sm font-semibold text-[var(--color-body-text)]">
           {keys.filter((k) => !k.revoked).length} active{" "}
           {keys.filter((k) => !k.revoked).length === 1 ? "key" : "keys"}
         </h2>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-3 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB]"
+          className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-3 py-2 text-sm font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)]"
         >
           <Plus className="h-4 w-4" />
           Create Key
@@ -122,7 +122,7 @@ export default function ApiKeysPage() {
             New API Key Created — copy it now, it will not be shown again:
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 break-all rounded-lg border border-emerald-500/20 bg-[#F9FAFB] px-3 py-2 font-mono text-sm text-[#111827]">
+            <code className="flex-1 break-all rounded-lg border border-emerald-500/20 bg-[var(--color-light)] px-3 py-2 font-mono text-sm text-[var(--color-dark)]">
               {createdKey}
             </code>
             <button
@@ -138,7 +138,7 @@ export default function ApiKeysPage() {
           </div>
           <button
             onClick={() => setCreatedKey("")}
-            className="mt-2 text-xs text-[#9CA3AF] hover:text-[#6B7280]"
+            className="mt-2 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
           >
             Dismiss
           </button>
@@ -148,16 +148,16 @@ export default function ApiKeysPage() {
       {showCreate && (
         <form
           onSubmit={createKey}
-          className="rounded-xl border border-black/[0.08] bg-white p-5"
+          className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5"
         >
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#111827]">
+            <h3 className="text-sm font-semibold text-[var(--color-dark)]">
               Create API Key
             </h3>
             <button
               type="button"
               onClick={() => setShowCreate(false)}
-              className="text-[#9CA3AF] hover:text-[#6B7280]"
+              className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -168,13 +168,13 @@ export default function ApiKeysPage() {
               placeholder="Key name (e.g., Production, Staging)"
               value={keyName}
               onChange={(e) => setKeyName(e.target.value)}
-              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none focus:border-[var(--color-gold)]"
             />
           </div>
           <button
             type="submit"
             disabled={creating || !keyName.trim()}
-            className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+            className="rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
           >
             {creating ? (
               <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -186,10 +186,10 @@ export default function ApiKeysPage() {
       )}
 
       {keys.length === 0 ? (
-        <div className="rounded-xl border border-black/[0.08] bg-white py-16 text-center">
-          <Key className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
-          <p className="text-sm text-[#6B7280]">No API keys yet</p>
-          <p className="mt-1 text-xs text-[#9CA3AF]">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-16 text-center">
+          <Key className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
+          <p className="text-sm text-[var(--color-body-text)]">No API keys yet</p>
+          <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
             Create your first API key to start integrating
           </p>
         </div>
@@ -201,16 +201,16 @@ export default function ApiKeysPage() {
               className={`rounded-xl border p-4 ${
                 k.revoked
                   ? "border-red-500/10 bg-red-500/5 opacity-60"
-                  : "border-black/[0.08] bg-white"
+                  : "border-[var(--border-subtle)] bg-[var(--bg-elevated)]"
               }`}
             >
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-[#111827]">
+                    <span className="text-sm font-medium text-[var(--color-dark)]">
                       {k.name}
                     </span>
-                    <code className="rounded bg-black/[0.04] px-1.5 py-0.5 text-xs text-[#9CA3AF]">
+                    <code className="rounded bg-[var(--color-light-gray)] px-1.5 py-0.5 text-xs text-[var(--color-mid-gray)]">
                       {k.key_prefix}...
                     </code>
                     {k.revoked && (
@@ -219,7 +219,7 @@ export default function ApiKeysPage() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-[#9CA3AF]">
+                  <div className="mt-1 flex items-center gap-3 text-xs text-[var(--color-mid-gray)]">
                     <span>{k.scopes.length} scopes</span>
                     <span>{k.rate_limit} req/min</span>
                     {k.request_count !== undefined && (
@@ -239,7 +239,7 @@ export default function ApiKeysPage() {
                 {!k.revoked && (
                   <button
                     onClick={() => revokeKey(k.id)}
-                    className="rounded-lg p-2 text-[#9CA3AF] transition-colors hover:bg-red-500/10 hover:text-red-400"
+                    className="rounded-lg p-2 text-[var(--color-mid-gray)] transition-colors hover:bg-red-500/10 hover:text-red-400"
                     title="Revoke key"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -251,7 +251,7 @@ export default function ApiKeysPage() {
                   {k.scopes.map((s) => (
                     <span
                       key={s}
-                      className="rounded bg-black/[0.03] px-1.5 py-0.5 font-mono text-[10px] text-[#9CA3AF]"
+                      className="rounded bg-[var(--color-light-gray)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--color-mid-gray)]"
                     >
                       {s}
                     </span>
@@ -264,12 +264,12 @@ export default function ApiKeysPage() {
       )}
 
       {/* Usage hint */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h3 className="mb-3 text-sm font-semibold text-[#111827]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h3 className="mb-3 text-sm font-semibold text-[var(--color-dark)]">
           Authentication
         </h3>
-        <div className="rounded-lg bg-[#F9FAFB] p-4">
-          <p className="mb-1 text-xs text-[#9CA3AF]">
+        <div className="rounded-lg bg-[var(--color-light)] p-4">
+          <p className="mb-1 text-xs text-[var(--color-mid-gray)]">
             Include your API key in the Authorization header:
           </p>
           <code className="text-sm text-emerald-400">

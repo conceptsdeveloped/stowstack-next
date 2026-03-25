@@ -159,7 +159,7 @@ export function DataDeletionClient() {
               style={{ color: "var(--text-secondary)" }}
             >
               Submit this form to request deletion of all personal data
-              associated with your email address from StowStack systems,
+              associated with your email address from StorageAds systems,
               including any data obtained through Meta&apos;s platform.
             </p>
 
@@ -177,7 +177,7 @@ export function DataDeletionClient() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-blue-500/50"
+                  className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-gold)]/50"
                   style={{
                     backgroundColor: "var(--bg-primary)",
                     borderColor: "var(--border-subtle)",
@@ -198,7 +198,7 @@ export function DataDeletionClient() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Smith"
-                  className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-blue-500/50"
+                  className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-gold)]/50"
                   style={{
                     backgroundColor: "var(--bg-primary)",
                     borderColor: "var(--border-subtle)",
@@ -219,7 +219,7 @@ export function DataDeletionClient() {
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Tell us why you'd like your data deleted..."
                   rows={3}
-                  className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-blue-500/50 resize-none"
+                  className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-gold)]/50 resize-none"
                   style={{
                     backgroundColor: "var(--bg-primary)",
                     borderColor: "var(--border-subtle)",
@@ -473,7 +473,7 @@ export function DataDeletionClient() {
                 <div
                   className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
                   style={{
-                    backgroundColor: "rgba(59,130,246,0.15)",
+                    backgroundColor: "rgba(181,139,63,0.15)",
                     color: "var(--accent)",
                   }}
                 >
@@ -527,7 +527,7 @@ export function DataDeletionClient() {
               Go to your Facebook Settings &amp; Privacy &gt; Settings
             </li>
             <li>Navigate to Apps and Websites</li>
-            <li>Find StowStack and select Remove</li>
+            <li>Find StorageAds and select Remove</li>
             <li>
               This will revoke our access to your Facebook data going
               forward
@@ -565,7 +565,7 @@ export function DataDeletionClient() {
               value={statusEmail}
               onChange={(e) => setStatusEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500/50"
+              className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--color-gold)]/50"
               style={{
                 backgroundColor: "var(--bg-primary)",
                 borderColor: "var(--border-subtle)",
@@ -621,10 +621,10 @@ export function DataDeletionClient() {
           <p>Questions about data deletion? Contact us at:</p>
           <p className="mt-1">
             <a
-              href="mailto:blake@storepawpaw.com"
+              href="mailto:blake@storageads.com"
               style={{ color: "var(--accent)" }}
             >
-              blake@storepawpaw.com
+              blake@storageads.com
             </a>{" "}
             | (269) 929-8541
           </p>

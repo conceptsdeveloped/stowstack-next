@@ -27,7 +27,7 @@ export default function ProblemStatement() {
     <section
       aria-label="The problem with current self-storage marketing"
       className="section"
-      style={{ background: "var(--bg-primary)" }}
+      style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="text-container">
         {/* Section headline */}

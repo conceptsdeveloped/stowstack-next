@@ -1,12 +1,12 @@
-# CREATIVE.md — StowStack Creative Directive
+# CREATIVE.md — StorageAds Creative Directive
 
-This document is the single source of truth for all content generated through StowStack. Every ad, headline, video prompt, landing page, email, and piece of copy flows through the principles defined here. If it conflicts with a template default, this file wins.
+This document is the single source of truth for all content generated through StorageAds. Every ad, headline, video prompt, landing page, email, and piece of copy flows through the principles defined here. If it conflicts with a template default, this file wins.
 
 ---
 
 ## Voice & Identity
 
-StowStack produces advertising for self-storage facilities. We are not the brand — the facility is. Our job is to make their brand look like it has a world-class marketing team behind it, without StowStack's fingerprints showing.
+StorageAds produces advertising for self-storage facilities. We are not the brand — the facility is. Our job is to make their brand look like it has a world-class marketing team behind it, without StorageAds's fingerprints showing.
 
 **The voice we write in:**
 - Confident but never aggressive. We don't shout. We don't use exclamation marks unless the copy genuinely earns one.
@@ -36,13 +36,13 @@ StowStack produces advertising for self-storage facilities. We are not the brand
 
 ### Core Aesthetic: Analog Warmth Meets Precision
 
-StowStack's visual identity lives in the tension between warmth and rigor. It is not sterile. It is not sloppy. It is the visual equivalent of someone who is very smart but doesn't need to prove it.
+StorageAds's visual identity lives in the tension between warmth and rigor. It is not sterile. It is not sloppy. It is the visual equivalent of someone who is very smart but doesn't need to prove it.
 
 ### Primary Style References
 
-**1980s Porsche Print Advertising** — The gold standard. These ads were bold, clean, and confident — but they had wit and life. The typography was authoritative. The photography was striking but never overwrought. The copy was sharp, often funny, always earned. This is the energy every StowStack ad should carry: a piece of communication so well-crafted that it functions as both advertisement and artifact. Not cold. Not corporate. Alive.
+**1980s Porsche Print Advertising** — The gold standard. These ads were bold, clean, and confident — but they had wit and life. The typography was authoritative. The photography was striking but never overwrought. The copy was sharp, often funny, always earned. This is the energy every StorageAds ad should carry: a piece of communication so well-crafted that it functions as both advertisement and artifact. Not cold. Not corporate. Alive.
 
-**Rimowa** — Beauty that comes from use, not from pristine perfection. Rimowa leans into the dents, the scuffs, the evidence of a life lived. StowStack's aesthetic carries this philosophy: texture over polish, character over cleanliness. Grain is welcome. Imperfection is intentional. Sterility is the enemy.
+**Rimowa** — Beauty that comes from use, not from pristine perfection. Rimowa leans into the dents, the scuffs, the evidence of a life lived. StorageAds's aesthetic carries this philosophy: texture over polish, character over cleanliness. Grain is welcome. Imperfection is intentional. Sterility is the enemy.
 
 **Newspaper Print Finish** — The aesthetic of a high-contrast newspaper scan: bold blacks, visible grain, slightly compressed tonal range, the warmth of ink on newsprint. This finish gives content immediacy and tactile quality. It says "this is real, this is urgent, this matters." Apply as a texture and tonal treatment, not a gimmick — it should feel like the content was printed and then photographed, not that a filter was applied.
 
@@ -191,7 +191,7 @@ All video content — whether AI-generated, slideshow, or produced — should em
 - Scientific curiosity: precision in composition, intentionality in every frame, the feeling that someone studied this subject before filming it
 - Indie film restraint: no excess, no spectacle for its own sake, trust the audience to feel without being told what to feel
 
-**What a StowStack video should feel like:**
+**What a StorageAds video should feel like:**
 Not a storage ad. A moment of calm in someone's chaotic feed. The viewer should feel a subtle sense of order, relief, possibility — and then see the facility name.
 
 ---

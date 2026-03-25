@@ -72,7 +72,7 @@ async function publishToMeta(
   const facilityName = content.headline || "Storage Ad";
   const metadata = connection.metadata || {};
   const landingUrl =
-    landingUrlOverride || (metadata.landingUrl as string) || "https://stowstack.co";
+    landingUrlOverride || (metadata.landingUrl as string) || "https://storageads.com";
 
   if (!connection.page_id) {
     throw new Error(
@@ -97,7 +97,7 @@ async function publishToMeta(
     `${adAccountId}/campaigns`,
     accessToken,
     {
-      name: `StowStack \u2014 ${facilityName}`,
+      name: `StorageAds \u2014 ${facilityName}`,
       objective: "OUTCOME_TRAFFIC",
       status: "PAUSED",
       special_ad_categories: [],
@@ -258,7 +258,7 @@ async function publishToGoogle(
   const content = variation.content_json as Record<string, string>;
   const metadata = connection.metadata || {};
   const landingUrl =
-    (metadata.landingUrl as string) || "https://stowstack.co";
+    (metadata.landingUrl as string) || "https://storageads.com";
   const facilityName = content.headline || "Storage Ad";
 
   // Step 1: Create a campaign budget
@@ -271,7 +271,7 @@ async function publishToGoogle(
       operations: [
         {
           create: {
-            name: `StowStack Budget — ${facilityName} — ${Date.now()}`,
+            name: `StorageAds Budget — ${facilityName} — ${Date.now()}`,
             amountMicros: "10000000", // $10/day default
             deliveryMethod: "STANDARD",
           },
@@ -292,7 +292,7 @@ async function publishToGoogle(
       operations: [
         {
           create: {
-            name: `StowStack — ${facilityName}`,
+            name: `StorageAds — ${facilityName}`,
             status: "PAUSED",
             advertisingChannelType: isSearch ? "SEARCH" : "DISPLAY",
             campaignBudget: budgetResourceName,
@@ -375,7 +375,7 @@ async function publishToGoogle(
           headlines: [{ text: (content.headline || facilityName).slice(0, 30) }],
           longHeadline: { text: (content.primaryText || content.headline || facilityName).slice(0, 90) },
           descriptions: [{ text: (content.description || content.primaryText || "").slice(0, 90) }],
-          businessName: "StowStack",
+          businessName: "StorageAds",
           callToActionText: ctaOverride || content.cta || "Learn More",
           ...(imageUrl ? { marketingImages: [{ asset: imageUrl }] } : {}),
         },

@@ -74,14 +74,14 @@ export default function UTMLinks({
   const [utmTerm, setUtmTerm] = useState("")
 
   const inputCls =
-    "w-full px-3 py-2 rounded-lg border text-sm bg-[#F9FAFB] border-black/[0.08] text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#3B82F6]/50 outline-none transition-all"
+    "w-full px-3 py-2 rounded-lg border text-sm bg-[var(--color-light)] border-[var(--border-subtle)] text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:border-[var(--color-gold)]/50 outline-none transition-all"
   const selectCls = inputCls
 
   const BASE_URL =
     typeof window !== "undefined"
       ? window.location.origin
-      : "https://stowstack.co"
-  const PROD_URL = "https://stowstack.co"
+      : "https://storageads.com"
+  const PROD_URL = "https://storageads.com"
 
   useEffect(() => {
     Promise.all([
@@ -296,7 +296,7 @@ export default function UTMLinks({
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 size={20} className="animate-spin text-[#3B82F6]" />
+        <Loader2 size={20} className="animate-spin text-[var(--color-gold)]" />
       </div>
     )
   }
@@ -306,10 +306,10 @@ export default function UTMLinks({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-[#111827]">
+          <h3 className="text-sm font-semibold text-[var(--color-dark)]">
             UTM Link Builder
           </h3>
-          <p className="text-xs text-[#9CA3AF]">
+          <p className="text-xs text-[var(--color-mid-gray)]">
             Create tracked links for campaigns and measure click-through
             performance
           </p>
@@ -318,7 +318,7 @@ export default function UTMLinks({
           {links.length > 0 && (
             <button
               onClick={exportCSV}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.04] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] transition-colors"
               title="Export links as CSV"
             >
               <Download size={14} />
@@ -330,7 +330,7 @@ export default function UTMLinks({
               setShowForm(!showForm)
               if (showForm) resetForm()
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-[#3B82F6]/90 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold)]/90 transition-colors"
           >
             <Plus size={14} />
             New Link
@@ -341,33 +341,33 @@ export default function UTMLinks({
       {/* Stats bar */}
       {links.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
-          <div className="border border-black/[0.08] rounded-lg p-3 bg-white">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+          <div className="border border-[var(--border-subtle)] rounded-lg p-3 bg-[var(--bg-elevated)]">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
               Total Links
             </p>
-            <p className="text-lg font-bold text-[#111827]">
+            <p className="text-lg font-bold text-[var(--color-dark)]">
               {links.length}
             </p>
           </div>
-          <div className="border border-black/[0.08] rounded-lg p-3 bg-white">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+          <div className="border border-[var(--border-subtle)] rounded-lg p-3 bg-[var(--bg-elevated)]">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
               Total Clicks
             </p>
-            <p className="text-lg font-bold text-[#111827]">
+            <p className="text-lg font-bold text-[var(--color-dark)]">
               {totalClicks}
             </p>
           </div>
-          <div className="border border-black/[0.08] rounded-lg p-3 bg-white">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+          <div className="border border-[var(--border-subtle)] rounded-lg p-3 bg-[var(--bg-elevated)]">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
               Top Performer
             </p>
-            <p className="text-sm font-semibold text-[#111827] truncate">
+            <p className="text-sm font-semibold text-[var(--color-dark)] truncate">
               {topLink && (topLink.click_count || 0) > 0
                 ? topLink.label
                 : "--"}
             </p>
             {topLink && (topLink.click_count || 0) > 0 && (
-              <p className="text-xs text-[#9CA3AF]">
+              <p className="text-xs text-[var(--color-mid-gray)]">
                 {topLink.click_count} clicks
               </p>
             )}
@@ -382,7 +382,7 @@ export default function UTMLinks({
             <div className="relative">
               <Search
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-mid-gray)]"
               />
               <input
                 className={`${inputCls} pl-8`}
@@ -393,7 +393,7 @@ export default function UTMLinks({
             </div>
           </div>
           <select
-            className={`px-3 py-2 rounded-lg border text-sm bg-[#F9FAFB] border-black/[0.08] text-[#111827] outline-none`}
+            className={`px-3 py-2 rounded-lg border text-sm bg-[var(--color-light)] border-[var(--border-subtle)] text-[var(--color-dark)] outline-none`}
             value={filterSource}
             onChange={(e) => setFilterSource(e.target.value)}
           >
@@ -405,7 +405,7 @@ export default function UTMLinks({
             ))}
           </select>
           <select
-            className={`px-3 py-2 rounded-lg border text-sm bg-[#F9FAFB] border-black/[0.08] text-[#111827] outline-none`}
+            className={`px-3 py-2 rounded-lg border text-sm bg-[var(--color-light)] border-[var(--border-subtle)] text-[var(--color-dark)] outline-none`}
             value={sortBy}
             onChange={(e) =>
               setSortBy(e.target.value as "date" | "clicks" | "name")
@@ -420,14 +420,14 @@ export default function UTMLinks({
 
       {/* Create form */}
       {showForm && (
-        <div className="border border-black/[0.08] rounded-xl p-5 space-y-4 bg-white">
-          <p className="text-sm font-medium text-[#111827]">
+        <div className="border border-[var(--border-subtle)] rounded-xl p-5 space-y-4 bg-[var(--bg-elevated)]">
+          <p className="text-sm font-medium text-[var(--color-dark)]">
             Create Tracked Link
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[#9CA3AF] mb-1">
+              <label className="block text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                 Label *
               </label>
               <input
@@ -438,7 +438,7 @@ export default function UTMLinks({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#9CA3AF] mb-1">
+              <label className="block text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                 Landing Page
               </label>
               <select
@@ -446,7 +446,7 @@ export default function UTMLinks({
                 value={landingPageId}
                 onChange={(e) => setLandingPageId(e.target.value)}
               >
-                <option value="">Homepage (stowstack.co)</option>
+                <option value="">Homepage (storageads.com)</option>
                 {landingPages
                   .filter((p) => p.status === "published")
                   .map((p) => (
@@ -460,7 +460,7 @@ export default function UTMLinks({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[#9CA3AF] mb-1">
+              <label className="block text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                 Source *
               </label>
               <select
@@ -480,7 +480,7 @@ export default function UTMLinks({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#9CA3AF] mb-1">
+              <label className="block text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                 Medium *
               </label>
               <select
@@ -500,7 +500,7 @@ export default function UTMLinks({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#9CA3AF] mb-1">
+              <label className="block text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                 Campaign
               </label>
               <input
@@ -511,7 +511,7 @@ export default function UTMLinks({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#9CA3AF] mb-1">
+              <label className="block text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                 Content (A/B testing)
               </label>
               <input
@@ -522,7 +522,7 @@ export default function UTMLinks({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#9CA3AF] mb-1">
+              <label className="block text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                 Term (keywords)
               </label>
               <input
@@ -536,10 +536,10 @@ export default function UTMLinks({
 
           {/* Live URL preview */}
           <div>
-            <label className="block text-xs font-medium text-[#9CA3AF] mb-1">
+            <label className="block text-xs font-medium text-[var(--color-mid-gray)] mb-1">
               Destination Preview
             </label>
-            <div className="p-3 rounded-lg text-xs font-mono break-all bg-[#F9FAFB] text-[#3B82F6] border border-black/[0.08]">
+            <div className="p-3 rounded-lg text-xs font-mono break-all bg-[var(--color-light)] text-[var(--color-gold)] border border-[var(--border-subtle)]">
               {buildPreviewUrl()}
             </div>
           </div>
@@ -548,7 +548,7 @@ export default function UTMLinks({
             <button
               onClick={handleCreate}
               disabled={creating || !label.trim() || !utmSource || !utmMedium}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-[#3B82F6]/90 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold)]/90 disabled:opacity-50 transition-colors"
             >
               {creating ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -562,7 +562,7 @@ export default function UTMLinks({
                 setShowForm(false)
                 resetForm()
               }}
-              className="px-4 py-2 text-sm rounded-lg text-[#9CA3AF] hover:text-[#111827]"
+              className="px-4 py-2 text-sm rounded-lg text-[var(--color-mid-gray)] hover:text-[var(--color-dark)]"
             >
               Cancel
             </button>
@@ -572,17 +572,17 @@ export default function UTMLinks({
 
       {/* Links list */}
       {links.length === 0 && !showForm ? (
-        <div className="border-2 border-dashed border-black/[0.08] rounded-xl p-10 text-center">
-          <Link2 size={28} className="mx-auto mb-2 text-[#9CA3AF]" />
-          <p className="text-sm font-medium text-[#111827]">
+        <div className="border-2 border-dashed border-[var(--border-subtle)] rounded-xl p-10 text-center">
+          <Link2 size={28} className="mx-auto mb-2 text-[var(--color-mid-gray)]" />
+          <p className="text-sm font-medium text-[var(--color-dark)]">
             No tracked links yet
           </p>
-          <p className="text-xs text-[#9CA3AF] mt-1">
+          <p className="text-xs text-[var(--color-mid-gray)] mt-1">
             Create your first UTM link to start tracking campaign performance
           </p>
         </div>
       ) : filteredLinks.length === 0 ? (
-        <div className="text-center py-8 text-[#9CA3AF]">
+        <div className="text-center py-8 text-[var(--color-mid-gray)]">
           <Search size={20} className="mx-auto mb-2 opacity-40" />
           <p className="text-sm">No links match your search</p>
         </div>
@@ -596,7 +596,7 @@ export default function UTMLinks({
             return (
               <div
                 key={link.id}
-                className="border border-black/[0.08] rounded-xl bg-white transition-all"
+                className="border border-[var(--border-subtle)] rounded-xl bg-[var(--bg-elevated)] transition-all"
               >
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -610,14 +610,14 @@ export default function UTMLinks({
                         >
                           <ChevronRight
                             size={14}
-                            className={`transition-transform text-[#9CA3AF] ${isExpanded ? "rotate-90" : ""}`}
+                            className={`transition-transform text-[var(--color-mid-gray)] ${isExpanded ? "rotate-90" : ""}`}
                           />
-                          <p className="text-sm font-medium text-[#111827]">
+                          <p className="text-sm font-medium text-[var(--color-dark)]">
                             {link.label}
                           </p>
                         </button>
                         {link.landing_page_title && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-black/[0.04] text-[#6B7280]">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-light-gray)] text-[var(--color-body-text)]">
                             {link.landing_page_title}
                           </span>
                         )}
@@ -628,7 +628,7 @@ export default function UTMLinks({
                         <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">
                           {link.utm_source}
                         </span>
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-[#3B82F6]/10 text-[#3B82F6]">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--color-gold)]/10 text-[var(--color-gold)]">
                           {link.utm_medium}
                         </span>
                         {link.utm_campaign && (
@@ -649,7 +649,7 @@ export default function UTMLinks({
                       </div>
 
                       {/* Tracking URL */}
-                      <div className="text-xs font-mono text-[#9CA3AF] truncate ml-5">
+                      <div className="text-xs font-mono text-[var(--color-mid-gray)] truncate ml-5">
                         {trackingUrl}
                       </div>
                     </div>
@@ -660,13 +660,13 @@ export default function UTMLinks({
                         <div className="flex items-center gap-1">
                           <MousePointerClick
                             size={13}
-                            className="text-[#9CA3AF]"
+                            className="text-[var(--color-mid-gray)]"
                           />
-                          <span className="text-sm font-semibold text-[#111827]">
+                          <span className="text-sm font-semibold text-[var(--color-dark)]">
                             {link.click_count || 0}
                           </span>
                         </div>
-                        <p className="text-xs text-[#9CA3AF]">clicks</p>
+                        <p className="text-xs text-[var(--color-mid-gray)]">clicks</p>
                       </div>
 
                       <button
@@ -677,7 +677,7 @@ export default function UTMLinks({
                           copiedId === link.id &&
                           copiedType === "tracking"
                             ? "bg-emerald-500/10 text-emerald-400"
-                            : "hover:bg-black/[0.04] text-[#9CA3AF]"
+                            : "hover:bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
                         }`}
                         title="Copy tracking URL (with click counter)"
                       >
@@ -701,7 +701,7 @@ export default function UTMLinks({
                           copiedId === link.id &&
                           copiedType === "destination"
                             ? "bg-emerald-500/10 text-emerald-400"
-                            : "hover:bg-black/[0.04] text-[#9CA3AF]"
+                            : "hover:bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
                         }`}
                         title="Copy direct destination URL (no redirect)"
                       >
@@ -715,7 +715,7 @@ export default function UTMLinks({
 
                       <button
                         onClick={() => prefillForm(link)}
-                        className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.04] text-[#9CA3AF]"
+                        className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
                         title="Duplicate link"
                       >
                         <ClipboardList size={15} />
@@ -723,7 +723,7 @@ export default function UTMLinks({
 
                       <button
                         onClick={() => handleDelete(link.id)}
-                        className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10 text-[#9CA3AF] hover:text-red-400"
+                        className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10 text-[var(--color-mid-gray)] hover:text-red-400"
                         title="Delete link"
                       >
                         <Trash2 size={15} />
@@ -732,7 +732,7 @@ export default function UTMLinks({
                   </div>
 
                   {/* Timestamps */}
-                  <div className="flex gap-4 mt-2 text-xs text-[#9CA3AF] ml-5">
+                  <div className="flex gap-4 mt-2 text-xs text-[var(--color-mid-gray)] ml-5">
                     <span>
                       Created{" "}
                       {new Date(
@@ -752,31 +752,31 @@ export default function UTMLinks({
 
                 {/* Expanded panel: full URLs + short code + QR code */}
                 {isExpanded && (
-                  <div className="border-t border-black/[0.08] px-4 py-3 space-y-3 bg-[#F9FAFB]/50">
+                  <div className="border-t border-[var(--border-subtle)] px-4 py-3 space-y-3 bg-[var(--color-light)]/50">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* URLs */}
                       <div className="space-y-2">
                         <div>
-                          <p className="text-xs font-medium text-[#9CA3AF] mb-1">
+                          <p className="text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                             Tracking URL (counts clicks)
                           </p>
-                          <div className="p-2 rounded text-xs font-mono break-all bg-[#F9FAFB] text-[#6B7280] border border-black/[0.08]">
+                          <div className="p-2 rounded text-xs font-mono break-all bg-[var(--color-light)] text-[var(--color-body-text)] border border-[var(--border-subtle)]">
                             {trackingUrl}
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-medium text-[#9CA3AF] mb-1">
+                          <p className="text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                             Destination URL (direct, no tracking)
                           </p>
-                          <div className="p-2 rounded text-xs font-mono break-all bg-[#F9FAFB] text-[#6B7280] border border-black/[0.08]">
+                          <div className="p-2 rounded text-xs font-mono break-all bg-[var(--color-light)] text-[var(--color-body-text)] border border-[var(--border-subtle)]">
                             {destinationUrl}
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-medium text-[#9CA3AF] mb-1">
+                          <p className="text-xs font-medium text-[var(--color-mid-gray)] mb-1">
                             Short Code
                           </p>
-                          <div className="p-2 rounded text-xs font-mono bg-[#F9FAFB] text-[#3B82F6] border border-black/[0.08]">
+                          <div className="p-2 rounded text-xs font-mono bg-[var(--color-light)] text-[var(--color-gold)] border border-[var(--border-subtle)]">
                             {link.short_code}
                           </div>
                         </div>
@@ -784,7 +784,7 @@ export default function UTMLinks({
 
                       {/* QR Code */}
                       <div className="flex flex-col items-center gap-2">
-                        <p className="text-xs font-medium text-[#9CA3AF]">
+                        <p className="text-xs font-medium text-[var(--color-mid-gray)]">
                           QR Code (for print / signage)
                         </p>
                         <img
@@ -798,7 +798,7 @@ export default function UTMLinks({
                           download={`qr-${link.short_code}.png`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs flex items-center gap-1 text-[#3B82F6] hover:text-[#3B82F6]/80"
+                          className="text-xs flex items-center gap-1 text-[var(--color-gold)] hover:text-[var(--color-gold)]/80"
                         >
                           <Download size={12} />
                           Download high-res QR

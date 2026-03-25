@@ -19,16 +19,16 @@ export default function PortalError({
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
       </div>
-      <h2 className="text-lg font-semibold mb-2" style={{ color: "#111827" }}>
+      <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--color-dark)" }}>
         Something went wrong
       </h2>
-      <p className="text-sm mb-6 max-w-md" style={{ color: "#6E6E73" }}>
+      <p className="text-sm mb-6 max-w-md" style={{ color: "var(--color-mid-gray)" }}>
         {error.message || "An unexpected error occurred. Please try again."}
       </p>
       <button
         onClick={reset}
         className="px-6 py-2.5 text-sm font-medium rounded-lg transition-colors"
-        style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+        style={{ backgroundColor: "var(--color-gold)", color: "#fff" }}
       >
         Try again
       </button>

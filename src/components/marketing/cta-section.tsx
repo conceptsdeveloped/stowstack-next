@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Check, Shield, Clock, Wrench, Zap, Calendar } from "lucide-react";
 import { useInView } from "./use-in-view";
 
-const CALCOM_SLUG = "stowstack/30min";
+const CALCOM_SLUG = "storageads/30min";
 
 const TRUST_SIGNALS = [
   { icon: Shield, text: "No contracts required" },
@@ -45,12 +45,12 @@ export default function CTASection() {
         window.Cal("inline", {
           calLink: CALCOM_SLUG,
           elementOrSelector: "#cal-embed",
-          config: { theme: "dark", layout: "month_view" },
+          config: { theme: "light", layout: "month_view" },
         });
         // @ts-expect-error Cal is injected globally
         window.Cal("ui", {
-          theme: "dark",
-          styles: { branding: { brandColor: "#3B82F6" } },
+          theme: "light",
+          styles: { branding: { brandColor: "var(--color-gold)" } },
           hideEventTypeDetails: false,
         });
         setCalLoaded(true);
@@ -91,7 +91,7 @@ export default function CTASection() {
       id="cta"
       aria-label="Request a free facility audit"
       className="section"
-      style={{ background: "var(--bg-void)" }}
+      style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
         <div
@@ -126,14 +126,14 @@ export default function CTASection() {
 
         {/* Mobile toggle tabs */}
         <div className="max-w-5xl mx-auto lg:hidden mb-4">
-          <div className="flex rounded-xl overflow-hidden border border-white/10">
+          <div className="flex rounded-xl overflow-hidden border border-[var(--border-subtle)]">
             <button
               type="button"
               onClick={() => setMobileTab("audit")}
               className={`flex-1 py-3 text-sm font-semibold transition-colors ${
                 mobileTab === "audit"
-                  ? "bg-black/5 text-white"
-                  : "bg-black/[0.02] text-[#9CA3AF]"
+                  ? "bg-[var(--color-gold)]/10 text-[var(--color-dark)]"
+                  : "bg-[var(--color-light-gray)] text-[var(--color-muted)]"
               }`}
             >
               Get Your Audit
@@ -143,8 +143,8 @@ export default function CTASection() {
               onClick={() => setMobileTab("call")}
               className={`flex-1 py-3 text-sm font-semibold transition-colors ${
                 mobileTab === "call"
-                  ? "bg-black/5 text-white"
-                  : "bg-black/[0.02] text-[#9CA3AF]"
+                  ? "bg-[var(--color-gold)]/10 text-[var(--color-dark)]"
+                  : "bg-[var(--color-light-gray)] text-[var(--color-muted)]"
               }`}
             >
               Book a Call
@@ -155,7 +155,7 @@ export default function CTASection() {
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left — Audit Form */}
           <div
-            className={`bg-black/[0.02] border border-white/5 rounded-2xl p-6 md:p-8 transition-all duration-700 delay-200 ${
+            className={`bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-2xl p-6 md:p-8 transition-all duration-700 delay-200 ${
               mobileTab !== "audit" ? "hidden lg:block" : ""
             } ${
               isVisible
@@ -163,25 +163,25 @@ export default function CTASection() {
                 : "opacity-0 translate-y-6"
             }`}
           >
-            <h3 className="text-lg font-bold text-[#111827] mb-6">
+            <h3 className="text-lg font-bold text-[var(--color-dark)] mb-6">
               Tell us about your facility.
             </h3>
 
             {/* Deep Diagnostic CTA */}
             <a
               href="/diagnostic"
-              className="mb-6 flex items-center gap-3 rounded-xl border border-blue-500/20 bg-blue-500/[0.06] p-4 transition-colors hover:bg-blue-500/[0.1]"
+              className="mb-6 flex items-center gap-3 rounded-xl border border-[var(--color-gold)]/20 bg-[var(--color-gold)]/[0.06] p-4 transition-colors hover:bg-[var(--color-gold)]/[0.1]"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/20">
-                <Zap size={18} className="text-blue-400" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-gold)]/20">
+                <Zap size={18} className="text-[var(--color-gold)]" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-[#111827]">Want an AI-Powered Deep Diagnostic?</p>
-                <p className="text-xs text-[#6B7280]">
+                <p className="text-sm font-semibold text-[var(--color-dark)]">Want an AI-Powered Deep Diagnostic?</p>
+                <p className="text-xs text-[var(--color-muted)]">
                   5-minute form &rarr; Instant AI audit with scores, benchmarks &amp; action plan
                 </p>
               </div>
-              <ArrowRight size={16} className="text-blue-400 shrink-0" />
+              <ArrowRight size={16} className="text-[var(--color-gold)] shrink-0" />
             </a>
 
             {isSubmitted ? (
@@ -189,7 +189,7 @@ export default function CTASection() {
                 <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
                   <Check size={32} className="text-green-400" />
                 </div>
-                <h4 className="text-xl font-bold text-[#111827] mb-2">
+                <h4 className="text-xl font-bold text-[var(--color-dark)] mb-2">
                   Audit requested
                 </h4>
                 <p style={{ color: "var(--text-secondary)" }}>
@@ -285,8 +285,8 @@ export default function CTASection() {
                 />
                 <input
                   name="howHeard"
-                  placeholder="How did you hear about StowStack? (optional)"
-                  aria-label="How did you hear about StowStack? (optional)"
+                  placeholder="How did you hear about StorageAds? (optional)"
+                  aria-label="How did you hear about StorageAds? (optional)"
                   className="input-field"
                 />
 
@@ -318,7 +318,7 @@ export default function CTASection() {
 
           {/* Right — Cal.com Full Embed */}
           <div
-            className={`bg-black/[0.02] border border-white/5 rounded-2xl p-6 md:p-8 transition-all duration-700 delay-400 ${
+            className={`bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-2xl p-6 md:p-8 transition-all duration-700 delay-400 ${
               mobileTab !== "call" ? "hidden lg:block" : ""
             } ${
               isVisible
@@ -328,7 +328,7 @@ export default function CTASection() {
           >
             <div className="flex items-center gap-3 mb-3">
               <Calendar size={20} style={{ color: "var(--accent)" }} />
-              <h3 className="text-lg font-bold text-[#111827]">
+              <h3 className="text-lg font-bold text-[var(--color-dark)]">
                 Book with me anytime
               </h3>
             </div>
@@ -350,14 +350,14 @@ export default function CTASection() {
               {/* Cal.com embed script injects the booking UI here */}
               {!calLoaded && (
                 <div className="flex flex-col items-center justify-center gap-4 py-16 animate-pulse">
-                  <div className="w-14 h-14 rounded-full bg-black/5 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-[var(--color-dark)]/5 flex items-center justify-center">
                     <Calendar size={24} style={{ color: "var(--text-tertiary)" }} />
                   </div>
-                  <div className="h-3 w-44 rounded bg-black/5" />
-                  <div className="h-3 w-32 rounded bg-black/5" />
+                  <div className="h-3 w-44 rounded bg-[var(--color-dark)]/5" />
+                  <div className="h-3 w-32 rounded bg-[var(--color-dark)]/5" />
                   <div className="mt-4 grid grid-cols-7 gap-1.5">
                     {Array.from({ length: 35 }).map((_, i) => (
-                      <div key={i} className="w-7 h-7 rounded bg-black/5" />
+                      <div key={i} className="w-7 h-7 rounded bg-[var(--color-dark)]/5" />
                     ))}
                   </div>
                   <p className="text-xs mt-2" style={{ color: "var(--text-tertiary)" }}>
@@ -372,7 +372,7 @@ export default function CTASection() {
               href={`https://cal.com/${CALCOM_SLUG}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-4 text-sm font-medium transition-colors hover:text-[#111827]"
+              className="inline-flex items-center gap-2 mt-4 text-sm font-medium transition-colors hover:text-[var(--color-dark)]"
               style={{ color: "var(--text-secondary)" }}
             >
               Open in new tab <ArrowRight size={14} />

@@ -8,8 +8,8 @@ import {
 } from "@/lib/api-helpers";
 
 const DEFAULTS: Record<string, unknown> = {
-  companyName: "StowStack",
-  companyEmail: "anna@storepawpaw.com",
+  companyName: "StorageAds",
+  companyEmail: "anna@storageads.com",
   companyPhone: "",
   notifyNewLeads: true,
   notifyOverdue: true,

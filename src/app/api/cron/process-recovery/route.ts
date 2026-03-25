@@ -53,7 +53,7 @@ function getRecoveryBody(
   const firstName = lead.name
     ? esc(lead.name.trim().split(" ")[0])
     : "there";
-  const returnUrl = esc(lead.returnUrl || "https://stowstack.co");
+  const returnUrl = esc(lead.returnUrl || "https://storageads.com");
 
   switch (templateId) {
     case "recovery_1hr":
@@ -63,9 +63,9 @@ function getRecoveryBody(
   <div style="margin: 24px 0; padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
     <p style="margin: 0 0 4px; font-weight: 600; color: #166534; font-size: 18px;">Your unit is still available</p>
     <p style="margin: 0 0 16px; font-size: 14px; color: #374151;">Pick up right where you left off — takes less than 60 seconds.</p>
-    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Your Unit</a>
+    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Your Unit</a>
   </div>
-  <p style="font-size: 13px; color: #6b7280;">Questions? Just reply to this email or call us at <a href="tel:2699298541" style="color: #16a34a;">269-929-8541</a>.</p>
+  <p style="font-size: 13px; color: #6b7280;">Questions? Just reply to this email or call us at <a href="tel:2699298541" style="color: #B58B3F;">269-929-8541</a>.</p>
 </div>`;
 
     case "recovery_24hr":
@@ -77,9 +77,9 @@ function getRecoveryBody(
     <p style="margin: 4px 0 0; font-size: 14px; color: #78350f;">We can not guarantee pricing or availability beyond today. Lock in your rate now.</p>
   </div>
   <div style="margin: 24px 0; text-align: center;">
-    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Now — Keep Your Rate</a>
+    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Now — Keep Your Rate</a>
   </div>
-  <p style="font-size: 13px; color: #6b7280;">Need help deciding? Call us at <a href="tel:2699298541" style="color: #16a34a;">269-929-8541</a> — we will walk you through options.</p>
+  <p style="font-size: 13px; color: #6b7280;">Need help deciding? Call us at <a href="tel:2699298541" style="color: #B58B3F;">269-929-8541</a> — we will walk you through options.</p>
 </div>`;
 
     case "recovery_72hr":
@@ -90,9 +90,9 @@ function getRecoveryBody(
     <p style="margin: 0 0 4px; font-size: 13px; color: #34d399; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Limited Time Offer</p>
     <p style="margin: 0 0 8px; font-size: 32px; font-weight: 800; color: white;">$1 First Month</p>
     <p style="margin: 0 0 20px; font-size: 14px; color: #94a3b8;">Reserve in the next 48 hours to lock this in.</p>
-    <a href="${returnUrl}${returnUrl.includes("?") ? "&" : "?"}promo=COMEBACK1" style="display: inline-block; padding: 14px 32px; background: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Claim Your $1 First Month</a>
+    <a href="${returnUrl}${returnUrl.includes("?") ? "&" : "?"}promo=COMEBACK1" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Claim Your $1 First Month</a>
   </div>
-  <p style="font-size: 13px; color: #6b7280;">This offer expires in 48 hours and is limited to new reservations only. Questions? Reply to this email or call <a href="tel:2699298541" style="color: #16a34a;">269-929-8541</a>.</p>
+  <p style="font-size: 13px; color: #6b7280;">This offer expires in 48 hours and is limited to new reservations only. Questions? Reply to this email or call <a href="tel:2699298541" style="color: #B58B3F;">269-929-8541</a>.</p>
 </div>`;
 
     default:
@@ -109,9 +109,9 @@ async function sendRecoveryEmail(
     return { preview: true };
   }
 
-  let returnUrl = "https://stowstack.co";
+  let returnUrl = "https://storageads.com";
   if (partialLead.page_slug) {
-    returnUrl = `https://stowstack.co/p/${partialLead.page_slug}`;
+    returnUrl = `https://storageads.com/p/${partialLead.page_slug}`;
   }
 
   const params = new URLSearchParams({
@@ -147,9 +147,9 @@ async function sendRecoveryEmail(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      from: "Blake at StowStack <noreply@stowstack.co>",
+      from: "Blake at StorageAds <noreply@storageads.com>",
       to: partialLead.email,
-      reply_to: ["blake@storepawpaw.com"],
+      reply_to: ["blake@storageads.com"],
       subject,
       html,
     }),
@@ -194,8 +194,8 @@ async function sendHotLeadAlert(partialLead: Record<string, unknown>) {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      from: "StowStack <notifications@stowstack.co>",
-      to: ["blake@urkovro.resend.app"],
+      from: "StorageAds <notifications@storageads.com>",
+      to: ["blake@storageads.com"],
       subject: `Hot abandoned lead: ${partialLead.email} (Score: ${partialLead.lead_score})`,
       html,
     }),

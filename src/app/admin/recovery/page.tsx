@@ -38,7 +38,7 @@ const STATUS_FILTERS = ["all", "pending", "in_recovery", "recovered", "exhausted
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; icon: typeof Clock }> = {
   pending: { bg: "rgba(234,179,8,0.1)", text: "#EAB308", icon: Clock },
-  in_recovery: { bg: "rgba(59,130,246,0.1)", text: "#3B82F6", icon: RotateCcw },
+  in_recovery: { bg: "rgba(181,139,63,0.1)", text: "var(--color-gold)", icon: RotateCcw },
   recovered: { bg: "rgba(34,197,94,0.1)", text: "#22C55E", icon: CheckCircle },
   exhausted: { bg: "rgba(107,114,128,0.1)", text: "#6B7280", icon: XCircle },
 };
@@ -50,10 +50,10 @@ function StatsSkeleton() {
         <div
           key={i}
           className="rounded-xl border p-5 animate-pulse"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+          style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
         >
-          <div className="h-3 w-20 rounded bg-black/5 mb-3" />
-          <div className="h-8 w-12 rounded bg-black/5" />
+          <div className="h-3 w-20 rounded bg-[var(--color-dark)]/5 mb-3" />
+          <div className="h-8 w-12 rounded bg-[var(--color-dark)]/5" />
         </div>
       ))}
     </div>
@@ -64,7 +64,7 @@ function TableSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-16 rounded-lg animate-pulse" style={{ backgroundColor: "#FFFFFF" }} />
+        <div key={i} className="h-16 rounded-lg animate-pulse" style={{ backgroundColor: "var(--bg-elevated)" }} />
       ))}
     </div>
   );
@@ -119,7 +119,7 @@ export default function RecoveryPage() {
   const statCards = stats
     ? [
         { label: "Pending", value: stats.pending, icon: Clock, color: "#EAB308" },
-        { label: "In Recovery", value: stats.in_recovery, icon: RotateCcw, color: "#3B82F6" },
+        { label: "In Recovery", value: stats.in_recovery, icon: RotateCcw, color: "var(--color-gold)" },
         { label: "Recovered", value: stats.recovered, icon: CheckCircle, color: "#22C55E" },
         { label: "Exhausted", value: stats.exhausted, icon: XCircle, color: "#6B7280" },
       ]
@@ -128,8 +128,8 @@ export default function RecoveryPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Lead Recovery</h1>
-        <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>Lead Recovery</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--color-mid-gray)" }}>
           Recover abandoned form submissions and partial leads
         </p>
       </div>
@@ -144,13 +144,13 @@ export default function RecoveryPage() {
               <div
                 key={s.label}
                 className="rounded-xl border p-5"
-                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+                style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={16} style={{ color: s.color }} />
-                  <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>{s.label}</span>
+                  <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>{s.label}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "#111827" }}>{s.value}</p>
+                <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{s.value}</p>
               </div>
             );
           })}
@@ -158,7 +158,7 @@ export default function RecoveryPage() {
       ) : null}
 
       <div className="flex items-center gap-2">
-        <Filter size={14} style={{ color: "#6E6E73" }} />
+        <Filter size={14} style={{ color: "var(--color-mid-gray)" }} />
         {STATUS_FILTERS.map((f) => {
           const isActive = statusFilter === f;
           return (
@@ -167,8 +167,8 @@ export default function RecoveryPage() {
               onClick={() => setStatusFilter(f)}
               className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors capitalize"
               style={{
-                backgroundColor: isActive ? "#3B82F6" : "rgba(255,255,255,0.05)",
-                color: isActive ? "#fff" : "#6E6E73",
+                backgroundColor: isActive ? "var(--color-gold)" : "var(--color-light-gray)",
+                color: isActive ? "var(--color-light)" : "var(--color-mid-gray)",
               }}
             >
               {f.replace(/_/g, " ")}
@@ -195,16 +195,16 @@ export default function RecoveryPage() {
             return (
               <div
                 key={lead.id}
-                className="rounded-xl border p-4 transition-colors hover:bg-black/[0.02]"
-                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+                className="rounded-xl border p-4 transition-colors hover:bg-[var(--color-light-gray)]"
+                style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       {lead.name ? (
-                        <span className="text-sm font-medium" style={{ color: "#111827" }}>{lead.name}</span>
+                        <span className="text-sm font-medium" style={{ color: "var(--color-dark)" }}>{lead.name}</span>
                       ) : (
-                        <span className="text-sm font-mono" style={{ color: "#6B7280" }}>
+                        <span className="text-sm font-mono" style={{ color: "var(--color-body-text)" }}>
                           {lead.session_id.slice(0, 12)}...
                         </span>
                       )}
@@ -217,7 +217,7 @@ export default function RecoveryPage() {
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 text-xs" style={{ color: "#6E6E73" }}>
+                    <div className="flex flex-wrap items-center gap-4 text-xs" style={{ color: "var(--color-mid-gray)" }}>
                       {lead.email && (
                         <span className="flex items-center gap-1">
                           <Mail size={10} />
@@ -247,7 +247,7 @@ export default function RecoveryPage() {
                           onClick={() => handleSendRecovery(lead.id)}
                           disabled={isLoading}
                           className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-                          style={{ backgroundColor: "rgba(59,130,246,0.1)", color: "#3B82F6" }}
+                          style={{ backgroundColor: "rgba(181,139,63,0.1)", color: "var(--color-gold)" }}
                         >
                           {isLoading ? <Loader2 size={12} className="animate-spin" /> : <Mail size={12} />}
                           Recover
@@ -271,8 +271,8 @@ export default function RecoveryPage() {
         </div>
       ) : (
         <div className="text-center py-16">
-          <RotateCcw size={32} className="mx-auto mb-3" style={{ color: "#6E6E73" }} />
-          <p className="text-sm" style={{ color: "#6E6E73" }}>
+          <RotateCcw size={32} className="mx-auto mb-3" style={{ color: "var(--color-mid-gray)" }} />
+          <p className="text-sm" style={{ color: "var(--color-mid-gray)" }}>
             {statusFilter === "all" ? "No partial leads found" : `No ${statusFilter.replace(/_/g, " ")} leads`}
           </p>
         </div>

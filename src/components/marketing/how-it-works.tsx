@@ -13,9 +13,9 @@ const STEPS = [
     title: "Every ad gets its own landing page.",
     body: "Not your homepage. Not a generic rental page. A dedicated URL built for that specific campaign, with its own headline, its own offer, and its own tracking.",
     examples: [
-      "stowstacksite.com/climate-pawpaw-a — for the climate-controlled search ad",
-      "stowstacksite.com/10x10-offer-b — for the first-month-free Facebook ad",
-      "stowstacksite.com/finish-your-rental-c — for the retargeting campaign",
+      "storageads.com/climate-pawpaw-a — for the climate-controlled search ad",
+      "storageads.com/10x10-offer-b — for the first-month-free Facebook ad",
+      "storageads.com/finish-your-rental-c — for the retargeting campaign",
     ],
     kicker:
       "Different intent. Different pages. Different offers. That is how conversion rate goes up.",
@@ -38,9 +38,9 @@ export default function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      aria-label="How StowStack works in four steps"
+      aria-label="How StorageAds works in four steps"
       className="section"
-      style={{ background: "var(--bg-void)" }}
+      style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
         <div
@@ -60,7 +60,7 @@ export default function HowItWorks() {
             className="mt-4 mx-auto max-w-2xl"
             style={{ color: "var(--text-secondary)" }}
           >
-            StowStack operates as a closed-loop system with four layers. Each
+            StorageAds operates as a closed-loop system with four layers. Each
             feeds the next. Together they form a complete path from ad click to
             move-in — with full attribution at every step.
           </p>

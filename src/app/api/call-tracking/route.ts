@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
     const webhookBase = process.env.NEXT_PUBLIC_SITE_URL
       || (process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : "https://stowstack.co");
+        : "https://storageads.com");
 
     const searchParams: { limit: number; voiceEnabled: boolean; areaCode?: number } = {
       limit: 1,
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       voiceMethod: "POST",
       statusCallback: `${webhookBase}/api/call-webhook?event=status`,
       statusCallbackMethod: "POST",
-      friendlyName: `StowStack: ${label}`,
+      friendlyName: `StorageAds: ${label}`,
     });
 
     const number = await db.call_tracking_numbers.create({

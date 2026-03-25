@@ -71,59 +71,59 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6">
       {/* Header */}
       <div>
-        <h2 className="text-lg font-semibold text-[#111827]">Account Settings</h2>
-        <p className="text-sm text-[#9CA3AF]">Manage your facility info and preferences</p>
+        <h2 className="text-lg font-semibold text-[var(--color-dark)]">Account Settings</h2>
+        <p className="text-sm text-[var(--color-mid-gray)]">Manage your facility info and preferences</p>
       </div>
 
       {/* Facility Info */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h3 className="mb-4 text-sm font-semibold text-[#111827]">Facility Information</h3>
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">Facility Information</h3>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4 shrink-0 text-[#3B82F6]" />
+            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
             <div>
-              <p className="text-xs text-[#9CA3AF]">Facility Name</p>
-              <p className="text-sm text-[#111827]">{client.facilityName}</p>
+              <p className="text-xs text-[var(--color-mid-gray)]">Facility Name</p>
+              <p className="text-sm text-[var(--color-dark)]">{client.facilityName}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <MapPin className="h-4 w-4 shrink-0 text-[#3B82F6]" />
+            <MapPin className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
             <div>
-              <p className="text-xs text-[#9CA3AF]">Location</p>
-              <p className="text-sm text-[#111827]">{client.location}</p>
+              <p className="text-xs text-[var(--color-mid-gray)]">Location</p>
+              <p className="text-sm text-[var(--color-dark)]">{client.location}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Mail className="h-4 w-4 shrink-0 text-[#3B82F6]" />
+            <Mail className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
             <div>
-              <p className="text-xs text-[#9CA3AF]">Email</p>
-              <p className="text-sm text-[#111827]">{client.email}</p>
+              <p className="text-xs text-[var(--color-mid-gray)]">Email</p>
+              <p className="text-sm text-[var(--color-dark)]">{client.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4 shrink-0 text-[#3B82F6]" />
+            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
             <div>
-              <p className="text-xs text-[#9CA3AF]">Occupancy Range</p>
-              <p className="text-sm text-[#111827]">{client.occupancyRange}</p>
+              <p className="text-xs text-[var(--color-mid-gray)]">Occupancy Range</p>
+              <p className="text-sm text-[var(--color-dark)]">{client.occupancyRange}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4 shrink-0 text-[#3B82F6]" />
+            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
             <div>
-              <p className="text-xs text-[#9CA3AF]">Total Units</p>
-              <p className="text-sm text-[#111827]">{client.totalUnits}</p>
+              <p className="text-xs text-[var(--color-mid-gray)]">Total Units</p>
+              <p className="text-sm text-[var(--color-dark)]">{client.totalUnits}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Monthly Goal */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h3 className="mb-4 text-sm font-semibold text-[#111827]">Monthly Goal</h3>
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">Monthly Goal</h3>
         <div className="flex items-center gap-3">
-          <Target className="h-4 w-4 shrink-0 text-[#3B82F6]" />
+          <Target className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
           <div className="flex-1">
-            <label className="mb-1 block text-xs text-[#9CA3AF]">
+            <label className="mb-1 block text-xs text-[var(--color-mid-gray)]">
               Target move-ins per month
             </label>
             <div className="flex gap-2">
@@ -136,13 +136,13 @@ export default function SettingsPage() {
                   setGoalError("");
                 }}
                 min={0}
-                className="w-32 rounded-lg border border-black/[0.08] bg-[#F9FAFB] px-3 py-2 text-sm text-[#111827] outline-none focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+                className="w-32 rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light)] px-3 py-2 text-sm text-[var(--color-dark)] outline-none focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
               />
               <button
                 type="button"
                 onClick={handleSaveGoal}
                 disabled={saving}
-                className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-xs font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -160,26 +160,26 @@ export default function SettingsPage() {
       </div>
 
       {/* Account Manager */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h3 className="mb-4 text-sm font-semibold text-[#111827]">Your Account Manager</h3>
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">Your Account Manager</h3>
         <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#3B82F6]/10">
-            <User className="h-5 w-5 text-[#3B82F6]" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-gold)]/10">
+            <User className="h-5 w-5 text-[var(--color-gold)]" />
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-medium text-[#111827]">Blake</p>
-            <p className="text-xs text-[#9CA3AF]">Account Manager</p>
+            <p className="text-sm font-medium text-[var(--color-dark)]">Blake</p>
+            <p className="text-xs text-[var(--color-mid-gray)]">Account Manager</p>
             <div className="flex flex-col gap-1 pt-1">
               <a
-                href="mailto:blake@storepawpaw.com"
-                className="flex items-center gap-2 text-xs text-[#6B7280] transition-colors hover:text-[#3B82F6]"
+                href="mailto:blake@storageads.com"
+                className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-gold)]"
               >
                 <Mail className="h-3.5 w-3.5" />
-                blake@storepawpaw.com
+                blake@storageads.com
               </a>
               <a
                 href="tel:+12699298541"
-                className="flex items-center gap-2 text-xs text-[#6B7280] transition-colors hover:text-[#3B82F6]"
+                className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-gold)]"
               >
                 <Phone className="h-3.5 w-3.5" />
                 (269) 929-8541
@@ -190,13 +190,13 @@ export default function SettingsPage() {
       </div>
 
       {/* Client Since + Sign Out */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Calendar className="h-4 w-4 text-[#3B82F6]" />
+            <Calendar className="h-4 w-4 text-[var(--color-gold)]" />
             <div>
-              <p className="text-xs text-[#9CA3AF]">Client Since</p>
-              <p className="text-sm text-[#111827]">{signedDate ?? "N/A"}</p>
+              <p className="text-xs text-[var(--color-mid-gray)]">Client Since</p>
+              <p className="text-sm text-[var(--color-dark)]">{signedDate ?? "N/A"}</p>
             </div>
           </div>
           <button

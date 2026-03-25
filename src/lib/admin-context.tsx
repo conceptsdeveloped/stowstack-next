@@ -24,7 +24,7 @@ const AdminContext = createContext<AdminContextValue>({
   refreshKey: 0,
 });
 
-const STORAGE_KEY = "stowstack_admin_key";
+const STORAGE_KEY = "storageads_admin_key";
 
 export function AdminProvider({
   children,

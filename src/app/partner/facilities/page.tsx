@@ -39,8 +39,8 @@ interface OrgFacility {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  intake: "bg-black/[0.04] text-[#9CA3AF]",
-  scraped: "bg-blue-500/10 text-blue-400",
+  intake: "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]",
+  scraped: "bg-[var(--color-blue)]/10 text-[var(--color-blue)]",
   briefed: "bg-indigo-500/10 text-indigo-400",
   generating: "bg-purple-500/10 text-purple-400",
   review: "bg-amber-500/10 text-amber-400",
@@ -122,7 +122,7 @@ export default function FacilitiesPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-mid-gray)]" />
       </div>
     );
   }
@@ -143,17 +143,17 @@ export default function FacilitiesPage() {
       <div className="space-y-6">
         <button
           onClick={() => setSelectedFacility(null)}
-          className="flex items-center gap-1 text-sm text-[#6B7280] transition-colors hover:text-[#111827]"
+          className="flex items-center gap-1 text-sm text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)]"
         >
           <ChevronRight className="h-4 w-4 rotate-180" />
           Back to facilities
         </button>
 
-        <div className="rounded-xl border border-black/[0.08] bg-white p-6">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6">
           <div className="mb-6 flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-[#111827]">{f.name}</h2>
-              <p className="mt-1 flex items-center gap-1 text-sm text-[#9CA3AF]">
+              <h2 className="text-xl font-bold text-[var(--color-dark)]">{f.name}</h2>
+              <p className="mt-1 flex items-center gap-1 text-sm text-[var(--color-mid-gray)]">
                 <MapPin className="h-3 w-3" />
                 {f.location}
               </p>
@@ -166,27 +166,27 @@ export default function FacilitiesPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-lg bg-black/[0.03] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
+            <div className="rounded-lg bg-[var(--color-light-gray)] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Units
               </p>
-              <p className="mt-1 text-lg font-bold text-[#111827]">
+              <p className="mt-1 text-lg font-bold text-[var(--color-dark)]">
                 {f.total_units || "N/A"}
               </p>
             </div>
-            <div className="rounded-lg bg-black/[0.03] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
+            <div className="rounded-lg bg-[var(--color-light-gray)] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Occupancy
               </p>
-              <p className="mt-1 text-lg font-bold text-[#111827]">
+              <p className="mt-1 text-lg font-bold text-[var(--color-dark)]">
                 {OCCUPANCY_LABELS[f.occupancy_range] || f.occupancy_range || "N/A"}
               </p>
             </div>
-            <div className="rounded-lg bg-black/[0.03] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
+            <div className="rounded-lg bg-[var(--color-light-gray)] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Rating
               </p>
-              <p className="mt-1 flex items-center gap-1 text-lg font-bold text-[#111827]">
+              <p className="mt-1 flex items-center gap-1 text-lg font-bold text-[var(--color-dark)]">
                 {f.google_rating ? (
                   <>
                     <Star className="h-4 w-4 text-amber-400" />
@@ -197,11 +197,11 @@ export default function FacilitiesPage() {
                 )}
               </p>
             </div>
-            <div className="rounded-lg bg-black/[0.03] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
+            <div className="rounded-lg bg-[var(--color-light-gray)] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Live Pages
               </p>
-              <p className="mt-1 text-lg font-bold text-[#111827]">
+              <p className="mt-1 text-lg font-bold text-[var(--color-dark)]">
                 {f.live_pages}
               </p>
             </div>
@@ -209,19 +209,19 @@ export default function FacilitiesPage() {
         </div>
 
         {campaigns.length > 0 && (
-          <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-            <h3 className="mb-4 text-sm font-semibold text-[#111827]">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+            <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
               Campaign History
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-black/[0.08]">
+                  <tr className="border-b border-[var(--border-subtle)]">
                     {["Month", "Spend", "Leads", "CPL", "Move-Ins", "ROAS"].map(
                       (h) => (
                         <th
                           key={h}
-                          className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF] first:text-left"
+                          className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)] first:text-left"
                         >
                           {h}
                         </th>
@@ -233,26 +233,26 @@ export default function FacilitiesPage() {
                   {campaigns.map((c) => (
                     <tr
                       key={c.month}
-                      className="border-b border-black/[0.06] last:border-0"
+                      className="border-b border-[var(--border-subtle)] last:border-0"
                     >
-                      <td className="px-4 py-2.5 font-medium text-[#111827]">
+                      <td className="px-4 py-2.5 font-medium text-[var(--color-dark)]">
                         {c.month}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-[#6B7280]">
+                      <td className="px-4 py-2.5 text-right text-[var(--color-body-text)]">
                         ${Number(c.spend).toLocaleString()}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-[#6B7280]">
+                      <td className="px-4 py-2.5 text-right text-[var(--color-body-text)]">
                         {c.leads}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-[#6B7280]">
+                      <td className="px-4 py-2.5 text-right text-[var(--color-body-text)]">
                         ${Number(c.cpl).toFixed(0)}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-[#6B7280]">
+                      <td className="px-4 py-2.5 text-right text-[var(--color-body-text)]">
                         {c.moveIns}
                       </td>
                       <td
                         className={`px-4 py-2.5 text-right font-medium ${
-                          Number(c.roas) >= 3 ? "text-emerald-400" : "text-[#6B7280]"
+                          Number(c.roas) >= 3 ? "text-emerald-400" : "text-[var(--color-body-text)]"
                         }`}
                       >
                         {Number(c.roas).toFixed(1)}x
@@ -261,23 +261,23 @@ export default function FacilitiesPage() {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="border-t border-black/[0.08] bg-black/[0.02]">
-                    <td className="px-4 py-2.5 font-semibold text-[#111827]">
+                  <tr className="border-t border-[var(--border-subtle)] bg-[var(--color-light-gray)]/20">
+                    <td className="px-4 py-2.5 font-semibold text-[var(--color-dark)]">
                       Total
                     </td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-[#111827]">
+                    <td className="px-4 py-2.5 text-right font-semibold text-[var(--color-dark)]">
                       ${totals.spend.toLocaleString()}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-[#111827]">
+                    <td className="px-4 py-2.5 text-right font-semibold text-[var(--color-dark)]">
                       {totals.leads}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-[#111827]">
+                    <td className="px-4 py-2.5 text-right font-semibold text-[var(--color-dark)]">
                       ${totals.leads > 0 ? (totals.spend / totals.leads).toFixed(0) : "0"}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-[#111827]">
+                    <td className="px-4 py-2.5 text-right font-semibold text-[var(--color-dark)]">
                       {totals.moveIns}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-[#9CA3AF]">
+                    <td className="px-4 py-2.5 text-right text-[var(--color-mid-gray)]">
                       --
                     </td>
                   </tr>
@@ -300,12 +300,12 @@ export default function FacilitiesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[#6B7280]">
+        <h2 className="text-sm font-semibold text-[var(--color-body-text)]">
           {facilities.length} {facilities.length === 1 ? "facility" : "facilities"}
         </h2>
         <button
           onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-3 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB]"
+          className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-3 py-2 text-sm font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)]"
         >
           <Plus className="h-4 w-4" />
           Add Facility
@@ -315,16 +315,16 @@ export default function FacilitiesPage() {
       {showAddForm && (
         <form
           onSubmit={addFacility}
-          className="rounded-xl border border-black/[0.08] bg-white p-5"
+          className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5"
         >
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#111827]">
+            <h3 className="text-sm font-semibold text-[var(--color-dark)]">
               Add New Facility
             </h3>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="text-[#9CA3AF] hover:text-[#6B7280]"
+              className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -335,20 +335,20 @@ export default function FacilitiesPage() {
               placeholder="Facility name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none focus:border-[var(--color-gold)]"
             />
             <input
               type="text"
               placeholder="City, State"
               value={newLocation}
               onChange={(e) => setNewLocation(e.target.value)}
-              className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none focus:border-[var(--color-gold)]"
             />
           </div>
           <button
             type="submit"
             disabled={adding || !newName.trim() || !newLocation.trim()}
-            className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+            className="rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
           >
             {adding ? (
               <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -360,10 +360,10 @@ export default function FacilitiesPage() {
       )}
 
       {facilities.length === 0 ? (
-        <div className="rounded-xl border border-black/[0.08] bg-white py-16 text-center">
-          <Building2 className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
-          <p className="text-sm text-[#6B7280]">No facilities yet</p>
-          <p className="mt-1 text-xs text-[#9CA3AF]">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-16 text-center">
+          <Building2 className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
+          <p className="text-sm text-[var(--color-body-text)]">No facilities yet</p>
+          <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
             Add your first facility to get started
           </p>
         </div>
@@ -378,11 +378,11 @@ export default function FacilitiesPage() {
               <button
                 key={f.id}
                 onClick={() => setSelectedFacility(f)}
-                className="flex w-full items-center justify-between rounded-xl border border-black/[0.08] bg-white p-4 text-left transition-colors hover:border-black/[0.1] hover:bg-[#F3F4F6]"
+                className="flex w-full items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 text-left transition-colors hover:border-[var(--border-medium)] hover:bg-[var(--color-light-gray)]"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium text-[#111827]">
+                    <p className="truncate text-sm font-medium text-[var(--color-dark)]">
                       {f.name}
                     </p>
                     <span
@@ -391,7 +391,7 @@ export default function FacilitiesPage() {
                       {f.status}
                     </span>
                   </div>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-[#9CA3AF]">
+                  <div className="mt-1 flex items-center gap-3 text-xs text-[var(--color-mid-gray)]">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
                       {f.location}
@@ -405,7 +405,7 @@ export default function FacilitiesPage() {
                     {f.live_pages > 0 && <span>{f.live_pages} pages</span>}
                   </div>
                 </div>
-                <ChevronRight className="ml-2 h-4 w-4 shrink-0 text-[#9CA3AF]" />
+                <ChevronRight className="ml-2 h-4 w-4 shrink-0 text-[var(--color-mid-gray)]" />
               </button>
             );
           })}

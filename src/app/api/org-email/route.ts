@@ -7,7 +7,7 @@ function buildEmail(
   body: string
 ): string {
   const primaryColor = org.primary_color || "#16a34a";
-  const brandName = org.white_label ? org.name : "StowStack";
+  const brandName = org.white_label ? org.name : "StorageAds";
   const logoHtml = org.logo_url
     ? `<img src="${org.logo_url}" alt="${org.name}" style="height: 28px; object-fit: contain;" />`
     : `<span style="font-size: 18px; font-weight: bold; color: white;">${brandName}</span>`;
@@ -26,7 +26,7 @@ function buildEmail(
         </div>
         <div style="text-align: center; padding: 16px 0;">
           <p style="color: #94a3b8; font-size: 11px; margin: 0;">
-            ${org.white_label ? org.name : 'Powered by <a href="https://stowstack.co" style="color: #64748b;">StowStack</a>'}
+            ${org.white_label ? org.name : 'Powered by <a href="https://storageads.com" style="color: #64748b;">StorageAds</a>'}
           </p>
         </div>
       </div>
@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
     if (!org) return errorResponse("Organization not found", 404, origin);
 
     const primaryColor = org.primary_color || "#16a34a";
-    const brandName = org.white_label ? org.name : "StowStack";
-    const fromName = org.white_label ? org.name : "StowStack";
+    const brandName = org.white_label ? org.name : "StorageAds";
+    const fromName = org.white_label ? org.name : "StorageAds";
     const vars = variables || {};
 
     const templates: Record<string, { subject: string; html: string }> = {
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
               <p style="margin: 0; font-size: 18px; font-weight: bold; font-family: monospace;">${vars.accessCode}</p>
             </div>
           ` : ""}
-          <a href="${vars.portalUrl || "https://stowstack.co/portal"}" style="display: inline-block; background: ${primaryColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px;">View Your Dashboard</a>
+          <a href="${vars.portalUrl || "https://storageads.com/portal"}" style="display: inline-block; background: ${primaryColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px;">View Your Dashboard</a>
         `),
       },
       campaign_live: {
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
             </div>
           ` : ""}
           <p style="color: #475569; font-size: 15px;">You'll start seeing leads and move-in data in your dashboard within the first few days.</p>
-          <a href="${vars.portalUrl || "https://stowstack.co/portal"}" style="display: inline-block; background: ${primaryColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px;">View Dashboard</a>
+          <a href="${vars.portalUrl || "https://storageads.com/portal"}" style="display: inline-block; background: ${primaryColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px;">View Dashboard</a>
         `),
       },
       monthly_report: {
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
               </td>
             </tr>
           </table>
-          <a href="${vars.portalUrl || "https://stowstack.co/portal"}" style="display: inline-block; background: ${primaryColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px;">View Full Report</a>
+          <a href="${vars.portalUrl || "https://storageads.com/portal"}" style="display: inline-block; background: ${primaryColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px;">View Full Report</a>
         `),
       },
       lead_notification: {
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
             ${vars.unitSize ? `<p style="margin: 0 0 6px; font-size: 14px;"><strong>Unit Size:</strong> ${vars.unitSize}</p>` : ""}
             ${vars.source ? `<p style="margin: 0; font-size: 14px;"><strong>Source:</strong> ${vars.source}</p>` : ""}
           </div>
-          <a href="${vars.portalUrl || "https://stowstack.co/portal"}" style="display: inline-block; background: ${primaryColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px;">View in Dashboard</a>
+          <a href="${vars.portalUrl || "https://storageads.com/portal"}" style="display: inline-block; background: ${primaryColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; margin-top: 8px;">View in Dashboard</a>
         `),
       },
     };
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `${fromName} <${org.white_label ? "noreply" : "team"}@stowstack.co>`,
+        from: `${fromName} <${org.white_label ? "noreply" : "team"}@storageads.com>`,
         to,
         subject: subject || template.subject,
         html: template.html,

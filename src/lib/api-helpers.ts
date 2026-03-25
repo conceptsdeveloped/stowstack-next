@@ -3,8 +3,8 @@ import crypto from "crypto";
 import { auth } from "@clerk/nextjs/server";
 
 const ALLOWED_ORIGINS = [
-  "https://stowstack.co",
-  "https://www.stowstack.co",
+  "https://storageads.com",
+  "https://www.storageads.com",
   "http://localhost:5173",
   "http://localhost:3000",
 ];

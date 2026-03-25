@@ -13,19 +13,19 @@ export default function QuickCalculator() {
   const vacantUnits = Math.round(totalUnits * (1 - occupancy / 100));
   const monthlyLoss = vacantUnits * avgRate;
   const annualLoss = monthlyLoss * 12;
-  const stowstackCost = 999;
+  const storageadsCost = 999;
   const projectedMoveIns = 8;
   const projectedRecovery = projectedMoveIns * avgRate;
   const roi =
-    stowstackCost + 1500 > 0
-      ? Math.round((projectedRecovery / (stowstackCost + 1500)) * 10) / 10
+    storageadsCost + 1500 > 0
+      ? Math.round((projectedRecovery / (storageadsCost + 1500)) * 10) / 10
       : 0;
 
   return (
     <section
       aria-label="Quick revenue calculator"
       className="section relative overflow-hidden"
-      style={{ background: "var(--bg-elevated)" }}
+      style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
         <div
@@ -36,7 +36,7 @@ export default function QuickCalculator() {
           }`}
         >
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/20 text-[var(--color-gold)] text-sm font-medium mb-4">
               <Calculator size={14} /> Quick Revenue Calculator
             </div>
             <h2
@@ -47,7 +47,7 @@ export default function QuickCalculator() {
             </h2>
           </div>
 
-          <div className="max-w-4xl mx-auto bg-black/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8">
+          <div className="max-w-4xl mx-auto bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-2xl p-6 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
@@ -58,7 +58,7 @@ export default function QuickCalculator() {
                     >
                       Total Units
                     </label>
-                    <span className="text-sm font-bold text-blue-400">
+                    <span className="text-sm font-bold text-[var(--color-gold)]">
                       {totalUnits}
                     </span>
                   </div>
@@ -70,7 +70,7 @@ export default function QuickCalculator() {
                     value={totalUnits}
                     onChange={(e) => setTotalUnits(Number(e.target.value))}
                     aria-label="Total units"
-                    className="w-full accent-blue-500 h-2"
+                    className="w-full accent-[var(--color-gold)] h-2"
                   />
                   <div className="flex justify-between mt-1">
                     <span
@@ -98,7 +98,7 @@ export default function QuickCalculator() {
                     </label>
                     <span
                       className={`text-sm font-bold ${
-                        occupancy < 85 ? "text-red-400" : "text-blue-400"
+                        occupancy < 85 ? "text-red-400" : "text-[var(--color-gold)]"
                       }`}
                     >
                       {occupancy}%
@@ -112,7 +112,7 @@ export default function QuickCalculator() {
                     value={occupancy}
                     onChange={(e) => setOccupancy(Number(e.target.value))}
                     aria-label="Current occupancy percentage"
-                    className="w-full accent-blue-500 h-2"
+                    className="w-full accent-[var(--color-gold)] h-2"
                   />
                   <div className="flex justify-between mt-1">
                     <span
@@ -152,14 +152,14 @@ export default function QuickCalculator() {
                   </p>
                 </div>
 
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 text-center">
+                <div className="bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/20 rounded-xl p-4 text-center">
                   <p
-                    className="text-xs uppercase text-blue-400 mb-1"
+                    className="text-xs uppercase text-[var(--color-gold)] mb-1"
                     style={{ letterSpacing: "var(--tracking-wide)" }}
                   >
-                    StowStack Projects
+                    StorageAds Projects
                   </p>
-                  <p className="text-3xl font-black text-blue-400">
+                  <p className="text-3xl font-black text-[var(--color-gold)]">
                     {projectedMoveIns}{" "}
                     <span className="text-lg font-medium">move-ins/mo</span>
                   </p>

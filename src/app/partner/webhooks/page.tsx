@@ -153,7 +153,7 @@ export default function WebhooksPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-mid-gray)]" />
       </div>
     );
   }
@@ -161,7 +161,7 @@ export default function WebhooksPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[#6B7280]">
+        <h2 className="text-sm font-semibold text-[var(--color-body-text)]">
           {webhooks.filter((w) => w.active).length} active{" "}
           {webhooks.filter((w) => w.active).length === 1
             ? "webhook"
@@ -169,7 +169,7 @@ export default function WebhooksPage() {
         </h2>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-3 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB]"
+          className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-3 py-2 text-sm font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)]"
         >
           <Plus className="h-4 w-4" />
           Add Webhook
@@ -182,7 +182,7 @@ export default function WebhooksPage() {
             Webhook signing secret — copy it now:
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 break-all rounded-lg border border-emerald-500/20 bg-[#F9FAFB] px-3 py-2 font-mono text-xs text-[#111827]">
+            <code className="flex-1 break-all rounded-lg border border-emerald-500/20 bg-[var(--color-light)] px-3 py-2 font-mono text-xs text-[var(--color-dark)]">
               {webhookSecret}
             </code>
             <button
@@ -196,13 +196,13 @@ export default function WebhooksPage() {
               )}
             </button>
           </div>
-          <p className="mt-2 text-xs text-[#9CA3AF]">
+          <p className="mt-2 text-xs text-[var(--color-mid-gray)]">
             Use this to verify webhook signatures via HMAC-SHA256. Payloads are
-            signed with the X-StowStack-Signature header.
+            signed with the X-StorageAds-Signature header.
           </p>
           <button
             onClick={() => setWebhookSecret("")}
-            className="mt-2 text-xs text-[#9CA3AF] hover:text-[#6B7280]"
+            className="mt-2 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
           >
             Dismiss
           </button>
@@ -212,16 +212,16 @@ export default function WebhooksPage() {
       {showCreate && (
         <form
           onSubmit={createWebhook}
-          className="rounded-xl border border-black/[0.08] bg-white p-5"
+          className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5"
         >
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#111827]">
+            <h3 className="text-sm font-semibold text-[var(--color-dark)]">
               Register Webhook
             </h3>
             <button
               type="button"
               onClick={() => setShowCreate(false)}
-              className="text-[#9CA3AF] hover:text-[#6B7280]"
+              className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -229,14 +229,14 @@ export default function WebhooksPage() {
           <div className="mb-4">
             <input
               type="url"
-              placeholder="https://your-system.com/webhooks/stowstack"
+              placeholder="https://your-system.com/webhooks/storageads"
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
-              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none focus:border-[var(--color-gold)]"
             />
           </div>
           <div className="mb-4">
-            <p className="mb-2 text-xs font-medium text-[#6B7280]">Events</p>
+            <p className="mb-2 text-xs font-medium text-[var(--color-body-text)]">Events</p>
             <div className="flex flex-wrap gap-1.5">
               {EVENTS.map((evt) => (
                 <button
@@ -245,8 +245,8 @@ export default function WebhooksPage() {
                   onClick={() => toggleEvent(evt)}
                   className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
                     newEvents.includes(evt)
-                      ? "border-[#3B82F6] bg-[#3B82F6]/10 text-[#3B82F6]"
-                      : "border-black/[0.08] text-[#9CA3AF] hover:border-black/[0.1]"
+                      ? "border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                      : "border-[var(--border-subtle)] text-[var(--color-mid-gray)] hover:border-[var(--border-medium)]"
                   }`}
                 >
                   {evt}
@@ -257,7 +257,7 @@ export default function WebhooksPage() {
           <button
             type="submit"
             disabled={creating || !newUrl.trim() || newEvents.length === 0}
-            className="rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+            className="rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
           >
             {creating ? (
               <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -269,10 +269,10 @@ export default function WebhooksPage() {
       )}
 
       {webhooks.length === 0 ? (
-        <div className="rounded-xl border border-black/[0.08] bg-white py-16 text-center">
-          <Webhook className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
-          <p className="text-sm text-[#6B7280]">No webhooks registered</p>
-          <p className="mt-1 text-xs text-[#9CA3AF]">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-16 text-center">
+          <Webhook className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
+          <p className="text-sm text-[var(--color-body-text)]">No webhooks registered</p>
+          <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
             Register a webhook to receive real-time event notifications
           </p>
         </div>
@@ -283,8 +283,8 @@ export default function WebhooksPage() {
               key={wh.id}
               className={`rounded-xl border ${
                 wh.active
-                  ? "border-black/[0.08] bg-white"
-                  : "border-black/[0.06] bg-[#F3F4F6] opacity-60"
+                  ? "border-[var(--border-subtle)] bg-[var(--bg-elevated)]"
+                  : "border-[var(--border-subtle)] bg-[var(--color-light)] opacity-60"
               }`}
             >
               <div className="p-4">
@@ -296,7 +296,7 @@ export default function WebhooksPage() {
                           expandedWebhook === wh.id ? null : wh.id,
                         )
                       }
-                      className="text-[#9CA3AF]"
+                      className="text-[var(--color-mid-gray)]"
                     >
                       {expandedWebhook === wh.id ? (
                         <ChevronDown className="h-4 w-4" />
@@ -310,10 +310,10 @@ export default function WebhooksPage() {
                           ? wh.failure_count > 5
                             ? "bg-amber-500"
                             : "bg-emerald-500"
-                          : "bg-[#6E6E73]"
+                          : "bg-[var(--color-mid-gray)]"
                       }`}
                     />
-                    <code className="truncate font-mono text-sm text-[#111827]">
+                    <code className="truncate font-mono text-sm text-[var(--color-dark)]">
                       {wh.url}
                     </code>
                   </div>
@@ -321,7 +321,7 @@ export default function WebhooksPage() {
                     <button
                       onClick={() => testWebhook(wh.id)}
                       title="Send test ping"
-                      className="rounded-lg p-1.5 text-[#9CA3AF] transition-colors hover:bg-[#3B82F6]/10 hover:text-[#3B82F6]"
+                      className="rounded-lg p-1.5 text-[var(--color-mid-gray)] transition-colors hover:bg-[var(--color-gold)]/10 hover:text-[var(--color-gold)]"
                     >
                       {testResult?.id === wh.id && testResult.success === false ? (
                         <AlertCircle className="h-4 w-4 text-red-400" />
@@ -336,13 +336,13 @@ export default function WebhooksPage() {
                     <button
                       onClick={() => deleteWebhook(wh.id)}
                       title="Delete webhook"
-                      className="rounded-lg p-1.5 text-[#9CA3AF] transition-colors hover:bg-red-500/10 hover:text-red-400"
+                      className="rounded-lg p-1.5 text-[var(--color-mid-gray)] transition-colors hover:bg-red-500/10 hover:text-red-400"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-                <div className="ml-6 mt-1.5 flex items-center gap-3 text-xs text-[#9CA3AF]">
+                <div className="ml-6 mt-1.5 flex items-center gap-3 text-xs text-[var(--color-mid-gray)]">
                   <span>{wh.events.length} events</span>
                   {wh.failure_count > 0 && (
                     <span className="text-amber-400">
@@ -359,15 +359,15 @@ export default function WebhooksPage() {
                 </div>
               </div>
               {expandedWebhook === wh.id && (
-                <div className="border-t border-black/[0.06] bg-black/[0.02] px-4 py-3">
-                  <p className="mb-1.5 text-xs font-medium text-[#6B7280]">
+                <div className="border-t border-[var(--border-subtle)] bg-[var(--color-light-gray)]/20 px-4 py-3">
+                  <p className="mb-1.5 text-xs font-medium text-[var(--color-body-text)]">
                     Subscribed Events
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {wh.events.map((e) => (
                       <span
                         key={e}
-                        className="rounded bg-[#3B82F6]/10 px-1.5 py-0.5 font-mono text-[10px] text-[#3B82F6]"
+                        className="rounded bg-[var(--color-gold)]/10 px-1.5 py-0.5 font-mono text-[10px] text-[var(--color-gold)]"
                       >
                         {e}
                       </span>
@@ -381,29 +381,29 @@ export default function WebhooksPage() {
       )}
 
       {/* Delivery Log */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h3 className="mb-4 text-sm font-semibold text-[#111827]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
           Delivery Log
         </h3>
         {deliveryLogs.length === 0 ? (
           <div className="py-6 text-center">
-            <p className="text-sm text-[#9CA3AF]">No deliveries yet</p>
+            <p className="text-sm text-[var(--color-mid-gray)]">No deliveries yet</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-black/[0.08]">
-                  <th className="px-4 py-2 text-left text-xs font-medium text-[#9CA3AF]">
+                <tr className="border-b border-[var(--border-subtle)]">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                     Event
                   </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                     Status
                   </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                     Latency
                   </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                     Time
                   </th>
                 </tr>
@@ -412,10 +412,10 @@ export default function WebhooksPage() {
                 {deliveryLogs.slice(0, 20).map((log) => (
                   <tr
                     key={log.id}
-                    className="border-b border-black/[0.06] last:border-0"
+                    className="border-b border-[var(--border-subtle)] last:border-0"
                   >
                     <td className="px-4 py-2.5">
-                      <code className="font-mono text-xs text-[#6B7280]">
+                      <code className="font-mono text-xs text-[var(--color-body-text)]">
                         {log.event}
                       </code>
                     </td>
@@ -430,10 +430,10 @@ export default function WebhooksPage() {
                         {log.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-right text-xs text-[#9CA3AF]">
+                    <td className="px-4 py-2.5 text-right text-xs text-[var(--color-mid-gray)]">
                       {log.response_time_ms}ms
                     </td>
-                    <td className="px-4 py-2.5 text-right text-xs text-[#9CA3AF]">
+                    <td className="px-4 py-2.5 text-right text-xs text-[var(--color-mid-gray)]">
                       {new Date(log.created_at).toLocaleString(undefined, {
                         month: "short",
                         day: "numeric",

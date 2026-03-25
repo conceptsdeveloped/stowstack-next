@@ -97,8 +97,8 @@ export default function MessagesPage() {
             <ErrorState message={error} onRetry={fetchMessages} />
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <MessageSquare className="mb-3 h-10 w-10 text-[#9CA3AF]" />
-              <p className="text-sm text-[#6B7280]">No messages yet. Start a conversation!</p>
+              <MessageSquare className="mb-3 h-10 w-10 text-[var(--color-mid-gray)]" />
+              <p className="text-sm text-[var(--color-body-text)]">No messages yet. Start a conversation!</p>
             </div>
           ) : (
             messages.map((msg) => (
@@ -109,17 +109,17 @@ export default function MessagesPage() {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                     msg.from === "client"
-                      ? "rounded-br-md bg-[#3B82F6] text-white"
-                      : "rounded-bl-md border border-black/[0.08] bg-[#F3F4F6] text-[#111827]"
+                      ? "rounded-br-md bg-[var(--color-gold)] text-[var(--color-light)]"
+                      : "rounded-bl-md border border-[var(--border-subtle)] bg-[var(--color-light-gray)] text-[var(--color-dark)]"
                   }`}
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                   <p
                     className={`mt-1 text-[10px] ${
-                      msg.from === "client" ? "text-[#9CA3AF]" : "text-[#9CA3AF]"
+                      msg.from === "client" ? "text-[var(--color-light)]/50" : "text-[var(--color-mid-gray)]"
                     }`}
                   >
-                    {msg.from === "admin" ? "StowStack" : "You"} &middot;{" "}
+                    {msg.from === "admin" ? "StorageAds" : "You"} &middot;{" "}
                     {relativeTime(msg.timestamp)}
                   </p>
                 </div>
@@ -131,7 +131,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Compose */}
-      <div className="shrink-0 border-t border-black/[0.08] bg-[#F9FAFB] p-4">
+      <div className="shrink-0 border-t border-[var(--border-subtle)] bg-[var(--color-light)] p-4">
         <form
           onSubmit={handleSend}
           className="mx-auto flex max-w-2xl items-end gap-3"
@@ -143,12 +143,12 @@ export default function MessagesPage() {
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 resize-none rounded-xl border border-black/[0.08] bg-white px-4 py-3 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+            className="flex-1 resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
           />
           <button
             type="submit"
             disabled={!text.trim() || sending}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3B82F6] text-white transition-colors hover:bg-[#E5E7EB] disabled:opacity-40"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-gold)] text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-40"
           >
             {sending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

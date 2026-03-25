@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       `;
 
       if (process.env.RESEND_API_KEY) {
-        const resetUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://stowstack.co"}/partner?reset=${resetToken}`;
+        const resetUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com"}/partner?reset=${resetToken}`;
         try {
           await fetch("https://api.resend.com/emails", {
             method: "POST",
@@ -70,25 +70,25 @@ export async function POST(req: NextRequest) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "StowStack <noreply@stowstack.co>",
+              from: "StorageAds <noreply@storageads.com>",
               to: user.email,
-              subject: "Reset Your StowStack Password",
+              subject: "Reset Your StorageAds Password",
               html: `
                 <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto;">
-                  <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 24px; border-radius: 12px 12px 0 0;">
+                  <div style="background: linear-gradient(135deg, #B58B3F, #9E7A36); padding: 24px; border-radius: 12px 12px 0 0;">
                     <h1 style="color: white; margin: 0; font-size: 20px;">Password Reset</h1>
-                    <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 14px;">StowStack Partner Portal</p>
+                    <p style="color: var(--color-dark); margin: 8px 0 0; font-size: 14px;">StorageAds Partner Portal</p>
                   </div>
                   <div style="padding: 24px; border: 1px solid #e2e8f0; border-top: 0; border-radius: 0 0 12px 12px;">
                     <p style="color: #334155; font-size: 15px;">Hi ${user.name || "there"},</p>
                     <p style="color: #334155; font-size: 15px;">We received a request to reset your password for <strong>${user.org_name}</strong>.</p>
                     <div style="margin: 24px 0; text-align: center;">
-                      <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
+                      <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #B58B3F, #9E7A36); color: #faf9f5; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
                         Reset Password
                       </a>
                     </div>
                     <p style="color: #64748b; font-size: 13px;">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
-                    <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">— The StowStack Team</p>
+                    <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">— The StorageAds Team</p>
                   </div>
                 </div>
               `,

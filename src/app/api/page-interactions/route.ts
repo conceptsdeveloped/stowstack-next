@@ -15,8 +15,40 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { landingPageId, facilityId, sessionId, utmSource, events } = body;
 
-    if (!landingPageId || !facilityId || !sessionId) {
+    if (!landingPageId || !facilityId) {
       return errorResponse("Missing required fields", 400, origin);
+    }
+
+    // Accept heartbeat summary format: { scrollDepth, timeOnPage }
+    // Convert to events[] batch for unified processing
+    const scrollDepth = body.scrollDepth;
+    const timeOnPage = body.timeOnPage;
+
+    if ((!Array.isArray(events) || events.length === 0) && (scrollDepth !== undefined || timeOnPage !== undefined)) {
+      // Heartbeat format — convert to a single scroll event
+      const heartbeatEvent = {
+        event_type: "scroll",
+        scroll_depth: scrollDepth ?? 0,
+        time_on_page: timeOnPage ?? 0,
+        viewport_width: body.viewportWidth ?? null,
+        viewport_height: body.viewportHeight ?? null,
+      };
+
+      const values = [`($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`];
+      const params = [
+        landingPageId, facilityId, sessionId || "anonymous",
+        heartbeatEvent.event_type, null, null, null, null, null,
+        heartbeatEvent.scroll_depth, heartbeatEvent.viewport_width, heartbeatEvent.viewport_height,
+        heartbeatEvent.time_on_page, body.utmSource || null,
+      ];
+
+      await db.$executeRawUnsafe(
+        `INSERT INTO page_interactions (landing_page_id, facility_id, session_id, event_type, element_id, element_text, section_index, x_pct, y_pct, scroll_depth, viewport_width, viewport_height, time_on_page, utm_source)
+         VALUES ${values.join(", ")}`,
+        ...params
+      );
+
+      return jsonResponse({ success: true, recorded: 1, format: "heartbeat" }, 200, origin);
     }
 
     if (!Array.isArray(events) || events.length === 0) {

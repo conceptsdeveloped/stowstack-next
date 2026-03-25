@@ -146,14 +146,14 @@ function computeAuditScore(data: PlacesResult): AuditScore {
 
 function gradeColor(grade: string) {
   if (grade === "Excellent") return "text-emerald-400";
-  if (grade === "Strong") return "text-blue-400";
+  if (grade === "Strong") return "text-[var(--color-blue)]";
   if (grade === "Moderate") return "text-amber-400";
   return "text-red-400";
 }
 
 function gradeBg(grade: string) {
   if (grade === "Excellent") return "bg-emerald-500/10 border-emerald-500/20";
-  if (grade === "Strong") return "bg-blue-500/10 border-blue-500/20";
+  if (grade === "Strong") return "bg-[var(--color-blue)]/10 border-[var(--color-blue)]/20";
   if (grade === "Moderate") return "bg-amber-500/10 border-amber-500/20";
   return "bg-red-500/10 border-red-500/20";
 }
@@ -171,7 +171,7 @@ function ScoreRing({
     grade === "Excellent"
       ? "text-emerald-500"
       : grade === "Strong"
-        ? "text-blue-500"
+        ? "text-[var(--color-blue)]"
         : grade === "Moderate"
           ? "text-amber-500"
           : "text-red-500";
@@ -185,7 +185,7 @@ function ScoreRing({
         fill="none"
         stroke="currentColor"
         strokeWidth="8"
-        className="text-[#1A1A1A]"
+        className="text-[var(--color-light-gray)]"
       />
       <circle
         cx="60"
@@ -290,7 +290,7 @@ export default function AuditToolPage() {
             href="/"
             className="text-sm font-bold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
           >
-            StowStack
+            StorageAds
           </Link>
           <span className="text-xs text-[var(--text-tertiary)]">
             Free Audit Tool
@@ -644,7 +644,7 @@ export default function AuditToolPage() {
         <div className="text-center py-10 text-xs text-[var(--text-tertiary)]">
           Powered by{" "}
           <Link href="/" className="text-[var(--accent)] hover:underline">
-            StowStack
+            StorageAds
           </Link>{" "}
           <span className="text-[var(--text-tertiary)]/60">
             by StorageAds.com

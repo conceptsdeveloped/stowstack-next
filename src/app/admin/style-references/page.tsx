@@ -300,14 +300,14 @@ export default function StyleReferencesPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <Star size={18} className="text-[#3B82F6]" />
-          <h2 className="text-lg font-semibold text-[#F5F5F7]">Creative Library</h2>
+          <Star size={18} className="text-[var(--color-gold)]" />
+          <h2 className="text-lg font-semibold text-[var(--color-dark)]">Creative Library</h2>
         </div>
-        <p className="text-sm text-[#6E6E73] max-w-2xl">
+        <p className="text-sm text-[var(--color-mid-gray)] max-w-2xl">
           Upload ads, campaigns, web pages, or any visual reference you admire. Claude extracts the style principles — composition, lighting, color, mood — and injects them into every image and video generated across all facilities. The pixels are never reused. Only the intelligence.
         </p>
         {activeCount > 0 && (
-          <p className="text-xs text-[#3B82F6] mt-2">
+          <p className="text-xs text-[var(--color-gold)] mt-2">
             {activeCount} active reference{activeCount !== 1 ? 's' : ''} informing all creative generation.
           </p>
         )}
@@ -320,40 +320,40 @@ export default function StyleReferencesPage() {
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-xl p-6 transition-colors ${
           dragOver
-            ? 'border-[#3B82F6] bg-[#3B82F6]/5'
-            : 'border-white/[0.08] hover:border-white/[0.15]'
+            ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5'
+            : 'border-[var(--border-medium)] hover:border-[var(--border-medium)]'
         }`}
       >
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Title (optional — applies to all files in batch)</label>
+              <label className="text-xs font-medium text-[var(--color-body-text)] block mb-1.5">Title (optional — applies to all files in batch)</label>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder="e.g., Porsche 911 Print 1986, Anthropic Claude launch"
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Tags (optional, comma-separated)</label>
+              <label className="text-xs font-medium text-[var(--color-body-text)] block mb-1.5">Tags (optional, comma-separated)</label>
               <input
                 value={tags}
                 onChange={e => setTags(e.target.value)}
                 placeholder="e.g., typography, warm-light, editorial, porsche"
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
               />
             </div>
           </div>
 
           {/* URL input */}
           <div>
-            <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Or paste a URL (web page, image, or PDF link)</label>
+            <label className="text-xs font-medium text-[var(--color-body-text)] block mb-1.5">Or paste a URL (web page, image, or PDF link)</label>
             <input
               value={urlInput}
               onChange={e => setUrlInput(e.target.value)}
               placeholder="e.g., https://example.com/great-ad-campaign"
-              className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+              className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
             />
           </div>
 
@@ -379,7 +379,7 @@ export default function StyleReferencesPage() {
                 }
               }}
               disabled={uploading}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
             >
               {uploading ? (
                 <><Loader2 size={14} className="animate-spin" /> {uploadProgress || 'Analyzing...'}</>
@@ -388,7 +388,7 @@ export default function StyleReferencesPage() {
               )}
             </button>
             {!uploading && (
-              <p className="text-[11px] text-[#6E6E73]">
+              <p className="text-[11px] text-[var(--color-mid-gray)]">
                 Images, videos, PDFs, or web pages. Select multiple files or drop them here.
               </p>
             )}
@@ -399,11 +399,11 @@ export default function StyleReferencesPage() {
       {/* Tag filters */}
       {allTags.length > 0 && (
         <div className="flex gap-1.5 flex-wrap items-center">
-          <Tag size={12} className="text-[#6E6E73] mr-1" />
+          <Tag size={12} className="text-[var(--color-mid-gray)] mr-1" />
           <button
             onClick={() => setFilterTag('all')}
             className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
-              filterTag === 'all' ? 'bg-[#3B82F6] text-white' : 'text-[#6E6E73] hover:bg-white/[0.04]'
+              filterTag === 'all' ? 'bg-[var(--color-gold)] text-[var(--color-light)]' : 'text-[var(--color-mid-gray)] hover:bg-[var(--color-light-gray)]'
             }`}
           >
             All ({references.length})
@@ -413,7 +413,7 @@ export default function StyleReferencesPage() {
               key={tag}
               onClick={() => setFilterTag(tag)}
               className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
-                filterTag === tag ? 'bg-[#3B82F6] text-white' : 'text-[#6E6E73] hover:bg-white/[0.04]'
+                filterTag === tag ? 'bg-[var(--color-gold)] text-[var(--color-light)]' : 'text-[var(--color-mid-gray)] hover:bg-[var(--color-light-gray)]'
               }`}
             >
               {tag}
@@ -425,16 +425,16 @@ export default function StyleReferencesPage() {
       {/* Loading */}
       {loading && (
         <div className="flex justify-center py-12">
-          <Loader2 size={20} className="animate-spin text-[#3B82F6]" />
+          <Loader2 size={20} className="animate-spin text-[var(--color-gold)]" />
         </div>
       )}
 
       {/* Empty state */}
       {!loading && filtered.length === 0 && (
-        <div className="text-center py-16 rounded-xl border-2 border-dashed border-white/[0.06]">
-          <Sparkles size={32} className="mx-auto mb-3 text-[#6E6E73]" />
-          <p className="font-medium text-[#F5F5F7]">Your creative library is empty</p>
-          <p className="text-sm text-[#6E6E73] mt-1 max-w-md mx-auto">
+        <div className="text-center py-16 rounded-xl border-2 border-dashed border-[var(--border-subtle)]">
+          <Sparkles size={32} className="mx-auto mb-3 text-[var(--color-mid-gray)]" />
+          <p className="font-medium text-[var(--color-dark)]">Your creative library is empty</p>
+          <p className="text-sm text-[var(--color-mid-gray)] mt-1 max-w-md mx-auto">
             Upload ads, campaigns, web pages, or any visual reference you admire. Claude will extract what makes them great and use those principles across all creative generation.
           </p>
         </div>
@@ -448,8 +448,8 @@ export default function StyleReferencesPage() {
             return (
               <div
                 key={ref.id}
-                className={`border rounded-xl overflow-hidden bg-[#111111] transition-all ${
-                  ref.active ? 'border-white/[0.06]' : 'border-white/[0.04] opacity-60'
+                className={`border rounded-xl overflow-hidden bg-[var(--bg-elevated)] transition-all ${
+                  ref.active ? 'border-[var(--border-subtle)]' : 'border-[var(--border-subtle)] opacity-60'
                 }`}
               >
                 {/* Media — click to view full */}
@@ -463,7 +463,7 @@ export default function StyleReferencesPage() {
                       {isVid ? (
                         <video
                           src={ref.image_url}
-                          className="w-full h-44 object-cover bg-[#0A0A0A]"
+                          className="w-full h-44 object-cover bg-[var(--color-light)]"
                           muted
                           playsInline
                           preload="metadata"
@@ -474,7 +474,7 @@ export default function StyleReferencesPage() {
                         <img
                           src={ref.image_url}
                           alt={ref.title || 'Style reference'}
-                          className="w-full h-44 object-cover bg-[#0A0A0A]"
+                          className="w-full h-44 object-cover bg-[var(--color-light)]"
                           onError={e => {
                             const el = e.target as HTMLImageElement
                             el.style.display = 'none'
@@ -514,24 +514,24 @@ export default function StyleReferencesPage() {
                               if (e.key === 'Escape') setEditingTitleId(null)
                             }}
                             autoFocus
-                            className="flex-1 px-2 py-1 border border-white/[0.12] rounded text-sm bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6]"
+                            className="flex-1 px-2 py-1 border border-[var(--border-medium)] rounded text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)]"
                           />
                           <button
                             onClick={() => handleUpdateTitle(ref.id, editingTitleValue)}
-                            className="px-2 py-1 bg-[#3B82F6] text-white text-[10px] font-medium rounded"
+                            className="px-2 py-1 bg-[var(--color-gold)] text-[var(--color-light)] text-[10px] font-medium rounded"
                           >
                             Save
                           </button>
                           <button
                             onClick={() => setEditingTitleId(null)}
-                            className="px-2 py-1 text-[10px] text-[#6E6E73]"
+                            className="px-2 py-1 text-[10px] text-[var(--color-mid-gray)]"
                           >
                             Cancel
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-1.5 group/title">
-                          <p className="text-sm font-semibold text-[#F5F5F7] truncate">
+                          <p className="text-sm font-semibold text-[var(--color-dark)] truncate">
                             {ref.title || 'Untitled Reference'}
                           </p>
                           <button
@@ -539,27 +539,27 @@ export default function StyleReferencesPage() {
                               setEditingTitleId(ref.id)
                               setEditingTitleValue(ref.title || '')
                             }}
-                            className="opacity-0 group-hover/title:opacity-100 p-0.5 text-[#6E6E73] hover:text-[#A1A1A6] transition-all"
+                            className="opacity-0 group-hover/title:opacity-100 p-0.5 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-all"
                           >
                             <Pencil size={11} />
                           </button>
                         </div>
                       )}
-                      <p className="text-[10px] text-[#6E6E73] mt-0.5">
+                      <p className="text-[10px] text-[var(--color-mid-gray)] mt-0.5">
                         {new Date(ref.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
                       <button
                         onClick={() => handleToggle(ref.id, !ref.active)}
-                        className="p-1.5 rounded-lg text-[#6E6E73] hover:text-[#A1A1A6] hover:bg-white/[0.04] transition-colors"
+                        className="p-1.5 rounded-lg text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] transition-colors"
                         title={ref.active ? 'Disable' : 'Enable'}
                       >
                         {ref.active ? <Eye size={14} /> : <EyeOff size={14} />}
                       </button>
                       <button
                         onClick={() => handleDelete(ref.id)}
-                        className="p-1.5 rounded-lg text-[#6E6E73] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        className="p-1.5 rounded-lg text-[var(--color-mid-gray)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
                         title="Delete"
                       >
                         <Trash2 size={14} />
@@ -571,7 +571,7 @@ export default function StyleReferencesPage() {
                   {ref.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {ref.tags.map(tag => (
-                        <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6]">
+                        <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)]">
                           {tag}
                         </span>
                       ))}
@@ -580,14 +580,14 @@ export default function StyleReferencesPage() {
 
                   {/* Style directive */}
                   {ref.analysis.style_directive && (
-                    <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                      <p className="text-[10px] text-[#3B82F6] font-medium mb-1">Style Directive</p>
-                      <p className="text-xs text-[#F5F5F7] leading-relaxed">
+                    <div className="p-3 rounded-lg bg-[var(--color-light-gray)] border border-[var(--border-subtle)]">
+                      <p className="text-[10px] text-[var(--color-gold)] font-medium mb-1">Style Directive</p>
+                      <p className="text-xs text-[var(--color-dark)] leading-relaxed">
                         {ref.analysis.style_directive}
                       </p>
                       <button
                         onClick={() => handleCopyDirective(ref.analysis.style_directive!, ref.id)}
-                        className="flex items-center gap-1 mt-2 text-[10px] text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                        className="flex items-center gap-1 mt-2 text-[10px] text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
                       >
                         {copiedId === ref.id ? (
                           <><Check size={10} className="text-emerald-400" /> Copied</>
@@ -601,14 +601,14 @@ export default function StyleReferencesPage() {
                   {/* Expand/collapse full analysis — independent per card */}
                   <button
                     onClick={() => toggleExpanded(ref.id)}
-                    className="flex items-center gap-1 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                    className="flex items-center gap-1 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
                   >
                     {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                     {expanded ? 'Hide' : 'View'} full analysis
                   </button>
 
                   {expanded && (
-                    <div className="space-y-3 pt-2 border-t border-white/[0.06]">
+                    <div className="space-y-3 pt-2 border-t border-[var(--border-subtle)]">
                       {ref.analysis.composition && (
                         <AnalysisField label="Composition" value={ref.analysis.composition} />
                       )}
@@ -656,7 +656,7 @@ export default function StyleReferencesPage() {
         >
           <button
             onClick={() => setLightboxUrl(null)}
-            className="absolute top-6 right-6 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors z-10"
+            className="absolute top-6 right-6 p-2 rounded-lg bg-[var(--color-dark)]/10 text-white hover:bg-[var(--color-dark)]/20 transition-colors z-10"
           >
             <X size={20} />
           </button>
@@ -685,8 +685,8 @@ export default function StyleReferencesPage() {
 function AnalysisField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-medium uppercase tracking-wide text-[#6E6E73]">{label}</p>
-      <p className="text-xs text-[#A1A1A6] leading-relaxed mt-0.5">{value}</p>
+      <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">{label}</p>
+      <p className="text-xs text-[var(--color-body-text)] leading-relaxed mt-0.5">{value}</p>
     </div>
   )
 }

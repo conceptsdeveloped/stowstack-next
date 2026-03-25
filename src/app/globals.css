@@ -1,64 +1,88 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════
-   STOWSTACK DESIGN TOKENS — LIGHT (DEFAULT)
+   STORAGEADS DESIGN TOKENS
+   Source: DESIGN_TOKENS.json
    ═══════════════════════════════════════════ */
 
 :root {
-  /* Backgrounds */
-  --bg-void: #FFFFFF;
-  --bg-primary: #F9FAFB;
-  --bg-elevated: #FFFFFF;
-  --bg-surface: #F3F4F6;
-  --bg-overlay: rgba(0, 0, 0, 0.4);
+  /* ── Core Palette ── */
+  --color-dark: #141413;
+  --color-light: #faf9f5;
+  --color-mid-gray: #b0aea5;
+  --color-light-gray: #e8e6dc;
+  --color-body-text: #6a6560;
 
-  /* Text */
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --text-tertiary: #9CA3AF;
-  --text-inverse: #FFFFFF;
+  /* ── Primary Accent — Sienna Gold ── */
+  --color-gold: #B58B3F;
+  --color-gold-hover: #9E7A36;
+  --color-gold-on-light: #9A7A35;
+  --color-gold-light: #F2EBD9;
 
-  /* Accent (blue) */
-  --accent: #3B82F6;
-  --accent-hover: #2563EB;
-  --accent-glow: rgba(59, 130, 246, 0.08);
+  /* ── Secondary Accents ── */
+  --color-blue: #6a9bcc;
+  --color-blue-light: #e8f0f7;
+  --color-green: #788c5d;
+  --color-green-light: #ecf0e6;
 
-  /* Borders */
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-medium: rgba(0, 0, 0, 0.12);
+  /* ── Error / Negative — Clay Red ── */
+  --color-red: #B04A3A;
+  --color-red-hover: #983F32;
+  --color-red-light: #F5E8E5;
+
+  /* ── Dark mode surfaces (dashboards) ── */
+  --color-dark-surface: #1e1d1b;
+  --color-dark-border: #2a2926;
+
+  /* ── Semantic aliases (backward compat — maps old vars to new palette) ── */
+  --bg-void: var(--color-light);
+  --bg-primary: var(--color-light);
+  --bg-elevated: #ffffff;
+  --bg-surface: var(--color-light-gray);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  --text-primary: var(--color-dark);
+  --text-secondary: var(--color-body-text);
+  --text-tertiary: var(--color-mid-gray);
+  --text-inverse: var(--color-light);
+
+  --accent: var(--color-gold);
+  --accent-hover: var(--color-gold-hover);
+  --accent-glow: rgba(181, 139, 63, 0.15);
+
+  --border-subtle: rgba(20, 20, 19, 0.08);
+  --border-medium: rgba(20, 20, 19, 0.15);
 
   /* Utility */
-  --color-error: rgba(239, 68, 68, 0.8);
-  --color-success: rgba(34, 197, 94, 0.8);
+  --color-error: var(--color-red);
+  --color-success: var(--color-green);
 
-  /* Doctrine fonts */
-  --font-ad-headline: var(--font-franklin), 'Libre Franklin', 'Franklin Gothic', 'Arial Narrow', sans-serif;
-  --font-ad-body: var(--font-lato), 'Lato', 'Gill Sans', 'Gill Sans MT', sans-serif;
-
-  /* Theme-aware opacity colors for Tailwind classes */
-  --card-border: rgba(0, 0, 0, 0.08);
-  --card-hover-bg: rgba(0, 0, 0, 0.03);
+  /* ── Typography ── */
+  --font-heading: var(--font-poppins), 'Poppins', Arial, sans-serif;
+  --font-body: var(--font-lora), 'Lora', Georgia, serif;
+  --font-ad-headline: var(--font-heading);
+  --font-ad-body: var(--font-body);
 
   /* Typography scale */
-  --text-hero: clamp(2.5rem, 8vw, 5.5rem);
-  --text-section-head: clamp(2rem, 5vw, 3.75rem);
-  --text-subhead: clamp(1.25rem, 3vw, 1.75rem);
+  --text-hero: clamp(2.5rem, 8vw, 3.5rem);
+  --text-section-head: clamp(2rem, 5vw, 2.25rem);
+  --text-subhead: clamp(1.25rem, 3vw, 1.5rem);
   --text-body: clamp(1rem, 2.5vw, 1.125rem);
   --text-body-lg: clamp(1.0625rem, 2.5vw, 1.25rem);
   --text-small: clamp(0.8125rem, 2vw, 0.875rem);
-  --text-stat: clamp(3rem, 10vw, 6rem);
+  --text-stat: clamp(1.75rem, 5vw, 2.25rem);
 
   /* Line heights */
-  --leading-tight: 1.05;
+  --leading-tight: 1.15;
   --leading-snug: 1.2;
   --leading-normal: 1.6;
-  --leading-relaxed: 1.8;
+  --leading-relaxed: 1.65;
 
   /* Letter spacing */
   --tracking-tight: -0.03em;
   --tracking-normal: 0;
-  --tracking-wide: 0.08em;
-  --tracking-ultra: 0.15em;
+  --tracking-wide: 0.05em;
+  --tracking-ultra: 0.08em;
 
   /* Spacing */
   --space-xs: 0.5rem;
@@ -66,8 +90,8 @@
   --space-md: 1.5rem;
   --space-lg: 2.5rem;
   --space-xl: 4rem;
-  --space-2xl: 6rem;
-  --space-3xl: 10rem;
+  --space-2xl: 5rem;
+  --space-3xl: 7.5rem;
 
   /* Z-index scale */
   --z-base: 1;
@@ -95,39 +119,9 @@
   /* Nav */
   --nav-height: 64px;
 
-  /* Font families */
-  --font-display: "Satoshi", system-ui, -apple-system, sans-serif;
+  /* Font families (display alias for backward compat) */
+  --font-display: var(--font-heading);
   --font-mono-family: var(--font-mono), "SF Mono", "Menlo", monospace;
-}
-
-/* ═══════════════════════════════════════════
-   DARK THEME OVERRIDE
-   ═══════════════════════════════════════════ */
-
-:root[data-theme="dark"] {
-  --bg-void: #050505;
-  --bg-primary: #0A0A0A;
-  --bg-elevated: #111111;
-  --bg-surface: #1A1A1A;
-  --bg-overlay: rgba(0, 0, 0, 0.7);
-
-  --text-primary: #F5F5F7;
-  --text-secondary: #A1A1A6;
-  --text-tertiary: #6E6E73;
-  --text-inverse: #0A0A0A;
-
-  --accent: #3B82F6;
-  --accent-hover: #2563EB;
-  --accent-glow: rgba(59, 130, 246, 0.15);
-
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-medium: rgba(255, 255, 255, 0.12);
-
-  --color-error: rgba(239, 68, 68, 0.8);
-  --color-success: rgba(34, 197, 94, 0.8);
-
-  --card-border: rgba(255, 255, 255, 0.06);
-  --card-hover-bg: rgba(255, 255, 255, 0.03);
 }
 
 /* ═══════════════════════════════════════════
@@ -135,14 +129,15 @@
    ═══════════════════════════════════════════ */
 
 @theme inline {
-  --color-background: var(--bg-void);
-  --color-foreground: var(--text-primary);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-muted: var(--text-secondary);
-  --color-surface: var(--bg-surface);
-  --color-elevated: var(--bg-elevated);
-  --font-sans: var(--font-display);
+  --color-background: var(--color-light);
+  --color-foreground: var(--color-dark);
+  --color-accent: var(--color-gold);
+  --color-accent-hover: var(--color-gold-hover);
+  --color-muted: var(--color-body-text);
+  --color-surface: var(--color-light-gray);
+  --color-elevated: #ffffff;
+  --font-sans: var(--font-heading);
+  --font-serif: var(--font-body);
   --font-mono: var(--font-mono-family);
 }
 
@@ -165,17 +160,17 @@ html {
 }
 
 body {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
-  color: var(--text-primary);
-  background: var(--bg-void);
+  color: var(--color-dark);
+  background: var(--color-light);
   overflow-x: hidden;
 }
 
 ::selection {
-  background: var(--accent);
-  color: white;
+  background: var(--color-gold);
+  color: var(--color-light);
 }
 
 /* ═══════════════════════════════════════════
@@ -183,27 +178,28 @@ body {
    ═══════════════════════════════════════════ */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-weight: 600;
   letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight);
-  color: var(--text-primary);
+  color: var(--color-dark);
 }
 
 p {
-  color: var(--text-secondary);
+  font-family: var(--font-body);
+  color: var(--color-body-text);
   line-height: var(--leading-normal);
-  max-width: 65ch;
+  max-width: 600px;
 }
 
 a {
-  color: var(--accent);
+  color: var(--color-gold);
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease-out);
 }
 
 a:hover {
-  color: var(--accent-hover);
+  color: var(--color-dark);
 }
 
 /* ═══════════════════════════════════════════
@@ -242,28 +238,27 @@ a:hover {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 14px 32px;
-  background: var(--accent);
-  color: white;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: var(--text-body);
+  padding: 12px 24px;
+  background: var(--color-gold);
+  color: var(--color-light);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 15px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+  transition: background var(--duration-fast) ease,
+              transform 100ms ease;
   text-decoration: none;
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
-  color: white;
-  transform: translateY(-1px);
+  background: var(--color-gold-hover);
+  color: var(--color-light);
 }
 
 .btn-primary:active {
-  transform: translateY(1px) scale(0.98);
+  transform: scale(0.98);
 }
 
 @media (max-width: 639px) {
@@ -279,27 +274,26 @@ a:hover {
 
 .input-field {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border-medium);
-  padding: 12px 0;
+  background: var(--color-light);
+  border: 1px solid var(--color-light-gray);
+  padding: 12px 16px;
   font-size: 16px;
-  font-family: var(--font-display);
-  color: var(--text-primary);
-  border-radius: 0;
+  font-family: var(--font-body);
+  color: var(--color-dark);
+  border-radius: 8px;
   -webkit-appearance: none;
   appearance: none;
   outline: none;
-  transition: border-color var(--duration-fast) var(--ease-out);
+  transition: border-color var(--duration-fast) ease;
 }
 
 .input-field:focus {
-  border-color: var(--accent);
-  box-shadow: 0 1px 0 0 var(--accent);
+  border-color: var(--color-gold);
+  box-shadow: none;
 }
 
 .input-field::placeholder {
-  color: var(--text-tertiary);
+  color: var(--color-mid-gray);
 }
 
 /* ═══════════════════════════════════════════
@@ -402,7 +396,7 @@ a:hover {
   border-left: 2px solid var(--accent);
   padding: 1rem 1.25rem;
   margin: 1.5rem 0;
-  background: var(--bg-surface);
+  background: var(--bg-elevated);
   border-radius: 0 8px 8px 0;
   color: var(--text-primary);
   font-style: italic;
@@ -442,7 +436,7 @@ a:hover {
 
 /* Focus visible styles for keyboard navigation */
 :focus-visible {
-  outline: 2px solid #3B82F6;
+  outline: 2px solid var(--color-gold);
   outline-offset: 2px;
 }
 
@@ -467,37 +461,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-}
-
-/* ═══════════════════════════════════════════
-   DARK MODE — CLASS OVERRIDES
-   When data-theme="dark", override hardcoded
-   light Tailwind colors back to dark variants.
-   Uses attribute selectors to avoid escaping issues.
-   ═══════════════════════════════════════════ */
-
-:root[data-theme="dark"] body {
-  color-scheme: dark;
-}
-
-/* Background overrides */
-:root[data-theme="dark"] .bg-white {
-  background-color: #111111 !important;
-}
-
-/* Border overrides */
-:root[data-theme="dark"] [class*="border-black"] {
-  border-color: rgba(255, 255, 255, 0.06) !important;
-}
-
-/* Divider overrides */
-:root[data-theme="dark"] [class*="divide-black"] > :not(:first-child) {
-  border-color: rgba(255, 255, 255, 0.06) !important;
-}
-
-/* Nav background */
-:root[data-theme="dark"] nav[aria-label="Main navigation"] {
-  background: rgba(5, 5, 5, 0.85) !important;
 }
 
 /* ═══════════════════════════════════════════

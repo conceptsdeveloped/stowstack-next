@@ -95,9 +95,9 @@ interface PublishLogEntry {
 /* ── Constants ───────────────────────────────────────────────── */
 
 const PLATFORM_COLORS: Record<string, string> = {
-  meta: "bg-blue-600",
+  meta: "bg-[var(--color-gold)]",
   google: "bg-red-500",
-  tiktok: "bg-black border border-black/[0.12]",
+  tiktok: "bg-black border border-[var(--border-medium)]",
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -278,7 +278,7 @@ export default function AdPublisher({
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 size={20} className="animate-spin text-[#3B82F6]" />
+        <Loader2 size={20} className="animate-spin text-[var(--color-gold)]" />
       </div>
     );
   }
@@ -300,8 +300,8 @@ export default function AdPublisher({
 
       {/* Platform Connections */}
       <div>
-        <h4 className="text-sm font-semibold text-[#111827] mb-3 flex items-center gap-2">
-          <Plug size={14} className="text-[#3B82F6]" />
+        <h4 className="text-sm font-semibold text-[var(--color-dark)] mb-3 flex items-center gap-2">
+          <Plug size={14} className="text-[var(--color-gold)]" />
           Platform Connections
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -311,19 +311,19 @@ export default function AdPublisher({
             return (
               <div
                 key={platform.id}
-                className="border border-black/[0.08] rounded-xl p-4 bg-white"
+                className="border border-[var(--border-subtle)] rounded-xl p-4 bg-[var(--bg-elevated)]"
               >
                 <div className="flex items-start gap-3">
                   <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold ${PLATFORM_COLORS[platform.id] || "bg-[#3B82F6]"}`}
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold ${PLATFORM_COLORS[platform.id] || "bg-[var(--color-gold)]"}`}
                   >
                     {PLATFORM_LETTERS[platform.id] || "?"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#111827]">
+                    <p className="text-sm font-semibold text-[var(--color-dark)]">
                       {platform.name}
                     </p>
-                    <p className="text-xs text-[#9CA3AF] mt-0.5">
+                    <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">
                       {platform.description}
                     </p>
 
@@ -336,12 +336,12 @@ export default function AdPublisher({
                           </span>
                         </div>
                         {conn.account_name && (
-                          <p className="text-xs text-[#9CA3AF]">
+                          <p className="text-xs text-[var(--color-mid-gray)]">
                             Account: {conn.account_name}
                           </p>
                         )}
                         {conn.page_name && (
-                          <p className="text-xs text-[#9CA3AF]">
+                          <p className="text-xs text-[var(--color-mid-gray)]">
                             Page: {conn.page_name}
                           </p>
                         )}
@@ -353,10 +353,10 @@ export default function AdPublisher({
                                 className="text-amber-400"
                               />
                             ) : (
-                              <Clock size={10} className="text-[#9CA3AF]" />
+                              <Clock size={10} className="text-[var(--color-mid-gray)]" />
                             )}
                             <p
-                              className={`text-[10px] ${expiring ? "text-amber-400" : "text-[#9CA3AF]"}`}
+                              className={`text-[10px] ${expiring ? "text-amber-400" : "text-[var(--color-mid-gray)]"}`}
                             >
                               Token expires:{" "}
                               {new Date(
@@ -381,28 +381,28 @@ export default function AdPublisher({
                         {platform.configured ? (
                           <a
                             href={platform.connectUrl || "#"}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded-lg hover:bg-[var(--color-gold-hover)] transition-colors"
                           >
                             <Link2 size={12} />
                             Connect{" "}
                             {PLATFORM_LABELS[platform.id] || platform.name}
                           </a>
                         ) : (
-                          <div className="p-3 rounded-lg border border-dashed border-black/[0.1]">
+                          <div className="p-3 rounded-lg border border-dashed border-[var(--border-medium)]">
                             <div className="flex items-start gap-2">
                               <Shield
                                 size={12}
-                                className="text-[#9CA3AF] mt-0.5 shrink-0"
+                                className="text-[var(--color-mid-gray)] mt-0.5 shrink-0"
                               />
                               <div>
-                                <p className="text-xs text-[#9CA3AF]">
+                                <p className="text-xs text-[var(--color-mid-gray)]">
                                   {platform.id === "meta"
                                     ? "Requires META_APP_ID and META_APP_SECRET environment variables."
                                     : platform.id === "tiktok"
                                       ? "Requires TIKTOK_CLIENT_KEY and TIKTOK_CLIENT_SECRET environment variables."
                                       : "Requires GOOGLE_ADS_CLIENT_ID, GOOGLE_ADS_CLIENT_SECRET, and GOOGLE_ADS_DEVELOPER_TOKEN environment variables."}
                                 </p>
-                                <p className="text-[10px] text-[#9CA3AF] mt-1">
+                                <p className="text-[10px] text-[var(--color-mid-gray)] mt-1">
                                   Add these in Vercel &rarr; Settings &rarr;
                                   Environment Variables
                                 </p>
@@ -419,9 +419,9 @@ export default function AdPublisher({
           })}
 
           {platforms.length === 0 && (
-            <div className="col-span-full text-center py-8 border border-black/[0.08] rounded-xl bg-white">
-              <Plug size={24} className="mx-auto mb-2 text-[#9CA3AF]" />
-              <p className="text-sm text-[#9CA3AF]">
+            <div className="col-span-full text-center py-8 border border-[var(--border-subtle)] rounded-xl bg-[var(--bg-elevated)]">
+              <Plug size={24} className="mx-auto mb-2 text-[var(--color-mid-gray)]" />
+              <p className="text-sm text-[var(--color-mid-gray)]">
                 No platform configurations found.
               </p>
             </div>
@@ -431,22 +431,22 @@ export default function AdPublisher({
 
       {/* Publish Controls */}
       {connectedPlatforms.length > 0 && variations.length > 0 && (
-        <div className="border border-black/[0.08] rounded-xl p-5 bg-white">
-          <h4 className="text-sm font-semibold text-[#111827] mb-4 flex items-center gap-2">
-            <Send size={14} className="text-[#3B82F6]" />
+        <div className="border border-[var(--border-subtle)] rounded-xl p-5 bg-[var(--bg-elevated)]">
+          <h4 className="text-sm font-semibold text-[var(--color-dark)] mb-4 flex items-center gap-2">
+            <Send size={14} className="text-[var(--color-gold)]" />
             Publish an Ad
           </h4>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Ad Variation selector */}
             <div>
-              <label className="text-xs font-medium text-[#9CA3AF] block mb-1.5">
+              <label className="text-xs font-medium text-[var(--color-mid-gray)] block mb-1.5">
                 Ad Copy
               </label>
               <select
                 value={selectedVariation}
                 onChange={(e) => setSelectedVariation(e.target.value)}
-                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light)] text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
               >
                 {variations.map((v) => {
                   const c = v.content_json as MetaAdContent;
@@ -462,13 +462,13 @@ export default function AdPublisher({
 
             {/* Platform selector */}
             <div>
-              <label className="text-xs font-medium text-[#9CA3AF] block mb-1.5">
+              <label className="text-xs font-medium text-[var(--color-mid-gray)] block mb-1.5">
                 Platform
               </label>
               <select
                 value={selectedConnection}
                 onChange={(e) => setSelectedConnection(e.target.value)}
-                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light)] text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
               >
                 <option value="">Select platform...</option>
                 {connectedPlatforms.map((c) => (
@@ -482,13 +482,13 @@ export default function AdPublisher({
 
             {/* Image selector */}
             <div>
-              <label className="text-xs font-medium text-[#9CA3AF] block mb-1.5">
+              <label className="text-xs font-medium text-[var(--color-mid-gray)] block mb-1.5">
                 Image
               </label>
               <select
                 value={selectedImage}
                 onChange={(e) => setSelectedImage(e.target.value)}
-                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light)] text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
               >
                 <option value="">No image</option>
                 {assets.map((a, i) => (
@@ -506,14 +506,14 @@ export default function AdPublisher({
 
             {/* CTA Override */}
             <div>
-              <label className="text-xs font-medium text-[#9CA3AF] block mb-1.5">
+              <label className="text-xs font-medium text-[var(--color-mid-gray)] block mb-1.5">
                 CTA Override
               </label>
               <input
                 value={ctaOverride}
                 onChange={(e) => setCtaOverride(e.target.value)}
                 placeholder="Optional custom CTA..."
-                className="w-full px-3 py-2 border border-black/[0.08] rounded-lg text-sm bg-[#F9FAFB] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#3B82F6] transition-colors"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light)] text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
               />
             </div>
           </div>
@@ -525,7 +525,7 @@ export default function AdPublisher({
                 disabled={
                   !selectedVariation || !selectedConnection || publishing
                 }
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
               >
                 {publishing ? (
                   <>
@@ -541,13 +541,13 @@ export default function AdPublisher({
                 <img
                   src={selectedImage}
                   alt=""
-                  className="h-10 w-16 object-cover rounded border border-black/[0.08]"
+                  className="h-10 w-16 object-cover rounded border border-[var(--border-subtle)]"
                 />
               )}
             </div>
-            <p className="text-xs text-[#9CA3AF]">
+            <p className="text-xs text-[var(--color-mid-gray)]">
               Ad will be created as{" "}
-              <span className="font-semibold text-[#6B7280]">PAUSED</span> in
+              <span className="font-semibold text-[var(--color-body-text)]">PAUSED</span> in
               Ads Manager. Review targeting and budget there, then activate when
               ready.
             </p>
@@ -581,8 +581,8 @@ export default function AdPublisher({
 
       {/* No approved variations message */}
       {connectedPlatforms.length > 0 && variations.length === 0 && (
-        <div className="text-center py-6 border border-black/[0.08] rounded-xl bg-white">
-          <p className="text-sm text-[#9CA3AF]">
+        <div className="text-center py-6 border border-[var(--border-subtle)] rounded-xl bg-[var(--bg-elevated)]">
+          <p className="text-sm text-[var(--color-mid-gray)]">
             No approved ad variations yet. Go to the Creative Studio to approve
             some ads first.
           </p>
@@ -592,24 +592,24 @@ export default function AdPublisher({
       {/* Publish History */}
       {publishLog.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-[#111827] mb-3 flex items-center gap-2">
-            <Clock size={14} className="text-[#9CA3AF]" />
+          <h4 className="text-sm font-semibold text-[var(--color-dark)] mb-3 flex items-center gap-2">
+            <Clock size={14} className="text-[var(--color-mid-gray)]" />
             Publish History
           </h4>
-          <div className="border border-black/[0.08] rounded-xl overflow-hidden bg-white">
+          <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--bg-elevated)]">
             {/* Table header */}
-            <div className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-2.5 border-b border-black/[0.08] bg-black/[0.02]">
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]" />
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">
+            <div className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-2.5 border-b border-[var(--border-subtle)] bg-[var(--color-light-gray)]">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-mid-gray)]" />
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
                 Variation
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
                 Date
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
                 Status
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[#9CA3AF]">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
                 Link
               </span>
             </div>
@@ -617,15 +617,15 @@ export default function AdPublisher({
             {publishLog.map((log) => (
               <div
                 key={log.id}
-                className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-3 border-b border-black/[0.06] last:border-b-0 items-center hover:bg-black/[0.02] transition-colors"
+                className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-3 border-b border-[var(--border-subtle)] last:border-b-0 items-center hover:bg-[var(--color-light-gray)] transition-colors"
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold ${PLATFORM_COLORS[log.platform] || "bg-[#3B82F6]"}`}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold ${PLATFORM_COLORS[log.platform] || "bg-[var(--color-gold)]"}`}
                 >
                   {PLATFORM_LETTERS[log.platform] || "?"}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-medium text-[#111827] truncate">
+                  <p className="text-xs font-medium text-[var(--color-dark)] truncate">
                     {log.content_json?.headline ||
                       log.angle ||
                       "Ad variation"}
@@ -639,11 +639,11 @@ export default function AdPublisher({
                     </p>
                   )}
                 </div>
-                <p className="text-[10px] text-[#9CA3AF]">
+                <p className="text-[10px] text-[var(--color-mid-gray)]">
                   {new Date(log.created_at).toLocaleDateString()}
                 </p>
                 <span
-                  className={`text-xs px-2 py-1 rounded font-medium text-center ${PUBLISH_STATUS_STYLES[log.status] || "bg-black/[0.04] text-[#9CA3AF]"}`}
+                  className={`text-xs px-2 py-1 rounded font-medium text-center ${PUBLISH_STATUS_STYLES[log.status] || "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"}`}
                 >
                   {log.status}
                 </span>
@@ -653,7 +653,7 @@ export default function AdPublisher({
                       href={log.external_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-[#3B82F6] hover:text-blue-400 flex items-center gap-1 transition-colors"
+                      className="text-xs text-[var(--color-gold)] hover:text-[var(--color-blue)] flex items-center gap-1 transition-colors"
                     >
                       View <ExternalLink size={10} />
                     </a>
@@ -667,9 +667,9 @@ export default function AdPublisher({
 
       {/* Empty publish log */}
       {publishLog.length === 0 && connectedPlatforms.length > 0 && (
-        <div className="text-center py-6 border border-black/[0.08] rounded-xl bg-white">
-          <Clock size={24} className="mx-auto mb-2 text-[#9CA3AF]" />
-          <p className="text-sm text-[#9CA3AF]">
+        <div className="text-center py-6 border border-[var(--border-subtle)] rounded-xl bg-[var(--bg-elevated)]">
+          <Clock size={24} className="mx-auto mb-2 text-[var(--color-mid-gray)]" />
+          <p className="text-sm text-[var(--color-mid-gray)]">
             No publish history yet. Publish your first ad above.
           </p>
         </div>

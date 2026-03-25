@@ -261,7 +261,7 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
       // URL fetch
       sourceUrl = urlInput!;
       const fetchRes = await fetch(sourceUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; StowStack/1.0)" },
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; StorageAds/1.0)" },
       });
       if (!fetchRes.ok)
         return errorResponse(`Failed to fetch URL: ${fetchRes.status}`, 400, origin);

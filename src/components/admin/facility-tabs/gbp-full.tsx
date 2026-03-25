@@ -143,17 +143,17 @@ type Section = "posts" | "reviews" | "qa" | "insights" | "sync" | "settings"
 // Helpers
 // ---------------------------------------------------------------------------
 
-const card = "bg-white border border-black/[0.08] rounded-xl"
-const textPrimary = "text-[#111827]"
-const textSecondary = "text-[#6B7280]"
-const textTertiary = "text-[#9CA3AF]"
-const accent = "bg-[#3B82F6]"
+const card = "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl"
+const textPrimary = "text-[var(--color-dark)]"
+const textSecondary = "text-[var(--color-body-text)]"
+const textTertiary = "text-[var(--color-mid-gray)]"
+const accent = "bg-[var(--color-gold)]"
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border border-black/[0.08] bg-[#F9FAFB] text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]"
+  "w-full px-3 py-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light)] text-sm text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:ring-1 focus:ring-[var(--color-gold)]"
 const btnPrimary =
-  "px-4 py-2 text-xs font-semibold bg-[#3B82F6] text-white rounded-lg hover:bg-[#3B82F6]/90 disabled:opacity-50 transition-colors"
+  "px-4 py-2 text-xs font-semibold bg-[var(--color-gold)] text-[var(--color-light)] rounded-lg hover:bg-[var(--color-gold)]/90 disabled:opacity-50 transition-colors"
 const btnSecondary =
-  "px-3 py-1.5 text-xs font-medium rounded-lg border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03] transition-colors"
+  "px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] transition-colors"
 
 function formatDate(iso: string | null) {
   if (!iso) return "\u2014"
@@ -167,8 +167,8 @@ function formatDate(iso: string | null) {
 }
 
 const postStatusColors: Record<string, string> = {
-  draft: "bg-black/[0.04] text-[#6B7280]",
-  scheduled: "bg-blue-500/10 text-blue-400",
+  draft: "bg-[var(--color-light-gray)] text-[var(--color-body-text)]",
+  scheduled: "bg-[var(--color-blue)]/10 text-[var(--color-blue)]",
   published: "bg-emerald-500/10 text-emerald-400",
   failed: "bg-red-500/10 text-red-400",
 }
@@ -177,11 +177,11 @@ const responseStatusColors: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-400",
   ai_drafted: "bg-purple-500/10 text-purple-400",
   published: "bg-emerald-500/10 text-emerald-400",
-  skipped: "bg-black/[0.04] text-[#9CA3AF]",
+  skipped: "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]",
 }
 
 function chipClass(status: string, colorMap: Record<string, string>) {
-  return `px-2 py-0.5 rounded-full text-xs font-semibold ${colorMap[status] || "bg-black/[0.04] text-[#6B7280]"}`
+  return `px-2 py-0.5 rounded-full text-xs font-semibold ${colorMap[status] || "bg-[var(--color-light-gray)] text-[var(--color-body-text)]"}`
 }
 
 // ---------------------------------------------------------------------------
@@ -703,7 +703,7 @@ export default function GBPFull({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={20} className="animate-spin text-[#3B82F6] mr-2" />
+        <Loader2 size={20} className="animate-spin text-[var(--color-gold)] mr-2" />
         <span className={textSecondary}>Loading Google Business Profile...</span>
       </div>
     )
@@ -719,7 +719,7 @@ export default function GBPFull({
               className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 connection?.status === "connected"
                   ? "bg-emerald-500/10"
-                  : "bg-black/[0.03]"
+                  : "bg-[var(--color-light-gray)]"
               }`}
             >
               <MapPin
@@ -793,8 +793,8 @@ export default function GBPFull({
             onClick={() => setSection(id)}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
               section === id
-                ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                : "text-[#6B7280] hover:bg-black/[0.03]"
+                ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
             }`}
           >
             <Icon size={13} /> {label}
@@ -1040,7 +1040,7 @@ export default function GBPFull({
               </p>
             </div>
           ) : (
-            <div className={`${card} divide-y divide-black/[0.08]`}>
+            <div className={`${card} divide-y divide-[var(--border-subtle)]`}>
               {posts.map((post) => (
                 <div key={post.id} className="p-4">
                   <div className="flex items-start gap-3">
@@ -1051,7 +1051,7 @@ export default function GBPFull({
                         >
                           {post.status}
                         </span>
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-black/[0.04] text-[#6B7280]">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)]">
                           {post.post_type}
                         </span>
                         {post.ai_generated && (
@@ -1098,7 +1098,7 @@ export default function GBPFull({
                     </div>
                     <button
                       onClick={() => deletePost(post.id)}
-                      className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10 text-[#9CA3AF] hover:text-red-400"
+                      className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10 text-[var(--color-mid-gray)] hover:text-red-400"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -1170,7 +1170,7 @@ export default function GBPFull({
                       <span className={`text-xs w-8 text-right ${textPrimary}`}>
                         {rating} \u2605
                       </span>
-                      <div className="flex-1 h-4 rounded-full overflow-hidden bg-black/[0.04]">
+                      <div className="flex-1 h-4 rounded-full overflow-hidden bg-[var(--color-light-gray)]">
                         <div
                           className={`h-full rounded-full transition-all ${
                             rating >= 4
@@ -1200,8 +1200,8 @@ export default function GBPFull({
                   onClick={() => setReviewFilter(f)}
                   className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                     reviewFilter === f
-                      ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                      : "text-[#6B7280] hover:bg-black/[0.03]"
+                      ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                      : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
                   }`}
                 >
                   {f === "all"
@@ -1442,8 +1442,8 @@ export default function GBPFull({
                   onClick={() => setQaFilter(f)}
                   className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                     qaFilter === f
-                      ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                      : "text-[#6B7280] hover:bg-black/[0.03]"
+                      ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                      : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
                   }`}
                 >
                   {f === "all"
@@ -1513,8 +1513,8 @@ export default function GBPFull({
               {filteredQuestions.map((q) => (
                 <div key={q.id} className={card + " p-4"}>
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-blue-500/10">
-                      <HelpCircle size={14} className="text-blue-400" />
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-blue)]/10">
+                      <HelpCircle size={14} className="text-[var(--color-blue)]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -1655,8 +1655,8 @@ export default function GBPFull({
                     onClick={() => setInsightsRange(val)}
                     className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                       insightsRange === val
-                        ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                        : "text-[#6B7280] hover:bg-black/[0.03]"
+                        ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                        : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
                     }`}
                   >
                     {label}
@@ -1698,7 +1698,7 @@ export default function GBPFull({
                     label: "Search Views",
                     value: insightsSummary.search_views,
                     icon: Search,
-                    color: "text-blue-400",
+                    color: "text-[var(--color-blue)]",
                   },
                   {
                     label: "Maps Views",
@@ -1743,7 +1743,7 @@ export default function GBPFull({
               <div className="grid grid-cols-2 gap-3">
                 <div className={card + " p-4"}>
                   <div className="flex items-center gap-2 mb-1">
-                    <Eye size={14} className="text-blue-400" />
+                    <Eye size={14} className="text-[var(--color-blue)]" />
                     <span className={`text-xs font-medium ${textTertiary}`}>
                       Total Impressions
                     </span>
@@ -1780,7 +1780,7 @@ export default function GBPFull({
                     Action Rate
                   </h4>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-6 rounded-full overflow-hidden bg-black/[0.04]">
+                    <div className="flex-1 h-6 rounded-full overflow-hidden bg-[var(--color-light-gray)]">
                       <div
                         className="h-full rounded-full bg-emerald-500 transition-all"
                         style={{
@@ -1825,32 +1825,32 @@ export default function GBPFull({
                     >
                       <CartesianGrid
                         strokeDasharray="3 3"
-                        stroke="rgba(255,255,255,0.06)"
+                        stroke="var(--border-subtle)"
                       />
                       <XAxis
                         dataKey="period"
-                        tick={{ fill: "#6E6E73", fontSize: 11 }}
-                        axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
+                        tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
+                        axisLine={{ stroke: "var(--border-subtle)" }}
                         tickLine={false}
                       />
                       <YAxis
-                        tick={{ fill: "#6E6E73", fontSize: 11 }}
-                        axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
+                        tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
+                        axisLine={{ stroke: "var(--border-subtle)" }}
                         tickLine={false}
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "#FFFFFF",
-                          border: "1px solid rgba(255,255,255,0.06)",
+                          backgroundColor: "var(--bg-elevated)",
+                          border: "1px solid var(--border-subtle)",
                           borderRadius: "8px",
-                          color: "#111827",
+                          color: "var(--color-dark)",
                           fontSize: "12px",
                         }}
                       />
                       <Line
                         type="monotone"
                         dataKey="impressions"
-                        stroke="#3B82F6"
+                        stroke="var(--color-gold)"
                         strokeWidth={2}
                         dot={false}
                         name="Impressions"
@@ -1858,7 +1858,7 @@ export default function GBPFull({
                       <Line
                         type="monotone"
                         dataKey="actions"
-                        stroke="#10B981"
+                        stroke="var(--color-green)"
                         strokeWidth={2}
                         dot={false}
                         name="Actions"
@@ -1871,7 +1871,7 @@ export default function GBPFull({
               {/* Historical table */}
               {insights.length > 1 && (
                 <div className={card}>
-                  <div className="p-4 border-b border-black/[0.08]">
+                  <div className="p-4 border-b border-[var(--border-subtle)]">
                     <h4 className={`text-sm font-semibold ${textPrimary}`}>
                       Historical Performance
                     </h4>
@@ -1900,11 +1900,11 @@ export default function GBPFull({
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-black/[0.08]">
+                      <tbody className="divide-y divide-[var(--border-subtle)]">
                         {insights.map((i) => (
                           <tr
                             key={i.id}
-                            className="hover:bg-black/[0.03]"
+                            className="hover:bg-[var(--color-light-gray)]"
                           >
                             <td className={`px-4 py-2 ${textPrimary}`}>
                               {i.period_start} \u2014 {i.period_end}
@@ -2049,12 +2049,12 @@ export default function GBPFull({
 
           {syncLog.length > 0 && (
             <div className={card}>
-              <div className="p-4 border-b border-black/[0.08]">
+              <div className="p-4 border-b border-[var(--border-subtle)]">
                 <h4 className={`text-sm font-semibold ${textPrimary}`}>
                   Sync History
                 </h4>
               </div>
-              <div className="divide-y divide-black/[0.08]">
+              <div className="divide-y divide-[var(--border-subtle)]">
                 {syncLog.map((log) => (
                   <div
                     key={log.id}
@@ -2099,7 +2099,7 @@ export default function GBPFull({
             <div className="flex items-center justify-center py-10">
               <Loader2
                 size={20}
-                className="animate-spin text-[#3B82F6] mr-2"
+                className="animate-spin text-[var(--color-gold)] mr-2"
               />
               <span className={textSecondary}>Loading settings...</span>
             </div>
@@ -2155,8 +2155,8 @@ export default function GBPFull({
                         connection?.sync_config?.[
                           setting.key as keyof typeof connection.sync_config
                         ]
-                          ? "bg-[#3B82F6]"
-                          : "bg-black/[0.06]"
+                          ? "bg-[var(--color-gold)]"
+                          : "bg-[var(--color-light-gray)]"
                       } ${!connection ? "opacity-40" : ""}`}
                     >
                       <span
@@ -2199,8 +2199,8 @@ export default function GBPFull({
                     }
                     className={`relative w-11 h-6 rounded-full transition-colors ${
                       reviewSettings.auto_respond
-                        ? "bg-[#3B82F6]"
-                        : "bg-black/[0.06]"
+                        ? "bg-[var(--color-gold)]"
+                        : "bg-[var(--color-light-gray)]"
                     }`}
                   >
                     <span
@@ -2237,9 +2237,9 @@ export default function GBPFull({
                         min_rating: Number(e.target.value),
                       })
                     }
-                    className="w-full accent-[#3B82F6]"
+                    className="w-full accent-[var(--color-gold)]"
                   />
-                  <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-0.5">
+                  <div className="flex justify-between text-[10px] text-[var(--color-mid-gray)] mt-0.5">
                     <span>1 star</span>
                     <span>2 stars</span>
                     <span>3 stars</span>
@@ -2280,15 +2280,15 @@ export default function GBPFull({
                         }
                         className={`px-3 py-2 rounded-lg border text-left transition-all ${
                           reviewSettings.response_tone === t.value
-                            ? "bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]"
-                            : "border-black/[0.08] text-[#6B7280] hover:bg-black/[0.03]"
+                            ? "bg-[var(--color-gold)]/10 border-[var(--color-gold)]/30 text-[var(--color-gold)]"
+                            : "border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
                         }`}
                       >
                         <p className="text-xs font-medium">{t.label}</p>
                         <p
                           className={`text-[10px] mt-0.5 ${
                             reviewSettings.response_tone === t.value
-                              ? "text-[#3B82F6]/70"
+                              ? "text-[var(--color-gold)]/70"
                               : textTertiary
                           }`}
                         >

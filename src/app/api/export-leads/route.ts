@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       headers: {
         ...getCorsHeaders(origin),
         "Content-Type": "text/csv",
-        "Content-Disposition": `attachment; filename=stowstack-leads-${date}.csv`,
+        "Content-Disposition": `attachment; filename=storageads-leads-${date}.csv`,
       },
     });
   } catch {

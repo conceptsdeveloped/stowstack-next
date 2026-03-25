@@ -19,7 +19,7 @@ export default function Footer() {
   return (
     <footer
       style={{
-        background: "var(--bg-void)",
+        background: "var(--color-light)",
         borderTop: "1px solid var(--border-subtle)",
       }}
     >
@@ -27,7 +27,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand */}
           <div>
-            <p className="text-lg font-bold text-[#111827] mb-2">StowStack</p>
+            <p className="text-lg mb-2" style={{ fontFamily: "var(--font-heading)", fontWeight: 600, letterSpacing: "-0.5px" }}>
+              <span style={{ color: "var(--color-dark)" }}>storage</span><span style={{ color: "var(--color-gold)" }}>ads</span>
+            </p>
             <p
               className="text-sm"
               style={{ color: "var(--text-tertiary)" }}
@@ -79,12 +81,12 @@ export default function Footer() {
               Contact
             </p>
             <a
-              href="mailto:blake@stowstack.co"
+              href="mailto:blake@storageads.com"
               className="flex items-center gap-2 text-sm mb-6"
               style={{ color: "var(--text-secondary)" }}
             >
               <Mail size={14} />
-              blake@stowstack.co
+              blake@storageads.com
             </a>
 
             <p
@@ -118,7 +120,7 @@ export default function Footer() {
             color: "var(--text-tertiary)",
           }}
         >
-          &copy; {new Date().getFullYear()} StowStack. All rights reserved.
+          &copy; {new Date().getFullYear()} StorageAds. All rights reserved.
         </div>
       </div>
     </footer>

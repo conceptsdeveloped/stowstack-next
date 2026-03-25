@@ -91,14 +91,14 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "StowStack Partners <partners@stowstack.co>",
+          from: "StorageAds Partners <partners@storageads.com>",
           to: email,
-          subject: `Welcome to StowStack — ${companyName} Partner Account`,
+          subject: `Welcome to StorageAds — ${companyName} Partner Account`,
           html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 24px; border-radius: 12px 12px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 20px;">Welcome to StowStack</h1>
-                <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 14px;">Partner Portal Access</p>
+                <h1 style="color: white; margin: 0; font-size: 20px;">Welcome to StorageAds</h1>
+                <p style="color: var(--color-dark); margin: 8px 0 0; font-size: 14px;">Partner Portal Access</p>
               </div>
               <div style="padding: 24px; border: 1px solid #e2e8f0; border-top: 0; border-radius: 0 0 12px 12px;">
                 <p style="color: #334155; font-size: 15px;">Hi ${contactName},</p>
@@ -109,8 +109,8 @@ export async function POST(req: NextRequest) {
                   <p style="margin: 0 0 4px; font-size: 14px;"><strong>Email:</strong> ${email}</p>
                   <p style="margin: 0; font-size: 14px;"><strong>Temporary Password:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${tempPassword}</code></p>
                 </div>
-                <p style="color: #334155; font-size: 14px;">Sign in at <strong>stowstack.co/partner</strong> to get started.</p>
-                <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">— The StowStack Team</p>
+                <p style="color: #334155; font-size: 14px;">Sign in at <strong>storageads.com/partner</strong> to get started.</p>
+                <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">— The StorageAds Team</p>
               </div>
             </div>
           `,

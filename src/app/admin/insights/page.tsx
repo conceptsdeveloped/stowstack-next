@@ -73,12 +73,12 @@ const FUNNEL_STAGES = [
 ];
 
 const FUNNEL_COLORS: Record<number, string> = {
-  0: "#6E6E73",
+  0: "var(--color-mid-gray)",
   1: "#525258",
   2: "#4B5EA6",
   3: "#3B6FD0",
   4: "#3B7EE6",
-  5: "#3B82F6",
+  5: "var(--color-gold)",
 };
 
 const EVENT_CONFIG: Record<
@@ -86,8 +86,8 @@ const EVENT_CONFIG: Record<
   { color: string; icon: typeof Activity }
 > = {
   lead_created: { color: "#22C55E", icon: UserPlus },
-  status_change: { color: "#3B82F6", icon: Activity },
-  note_added: { color: "#6E6E73", icon: MessageSquare },
+  status_change: { color: "var(--color-gold)", icon: Activity },
+  note_added: { color: "var(--color-mid-gray)", icon: MessageSquare },
   client_signed: { color: "#EAB308", icon: Award },
 };
 
@@ -99,12 +99,12 @@ function KpiSkeleton() {
           key={i}
           className="rounded-xl border p-5 animate-pulse"
           style={{
-            backgroundColor: "#FFFFFF",
-            borderColor: "rgba(0,0,0,0.08)",
+            backgroundColor: "var(--bg-elevated)",
+            borderColor: "var(--border-subtle)",
           }}
         >
-          <div className="h-3 w-24 rounded bg-black/5 mb-3" />
-          <div className="h-8 w-16 rounded bg-black/5" />
+          <div className="h-3 w-24 rounded bg-[var(--color-dark)]/5 mb-3" />
+          <div className="h-8 w-16 rounded bg-[var(--color-dark)]/5" />
         </div>
       ))}
     </div>
@@ -118,12 +118,12 @@ function FeedSkeleton() {
         <div
           key={i}
           className="flex items-start gap-3 rounded-lg p-3 animate-pulse"
-          style={{ backgroundColor: "#FFFFFF" }}
+          style={{ backgroundColor: "var(--bg-elevated)" }}
         >
-          <div className="h-8 w-8 rounded-full bg-black/5 shrink-0" />
+          <div className="h-8 w-8 rounded-full bg-[var(--color-dark)]/5 shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-3/4 rounded bg-black/5" />
-            <div className="h-3 w-1/2 rounded bg-black/5" />
+            <div className="h-3 w-3/4 rounded bg-[var(--color-dark)]/5" />
+            <div className="h-3 w-1/2 rounded bg-[var(--color-dark)]/5" />
           </div>
         </div>
       ))}
@@ -177,7 +177,7 @@ export default function InsightsPage() {
           label: "Avg Days to Sign",
           value: `${analytics.avg_days_to_sign.toFixed(1)}`,
           icon: Clock,
-          color: "#3B82F6",
+          color: "var(--color-gold)",
         },
         {
           label: "Avg Days in Pipeline",
@@ -205,10 +205,10 @@ export default function InsightsPage() {
   return (
     <div className="space-y-8 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>
           Performance Insights
         </h1>
-        <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
+        <p className="text-sm mt-1" style={{ color: "var(--color-mid-gray)" }}>
           Lead analytics and conversion metrics
         </p>
       </div>
@@ -237,17 +237,17 @@ export default function InsightsPage() {
                 key={kpi.label}
                 className="rounded-xl border p-5"
                 style={{
-                  backgroundColor: "#FFFFFF",
-                  borderColor: "rgba(0,0,0,0.08)",
+                  backgroundColor: "var(--bg-elevated)",
+                  borderColor: "var(--border-subtle)",
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={16} style={{ color: kpi.color }} />
-                  <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>
+                  <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>
                     {kpi.label}
                   </span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "#111827" }}>
+                <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>
                   {kpi.value}
                 </p>
               </div>
@@ -260,11 +260,11 @@ export default function InsightsPage() {
         <div
           className="rounded-xl border p-6"
           style={{
-            backgroundColor: "#FFFFFF",
-            borderColor: "rgba(0,0,0,0.08)",
+            backgroundColor: "var(--bg-elevated)",
+            borderColor: "var(--border-subtle)",
           }}
         >
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "#111827" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--color-dark)" }}>
             Conversion Funnel
           </h2>
           <div className="space-y-3">
@@ -282,7 +282,7 @@ export default function InsightsPage() {
                   <div className="flex items-center gap-3">
                     <span
                       className="text-xs w-32 shrink-0 text-right"
-                      style={{ color: "#6B7280" }}
+                      style={{ color: "var(--color-body-text)" }}
                     >
                       {step.label || step.stage.replace(/_/g, " ")}
                     </span>
@@ -292,13 +292,13 @@ export default function InsightsPage() {
                         style={{
                           width: `${widthPct}%`,
                           backgroundColor:
-                            FUNNEL_COLORS[idx] || "#3B82F6",
+                            FUNNEL_COLORS[idx] || "var(--color-gold)",
                           minWidth: "40px",
                         }}
                       >
                         <span
                           className="text-xs font-medium"
-                          style={{ color: "#111827" }}
+                          style={{ color: "var(--color-dark)" }}
                         >
                           {step.count}
                         </span>
@@ -307,7 +307,7 @@ export default function InsightsPage() {
                     {conversionPct && (
                       <span
                         className="text-xs shrink-0 w-14 text-right"
-                        style={{ color: "#6E6E73" }}
+                        style={{ color: "var(--color-mid-gray)" }}
                       >
                         {conversionPct}%
                       </span>
@@ -324,35 +324,35 @@ export default function InsightsPage() {
         <div
           className="rounded-xl border p-6"
           style={{
-            backgroundColor: "#FFFFFF",
-            borderColor: "rgba(0,0,0,0.08)",
+            backgroundColor: "var(--bg-elevated)",
+            borderColor: "var(--border-subtle)",
           }}
         >
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "#111827" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--color-dark)" }}>
             Weekly Lead Velocity
           </h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics.velocity}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                 <XAxis
                   dataKey="week"
-                  tick={{ fill: "#6E6E73", fontSize: 12 }}
-                  axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
+                  axisLine={{ stroke: "var(--border-subtle)" }}
                 />
                 <YAxis
-                  tick={{ fill: "#6E6E73", fontSize: 12 }}
-                  axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
+                  axisLine={{ stroke: "var(--border-subtle)" }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#F3F4F6",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    backgroundColor: "var(--color-light-gray)",
+                    border: "1px solid var(--border-medium)",
                     borderRadius: "8px",
-                    color: "#111827",
+                    color: "var(--color-dark)",
                   }}
                 />
-                <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" fill="var(--color-gold)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -362,11 +362,11 @@ export default function InsightsPage() {
       <div
         className="rounded-xl border p-6"
         style={{
-          backgroundColor: "#FFFFFF",
-          borderColor: "rgba(0,0,0,0.08)",
+          backgroundColor: "var(--bg-elevated)",
+          borderColor: "var(--border-subtle)",
         }}
       >
-        <h2 className="text-lg font-semibold mb-4" style={{ color: "#111827" }}>
+        <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--color-dark)" }}>
           Activity Feed
         </h2>
 
@@ -386,7 +386,7 @@ export default function InsightsPage() {
               return (
                 <div
                   key={event.id}
-                  className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-black/[0.03]"
+                  className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-[var(--color-light-gray)]"
                 >
                   <div
                     className="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
@@ -395,10 +395,10 @@ export default function InsightsPage() {
                     <Icon size={14} style={{ color: config.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm" style={{ color: "#111827" }}>
+                    <p className="text-sm" style={{ color: "var(--color-dark)" }}>
                       {event.description}
                     </p>
-                    <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "#6E6E73" }}>
+                    <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "var(--color-mid-gray)" }}>
                       {event.lead_name && <span>{event.lead_name}</span>}
                       {event.facility && (
                         <>
@@ -416,8 +416,8 @@ export default function InsightsPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <Activity size={32} className="mx-auto mb-3" style={{ color: "#6E6E73" }} />
-            <p className="text-sm" style={{ color: "#6E6E73" }}>
+            <Activity size={32} className="mx-auto mb-3" style={{ color: "var(--color-mid-gray)" }} />
+            <p className="text-sm" style={{ color: "var(--color-mid-gray)" }}>
               No recent activity
             </p>
           </div>

@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     const testPayload = {
       event: "webhook.test",
       data: {
-        message: "This is a test webhook from StowStack",
+        message: "This is a test webhook from StorageAds",
         webhookId: webhook.id,
       },
       timestamp: new Date().toISOString(),
@@ -107,9 +107,9 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-StowStack-Event": "webhook.test",
-          "X-StowStack-Signature": `sha256=${signature}`,
-          "X-StowStack-Delivery": crypto.randomUUID(),
+          "X-StorageAds-Event": "webhook.test",
+          "X-StorageAds-Signature": `sha256=${signature}`,
+          "X-StorageAds-Delivery": crypto.randomUUID(),
         },
         body,
         signal: controller.signal,

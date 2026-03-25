@@ -1,5 +1,5 @@
 {
-  "name": "stowstack-next",
+  "name": "storageads-next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -25,6 +25,7 @@
     "react-dom": "19.2.4",
     "recharts": "^3.8.0",
     "resend": "^6.9.4",
+    "sharp": "^0.34.5",
     "stripe": "^20.4.1",
     "twilio": "^5.13.0",
     "web-push": "^3.6.7"

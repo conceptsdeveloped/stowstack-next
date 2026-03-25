@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            from: `${facilityName} <notifications@stowstack.co>`,
+            from: `${facilityName} <notifications@storageads.com>`,
             to: tenantEmail.trim(),
             subject: `How's your experience at ${facilityName}?`,
             html: `
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
                 <p>Thanks for choosing <strong>${esc(facilityName)}</strong> for your storage needs. We hope everything has been going well.</p>
                 <p>If you have a minute, we would really appreciate a quick Google review. It helps other people in the area find us, and it means a lot to our team.</p>
                 <p style="margin:24px 0;">
-                  <a href="${reviewUrl}" style="display:inline-block;padding:14px 28px;background:#16a34a;color:white;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;">Leave a Review</a>
+                  <a href="${reviewUrl}" style="display:inline-block;padding:14px 28px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;">Leave a Review</a>
                 </p>
                 <p>Takes about 30 seconds. Thank you for being a great tenant.</p>
                 <p style="margin-top:24px;color:#666;">

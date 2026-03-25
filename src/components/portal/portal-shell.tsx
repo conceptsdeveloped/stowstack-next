@@ -28,7 +28,6 @@ import {
   clearPortalSession,
   firstName,
 } from "@/lib/portal-helpers";
-import ThemeToggle from "@/components/theme-toggle";
 
 /* ─── context ─── */
 
@@ -185,14 +184,14 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)] px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#3B82F6]/10">
-            <Building2 className="h-7 w-7 text-[#3B82F6]" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-gold)]/10">
+            <Building2 className="h-7 w-7 text-[var(--color-gold)]" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#111827]">Client Portal</h1>
-          <p className="mt-2 text-sm text-[#9CA3AF]">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--color-dark)]">Client Portal</h1>
+          <p className="mt-2 text-sm text-[var(--color-mid-gray)]">
             {step === "email"
               ? "Enter your email to receive a login code"
               : `Enter the 4-digit code sent to ${email}`}
@@ -202,9 +201,9 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
         {step === "email" ? (
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#6B7280]">Email</label>
+              <label className="mb-1.5 block text-xs font-medium text-[var(--color-body-text)]">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
                 <input
                   type="email"
                   value={email}
@@ -212,7 +211,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
                   placeholder="you@facility.com"
                   required
                   autoFocus
-                  className="w-full rounded-lg border border-black/[0.08] bg-white py-3 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]/50 focus:ring-1 focus:ring-[#3B82F6]/25"
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-3 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
                 />
               </div>
             </div>
@@ -225,7 +224,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
             <button
               type="submit"
               disabled={resending}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3B82F6] py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-gold)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
             >
               {resending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               {resending ? "Sending Code..." : "Send Login Code"}
@@ -246,12 +245,12 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
                   onKeyDown={(e) => handleCodeKeyDown(i, e)}
                   onPaste={handleCodePaste}
                   autoFocus={i === 0}
-                  className="h-14 w-14 rounded-xl border border-black/[0.08] bg-white text-center text-2xl font-bold text-[#111827] outline-none transition-all focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/25"
+                  className="h-14 w-14 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-center text-2xl font-bold text-[var(--color-dark)] outline-none transition-all focus:border-[var(--color-gold)] focus:ring-2 focus:ring-[var(--color-gold)]/25"
                 />
               ))}
             </div>
             {loading && (
-              <div className="flex items-center justify-center gap-2 text-sm text-[#6B7280]">
+              <div className="flex items-center justify-center gap-2 text-sm text-[var(--color-body-text)]">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Verifying...
               </div>
@@ -263,10 +262,10 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
               </div>
             )}
             <div className="flex flex-col items-center gap-2 pt-2">
-              <button type="button" onClick={handleResendCode} disabled={resending || resent} className="text-xs text-[#9CA3AF] hover:text-[#6B7280]">
+              <button type="button" onClick={handleResendCode} disabled={resending || resent} className="text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]">
                 {resending ? "Sending..." : resent ? "New code sent!" : "Didn't get a code? Resend"}
               </button>
-              <button type="button" onClick={() => { setStep("email"); setCode(["","","",""]); setError(""); }} className="text-xs text-[#9CA3AF] hover:text-[#6B7280]">
+              <button type="button" onClick={() => { setStep("email"); setCode(["","","",""]); setError(""); }} className="text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]">
                 Use a different email
               </button>
             </div>
@@ -284,13 +283,13 @@ function Sidebar({ client, mobileOpen, onClose }: { client: ClientData; mobileOp
 
   const content = (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.08] px-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#3B82F6]/10 text-sm font-bold text-[#3B82F6]">
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] px-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-gold)]/10 text-sm font-bold text-[var(--color-gold)]">
           {firstName(client.name).charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-[#111827]">{client.facilityName}</p>
-          <p className="truncate text-[10px] text-[#9CA3AF]">{client.location}</p>
+          <p className="truncate text-sm font-semibold text-[var(--color-dark)]">{client.facilityName}</p>
+          <p className="truncate text-[10px] text-[var(--color-mid-gray)]">{client.location}</p>
         </div>
       </div>
       <nav className="flex-1 overflow-y-auto px-3 py-4">
@@ -307,11 +306,11 @@ function Sidebar({ client, mobileOpen, onClose }: { client: ClientData; mobileOp
                   onClick={onClose}
                   className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
                     isActive
-                      ? "bg-[#3B82F6]/15 font-medium text-[#111827]"
-                      : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
+                      ? "bg-[var(--color-gold)]/15 font-medium text-[var(--color-dark)]"
+                      : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)]"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#3B82F6]" : ""}`} />
+                  <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[var(--color-gold)]" : ""}`} />
                   <span>{item.label}</span>
                 </Link>
               </li>
@@ -327,10 +326,10 @@ function Sidebar({ client, mobileOpen, onClose }: { client: ClientData; mobileOp
       {mobileOpen && (
         <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden" onClick={onClose} />
       )}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-black/[0.08] bg-[#F9FAFB] transition-transform duration-200 md:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-[var(--border-subtle)] bg-[var(--color-light)] transition-transform duration-200 md:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {content}
       </aside>
-      <aside className="hidden w-64 shrink-0 border-r border-black/[0.08] bg-[#F9FAFB] md:block">
+      <aside className="hidden w-64 shrink-0 border-r border-[var(--border-subtle)] bg-[var(--color-light)] md:block">
         {content}
       </aside>
     </>
@@ -352,15 +351,14 @@ function PortalHeader({ client, onToggle, onLogout }: { client: ClientData; onTo
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-black/[0.08] bg-[#F9FAFB]/80 px-4 backdrop-blur-xl md:px-6">
-      <button type="button" onClick={onToggle} className="rounded-lg p-2 text-[#6B7280] hover:bg-black/[0.04] md:hidden">
+    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 px-4 backdrop-blur-xl md:px-6">
+      <button type="button" onClick={onToggle} className="rounded-lg p-2 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] md:hidden">
         <Menu className="h-5 w-5" />
       </button>
-      <h1 className="text-base font-semibold text-[#111827]">{titles[pathname] ?? "Portal"}</h1>
+      <h1 className="text-base font-semibold text-[var(--color-dark)]">{titles[pathname] ?? "Portal"}</h1>
       <div className="ml-auto flex items-center gap-3">
-        <span className="hidden text-xs text-[#9CA3AF] sm:inline">{client.email}</span>
-        <ThemeToggle />
-        <button type="button" onClick={onLogout} className="rounded-lg border border-black/[0.08] bg-white px-3 py-1.5 text-xs text-[#6B7280] hover:text-[#111827]">
+        <span className="hidden text-xs text-[var(--color-mid-gray)] sm:inline">{client.email}</span>
+        <button type="button" onClick={onLogout} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs text-[var(--color-body-text)] hover:text-[var(--color-dark)]">
           Sign Out
         </button>
       </div>
@@ -416,15 +414,15 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#3B82F6]" />
+      <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)]">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-gold)]" />
       </div>
     );
   }
 
   if (!session || !client) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--color-light)]">
         {authError && (
           <div className="mx-auto max-w-sm px-4 pt-6">
             <div className="flex items-center gap-2 rounded-lg bg-amber-500/[0.08] p-3 text-sm text-amber-400">
@@ -440,7 +438,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
 
   return (
     <PortalCtx.Provider value={{ session, client, authFetch }}>
-      <div className="flex h-screen overflow-hidden bg-white">
+      <div className="flex h-screen overflow-hidden bg-[var(--color-light)]">
         <Sidebar client={client} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
         <div className="flex flex-1 flex-col overflow-hidden">
           <PortalHeader client={client} onToggle={() => setMobileOpen((v) => !v)} onLogout={handleLogout} />

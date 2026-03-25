@@ -1,14 +1,14 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
-import type { StowStackRole } from "./clerk-roles";
+import type { StorageAdsRole } from "./clerk-roles";
 
-export type { StowStackRole };
+export type { StorageAdsRole };
 export { VA_RESTRICTED_PATHS } from "./clerk-roles";
 
 /**
  * Server-side: get the current Clerk user's role from publicMetadata.
  * Returns null if not signed in or no role is set.
  */
-export async function getClerkRole(): Promise<StowStackRole | null> {
+export async function getClerkRole(): Promise<StorageAdsRole | null> {
   const user = await currentUser();
   if (!user) return null;
   const role = (user.publicMetadata as Record<string, unknown>)?.role;
@@ -16,7 +16,7 @@ export async function getClerkRole(): Promise<StowStackRole | null> {
     typeof role === "string" &&
     ["admin", "virtual_assistant", "client", "partner"].includes(role)
   ) {
-    return role as StowStackRole;
+    return role as StorageAdsRole;
   }
   return null;
 }
@@ -32,7 +32,7 @@ export async function isClerkAuthenticated(): Promise<boolean> {
 /**
  * Server-side: check if the current user has a specific role.
  */
-export async function hasRole(role: StowStackRole): Promise<boolean> {
+export async function hasRole(role: StorageAdsRole): Promise<boolean> {
   const userRole = await getClerkRole();
   return userRole === role;
 }

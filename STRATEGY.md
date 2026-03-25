@@ -246,7 +246,7 @@ For each competitor within the 5-mile radius:
 - Cost per move-in $125-$200 = needs optimization
 - Cost per move-in over $200 = campaign review required
 
-### StowStack Advantage
+### StorageAds Advantage
 
 Our funnel (ad → storageads.com landing page → storEDGE embed → reserve) should consistently outperform industry averages because:
 - Landing pages load in under 1 second (vs. 3-5 for operator websites)
@@ -291,7 +291,7 @@ Meta's Andromeda system determines which ads get shown and at what cost. The ran
 - **Estimated Action Rate**: How likely the user is to take the desired action. Driven by creative relevance, historical performance, and audience match.
 - **User Value**: How positive the experience is for the user. Low negative feedback, high engagement, native-feeling content.
 
-### What This Means for StowStack
+### What This Means for StorageAds
 
 1. **Creative quality is the lever.** Better creative = higher estimated action rate = lower costs = more impressions.
 2. **Relevance signals matter.** Local references, specific pricing, specific unit types — all increase relevance scoring.
@@ -427,7 +427,7 @@ Every customer archetype experiences a different journey. The ad they see, where
 
 5. **Every touchpoint fires an event.** Ad click → page view → form start → reservation start → reservation complete → move-in. If any step in the attribution chain breaks, fix it before doing anything else. We report cost per move-in. That requires the full chain.
 
-6. **The funnel is the product.** StowStack doesn't just make ads. It builds the entire path from impression to move-in. The domain (storageads.com), the edge-served pages, the embedded reservation, the full-funnel attribution — that's the system. Each piece makes the other pieces work.
+6. **The funnel is the product.** StorageAds doesn't just make ads. It builds the entire path from impression to move-in. The domain (storageads.com), the edge-served pages, the embedded reservation, the full-funnel attribution — that's the system. Each piece makes the other pieces work.
 
 ---
 

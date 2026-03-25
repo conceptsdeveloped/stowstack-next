@@ -77,11 +77,11 @@ function KpiCard({ icon: Icon, label, value, prefix = "", suffix = "", change, i
   return (
     <div className="rounded-lg p-4 sm:p-5" style={{
       background: isAccent ? "var(--accent-glow)" : "var(--bg-elevated)",
-      border: isAccent ? "1px solid rgba(59,130,246,0.3)" : "1px solid var(--border-subtle)",
+      border: isAccent ? "1px solid rgba(181,139,63,0.3)" : "1px solid var(--border-subtle)",
     }}>
       <div className="flex items-center justify-between mb-3">
         <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "var(--bg-surface)" }}>
-          <Icon size={18} className={isAccent ? "text-blue-500" : "text-gray-500"} />
+          <Icon size={18} className={isAccent ? "text-[var(--color-blue)]" : "text-[var(--color-mid-gray)]"} />
         </div>
         {change && (
           <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--bg-surface)", color: "var(--text-secondary)" }}>
@@ -164,7 +164,7 @@ export default function DemoDashboardClient() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         {/* Welcome Banner */}
         <div className="rounded-xl p-6 mb-6 relative overflow-hidden" style={{ background: "var(--accent)" }}>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-black/5 rounded-full -translate-y-32 translate-x-32" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-dark)]/5 rounded-full -translate-y-32 translate-x-32" />
           <div className="relative" style={{ color: "var(--text-inverse)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={14} style={{ opacity: 0.7 }} />
@@ -228,15 +228,15 @@ export default function DemoDashboardClient() {
               <AreaChart data={[{ month: "Sep (Start)", occupancy: FACILITY.startingOccupancy }, ...visibleData]} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                 <defs>
                   <linearGradient id="occGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--color-gold)" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="var(--color-gold)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} />
-                <YAxis domain={[55, 100]} tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
-                <Tooltip formatter={(v) => [`${v}%`, "Occupancy"]} contentStyle={{ borderRadius: "8px", background: "#F3F4F6", border: "1px solid rgba(0,0,0,0.08)", fontSize: "12px", color: "#111827" }} />
-                <Area type="monotone" dataKey="occupancy" stroke="#3B82F6" strokeWidth={2.5} fill="url(#occGrad)" dot={{ r: 4, fill: "#3B82F6", strokeWidth: 2, stroke: "#FFFFFF" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} />
+                <YAxis domain={[55, 100]} tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
+                <Tooltip formatter={(v) => [`${v}%`, "Occupancy"]} contentStyle={{ borderRadius: "8px", background: "var(--color-light-gray)", border: "1px solid var(--border-medium)", fontSize: "12px", color: "var(--color-dark)" }} />
+                <Area type="monotone" dataKey="occupancy" stroke="var(--color-gold)" strokeWidth={2.5} fill="url(#occGrad)" dot={{ r: 4, fill: "var(--color-gold)", strokeWidth: 2, stroke: "var(--color-light)" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -252,13 +252,13 @@ export default function DemoDashboardClient() {
             <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>CPL decreases as Pixel data matures and audiences sharpen</p>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={visibleData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
-                <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, "CPL"]} contentStyle={{ borderRadius: "8px", background: "#F3F4F6", border: "1px solid rgba(0,0,0,0.08)", fontSize: "12px", color: "#111827" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
+                <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, "CPL"]} contentStyle={{ borderRadius: "8px", background: "var(--color-light-gray)", border: "1px solid var(--border-medium)", fontSize: "12px", color: "var(--color-dark)" }} />
                 <Bar dataKey="cpl" radius={[6, 6, 0, 0]} maxBarSize={40}>
                   {visibleData.map((_, i) => (
-                    <Cell key={i} fill={i === visibleData.length - 1 ? "#3B82F6" : "#6E6E73"} opacity={0.4 + (i / visibleData.length) * 0.6} />
+                    <Cell key={i} fill={i === visibleData.length - 1 ? "var(--color-gold)" : "var(--color-mid-gray)"} opacity={0.4 + (i / visibleData.length) * 0.6} />
                   ))}
                 </Bar>
               </BarChart>
@@ -277,12 +277,12 @@ export default function DemoDashboardClient() {
           <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>Lead volume and move-in conversions by month</p>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={visibleData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#6E6E73" }} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={{ borderRadius: "8px", background: "#F3F4F6", border: "1px solid rgba(0,0,0,0.08)", fontSize: "12px", color: "#111827" }} />
-              <Bar dataKey="leads" name="Leads" fill="#6E6E73" radius={[4, 4, 0, 0]} maxBarSize={28} />
-              <Bar dataKey="moveIns" name="Move-Ins" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
+              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ borderRadius: "8px", background: "var(--color-light-gray)", border: "1px solid var(--border-medium)", fontSize: "12px", color: "var(--color-dark)" }} />
+              <Bar dataKey="leads" name="Leads" fill="var(--color-mid-gray)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey="moveIns" name="Move-Ins" fill="var(--color-gold)" radius={[4, 4, 0, 0]} maxBarSize={28} />
             </BarChart>
           </ResponsiveContainer>
         </div>

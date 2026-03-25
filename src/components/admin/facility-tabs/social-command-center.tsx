@@ -78,9 +78,9 @@ type SubView = "calendar" | "drafts" | "published" | "metrics"
 const PLATFORM_CONFIG = {
   facebook: {
     label: "Facebook",
-    color: "bg-blue-500",
-    textColor: "text-blue-400",
-    dotColor: "bg-blue-500",
+    color: "bg-[var(--color-blue)]",
+    textColor: "text-[var(--color-blue)]",
+    dotColor: "bg-[var(--color-blue)]",
     icon: "\uD83D\uDCD8",
     charLimit: 63206,
   },
@@ -117,11 +117,11 @@ const STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; text: string }
 > = {
-  draft: { label: "Draft", bg: "bg-black/[0.04]", text: "text-[#6B7280]" },
+  draft: { label: "Draft", bg: "bg-[var(--color-light-gray)]", text: "text-[var(--color-body-text)]" },
   scheduled: {
     label: "Scheduled",
-    bg: "bg-blue-500/10",
-    text: "text-blue-400",
+    bg: "bg-[var(--color-blue)]/10",
+    text: "text-[var(--color-blue)]",
   },
   publishing: {
     label: "Publishing...",
@@ -207,7 +207,7 @@ const MONTHS = [
 ]
 
 const SEASONAL_MARKERS: Record<string, { label: string; color: string }> = {
-  "1": { label: "New Year Declutter", color: "bg-blue-500/20 text-blue-400" },
+  "1": { label: "New Year Declutter", color: "bg-[var(--color-blue)]/20 text-[var(--color-blue)]" },
   "3": {
     label: "Spring Cleaning",
     color: "bg-green-500/20 text-green-400",
@@ -235,12 +235,12 @@ const SEASONAL_MARKERS: Record<string, { label: string; color: string }> = {
 // Style constants
 // ---------------------------------------------------------------------------
 
-const cardCls = "bg-white border border-black/[0.08] rounded-xl"
-const textPrimary = "text-[#111827]"
-const textSecondary = "text-[#6B7280]"
-const textTertiary = "text-[#9CA3AF]"
+const cardCls = "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl"
+const textPrimary = "text-[var(--color-dark)]"
+const textSecondary = "text-[var(--color-body-text)]"
+const textTertiary = "text-[var(--color-mid-gray)]"
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border border-black/[0.08] bg-[#F9FAFB] text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-1 focus:ring-[#3B82F6]"
+  "w-full px-3 py-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light)] text-sm text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:ring-1 focus:ring-[var(--color-gold)]"
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -257,7 +257,7 @@ function MetricCard({
 }) {
   return (
     <div className={`rounded-xl px-3 py-2 ${cardCls}`}>
-      <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">
+      <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
         {label}
       </p>
       <p className={`text-lg font-bold ${accent || textPrimary}`}>{value}</p>
@@ -281,7 +281,7 @@ function EmptyState({
       <p className={`text-sm ${textTertiary} mt-1`}>{action}</p>
       <button
         onClick={onAction}
-        className="mt-4 px-4 py-2 bg-[#3B82F6] text-white rounded-lg text-sm font-medium hover:bg-[#3B82F6]/90 transition-colors"
+        className="mt-4 px-4 py-2 bg-[var(--color-gold)] text-[var(--color-light)] rounded-lg text-sm font-medium hover:bg-[var(--color-gold)]/90 transition-colors"
       >
         Get Started
       </button>
@@ -387,7 +387,7 @@ function PostCard({
 
   return (
     <div
-      className={`border border-black/[0.08] rounded-xl overflow-hidden transition-all bg-white ${expanded ? "ring-1 ring-[#3B82F6]/20" : ""}`}
+      className={`border border-[var(--border-subtle)] rounded-xl overflow-hidden transition-all bg-[var(--bg-elevated)] ${expanded ? "ring-1 ring-[var(--color-gold)]/20" : ""}`}
     >
       <div className="flex items-start gap-3 p-3">
         <div
@@ -424,7 +424,7 @@ function PostCard({
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="px-3 py-1 bg-[#3B82F6] text-white rounded-lg text-xs font-medium hover:bg-[#3B82F6]/90 disabled:opacity-50"
+                  className="px-3 py-1 bg-[var(--color-gold)] text-[var(--color-light)] rounded-lg text-xs font-medium hover:bg-[var(--color-gold)]/90 disabled:opacity-50"
                 >
                   {saving ? "Saving..." : "Save"}
                 </button>
@@ -433,7 +433,7 @@ function PostCard({
                     setEditing(false)
                     setEditContent(post.content)
                   }}
-                  className="px-3 py-1 border border-black/[0.08] rounded-lg text-xs text-[#6B7280]"
+                  className="px-3 py-1 border border-[var(--border-subtle)] rounded-lg text-xs text-[var(--color-body-text)]"
                 >
                   Cancel
                 </button>
@@ -471,7 +471,7 @@ function PostCard({
               {post.hashtags.map((tag, i) => (
                 <span
                   key={i}
-                  className="text-xs px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400"
+                  className="text-xs px-1.5 py-0.5 rounded bg-[var(--color-blue)]/10 text-[var(--color-blue)]"
                 >
                   {tag}
                 </span>
@@ -480,7 +480,7 @@ function PostCard({
           )}
 
           {expanded && post.suggested_image && (
-            <div className="mt-2 flex items-start gap-2 rounded-lg p-2 bg-black/[0.03]">
+            <div className="mt-2 flex items-start gap-2 rounded-lg p-2 bg-[var(--color-light-gray)]">
               <ImageIcon size={14} className={textTertiary} />
               <p className={`text-xs ${textTertiary}`}>
                 {post.suggested_image}
@@ -501,7 +501,7 @@ function PostCard({
             (post.engagement.likes > 0 ||
               post.engagement.comments > 0 ||
               post.engagement.shares > 0) && (
-              <div className="flex items-center gap-4 mt-2 pt-2 border-t border-black/[0.08]">
+              <div className="flex items-center gap-4 mt-2 pt-2 border-t border-[var(--border-subtle)]">
                 {post.engagement.impressions > 0 && (
                   <span className={`text-xs ${textTertiary}`}>
                     {post.engagement.impressions.toLocaleString()} impressions
@@ -537,15 +537,15 @@ function PostCard({
             <>
               <button
                 onClick={handleSchedule}
-                className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
+                className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
                 title="Schedule"
               >
-                <Clock size={14} className="text-blue-400" />
+                <Clock size={14} className="text-[var(--color-blue)]" />
               </button>
               <button
                 onClick={handlePublish}
                 disabled={publishing}
-                className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
+                className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
                 title="Publish now"
               >
                 {publishing ? (
@@ -560,7 +560,7 @@ function PostCard({
             <button
               onClick={handlePublish}
               disabled={publishing}
-              className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
+              className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
               title="Publish now"
             >
               {publishing ? (
@@ -577,7 +577,7 @@ function PostCard({
                   setEditing(true)
                   setExpanded(true)
                 }}
-                className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
+                className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
                 title="Edit"
               >
                 <Pencil size={14} className={textTertiary} />
@@ -585,7 +585,7 @@ function PostCard({
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
+                className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
                 title="Delete"
               >
                 <Trash2 size={14} className="text-red-400" />
@@ -597,7 +597,7 @@ function PostCard({
               href={post.external_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
+              className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
               title="View post"
             >
               <CheckCircle2 size={14} className="text-emerald-400" />
@@ -605,7 +605,7 @@ function PostCard({
           )}
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-1.5 rounded-lg transition-colors hover:bg-black/[0.03]"
+            className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
           >
             {expanded ? (
               <ChevronUp size={14} className={textTertiary} />
@@ -687,7 +687,7 @@ function ContentCalendar({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setViewMonth(new Date(year, month - 1))}
-            className="p-1.5 rounded-lg border border-black/[0.08] hover:bg-black/[0.03]"
+            className="p-1.5 rounded-lg border border-[var(--border-subtle)] hover:bg-[var(--color-light-gray)]"
           >
             <ChevronLeft size={16} className={textTertiary} />
           </button>
@@ -696,13 +696,13 @@ function ContentCalendar({
           </h3>
           <button
             onClick={() => setViewMonth(new Date(year, month + 1))}
-            className="p-1.5 rounded-lg border border-black/[0.08] hover:bg-black/[0.03]"
+            className="p-1.5 rounded-lg border border-[var(--border-subtle)] hover:bg-[var(--color-light-gray)]"
           >
             <ChevronRight size={16} className={textTertiary} />
           </button>
           <button
             onClick={() => setViewMonth(new Date())}
-            className="text-xs px-2 py-1 rounded-lg bg-black/[0.04] text-[#6B7280]"
+            className="text-xs px-2 py-1 rounded-lg bg-[var(--color-light-gray)] text-[var(--color-body-text)]"
           >
             Today
           </button>
@@ -712,13 +712,13 @@ function ContentCalendar({
             {totalDraft} draft &middot; {totalScheduled} scheduled &middot;{" "}
             {totalPublished} published
           </span>
-          <div className="flex gap-1 p-0.5 rounded-lg bg-black/[0.04]">
+          <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--color-light-gray)]">
             <button
               onClick={() => {
                 setViewMode("calendar")
                 setSelectedDay(null)
               }}
-              className={`p-1.5 rounded ${viewMode === "calendar" ? "bg-[#3B82F6] text-white" : textTertiary}`}
+              className={`p-1.5 rounded ${viewMode === "calendar" ? "bg-[var(--color-gold)] text-[var(--color-light)]" : textTertiary}`}
             >
               <CalendarDays size={14} />
             </button>
@@ -727,7 +727,7 @@ function ContentCalendar({
                 setViewMode("list")
                 setSelectedDay(null)
               }}
-              className={`p-1.5 rounded ${viewMode === "list" ? "bg-[#3B82F6] text-white" : textTertiary}`}
+              className={`p-1.5 rounded ${viewMode === "list" ? "bg-[var(--color-gold)] text-[var(--color-light)]" : textTertiary}`}
             >
               <List size={14} />
             </button>
@@ -746,12 +746,12 @@ function ContentCalendar({
 
       {/* Calendar View */}
       {viewMode === "calendar" && (
-        <div className={`border border-black/[0.08] rounded-xl overflow-hidden bg-white`}>
+        <div className={`border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--bg-elevated)]`}>
           <div className="grid grid-cols-7">
             {DAYS.map((d) => (
               <div
                 key={d}
-                className="text-center text-xs font-medium py-2 text-[#9CA3AF] border-b border-black/[0.08]"
+                className="text-center text-xs font-medium py-2 text-[var(--color-mid-gray)] border-b border-[var(--border-subtle)]"
               >
                 {d}
               </div>
@@ -763,7 +763,7 @@ function ContentCalendar({
                 return (
                   <div
                     key={i}
-                    className="min-h-[80px] border-b border-r border-black/[0.06] bg-[#F9FAFB]/30"
+                    className="min-h-[80px] border-b border-r border-[var(--border-subtle)] bg-[var(--color-light)]/30"
                   />
                 )
               }
@@ -775,18 +775,18 @@ function ContentCalendar({
                   onClick={() =>
                     setSelectedDay(isSelected ? null : String(day))
                   }
-                  className={`min-h-[80px] border-b border-r border-black/[0.06] p-1.5 cursor-pointer transition-colors ${
-                    isSelected ? "bg-[#3B82F6]/10" : ""
-                  } ${isToday(day) ? "bg-[#3B82F6]/5" : ""} hover:bg-black/[0.03]`}
+                  className={`min-h-[80px] border-b border-r border-[var(--border-subtle)] p-1.5 cursor-pointer transition-colors ${
+                    isSelected ? "bg-[var(--color-gold)]/10" : ""
+                  } ${isToday(day) ? "bg-[var(--color-gold)]/5" : ""} hover:bg-[var(--color-light-gray)]`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span
-                      className={`text-xs font-medium ${isToday(day) ? "text-[#3B82F6] font-bold" : textTertiary}`}
+                      className={`text-xs font-medium ${isToday(day) ? "text-[var(--color-gold)] font-bold" : textTertiary}`}
                     >
                       {day}
                     </span>
                     {dayPosts.length > 0 && (
-                      <span className="text-[10px] px-1 rounded bg-black/[0.04] text-[#6B7280]">
+                      <span className="text-[10px] px-1 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)]">
                         {dayPosts.length}
                       </span>
                     )}
@@ -864,13 +864,13 @@ function ContentCalendar({
         <span
           className={`flex items-center gap-1.5 text-xs ${textTertiary}`}
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-[#6E6E73] opacity-50" />{" "}
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-mid-gray)] opacity-50" />{" "}
           Draft/Scheduled
         </span>
         <span
           className={`flex items-center gap-1.5 text-xs ${textTertiary}`}
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-[#6E6E73] opacity-100" />{" "}
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-mid-gray)] opacity-100" />{" "}
           Published
         </span>
       </div>
@@ -964,7 +964,7 @@ function BatchGenerator({
       onClick={onClose}
     >
       <div
-        className="border border-black/[0.08] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto bg-white"
+        className="border border-[var(--border-subtle)] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto bg-[var(--bg-elevated)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5 space-y-5">
@@ -1001,7 +1001,7 @@ function BatchGenerator({
                   className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
                     platforms.includes(key)
                       ? `${config.color} text-white border-transparent`
-                      : "border-black/[0.08] text-[#6B7280]"
+                      : "border-[var(--border-subtle)] text-[var(--color-body-text)]"
                   }`}
                 >
                   {config.icon} {config.label}
@@ -1027,8 +1027,8 @@ function BatchGenerator({
                   onClick={() => togglePostType(key)}
                   className={`px-3 py-2 rounded-lg text-xs font-medium border text-left transition-all ${
                     postTypes.includes(key)
-                      ? "bg-[#3B82F6] text-white border-transparent"
-                      : "border-black/[0.08] text-[#6B7280]"
+                      ? "bg-[var(--color-gold)] text-[var(--color-light)] border-transparent"
+                      : "border-[var(--border-subtle)] text-[var(--color-body-text)]"
                   }`}
                 >
                   {config.icon} {config.label}
@@ -1084,13 +1084,13 @@ function BatchGenerator({
                   onClick={() => setTone(t.value)}
                   className={`px-3 py-2 rounded-lg border text-left transition-all ${
                     tone === t.value
-                      ? "bg-[#3B82F6] text-white border-transparent"
-                      : "border-black/[0.08] text-[#6B7280]"
+                      ? "bg-[var(--color-gold)] text-[var(--color-light)] border-transparent"
+                      : "border-[var(--border-subtle)] text-[var(--color-body-text)]"
                   }`}
                 >
                   <p className="text-xs font-medium">{t.label}</p>
                   <p
-                    className={`text-[10px] mt-0.5 ${tone === t.value ? "text-blue-100" : textTertiary}`}
+                    className={`text-[10px] mt-0.5 ${tone === t.value ? "text-[var(--color-blue)]" : textTertiary}`}
                   >
                     {t.desc}
                   </p>
@@ -1123,7 +1123,7 @@ function BatchGenerator({
                 platforms.length === 0 ||
                 postTypes.length === 0
               }
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3B82F6] text-white rounded-xl text-sm font-medium hover:bg-[#3B82F6]/90 disabled:opacity-50 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] rounded-xl text-sm font-medium hover:bg-[var(--color-gold)]/90 disabled:opacity-50 transition-colors"
             >
               {generating ? (
                 <>
@@ -1138,7 +1138,7 @@ function BatchGenerator({
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2.5 border border-black/[0.08] rounded-xl text-sm font-medium text-[#6B7280] hover:bg-black/[0.03]"
+              className="px-4 py-2.5 border border-[var(--border-subtle)] rounded-xl text-sm font-medium text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
             >
               {result ? "Done" : "Cancel"}
             </button>
@@ -1260,7 +1260,7 @@ function PostComposer({
       onClick={onClose}
     >
       <div
-        className="border border-black/[0.08] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto bg-white"
+        className="border border-[var(--border-subtle)] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto bg-[var(--bg-elevated)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5 space-y-4">
@@ -1268,7 +1268,7 @@ function PostComposer({
             <h3 className={`font-bold ${textPrimary}`}>Create Post</h3>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-black/[0.03]"
+              className="p-1.5 rounded-lg hover:bg-[var(--color-light-gray)]"
             >
               <X size={16} className={textTertiary} />
             </button>
@@ -1288,7 +1288,7 @@ function PostComposer({
                 className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   platform === key
                     ? `${config.color} text-white`
-                    : "bg-black/[0.04] text-[#6B7280]"
+                    : "bg-[var(--color-light-gray)] text-[var(--color-body-text)]"
                 }`}
               >
                 {config.icon} {config.label}
@@ -1376,7 +1376,7 @@ function PostComposer({
                       prev ? `${prev} ${tags.join(" ")}` : tags.join(" ")
                     )
                   }
-                  className="text-[10px] px-1.5 py-0.5 rounded bg-black/[0.04] text-[#6B7280] hover:bg-black/[0.06] transition-colors capitalize"
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] transition-colors capitalize"
                 >
                   + {key}
                 </button>
@@ -1411,7 +1411,7 @@ function PostComposer({
           </div>
 
           {/* Preview hint */}
-          <div className="rounded-lg p-3 bg-black/[0.03]">
+          <div className="rounded-lg p-3 bg-[var(--color-light-gray)]">
             <div className="flex items-center gap-2 mb-1">
               <span
                 className={`w-2 h-2 rounded-full ${platformConfig.dotColor}`}
@@ -1424,7 +1424,7 @@ function PostComposer({
               {content || "Your post will appear here..."}
             </p>
             {hashtags && (
-              <p className="text-xs text-blue-400 mt-1">
+              <p className="text-xs text-[var(--color-blue)] mt-1">
                 {hashtags
                   .split(/[\s,]+/)
                   .filter(Boolean)
@@ -1439,14 +1439,14 @@ function PostComposer({
             <button
               onClick={() => handleSave(false)}
               disabled={saving || !content.trim()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-black/[0.08] rounded-xl text-sm font-medium transition-colors disabled:opacity-50 text-[#6B7280] hover:bg-black/[0.03]"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-[var(--border-subtle)] rounded-xl text-sm font-medium transition-colors disabled:opacity-50 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
             >
               <Save size={14} /> {scheduledAt ? "Schedule" : "Save Draft"}
             </button>
             <button
               onClick={() => handleSave(true)}
               disabled={saving || !content.trim()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3B82F6] text-white rounded-xl text-sm font-medium hover:bg-[#3B82F6]/90 disabled:opacity-50 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] rounded-xl text-sm font-medium hover:bg-[var(--color-gold)]/90 disabled:opacity-50 transition-colors"
             >
               <Send size={14} /> Publish Now
             </button>
@@ -1532,7 +1532,7 @@ export default function SocialCommandCenter({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-[#3B82F6]" />
+        <Loader2 size={24} className="animate-spin text-[var(--color-gold)]" />
         <span className={`ml-3 ${textSecondary}`}>
           Loading social media hub...
         </span>
@@ -1563,13 +1563,13 @@ export default function SocialCommandCenter({
             </button>
             <button
               onClick={() => setShowComposer(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#3B82F6] text-white rounded-xl text-sm font-medium hover:bg-[#3B82F6]/90 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--color-gold)] text-[var(--color-light)] rounded-xl text-sm font-medium hover:bg-[var(--color-gold)]/90 transition-colors"
             >
               <Plus size={14} /> New Post
             </button>
             <button
               onClick={fetchPosts}
-              className="p-2 rounded-xl border border-black/[0.08] transition-colors hover:bg-black/[0.03]"
+              className="p-2 rounded-xl border border-[var(--border-subtle)] transition-colors hover:bg-[var(--color-light-gray)]"
             >
               <RefreshCw size={14} className={textTertiary} />
             </button>
@@ -1588,7 +1588,7 @@ export default function SocialCommandCenter({
         <MetricCard
           label="Scheduled"
           value={String(scheduled.length)}
-          accent="text-blue-400"
+          accent="text-[var(--color-blue)]"
         />
         <MetricCard
           label="Published"
@@ -1616,8 +1616,8 @@ export default function SocialCommandCenter({
               onClick={() => setFilterPlatform(p)}
               className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                 filterPlatform === p
-                  ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                  : "text-[#6B7280] hover:bg-black/[0.03]"
+                  ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                  : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
               }`}
             >
               {p === "all"
@@ -1633,8 +1633,8 @@ export default function SocialCommandCenter({
               onClick={() => setFilterStatus(s)}
               className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                 filterStatus === s
-                  ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                  : "text-[#6B7280] hover:bg-black/[0.03]"
+                  ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                  : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
               }`}
             >
               {s === "all" ? "All Status" : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -1644,7 +1644,7 @@ export default function SocialCommandCenter({
       </div>
 
       {/* Sub-view tabs */}
-      <div className="flex gap-1 p-1 rounded-xl bg-black/[0.03]">
+      <div className="flex gap-1 p-1 rounded-xl bg-[var(--color-light-gray)]">
         {(
           [
             ["calendar", "Calendar", CalendarDays],
@@ -1658,8 +1658,8 @@ export default function SocialCommandCenter({
             onClick={() => setSubView(key as SubView)}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium transition-all ${
               subView === key
-                ? "bg-[#3B82F6] text-white shadow-lg"
-                : "text-[#6B7280] hover:text-[#111827]"
+                ? "bg-[var(--color-gold)] text-[var(--color-light)] shadow-lg"
+                : "text-[var(--color-body-text)] hover:text-[var(--color-dark)]"
             }`}
           >
             <Icon size={13} /> {label}
@@ -1689,7 +1689,7 @@ export default function SocialCommandCenter({
                   handlePublishAll(scheduled.map((p) => p.id))
                 }
                 disabled={scheduled.length === 0}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white rounded-lg text-xs font-medium hover:bg-[#3B82F6]/90 disabled:opacity-50 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-[var(--color-light)] rounded-lg text-xs font-medium hover:bg-[var(--color-gold)]/90 disabled:opacity-50 transition-colors"
               >
                 <Send size={12} /> Publish All Scheduled ({scheduled.length})
               </button>
@@ -1799,7 +1799,7 @@ export default function SocialCommandCenter({
                         {count} total &middot; {pubCount} published
                       </span>
                     </div>
-                    <div className="w-full h-3 rounded-full overflow-hidden bg-black/[0.04]">
+                    <div className="w-full h-3 rounded-full overflow-hidden bg-[var(--color-light-gray)]">
                       <div
                         className={`h-3 rounded-full ${config.color} transition-all`}
                         style={{
@@ -1829,7 +1829,7 @@ export default function SocialCommandCenter({
                 .map(([type, count]) => (
                   <div
                     key={type}
-                    className="rounded-lg p-3 text-center bg-black/[0.03]"
+                    className="rounded-lg p-3 text-center bg-[var(--color-light-gray)]"
                   >
                     <p className={`text-lg font-bold ${textPrimary}`}>
                       {count}
@@ -1852,7 +1852,7 @@ export default function SocialCommandCenter({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 onClick={() => setShowGenerator(true)}
-                className="p-3 rounded-lg border border-black/[0.08] text-left transition-colors hover:bg-black/[0.03]"
+                className="p-3 rounded-lg border border-[var(--border-subtle)] text-left transition-colors hover:bg-[var(--color-light-gray)]"
               >
                 <Sparkles size={16} className="text-violet-400 mb-1" />
                 <p className={`text-xs font-medium ${textPrimary}`}>
@@ -1864,9 +1864,9 @@ export default function SocialCommandCenter({
               </button>
               <button
                 onClick={() => setShowComposer(true)}
-                className="p-3 rounded-lg border border-black/[0.08] text-left transition-colors hover:bg-black/[0.03]"
+                className="p-3 rounded-lg border border-[var(--border-subtle)] text-left transition-colors hover:bg-[var(--color-light-gray)]"
               >
-                <Plus size={16} className="text-[#3B82F6] mb-1" />
+                <Plus size={16} className="text-[var(--color-gold)] mb-1" />
                 <p className={`text-xs font-medium ${textPrimary}`}>
                   Create Single Post
                 </p>
@@ -1880,9 +1880,9 @@ export default function SocialCommandCenter({
                     handlePublishAll(scheduled.map((p) => p.id))
                 }}
                 disabled={scheduled.length === 0}
-                className="p-3 rounded-lg border border-black/[0.08] text-left transition-colors disabled:opacity-40 hover:bg-black/[0.03]"
+                className="p-3 rounded-lg border border-[var(--border-subtle)] text-left transition-colors disabled:opacity-40 hover:bg-[var(--color-light-gray)]"
               >
-                <Send size={16} className="text-blue-400 mb-1" />
+                <Send size={16} className="text-[var(--color-blue)] mb-1" />
                 <p className={`text-xs font-medium ${textPrimary}`}>
                   Publish All Scheduled
                 </p>

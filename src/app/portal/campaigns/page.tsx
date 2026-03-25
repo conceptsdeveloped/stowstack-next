@@ -84,18 +84,18 @@ export default function CampaignsPage() {
       {/* Header + range selector */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-[#111827]">Campaign Performance</h2>
-          <p className="text-sm text-[#9CA3AF]">Ad spend, leads, and attribution overview</p>
+          <h2 className="text-lg font-semibold text-[var(--color-dark)]">Campaign Performance</h2>
+          <p className="text-sm text-[var(--color-mid-gray)]">Ad spend, leads, and attribution overview</p>
         </div>
-        <div className="flex gap-1 rounded-lg border border-black/[0.08] bg-white p-1">
+        <div className="flex gap-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-1">
           {RANGES.map((r) => (
             <button
               key={r.value}
               onClick={() => setRange(r.value)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                 range === r.value
-                  ? "bg-[#3B82F6] text-white"
-                  : "text-[#6B7280] hover:text-[#111827]"
+                  ? "bg-[var(--color-gold)] text-[var(--color-light)]"
+                  : "text-[var(--color-body-text)] hover:text-[var(--color-dark)]"
               }`}
             >
               {r.label}
@@ -121,21 +121,21 @@ export default function CampaignsPage() {
             return (
               <div
                 key={kpi.label}
-                className="rounded-xl border border-black/[0.08] bg-white p-4"
+                className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
               >
                 <div className="mb-2 flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-[#3B82F6]" />
-                  <span className="text-xs text-[#9CA3AF]">{kpi.label}</span>
+                  <Icon className="h-4 w-4 text-[var(--color-gold)]" />
+                  <span className="text-xs text-[var(--color-mid-gray)]">{kpi.label}</span>
                 </div>
-                <p className="text-xl font-bold text-[#111827]">{kpi.value}</p>
+                <p className="text-xl font-bold text-[var(--color-dark)]">{kpi.value}</p>
               </div>
             );
           })}
         </div>
       ) : !error ? (
-        <div className="rounded-xl border border-black/[0.08] bg-white p-8 text-center">
-          <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
-          <p className="text-sm text-[#6B7280]">No campaign data for this period.</p>
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-8 text-center">
+          <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
+          <p className="text-sm text-[var(--color-body-text)]">No campaign data for this period.</p>
         </div>
       ) : null}
 
@@ -143,14 +143,14 @@ export default function CampaignsPage() {
       {loading ? (
         <SectionSkeleton />
       ) : data?.hasData && data.campaigns.length > 0 ? (
-        <div className="overflow-hidden rounded-xl border border-black/[0.08] bg-white">
-          <div className="border-b border-black/[0.08] px-5 py-4">
-            <h3 className="text-sm font-semibold text-[#111827]">Campaigns</h3>
+        <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
+          <div className="border-b border-[var(--border-subtle)] px-5 py-4">
+            <h3 className="text-sm font-semibold text-[var(--color-dark)]">Campaigns</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-black/[0.08] text-[#9CA3AF]">
+                <tr className="border-b border-[var(--border-subtle)] text-[var(--color-mid-gray)]">
                   <th className="px-5 py-3 font-medium">Campaign</th>
                   <th className="px-4 py-3 text-right font-medium">Spend</th>
                   <th className="px-4 py-3 text-right font-medium">Impressions</th>
@@ -166,29 +166,29 @@ export default function CampaignsPage() {
                 {data.campaigns.map((c, i) => (
                   <tr
                     key={i}
-                    className="border-b border-black/[0.06] last:border-0 hover:bg-black/[0.03]"
+                    className="border-b border-[var(--border-subtle)] last:border-0 hover:bg-black/[0.02]"
                   >
-                    <td className="px-5 py-3 font-medium text-[#111827]">
+                    <td className="px-5 py-3 font-medium text-[var(--color-dark)]">
                       {c.campaign || "Unattributed"}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#6B7280]">
+                    <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
                       {fmtCurrency(c.spend)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#6B7280]">
+                    <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
                       {fmt(c.impressions)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#6B7280]">{fmt(c.clicks)}</td>
-                    <td className="px-4 py-3 text-right text-[#6B7280]">{fmt(c.leads)}</td>
-                    <td className="px-4 py-3 text-right text-[#6B7280]">
+                    <td className="px-4 py-3 text-right text-[var(--color-body-text)]">{fmt(c.clicks)}</td>
+                    <td className="px-4 py-3 text-right text-[var(--color-body-text)]">{fmt(c.leads)}</td>
+                    <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
                       {fmt(c.move_ins)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#6B7280]">
+                    <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
                       {fmtCurrency(c.revenue)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#6B7280]">
+                    <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
                       {fmtCurrency(c.cpl)}
                     </td>
-                    <td className="px-4 py-3 text-right text-[#6B7280]">
+                    <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
                       {c.roas.toFixed(1)}x
                     </td>
                   </tr>
@@ -203,37 +203,37 @@ export default function CampaignsPage() {
       {loading ? (
         <SectionSkeleton />
       ) : data?.hasData && data.monthlyTrend && data.monthlyTrend.length > 0 ? (
-        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-          <h3 className="mb-4 text-sm font-semibold text-[#111827]">Monthly Trend</h3>
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+          <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">Monthly Trend</h3>
           <div className="space-y-3">
             {data.monthlyTrend.map((m) => (
               <div key={m.month} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#6B7280]">{m.month}</span>
+                  <span className="text-[var(--color-body-text)]">{m.month}</span>
                   <div className="flex gap-4">
-                    <span className="text-[#9CA3AF]">
-                      Spend: <span className="text-[#6B7280]">{fmtCurrency(m.spend)}</span>
+                    <span className="text-[var(--color-mid-gray)]">
+                      Spend: <span className="text-[var(--color-body-text)]">{fmtCurrency(m.spend)}</span>
                     </span>
-                    <span className="text-[#9CA3AF]">
-                      Rev: <span className="text-[#6B7280]">{fmtCurrency(m.revenue)}</span>
+                    <span className="text-[var(--color-mid-gray)]">
+                      Rev: <span className="text-[var(--color-body-text)]">{fmtCurrency(m.revenue)}</span>
                     </span>
-                    <span className="text-[#9CA3AF]">
-                      Leads: <span className="text-[#6B7280]">{fmt(m.leads)}</span>
+                    <span className="text-[var(--color-mid-gray)]">
+                      Leads: <span className="text-[var(--color-body-text)]">{fmt(m.leads)}</span>
                     </span>
                   </div>
                 </div>
                 <div className="flex gap-1.5">
                   {/* Spend bar */}
-                  <div className="h-2 rounded-full bg-[#3B82F6]/30" style={{ width: `${Math.max((m.spend / trendMax) * 100, 2)}%` }} />
+                  <div className="h-2 rounded-full bg-[var(--color-gold)]/30" style={{ width: `${Math.max((m.spend / trendMax) * 100, 2)}%` }} />
                   {/* Revenue bar */}
                   <div className="h-2 rounded-full bg-emerald-500/40" style={{ width: `${Math.max((m.revenue / trendMax) * 100, 2)}%` }} />
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-4 flex gap-4 text-[10px] text-[#9CA3AF]">
+          <div className="mt-4 flex gap-4 text-[10px] text-[var(--color-mid-gray)]">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-[#3B82F6]/30" />
+              <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-gold)]/30" />
               Spend
             </span>
             <span className="flex items-center gap-1.5">

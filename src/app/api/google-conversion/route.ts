@@ -80,7 +80,7 @@ function normalizeUserData(
   return hashed;
 }
 
-function mapEventName(stowStackEvent: string): string {
+function mapEventName(storageAdsEvent: string): string {
   const eventMap: Record<string, string> = {
     Lead: "lead",
     lead_captured: "lead",
@@ -89,7 +89,7 @@ function mapEventName(stowStackEvent: string): string {
     Purchase: "purchase",
     move_in_completed: "purchase",
   };
-  return eventMap[stowStackEvent] || stowStackEvent.toLowerCase();
+  return eventMap[storageAdsEvent] || storageAdsEvent.toLowerCase();
 }
 
 interface ConversionBody {

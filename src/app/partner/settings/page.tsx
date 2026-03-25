@@ -157,70 +157,70 @@ export default function SettingsPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-mid-gray)]" />
       </div>
     );
   }
 
   const STATUS_STYLES: Record<string, string> = {
     active: "bg-emerald-500/10 text-emerald-400",
-    trialing: "bg-blue-500/10 text-blue-400",
+    trialing: "bg-[var(--color-blue)]/10 text-[var(--color-blue)]",
     past_due: "bg-amber-500/10 text-amber-400",
     canceled: "bg-red-500/10 text-red-400",
-    incomplete: "bg-blue-500/10 text-blue-400",
+    incomplete: "bg-[var(--color-blue)]/10 text-[var(--color-blue)]",
   };
 
   return (
     <div className="space-y-6">
       {/* Organization Info */}
-      <div className="rounded-xl border border-black/[0.08] bg-white overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-black/[0.08] px-5 py-4">
-          <Building2 className="h-4 w-4 text-[#3B82F6]" />
-          <h3 className="text-sm font-semibold text-[#111827]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-5 py-4">
+          <Building2 className="h-4 w-4 text-[var(--color-gold)]" />
+          <h3 className="text-sm font-semibold text-[var(--color-dark)]">
             Organization Info
           </h3>
         </div>
         <form onSubmit={saveOrg} className="p-5 space-y-4">
           <div>
-            <label className="mb-1 block text-xs text-[#9CA3AF]">
+            <label className="mb-1 block text-xs text-[var(--color-mid-gray)]">
               Organization Name
             </label>
             <input
               type="text"
               value={orgName}
               onChange={(e) => setOrgName(e.target.value)}
-              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] outline-none focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] outline-none focus:border-[var(--color-gold)]"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs text-[#9CA3AF]">
+              <label className="mb-1 block text-xs text-[var(--color-mid-gray)]">
                 Contact Email
               </label>
               <input
                 type="email"
                 value={orgEmail}
                 onChange={(e) => setOrgEmail(e.target.value)}
-                className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] outline-none focus:border-[#3B82F6]"
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] outline-none focus:border-[var(--color-gold)]"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-[#9CA3AF]">
+              <label className="mb-1 block text-xs text-[var(--color-mid-gray)]">
                 Billing Email
               </label>
               <input
                 type="email"
                 value={billingEmail}
                 onChange={(e) => setBillingEmail(e.target.value)}
-                className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] outline-none focus:border-[#3B82F6]"
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] outline-none focus:border-[var(--color-gold)]"
               />
             </div>
           </div>
           {org && (
-            <div className="flex items-center gap-4 rounded-lg bg-black/[0.02] px-4 py-3 text-xs text-[#9CA3AF]">
+            <div className="flex items-center gap-4 rounded-lg bg-[var(--color-light-gray)]/20 px-4 py-3 text-xs text-[var(--color-mid-gray)]">
               <span>
                 Slug:{" "}
-                <code className="rounded bg-black/[0.04] px-1.5 py-0.5 text-[#6B7280]">
+                <code className="rounded bg-[var(--color-light-gray)] px-1.5 py-0.5 text-[var(--color-body-text)]">
                   {org.slug}
                 </code>
               </span>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
                 White-Label:{" "}
                 <span
                   className={
-                    org.white_label ? "text-emerald-400" : "text-[#9CA3AF]"
+                    org.white_label ? "text-emerald-400" : "text-[var(--color-mid-gray)]"
                   }
                 >
                   {org.white_label ? "Enabled" : "Disabled"}
@@ -240,7 +240,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-1.5 rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-medium text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -260,10 +260,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Subscription & Billing */}
-      <div className="rounded-xl border border-black/[0.08] bg-white overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-black/[0.08] px-5 py-4">
-          <Shield className="h-4 w-4 text-[#3B82F6]" />
-          <h3 className="text-sm font-semibold text-[#111827]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-5 py-4">
+          <Shield className="h-4 w-4 text-[var(--color-gold)]" />
+          <h3 className="text-sm font-semibold text-[var(--color-dark)]">
             Subscription & Billing
           </h3>
         </div>
@@ -272,20 +272,20 @@ export default function SettingsPage() {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold capitalize text-[#111827]">
+                  <span className="text-lg font-bold capitalize text-[var(--color-dark)]">
                     {org.plan}
                   </span>
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                       STATUS_STYLES[org.subscription_status] ||
-                      "bg-black/[0.04] text-[#9CA3AF]"
+                      "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
                     }`}
                   >
                     {org.subscription_status || "active"}
                   </span>
                 </div>
                 {org.facility_limit < 999 && (
-                  <p className="mt-1 text-xs text-[#9CA3AF]">
+                  <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
                     Facility limit: {org.facility_limit}
                   </p>
                 )}
@@ -294,7 +294,7 @@ export default function SettingsPage() {
                 <button
                   onClick={openBillingPortal}
                   disabled={billingLoading}
-                  className="flex items-center gap-1.5 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-medium text-[#6B7280] transition-colors hover:bg-black/[0.06] hover:text-[#111827] disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-lg bg-[var(--color-light-gray)] px-4 py-2 text-sm font-medium text-[var(--color-body-text)] transition-colors hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)] disabled:opacity-50"
                 >
                   {billingLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -307,7 +307,7 @@ export default function SettingsPage() {
             </div>
           )}
           {!org?.has_stripe && (
-            <p className="text-sm text-[#9CA3AF]">
+            <p className="text-sm text-[var(--color-mid-gray)]">
               Stripe billing is not configured for this organization. Contact
               support to set up payments.
             </p>
@@ -316,14 +316,14 @@ export default function SettingsPage() {
       </div>
 
       {/* Security */}
-      <div className="rounded-xl border border-black/[0.08] bg-white overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-black/[0.08] px-5 py-4">
-          <Lock className="h-4 w-4 text-[#3B82F6]" />
-          <h3 className="text-sm font-semibold text-[#111827]">Security</h3>
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-5 py-4">
+          <Lock className="h-4 w-4 text-[var(--color-gold)]" />
+          <h3 className="text-sm font-semibold text-[var(--color-dark)]">Security</h3>
         </div>
         <form onSubmit={handlePasswordChange} className="p-5 space-y-4">
           <div>
-            <label className="mb-1 block text-xs text-[#9CA3AF]">
+            <label className="mb-1 block text-xs text-[var(--color-mid-gray)]">
               Current Password
             </label>
             <input
@@ -331,12 +331,12 @@ export default function SettingsPage() {
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="Enter current password"
-              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none focus:border-[var(--color-gold)]"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs text-[#9CA3AF]">
+              <label className="mb-1 block text-xs text-[var(--color-mid-gray)]">
                 New Password
               </label>
               <input
@@ -344,11 +344,11 @@ export default function SettingsPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="At least 8 characters"
-                className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none focus:border-[var(--color-gold)]"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-[#9CA3AF]">
+              <label className="mb-1 block text-xs text-[var(--color-mid-gray)]">
                 Confirm Password
               </label>
               <input
@@ -356,14 +356,14 @@ export default function SettingsPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
-                className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-4 py-2.5 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none focus:border-[#3B82F6]"
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-4 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none focus:border-[var(--color-gold)]"
               />
             </div>
           </div>
           <button
             type="button"
             onClick={() => setShowPasswords(!showPasswords)}
-            className="flex items-center gap-1 text-xs text-[#9CA3AF] hover:text-[#6B7280]"
+            className="flex items-center gap-1 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
           >
             {showPasswords ? (
               <EyeOff className="h-3 w-3" />
@@ -384,7 +384,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={pwLoading || !currentPassword || !newPassword || !confirmPassword}
-            className="rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-medium text-[#6B7280] transition-colors hover:bg-black/[0.06] hover:text-[#111827] disabled:opacity-50"
+            className="rounded-lg bg-[var(--color-light-gray)] px-4 py-2 text-sm font-medium text-[var(--color-body-text)] transition-colors hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)] disabled:opacity-50"
           >
             {pwLoading ? (
               <Loader2 className="mx-auto h-4 w-4 animate-spin" />

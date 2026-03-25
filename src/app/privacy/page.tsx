@@ -3,13 +3,13 @@ import { LegalLayout } from "@/components/legal-layout";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "StowStack privacy policy. How we collect, use, and protect your information.",
+  description: "StorageAds privacy policy. How we collect, use, and protect your information.",
 };
 
 export default function PrivacyPage() {
   return (
     <LegalLayout title="Privacy Policy">
-      <p>StowStack by StorageAds.com (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) operates the website stowstack.co and related applications. This Privacy Policy explains how we collect, use, disclose, and protect your information when you visit our website, use our services, or interact with our applications on third-party platforms including Meta (Facebook and Instagram).</p>
+      <p>StorageAds by StorageAds.com (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) operates the website storageads.com and related applications. This Privacy Policy explains how we collect, use, disclose, and protect your information when you visit our website, use our services, or interact with our applications on third-party platforms including Meta (Facebook and Instagram).</p>
 
       <h2>Information We Collect</h2>
       <p><strong>Information you provide directly:</strong></p>
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
       <h2>Data Deletion</h2>
       <p>You have the right to request deletion of your personal data at any time. To request data deletion:</p>
       <ul>
-        <li><strong>Email:</strong> Send a deletion request to <a href="mailto:blake@storepawpaw.com">blake@storepawpaw.com</a> with the subject line &ldquo;Data Deletion Request&rdquo;</li>
+        <li><strong>Email:</strong> Send a deletion request to <a href="mailto:blake@storageads.com">blake@storageads.com</a> with the subject line &ldquo;Data Deletion Request&rdquo;</li>
         <li><strong>Response time:</strong> We will acknowledge your request within 5 business days and complete deletion within 30 days</li>
         <li><strong>Scope:</strong> Upon deletion, we will remove your personal data from our systems, including any data obtained through Meta&apos;s platform APIs. Some data may be retained if required by law or legitimate business purposes (e.g., financial records).</li>
       </ul>
@@ -92,7 +92,7 @@ export default function PrivacyPage() {
         <li>Object to or restrict certain processing of your data</li>
         <li>Withdraw consent where processing is based on consent</li>
       </ul>
-      <p>To exercise any of these rights, contact us at <a href="mailto:blake@storepawpaw.com">blake@storepawpaw.com</a>.</p>
+      <p>To exercise any of these rights, contact us at <a href="mailto:blake@storageads.com">blake@storageads.com</a>.</p>
 
       <h2>Children&apos;s Privacy</h2>
       <p>Our services are not directed to individuals under the age of 18. We do not knowingly collect personal information from children. If we become aware that we have collected data from a child, we will take steps to delete it promptly.</p>
@@ -102,7 +102,7 @@ export default function PrivacyPage() {
 
       <h2>Contact Us</h2>
       <p>If you have questions about this Privacy Policy, how we handle your data, or wish to exercise your data rights, contact us at:</p>
-      <p>StowStack<br />Email: <a href="mailto:blake@storepawpaw.com">blake@storepawpaw.com</a><br />Phone: (269) 929-8541<br />Website: stowstack.co</p>
+      <p>StorageAds<br />Email: <a href="mailto:blake@storageads.com">blake@storageads.com</a><br />Phone: (269) 929-8541<br />Website: storageads.com</p>
     </LegalLayout>
   );
 }

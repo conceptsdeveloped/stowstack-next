@@ -239,9 +239,9 @@ Generate a JSON object with these exact keys:
   "recommended_actions": [
     { "title": string, "detail": string, "priority": "high"|"medium"|"low", "impact": string, "timeline": string }
   ],
-  "stowstack_fit": {
+  "storageads_fit": {
     "score": number (0-100),
-    "summary": "2-3 sentences on why StowStack is a good fit for this facility",
+    "summary": "2-3 sentences on why StorageAds is a good fit for this facility",
     "projected_monthly_spend": number,
     "projected_cost_per_move_in": number,
     "projected_months_to_target": number
@@ -402,7 +402,7 @@ export async function POST(req: NextRequest) {
     if (resendKey) {
       const recipients = (
         process.env.AUDIT_NOTIFICATION_EMAILS ||
-        "blake@urkovro.resend.app"
+        "blake@storageads.com"
       )
         .split(",")
         .map((e: string) => e.trim());
@@ -418,7 +418,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${resendKey}`,
         },
         body: JSON.stringify({
-          from: "StowStack <notifications@stowstack.co>",
+          from: "StorageAds <notifications@storageads.com>",
           to: recipients,
           subject: `Audit Generated: ${facility.name} — Score ${auditJson.overall_score}/100`,
           html: `
@@ -433,7 +433,7 @@ export async function POST(req: NextRequest) {
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Google Rating</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${placesData?.rating || "N/A"} (${placesData?.reviewCount || 0} reviews)</td></tr>
               </table>
               <p style="margin-top: 20px;">
-                <a href="https://stowstack.co/admin" style="display: inline-block; padding: 12px 24px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Review in Dashboard</a>
+                <a href="https://storageads.com/admin" style="display: inline-block; padding: 12px 24px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Review in Dashboard</a>
               </p>
               <p style="margin-top: 16px; font-size: 12px; color: #999;">After review, approve the audit to share it with the lead and send the Calendly link.</p>
             </div>`,

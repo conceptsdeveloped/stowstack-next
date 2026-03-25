@@ -68,7 +68,7 @@ function renderReportHTML(
   const { current, previous } = data;
   const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "https://stowstack.co";
+    : "https://storageads.com";
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
@@ -123,10 +123,10 @@ function renderReportHTML(
       : ""
   }
   <div style="text-align:center;margin-bottom:24px;">
-    <a href="${baseUrl}/portal" style="display:inline-block;padding:14px 32px;background:#16a34a;color:white;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">View Full Dashboard</a>
+    <a href="${baseUrl}/portal" style="display:inline-block;padding:14px 32px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">View Full Dashboard</a>
   </div>
   <div style="text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:16px;">
-    <p style="margin:0;">StowStack by StorageAds.com</p>
+    <p style="margin:0;">StorageAds by StorageAds.com</p>
     <p style="margin:4px 0 0;">This report tracks the digital path from ad click to move-in.</p>
   </div>
 </div>
@@ -287,7 +287,7 @@ export async function GET(request: NextRequest) {
               Authorization: `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-              from: "StowStack <reports@stowstack.co>",
+              from: "StorageAds <reports@storageads.com>",
               to: client.email,
               subject: `${client.fac_name || client.facility_name} — ${isWeekly ? "Weekly" : "Monthly"} Performance Report`,
               html,

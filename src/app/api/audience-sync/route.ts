@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
             access_token,
             name: audienceName,
             subtype: "CUSTOM",
-            description: `StowStack ${sourceType.replace(/_/g, " ")} audience`,
+            description: `StorageAds ${sourceType.replace(/_/g, " ")} audience`,
             customer_file_source: "USER_PROVIDED_ONLY",
           }),
         },

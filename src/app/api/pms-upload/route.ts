@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: "StowStack <notifications@stowstack.co>",
-          to: ["blake@urkovro.resend.app", "anna@storepawpaw.com"],
+          from: "StorageAds <notifications@storageads.com>",
+          to: ["blake@storageads.com", "anna@storageads.com"],
           subject: `PMS Report Uploaded: ${facilityName}`,
           html: `<div style="font-family: sans-serif; padding: 20px;">
             <h2>New PMS Report Upload</h2>

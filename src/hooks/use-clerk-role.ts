@@ -1,10 +1,10 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import type { StowStackRole } from "@/lib/clerk-roles";
+import type { StorageAdsRole } from "@/lib/clerk-roles";
 
 /**
- * Client-side hook to get the current Clerk user's StowStack role.
+ * Client-side hook to get the current Clerk user's StorageAds role.
  * Returns { role, isLoaded, isSignedIn, isAdmin, isVA }.
  */
 export function useClerkRole() {
@@ -13,7 +13,7 @@ export function useClerkRole() {
   const role =
     isLoaded && isSignedIn
       ? ((user.publicMetadata as Record<string, unknown>)?.role as
-          | StowStackRole
+          | StorageAdsRole
           | undefined) ?? null
       : null;
 

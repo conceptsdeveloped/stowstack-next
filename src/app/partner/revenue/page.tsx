@@ -91,7 +91,7 @@ export default function RevenuePage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-mid-gray)]" />
       </div>
     );
   }
@@ -111,8 +111,8 @@ export default function RevenuePage() {
   return (
     <div className="space-y-6">
       {/* Hero Earnings Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] p-6 text-white sm:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.15),transparent_50%)]" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-hover)] p-6 text-[var(--color-light)] sm:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(0,0,0,0.08),transparent_50%)]" />
         <div className="relative">
           <div className="mb-6 flex items-start justify-between">
             <div>
@@ -145,7 +145,7 @@ export default function RevenuePage() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-xl bg-white/15 p-3 backdrop-blur-sm"
+                className="rounded-xl bg-[var(--color-light-gray)] p-3 backdrop-blur-sm"
               >
                 <div className="text-xl font-bold">{item.value}</div>
                 <div className="text-[11px] opacity-75">{item.label}</div>
@@ -160,15 +160,15 @@ export default function RevenuePage() {
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500">
-              <Rocket className="h-5 w-5 text-white" />
+              <Rocket className="h-5 w-5 text-[var(--color-light)]" />
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-emerald-400">
                 Unlock {nextTier.name} — {nextTier.pct}% Revenue Share
               </h3>
-              <p className="mt-1 text-sm text-[#6B7280]">
+              <p className="mt-1 text-sm text-[var(--color-body-text)]">
                 Add{" "}
-                <span className="font-bold text-[#111827]">
+                <span className="font-bold text-[var(--color-dark)]">
                   {facilitiesToNext} more{" "}
                   {facilitiesToNext === 1 ? "facility" : "facilities"}
                 </span>{" "}
@@ -178,7 +178,7 @@ export default function RevenuePage() {
                 </span>
               </p>
               <div className="mt-3">
-                <div className="mb-1.5 flex items-center justify-between text-xs text-[#9CA3AF]">
+                <div className="mb-1.5 flex items-center justify-between text-xs text-[var(--color-mid-gray)]">
                   <span>
                     {facilityCount} / {nextTier.min} facilities
                   </span>
@@ -186,7 +186,7 @@ export default function RevenuePage() {
                     {Math.round((facilityCount / nextTier.min) * 100)}%
                   </span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-black/[0.04]">
+                <div className="h-2 overflow-hidden rounded-full bg-[var(--color-light-gray)]">
                   <div
                     className="h-full rounded-full bg-emerald-500 transition-all"
                     style={{
@@ -201,10 +201,10 @@ export default function RevenuePage() {
       )}
 
       {/* Tier Cards */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
         <div className="mb-4 flex items-center gap-2">
           <DollarSign className="h-4 w-4 text-emerald-400" />
-          <h3 className="text-sm font-semibold text-[#111827]">
+          <h3 className="text-sm font-semibold text-[var(--color-dark)]">
             Revenue Share Tiers
           </h3>
         </div>
@@ -217,8 +217,8 @@ export default function RevenuePage() {
                 key={tier.name}
                 className={`rounded-xl border-2 p-4 text-center transition-all ${
                   isActive
-                    ? "border-[#3B82F6] bg-[#3B82F6]/5"
-                    : "border-black/[0.08] hover:border-black/[0.1]"
+                    ? "border-[var(--color-gold)] bg-[var(--color-gold)]/5"
+                    : "border-[var(--border-subtle)] hover:border-[var(--border-medium)]"
                 }`}
               >
                 <TIcon
@@ -232,17 +232,17 @@ export default function RevenuePage() {
                   {tier.name}
                 </div>
                 <div
-                  className={`mt-1 text-3xl font-black ${isActive ? "text-[#3B82F6]" : "text-[#111827]"}`}
+                  className={`mt-1 text-3xl font-black ${isActive ? "text-[var(--color-gold)]" : "text-[var(--color-dark)]"}`}
                 >
                   {tier.pct}%
                 </div>
-                <div className="mt-1 text-xs text-[#9CA3AF]">
+                <div className="mt-1 text-xs text-[var(--color-mid-gray)]">
                   {tier.max === Infinity
                     ? `${tier.min}+ facilities`
                     : `${tier.min}\u2013${tier.max} facilities`}
                 </div>
                 {isActive && (
-                  <div className="mt-2 inline-block rounded-full bg-[#3B82F6]/20 px-2 py-0.5 text-[10px] font-bold text-[#3B82F6]">
+                  <div className="mt-2 inline-block rounded-full bg-[var(--color-gold)]/20 px-2 py-0.5 text-[10px] font-bold text-[var(--color-gold)]">
                     YOUR TIER
                   </div>
                 )}
@@ -253,15 +253,15 @@ export default function RevenuePage() {
       </div>
 
       {/* Referral List */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h3 className="mb-4 text-sm font-semibold text-[#111827]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
           Referrals
         </h3>
         {referrals.length === 0 ? (
           <div className="py-8 text-center">
-            <TrendingUp className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
-            <p className="text-sm text-[#6B7280]">No referrals yet</p>
-            <p className="mt-1 text-xs text-[#9CA3AF]">
+            <TrendingUp className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
+            <p className="text-sm text-[var(--color-body-text)]">No referrals yet</p>
+            <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
               Referrals from your network will appear here
             </p>
           </div>
@@ -269,17 +269,17 @@ export default function RevenuePage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-black/[0.08]">
-                  <th className="px-4 py-2 text-left text-xs font-medium text-[#9CA3AF]">
+                <tr className="border-b border-[var(--border-subtle)]">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                     Facility
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                     Status
                   </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                     Commission
                   </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                     Date
                   </th>
                 </tr>
@@ -288,9 +288,9 @@ export default function RevenuePage() {
                 {referrals.map((r) => (
                   <tr
                     key={r.id}
-                    className="border-b border-black/[0.06] last:border-0"
+                    className="border-b border-[var(--border-subtle)] last:border-0"
                   >
-                    <td className="px-4 py-2.5 font-medium text-[#111827]">
+                    <td className="px-4 py-2.5 font-medium text-[var(--color-dark)]">
                       {r.facility_name}
                     </td>
                     <td className="px-4 py-2.5">
@@ -300,7 +300,7 @@ export default function RevenuePage() {
                             ? "bg-emerald-500/10 text-emerald-400"
                             : r.status === "pending"
                               ? "bg-amber-500/10 text-amber-400"
-                              : "bg-black/[0.04] text-[#9CA3AF]"
+                              : "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
                         }`}
                       >
                         {r.status}
@@ -309,7 +309,7 @@ export default function RevenuePage() {
                     <td className="px-4 py-2.5 text-right font-medium text-emerald-400">
                       ${r.commission.toLocaleString()}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-[#9CA3AF]">
+                    <td className="px-4 py-2.5 text-right text-[var(--color-mid-gray)]">
                       {new Date(r.created_at).toLocaleDateString()}
                     </td>
                   </tr>
@@ -321,15 +321,15 @@ export default function RevenuePage() {
       </div>
 
       {/* Payout History */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h3 className="mb-4 text-sm font-semibold text-[#111827]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
           Payout History
         </h3>
         {payouts.length === 0 ? (
           <div className="py-8 text-center">
-            <DollarSign className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
-            <p className="text-sm text-[#6B7280]">No payouts yet</p>
-            <p className="mt-1 text-xs text-[#9CA3AF]">
+            <DollarSign className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
+            <p className="text-sm text-[var(--color-body-text)]">No payouts yet</p>
+            <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
               Payouts are processed monthly within 15 days of billing cycle end
             </p>
           </div>
@@ -337,17 +337,17 @@ export default function RevenuePage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-black/[0.08]">
-                  <th className="px-4 py-2 text-left text-xs font-medium text-[#9CA3AF]">
+                <tr className="border-b border-[var(--border-subtle)]">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                     Period
                   </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                     Amount
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--color-mid-gray)]">
                     Status
                   </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-[#9CA3AF]">
+                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
                     Paid
                   </th>
                 </tr>
@@ -356,9 +356,9 @@ export default function RevenuePage() {
                 {payouts.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-b border-black/[0.06] last:border-0"
+                    className="border-b border-[var(--border-subtle)] last:border-0"
                   >
-                    <td className="px-4 py-2.5 font-medium text-[#111827]">
+                    <td className="px-4 py-2.5 font-medium text-[var(--color-dark)]">
                       {p.period}
                     </td>
                     <td className="px-4 py-2.5 text-right font-medium text-emerald-400">
@@ -370,14 +370,14 @@ export default function RevenuePage() {
                           p.status === "paid"
                             ? "bg-emerald-500/10 text-emerald-400"
                             : p.status === "processing"
-                              ? "bg-blue-500/10 text-blue-400"
+                              ? "bg-[var(--color-blue)]/10 text-[var(--color-blue)]"
                               : "bg-amber-500/10 text-amber-400"
                         }`}
                       >
                         {p.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-right text-[#9CA3AF]">
+                    <td className="px-4 py-2.5 text-right text-[var(--color-mid-gray)]">
                       {p.paid_at
                         ? new Date(p.paid_at).toLocaleDateString()
                         : "--"}
@@ -391,15 +391,15 @@ export default function RevenuePage() {
       </div>
 
       {/* How it works */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h4 className="mb-3 text-sm font-semibold text-[#111827]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h4 className="mb-3 text-sm font-semibold text-[var(--color-dark)]">
           How It Works
         </h4>
         <div className="grid gap-3 sm:grid-cols-2">
           {[
             {
               title: "Recurring forever.",
-              desc: "Your revenue share continues as long as each facility remains on StowStack. No sunset clause, no cap.",
+              desc: "Your revenue share continues as long as each facility remains on StorageAds. No sunset clause, no cap.",
             },
             {
               title: "Tier upgrades are instant.",
@@ -416,8 +416,8 @@ export default function RevenuePage() {
           ].map((item) => (
             <div key={item.title} className="flex items-start gap-2">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-              <span className="text-xs text-[#6B7280]">
-                <strong className="text-[#111827]">{item.title}</strong>{" "}
+              <span className="text-xs text-[var(--color-body-text)]">
+                <strong className="text-[var(--color-dark)]">{item.title}</strong>{" "}
                 {item.desc}
               </span>
             </div>

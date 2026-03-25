@@ -9,7 +9,7 @@ import {
 
 export const maxDuration = 60;
 
-const SYSTEM_PROMPT = `You are a senior self-storage facility auditor for StowStack. Analyze the diagnostic form and produce an audit as JSON.
+const SYSTEM_PROMPT = `You are a senior self-storage facility auditor for StorageAds. Analyze the diagnostic form and produce an audit as JSON.
 
 SCORING: 90-100 best-in-class, 80-89 strong, 70-79 gaps exist, 60-69 below average, 50-59 serious issues, <50 critical.
 
@@ -72,7 +72,7 @@ JSON STRUCTURE:
     "current_estimated_monthly_revenue":"","potential_monthly_revenue_with_fixes":"",
     "estimated_monthly_gap":"","assumptions":"","key_revenue_levers":[""]
   },
-  "stowstack_opportunities": {
+  "storageads_opportunities": {
     "meta_ads_fit":"strong|moderate|weak","meta_ads_rationale":"",
     "recommended_monthly_budget":"","expected_cost_per_lead":"",
     "expected_cost_per_movein":"","projected_additional_moveins_per_month":"",

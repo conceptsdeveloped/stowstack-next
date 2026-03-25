@@ -73,8 +73,8 @@ function renderInvoiceHTML(invoice: {
         <p style="margin:4px 0 0;font-size:13px;color:#94a3b8;">${esc(invoiceNumber)}</p>
       </div>
       <div style="text-align:right;">
-        <p style="margin:0;font-size:13px;font-weight:600;color:#0f172a;">StowStack by StorageAds.com</p>
-        <p style="margin:2px 0 0;font-size:11px;color:#94a3b8;">blake@storepawpaw.com</p>
+        <p style="margin:0;font-size:13px;font-weight:600;color:#0f172a;">StorageAds by StorageAds.com</p>
+        <p style="margin:2px 0 0;font-size:11px;color:#94a3b8;">blake@storageads.com</p>
       </div>
     </div>
     <div style="padding:24px;border-bottom:1px solid #f1f5f9;">
@@ -121,7 +121,7 @@ function renderInvoiceHTML(invoice: {
       </table>
     </div>
     <div style="padding:20px 24px;border-top:1px solid #f1f5f9;font-size:11px;color:#94a3b8;">
-      <p style="margin:0;">Payment is processed automatically via Stripe. If you have questions about this invoice, reply to this email or contact blake@storepawpaw.com.</p>
+      <p style="margin:0;">Payment is processed automatically via Stripe. If you have questions about this invoice, reply to this email or contact blake@storageads.com.</p>
     </div>
   </div>
 </div>
@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
 
     const lineItems: LineItem[] = [
       {
-        description: `StowStack ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan — ${row.fac_name || row.facility_name}`,
+        description: `StorageAds ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan — ${row.fac_name || row.facility_name}`,
         amount: planPrice,
       },
     ];
@@ -243,9 +243,9 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: "StowStack Billing <billing@stowstack.co>",
+          from: "StorageAds Billing <billing@storageads.com>",
           to: row.email,
-          cc: "blake@storepawpaw.com",
+          cc: "blake@storageads.com",
           subject: `Invoice ${invoiceNumber} — ${row.fac_name || row.facility_name} — ${period}`,
           html,
         }),

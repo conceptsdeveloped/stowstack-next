@@ -54,8 +54,8 @@ export async function POST(req: NextRequest) {
           quantity: facilityCount || 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://stowstack.co"}/api/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://stowstack.co"}/pricing`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com"}/api/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com"}/pricing`,
       metadata: {
         plan,
         companyName,

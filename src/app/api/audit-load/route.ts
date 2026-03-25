@@ -56,8 +56,8 @@ export async function GET(req: NextRequest) {
             Authorization: `Bearer ${resendKey}`,
           },
           body: JSON.stringify({
-            from: "StowStack <notifications@stowstack.co>",
-            to: ["blake@storepawpaw.com"],
+            from: "StorageAds <notifications@storageads.com>",
+            to: ["blake@storageads.com"],
             subject: `Audit Opened: ${facilityName} (Score: ${overallScore}/100)`,
             html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
                 <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
                   <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Facility</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${facilityName}</strong></td></tr>
                   <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Score</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${overallScore}/100</strong></td></tr>
-                  <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Audit Link</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><a href="https://stowstack.co/audit/${slug}">View Audit</a></td></tr>
+                  <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Audit Link</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><a href="https://storageads.com/audit/${slug}">View Audit</a></td></tr>
                 </table>
               </div>`,
           }),
@@ -80,8 +80,8 @@ export async function GET(req: NextRequest) {
             Authorization: `Bearer ${resendKey}`,
           },
           body: JSON.stringify({
-            from: "StowStack <notifications@stowstack.co>",
-            to: ["blake@storepawpaw.com"],
+            from: "StorageAds <notifications@storageads.com>",
+            to: ["blake@storageads.com"],
             subject: `Hot Lead: ${facilityName} — ${currentViews + 1} audit views`,
             html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

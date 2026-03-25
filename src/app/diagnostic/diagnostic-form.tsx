@@ -191,7 +191,7 @@ function Input({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg bg-[var(--bg-surface)] border border-white/10 text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)]/50 transition-colors text-sm"
+        className="w-full px-4 py-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--color-dark)]/10 text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)]/50 transition-colors text-sm"
       />
     </div>
   );
@@ -227,7 +227,7 @@ function Select({
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg bg-[var(--bg-surface)] border border-white/10 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)]/50 transition-colors text-sm"
+        className="w-full px-4 py-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--color-dark)]/10 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)]/50 transition-colors text-sm"
       >
         <option value="">Select...</option>
         {options.map((o) => (
@@ -271,7 +271,7 @@ function Checkboxes({
             className={`flex items-center gap-2.5 px-3 py-2 rounded-lg border cursor-pointer transition-colors text-sm ${
               selected.includes(opt)
                 ? "border-[var(--accent)]/50 bg-[var(--accent)]/10 text-[var(--text-primary)]"
-                : "border-white/10 bg-[var(--bg-surface)] text-[var(--text-secondary)]"
+                : "border-[var(--color-dark)]/10 bg-[var(--bg-surface)] text-[var(--text-secondary)]"
             }`}
           >
             <input
@@ -284,7 +284,7 @@ function Checkboxes({
               className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
                 selected.includes(opt)
                   ? "border-[var(--accent)] bg-[var(--accent)]"
-                  : "border-white/20"
+                  : "border-[var(--color-dark)]/20"
               }`}
             >
               {selected.includes(opt) && (
@@ -335,7 +335,7 @@ function Textarea({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg bg-[var(--bg-surface)] border border-white/10 text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)]/50 transition-colors text-sm resize-none"
+        className="w-full px-4 py-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--color-dark)]/10 text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)]/50 transition-colors text-sm resize-none"
       />
     </div>
   );
@@ -495,7 +495,7 @@ export function DiagnosticForm() {
             href="/"
             className="inline-flex px-6 py-2.5 rounded-lg bg-[var(--accent)] text-white font-medium hover:opacity-90 transition-opacity"
           >
-            Back to StowStack
+            Back to StorageAds
           </Link>
         </div>
       </div>
@@ -516,7 +516,7 @@ export function DiagnosticForm() {
             <rect x="3" y="14" width="7" height="7" rx="1.5" />
             <rect x="14" y="14" width="7" height="7" rx="1.5" />
           </svg>
-          StowStack
+          StorageAds
         </Link>
         <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-3">
           Free Facility Diagnostic
@@ -528,7 +528,7 @@ export function DiagnosticForm() {
       </div>
 
       {/* What You Get */}
-      <div className="rounded-xl border border-white/10 bg-[var(--bg-elevated)] p-5 mb-8">
+      <div className="rounded-xl border border-[var(--color-dark)]/10 bg-[var(--bg-elevated)] p-5 mb-8">
         <p className="text-xs font-semibold text-[var(--accent)] uppercase tracking-wider mb-3">
           Your diagnostic includes
         </p>
@@ -570,7 +570,7 @@ export function DiagnosticForm() {
       </div>
 
       {/* Form Steps */}
-      <div className="rounded-2xl border border-white/10 bg-[var(--bg-elevated)] p-6 sm:p-8">
+      <div className="rounded-2xl border border-[var(--color-dark)]/10 bg-[var(--bg-elevated)] p-6 sm:p-8">
         {step === 0 && (
           <div className="space-y-5">
             <h2 className="text-lg font-bold text-[var(--text-primary)] mb-1">
@@ -820,7 +820,7 @@ export function DiagnosticForm() {
         )}
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/5">
+        <div className="flex items-center justify-between mt-8 pt-6 border-t border-[var(--color-dark)]/5">
           {step > 0 ? (
             <button
               type="button"
@@ -864,7 +864,7 @@ export function DiagnosticForm() {
         <p className="text-xs text-[var(--text-secondary)]/50 mt-1">
           Powered by{" "}
           <Link href="/" className="text-[var(--accent)] hover:underline">
-            StowStack
+            StorageAds
           </Link>{" "}
           by StorageAds.com
         </p>

@@ -162,7 +162,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 size={20} className="animate-spin text-[#3B82F6]" />
+        <Loader2 size={20} className="animate-spin text-[var(--color-gold)]" />
       </div>
     )
   }
@@ -171,20 +171,20 @@ export default function ImageGenerator({ facilityId, adminKey }: {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h4 className="text-sm font-semibold text-[#F5F5F7]">AI Image Generator</h4>
-        <p className="text-xs text-[#6E6E73] mt-0.5">Generate ad creatives, lifestyle imagery, and social graphics</p>
+        <h4 className="text-sm font-semibold text-[var(--color-dark)]">AI Image Generator</h4>
+        <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">Generate ad creatives, lifestyle imagery, and social graphics</p>
       </div>
 
       {/* API key warning */}
       {!configured && (
-        <div className="p-4 rounded-xl border border-dashed border-white/[0.12]">
+        <div className="p-4 rounded-xl border border-dashed border-[var(--border-medium)]">
           <div className="flex items-start gap-3">
             <AlertTriangle size={18} className="text-amber-400 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-[#F5F5F7]">Image Generation API Required</p>
-              <p className="text-xs text-[#6E6E73] mt-1">
-                Add <code className="px-1 py-0.5 rounded bg-white/[0.06] text-xs text-[#A1A1A6]">REPLICATE_API_TOKEN</code> or{' '}
-                <code className="px-1 py-0.5 rounded bg-white/[0.06] text-xs text-[#A1A1A6]">GEMINI_API_KEY</code> (with billing) to your environment variables.
+              <p className="text-sm font-medium text-[var(--color-dark)]">Image Generation API Required</p>
+              <p className="text-xs text-[var(--color-mid-gray)] mt-1">
+                Add <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">REPLICATE_API_TOKEN</code> or{' '}
+                <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">GEMINI_API_KEY</code> (with billing) to your environment variables.
               </p>
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
 
       {/* Template grid */}
       <div>
-        <label className="text-xs font-medium text-[#A1A1A6] block mb-2">Choose Image Type</label>
+        <label className="text-xs font-medium text-[var(--color-body-text)] block mb-2">Choose Image Type</label>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {templates.map(t => (
             <button
@@ -201,16 +201,16 @@ export default function ImageGenerator({ facilityId, adminKey }: {
               onClick={() => { setSelectedTemplate(t.id); setShowPromptEditor(false); setPromptOverride('') }}
               className={`text-left p-3 border rounded-xl transition-all ${
                 selectedTemplate === t.id
-                  ? 'border-[#3B82F6] bg-[#3B82F6]/10'
-                  : 'border-white/[0.06] bg-[#111111] hover:border-white/[0.12]'
+                  ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10'
+                  : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:border-[var(--border-medium)]'
               }`}
             >
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-[#A1A1A6]">{TEMPLATE_ICONS[t.id] || <ImageIcon size={16} />}</span>
-                <span className="text-xs font-semibold text-[#F5F5F7] truncate">{t.name}</span>
+                <span className="text-[var(--color-body-text)]">{TEMPLATE_ICONS[t.id] || <ImageIcon size={16} />}</span>
+                <span className="text-xs font-semibold text-[var(--color-dark)] truncate">{t.name}</span>
               </div>
-              <p className="text-[10px] text-[#6E6E73] line-clamp-2">{t.description}</p>
-              <span className="inline-block mt-1 text-[9px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6]">
+              <p className="text-[10px] text-[var(--color-mid-gray)] line-clamp-2">{t.description}</p>
+              <span className="inline-block mt-1 text-[9px] px-1.5 py-0.5 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)]">
                 {ASPECT_LABELS[t.aspect] || t.aspect}
               </span>
             </button>
@@ -220,26 +220,26 @@ export default function ImageGenerator({ facilityId, adminKey }: {
 
       {/* Controls */}
       {activeTemplate && (
-        <div className="border border-white/[0.06] rounded-xl p-5 bg-[#111111]">
+        <div className="border border-[var(--border-subtle)] rounded-xl p-5 bg-[var(--bg-elevated)]">
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Custom Notes (optional)</label>
+              <label className="text-xs font-medium text-[var(--color-body-text)] block mb-1.5">Custom Notes (optional)</label>
               <input
                 value={customNotes}
                 onChange={e => setCustomNotes(e.target.value)}
                 placeholder="e.g., Include a sunset, show climate-controlled units, spring theme..."
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
               />
             </div>
 
             {/* Pair with ad copy */}
             {adVariations.length > 0 && (
               <div>
-                <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Pair with Ad Copy (optional)</label>
+                <label className="text-xs font-medium text-[var(--color-body-text)] block mb-1.5">Pair with Ad Copy (optional)</label>
                 <select
                   value={selectedVariation}
                   onChange={e => setSelectedVariation(e.target.value)}
-                  className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] appearance-none"
+                  className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)] appearance-none"
                 >
                   <option value="">None — generate without copy context</option>
                   {adVariations
@@ -260,21 +260,21 @@ export default function ImageGenerator({ facilityId, adminKey }: {
                   if (!v) return null
                   const c = v.content_json as Record<string, string>
                   return (
-                    <div className="mt-2 p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.06] space-y-1">
-                      {c.headline && <p className="text-xs font-semibold text-[#F5F5F7]">{c.headline}</p>}
-                      {c.primaryText && <p className="text-[11px] text-[#A1A1A6] line-clamp-2">{c.primaryText}</p>}
-                      {c.cta && <p className="text-[10px] text-[#3B82F6]">{c.cta}</p>}
+                    <div className="mt-2 p-2.5 rounded-lg bg-[var(--color-light-gray)] border border-[var(--border-subtle)] space-y-1">
+                      {c.headline && <p className="text-xs font-semibold text-[var(--color-dark)]">{c.headline}</p>}
+                      {c.primaryText && <p className="text-[11px] text-[var(--color-body-text)] line-clamp-2">{c.primaryText}</p>}
+                      {c.cta && <p className="text-[10px] text-[var(--color-gold)]">{c.cta}</p>}
                     </div>
                   )
                 })()}
-                <p className="text-[10px] text-[#6E6E73] mt-1">The image will be generated to complement this ad copy.</p>
+                <p className="text-[10px] text-[var(--color-mid-gray)] mt-1">The image will be generated to complement this ad copy.</p>
               </div>
             )}
 
             <div>
               <button
                 onClick={() => setShowPromptEditor(!showPromptEditor)}
-                className="flex items-center gap-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                className="flex items-center gap-1.5 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
               >
                 <Edit3 size={11} /> {showPromptEditor ? 'Hide' : 'Edit'} prompt directly
               </button>
@@ -285,7 +285,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
                     onChange={e => setPromptOverride(e.target.value)}
                     rows={3}
                     placeholder="Write your own image prompt... Leave blank to use the AI-enhanced template prompt."
-                    className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-xs font-mono bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6] resize-none"
+                    className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-xs font-mono bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)] resize-none"
                   />
                 </div>
               )}
@@ -294,7 +294,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
             <button
               onClick={() => generate()}
               disabled={generating || !configured}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
             >
               {generating ? (
                 <><Loader2 size={14} className="animate-spin" /> Generating...</>
@@ -302,7 +302,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
                 <><Sparkles size={14} /> Generate {activeTemplate.name}</>
               )}
             </button>
-            <p className="text-[10px] text-[#6E6E73]">Takes 10-30 seconds. Image auto-saves to facility assets.</p>
+            <p className="text-[10px] text-[var(--color-mid-gray)]">Takes 10-30 seconds. Image auto-saves to facility assets.</p>
           </div>
         </div>
       )}
@@ -310,16 +310,16 @@ export default function ImageGenerator({ facilityId, adminKey }: {
       {/* Generated images */}
       {jobs.length > 0 && (
         <div>
-          <h5 className="text-xs font-semibold text-[#F5F5F7] mb-3">Generated Images</h5>
+          <h5 className="text-xs font-semibold text-[var(--color-dark)] mb-3">Generated Images</h5>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {jobs.map(job => (
-              <div key={job.id} className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
+              <div key={job.id} className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--bg-elevated)]">
                 {/* Image area */}
                 {job.status === 'generating' && (
-                  <div className="aspect-square flex items-center justify-center bg-white/[0.03]">
+                  <div className="aspect-square flex items-center justify-center bg-[var(--color-light-gray)]">
                     <div className="text-center">
-                      <Loader2 size={24} className="animate-spin text-[#3B82F6] mx-auto mb-2" />
-                      <p className="text-xs text-[#6E6E73]">Generating...</p>
+                      <Loader2 size={24} className="animate-spin text-[var(--color-gold)] mx-auto mb-2" />
+                      <p className="text-xs text-[var(--color-mid-gray)]">Generating...</p>
                     </div>
                   </div>
                 )}
@@ -345,8 +345,8 @@ export default function ImageGenerator({ facilityId, adminKey }: {
                 {/* Info + actions */}
                 <div className="p-3 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#A1A1A6]">{TEMPLATE_ICONS[job.templateId] || <ImageIcon size={14} />}</span>
-                    <span className="text-xs font-medium text-[#F5F5F7] flex-1 truncate">{job.templateName}</span>
+                    <span className="text-[var(--color-body-text)]">{TEMPLATE_ICONS[job.templateId] || <ImageIcon size={14} />}</span>
+                    <span className="text-xs font-medium text-[var(--color-dark)] flex-1 truncate">{job.templateName}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                       job.status === 'succeeded' ? 'bg-emerald-500/20 text-emerald-400' :
                       job.status === 'failed' ? 'bg-red-500/20 text-red-400' :
@@ -365,14 +365,14 @@ export default function ImageGenerator({ facilityId, adminKey }: {
                           a.click()
                           document.body.removeChild(a)
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded-lg hover:bg-[var(--color-gold-hover)] transition-colors"
                       >
                         <Download size={12} />
                         <span>Download</span>
                       </button>
                       <button
                         onClick={() => { setEditingPrompt(job.id); setEditedPrompt(job.prompt) }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.06] transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] transition-colors"
                       >
                         <RefreshCw size={12} /><span>Regenerate</span>
                       </button>
@@ -382,7 +382,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
                   {job.status === 'failed' && (
                     <button
                       onClick={() => { setEditingPrompt(job.id); setEditedPrompt(job.prompt) }}
-                      className="flex items-center gap-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
                     >
                       <Edit3 size={11} /> Edit prompt and retry
                     </button>
@@ -395,19 +395,19 @@ export default function ImageGenerator({ facilityId, adminKey }: {
                         value={editedPrompt}
                         onChange={e => setEditedPrompt(e.target.value)}
                         rows={3}
-                        className="w-full px-2 py-1.5 border border-white/[0.06] rounded text-[11px] font-mono bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6] resize-none"
+                        className="w-full px-2 py-1.5 border border-[var(--border-subtle)] rounded text-[11px] font-mono bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)] resize-none"
                       />
                       <div className="flex gap-1.5">
                         <button
                           onClick={() => { generate(editedPrompt); setEditingPrompt(null) }}
                           disabled={generating}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
                         >
                           <Sparkles size={12} /> Regenerate
                         </button>
                         <button
                           onClick={() => setEditingPrompt(null)}
-                          className="px-3 py-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                          className="px-3 py-1.5 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
                         >
                           Cancel
                         </button>
@@ -417,9 +417,9 @@ export default function ImageGenerator({ facilityId, adminKey }: {
 
                   {/* Prompt preview */}
                   {editingPrompt !== job.id && job.prompt && (
-                    <details className="text-[10px] text-[#6E6E73]">
-                      <summary className="cursor-pointer hover:text-[#A1A1A6] transition-colors">View prompt</summary>
-                      <p className="mt-1 p-2 rounded text-xs whitespace-pre-wrap bg-white/[0.03] text-[#A1A1A6]">{job.prompt}</p>
+                    <details className="text-[10px] text-[var(--color-mid-gray)]">
+                      <summary className="cursor-pointer hover:text-[var(--color-body-text)] transition-colors">View prompt</summary>
+                      <p className="mt-1 p-2 rounded text-xs whitespace-pre-wrap bg-[var(--color-light-gray)] text-[var(--color-body-text)]">{job.prompt}</p>
                     </details>
                   )}
                 </div>
@@ -432,7 +432,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
       {/* Empty state */}
       {jobs.length === 0 && activeTemplate && (
         <div className="text-center py-6">
-          <p className="text-xs text-[#6E6E73]">Your generated images will appear here</p>
+          <p className="text-xs text-[var(--color-mid-gray)]">Your generated images will appear here</p>
         </div>
       )}
     </div>

@@ -37,7 +37,7 @@ const STATUS_OPTIONS = ["new", "contacted", "toured", "reserved", "moved_in", "l
 const FILTER_OPTIONS = ["all", ...STATUS_OPTIONS] as const;
 
 const STATUS_STYLES: Record<string, { bg: string; text: string }> = {
-  new: { bg: "rgba(59,130,246,0.1)", text: "#3B82F6" },
+  new: { bg: "rgba(181,139,63,0.1)", text: "var(--color-gold)" },
   contacted: { bg: "rgba(139,92,246,0.1)", text: "#8B5CF6" },
   toured: { bg: "rgba(234,179,8,0.1)", text: "#EAB308" },
   reserved: { bg: "rgba(249,115,22,0.1)", text: "#F97316" },
@@ -49,7 +49,7 @@ function TableSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="h-20 rounded-lg animate-pulse" style={{ backgroundColor: "#FFFFFF" }} />
+        <div key={i} className="h-20 rounded-lg animate-pulse" style={{ backgroundColor: "var(--bg-elevated)" }} />
       ))}
     </div>
   );
@@ -121,15 +121,15 @@ export default function ConsumerLeadsPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Inbound Leads</h1>
-        <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>Inbound Leads</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--color-mid-gray)" }}>
           Consumer-facing lead management
           {rawData && <span className="ml-1">&#183; {leads.length} leads</span>}
         </p>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        <Filter size={14} style={{ color: "#6E6E73" }} />
+        <Filter size={14} style={{ color: "var(--color-mid-gray)" }} />
         {FILTER_OPTIONS.map((f) => {
           const isActive = statusFilter === f;
           return (
@@ -138,8 +138,8 @@ export default function ConsumerLeadsPage() {
               onClick={() => setStatusFilter(f)}
               className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors capitalize"
               style={{
-                backgroundColor: isActive ? "#3B82F6" : "rgba(255,255,255,0.05)",
-                color: isActive ? "#fff" : "#6E6E73",
+                backgroundColor: isActive ? "var(--color-gold)" : "var(--color-light-gray)",
+                color: isActive ? "var(--color-light)" : "var(--color-mid-gray)",
               }}
             >
               {f.replace(/_/g, " ")}
@@ -166,72 +166,72 @@ export default function ConsumerLeadsPage() {
               <div
                 key={lead.id}
                 className="rounded-xl border overflow-hidden"
-                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+                style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
               >
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : lead.id)}
-                  className="w-full flex items-center justify-between p-4 text-left hover:bg-black/[0.03] transition-colors"
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--color-light-gray)] transition-colors"
                 >
                   <div className="flex items-center gap-3 flex-wrap min-w-0">
-                    <span className="text-sm font-medium" style={{ color: "#111827" }}>{lead.name}</span>
+                    <span className="text-sm font-medium" style={{ color: "var(--color-dark)" }}>{lead.name}</span>
                     <StatusBadge status={lead.status} />
                     <div className="flex items-center gap-1">
-                      <Gauge size={12} style={{ color: "#6E6E73" }} />
-                      <span className="text-xs" style={{ color: "#6E6E73" }}>{lead.lead_score}</span>
+                      <Gauge size={12} style={{ color: "var(--color-mid-gray)" }} />
+                      <span className="text-xs" style={{ color: "var(--color-mid-gray)" }}>{lead.lead_score}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">
                     {lead.facility && (
-                      <span className="text-xs" style={{ color: "#6E6E73" }}>
+                      <span className="text-xs" style={{ color: "var(--color-mid-gray)" }}>
                         <MapPin size={10} className="inline mr-1" />
                         {lead.facility}
                       </span>
                     )}
                     {lead.source && (
-                      <span className="text-xs" style={{ color: "#6E6E73" }}>
+                      <span className="text-xs" style={{ color: "var(--color-mid-gray)" }}>
                         <Globe size={10} className="inline mr-1" />
                         {lead.source}
                       </span>
                     )}
                     {isExpanded ? (
-                      <ChevronDown size={16} style={{ color: "#6E6E73" }} />
+                      <ChevronDown size={16} style={{ color: "var(--color-mid-gray)" }} />
                     ) : (
-                      <ChevronRight size={16} style={{ color: "#6E6E73" }} />
+                      <ChevronRight size={16} style={{ color: "var(--color-mid-gray)" }} />
                     )}
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t space-y-4" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+                  <div className="px-4 pb-4 border-t space-y-4" style={{ borderColor: "var(--border-subtle)" }}>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 text-xs">
                       <div className="flex items-center gap-1.5">
-                        <Mail size={12} style={{ color: "#6E6E73" }} />
-                        <span style={{ color: "#111827" }}>{lead.email || "N/A"}</span>
+                        <Mail size={12} style={{ color: "var(--color-mid-gray)" }} />
+                        <span style={{ color: "var(--color-dark)" }}>{lead.email || "N/A"}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Phone size={12} style={{ color: "#6E6E73" }} />
-                        <span style={{ color: "#111827" }}>{lead.phone || "N/A"}</span>
+                        <Phone size={12} style={{ color: "var(--color-mid-gray)" }} />
+                        <span style={{ color: "var(--color-dark)" }}>{lead.phone || "N/A"}</span>
                       </div>
                       <div>
-                        <span style={{ color: "#6E6E73" }}>Created: </span>
-                        <span style={{ color: "#111827" }}>{new Date(lead.created_at).toLocaleString()}</span>
+                        <span style={{ color: "var(--color-mid-gray)" }}>Created: </span>
+                        <span style={{ color: "var(--color-dark)" }}>{new Date(lead.created_at).toLocaleString()}</span>
                       </div>
                     </div>
 
                     {(lead.utm_source || lead.utm_medium || lead.utm_campaign) && (
                       <div className="flex flex-wrap gap-2">
                         {lead.utm_source && (
-                          <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(255,255,255,0.05)", color: "#6B7280" }}>
+                          <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: "var(--color-light-gray)", color: "var(--color-body-text)" }}>
                             source: {lead.utm_source}
                           </span>
                         )}
                         {lead.utm_medium && (
-                          <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(255,255,255,0.05)", color: "#6B7280" }}>
+                          <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: "var(--color-light-gray)", color: "var(--color-body-text)" }}>
                             medium: {lead.utm_medium}
                           </span>
                         )}
                         {lead.utm_campaign && (
-                          <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(255,255,255,0.05)", color: "#6B7280" }}>
+                          <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: "var(--color-light-gray)", color: "var(--color-body-text)" }}>
                             campaign: {lead.utm_campaign}
                           </span>
                         )}
@@ -239,30 +239,30 @@ export default function ConsumerLeadsPage() {
                     )}
 
                     <div className="flex items-center gap-2">
-                      <span className="text-xs" style={{ color: "#6E6E73" }}>Update Status:</span>
+                      <span className="text-xs" style={{ color: "var(--color-mid-gray)" }}>Update Status:</span>
                       <select
                         value={lead.status}
                         onChange={(e) => handleStatusChange(lead.id, e.target.value)}
                         disabled={isLoading}
                         className="rounded-lg border px-2 py-1 text-xs outline-none disabled:opacity-50"
-                        style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
+                        style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
                       >
                         {STATUS_OPTIONS.map((s) => (
                           <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
                         ))}
                       </select>
-                      {isLoading && <Loader2 size={12} className="animate-spin" style={{ color: "#3B82F6" }} />}
+                      {isLoading && <Loader2 size={12} className="animate-spin" style={{ color: "var(--color-gold)" }} />}
                     </div>
 
                     {lead.notes && lead.notes.length > 0 && (
                       <div>
-                        <h4 className="text-xs font-medium mb-2" style={{ color: "#6E6E73" }}>
+                        <h4 className="text-xs font-medium mb-2" style={{ color: "var(--color-mid-gray)" }}>
                           <MessageSquare size={10} className="inline mr-1" />
                           Notes
                         </h4>
                         <div className="space-y-1.5">
                           {lead.notes.map((note, idx) => (
-                            <p key={idx} className="text-xs rounded-lg p-2" style={{ backgroundColor: "#F9FAFB", color: "#6B7280" }}>
+                            <p key={idx} className="text-xs rounded-lg p-2" style={{ backgroundColor: "var(--color-light)", color: "var(--color-body-text)" }}>
                               {note}
                             </p>
                           ))}
@@ -280,13 +280,13 @@ export default function ConsumerLeadsPage() {
                           if (e.key === "Enter") handleAddNote(lead.id);
                         }}
                         className="flex-1 rounded-lg border px-3 py-1.5 text-xs outline-none"
-                        style={{ backgroundColor: "#F9FAFB", borderColor: "rgba(0,0,0,0.08)", color: "#111827" }}
+                        style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
                       />
                       <button
                         onClick={() => handleAddNote(lead.id)}
                         disabled={isLoading || !noteText.trim()}
                         className="p-1.5 rounded-lg transition-colors disabled:opacity-50"
-                        style={{ backgroundColor: "rgba(59,130,246,0.1)", color: "#3B82F6" }}
+                        style={{ backgroundColor: "rgba(181,139,63,0.1)", color: "var(--color-gold)" }}
                       >
                         <Send size={14} />
                       </button>
@@ -299,8 +299,8 @@ export default function ConsumerLeadsPage() {
         </div>
       ) : (
         <div className="text-center py-16">
-          <UserPlus size={32} className="mx-auto mb-3" style={{ color: "#6E6E73" }} />
-          <p className="text-sm" style={{ color: "#6E6E73" }}>
+          <UserPlus size={32} className="mx-auto mb-3" style={{ color: "var(--color-mid-gray)" }} />
+          <p className="text-sm" style={{ color: "var(--color-mid-gray)" }}>
             {statusFilter === "all" ? "No consumer leads yet" : `No ${statusFilter.replace(/_/g, " ")} leads`}
           </p>
         </div>

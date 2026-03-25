@@ -24,6 +24,10 @@ interface UserData {
   state?: string;
   zip?: string;
   country?: string;
+  fbc?: string;
+  fbp?: string;
+  client_ip_address?: string;
+  client_user_agent?: string;
 }
 
 function normalizeUserData(
@@ -47,7 +51,7 @@ function normalizeUserData(
   return hashed;
 }
 
-function mapEventName(stowStackEvent: string): string {
+function mapEventName(storageAdsEvent: string): string {
   const eventMap: Record<string, string> = {
     PageView: "PageView",
     Lead: "Lead",
@@ -58,7 +62,7 @@ function mapEventName(stowStackEvent: string): string {
     ViewContent: "ViewContent",
     unit_selected: "ViewContent",
   };
-  return eventMap[stowStackEvent] || stowStackEvent;
+  return eventMap[storageAdsEvent] || storageAdsEvent;
 }
 
 interface CustomData {
@@ -171,14 +175,21 @@ function validateEventData(
     errors.user_data = "user_data object is required";
   }
   if (body.user_data) {
-    const hasAtLeastOne =
+    const hasPII =
       body.user_data.email ||
       body.user_data.phone ||
       body.user_data.firstName ||
       body.user_data.lastName;
-    if (!hasAtLeastOne) {
+    const hasTechnicalIds =
+      body.user_data.fbc ||
+      body.user_data.fbp ||
+      body.user_data.client_user_agent ||
+      body.user_data.client_ip_address;
+    // PageView events can fire with only technical identifiers (fbc/fbp/user_agent)
+    // Conversion events require at least one PII field
+    if (!hasPII && !hasTechnicalIds) {
       errors.user_data =
-        "user_data must contain at least email, phone, firstName, or lastName";
+        "user_data must contain at least one identifier (email, phone, fbc, fbp, or user_agent)";
     }
   }
 

@@ -55,7 +55,7 @@ const COLUMN_LABELS: Record<string, string> = {
 
 const COLUMN_HEADER_COLORS: Record<string, string> = {
   diagnostic_submitted: "bg-indigo-500/20 text-indigo-400",
-  submitted: "bg-blue-500/20 text-blue-400",
+  submitted: "bg-[var(--color-blue)]/20 text-[var(--color-blue)]",
   audit_generated: "bg-cyan-500/20 text-cyan-400",
   audit_sent: "bg-teal-500/20 text-teal-400",
   form_sent: "bg-amber-500/20 text-amber-400",
@@ -83,16 +83,16 @@ function timeAgo(iso: string): string {
 
 function ColumnSkeleton() {
   return (
-    <div className="flex-shrink-0 w-72 bg-white rounded-xl border border-black/[0.08] overflow-hidden animate-pulse">
-      <div className="px-4 py-3 border-b border-black/[0.08]">
-        <div className="h-4 w-28 rounded bg-black/5" />
+    <div className="flex-shrink-0 w-72 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-subtle)] overflow-hidden animate-pulse">
+      <div className="px-4 py-3 border-b border-[var(--border-subtle)]">
+        <div className="h-4 w-28 rounded bg-[var(--color-dark)]/10" />
       </div>
       <div className="p-3 space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-lg bg-black/[0.03] p-3 space-y-2">
-            <div className="h-4 w-32 rounded bg-black/5" />
-            <div className="h-3 w-24 rounded bg-black/5" />
-            <div className="h-3 w-20 rounded bg-black/5" />
+          <div key={i} className="rounded-lg bg-[var(--color-light-gray)] p-3 space-y-2">
+            <div className="h-4 w-32 rounded bg-[var(--color-dark)]/10" />
+            <div className="h-3 w-24 rounded bg-[var(--color-dark)]/10" />
+            <div className="h-3 w-20 rounded bg-[var(--color-dark)]/10" />
           </div>
         ))}
       </div>
@@ -113,27 +113,27 @@ function KanbanCard({
     <div
       draggable
       onDragStart={(e) => onDragStart(e, lead.id)}
-      className="group rounded-lg bg-[#F9FAFB] border border-black/[0.08] p-3 cursor-grab active:cursor-grabbing hover:border-black/[0.12] transition-all active:opacity-60"
+      className="group rounded-lg bg-[var(--color-light)] border border-[var(--border-subtle)] p-3 cursor-grab active:cursor-grabbing hover:border-[var(--border-medium)] transition-all active:opacity-60"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[#111827] truncate">
+          <p className="text-sm font-medium text-[var(--color-dark)] truncate">
             {lead.name || "Unnamed"}
           </p>
           {lead.facilityName && (
-            <p className="text-xs text-[#9CA3AF] truncate mt-0.5">
+            <p className="text-xs text-[var(--color-mid-gray)] truncate mt-0.5">
               {lead.facilityName}
             </p>
           )}
         </div>
-        <GripVertical className="w-4 h-4 text-[#9CA3AF] opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
+        <GripVertical className="w-4 h-4 text-[var(--color-mid-gray)] opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
       </div>
 
       <div className="mt-2 flex items-center justify-between">
         {lead.location ? (
           <div className="flex items-center gap-1 min-w-0">
-            <MapPin className="w-3 h-3 text-[#9CA3AF] shrink-0" />
-            <span className="text-xs text-[#9CA3AF] truncate">
+            <MapPin className="w-3 h-3 text-[var(--color-mid-gray)] shrink-0" />
+            <span className="text-xs text-[var(--color-mid-gray)] truncate">
               {lead.location}
             </span>
           </div>
@@ -141,8 +141,8 @@ function KanbanCard({
           <span />
         )}
         <div className="flex items-center gap-1 shrink-0 ml-2">
-          <Clock className="w-3 h-3 text-[#9CA3AF]" />
-          <span className="text-[10px] text-[#9CA3AF]">
+          <Clock className="w-3 h-3 text-[var(--color-mid-gray)]" />
+          <span className="text-[10px] text-[var(--color-mid-gray)]">
             {timeAgo(lead.createdAt)}
           </span>
         </div>
@@ -171,22 +171,22 @@ function KanbanColumn({
   onDragLeave: () => void;
 }) {
   const isOver = dragOverStatus === status;
-  const headerColor = COLUMN_HEADER_COLORS[status] || "bg-black/5 text-[#6B7280]";
+  const headerColor = COLUMN_HEADER_COLORS[status] || "bg-[var(--color-dark)]/10 text-[var(--color-body-text)]";
 
   return (
     <div
       className={`flex-shrink-0 w-72 rounded-xl border overflow-hidden flex flex-col max-h-[calc(100vh-180px)] transition-colors ${
         isOver
-          ? "border-blue-500/40 bg-blue-500/5"
-          : "border-black/[0.08] bg-white"
+          ? "border-[var(--color-blue)]/40 bg-[var(--color-blue)]/5"
+          : "border-[var(--border-subtle)] bg-[var(--bg-elevated)]"
       }`}
       onDragOver={(e) => onDragOver(e, status)}
       onDragLeave={onDragLeave}
       onDrop={(e) => onDrop(e, status)}
     >
       {/* Header */}
-      <div className="px-4 py-3 border-b border-black/[0.08] flex items-center justify-between shrink-0">
-        <span className="text-sm font-semibold text-[#111827]">
+      <div className="px-4 py-3 border-b border-[var(--border-subtle)] flex items-center justify-between shrink-0">
+        <span className="text-sm font-semibold text-[var(--color-dark)]">
           {COLUMN_LABELS[status]}
         </span>
         <span
@@ -200,7 +200,7 @@ function KanbanColumn({
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {leads.length === 0 ? (
           <div className="py-8 text-center">
-            <p className="text-xs text-[#9CA3AF]">No leads</p>
+            <p className="text-xs text-[var(--color-mid-gray)]">No leads</p>
           </div>
         ) : (
           leads.map((lead) => (
@@ -304,27 +304,27 @@ export default function AdminKanbanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-[#111827]">
+    <div className="min-h-screen bg-[var(--color-light)] text-[var(--color-dark)]">
       {/* Header */}
-      <div className="border-b border-black/[0.08] bg-[#F9FAFB]/80 backdrop-blur-sm sticky top-0 z-30">
+      <div className="border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 backdrop-blur-sm sticky top-0 z-30">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">Kanban Board</h1>
-            <p className="text-xs text-[#9CA3AF] mt-0.5">
+            <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">
               Drag leads between stages to update status
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Link
               href="/admin"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7280] hover:text-[#111827] border border-black/[0.08] rounded-lg hover:bg-black/[0.03] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)] border border-[var(--border-subtle)] rounded-lg hover:bg-[var(--color-light-gray)] transition-colors"
             >
               <LayoutDashboard className="w-4 h-4" />
               <span className="hidden sm:inline">Pipeline</span>
             </Link>
             <button
               onClick={refetch}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7280] hover:text-[#111827] border border-black/[0.08] rounded-lg hover:bg-black/[0.03] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)] border border-[var(--border-subtle)] rounded-lg hover:bg-[var(--color-light-gray)] transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
@@ -345,15 +345,15 @@ export default function AdminKanbanPage() {
             <p className="text-sm text-red-400 mb-3">Failed to load leads</p>
             <button
               onClick={refetch}
-              className="text-sm text-blue-400 underline"
+              className="text-sm text-[var(--color-blue)] underline"
             >
               Retry
             </button>
           </div>
         ) : leads.length === 0 ? (
-          <div className="rounded-xl border border-black/[0.08] bg-white p-12 text-center max-w-md mx-auto">
-            <p className="text-sm text-[#6B7280]">No leads in pipeline</p>
-            <p className="text-xs text-[#9CA3AF] mt-1">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-12 text-center max-w-md mx-auto">
+            <p className="text-sm text-[var(--color-body-text)]">No leads in pipeline</p>
+            <p className="text-xs text-[var(--color-mid-gray)] mt-1">
               New leads will appear here when submitted
             </p>
           </div>

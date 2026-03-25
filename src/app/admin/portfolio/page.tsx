@@ -80,9 +80,9 @@ function currencyDecimal(n: number): string {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-      <div className="mb-3 h-4 w-24 animate-pulse rounded bg-black/[0.04]" />
-      <div className="h-8 w-32 animate-pulse rounded bg-black/[0.04]" />
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+      <div className="mb-3 h-4 w-24 animate-pulse rounded bg-[var(--color-light-gray)]" />
+      <div className="h-8 w-32 animate-pulse rounded bg-[var(--color-light-gray)]" />
     </div>
   );
 }
@@ -93,7 +93,7 @@ function SkeletonTable() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="h-12 w-full animate-pulse rounded bg-black/[0.04]"
+          className="h-12 w-full animate-pulse rounded bg-[var(--color-light-gray)]"
         />
       ))}
     </div>
@@ -102,7 +102,7 @@ function SkeletonTable() {
 
 function SkeletonChart() {
   return (
-    <div className="h-72 w-full animate-pulse rounded-xl bg-black/[0.04]" />
+    <div className="h-72 w-full animate-pulse rounded-xl bg-[var(--color-light-gray)]" />
   );
 }
 
@@ -146,19 +146,19 @@ function KPICard({ label, value, icon, accent, change }: KPICardProps) {
     <div
       className={`rounded-xl border p-5 ${
         accent
-          ? "border-[#3B82F6]/30 bg-[#3B82F6]/[0.08]"
-          : "border-black/[0.08] bg-white"
+          ? "border-[var(--color-gold)]/30 bg-[var(--color-gold)]/[0.08]"
+          : "border-[var(--border-subtle)] bg-[var(--bg-elevated)]"
       }`}
     >
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm text-[#9CA3AF]">{label}</span>
-        <span className={accent ? "text-[#3B82F6]" : "text-[#6B7280]"}>
+        <span className="text-sm text-[var(--color-mid-gray)]">{label}</span>
+        <span className={accent ? "text-[var(--color-gold)]" : "text-[var(--color-body-text)]"}>
           {icon}
         </span>
       </div>
       <p
         className={`text-2xl font-bold ${
-          accent ? "text-[#3B82F6]" : "text-[#111827]"
+          accent ? "text-[var(--color-gold)]" : "text-[var(--color-dark)]"
         }`}
       >
         {value}
@@ -196,16 +196,16 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-black/[0.08] bg-[#F3F4F6] px-3 py-2 shadow-xl">
-      <p className="mb-1 text-xs text-[#9CA3AF]">{label}</p>
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] px-3 py-2 shadow-xl">
+      <p className="mb-1 text-xs text-[var(--color-mid-gray)]">{label}</p>
       {payload.map((entry) => (
         <div key={entry.name} className="flex items-center gap-2 text-sm">
           <span
             className="h-2 w-2 rounded-full"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-[#6B7280]">{entry.name}:</span>
-          <span className="font-medium text-[#111827]">
+          <span className="text-[var(--color-body-text)]">{entry.name}:</span>
+          <span className="font-medium text-[var(--color-dark)]">
             {entry.name === "Spend" ? currency(entry.value) : entry.value}
           </span>
         </div>
@@ -449,16 +449,16 @@ export default function PortfolioPage() {
           />
         </div>
       ) : (
-        <div className="rounded-xl border border-black/[0.08] bg-white p-8 text-center">
-          <p className="text-[#9CA3AF]">No portfolio data available yet.</p>
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-8 text-center">
+          <p className="text-[var(--color-mid-gray)]">No portfolio data available yet.</p>
         </div>
       )}
 
       {/* charts */}
       <div className="grid gap-6 xl:grid-cols-2">
         {/* monthly performance area chart */}
-        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-          <h2 className="mb-4 text-sm font-semibold text-[#111827]">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+          <h2 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
             Monthly Campaign Performance
           </h2>
           {loading ? (
@@ -468,8 +468,8 @@ export default function PortfolioPage() {
               <AreaChart data={monthlyData}>
                 <defs>
                   <linearGradient id="gradLeads" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--color-gold)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--color-gold)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient
                     id="gradMoveIns"
@@ -478,43 +478,43 @@ export default function PortfolioPage() {
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--color-green)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--color-green)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.06)"
+                  stroke="var(--border-subtle)"
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: "#6E6E73", fontSize: 12 }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: "#6E6E73", fontSize: 12 }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip
                   content={<ChartTooltip />}
-                  cursor={{ stroke: "rgba(255,255,255,0.1)" }}
+                  cursor={{ stroke: "var(--color-light-gray)" }}
                 />
                 <Legend
-                  wrapperStyle={{ color: "#6B7280", fontSize: 12 }}
+                  wrapperStyle={{ color: "var(--color-body-text)", fontSize: 12 }}
                 />
                 <Area
                   type="monotone"
                   dataKey="Leads"
-                  stroke="#3B82F6"
+                  stroke="var(--color-gold)"
                   fill="url(#gradLeads)"
                   strokeWidth={2}
                 />
                 <Area
                   type="monotone"
                   dataKey="Move-Ins"
-                  stroke="#10B981"
+                  stroke="var(--color-green)"
                   fill="url(#gradMoveIns)"
                   strokeWidth={2}
                 />
@@ -522,7 +522,7 @@ export default function PortfolioPage() {
             </ResponsiveContainer>
           ) : (
             <div className="flex h-72 items-center justify-center">
-              <p className="text-sm text-[#9CA3AF]">
+              <p className="text-sm text-[var(--color-mid-gray)]">
                 No monthly data available.
               </p>
             </div>
@@ -530,8 +530,8 @@ export default function PortfolioPage() {
         </div>
 
         {/* spend bar chart */}
-        <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-          <h2 className="mb-4 text-sm font-semibold text-[#111827]">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+          <h2 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
             Monthly Ad Spend
           </h2>
           {loading ? (
@@ -541,23 +541,23 @@ export default function PortfolioPage() {
               <BarChart data={monthlyData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.06)"
+                  stroke="var(--border-subtle)"
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: "#6E6E73", fontSize: 12 }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: "#6E6E73", fontSize: 12 }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
                   content={<ChartTooltip />}
-                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                  cursor={{ fill: "var(--color-light-gray)" }}
                 />
                 <Bar
                   dataKey="Spend"
@@ -569,7 +569,7 @@ export default function PortfolioPage() {
             </ResponsiveContainer>
           ) : (
             <div className="flex h-72 items-center justify-center">
-              <p className="text-sm text-[#9CA3AF]">
+              <p className="text-sm text-[var(--color-mid-gray)]">
                 No spend data available.
               </p>
             </div>
@@ -578,8 +578,8 @@ export default function PortfolioPage() {
       </div>
 
       {/* client rankings */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold text-[#111827]">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h2 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
           Client Rankings
         </h2>
         {loading ? (
@@ -588,7 +588,7 @@ export default function PortfolioPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-black/[0.08] text-left text-[#9CA3AF]">
+                <tr className="border-b border-[var(--border-subtle)] text-left text-[var(--color-mid-gray)]">
                   <th className="pb-3 pr-4 font-medium">#</th>
                   <th className="pb-3 pr-4 font-medium">Client</th>
                   <th className="pb-3 pr-4 font-medium">Facility</th>
@@ -605,28 +605,28 @@ export default function PortfolioPage() {
                 {clientRankings.map((row, i) => (
                   <tr
                     key={row.client}
-                    className="border-b border-black/[0.06] transition-colors hover:bg-black/[0.03]"
+                    className="border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--color-light-gray)]"
                   >
-                    <td className="py-3 pr-4 text-[#9CA3AF]">{i + 1}</td>
-                    <td className="py-3 pr-4 font-medium text-[#111827]">
+                    <td className="py-3 pr-4 text-[var(--color-mid-gray)]">{i + 1}</td>
+                    <td className="py-3 pr-4 font-medium text-[var(--color-dark)]">
                       {row.client}
                     </td>
-                    <td className="py-3 pr-4 text-[#6B7280]">
+                    <td className="py-3 pr-4 text-[var(--color-body-text)]">
                       {row.facility}
                     </td>
-                    <td className="py-3 pr-4 text-right text-[#6B7280]">
+                    <td className="py-3 pr-4 text-right text-[var(--color-body-text)]">
                       {currency(row.spend)}
                     </td>
-                    <td className="py-3 pr-4 text-right text-[#6B7280]">
+                    <td className="py-3 pr-4 text-right text-[var(--color-body-text)]">
                       {row.leads}
                     </td>
-                    <td className="py-3 pr-4 text-right font-medium text-[#3B82F6]">
+                    <td className="py-3 pr-4 text-right font-medium text-[var(--color-gold)]">
                       {row.moveIns}
                     </td>
-                    <td className="py-3 pr-4 text-right text-[#6B7280]">
+                    <td className="py-3 pr-4 text-right text-[var(--color-body-text)]">
                       {currencyDecimal(row.cpl)}
                     </td>
-                    <td className="py-3 text-right text-[#6B7280]">
+                    <td className="py-3 text-right text-[var(--color-body-text)]">
                       {row.roas.toFixed(1)}x
                     </td>
                   </tr>
@@ -636,7 +636,7 @@ export default function PortfolioPage() {
           </div>
         ) : (
           <div className="py-8 text-center">
-            <p className="text-sm text-[#9CA3AF]">
+            <p className="text-sm text-[var(--color-mid-gray)]">
               No client data available yet.
             </p>
           </div>

@@ -3,7 +3,7 @@
  * Safe to import from both client and server components.
  */
 
-export type StowStackRole =
+export type StorageAdsRole =
   | "admin"
   | "virtual_assistant"
   | "client"

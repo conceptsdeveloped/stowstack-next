@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
             if (apiKey) {
               const recipients = (
                 process.env.AUDIT_NOTIFICATION_EMAILS ||
-                "blake@urkovro.resend.app"
+                "blake@storageads.com"
               )
                 .split(",")
                 .map((e) => e.trim());
@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
                   Authorization: `Bearer ${apiKey}`,
                 },
                 body: JSON.stringify({
-                  from: "StowStack <alerts@stowstack.co>",
+                  from: "StorageAds <alerts@storageads.com>",
                   to: recipients,
                   subject: `${alert.title} — ${client.fac_name || client.facility_name}`,
                   html: `<div style="font-family:-apple-system,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
@@ -190,7 +190,7 @@ export async function GET(request: NextRequest) {
     <p style="margin:0;color:#7f1d1d;font-size:14px;">${esc(alert.detail)}</p>
   </div>
   <p style="color:#666;font-size:13px;">Facility: ${esc(String(client.fac_name || client.facility_name))}</p>
-  <a href="https://stowstack.co/admin" style="display:inline-block;padding:10px 20px;background:#0f172a;color:white;text-decoration:none;border-radius:6px;font-size:13px;margin-top:12px;">View in Dashboard</a>
+  <a href="https://storageads.com/admin" style="display:inline-block;padding:10px 20px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:6px;font-size:13px;margin-top:12px;">View in Dashboard</a>
 </div>`,
                 }),
               }).catch(() => {});

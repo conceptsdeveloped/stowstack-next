@@ -117,9 +117,9 @@ async function handleNewRequest(
   if (resend) {
     try {
       await resend.emails.send({
-        from: "StowStack <noreply@stowstack.co>",
+        from: "StorageAds <noreply@storageads.com>",
         to: sanitizedEmail,
-        subject: "Data Deletion Request Received - StowStack",
+        subject: "Data Deletion Request Received - StorageAds",
         html: buildUserConfirmationEmail(
           sanitizedName || "there",
           request.id
@@ -132,8 +132,8 @@ async function handleNewRequest(
     // Notify admin
     try {
       await resend.emails.send({
-        from: "StowStack System <noreply@stowstack.co>",
-        to: "blake@storepawpaw.com",
+        from: "StorageAds System <noreply@storageads.com>",
+        to: "blake@storageads.com",
         subject: `Data Deletion Request: ${sanitizedEmail}`,
         html: buildAdminNotificationEmail(
           sanitizedEmail,
@@ -184,9 +184,9 @@ async function handleAcknowledge(
   if (resend) {
     try {
       await resend.emails.send({
-        from: "StowStack <noreply@stowstack.co>",
+        from: "StorageAds <noreply@storageads.com>",
         to: request.email,
-        subject: "Data Deletion Request Acknowledged - StowStack",
+        subject: "Data Deletion Request Acknowledged - StorageAds",
         html: buildAcknowledgmentEmail(request.name || "there", request.id),
       });
     } catch {
@@ -300,9 +300,9 @@ async function handleExecuteDeletion(
   if (resend) {
     try {
       await resend.emails.send({
-        from: "StowStack <noreply@stowstack.co>",
+        from: "StorageAds <noreply@storageads.com>",
         to: email,
-        subject: "Data Deletion Complete - StowStack",
+        subject: "Data Deletion Complete - StorageAds",
         html: buildCompletionEmail(request.name || "there", request.id),
       });
     } catch {
@@ -339,26 +339,26 @@ async function scanForUserData(email: string) {
 // Email templates
 function buildUserConfirmationEmail(name: string, requestId: string) {
   return `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #0A0A0A; color: #F5F5F7;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #faf9f5; color: #141413;">
       <div style="margin-bottom: 24px;">
-        <span style="font-weight: 700; font-size: 18px; color: #F5F5F7;">Stow<span style="color: #3B82F6;">Stack</span></span>
+        <span style="font-weight: 700; font-size: 18px; color: #141413;">Storage<span style="color: #B58B3F;">Ads</span></span>
       </div>
-      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #F5F5F7;">Data Deletion Request Received</h2>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #141413;">Data Deletion Request Received</h2>
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         We have received your data deletion request. Here's what happens next:
       </p>
-      <ul style="color: #A1A1A6; line-height: 1.8; margin-bottom: 16px; padding-left: 20px;">
-        <li>We will acknowledge your request within <strong style="color: #F5F5F7;">5 business days</strong></li>
-        <li>Data deletion will be completed within <strong style="color: #F5F5F7;">30 days</strong></li>
+      <ul style="color: #6a6560; line-height: 1.8; margin-bottom: 16px; padding-left: 20px;">
+        <li>We will acknowledge your request within <strong style="color: #141413;">5 business days</strong></li>
+        <li>Data deletion will be completed within <strong style="color: #141413;">30 days</strong></li>
         <li>You will receive a confirmation email when deletion is complete</li>
       </ul>
-      <div style="background: #1A1A1A; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-        <p style="color: #6E6E73; font-size: 12px; margin-bottom: 4px;">Confirmation ID</p>
-        <p style="color: #3B82F6; font-family: monospace; font-size: 14px;">${requestId}</p>
+      <div style="background: #ffffff; border: 1px solid #e8e6dc; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+        <p style="color: #b0aea5; font-size: 12px; margin-bottom: 4px;">Confirmation ID</p>
+        <p style="color: #B58B3F; font-family: monospace; font-size: 14px;">${requestId}</p>
       </div>
-      <p style="color: #6E6E73; font-size: 12px; line-height: 1.5;">
-        If you have questions, contact us at blake@storepawpaw.com or (269) 929-8541.
+      <p style="color: #b0aea5; font-size: 12px; line-height: 1.5;">
+        If you have questions, contact us at blake@storageads.com or (269) 929-8541.
       </p>
     </div>
   `;
@@ -393,20 +393,20 @@ function buildAdminNotificationEmail(
 
 function buildAcknowledgmentEmail(name: string, requestId: string) {
   return `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #0A0A0A; color: #F5F5F7;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #faf9f5; color: #141413;">
       <div style="margin-bottom: 24px;">
-        <span style="font-weight: 700; font-size: 18px; color: #F5F5F7;">Stow<span style="color: #3B82F6;">Stack</span></span>
+        <span style="font-weight: 700; font-size: 18px; color: #141413;">Storage<span style="color: #B58B3F;">Ads</span></span>
       </div>
-      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #F5F5F7;">Deletion Request Acknowledged</h2>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">
-        Your data deletion request (ID: <span style="color: #3B82F6; font-family: monospace;">${requestId}</span>) has been acknowledged and is being processed.
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #141413;">Deletion Request Acknowledged</h2>
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
+        Your data deletion request (ID: <span style="color: #B58B3F; font-family: monospace;">${requestId}</span>) has been acknowledged and is being processed.
       </p>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         Deletion will be completed within 30 days of your original request. You will receive a final confirmation email when complete.
       </p>
-      <p style="color: #6E6E73; font-size: 12px; line-height: 1.5;">
-        Questions? Contact us at blake@storepawpaw.com or (269) 929-8541.
+      <p style="color: #b0aea5; font-size: 12px; line-height: 1.5;">
+        Questions? Contact us at blake@storageads.com or (269) 929-8541.
       </p>
     </div>
   `;
@@ -414,30 +414,30 @@ function buildAcknowledgmentEmail(name: string, requestId: string) {
 
 function buildCompletionEmail(name: string, requestId: string) {
   return `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #0A0A0A; color: #F5F5F7;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #faf9f5; color: #141413;">
       <div style="margin-bottom: 24px;">
-        <span style="font-weight: 700; font-size: 18px; color: #F5F5F7;">Stow<span style="color: #3B82F6;">Stack</span></span>
+        <span style="font-weight: 700; font-size: 18px; color: #141413;">Storage<span style="color: #B58B3F;">Ads</span></span>
       </div>
       <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #22C55E;">Data Deletion Complete</h2>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">
-        Your data deletion request (ID: <span style="color: #3B82F6; font-family: monospace;">${requestId}</span>) has been completed.
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
+        Your data deletion request (ID: <span style="color: #B58B3F; font-family: monospace;">${requestId}</span>) has been completed.
       </p>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         The following data has been permanently removed from our systems:
       </p>
-      <ul style="color: #A1A1A6; line-height: 1.8; margin-bottom: 16px; padding-left: 20px;">
+      <ul style="color: #6a6560; line-height: 1.8; margin-bottom: 16px; padding-left: 20px;">
         <li>Account information and login credentials</li>
         <li>Facility data and campaign information</li>
         <li>Portal access and session data</li>
         <li>Messages and communications</li>
         <li>Any data obtained through Meta platform APIs</li>
       </ul>
-      <p style="color: #A1A1A6; line-height: 1.6; margin-bottom: 16px;">
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         As noted in our privacy policy, certain financial records may be retained as required by tax and accounting regulations.
       </p>
-      <p style="color: #6E6E73; font-size: 12px; line-height: 1.5;">
-        Questions? Contact us at blake@storepawpaw.com or (269) 929-8541.
+      <p style="color: #b0aea5; font-size: 12px; line-height: 1.5;">
+        Questions? Contact us at blake@storageads.com or (269) 929-8541.
       </p>
     </div>
   `;

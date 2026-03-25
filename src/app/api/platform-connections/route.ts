@@ -12,7 +12,7 @@ function getOAuthUrl(platform: string, facilityId: string): string | null {
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.VERCEL_ENV === "production"
-      ? "https://www.stowstack.co"
+      ? "https://www.storageads.com"
       : null) ||
     (process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`

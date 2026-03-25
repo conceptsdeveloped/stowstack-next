@@ -28,7 +28,7 @@ export function useAdminFetch<T = unknown>(
 
     const key =
       typeof window !== "undefined"
-        ? localStorage.getItem("stowstack_admin_key") || ""
+        ? localStorage.getItem("storageads_admin_key") || ""
         : "";
 
     const url = new URL(path, window.location.origin);
@@ -74,7 +74,7 @@ export async function adminFetch<T = unknown>(
 ): Promise<T> {
   const key =
     typeof window !== "undefined"
-      ? localStorage.getItem("stowstack_admin_key") || ""
+      ? localStorage.getItem("storageads_admin_key") || ""
       : "";
 
   const res = await fetch(path, {

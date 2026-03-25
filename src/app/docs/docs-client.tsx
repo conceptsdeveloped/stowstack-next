@@ -438,7 +438,7 @@ const SECTIONS: ApiSection[] = [
 
 const METHOD_COLORS: Record<string, string> = {
   GET: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  POST: "bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20",
+  POST: "bg-[var(--color-gold)]/10 text-[var(--color-gold)] border-[var(--color-gold)]/20",
   PATCH: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   DELETE: "bg-red-500/10 text-red-400 border-red-500/20",
 };
@@ -459,7 +459,7 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className="rounded p-1.5 text-[#9CA3AF] transition-colors hover:bg-black/[0.04] hover:text-[#6B7280]"
+      className="rounded p-1.5 text-[var(--color-mid-gray)] transition-colors hover:bg-[var(--border-subtle)] hover:text-[var(--color-body-text)]"
       title="Copy"
     >
       {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
@@ -471,11 +471,11 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white overflow-hidden">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-black/[0.03]"
+        className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-white/[0.02]"
       >
         <span
           className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-wider ${
@@ -484,35 +484,35 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
         >
           {endpoint.method}
         </span>
-        <code className="flex-1 text-sm font-medium text-[#111827]">{endpoint.path}</code>
-        <span className="text-xs text-[#9CA3AF]">{endpoint.scope}</span>
+        <code className="flex-1 text-sm font-medium text-[var(--color-dark)]">{endpoint.path}</code>
+        <span className="text-xs text-[var(--color-mid-gray)]">{endpoint.scope}</span>
         <ChevronRight
-          className={`h-4 w-4 shrink-0 text-[#9CA3AF] transition-transform ${
+          className={`h-4 w-4 shrink-0 text-[var(--color-mid-gray)] transition-transform ${
             expanded ? "rotate-90" : ""
           }`}
         />
       </button>
 
       {expanded && (
-        <div className="border-t border-black/[0.08] px-5 py-4 space-y-4">
-          <p className="text-sm text-[#6B7280]">{endpoint.description}</p>
+        <div className="border-t border-[var(--border-subtle)] px-5 py-4 space-y-4">
+          <p className="text-sm text-[var(--color-body-text)]">{endpoint.description}</p>
 
           {endpoint.params && endpoint.params.length > 0 && (
             <div>
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Query Parameters
               </h4>
               <div className="space-y-1.5">
                 {endpoint.params.map((p) => (
                   <div key={p.name} className="flex items-start gap-3 text-sm">
-                    <code className="shrink-0 rounded bg-black/[0.03] px-1.5 py-0.5 text-xs text-[#111827]">
+                    <code className="shrink-0 rounded bg-white/[0.04] px-1.5 py-0.5 text-xs text-[var(--color-dark)]">
                       {p.name}
                     </code>
-                    <span className="text-[10px] text-[#9CA3AF] mt-0.5">{p.type}</span>
+                    <span className="text-[10px] text-[var(--color-mid-gray)] mt-0.5">{p.type}</span>
                     {p.required && (
                       <span className="text-[10px] font-medium text-red-400 mt-0.5">required</span>
                     )}
-                    <span className="text-xs text-[#6B7280]">{p.description}</span>
+                    <span className="text-xs text-[var(--color-body-text)]">{p.description}</span>
                   </div>
                 ))}
               </div>
@@ -521,20 +521,20 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
 
           {endpoint.body && endpoint.body.length > 0 && (
             <div>
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Request Body (JSON)
               </h4>
               <div className="space-y-1.5">
                 {endpoint.body.map((p) => (
                   <div key={p.name} className="flex items-start gap-3 text-sm">
-                    <code className="shrink-0 rounded bg-black/[0.03] px-1.5 py-0.5 text-xs text-[#111827]">
+                    <code className="shrink-0 rounded bg-white/[0.04] px-1.5 py-0.5 text-xs text-[var(--color-dark)]">
                       {p.name}
                     </code>
-                    <span className="text-[10px] text-[#9CA3AF] mt-0.5">{p.type}</span>
+                    <span className="text-[10px] text-[var(--color-mid-gray)] mt-0.5">{p.type}</span>
                     {p.required && (
                       <span className="text-[10px] font-medium text-red-400 mt-0.5">required</span>
                     )}
-                    <span className="text-xs text-[#6B7280]">{p.description}</span>
+                    <span className="text-xs text-[var(--color-body-text)]">{p.description}</span>
                   </div>
                 ))}
               </div>
@@ -544,12 +544,12 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
           {endpoint.responseExample && (
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-mid-gray)]">
                   Response Example
                 </h4>
                 <CopyButton text={endpoint.responseExample} />
               </div>
-              <pre className="overflow-x-auto rounded-lg bg-[#F9FAFB] p-4 text-xs leading-relaxed text-[#6B7280]">
+              <pre className="overflow-x-auto rounded-lg bg-[var(--color-light)] p-4 text-xs leading-relaxed text-[var(--color-body-text)]">
                 {endpoint.responseExample}
               </pre>
             </div>
@@ -568,29 +568,29 @@ export function DocsClient() {
   const section = SECTIONS.find((s) => s.slug === activeSection);
 
   return (
-    <div className="min-h-screen bg-white text-[#111827]">
+    <div className="min-h-screen bg-[var(--color-light)] text-[var(--color-dark)]">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-black/[0.08] bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
           <Link
             href="/"
-            className="flex items-center gap-2 text-[#9CA3AF] transition-colors hover:text-[#111827]"
+            className="flex items-center gap-2 text-[var(--color-mid-gray)] transition-colors hover:text-[var(--color-dark)]"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B82F6]">
-              <span className="text-sm font-bold text-[#111827]">S</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-gold)]">
+              <span className="text-sm font-bold text-[var(--color-light)]">S</span>
             </div>
             <div>
-              <h1 className="text-base font-bold tracking-tight">StowStack API</h1>
-              <p className="text-[10px] text-[#9CA3AF]">v1 — REST API Documentation</p>
+              <h1 className="text-base font-bold tracking-tight">StorageAds API</h1>
+              <p className="text-[10px] text-[var(--color-mid-gray)]">v1 — REST API Documentation</p>
             </div>
           </div>
           <div className="ml-auto">
             <Link
               href="/pricing"
-              className="rounded-lg bg-[#3B82F6] px-4 py-2 text-xs font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB]"
+              className="rounded-lg bg-[var(--color-gold)] px-4 py-2 text-xs font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)]"
             >
               Get API Access
             </Link>
@@ -600,10 +600,10 @@ export function DocsClient() {
 
       <div className="mx-auto flex max-w-7xl">
         {/* Sidebar */}
-        <aside className="hidden w-64 shrink-0 border-r border-black/[0.08] lg:block">
+        <aside className="hidden w-64 shrink-0 border-r border-[var(--border-subtle)] lg:block">
           <div className="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-6 px-4">
             <div className="mb-6">
-              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#9CA3AF]">
+              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-mid-gray)]">
                 Getting Started
               </h3>
               <div className="space-y-1 text-sm">
@@ -612,8 +612,8 @@ export function DocsClient() {
                   onClick={() => setActiveSection("auth")}
                   className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${
                     activeSection === "auth"
-                      ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                      : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
+                      ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                      : "text-[var(--color-body-text)] hover:bg-white/[0.04] hover:text-[var(--color-dark)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -624,7 +624,7 @@ export function DocsClient() {
               </div>
             </div>
             <div>
-              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#9CA3AF]">
+              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[var(--color-mid-gray)]">
                 Endpoints
               </h3>
               <div className="space-y-0.5 text-sm">
@@ -635,8 +635,8 @@ export function DocsClient() {
                     onClick={() => setActiveSection(s.slug)}
                     className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${
                       activeSection === s.slug
-                        ? "bg-[#3B82F6]/10 text-[#3B82F6]"
-                        : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
+                        ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)]"
+                        : "text-[var(--color-body-text)] hover:bg-white/[0.04] hover:text-[var(--color-dark)]"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -660,8 +660,8 @@ export function DocsClient() {
                 onClick={() => setActiveSection("auth")}
                 className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                   activeSection === "auth"
-                    ? "bg-[#3B82F6] text-white"
-                    : "bg-black/[0.03] text-[#6B7280]"
+                    ? "bg-[var(--color-gold)] text-[var(--color-light)]"
+                    : "bg-white/[0.04] text-[var(--color-body-text)]"
                 }`}
               >
                 Auth
@@ -673,8 +673,8 @@ export function DocsClient() {
                   onClick={() => setActiveSection(s.slug)}
                   className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                     activeSection === s.slug
-                      ? "bg-[#3B82F6] text-white"
-                      : "bg-black/[0.03] text-[#6B7280]"
+                      ? "bg-[var(--color-gold)] text-[var(--color-light)]"
+                      : "bg-white/[0.04] text-[var(--color-body-text)]"
                   }`}
                 >
                   {s.title}
@@ -687,33 +687,33 @@ export function DocsClient() {
             <div className="max-w-3xl space-y-8">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">Authentication</h2>
-                <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">
+                <p className="mt-2 text-sm leading-relaxed text-[var(--color-body-text)]">
                   All API requests require a Bearer token in the Authorization header.
                   API keys are scoped — each key has specific permissions that control
                   which endpoints it can access.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
                 <h3 className="mb-3 text-sm font-semibold">Making Requests</h3>
-                <div className="flex items-center justify-between rounded-lg bg-[#F9FAFB] px-4 py-3">
-                  <code className="text-xs text-[#6B7280]">
+                <div className="flex items-center justify-between rounded-lg bg-[var(--color-light)] px-4 py-3">
+                  <code className="text-xs text-[var(--color-body-text)]">
                     Authorization: Bearer sk_live_your_api_key_here
                   </code>
                   <CopyButton text="Authorization: Bearer sk_live_your_api_key_here" />
                 </div>
               </div>
 
-              <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
                 <h3 className="mb-3 text-sm font-semibold">Example Request</h3>
-                <pre className="overflow-x-auto rounded-lg bg-[#F9FAFB] p-4 text-xs leading-relaxed text-[#6B7280]">
-{`curl https://stowstack.co/api/v1/facilities \\
+                <pre className="overflow-x-auto rounded-lg bg-[var(--color-light)] p-4 text-xs leading-relaxed text-[var(--color-body-text)]">
+{`curl https://storageads.com/api/v1/facilities \\
   -H "Authorization: Bearer sk_live_abc123" \\
   -H "Content-Type: application/json"`}
                 </pre>
               </div>
 
-              <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
                 <h3 className="mb-3 text-sm font-semibold">Available Scopes</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
                   {[
@@ -731,7 +731,7 @@ export function DocsClient() {
                   ].map((scope) => (
                     <div
                       key={scope}
-                      className="rounded-lg bg-black/[0.03] px-3 py-2 font-mono text-[#6B7280]"
+                      className="rounded-lg bg-white/[0.04] px-3 py-2 font-mono text-[var(--color-body-text)]"
                     >
                       {scope}
                     </div>
@@ -739,34 +739,34 @@ export function DocsClient() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
                 <h3 className="mb-3 text-sm font-semibold">Rate Limiting</h3>
-                <p className="text-xs text-[#6B7280] leading-relaxed">
-                  Default rate limit is <strong className="text-[#111827]">60 requests/minute</strong> per API key.
+                <p className="text-xs text-[var(--color-body-text)] leading-relaxed">
+                  Default rate limit is <strong className="text-[var(--color-dark)]">60 requests/minute</strong> per API key.
                   Rate limit headers are included in every response:
                 </p>
                 <div className="mt-3 space-y-1 text-xs">
                   <div className="flex gap-3">
-                    <code className="text-[#9CA3AF]">X-RateLimit-Limit</code>
-                    <span className="text-[#6B7280]">Maximum requests per window</span>
+                    <code className="text-[var(--color-mid-gray)]">X-RateLimit-Limit</code>
+                    <span className="text-[var(--color-body-text)]">Maximum requests per window</span>
                   </div>
                   <div className="flex gap-3">
-                    <code className="text-[#9CA3AF]">X-RateLimit-Remaining</code>
-                    <span className="text-[#6B7280]">Requests remaining</span>
+                    <code className="text-[var(--color-mid-gray)]">X-RateLimit-Remaining</code>
+                    <span className="text-[var(--color-body-text)]">Requests remaining</span>
                   </div>
                   <div className="flex gap-3">
-                    <code className="text-[#9CA3AF]">X-RateLimit-Reset</code>
-                    <span className="text-[#6B7280]">Seconds until window resets</span>
+                    <code className="text-[var(--color-mid-gray)]">X-RateLimit-Reset</code>
+                    <span className="text-[var(--color-body-text)]">Seconds until window resets</span>
                   </div>
                 </div>
               </div>
 
               <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-5">
                 <h3 className="mb-2 text-sm font-semibold text-amber-400">Error Responses</h3>
-                <p className="text-xs text-[#6B7280] leading-relaxed mb-3">
+                <p className="text-xs text-[var(--color-body-text)] leading-relaxed mb-3">
                   All errors return a consistent JSON format:
                 </p>
-                <pre className="overflow-x-auto rounded-lg bg-[#F9FAFB] p-4 text-xs leading-relaxed text-[#6B7280]">
+                <pre className="overflow-x-auto rounded-lg bg-[var(--color-light)] p-4 text-xs leading-relaxed text-[var(--color-body-text)]">
 {`{
   "error": "Descriptive error message",
   "code": "INVALID_API_KEY",
@@ -778,14 +778,14 @@ export function DocsClient() {
           ) : section ? (
             <div className="max-w-3xl space-y-6">
               <div>
-                <div className="mb-2 flex items-center gap-2 text-[#3B82F6]">
+                <div className="mb-2 flex items-center gap-2 text-[var(--color-gold)]">
                   {section.icon}
                   <span className="text-xs font-medium uppercase tracking-wider">
                     {section.title}
                   </span>
                 </div>
                 <h2 className="text-2xl font-bold tracking-tight">{section.title}</h2>
-                <p className="mt-2 text-sm text-[#6B7280]">{section.description}</p>
+                <p className="mt-2 text-sm text-[var(--color-body-text)]">{section.description}</p>
               </div>
               <div className="space-y-3">
                 {section.endpoints.map((ep, i) => (

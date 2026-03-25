@@ -19,9 +19,8 @@ import {
   Users,
   Webhook,
 } from "lucide-react";
-import ThemeToggle from "@/components/theme-toggle";
 
-const STORAGE_KEY = "stowstack_partner_session";
+const STORAGE_KEY = "storageads_partner_session";
 
 interface PartnerSession {
   token: string;
@@ -137,16 +136,16 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
-      <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)]">
+      <div className="w-full max-w-sm rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-8">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#3B82F6]">
-            <Lock className="h-6 w-6 text-white" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-gold)]">
+            <Lock className="h-6 w-6 text-[var(--color-light)]" />
           </div>
-          <h1 className="mb-1 text-2xl font-bold text-[#111827]">
+          <h1 className="mb-1 text-2xl font-bold text-[var(--color-dark)]">
             {step === "request" ? "Reset Password" : "Set New Password"}
           </h1>
-          <p className="text-sm text-[#9CA3AF]">
+          <p className="text-sm text-[var(--color-mid-gray)]">
             {step === "request"
               ? "Enter your details to receive a reset link"
               : "Choose a new password for your account"}
@@ -160,30 +159,30 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
         ) : step === "request" ? (
           <form onSubmit={handleRequestReset} className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#6B7280]">Organization</label>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-body-text)]">Organization</label>
               <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+                <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
                 <input
                   type="text"
                   value={orgSlug}
                   onChange={(e) => setOrgSlug(e.target.value)}
                   placeholder="Organization slug"
                   required
-                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] py-2.5 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]"
                 />
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#6B7280]">Email</label>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-body-text)]">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
                   required
-                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] py-2.5 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]"
                 />
               </div>
             </div>
@@ -191,7 +190,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+              className="w-full rounded-lg bg-[var(--color-gold)] px-4 py-2.5 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
             >
               {loading ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : "Send Reset Link"}
             </button>
@@ -199,9 +198,9 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#6B7280]">New Password</label>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-body-text)]">New Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
                 <input
                   type="password"
                   value={newPassword}
@@ -209,21 +208,21 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
                   placeholder="At least 8 characters"
                   required
                   minLength={8}
-                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] py-2.5 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]"
                 />
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#6B7280]">Confirm Password</label>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-body-text)]">Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your password"
                   required
-                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] py-2.5 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]"
                 />
               </div>
             </div>
@@ -231,7 +230,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+              className="w-full rounded-lg bg-[var(--color-gold)] px-4 py-2.5 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
             >
               {loading ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : "Reset Password"}
             </button>
@@ -241,7 +240,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={onBack}
-          className="mt-4 w-full text-center text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+          className="mt-4 w-full text-center text-xs text-[var(--color-mid-gray)] transition-colors hover:text-[var(--color-body-text)]"
         >
           Back to sign in
         </button>
@@ -306,66 +305,66 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)]">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8"
+        className="w-full max-w-sm rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-8"
       >
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#3B82F6]">
-            <Building2 className="h-6 w-6 text-white" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-gold)]">
+            <Building2 className="h-6 w-6 text-[var(--color-light)]" />
           </div>
-          <h1 className="mb-1 text-2xl font-bold text-[#111827]">Partner Portal</h1>
-          <p className="text-sm text-[#9CA3AF]">Sign in to your management dashboard</p>
+          <h1 className="mb-1 text-2xl font-bold text-[var(--color-dark)]">Partner Portal</h1>
+          <p className="text-sm text-[var(--color-mid-gray)]">Sign in to your management dashboard</p>
         </div>
 
         <div className="mb-4">
-          <label htmlFor="org-slug" className="mb-2 block text-sm font-medium text-[#6B7280]">
+          <label htmlFor="org-slug" className="mb-2 block text-sm font-medium text-[var(--color-body-text)]">
             Organization
           </label>
           <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+            <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
             <input
               id="org-slug"
               type="text"
               value={orgSlug}
               onChange={(e) => setOrgSlug(e.target.value)}
               placeholder="Organization slug"
-              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] py-2.5 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]"
             />
           </div>
         </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#6B7280]">
+          <label htmlFor="email" className="mb-2 block text-sm font-medium text-[var(--color-body-text)]">
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
-              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] py-2.5 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]"
             />
           </div>
         </div>
 
         <div className="mb-2">
-          <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#6B7280]">
+          <label htmlFor="password" className="mb-2 block text-sm font-medium text-[var(--color-body-text)]">
             Password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
-              className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
+              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light-gray)] py-2.5 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]"
             />
           </div>
         </div>
@@ -374,7 +373,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
           <button
             type="button"
             onClick={() => setShowReset(true)}
-            className="text-xs text-[#9CA3AF] transition-colors hover:text-[#3B82F6]"
+            className="text-xs text-[var(--color-mid-gray)] transition-colors hover:text-[var(--color-gold)]"
           >
             Forgot password?
           </button>
@@ -385,7 +384,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
         <button
           type="submit"
           disabled={loading || !email.trim() || !password.trim() || !orgSlug.trim()}
-          className="w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+          className="w-full rounded-lg bg-[var(--color-gold)] px-4 py-2.5 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -415,16 +414,16 @@ function Sidebar({
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.08] px-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#3B82F6]">
-          <Building2 className="h-4 w-4 text-white" />
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] px-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-gold)]">
+          <Building2 className="h-4 w-4 text-[var(--color-light)]" />
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[#111827]">
+            <p className="truncate text-sm font-semibold text-[var(--color-dark)]">
               {session.organization.name}
             </p>
-            <p className="truncate text-[10px] text-[#9CA3AF]">
+            <p className="truncate text-[10px] text-[var(--color-mid-gray)]">
               {session.user.name}
             </p>
           </div>
@@ -447,12 +446,12 @@ function Sidebar({
                   title={collapsed ? item.label : undefined}
                   className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
                     isActive
-                      ? "bg-[#3B82F6]/15 font-medium text-[#111827]"
-                      : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
+                      ? "bg-[var(--color-gold)]/15 font-medium text-[var(--color-dark)]"
+                      : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)]"
                   } ${collapsed ? "justify-center" : ""}`}
                 >
                   <Icon
-                    className={`h-4 w-4 shrink-0 ${isActive ? "text-[#3B82F6]" : ""}`}
+                    className={`h-4 w-4 shrink-0 ${isActive ? "text-[var(--color-gold)]" : ""}`}
                   />
                   {!collapsed && <span>{item.label}</span>}
                 </Link>
@@ -462,11 +461,11 @@ function Sidebar({
         </ul>
       </nav>
 
-      <div className="hidden shrink-0 border-t border-black/[0.08] p-3 md:block">
+      <div className="hidden shrink-0 border-t border-[var(--border-subtle)] p-3 md:block">
         <button
           type="button"
           onClick={() => onCollapse(!collapsed)}
-          className="flex w-full items-center justify-center rounded-lg p-2 text-[#9CA3AF] transition-colors hover:bg-black/[0.03] hover:text-[#6B7280]"
+          className="flex w-full items-center justify-center rounded-lg p-2 text-[var(--color-mid-gray)] transition-colors hover:bg-[var(--color-light-gray)] hover:text-[var(--color-body-text)]"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <ChevronLeft
@@ -488,7 +487,7 @@ function Sidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-black/[0.08] bg-[#F9FAFB] transition-transform duration-200 md:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-[var(--border-subtle)] bg-[var(--color-light)] transition-transform duration-200 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -496,7 +495,7 @@ function Sidebar({
       </aside>
 
       <aside
-        className={`hidden shrink-0 border-r border-black/[0.08] bg-[#F9FAFB] transition-all duration-200 md:block ${
+        className={`hidden shrink-0 border-r border-[var(--border-subtle)] bg-[var(--color-light)] transition-all duration-200 md:block ${
           collapsed ? "w-16" : "w-64"
         }`}
       >
@@ -528,32 +527,31 @@ function PartnerHeader({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.08] bg-[#F9FAFB]/80 px-4 backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 px-4 backdrop-blur-xl md:px-6">
       <button
         type="button"
         onClick={onToggleSidebar}
-        className="rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827] md:hidden"
+        className="rounded-lg p-2 text-[var(--color-body-text)] transition-colors hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)] md:hidden"
         aria-label="Toggle sidebar"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="text-lg font-semibold text-[#111827]">
+      <h1 className="text-lg font-semibold text-[var(--color-dark)]">
         {ROUTE_TITLES[pathname] ?? "Partner Dashboard"}
       </h1>
 
       <div className="ml-auto flex items-center gap-3">
-        <span className="hidden text-sm text-[#9CA3AF] sm:inline">
+        <span className="hidden text-sm text-[var(--color-mid-gray)] sm:inline">
           {session.user.email}
         </span>
-        <ThemeToggle />
-        <span className="hidden rounded-full bg-black/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#6B7280] sm:inline">
+        <span className="hidden rounded-full bg-[var(--color-light-gray)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-body-text)] sm:inline">
           {session.organization.plan}
         </span>
         <button
           type="button"
           onClick={onLogout}
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-[var(--color-body-text)] transition-colors hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)]"
           aria-label="Sign out"
         >
           <LogOut className="h-4 w-4" />
@@ -593,8 +591,8 @@ export function PartnerShell({ children }: { children: React.ReactNode }) {
 
   if (!checked) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)]">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--color-gold)] border-t-transparent" />
       </div>
     );
   }
@@ -604,7 +602,7 @@ export function PartnerShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white">
+    <div className="flex h-screen overflow-hidden bg-[var(--color-light)]">
       <Sidebar
         session={session}
         collapsed={sidebarCollapsed}

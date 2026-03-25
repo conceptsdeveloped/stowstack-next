@@ -469,7 +469,7 @@ function parseCSVRow(headers: string[], row: string[]): DiagnosticInput {
     openToPmsReports: get(
       "Would you be open to sending PMS reports afterward so we can validate with actual data?"
     ),
-    howHeard: get("How did you hear about StowStack?"),
+    howHeard: get("How did you hear about StorageAds?"),
     additionalNotes: get(
       "Anything else you want us to know before we review your facility?"
     ),
@@ -1011,7 +1011,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const auditUrl = `https://stowstack.co/audit/${slug}`;
+    const auditUrl = `https://storageads.com/audit/${slug}`;
 
     // Send email to operator with their diagnostic results
     const resendKey = process.env.RESEND_API_KEY;
@@ -1020,7 +1020,7 @@ export async function POST(req: NextRequest) {
         overallScore >= 80
           ? "#22c55e"
           : overallScore >= 60
-            ? "#3B82F6"
+            ? "#B58B3F"
             : overallScore >= 40
               ? "#f59e0b"
               : "#ef4444";
@@ -1032,42 +1032,42 @@ export async function POST(req: NextRequest) {
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 0; background-color: #0A0A0A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+<body style="margin: 0; padding: 0; background-color: #faf9f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <!-- Header -->
     <div style="text-align: center; margin-bottom: 32px;">
-      <h1 style="color: #F5F5F7; font-size: 22px; font-weight: 700; margin: 0 0 8px;">Your Facility Diagnostic is Ready</h1>
-      <p style="color: #A1A1A6; font-size: 14px; margin: 0;">${diagnostic.facilityName}</p>
+      <h1 style="color: #141413; font-size: 22px; font-weight: 700; margin: 0 0 8px;">Your Facility Diagnostic is Ready</h1>
+      <p style="color: #6a6560; font-size: 14px; margin: 0;">${diagnostic.facilityName}</p>
     </div>
 
     <!-- Score Ring -->
     <div style="text-align: center; margin-bottom: 32px;">
       <div style="display: inline-block; width: 140px; height: 140px; position: relative;">
         <svg viewBox="0 0 140 140" width="140" height="140">
-          <circle cx="70" cy="70" r="62" fill="none" stroke="#1A1A1A" stroke-width="10"/>
+          <circle cx="70" cy="70" r="62" fill="none" stroke="#e8e6dc" stroke-width="10"/>
           <circle cx="70" cy="70" r="62" fill="none" stroke="${scoreColor}" stroke-width="10"
             stroke-dasharray="${(overallScore / 100) * 2 * Math.PI * 62} ${2 * Math.PI * 62}"
             stroke-linecap="round" transform="rotate(-90 70 70)"/>
-          <text x="70" y="62" text-anchor="middle" fill="#F5F5F7" font-size="36" font-weight="bold" dominant-baseline="middle">${overallScore}</text>
-          <text x="70" y="88" text-anchor="middle" fill="#A1A1A6" font-size="12">/ 100 (${gradeText})</text>
+          <text x="70" y="62" text-anchor="middle" fill="#141413" font-size="36" font-weight="bold" dominant-baseline="middle">${overallScore}</text>
+          <text x="70" y="88" text-anchor="middle" fill="#6a6560" font-size="12">/ 100 (${gradeText})</text>
         </svg>
       </div>
     </div>
 
     <!-- Executive Summary -->
-    <div style="background-color: #111111; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #222;">
-      <h2 style="color: #F5F5F7; font-size: 16px; font-weight: 600; margin: 0 0 12px;">Executive Summary</h2>
-      <p style="color: #A1A1A6; font-size: 14px; line-height: 1.6; margin: 0;">${summaryExcerpt}${(fullAudit.executiveSummary || "").length > 300 ? "..." : ""}</p>
+    <div style="background-color: #ffffff; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #e8e6dc;">
+      <h2 style="color: #141413; font-size: 16px; font-weight: 600; margin: 0 0 12px;">Executive Summary</h2>
+      <p style="color: #6a6560; font-size: 14px; line-height: 1.6; margin: 0;">${summaryExcerpt}${(fullAudit.executiveSummary || "").length > 300 ? "..." : ""}</p>
     </div>
 
     <!-- Vacancy Cost Teaser -->
     ${annualVacancyCost > 0 ? `
-    <div style="background-color: #1a0a0a; border-radius: 12px; padding: 24px; margin-bottom: 32px; border: 1px solid #3b1111;">
+    <div style="background-color: #fef2f2; border-radius: 12px; padding: 24px; margin-bottom: 32px; border: 1px solid #fecaca;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <div style="font-size: 28px;">&#x26A0;&#xFE0F;</div>
         <div>
           <p style="color: #ef4444; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 4px;">Estimated Vacancy Cost</p>
-          <p style="color: #F5F5F7; font-size: 24px; font-weight: 700; margin: 0;">$${annualVacancyCost.toLocaleString()}<span style="color: #A1A1A6; font-size: 14px; font-weight: 400;">/year in lost revenue</span></p>
+          <p style="color: #141413; font-size: 24px; font-weight: 700; margin: 0;">$${annualVacancyCost.toLocaleString()}<span style="color: #6a6560; font-size: 14px; font-weight: 400;">/year in lost revenue</span></p>
         </div>
       </div>
     </div>
@@ -1075,13 +1075,13 @@ export async function POST(req: NextRequest) {
 
     <!-- CTA Button -->
     <div style="text-align: center; margin-bottom: 40px;">
-      <a href="${auditUrl}" style="display: inline-block; padding: 16px 40px; background-color: #3B82F6; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 10px;">View Your Full Diagnostic</a>
+      <a href="${auditUrl}" style="display: inline-block; padding: 16px 40px; background-color: #B58B3F; color: #faf9f5; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 10px;">View Your Full Diagnostic</a>
     </div>
 
     <!-- Footer -->
-    <div style="text-align: center; border-top: 1px solid #222; padding-top: 24px;">
-      <p style="color: #666; font-size: 12px; margin: 0;">Generated by <strong style="color: #A1A1A6;">StowStack</strong> by StorageAds.com</p>
-      <p style="color: #555; font-size: 11px; margin: 8px 0 0;">This diagnostic report will remain accessible for 90 days.</p>
+    <div style="text-align: center; border-top: 1px solid #e8e6dc; padding-top: 24px;">
+      <p style="color: #b0aea5; font-size: 12px; margin: 0;">Generated by <strong style="color: #141413;">StorageAds</strong> by StorageAds.com</p>
+      <p style="color: #b0aea5; font-size: 11px; margin: 8px 0 0;">This diagnostic report will remain accessible for 90 days.</p>
     </div>
   </div>
 </body>
@@ -1095,9 +1095,9 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${resendKey}`,
         },
         body: JSON.stringify({
-          from: "StowStack <notifications@stowstack.co>",
+          from: "StorageAds <notifications@storageads.com>",
           to: [diagnostic.contactEmail],
-          subject: `Your StowStack Facility Diagnostic is Ready — ${diagnostic.facilityName}`,
+          subject: `Your StorageAds Facility Diagnostic is Ready — ${diagnostic.facilityName}`,
           html: operatorHtml,
         }),
       }).catch(() => {});
@@ -1110,8 +1110,8 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${resendKey}`,
         },
         body: JSON.stringify({
-          from: "StowStack <notifications@stowstack.co>",
-          to: ["blake@storepawpaw.com"],
+          from: "StorageAds <notifications@storageads.com>",
+          to: ["blake@storageads.com"],
           subject: `Audit Generated: ${diagnostic.facilityName} (Score: ${overallScore}/100)`,
           html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -1123,7 +1123,7 @@ export async function POST(req: NextRequest) {
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Vacancy Cost</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">$${annualVacancyCost.toLocaleString()}/yr</td></tr>
               </table>
               <p style="margin-top: 20px;">
-                <a href="${auditUrl}" style="display: inline-block; padding: 12px 24px; background: #3B82F6; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">View Audit</a>
+                <a href="${auditUrl}" style="display: inline-block; padding: 12px 24px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">View Audit</a>
               </p>
             </div>`,
         }),

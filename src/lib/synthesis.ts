@@ -78,7 +78,7 @@ export async function synthesize(
         messages: [
           {
             role: "user",
-            content: `You are the synthesis engine for StowStack's marketing intelligence system. Your job is to evolve a living document based on new information.
+            content: `You are the synthesis engine for StorageAds's marketing intelligence system. Your job is to evolve a living document based on new information.
 
 DOCUMENT: ${docName}
 PURPOSE: This is ${docPurpose}.

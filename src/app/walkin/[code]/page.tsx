@@ -122,13 +122,13 @@ export default function WalkInAttributionPage() {
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mb-6">
             This walk-in attribution link is invalid or has expired. Contact your
-            StowStack representative for a new link.
+            StorageAds representative for a new link.
           </p>
           <Link
             href="/"
             className="text-sm font-medium text-[var(--accent)] hover:underline"
           >
-            Visit StowStack
+            Visit StorageAds
           </Link>
         </div>
       </div>
@@ -274,7 +274,7 @@ export default function WalkInAttributionPage() {
         <p className="text-xs text-[var(--text-tertiary)] text-center mt-4">
           Powered by{" "}
           <Link href="/" className="text-[var(--accent)] hover:underline">
-            StowStack
+            StorageAds
           </Link>{" "}
           — data feeds into your attribution dashboard.
         </p>

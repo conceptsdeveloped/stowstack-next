@@ -141,7 +141,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 size={20} className="animate-spin text-[#3B82F6]" />
+        <Loader2 size={20} className="animate-spin text-[var(--color-gold)]" />
       </div>
     )
   }
@@ -159,10 +159,10 @@ export default function StyleReferences({ facilityId, adminKey }: {
 
       {/* Header */}
       <div>
-        <h4 className="text-sm font-semibold text-[#F5F5F7]">Style References</h4>
-        <p className="text-xs text-[#6E6E73] mt-1">
+        <h4 className="text-sm font-semibold text-[var(--color-dark)]">Style References</h4>
+        <p className="text-xs text-[var(--color-mid-gray)] mt-1">
           Upload images of great ads. Claude Vision extracts style principles and injects them into your image and video generation.
-          {activeCount > 0 && <span className="text-[#3B82F6]"> {activeCount} active reference{activeCount !== 1 ? 's' : ''} informing generation.</span>}
+          {activeCount > 0 && <span className="text-[var(--color-gold)]"> {activeCount} active reference{activeCount !== 1 ? 's' : ''} informing generation.</span>}
         </p>
       </div>
 
@@ -173,39 +173,39 @@ export default function StyleReferences({ facilityId, adminKey }: {
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-xl p-6 transition-colors ${
           dragOver
-            ? 'border-[#3B82F6] bg-[#3B82F6]/5'
-            : 'border-white/[0.08] hover:border-white/[0.15]'
+            ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5'
+            : 'border-[var(--border-medium)] hover:border-[var(--border-medium)]'
         }`}
       >
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Title (optional)</label>
+              <label className="text-xs font-medium text-[var(--color-body-text)] block mb-1.5">Title (optional)</label>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder="e.g., Porsche 911 Print 1986"
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Tags (optional, comma-separated)</label>
+              <label className="text-xs font-medium text-[var(--color-body-text)] block mb-1.5">Tags (optional, comma-separated)</label>
               <input
                 value={tags}
                 onChange={e => setTags(e.target.value)}
                 placeholder="e.g., typography, warm-light, editorial"
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 text-xs text-[#A1A1A6] cursor-pointer">
+            <label className="flex items-center gap-2 text-xs text-[var(--color-body-text)] cursor-pointer">
               <input
                 type="checkbox"
                 checked={isGlobal}
                 onChange={e => setIsGlobal(e.target.checked)}
-                className="rounded border-white/[0.12] bg-white/[0.03]"
+                className="rounded border-[var(--border-medium)] bg-[var(--color-light-gray)]"
               />
               Apply to all facilities (global)
             </label>
@@ -226,7 +226,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
             >
               {uploading ? (
                 <><Loader2 size={14} className="animate-spin" /> Analyzing...</>
@@ -234,7 +234,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
                 <><Upload size={14} /> Upload & Analyze</>
               )}
             </button>
-            <p className="text-[10px] text-[#6E6E73]">
+            <p className="text-[10px] text-[var(--color-mid-gray)]">
               {uploading ? 'Claude Vision is extracting style principles...' : 'Drop an image here or click to upload'}
             </p>
           </div>
@@ -244,11 +244,11 @@ export default function StyleReferences({ facilityId, adminKey }: {
       {/* Tag filters */}
       {allTags.length > 0 && (
         <div className="flex gap-1.5 flex-wrap items-center">
-          <Tag size={12} className="text-[#6E6E73] mr-1" />
+          <Tag size={12} className="text-[var(--color-mid-gray)] mr-1" />
           <button
             onClick={() => setFilterTag('all')}
             className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
-              filterTag === 'all' ? 'bg-[#3B82F6] text-white' : 'text-[#6E6E73] hover:bg-white/[0.04]'
+              filterTag === 'all' ? 'bg-[var(--color-gold)] text-[var(--color-light)]' : 'text-[var(--color-mid-gray)] hover:bg-[var(--color-light-gray)]'
             }`}
           >
             All ({references.length})
@@ -258,7 +258,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
               key={tag}
               onClick={() => setFilterTag(tag)}
               className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
-                filterTag === tag ? 'bg-[#3B82F6] text-white' : 'text-[#6E6E73] hover:bg-white/[0.04]'
+                filterTag === tag ? 'bg-[var(--color-gold)] text-[var(--color-light)]' : 'text-[var(--color-mid-gray)] hover:bg-[var(--color-light-gray)]'
               }`}
             >
               {tag}
@@ -269,10 +269,10 @@ export default function StyleReferences({ facilityId, adminKey }: {
 
       {/* Reference grid */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 rounded-xl border-2 border-dashed border-white/[0.06]">
-          <Sparkles size={32} className="mx-auto mb-3 text-[#6E6E73]" />
-          <p className="font-medium text-[#F5F5F7]">No style references yet</p>
-          <p className="text-sm text-[#6E6E73] mt-1 max-w-md mx-auto">
+        <div className="text-center py-16 rounded-xl border-2 border-dashed border-[var(--border-subtle)]">
+          <Sparkles size={32} className="mx-auto mb-3 text-[var(--color-mid-gray)]" />
+          <p className="font-medium text-[var(--color-dark)]">No style references yet</p>
+          <p className="text-sm text-[var(--color-mid-gray)] mt-1 max-w-md mx-auto">
             Upload images of ads, campaigns, or visual styles you admire. Claude will extract what makes them great and use those principles when generating your creative.
           </p>
         </div>
@@ -283,8 +283,8 @@ export default function StyleReferences({ facilityId, adminKey }: {
             return (
               <div
                 key={ref.id}
-                className={`border rounded-xl overflow-hidden bg-[#111111] transition-all ${
-                  ref.active ? 'border-white/[0.06]' : 'border-white/[0.04] opacity-60'
+                className={`border rounded-xl overflow-hidden bg-[var(--bg-elevated)] transition-all ${
+                  ref.active ? 'border-[var(--border-subtle)]' : 'border-[var(--border-subtle)] opacity-60'
                 }`}
               >
                 {/* Image */}
@@ -301,7 +301,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
                     </div>
                   )}
                   {ref.facility_id === null && (
-                    <span className="absolute top-2 left-2 text-[8px] px-1.5 py-0.5 rounded bg-[#3B82F6]/80 text-white font-medium">
+                    <span className="absolute top-2 left-2 text-[8px] px-1.5 py-0.5 rounded bg-[var(--color-gold)]/80 text-[var(--color-light)] font-medium">
                       Global
                     </span>
                   )}
@@ -311,24 +311,24 @@ export default function StyleReferences({ facilityId, adminKey }: {
                 <div className="p-3 space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-[#F5F5F7] truncate">
+                      <p className="text-xs font-semibold text-[var(--color-dark)] truncate">
                         {ref.title || 'Untitled Reference'}
                       </p>
-                      <p className="text-[10px] text-[#6E6E73] mt-0.5">
+                      <p className="text-[10px] text-[var(--color-mid-gray)] mt-0.5">
                         {new Date(ref.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
                       <button
                         onClick={() => handleToggle(ref.id, !ref.active)}
-                        className="p-1.5 rounded-lg text-[#6E6E73] hover:text-[#A1A1A6] hover:bg-white/[0.04] transition-colors"
+                        className="p-1.5 rounded-lg text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] transition-colors"
                         title={ref.active ? 'Disable' : 'Enable'}
                       >
                         {ref.active ? <Eye size={13} /> : <EyeOff size={13} />}
                       </button>
                       <button
                         onClick={() => handleDelete(ref.id)}
-                        className="p-1.5 rounded-lg text-[#6E6E73] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        className="p-1.5 rounded-lg text-[var(--color-mid-gray)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
                         title="Delete"
                       >
                         <Trash2 size={13} />
@@ -340,7 +340,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
                   {ref.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {ref.tags.map(tag => (
-                        <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6]">
+                        <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)]">
                           {tag}
                         </span>
                       ))}
@@ -349,14 +349,14 @@ export default function StyleReferences({ facilityId, adminKey }: {
 
                   {/* Style directive */}
                   {ref.analysis.style_directive && (
-                    <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                      <p className="text-[10px] text-[#3B82F6] font-medium mb-1">Style Directive</p>
-                      <p className="text-[11px] text-[#F5F5F7] leading-relaxed">
+                    <div className="p-2.5 rounded-lg bg-[var(--color-light-gray)] border border-[var(--border-subtle)]">
+                      <p className="text-[10px] text-[var(--color-gold)] font-medium mb-1">Style Directive</p>
+                      <p className="text-[11px] text-[var(--color-dark)] leading-relaxed">
                         {ref.analysis.style_directive}
                       </p>
                       <button
                         onClick={() => handleCopyDirective(ref.analysis.style_directive!, ref.id)}
-                        className="flex items-center gap-1 mt-1.5 text-[10px] text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                        className="flex items-center gap-1 mt-1.5 text-[10px] text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
                       >
                         {copiedId === ref.id ? (
                           <><Check size={10} className="text-emerald-400" /> Copied</>
@@ -370,14 +370,14 @@ export default function StyleReferences({ facilityId, adminKey }: {
                   {/* Expand/collapse full analysis */}
                   <button
                     onClick={() => setExpandedId(expanded ? null : ref.id)}
-                    className="flex items-center gap-1 text-[11px] text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
                   >
                     {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                     {expanded ? 'Hide' : 'View'} full analysis
                   </button>
 
                   {expanded && (
-                    <div className="space-y-2 pt-1 border-t border-white/[0.06]">
+                    <div className="space-y-2 pt-1 border-t border-[var(--border-subtle)]">
                       {ref.analysis.composition && (
                         <AnalysisField label="Composition" value={ref.analysis.composition} />
                       )}
@@ -411,8 +411,8 @@ export default function StyleReferences({ facilityId, adminKey }: {
 function AnalysisField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-medium uppercase tracking-wide text-[#6E6E73]">{label}</p>
-      <p className="text-[11px] text-[#A1A1A6] leading-relaxed mt-0.5">{value}</p>
+      <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">{label}</p>
+      <p className="text-[11px] text-[var(--color-body-text)] leading-relaxed mt-0.5">{value}</p>
     </div>
   )
 }

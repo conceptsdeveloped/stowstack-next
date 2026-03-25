@@ -93,7 +93,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, string> = {
   diagnostic_submitted: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
-  submitted: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  submitted: "bg-[var(--color-blue)]/20 text-[var(--color-blue)] border-[var(--color-blue)]/30",
   audit_generated: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
   audit_sent: "bg-teal-500/20 text-teal-400 border-teal-500/30",
   form_sent: "bg-amber-500/20 text-amber-400 border-amber-500/30",
@@ -149,7 +149,7 @@ function leadScoreGrade(lead: Lead): { grade: string; color: string } {
   if (lead.pmsUploaded) score += 10;
 
   if (score >= 80) return { grade: "A", color: "text-emerald-400" };
-  if (score >= 60) return { grade: "B", color: "text-blue-400" };
+  if (score >= 60) return { grade: "B", color: "text-[var(--color-blue)]" };
   if (score >= 40) return { grade: "C", color: "text-amber-400" };
   return { grade: "D", color: "text-red-400" };
 }
@@ -163,24 +163,24 @@ function isOverdue(lead: Lead): boolean {
 
 function StatSkeleton() {
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white p-5 animate-pulse">
-      <div className="h-4 w-20 rounded bg-black/5 mb-3" />
-      <div className="h-8 w-16 rounded bg-black/5 mb-2" />
-      <div className="h-3 w-24 rounded bg-black/5" />
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5 animate-pulse">
+      <div className="h-4 w-20 rounded bg-[var(--color-dark)]/10 mb-3" />
+      <div className="h-8 w-16 rounded bg-[var(--color-dark)]/10 mb-2" />
+      <div className="h-3 w-24 rounded bg-[var(--color-dark)]/10" />
     </div>
   );
 }
 
 function LeadRowSkeleton() {
   return (
-    <div className="border-b border-black/[0.08] p-4 animate-pulse">
+    <div className="border-b border-[var(--border-subtle)] p-4 animate-pulse">
       <div className="flex items-center gap-4">
-        <div className="h-4 w-4 rounded bg-black/5" />
+        <div className="h-4 w-4 rounded bg-[var(--color-dark)]/10" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 w-48 rounded bg-black/5" />
-          <div className="h-3 w-32 rounded bg-black/5" />
+          <div className="h-4 w-48 rounded bg-[var(--color-dark)]/10" />
+          <div className="h-3 w-32 rounded bg-[var(--color-dark)]/10" />
         </div>
-        <div className="h-6 w-20 rounded-full bg-black/5" />
+        <div className="h-6 w-20 rounded-full bg-[var(--color-dark)]/10" />
       </div>
     </div>
   );
@@ -200,16 +200,16 @@ function StatCard({
   subtitle?: string;
 }) {
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white p-5 hover:border-black/[0.12] transition-colors">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5 hover:border-[var(--border-medium)] transition-colors">
       <div className="flex items-center gap-2 mb-2">
-        <Icon className="w-4 h-4 text-[#9CA3AF]" />
-        <span className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wider">
+        <Icon className="w-4 h-4 text-[var(--color-mid-gray)]" />
+        <span className="text-xs font-medium text-[var(--color-mid-gray)] uppercase tracking-wider">
           {label}
         </span>
       </div>
-      <div className="text-2xl font-bold text-[#111827]">{value}</div>
+      <div className="text-2xl font-bold text-[var(--color-dark)]">{value}</div>
       {subtitle && (
-        <div className="text-xs text-[#9CA3AF] mt-1">{subtitle}</div>
+        <div className="text-xs text-[var(--color-mid-gray)] mt-1">{subtitle}</div>
       )}
     </div>
   );
@@ -222,8 +222,8 @@ function ConversionFunnel({ funnel }: { funnel: Record<string, number> }) {
   const maxCount = Math.max(...stages.map((s) => funnel[s] || 0), 1);
 
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white p-6">
-      <h3 className="text-sm font-semibold text-[#111827] mb-4">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6">
+      <h3 className="text-sm font-semibold text-[var(--color-dark)] mb-4">
         Conversion Funnel
       </h3>
       <div className="space-y-3">
@@ -236,15 +236,15 @@ function ConversionFunnel({ funnel }: { funnel: Record<string, number> }) {
           return (
             <div key={stage}>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#6B7280] w-32 shrink-0 truncate">
+                <span className="text-xs text-[var(--color-body-text)] w-32 shrink-0 truncate">
                   {STATUS_LABELS[stage]}
                 </span>
-                <div className="flex-1 h-7 bg-black/[0.03] rounded-md overflow-hidden">
+                <div className="flex-1 h-7 bg-[var(--color-light-gray)] rounded-md overflow-hidden">
                   <div
-                    className="h-full bg-blue-500/30 rounded-md flex items-center px-2 transition-all duration-500"
+                    className="h-full bg-[var(--color-blue)]/30 rounded-md flex items-center px-2 transition-all duration-500"
                     style={{ width: `${width}%` }}
                   >
-                    <span className="text-xs font-medium text-blue-300 whitespace-nowrap">
+                    <span className="text-xs font-medium text-[var(--color-blue)] whitespace-nowrap">
                       {count}
                     </span>
                   </div>
@@ -252,8 +252,8 @@ function ConversionFunnel({ funnel }: { funnel: Record<string, number> }) {
               </div>
               {i < stages.length - 1 && (
                 <div className="flex items-center gap-3 ml-32 pl-3 py-1">
-                  <ArrowRight className="w-3 h-3 text-[#9CA3AF]" />
-                  <span className="text-[10px] text-[#9CA3AF]">{pct}%</span>
+                  <ArrowRight className="w-3 h-3 text-[var(--color-mid-gray)]" />
+                  <span className="text-[10px] text-[var(--color-mid-gray)]">{pct}%</span>
                 </div>
               )}
             </div>
@@ -267,7 +267,7 @@ function ConversionFunnel({ funnel }: { funnel: Record<string, number> }) {
 /* ─── Status Badge ─────────────────────────────────────────────── */
 
 function StatusBadge({ status }: { status: string }) {
-  const colors = STATUS_COLORS[status] || "bg-black/5 text-[#6B7280]";
+  const colors = STATUS_COLORS[status] || "bg-[var(--color-dark)]/10 text-[var(--color-body-text)]";
   return (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${colors}`}
@@ -323,38 +323,38 @@ function LeadExpandedRow({
   }
 
   return (
-    <div className="border-t border-black/[0.08] bg-[#F3F4F6] px-4 py-4 sm:px-6">
+    <div className="border-t border-[var(--border-subtle)] bg-[var(--color-light)] px-4 py-4 sm:px-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column - Details */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="text-[#9CA3AF] block text-xs mb-0.5">Email</span>
-              <span className="text-[#6B7280]">{lead.email || "---"}</span>
+              <span className="text-[var(--color-mid-gray)] block text-xs mb-0.5">Email</span>
+              <span className="text-[var(--color-body-text)]">{lead.email || "---"}</span>
             </div>
             <div>
-              <span className="text-[#9CA3AF] block text-xs mb-0.5">Phone</span>
-              <span className="text-[#6B7280]">{lead.phone || "---"}</span>
+              <span className="text-[var(--color-mid-gray)] block text-xs mb-0.5">Phone</span>
+              <span className="text-[var(--color-body-text)]">{lead.phone || "---"}</span>
             </div>
             <div>
-              <span className="text-[#9CA3AF] block text-xs mb-0.5">
+              <span className="text-[var(--color-mid-gray)] block text-xs mb-0.5">
                 Occupancy
               </span>
-              <span className="text-[#6B7280]">
+              <span className="text-[var(--color-body-text)]">
                 {lead.occupancyRange || "---"}
               </span>
             </div>
             <div>
-              <span className="text-[#9CA3AF] block text-xs mb-0.5">Units</span>
-              <span className="text-[#6B7280]">
+              <span className="text-[var(--color-mid-gray)] block text-xs mb-0.5">Units</span>
+              <span className="text-[var(--color-body-text)]">
                 {lead.totalUnits || "---"}
               </span>
             </div>
             <div className="col-span-2">
-              <span className="text-[#9CA3AF] block text-xs mb-0.5">
+              <span className="text-[var(--color-mid-gray)] block text-xs mb-0.5">
                 Biggest Issue
               </span>
-              <span className="text-[#6B7280]">
+              <span className="text-[var(--color-body-text)]">
                 {lead.biggestIssue || "---"}
               </span>
             </div>
@@ -363,18 +363,18 @@ function LeadExpandedRow({
           {/* Access Code */}
           {lead.accessCode && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#9CA3AF]">Access Code:</span>
-              <code className="bg-black/[0.04] px-2 py-1 rounded text-xs text-[#111827] font-mono">
+              <span className="text-xs text-[var(--color-mid-gray)]">Access Code:</span>
+              <code className="bg-[var(--color-light-gray)] px-2 py-1 rounded text-xs text-[var(--color-dark)] font-mono">
                 {lead.accessCode}
               </code>
               <button
                 onClick={copyAccessCode}
-                className="p-1 rounded hover:bg-black/[0.04] transition-colors"
+                className="p-1 rounded hover:bg-[var(--color-light-gray)] transition-colors"
               >
                 {copied ? (
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
                 ) : (
-                  <Copy className="w-3.5 h-3.5 text-[#9CA3AF]" />
+                  <Copy className="w-3.5 h-3.5 text-[var(--color-mid-gray)]" />
                 )}
               </button>
             </div>
@@ -382,10 +382,10 @@ function LeadExpandedRow({
 
           {/* PMS Indicator */}
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-[#9CA3AF]">PMS Upload:</span>
+            <span className="text-[var(--color-mid-gray)]">PMS Upload:</span>
             <span
               className={
-                lead.pmsUploaded ? "text-emerald-400" : "text-[#9CA3AF]"
+                lead.pmsUploaded ? "text-emerald-400" : "text-[var(--color-mid-gray)]"
               }
             >
               {lead.pmsUploaded ? "Uploaded" : "Not uploaded"}
@@ -397,11 +397,11 @@ function LeadExpandedRow({
         <div className="space-y-4">
           {/* Status Change */}
           <div>
-            <label className="text-xs text-[#9CA3AF] block mb-1">Status</label>
+            <label className="text-xs text-[var(--color-mid-gray)] block mb-1">Status</label>
             <select
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
-              className="w-full bg-[#F3F4F6] border border-black/[0.08] rounded-lg px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-blue-500/50"
+              className="w-full bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-sm text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)]/50"
             >
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -413,20 +413,20 @@ function LeadExpandedRow({
 
           {/* Follow-up Date */}
           <div>
-            <label className="text-xs text-[#9CA3AF] block mb-1">
+            <label className="text-xs text-[var(--color-mid-gray)] block mb-1">
               Follow-up Date
             </label>
             <input
               type="date"
               value={followUp}
               onChange={(e) => setFollowUp(e.target.value)}
-              className="w-full bg-[#F3F4F6] border border-black/[0.08] rounded-lg px-3 py-2 text-sm text-[#111827] focus:outline-none focus:border-blue-500/50 [color-scheme:dark]"
+              className="w-full bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-sm text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)]/50 "
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="text-xs text-[#9CA3AF] block mb-1">
+            <label className="text-xs text-[var(--color-mid-gray)] block mb-1">
               Add Note
             </label>
             <textarea
@@ -434,14 +434,14 @@ function LeadExpandedRow({
               onChange={(e) => setNewNote(e.target.value)}
               placeholder="Type a note..."
               rows={2}
-              className="w-full bg-[#F3F4F6] border border-black/[0.08] rounded-lg px-3 py-2 text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-blue-500/50 resize-none"
+              className="w-full bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-sm text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]/50 resize-none"
             />
           </div>
 
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors"
+            className="w-full bg-[var(--color-gold)] hover:bg-[var(--color-gold-hover)] disabled:opacity-50 text-[var(--color-light)] text-sm font-medium rounded-lg px-4 py-2 transition-colors"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>
@@ -450,10 +450,10 @@ function LeadExpandedRow({
 
       {/* Existing Notes */}
       {lead.notes.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-black/[0.08]">
+        <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
           <div className="flex items-center gap-2 mb-2">
-            <StickyNote className="w-3.5 h-3.5 text-[#9CA3AF]" />
-            <span className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wider">
+            <StickyNote className="w-3.5 h-3.5 text-[var(--color-mid-gray)]" />
+            <span className="text-xs font-medium text-[var(--color-mid-gray)] uppercase tracking-wider">
               Notes ({lead.notes.length})
             </span>
           </div>
@@ -461,10 +461,10 @@ function LeadExpandedRow({
             {lead.notes.map((n, i) => (
               <div
                 key={i}
-                className="text-sm text-[#6B7280] bg-black/[0.02] rounded-lg px-3 py-2"
+                className="text-sm text-[var(--color-body-text)] bg-[var(--color-light-gray)] rounded-lg px-3 py-2"
               >
                 <span>{n.text}</span>
-                <span className="text-[#9CA3AF] text-xs ml-2">
+                <span className="text-[var(--color-mid-gray)] text-xs ml-2">
                   {timeAgo(n.at)}
                 </span>
               </div>
@@ -585,7 +585,7 @@ export default function AdminPipelinePage() {
   }
 
   async function handleExportCsv() {
-    const key = localStorage.getItem("stowstack_admin_key") || "";
+    const key = localStorage.getItem("storageads_admin_key") || "";
     const res = await fetch("/api/export-leads", {
       headers: { "X-Admin-Key": key },
     });
@@ -594,40 +594,40 @@ export default function AdminPipelinePage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `stowstack-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `storageads-leads-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-[#111827]">
+    <div className="min-h-screen bg-[var(--color-light)] text-[var(--color-dark)]">
       {/* Header */}
-      <div className="border-b border-black/[0.08] bg-[#F9FAFB]/80 backdrop-blur-sm sticky top-0 z-30">
+      <div className="border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 backdrop-blur-sm sticky top-0 z-30">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">Lead Pipeline</h1>
-            <p className="text-xs text-[#9CA3AF] mt-0.5">
+            <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">
               Manage and track incoming leads
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Link
               href="/admin/kanban"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7280] hover:text-[#111827] border border-black/[0.08] rounded-lg hover:bg-black/[0.03] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)] border border-[var(--border-subtle)] rounded-lg hover:bg-[var(--color-light-gray)] transition-colors"
             >
               <Kanban className="w-4 h-4" />
               <span className="hidden sm:inline">Kanban</span>
             </Link>
             <button
               onClick={handleExportCsv}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7280] hover:text-[#111827] border border-black/[0.08] rounded-lg hover:bg-black/[0.03] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)] border border-[var(--border-subtle)] rounded-lg hover:bg-[var(--color-light-gray)] transition-colors"
             >
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">Export</span>
             </button>
             <button
               onClick={handleRefresh}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7280] hover:text-[#111827] border border-black/[0.08] rounded-lg hover:bg-black/[0.03] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)] border border-[var(--border-subtle)] rounded-lg hover:bg-[var(--color-light-gray)] transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
@@ -710,8 +710,8 @@ export default function AdminPipelinePage() {
                   }}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                     active
-                      ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                      : "bg-transparent text-[#9CA3AF] border-black/[0.08] hover:border-black/[0.12] hover:text-[#6B7280]"
+                      ? "bg-[var(--color-blue)]/20 text-[var(--color-blue)] border-[var(--color-blue)]/30"
+                      : "bg-transparent text-[var(--color-mid-gray)] border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:text-[var(--color-body-text)]"
                   }`}
                 >
                   {isAll ? "All" : STATUS_LABELS[chip] || chip}
@@ -723,13 +723,13 @@ export default function AdminPipelinePage() {
           {/* Search & Sort */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-mid-gray)]" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search name, facility, location, email..."
-                className="w-full bg-white border border-black/[0.08] rounded-lg pl-9 pr-4 py-2.5 text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:border-blue-500/50"
+                className="w-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-lg pl-9 pr-4 py-2.5 text-sm text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]/50"
               />
             </div>
             <select
@@ -738,7 +738,7 @@ export default function AdminPipelinePage() {
                 setSort(e.target.value);
                 setPage(1);
               }}
-              className="bg-white border border-black/[0.08] rounded-lg px-3 py-2.5 text-sm text-[#6B7280] focus:outline-none focus:border-blue-500/50"
+              className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-lg px-3 py-2.5 text-sm text-[var(--color-body-text)] focus:outline-none focus:border-[var(--color-gold)]/50"
             >
               {SORT_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -751,14 +751,14 @@ export default function AdminPipelinePage() {
 
         {/* Bulk Actions */}
         {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-3">
-            <span className="text-sm text-blue-400">
+          <div className="flex items-center gap-3 bg-[var(--color-blue)]/10 border border-[var(--color-blue)]/20 rounded-lg px-4 py-3">
+            <span className="text-sm text-[var(--color-blue)]">
               {selectedIds.size} selected
             </span>
             <select
               value={bulkStatus}
               onChange={(e) => setBulkStatus(e.target.value)}
-              className="bg-[#F3F4F6] border border-black/[0.08] rounded-lg px-3 py-1.5 text-sm text-[#111827] focus:outline-none focus:border-blue-500/50"
+              className="bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-lg px-3 py-1.5 text-sm text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)]/50"
             >
               <option value="">Change status to...</option>
               {STATUSES.map((s) => (
@@ -770,7 +770,7 @@ export default function AdminPipelinePage() {
             <button
               onClick={handleBulkAction}
               disabled={!bulkStatus || bulkSaving}
-              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg px-4 py-1.5 transition-colors"
+              className="bg-[var(--color-gold)] hover:bg-[var(--color-gold-hover)] disabled:opacity-50 text-[var(--color-light)] text-sm font-medium rounded-lg px-4 py-1.5 transition-colors"
             >
               {bulkSaving ? "Applying..." : "Apply"}
             </button>
@@ -778,15 +778,15 @@ export default function AdminPipelinePage() {
         )}
 
         {/* Lead List */}
-        <div className="rounded-xl border border-black/[0.08] bg-white overflow-hidden">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden">
           {/* Table Header */}
-          <div className="hidden sm:flex items-center gap-4 px-4 py-3 border-b border-black/[0.08] text-xs font-medium text-[#9CA3AF] uppercase tracking-wider">
+          <div className="hidden sm:flex items-center gap-4 px-4 py-3 border-b border-[var(--border-subtle)] text-xs font-medium text-[var(--color-mid-gray)] uppercase tracking-wider">
             <div className="w-5">
               <input
                 type="checkbox"
                 checked={leads.length > 0 && selectedIds.size === leads.length}
                 onChange={toggleSelectAll}
-                className="rounded border-white/20 bg-transparent accent-blue-500"
+                className="rounded border-[var(--color-dark)]/20 bg-transparent accent-[var(--color-gold)]"
               />
             </div>
             <div className="w-5" />
@@ -810,16 +810,16 @@ export default function AdminPipelinePage() {
               </p>
               <button
                 onClick={refetchLeads}
-                className="text-sm text-blue-400 underline"
+                className="text-sm text-[var(--color-blue)] underline"
               >
                 Retry
               </button>
             </div>
           ) : leads.length === 0 ? (
             <div className="p-12 text-center">
-              <Users className="w-10 h-10 text-[#9CA3AF] mx-auto mb-3" />
-              <p className="text-sm text-[#6B7280]">No leads found</p>
-              <p className="text-xs text-[#9CA3AF] mt-1">
+              <Users className="w-10 h-10 text-[var(--color-mid-gray)] mx-auto mb-3" />
+              <p className="text-sm text-[var(--color-body-text)]">No leads found</p>
+              <p className="text-xs text-[var(--color-mid-gray)] mt-1">
                 {search
                   ? "Try adjusting your search or filters"
                   : "New leads will appear here when submitted"}
@@ -837,8 +837,8 @@ export default function AdminPipelinePage() {
                   <div key={lead.id}>
                     {/* Row */}
                     <div
-                      className={`flex items-center gap-4 px-4 py-3 border-b border-black/[0.08] hover:bg-black/[0.03] transition-colors cursor-pointer ${
-                        expanded ? "bg-black/[0.02]" : ""
+                      className={`flex items-center gap-4 px-4 py-3 border-b border-[var(--border-subtle)] hover:bg-[var(--color-light-gray)] transition-colors cursor-pointer ${
+                        expanded ? "bg-[var(--color-light-gray)]" : ""
                       }`}
                     >
                       {/* Checkbox */}
@@ -850,7 +850,7 @@ export default function AdminPipelinePage() {
                           type="checkbox"
                           checked={selected}
                           onChange={() => toggleSelect(lead.id)}
-                          className="rounded border-white/20 bg-transparent accent-blue-500"
+                          className="rounded border-[var(--color-dark)]/20 bg-transparent accent-[var(--color-gold)]"
                         />
                       </div>
 
@@ -859,7 +859,7 @@ export default function AdminPipelinePage() {
                         onClick={() =>
                           setExpandedId(expanded ? null : lead.id)
                         }
-                        className="w-5 shrink-0 text-[#9CA3AF] hover:text-[#6B7280]"
+                        className="w-5 shrink-0 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
                       >
                         {expanded ? (
                           <ChevronDown className="w-4 h-4" />
@@ -876,22 +876,22 @@ export default function AdminPipelinePage() {
                         }
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-[#111827] truncate">
+                          <span className="text-sm font-medium text-[var(--color-dark)] truncate">
                             {lead.name || "Unnamed"}
                           </span>
                           {overdue && (
                             <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
                           )}
                         </div>
-                        <span className="text-xs text-[#9CA3AF] truncate block">
+                        <span className="text-xs text-[var(--color-mid-gray)] truncate block">
                           {lead.facilityName || "---"}
                         </span>
                       </div>
 
                       {/* Location (hidden on mobile) */}
                       <div className="hidden sm:flex items-center gap-1 w-36 shrink-0">
-                        <MapPin className="w-3 h-3 text-[#9CA3AF] shrink-0" />
-                        <span className="text-xs text-[#6B7280] truncate">
+                        <MapPin className="w-3 h-3 text-[var(--color-mid-gray)] shrink-0" />
+                        <span className="text-xs text-[var(--color-body-text)] truncate">
                           {lead.location || "---"}
                         </span>
                       </div>
@@ -912,8 +912,8 @@ export default function AdminPipelinePage() {
 
                       {/* Created (hidden on mobile) */}
                       <div className="hidden sm:flex items-center gap-1 w-20 shrink-0 justify-end">
-                        <Clock className="w-3 h-3 text-[#9CA3AF]" />
-                        <span className="text-xs text-[#9CA3AF]">
+                        <Clock className="w-3 h-3 text-[var(--color-mid-gray)]" />
+                        <span className="text-xs text-[var(--color-mid-gray)]">
                           {timeAgo(lead.createdAt)}
                         </span>
                       </div>
@@ -939,7 +939,7 @@ export default function AdminPipelinePage() {
         {/* Pagination */}
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between">
-            <span className="text-xs text-[#9CA3AF]">
+            <span className="text-xs text-[var(--color-mid-gray)]">
               Page {pagination.page} of {pagination.totalPages} ({pagination.total}{" "}
               leads)
             </span>
@@ -947,7 +947,7 @@ export default function AdminPipelinePage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1.5 text-sm border border-black/[0.08] rounded-lg text-[#6B7280] hover:bg-black/[0.03] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-sm border border-[var(--border-subtle)] rounded-lg text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
@@ -956,7 +956,7 @@ export default function AdminPipelinePage() {
                   setPage((p) => Math.min(pagination.totalPages, p + 1))
                 }
                 disabled={page >= pagination.totalPages}
-                className="px-3 py-1.5 text-sm border border-black/[0.08] rounded-lg text-[#6B7280] hover:bg-black/[0.03] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-sm border border-[var(--border-subtle)] rounded-lg text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>

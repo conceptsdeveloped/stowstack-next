@@ -30,9 +30,9 @@ const TYPE_FILTERS = [
 
 const TYPE_COLORS: Record<string, string> = {
   leads: "#22C55E",
-  campaigns: "#3B82F6",
+  campaigns: "var(--color-gold)",
   billing: "#EAB308",
-  system: "#6E6E73",
+  system: "var(--color-mid-gray)",
 };
 
 const TYPE_ICONS: Record<string, typeof Activity> = {
@@ -49,12 +49,12 @@ function EntrySkeleton() {
         <div
           key={i}
           className="flex items-start gap-3 rounded-lg p-4 animate-pulse"
-          style={{ backgroundColor: "#FFFFFF" }}
+          style={{ backgroundColor: "var(--bg-elevated)" }}
         >
-          <div className="h-8 w-8 rounded-full bg-black/5 shrink-0" />
+          <div className="h-8 w-8 rounded-full bg-[var(--color-dark)]/5 shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-3/4 rounded bg-black/5" />
-            <div className="h-3 w-1/2 rounded bg-black/5" />
+            <div className="h-3 w-3/4 rounded bg-[var(--color-dark)]/5" />
+            <div className="h-3 w-1/2 rounded bg-[var(--color-dark)]/5" />
           </div>
         </div>
       ))}
@@ -124,16 +124,16 @@ export default function ActivityPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>
           Activity Log
         </h1>
-        <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
+        <p className="text-sm mt-1" style={{ color: "var(--color-mid-gray)" }}>
           System-wide event history
         </p>
       </div>
 
       <div className="flex items-center gap-2">
-        <Filter size={14} style={{ color: "#6E6E73" }} />
+        <Filter size={14} style={{ color: "var(--color-mid-gray)" }} />
         {TYPE_FILTERS.map((f) => {
           const Icon = f.icon;
           const isActive = typeFilter === f.key;
@@ -143,8 +143,8 @@ export default function ActivityPage() {
               onClick={() => setTypeFilter(f.key)}
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
               style={{
-                backgroundColor: isActive ? "#3B82F6" : "rgba(255,255,255,0.05)",
-                color: isActive ? "#fff" : "#6E6E73",
+                backgroundColor: isActive ? "var(--color-gold)" : "var(--color-light-gray)",
+                color: isActive ? "var(--color-light)" : "var(--color-mid-gray)",
               }}
             >
               <Icon size={12} />
@@ -168,13 +168,13 @@ export default function ActivityPage() {
       ) : allEntries.length > 0 ? (
         <div className="space-y-2">
           {allEntries.map((entry) => {
-            const color = TYPE_COLORS[entry.type] || "#6E6E73";
+            const color = TYPE_COLORS[entry.type] || "var(--color-mid-gray)";
             const Icon = TYPE_ICONS[entry.type] || Activity;
             return (
               <div
                 key={entry.id}
-                className="flex items-start gap-3 rounded-lg p-4 transition-colors hover:bg-black/[0.03]"
-                style={{ backgroundColor: "#FFFFFF" }}
+                className="flex items-start gap-3 rounded-lg p-4 transition-colors hover:bg-[var(--color-light-gray)]"
+                style={{ backgroundColor: "var(--bg-elevated)" }}
               >
                 <div
                   className="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
@@ -183,10 +183,10 @@ export default function ActivityPage() {
                   <Icon size={14} style={{ color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm" style={{ color: "#111827" }}>
+                  <p className="text-sm" style={{ color: "var(--color-dark)" }}>
                     {entry.description}
                   </p>
-                  <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "#6E6E73" }}>
+                  <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "var(--color-mid-gray)" }}>
                     {entry.actor && <span>{entry.actor}</span>}
                     {entry.detail && (
                       <>
@@ -205,15 +205,15 @@ export default function ActivityPage() {
           {hasMore && (
             <div ref={sentinelRef} className="flex justify-center py-4">
               {loadingMore && (
-                <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <div className="h-6 w-6 border-2 border-[var(--color-blue)] border-t-transparent rounded-full animate-spin" />
               )}
             </div>
           )}
         </div>
       ) : (
         <div className="text-center py-16">
-          <Activity size={32} className="mx-auto mb-3" style={{ color: "#6E6E73" }} />
-          <p className="text-sm" style={{ color: "#6E6E73" }}>No activity entries found</p>
+          <Activity size={32} className="mx-auto mb-3" style={{ color: "var(--color-mid-gray)" }} />
+          <p className="text-sm" style={{ color: "var(--color-mid-gray)" }}>No activity entries found</p>
         </div>
       )}
     </div>

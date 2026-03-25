@@ -104,7 +104,7 @@ const ASPECT_LABELS: Record<string, string> = {
 }
 
 const STATUS_BADGE: Record<string, string> = {
-  draft: 'bg-white/[0.06] text-[#A1A1A6]',
+  draft: 'bg-[var(--color-light-gray)] text-[var(--color-body-text)]',
   approved: 'bg-emerald-500/10 text-emerald-400',
   published: 'bg-green-500/10 text-green-400',
   rejected: 'bg-red-500/10 text-red-400',
@@ -129,7 +129,7 @@ function AdMockup({ format, image, copy, facilityName }: {
         {image ? (
           <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a2e] to-[#0A0A0A]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-elevated)] to-[var(--color-light)]" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         <div className="absolute top-2 left-3 right-3 flex gap-1">
@@ -138,7 +138,7 @@ function AdMockup({ format, image, copy, facilityName }: {
           <div className="h-0.5 flex-1 bg-white/30 rounded-full" />
         </div>
         <div className="absolute top-6 left-3 flex items-center gap-2">
-          <div className="w-7 h-7 bg-[#3B82F6] rounded-full flex items-center justify-center text-white text-[9px] font-bold">SS</div>
+          <div className="w-7 h-7 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[9px] font-bold">SS</div>
           <div>
             <p className="text-white text-[10px] font-semibold">{facilityName}</p>
             <p className="text-white/60 text-[8px]">Sponsored</p>
@@ -157,37 +157,37 @@ function AdMockup({ format, image, copy, facilityName }: {
 
   if (format === 'instagram_post') {
     return (
-      <div className="w-[320px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[#111111]">
+      <div className="w-[320px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
         <div className="flex items-center gap-2 p-3">
-          <div className="w-8 h-8 bg-[#3B82F6] rounded-full flex items-center justify-center text-white text-[10px] font-bold">SS</div>
+          <div className="w-8 h-8 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[10px] font-bold">SS</div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-[#F5F5F7]">{facilityName.toLowerCase().replace(/\s+/g, '')}</p>
-            <p className="text-[10px] text-[#6E6E73]">Sponsored</p>
+            <p className="text-xs font-semibold text-[var(--color-dark)]">{facilityName.toLowerCase().replace(/\s+/g, '')}</p>
+            <p className="text-[10px] text-[var(--color-mid-gray)]">Sponsored</p>
           </div>
-          <MoreHorizontal size={16} className="text-[#6E6E73]" />
+          <MoreHorizontal size={16} className="text-[var(--color-mid-gray)]" />
         </div>
-        <div className="w-full aspect-square bg-[#1a1a1a] relative">
+        <div className="w-full aspect-square bg-[var(--color-light-gray)] relative">
           {image ? (
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#0A0A0A]">
-              <ImageIcon size={32} className="text-[#6E6E73]" />
+            <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
+              <ImageIcon size={32} className="text-[var(--color-mid-gray)]" />
             </div>
           )}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16">
             <p className="text-white text-xl font-extrabold uppercase tracking-wide leading-none" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           </div>
         </div>
-        <div className="flex items-center gap-4 px-3 py-2 text-[#F5F5F7]">
+        <div className="flex items-center gap-4 px-3 py-2 text-[var(--color-dark)]">
           <Heart size={20} /><MessageCircle size={20} /><Send size={20} /><div className="flex-1" /><Bookmark size={20} />
         </div>
         <div className="px-3 pb-3">
-          <p className="text-xs text-[#F5F5F7]">
+          <p className="text-xs text-[var(--color-dark)]">
             <span className="font-semibold">{facilityName.toLowerCase().replace(/\s+/g, '')} </span>{primaryText}
           </p>
-          {description && <p className="text-[10px] text-[#6E6E73] mt-1" style={{ fontFamily: 'var(--font-ad-body)' }}>{description}</p>}
+          {description && <p className="text-[10px] text-[var(--color-mid-gray)] mt-1" style={{ fontFamily: 'var(--font-ad-body)' }}>{description}</p>}
           <div className="mt-2">
-            <span className="inline-block bg-[#3B82F6] text-white text-[10px] font-semibold px-3 py-1 rounded">{cta}</span>
+            <span className="inline-block bg-[var(--color-gold)] text-[var(--color-light)] text-[10px] font-semibold px-3 py-1 rounded">{cta}</span>
           </div>
         </div>
       </div>
@@ -196,33 +196,33 @@ function AdMockup({ format, image, copy, facilityName }: {
 
   if (format === 'facebook_feed') {
     return (
-      <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[#111111]">
+      <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
         <div className="flex items-center gap-2 p-3">
-          <div className="w-10 h-10 bg-[#3B82F6] rounded-full flex items-center justify-center text-white text-xs font-bold">SS</div>
+          <div className="w-10 h-10 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-xs font-bold">SS</div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-[#F5F5F7]">{facilityName}</p>
-            <p className="text-[11px] text-[#6E6E73]">Sponsored &middot; <Globe size={10} className="inline" /></p>
+            <p className="text-sm font-semibold text-[var(--color-dark)]">{facilityName}</p>
+            <p className="text-[11px] text-[var(--color-mid-gray)]">Sponsored &middot; <Globe size={10} className="inline" /></p>
           </div>
-          <MoreHorizontal size={18} className="text-[#6E6E73]" />
+          <MoreHorizontal size={18} className="text-[var(--color-mid-gray)]" />
         </div>
-        <div className="px-3 pb-2"><p className="text-sm text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-body)' }}>{primaryText}</p></div>
-        <div className="w-full aspect-[1.91/1] bg-[#1a1a1a] relative">
+        <div className="px-3 pb-2"><p className="text-sm text-[var(--color-dark)]" style={{ fontFamily: 'var(--font-ad-body)' }}>{primaryText}</p></div>
+        <div className="w-full aspect-[1.91/1] bg-[var(--color-light-gray)] relative">
           {image ? (
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#0A0A0A]">
-              <ImageIcon size={32} className="text-[#6E6E73]" />
+            <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
+              <ImageIcon size={32} className="text-[var(--color-mid-gray)]" />
             </div>
           )}
         </div>
-        <div className="px-3 py-2 border-t border-white/[0.06] bg-white/[0.02]">
-          <p className="text-[10px] uppercase text-[#6E6E73]">storageads.com</p>
-          <p className="text-sm font-semibold text-[#F5F5F7] truncate" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
-          <p className="text-xs text-[#6E6E73] truncate" style={{ fontFamily: 'var(--font-ad-body)' }}>{description}</p>
+        <div className="px-3 py-2 border-t border-[var(--border-subtle)] bg-[var(--color-light-gray)]">
+          <p className="text-[10px] uppercase text-[var(--color-mid-gray)]">storageads.com</p>
+          <p className="text-sm font-semibold text-[var(--color-dark)] truncate" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <p className="text-xs text-[var(--color-mid-gray)] truncate" style={{ fontFamily: 'var(--font-ad-body)' }}>{description}</p>
         </div>
-        <div className="px-3 py-2 border-t border-white/[0.06] flex items-center justify-between">
-          <button className="px-4 py-1.5 text-xs font-semibold rounded bg-white/[0.06] text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</button>
-          <div className="flex gap-4 text-[#6E6E73]">
+        <div className="px-3 py-2 border-t border-[var(--border-subtle)] flex items-center justify-between">
+          <button className="px-4 py-1.5 text-xs font-semibold rounded bg-[var(--color-light-gray)] text-[var(--color-dark)]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</button>
+          <div className="flex gap-4 text-[var(--color-mid-gray)]">
             <span className="text-xs">Like</span><span className="text-xs">Comment</span><span className="text-xs">Share</span>
           </div>
         </div>
@@ -232,23 +232,23 @@ function AdMockup({ format, image, copy, facilityName }: {
 
   if (format === 'google_display') {
     return (
-      <div className="w-[300px] border border-white/[0.06] rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[#111111]">
-        <div className="w-full h-[150px] bg-[#1a1a1a] relative">
+      <div className="w-[300px] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
+        <div className="w-full h-[150px] bg-[var(--color-light-gray)] relative">
           {image ? (
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#0A0A0A]">
-              <ImageIcon size={24} className="text-[#6E6E73]" />
+            <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
+              <ImageIcon size={24} className="text-[var(--color-mid-gray)]" />
             </div>
           )}
           <div className="absolute top-1 left-1 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded">Ad</div>
         </div>
         <div className="p-3 space-y-1.5">
-          <p className="text-sm font-bold leading-tight text-[#F5F5F7]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
-          <p className="text-[11px] text-[#6E6E73] line-clamp-2">{description || primaryText}</p>
+          <p className="text-sm font-bold leading-tight text-[var(--color-dark)]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <p className="text-[11px] text-[var(--color-mid-gray)] line-clamp-2">{description || primaryText}</p>
           <div className="flex items-center justify-between pt-1">
-            <span className="text-[10px] text-[#6E6E73]">{facilityName}</span>
-            <button className="bg-[#3B82F6] text-white text-[10px] font-semibold px-3 py-1 rounded" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</button>
+            <span className="text-[10px] text-[var(--color-mid-gray)]">{facilityName}</span>
+            <button className="bg-[var(--color-gold)] text-[var(--color-light)] text-[10px] font-semibold px-3 py-1 rounded" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</button>
           </div>
         </div>
       </div>
@@ -426,14 +426,14 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 flex-wrap">
-        <Layout size={14} className="text-[#3B82F6]" />
-        <p className="text-xs font-semibold text-[#F5F5F7]">Funnel: {defaults.name}</p>
-        <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6] uppercase">{angle}</span>
+        <Layout size={14} className="text-[var(--color-gold)]" />
+        <p className="text-xs font-semibold text-[var(--color-dark)]">Funnel: {defaults.name}</p>
+        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)] uppercase">{angle}</span>
         <div className="ml-auto flex gap-1.5">
           <button
             onClick={() => setShowMetrics(!showMetrics)}
             className={`px-2.5 py-1 text-[10px] font-medium rounded-lg border transition-colors ${
-              showMetrics ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'border-white/[0.06] text-[#6E6E73] hover:text-[#A1A1A6]'
+              showMetrics ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'border-[var(--border-subtle)] text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]'
             }`}
           >
             Metrics
@@ -441,16 +441,16 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
           {!editing ? (
             <button
               onClick={() => setEditing(true)}
-              className="px-2.5 py-1 text-[10px] font-medium rounded-lg border border-white/[0.06] text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+              className="px-2.5 py-1 text-[10px] font-medium rounded-lg border border-[var(--border-subtle)] text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
             >
               <Pencil size={10} className="inline mr-1" />Edit Funnel
             </button>
           ) : (
             <div className="flex gap-1">
-              <button onClick={handleSave} disabled={saving} className="px-2.5 py-1 text-[10px] font-medium rounded-lg bg-[#3B82F6] text-white disabled:opacity-40">
+              <button onClick={handleSave} disabled={saving} className="px-2.5 py-1 text-[10px] font-medium rounded-lg bg-[var(--color-gold)] text-[var(--color-light)] disabled:opacity-40">
                 {saving ? 'Saving...' : 'Save'}
               </button>
-              <button onClick={() => setEditing(false)} className="px-2.5 py-1 text-[10px] text-[#6E6E73]">Cancel</button>
+              <button onClick={() => setEditing(false)} className="px-2.5 py-1 text-[10px] text-[var(--color-mid-gray)]">Cancel</button>
             </div>
           )}
         </div>
@@ -458,8 +458,8 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
 
       {/* Funnel Metrics Panel */}
       {showMetrics && (
-        <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
-          <p className="text-xs font-semibold text-[#F5F5F7] mb-3">Funnel Performance</p>
+        <div className="border border-[var(--border-subtle)] rounded-xl p-4 bg-[var(--bg-elevated)]">
+          <p className="text-xs font-semibold text-[var(--color-dark)] mb-3">Funnel Performance</p>
           <div className="space-y-2">
             {[
               { label: 'Impressions', value: metrics.impressions, next: metrics.clicks, nextLabel: 'CTR' },
@@ -473,15 +473,15 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
               return (
                 <div key={i}>
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-[#A1A1A6]">{step.label}</span>
-                    <span className="text-[11px] font-medium text-[#F5F5F7]">
+                    <span className="text-[11px] text-[var(--color-body-text)]">{step.label}</span>
+                    <span className="text-[11px] font-medium text-[var(--color-dark)]">
                       {step.value !== null ? step.value.toLocaleString() : '—'}
                     </span>
                   </div>
                   {step.next !== null && step.nextLabel && (
                     <div className="flex items-center gap-2 ml-4 mt-0.5">
-                      <div className="h-3 border-l border-dashed border-white/[0.08]" />
-                      <span className="text-[10px] text-[#6E6E73]">{step.nextLabel}: {rate || '—'}</span>
+                      <div className="h-3 border-l border-dashed border-[var(--border-medium)]" />
+                      <span className="text-[10px] text-[var(--color-mid-gray)]">{step.nextLabel}: {rate || '—'}</span>
                     </div>
                   )}
                 </div>
@@ -489,80 +489,80 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
             })}
           </div>
           {metrics.impressions === null && (
-            <p className="text-[10px] text-[#6E6E73] mt-3 italic">No performance data yet. Metrics will populate once the campaign is live and events are flowing.</p>
+            <p className="text-[10px] text-[var(--color-mid-gray)] mt-3 italic">No performance data yet. Metrics will populate once the campaign is live and events are flowing.</p>
           )}
         </div>
       )}
 
       {/* Step 1: Ad */}
       <div className="relative">
-        <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+        <div className="border border-[var(--border-subtle)] rounded-xl p-4 bg-[var(--bg-elevated)]">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-[10px] font-bold">1</div>
-            <span className="text-xs font-semibold text-[#F5F5F7]">Ad Impression</span>
-            <span className="text-[10px] text-[#6E6E73] ml-auto">Meta / Google</span>
+            <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-bold">1</div>
+            <span className="text-xs font-semibold text-[var(--color-dark)]">Ad Impression</span>
+            <span className="text-[10px] text-[var(--color-mid-gray)] ml-auto">Meta / Google</span>
           </div>
           <div className="flex gap-3">
             {image && <img src={image} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />}
             <div className="min-w-0">
-              <p className="text-xs font-bold text-[#F5F5F7] uppercase tracking-wide" style={{ fontFamily: 'var(--font-ad-headline)' }}>{copy.headline || 'Headline'}</p>
-              <p className="text-[11px] text-[#A1A1A6] mt-1 line-clamp-2" style={{ fontFamily: 'var(--font-ad-body)' }}>{copy.primaryText || 'Primary text'}</p>
-              <p className="text-[10px] text-[#3B82F6] mt-1">{copy.cta || 'Learn More'} →</p>
+              <p className="text-xs font-bold text-[var(--color-dark)] uppercase tracking-wide" style={{ fontFamily: 'var(--font-ad-headline)' }}>{copy.headline || 'Headline'}</p>
+              <p className="text-[11px] text-[var(--color-body-text)] mt-1 line-clamp-2" style={{ fontFamily: 'var(--font-ad-body)' }}>{copy.primaryText || 'Primary text'}</p>
+              <p className="text-[10px] text-[var(--color-gold)] mt-1">{copy.cta || 'Learn More'} →</p>
             </div>
           </div>
         </div>
-        <div className="flex justify-center py-1"><ArrowDown size={16} className="text-[#3B82F6]" /></div>
+        <div className="flex justify-center py-1"><ArrowDown size={16} className="text-[var(--color-gold)]" /></div>
       </div>
 
       {/* Step 2: Landing Page */}
       <div className="relative">
-        <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+        <div className="border border-[var(--border-subtle)] rounded-xl p-4 bg-[var(--bg-elevated)]">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-[10px] font-bold">2</div>
-            <span className="text-xs font-semibold text-[#F5F5F7]">Landing Page</span>
-            <span className="text-[10px] text-[#6E6E73] ml-auto">storageads.com/{facilityName.toLowerCase().replace(/\s+/g, '-')}</span>
+            <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-bold">2</div>
+            <span className="text-xs font-semibold text-[var(--color-dark)]">Landing Page</span>
+            <span className="text-[10px] text-[var(--color-mid-gray)] ml-auto">storageads.com/{facilityName.toLowerCase().replace(/\s+/g, '-')}</span>
           </div>
-          <div className="border border-white/[0.08] rounded-lg p-3 bg-[#0A0A0A]">
+          <div className="border border-[var(--border-medium)] rounded-lg p-3 bg-[var(--color-light)]">
             {editing ? (
               <div className="space-y-2">
-                <label className="text-[10px] text-[#6E6E73] uppercase">Hero Text</label>
+                <label className="text-[10px] text-[var(--color-mid-gray)] uppercase">Hero Text</label>
                 <input
                   value={config.landingHero}
                   onChange={e => setConfig(prev => ({ ...prev, landingHero: e.target.value }))}
-                  className="w-full px-2 py-1.5 border border-white/[0.08] rounded text-sm bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6]"
+                  className="w-full px-2 py-1.5 border border-[var(--border-medium)] rounded text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)]"
                 />
-                <label className="text-[10px] text-[#6E6E73] uppercase mt-2 block">Features (one per line)</label>
+                <label className="text-[10px] text-[var(--color-mid-gray)] uppercase mt-2 block">Features (one per line)</label>
                 <textarea
                   value={config.landingFeatures.join('\n')}
                   onChange={e => setConfig(prev => ({ ...prev, landingFeatures: e.target.value.split('\n') }))}
                   rows={4}
-                  className="w-full px-2 py-1.5 border border-white/[0.08] rounded text-[11px] bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] resize-none"
+                  className="w-full px-2 py-1.5 border border-[var(--border-medium)] rounded text-[11px] bg-[var(--color-light-gray)] text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)] resize-none"
                 />
               </div>
             ) : (
               <>
-                <p className="text-sm font-bold text-[#F5F5F7] mb-2" style={{ fontFamily: 'var(--font-ad-headline)' }}>
+                <p className="text-sm font-bold text-[var(--color-dark)] mb-2" style={{ fontFamily: 'var(--font-ad-headline)' }}>
                   {fillVars(config.landingHero)}
                 </p>
                 <div className="space-y-1.5">
                   {config.landingFeatures.filter(Boolean).map((f, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="w-1 h-1 rounded-full bg-[#3B82F6] shrink-0" />
-                      <span className="text-[11px] text-[#A1A1A6]">{f}</span>
+                      <div className="w-1 h-1 rounded-full bg-[var(--color-gold)] shrink-0" />
+                      <span className="text-[11px] text-[var(--color-body-text)]">{f}</span>
                     </div>
                   ))}
                 </div>
               </>
             )}
-            <div className="mt-3 pt-3 border-t border-white/[0.06]">
+            <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
               <div className="flex items-center gap-2">
-                <MousePointer size={12} className="text-[#3B82F6]" />
-                <span className="text-[10px] text-[#3B82F6] font-medium">→ storEDGE embed: Reserve / Move-In</span>
+                <MousePointer size={12} className="text-[var(--color-gold)]" />
+                <span className="text-[10px] text-[var(--color-gold)] font-medium">→ storEDGE embed: Reserve / Move-In</span>
               </div>
             </div>
           </div>
         </div>
-        <div className="flex justify-center py-1"><ArrowDown size={16} className="text-[#3B82F6]" /></div>
+        <div className="flex justify-center py-1"><ArrowDown size={16} className="text-[var(--color-gold)]" /></div>
       </div>
 
       {/* Step 3: Conversion */}
@@ -579,12 +579,12 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
       </div>
 
       {/* Step 4: Post-conversion */}
-      <div className="border border-white/[0.06] rounded-xl p-4 bg-[#111111]">
+      <div className="border border-[var(--border-subtle)] rounded-xl p-4 bg-[var(--bg-elevated)]">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-[10px] font-bold">4</div>
-          <span className="text-xs font-semibold text-[#F5F5F7]">Post-Conversion Sequence</span>
+          <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-bold">4</div>
+          <span className="text-xs font-semibold text-[var(--color-dark)]">Post-Conversion Sequence</span>
           {editing && (
-            <button onClick={addPostConversion} className="ml-auto text-[10px] text-[#3B82F6] hover:text-blue-400">+ Add Step</button>
+            <button onClick={addPostConversion} className="ml-auto text-[10px] text-[var(--color-gold)] hover:text-[var(--color-blue)]">+ Add Step</button>
           )}
         </div>
         <div className="space-y-2.5">
@@ -594,7 +594,7 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
                 {msg.channel === 'sms' ? (
                   <MessageSquare size={13} className="text-green-400" />
                 ) : (
-                  <Mail size={13} className="text-blue-400" />
+                  <Mail size={13} className="text-[var(--color-blue)]" />
                 )}
               </div>
               {editing ? (
@@ -604,14 +604,14 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
                       <button
                         onClick={() => movePostConversion(i, -1)}
                         disabled={i === 0}
-                        className="p-0.5 text-[#6E6E73] hover:text-[#A1A1A6] disabled:opacity-20 disabled:cursor-default"
+                        className="p-0.5 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] disabled:opacity-20 disabled:cursor-default"
                       >
                         <ArrowUp size={10} />
                       </button>
                       <button
                         onClick={() => movePostConversion(i, 1)}
                         disabled={i === config.postConversion.length - 1}
-                        className="p-0.5 text-[#6E6E73] hover:text-[#A1A1A6] disabled:opacity-20 disabled:cursor-default"
+                        className="p-0.5 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] disabled:opacity-20 disabled:cursor-default"
                       >
                         <ArrowDown size={10} />
                       </button>
@@ -619,7 +619,7 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
                     <select
                       value={msg.channel}
                       onChange={e => updatePostConversion(i, 'channel', e.target.value)}
-                      className="px-1.5 py-1 text-[10px] bg-white/[0.03] border border-white/[0.08] rounded text-[#F5F5F7]"
+                      className="px-1.5 py-1 text-[10px] bg-[var(--color-light-gray)] border border-[var(--border-medium)] rounded text-[var(--color-dark)]"
                     >
                       <option value="sms">SMS</option>
                       <option value="email">Email</option>
@@ -628,23 +628,23 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
                       value={msg.timing}
                       onChange={e => updatePostConversion(i, 'timing', e.target.value)}
                       placeholder="e.g., Immediate, Day 2"
-                      className="flex-1 px-2 py-1 text-[10px] bg-white/[0.03] border border-white/[0.08] rounded text-[#F5F5F7] placeholder-[#6E6E73]"
+                      className="flex-1 px-2 py-1 text-[10px] bg-[var(--color-light-gray)] border border-[var(--border-medium)] rounded text-[var(--color-dark)] placeholder-[var(--color-mid-gray)]"
                     />
-                    <button onClick={() => removePostConversion(i)} className="text-[#6E6E73] hover:text-red-400 text-[10px] shrink-0">×</button>
+                    <button onClick={() => removePostConversion(i)} className="text-[var(--color-mid-gray)] hover:text-red-400 text-[10px] shrink-0">×</button>
                   </div>
                   <input
                     value={msg.message}
                     onChange={e => updatePostConversion(i, 'message', e.target.value)}
-                    className="w-full px-2 py-1 text-[11px] bg-white/[0.03] border border-white/[0.08] rounded text-[#F5F5F7]"
+                    className="w-full px-2 py-1 text-[11px] bg-[var(--color-light-gray)] border border-[var(--border-medium)] rounded text-[var(--color-dark)]"
                   />
                 </div>
               ) : (
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-medium text-[#A1A1A6] uppercase">{msg.channel}</span>
-                    <span className="text-[10px] text-[#6E6E73]">{msg.timing}</span>
+                    <span className="text-[10px] font-medium text-[var(--color-body-text)] uppercase">{msg.channel}</span>
+                    <span className="text-[10px] text-[var(--color-mid-gray)]">{msg.timing}</span>
                   </div>
-                  <p className="text-[11px] text-[#F5F5F7] mt-0.5">{fillVars(msg.message)}</p>
+                  <p className="text-[11px] text-[var(--color-dark)] mt-0.5">{fillVars(msg.message)}</p>
                 </div>
               )}
             </div>
@@ -672,9 +672,9 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
       </div>
 
       {/* Funnel principle */}
-      <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-        <p className="text-[10px] text-[#6E6E73] uppercase tracking-wide font-medium mb-1">Funnel Principle</p>
-        <p className="text-xs text-[#A1A1A6] italic">{defaults.principle}</p>
+      <div className="p-3 rounded-lg bg-[var(--color-light-gray)] border border-[var(--border-subtle)]">
+        <p className="text-[10px] text-[var(--color-mid-gray)] uppercase tracking-wide font-medium mb-1">Funnel Principle</p>
+        <p className="text-xs text-[var(--color-body-text)] italic">{defaults.principle}</p>
       </div>
     </div>
   )
@@ -696,17 +696,17 @@ function StepIndicator({ current, onStep }: { current: StudioStep; onStep: (s: S
             onClick={() => onStep(s.key)}
             className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium rounded-lg transition-colors whitespace-nowrap ${
               current === s.key
-                ? 'bg-[#3B82F6] text-white'
-                : 'text-[#6E6E73] hover:text-[#A1A1A6] hover:bg-white/[0.04]'
+                ? 'bg-[var(--color-gold)] text-[var(--color-light)]'
+                : 'text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]'
             }`}
           >
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-              current === s.key ? 'bg-white/20' : 'bg-white/[0.06]'
+              current === s.key ? 'bg-[var(--color-dark)]/20' : 'bg-[var(--color-light-gray)]'
             }`}>{s.num}</span>
             <span className="hidden sm:inline">{s.label}</span>
             <span className="sm:hidden">{s.label.split(' ')[0]}</span>
           </button>
-          {i < steps.length - 1 && <ChevronRight size={12} className="text-[#6E6E73] shrink-0" />}
+          {i < steps.length - 1 && <ChevronRight size={12} className="text-[var(--color-mid-gray)] shrink-0" />}
         </div>
       ))}
     </div>
@@ -859,7 +859,7 @@ export default function AdStudio({ facilityId, adminKey }: {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 size={20} className="animate-spin text-[#3B82F6]" />
+        <Loader2 size={20} className="animate-spin text-[var(--color-gold)]" />
       </div>
     )
   }
@@ -869,8 +869,8 @@ export default function AdStudio({ facilityId, adminKey }: {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-semibold text-[#F5F5F7]">Ad Studio</h4>
-          <p className="text-xs text-[#6E6E73] mt-0.5">Select copy, generate images, preview as mockup</p>
+          <h4 className="text-sm font-semibold text-[var(--color-dark)]">Ad Studio</h4>
+          <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">Select copy, generate images, preview as mockup</p>
         </div>
       </div>
 
@@ -881,14 +881,14 @@ export default function AdStudio({ facilityId, adminKey }: {
       {step === 'copy' && (
         <div className="space-y-4">
           {variations.length === 0 ? (
-            <div className="text-center py-12 border border-white/[0.06] rounded-xl bg-[#111111]">
-              <Wand2 size={32} className="mx-auto mb-3 text-[#6E6E73]" />
-              <p className="font-medium text-[#F5F5F7]">No ad copy yet</p>
-              <p className="text-sm text-[#6E6E73] mt-1">Generate ad variations in the Creative Studio tab first, then return here to build complete ads.</p>
+            <div className="text-center py-12 border border-[var(--border-subtle)] rounded-xl bg-[var(--bg-elevated)]">
+              <Wand2 size={32} className="mx-auto mb-3 text-[var(--color-mid-gray)]" />
+              <p className="font-medium text-[var(--color-dark)]">No ad copy yet</p>
+              <p className="text-sm text-[var(--color-mid-gray)] mt-1">Generate ad variations in the Creative Studio tab first, then return here to build complete ads.</p>
             </div>
           ) : (
             <>
-              <p className="text-xs text-[#A1A1A6]">Select the ad copy this image will be paired with. The image generator will design visuals to complement your chosen copy.</p>
+              <p className="text-xs text-[var(--color-body-text)]">Select the ad copy this image will be paired with. The image generator will design visuals to complement your chosen copy.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {variations.map(v => {
                   const c = v.content_json as MetaAdContent
@@ -898,21 +898,21 @@ export default function AdStudio({ facilityId, adminKey }: {
                       onClick={() => setSelectedVariation(v)}
                       className={`w-full text-left p-4 border rounded-xl transition-all ${
                         selectedVariation?.id === v.id
-                          ? 'border-[#3B82F6] bg-[#3B82F6]/10'
-                          : 'border-white/[0.06] bg-[#111111] hover:border-white/[0.12]'
+                          ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10'
+                          : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:border-[var(--border-medium)]'
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase bg-white/[0.06] text-[#A1A1A6]">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase bg-[var(--color-light-gray)] text-[var(--color-body-text)]">
                           {c.angleLabel || v.angle}
                         </span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded ${STATUS_BADGE[v.status] || ''}`}>
                           {v.status}
                         </span>
                       </div>
-                      <p className="text-xs font-semibold text-[#F5F5F7] mb-1">{c.headline}</p>
-                      <p className="text-[11px] text-[#6E6E73] line-clamp-2">{c.primaryText}</p>
-                      {c.cta && <p className="text-[10px] text-[#3B82F6] mt-1.5">{c.cta}</p>}
+                      <p className="text-xs font-semibold text-[var(--color-dark)] mb-1">{c.headline}</p>
+                      <p className="text-[11px] text-[var(--color-mid-gray)] line-clamp-2">{c.primaryText}</p>
+                      {c.cta && <p className="text-[10px] text-[var(--color-gold)] mt-1.5">{c.cta}</p>}
                     </button>
                   )
                 })}
@@ -920,7 +920,7 @@ export default function AdStudio({ facilityId, adminKey }: {
               {selectedVariation && (
                 <button
                   onClick={() => setStep('image')}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] transition-colors"
                 >
                   Next: Generate Image <ChevronRight size={14} />
                 </button>
@@ -935,17 +935,17 @@ export default function AdStudio({ facilityId, adminKey }: {
         <div className="space-y-6">
           {/* Selected copy preview */}
           {selectedVariation && (
-            <div className="p-3 rounded-xl border border-[#3B82F6]/30 bg-[#3B82F6]/5">
-              <p className="text-[10px] text-[#3B82F6] font-medium mb-1">Paired with:</p>
-              <p className="text-xs font-semibold text-[#F5F5F7]">{selectedCopy.headline}</p>
-              <p className="text-[11px] text-[#6E6E73] line-clamp-1 mt-0.5">{selectedCopy.primaryText}</p>
+            <div className="p-3 rounded-xl border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5">
+              <p className="text-[10px] text-[var(--color-gold)] font-medium mb-1">Paired with:</p>
+              <p className="text-xs font-semibold text-[var(--color-dark)]">{selectedCopy.headline}</p>
+              <p className="text-[11px] text-[var(--color-mid-gray)] line-clamp-1 mt-0.5">{selectedCopy.primaryText}</p>
             </div>
           )}
 
           {/* Existing images */}
           {assets.length > 0 && (
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-2">Use Existing Image</label>
+              <label className="text-xs font-medium text-[var(--color-body-text)] block mb-2">Use Existing Image</label>
               <div className="grid grid-cols-5 sm:grid-cols-8 gap-2 max-h-40 overflow-y-auto">
                 {assets.map(img => (
                   <button
@@ -953,8 +953,8 @@ export default function AdStudio({ facilityId, adminKey }: {
                     onClick={() => { setSelectedImage(img.url); setStep('preview') }}
                     className={`relative rounded-lg overflow-hidden transition-all ${
                       selectedImage === img.url
-                        ? 'ring-2 ring-[#3B82F6]'
-                        : 'ring-1 ring-white/[0.06] hover:ring-white/[0.12]'
+                        ? 'ring-2 ring-[var(--color-gold)]'
+                        : 'ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]'
                     }`}
                   >
                     <img src={img.url} alt="" className="h-16 w-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
@@ -967,7 +967,7 @@ export default function AdStudio({ facilityId, adminKey }: {
           {/* Generated images from this session */}
           {jobs.filter(j => j.status === 'succeeded').length > 0 && (
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-2">Generated This Session</label>
+              <label className="text-xs font-medium text-[var(--color-body-text)] block mb-2">Generated This Session</label>
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                 {jobs.filter(j => j.status === 'succeeded' && j.imageUrl).map(job => (
                   <button
@@ -975,8 +975,8 @@ export default function AdStudio({ facilityId, adminKey }: {
                     onClick={() => { setSelectedImage(job.imageUrl!); setStep('preview') }}
                     className={`relative rounded-lg overflow-hidden transition-all ${
                       selectedImage === job.imageUrl
-                        ? 'ring-2 ring-[#3B82F6]'
-                        : 'ring-1 ring-white/[0.06] hover:ring-white/[0.12]'
+                        ? 'ring-2 ring-[var(--color-gold)]'
+                        : 'ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]'
                     }`}
                   >
                     <img src={job.imageUrl!} alt="" className="h-20 w-full object-cover" />
@@ -988,8 +988,8 @@ export default function AdStudio({ facilityId, adminKey }: {
           )}
 
           {/* Generate new */}
-          <div className="border border-white/[0.06] rounded-xl p-5 bg-[#111111] space-y-4">
-            <label className="text-xs font-medium text-[#A1A1A6] block">Generate New Image</label>
+          <div className="border border-[var(--border-subtle)] rounded-xl p-5 bg-[var(--bg-elevated)] space-y-4">
+            <label className="text-xs font-medium text-[var(--color-body-text)] block">Generate New Image</label>
 
             {/* Template grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
@@ -999,35 +999,35 @@ export default function AdStudio({ facilityId, adminKey }: {
                   onClick={() => { setSelectedTemplate(t.id); setShowPromptEditor(false); setPromptOverride('') }}
                   className={`text-left p-2.5 border rounded-lg transition-all ${
                     selectedTemplate === t.id
-                      ? 'border-[#3B82F6] bg-[#3B82F6]/10'
-                      : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12]'
+                      ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10'
+                      : 'border-[var(--border-subtle)] bg-[var(--color-light-gray)] hover:border-[var(--border-medium)]'
                   }`}
                 >
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[#A1A1A6]">{TEMPLATE_ICONS[t.id] || <ImageIcon size={14} />}</span>
-                    <span className="text-[11px] font-semibold text-[#F5F5F7] truncate">{t.name}</span>
+                    <span className="text-[var(--color-body-text)]">{TEMPLATE_ICONS[t.id] || <ImageIcon size={14} />}</span>
+                    <span className="text-[11px] font-semibold text-[var(--color-dark)] truncate">{t.name}</span>
                   </div>
-                  <p className="text-[9px] text-[#6E6E73] line-clamp-1">{t.description}</p>
-                  <span className="inline-block mt-1 text-[8px] px-1 py-0.5 rounded bg-white/[0.06] text-[#A1A1A6]">{ASPECT_LABELS[t.aspect] || t.aspect}</span>
+                  <p className="text-[9px] text-[var(--color-mid-gray)] line-clamp-1">{t.description}</p>
+                  <span className="inline-block mt-1 text-[8px] px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)]">{ASPECT_LABELS[t.aspect] || t.aspect}</span>
                 </button>
               ))}
             </div>
 
             {/* Notes + prompt override */}
             <div>
-              <label className="text-xs font-medium text-[#A1A1A6] block mb-1.5">Custom Notes (optional)</label>
+              <label className="text-xs font-medium text-[var(--color-body-text)] block mb-1.5">Custom Notes (optional)</label>
               <input
                 value={customNotes}
                 onChange={e => setCustomNotes(e.target.value)}
                 placeholder="e.g., Include a sunset, show climate-controlled units, spring theme..."
-                className="w-full px-3 py-2 border border-white/[0.06] rounded-lg text-sm bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6]"
+                className="w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
               />
             </div>
 
             <div>
               <button
                 onClick={() => setShowPromptEditor(!showPromptEditor)}
-                className="flex items-center gap-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors"
+                className="flex items-center gap-1.5 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
               >
                 <Edit3 size={11} /> {showPromptEditor ? 'Hide' : 'Edit'} prompt directly
               </button>
@@ -1037,7 +1037,7 @@ export default function AdStudio({ facilityId, adminKey }: {
                   onChange={e => setPromptOverride(e.target.value)}
                   rows={3}
                   placeholder="Write your own image prompt..."
-                  className="mt-2 w-full px-3 py-2 border border-white/[0.06] rounded-lg text-xs font-mono bg-white/[0.03] text-[#F5F5F7] placeholder-[#6E6E73] focus:outline-none focus:border-[#3B82F6] resize-none"
+                  className="mt-2 w-full px-3 py-2 border border-[var(--border-subtle)] rounded-lg text-xs font-mono bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)] resize-none"
                 />
               )}
             </div>
@@ -1046,7 +1046,7 @@ export default function AdStudio({ facilityId, adminKey }: {
             <button
               onClick={() => generateImage()}
               disabled={generating}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#3B82F6] text-white text-sm font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
             >
               {generating ? (
                 <><Loader2 size={14} className="animate-spin" /> Generating...</>
@@ -1054,18 +1054,18 @@ export default function AdStudio({ facilityId, adminKey }: {
                 <><Sparkles size={14} /> Generate {activeTemplateObj?.name || 'Image'}</>
               )}
             </button>
-            <p className="text-[10px] text-[#6E6E73]">Takes 10-30 seconds. Image auto-saves to facility assets.</p>
+            <p className="text-[10px] text-[var(--color-mid-gray)]">Takes 10-30 seconds. Image auto-saves to facility assets.</p>
           </div>
 
           {/* Active generation jobs */}
           {jobs.filter(j => j.status === 'generating').length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {jobs.filter(j => j.status === 'generating').map(job => (
-                <div key={job.id} className="border border-white/[0.06] rounded-xl overflow-hidden bg-[#111111]">
-                  <div className="aspect-square flex items-center justify-center bg-white/[0.03]">
+                <div key={job.id} className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--bg-elevated)]">
+                  <div className="aspect-square flex items-center justify-center bg-[var(--color-light-gray)]">
                     <div className="text-center">
-                      <Loader2 size={24} className="animate-spin text-[#3B82F6] mx-auto mb-2" />
-                      <p className="text-xs text-[#6E6E73]">Generating {job.templateName}...</p>
+                      <Loader2 size={24} className="animate-spin text-[var(--color-gold)] mx-auto mb-2" />
+                      <p className="text-xs text-[var(--color-mid-gray)]">Generating {job.templateName}...</p>
                     </div>
                   </div>
                 </div>
@@ -1082,7 +1082,7 @@ export default function AdStudio({ facilityId, adminKey }: {
                   <p className="text-xs text-red-300">{job.error}</p>
                   <button
                     onClick={() => { setEditingPrompt(job.id); setEditedPrompt(job.prompt) }}
-                    className="flex items-center gap-1 text-[11px] text-[#6E6E73] hover:text-[#A1A1A6] mt-1 transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] mt-1 transition-colors"
                   >
                     <Edit3 size={10} /> Edit prompt and retry
                   </button>
@@ -1094,13 +1094,13 @@ export default function AdStudio({ facilityId, adminKey }: {
                     value={editedPrompt}
                     onChange={e => setEditedPrompt(e.target.value)}
                     rows={3}
-                    className="w-full px-2 py-1.5 border border-white/[0.06] rounded text-[11px] font-mono bg-white/[0.03] text-[#F5F5F7] focus:outline-none focus:border-[#3B82F6] resize-none"
+                    className="w-full px-2 py-1.5 border border-[var(--border-subtle)] rounded text-[11px] font-mono bg-[var(--color-light-gray)] text-[var(--color-dark)] focus:outline-none focus:border-[var(--color-gold)] resize-none"
                   />
                   <div className="flex gap-1.5">
-                    <button onClick={() => { generateImage(editedPrompt); setEditingPrompt(null) }} disabled={generating} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3B82F6] text-white text-xs font-medium rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors">
+                    <button onClick={() => { generateImage(editedPrompt); setEditingPrompt(null) }} disabled={generating} className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors">
                       <Sparkles size={12} /> Retry
                     </button>
-                    <button onClick={() => setEditingPrompt(null)} className="px-3 py-1.5 text-xs text-[#6E6E73] hover:text-[#A1A1A6] transition-colors">Cancel</button>
+                    <button onClick={() => setEditingPrompt(null)} className="px-3 py-1.5 text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors">Cancel</button>
                   </div>
                 </div>
               )}
@@ -1111,7 +1111,7 @@ export default function AdStudio({ facilityId, adminKey }: {
           {selectedImage && (
             <button
               onClick={() => setStep('preview')}
-              className="flex items-center gap-2 px-5 py-2.5 border border-white/[0.06] text-[#A1A1A6] text-sm font-medium rounded-lg hover:bg-white/[0.04] transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--color-body-text)] text-sm font-medium rounded-lg hover:bg-[var(--color-light-gray)] transition-colors"
             >
               <Eye size={14} /> Preview with Selected Image <ChevronRight size={14} />
             </button>
@@ -1128,8 +1128,8 @@ export default function AdStudio({ facilityId, adminKey }: {
               onClick={() => setPreviewMode('mockup')}
               className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
                 previewMode === 'mockup'
-                  ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-                  : 'border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]'
+                  ? 'bg-[var(--color-gold)] text-[var(--color-light)] border-[var(--color-gold)]'
+                  : 'border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]'
               }`}
             >
               <Smartphone size={13} /> Ad Mockup
@@ -1138,8 +1138,8 @@ export default function AdStudio({ facilityId, adminKey }: {
               onClick={() => setPreviewMode('funnel')}
               className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
                 previewMode === 'funnel'
-                  ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-                  : 'border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]'
+                  ? 'bg-[var(--color-gold)] text-[var(--color-light)] border-[var(--color-gold)]'
+                  : 'border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]'
               }`}
             >
               <Layout size={13} /> Test Funnel
@@ -1154,12 +1154,12 @@ export default function AdStudio({ facilityId, adminKey }: {
                 onClick={() => setActiveFormat(f.id)}
                 className={`shrink-0 px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-medium rounded-lg border transition-colors ${
                   activeFormat === f.id
-                    ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-                    : 'border-white/[0.06] text-[#A1A1A6] hover:bg-white/[0.04]'
+                    ? 'bg-[var(--color-gold)] text-[var(--color-light)] border-[var(--color-gold)]'
+                    : 'border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]'
                 }`}
               >
                 {f.label}
-                <span className={`ml-1 sm:ml-1.5 text-[9px] sm:text-[10px] hidden sm:inline ${activeFormat === f.id ? 'text-blue-200' : 'text-[#6E6E73]'}`}>
+                <span className={`ml-1 sm:ml-1.5 text-[9px] sm:text-[10px] hidden sm:inline ${activeFormat === f.id ? 'text-[var(--color-blue)]' : 'text-[var(--color-mid-gray)]'}`}>
                   {f.width}x{f.height}
                 </span>
               </button>
@@ -1170,7 +1170,7 @@ export default function AdStudio({ facilityId, adminKey }: {
           {previewMode === 'mockup' && <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left: Live preview */}
             <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-[#F5F5F7]">Live Preview</h4>
+              <h4 className="text-sm font-semibold text-[var(--color-dark)]">Live Preview</h4>
               <div className="flex justify-center" ref={previewRef}>
                 <AdMockup
                   format={activeFormat}
@@ -1181,7 +1181,7 @@ export default function AdStudio({ facilityId, adminKey }: {
               </div>
               <button
                 onClick={handleCopyPreview}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-white/[0.06] text-[#A1A1A6] text-sm font-medium rounded-lg hover:bg-white/[0.04] transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-[var(--border-subtle)] text-[var(--color-body-text)] text-sm font-medium rounded-lg hover:bg-[var(--color-light-gray)] transition-colors"
               >
                 {copied ? (
                   <><Check size={14} className="text-emerald-400" /> Preview Captured</>
@@ -1195,7 +1195,7 @@ export default function AdStudio({ facilityId, adminKey }: {
             <div className="space-y-5">
               {/* Copy selector */}
               <div>
-                <h4 className="text-sm font-semibold text-[#F5F5F7] mb-2">Ad Copy</h4>
+                <h4 className="text-sm font-semibold text-[var(--color-dark)] mb-2">Ad Copy</h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {variations.map(v => {
                     const c = v.content_json as MetaAdContent
@@ -1205,16 +1205,16 @@ export default function AdStudio({ facilityId, adminKey }: {
                         onClick={() => setSelectedVariation(v)}
                         className={`w-full text-left p-3 border rounded-lg transition-colors ${
                           selectedVariation?.id === v.id
-                            ? 'border-[#3B82F6] bg-[#3B82F6]/10'
-                            : 'border-white/[0.06] bg-[#111111] hover:bg-white/[0.02]'
+                            ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10'
+                            : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:bg-[var(--color-light-gray)]'
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase bg-white/[0.06] text-[#A1A1A6]">{c.angleLabel || v.angle}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase bg-[var(--color-light-gray)] text-[var(--color-body-text)]">{c.angleLabel || v.angle}</span>
                           <span className={`text-[10px] px-1.5 py-0.5 rounded ${STATUS_BADGE[v.status] || ''}`}>{v.status}</span>
                         </div>
-                        <p className="text-xs font-medium text-[#F5F5F7] truncate">{c.headline}</p>
-                        <p className="text-[11px] text-[#6E6E73] line-clamp-1 mt-0.5">{c.primaryText}</p>
+                        <p className="text-xs font-medium text-[var(--color-dark)] truncate">{c.headline}</p>
+                        <p className="text-[11px] text-[var(--color-mid-gray)] line-clamp-1 mt-0.5">{c.primaryText}</p>
                       </button>
                     )
                   })}
@@ -1224,10 +1224,10 @@ export default function AdStudio({ facilityId, adminKey }: {
               {/* Image selector */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <h4 className="text-sm font-semibold text-[#F5F5F7]">Image</h4>
+                  <h4 className="text-sm font-semibold text-[var(--color-dark)]">Image</h4>
                   <button
                     onClick={() => setStep('image')}
-                    className="ml-auto flex items-center gap-1 text-[11px] text-[#3B82F6] hover:text-blue-400 transition-colors"
+                    className="ml-auto flex items-center gap-1 text-[11px] text-[var(--color-gold)] hover:text-[var(--color-blue)] transition-colors"
                   >
                     <Sparkles size={10} /> Generate New
                   </button>
@@ -1240,12 +1240,12 @@ export default function AdStudio({ facilityId, adminKey }: {
                       onClick={() => setSelectedImage(job.imageUrl!)}
                       className={`relative rounded-lg overflow-hidden transition-all ${
                         selectedImage === job.imageUrl
-                          ? 'ring-2 ring-[#3B82F6]'
-                          : 'ring-1 ring-white/[0.06] hover:ring-white/[0.12]'
+                          ? 'ring-2 ring-[var(--color-gold)]'
+                          : 'ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]'
                       }`}
                     >
                       <img src={job.imageUrl!} alt="" className="h-16 w-full object-cover" />
-                      <span className="absolute bottom-0.5 right-0.5 text-[7px] px-1 rounded bg-[#3B82F6]/80 text-white">AI</span>
+                      <span className="absolute bottom-0.5 right-0.5 text-[7px] px-1 rounded bg-[var(--color-gold)]/80 text-[var(--color-light)]">AI</span>
                     </button>
                   ))}
                   {/* Facility assets */}
@@ -1255,15 +1255,15 @@ export default function AdStudio({ facilityId, adminKey }: {
                       onClick={() => setSelectedImage(img.url)}
                       className={`relative rounded-lg overflow-hidden transition-all ${
                         selectedImage === img.url
-                          ? 'ring-2 ring-[#3B82F6]'
-                          : 'ring-1 ring-white/[0.06] hover:ring-white/[0.12]'
+                          ? 'ring-2 ring-[var(--color-gold)]'
+                          : 'ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]'
                       }`}
                     >
                       <img src={img.url} alt="" className="h-16 w-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                     </button>
                   ))}
                   {assets.length === 0 && jobs.filter(j => j.status === 'succeeded').length === 0 && (
-                    <p className="col-span-4 text-center text-xs text-[#6E6E73] py-4">No images available. Go back to generate one.</p>
+                    <p className="col-span-4 text-center text-xs text-[var(--color-mid-gray)] py-4">No images available. Go back to generate one.</p>
                   )}
                 </div>
               </div>

@@ -5,7 +5,7 @@ import { ArrowLeft, Check } from "lucide-react";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "StowStack pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+    "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
 };
 
 const demandEnginePlans = [
@@ -108,13 +108,13 @@ export default function PricingPage() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: "var(--bg-void)", color: "var(--text-primary)" }}
+      style={{ background: "var(--color-light)", color: "var(--color-dark)" }}
     >
       {/* Nav */}
       <header
         className="sticky top-0 z-[100] border-b"
         style={{
-          background: "var(--bg-void)",
+          background: "var(--color-light)",
           borderColor: "var(--border-subtle)",
         }}
       >
@@ -126,8 +126,8 @@ export default function PricingPage() {
           >
             <ArrowLeft size={20} />
           </Link>
-          <span className="text-sm font-bold tracking-tight">
-            Stow<span style={{ color: "var(--accent)" }}>Stack</span>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 600, letterSpacing: "-0.5px" }}>
+            <span style={{ color: "var(--color-dark)" }}>storage</span><span style={{ color: "var(--color-gold)" }}>ads</span>
           </span>
         </div>
       </header>
@@ -159,7 +159,7 @@ export default function PricingPage() {
             months. That is $1,200-1,800 in lifetime value from one move-in.
           </p>
           <p>
-            If StowStack produces 5 additional move-ins in a month, that is
+            If StorageAds produces 5 additional move-ins in a month, that is
             $6,000-9,000 in annualized revenue. If it produces 10, that is
             $12,000-18,000.
           </p>
@@ -172,7 +172,7 @@ export default function PricingPage() {
       {/* Demand Engine */}
       <section
         className="py-20"
-        style={{ background: "var(--bg-primary)" }}
+        style={{ background: "var(--color-light)" }}
       >
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-4">
@@ -214,7 +214,7 @@ export default function PricingPage() {
             }}
           >
             Monthly retainer. Ad spend paid directly to Meta/Google — separate
-            from StowStack fees.
+            from StorageAds fees.
           </p>
 
           <div className="grid gap-6 md:grid-cols-3">
@@ -223,7 +223,7 @@ export default function PricingPage() {
                 key={plan.name}
                 className="rounded-lg p-6 flex flex-col relative"
                 style={{
-                  background: "var(--bg-elevated)",
+                  background: "var(--color-light)",
                   border: plan.isRecommended
                     ? "1px solid var(--accent)"
                     : "1px solid var(--border-subtle)",
@@ -299,7 +299,7 @@ export default function PricingPage() {
       </section>
 
       {/* Conversion Layer */}
-      <section className="py-20" style={{ background: "var(--bg-void)" }}>
+      <section className="py-20" style={{ background: "var(--color-light)" }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-4">
             <span
@@ -348,7 +348,7 @@ export default function PricingPage() {
                 key={plan.name}
                 className="rounded-lg p-6 flex flex-col relative"
                 style={{
-                  background: "var(--bg-elevated)",
+                  background: "var(--color-light)",
                   border:
                     plan.tag
                       ? "1px solid var(--accent)"
@@ -411,7 +411,7 @@ export default function PricingPage() {
       </section>
 
       {/* Bundle */}
-      <section className="py-20" style={{ background: "var(--bg-primary)" }}>
+      <section className="py-20" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2
             className="font-bold mb-2"
@@ -435,7 +435,7 @@ export default function PricingPage() {
           <div
             className="rounded-lg p-8 text-left space-y-4"
             style={{
-              background: "var(--bg-elevated)",
+              background: "var(--color-light)",
               border: "1px solid var(--border-subtle)",
             }}
           >
@@ -461,7 +461,7 @@ export default function PricingPage() {
             <p className="pt-4" style={{ color: "var(--text-secondary)", fontSize: "var(--text-body)" }}>
               You are paying one company for a website and another for ads.
               Neither one can tell you which ad produced a move-in. With
-              StowStack, it is one system — the ad, the page, the rental flow,
+              StorageAds, it is one system — the ad, the page, the rental flow,
               and the reporting — all connected. That is how you stop guessing
               and start scaling.
             </p>
@@ -470,7 +470,7 @@ export default function PricingPage() {
       </section>
 
       {/* Comparison */}
-      <section className="py-20" style={{ background: "var(--bg-void)" }}>
+      <section className="py-20" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6">
           <h2
             className="font-bold mb-8 text-center"
@@ -492,7 +492,7 @@ export default function PricingPage() {
                 copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No full-funnel attribution. They optimize for clicks, not leases. You guess.',
               },
               {
-                price: "$750-1,500/mo on StowStack",
+                price: "$750-1,500/mo on StorageAds",
                 copy: "You get Meta ads + Google PPC + retargeting driving traffic to ad-specific landing pages with embedded storEDGE rental flow. Every move-in traced to the ad that produced it. A/B testing based on revenue. Cost per move-in drops every month. You know.",
                 isHighlighted: true,
               },
@@ -502,10 +502,10 @@ export default function PricingPage() {
                 className="rounded-lg p-6"
                 style={{
                   background: item.isHighlighted
-                    ? "var(--bg-elevated)"
+                    ? "rgba(181,139,63,0.06)"
                     : "transparent",
                   border: item.isHighlighted
-                    ? "1px solid var(--accent)"
+                    ? "1px solid var(--color-gold)"
                     : "1px solid var(--border-subtle)",
                 }}
               >
@@ -536,7 +536,7 @@ export default function PricingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24" style={{ background: "var(--bg-primary)" }}>
+      <section className="py-24" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2
             className="font-bold mb-4"
@@ -555,7 +555,7 @@ export default function PricingPage() {
               maxWidth: "520px",
             }}
           >
-            This is not a self-serve checkout. StowStack is built for operators
+            This is not a self-serve checkout. StorageAds is built for operators
             who want a real conversation about their vacancy, their market, and
             what a full-funnel system would look like for their specific
             facilities.

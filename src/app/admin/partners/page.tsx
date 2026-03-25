@@ -45,7 +45,7 @@ const STATUS_STYLES: Record<string, { bg: string; text: string }> = {
 
 const TIER_STYLES: Record<string, string> = {
   starter: "#6B7280",
-  growth: "#3B82F6",
+  growth: "var(--color-gold)",
   enterprise: "#8B5CF6",
 };
 
@@ -56,13 +56,13 @@ function OrgSkeleton() {
         <div
           key={i}
           className="rounded-xl border p-5 animate-pulse"
-          style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+          style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
         >
           <div className="flex items-center gap-4">
-            <div className="h-4 w-40 rounded bg-black/5" />
-            <div className="h-4 w-16 rounded bg-black/5" />
+            <div className="h-4 w-40 rounded bg-[var(--color-dark)]/5" />
+            <div className="h-4 w-16 rounded bg-[var(--color-dark)]/5" />
             <div className="flex-1" />
-            <div className="h-4 w-20 rounded bg-black/5" />
+            <div className="h-4 w-20 rounded bg-[var(--color-dark)]/5" />
           </div>
         </div>
       ))}
@@ -81,34 +81,34 @@ export default function PartnersPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Partners</h1>
-        <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>Partners</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--color-mid-gray)" }}>
           Organization management and partner details
         </p>
       </div>
 
       {orgs && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-xl border p-5" style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}>
+          <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
             <div className="flex items-center gap-2 mb-2">
-              <Building2 size={16} style={{ color: "#3B82F6" }} />
-              <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>Total Partners</span>
+              <Building2 size={16} style={{ color: "var(--color-gold)" }} />
+              <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>Total Partners</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "#111827" }}>{orgs.length}</p>
+            <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{orgs.length}</p>
           </div>
-          <div className="rounded-xl border p-5" style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}>
+          <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Users size={16} style={{ color: "#22C55E" }} />
-              <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>Active</span>
+              <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>Active</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "#111827" }}>{activeCount}</p>
+            <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{activeCount}</p>
           </div>
-          <div className="rounded-xl border p-5" style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}>
+          <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
             <div className="flex items-center gap-2 mb-2">
               <DollarSign size={16} style={{ color: "#EAB308" }} />
-              <span className="text-xs font-medium" style={{ color: "#6E6E73" }}>Total MRR</span>
+              <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>Total MRR</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "#111827" }}>${totalMrr.toLocaleString()}</p>
+            <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>${totalMrr.toLocaleString()}</p>
           </div>
         </div>
       )}
@@ -132,14 +132,14 @@ export default function PartnersPage() {
               <div
                 key={org.id}
                 className="rounded-xl border overflow-hidden"
-                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+                style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
               >
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : org.id)}
-                  className="w-full flex items-center justify-between p-4 text-left hover:bg-black/[0.03] transition-colors"
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--color-light-gray)] transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-wrap">
-                    <span className="text-sm font-medium" style={{ color: "#111827" }}>{org.name}</span>
+                    <span className="text-sm font-medium" style={{ color: "var(--color-dark)" }}>{org.name}</span>
                     <span
                       className="text-xs font-medium px-2 py-0.5 rounded-full capitalize"
                       style={{ backgroundColor: statusStyle.bg, color: statusStyle.text }}
@@ -154,32 +154,32 @@ export default function PartnersPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-6">
-                    <span className="text-xs" style={{ color: "#6E6E73" }}>
+                    <span className="text-xs" style={{ color: "var(--color-mid-gray)" }}>
                       {org.facility_count} {org.facility_count === 1 ? "facility" : "facilities"}
                     </span>
                     <span className="text-sm font-medium" style={{ color: "#22C55E" }}>
                       ${org.mrr?.toLocaleString() || 0}/mo
                     </span>
                     {isExpanded ? (
-                      <ChevronDown size={16} style={{ color: "#6E6E73" }} />
+                      <ChevronDown size={16} style={{ color: "var(--color-mid-gray)" }} />
                     ) : (
-                      <ChevronRight size={16} style={{ color: "#6E6E73" }} />
+                      <ChevronRight size={16} style={{ color: "var(--color-mid-gray)" }} />
                     )}
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t space-y-4" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+                  <div className="px-4 pb-4 border-t space-y-4" style={{ borderColor: "var(--border-subtle)" }}>
                     {org.revenue_share_tier && (
                       <div className="pt-3">
-                        <span className="text-xs" style={{ color: "#6E6E73" }}>Revenue Share Tier: </span>
-                        <span className="text-xs font-medium" style={{ color: "#3B82F6" }}>{org.revenue_share_tier}</span>
+                        <span className="text-xs" style={{ color: "var(--color-mid-gray)" }}>Revenue Share Tier: </span>
+                        <span className="text-xs font-medium" style={{ color: "var(--color-gold)" }}>{org.revenue_share_tier}</span>
                       </div>
                     )}
 
                     {org.users && org.users.length > 0 && (
                       <div>
-                        <h4 className="text-xs font-medium mb-2" style={{ color: "#6E6E73" }}>
+                        <h4 className="text-xs font-medium mb-2" style={{ color: "var(--color-mid-gray)" }}>
                           <Users size={12} className="inline mr-1" />
                           Users
                         </h4>
@@ -188,11 +188,11 @@ export default function PartnersPage() {
                             <div
                               key={user.id}
                               className="rounded-lg p-2.5 text-xs"
-                              style={{ backgroundColor: "#F9FAFB" }}
+                              style={{ backgroundColor: "var(--color-light)" }}
                             >
-                              <p style={{ color: "#111827" }}>{user.name}</p>
-                              <p style={{ color: "#6E6E73" }}>{user.email}</p>
-                              <p className="capitalize mt-0.5" style={{ color: "#6B7280" }}>{user.role}</p>
+                              <p style={{ color: "var(--color-dark)" }}>{user.name}</p>
+                              <p style={{ color: "var(--color-mid-gray)" }}>{user.email}</p>
+                              <p className="capitalize mt-0.5" style={{ color: "var(--color-body-text)" }}>{user.role}</p>
                             </div>
                           ))}
                         </div>
@@ -201,7 +201,7 @@ export default function PartnersPage() {
 
                     {org.facilities && org.facilities.length > 0 && (
                       <div>
-                        <h4 className="text-xs font-medium mb-2" style={{ color: "#6E6E73" }}>
+                        <h4 className="text-xs font-medium mb-2" style={{ color: "var(--color-mid-gray)" }}>
                           <MapPin size={12} className="inline mr-1" />
                           Facilities
                         </h4>
@@ -210,10 +210,10 @@ export default function PartnersPage() {
                             <div
                               key={fac.id}
                               className="rounded-lg p-2.5 text-xs"
-                              style={{ backgroundColor: "#F9FAFB" }}
+                              style={{ backgroundColor: "var(--color-light)" }}
                             >
-                              <p style={{ color: "#111827" }}>{fac.name}</p>
-                              <p style={{ color: "#6E6E73" }}>{fac.location}</p>
+                              <p style={{ color: "var(--color-dark)" }}>{fac.name}</p>
+                              <p style={{ color: "var(--color-mid-gray)" }}>{fac.location}</p>
                             </div>
                           ))}
                         </div>
@@ -227,8 +227,8 @@ export default function PartnersPage() {
         </div>
       ) : (
         <div className="text-center py-16">
-          <Building2 size={32} className="mx-auto mb-3" style={{ color: "#6E6E73" }} />
-          <p className="text-sm" style={{ color: "#6E6E73" }}>No partner organizations</p>
+          <Building2 size={32} className="mx-auto mb-3" style={{ color: "var(--color-mid-gray)" }} />
+          <p className="text-sm" style={{ color: "var(--color-mid-gray)" }}>No partner organizations</p>
         </div>
       )}
     </div>

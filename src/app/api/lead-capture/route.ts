@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
           <p style="margin-top: 16px; font-size: 13px; color: #999;">Submitted: ${new Date().toISOString()}</p>
         </div>`;
 
-      const recipients = (process.env.AUDIT_NOTIFICATION_EMAILS || "blake@urkovro.resend.app")
+      const recipients = (process.env.AUDIT_NOTIFICATION_EMAILS || "blake@storageads.com")
         .split(",")
         .map((e: string) => e.trim());
 
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: "StowStack <notifications@stowstack.co>",
+          from: "StorageAds <notifications@storageads.com>",
           to: [...new Set(recipients)],
           subject: `New Lead: ${name.trim()} — ${facilityName}`,
           html: notificationHtml,

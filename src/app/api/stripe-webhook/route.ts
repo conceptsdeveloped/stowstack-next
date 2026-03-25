@@ -99,10 +99,11 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     },
   });
 
-  // Generate temp password
-  const tempPassword = Math.random().toString(36).slice(2, 10);
+  // Generate cryptographically secure invite token instead of plaintext password
+  const { randomBytes } = await import("crypto");
+  const inviteToken = randomBytes(32).toString("hex");
 
-  // Create admin user
+  // Create admin user with invite token (not a human-readable password)
   await db.org_users.create({
     data: {
       organization_id: org.id,
@@ -110,7 +111,8 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
       name: companyName,
       role: "org_admin",
       status: "active",
-      password_hash: await hashPassword(tempPassword),
+      invite_token: inviteToken,
+      password_hash: "", // Set via password-reset flow, not a temp password
     },
   });
 
@@ -124,13 +126,12 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     },
   });
 
-  // Set signupComplete flag on Stripe customer so checkout-success can proceed
+  // Set signupComplete flag on Stripe customer — NO secrets in metadata
   try {
     await stripe.customers.update(customerId, {
       metadata: {
         signupComplete: "true",
         orgSlug: org.slug,
-        tempPassword,
       },
     });
   } catch {

@@ -171,12 +171,12 @@ function StatusBadge({ status }: { status?: string }) {
     draft: "bg-yellow-500/20 text-yellow-400",
     paused: "bg-orange-500/20 text-orange-400",
     inactive: "bg-red-500/20 text-red-400",
-    completed: "bg-[#3B82F6]/20 text-[#3B82F6]",
+    completed: "bg-[var(--color-gold)]/20 text-[var(--color-gold)]",
     answered: "bg-emerald-500/20 text-emerald-400",
     missed: "bg-red-500/20 text-red-400",
     voicemail: "bg-yellow-500/20 text-yellow-400",
   };
-  const cls = colors[s] || "bg-black/[0.04] text-[#6B7280]";
+  const cls = colors[s] || "bg-[var(--color-light-gray)] text-[var(--color-body-text)]";
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${cls}`}
@@ -189,7 +189,7 @@ function StatusBadge({ status }: { status?: string }) {
 function SkeletonBlock({ className }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded bg-black/[0.04] ${className || "h-4 w-full"}`}
+      className={`animate-pulse rounded bg-[var(--color-light-gray)] ${className || "h-4 w-full"}`}
     />
   );
 }
@@ -219,8 +219,8 @@ function ErrorBanner({
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white py-12 text-center">
-      <p className="text-sm text-[#9CA3AF]">{message}</p>
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-12 text-center">
+      <p className="text-sm text-[var(--color-mid-gray)]">{message}</p>
     </div>
   );
 }
@@ -308,7 +308,7 @@ function FacilityDetail({
   const [adminKey, setAdminKey] = useState("");
 
   useEffect(() => {
-    setAdminKey(localStorage.getItem("stowstack_admin_key") || "");
+    setAdminKey(localStorage.getItem("storageads_admin_key") || "");
   }, []);
 
   // Scroll active tab into view when it changes
@@ -323,22 +323,22 @@ function FacilityDetail({
   }, [activeTab]);
 
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white overflow-hidden">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden">
       {/* header */}
-      <div className="flex items-center justify-between border-b border-black/[0.08] px-3 py-3 sm:px-5 sm:py-4 gap-2">
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-3 py-3 sm:px-5 sm:py-4 gap-2">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827] shrink-0"
+            className="rounded-lg p-1.5 text-[var(--color-body-text)] transition-colors hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)] shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div className="min-w-0">
-            <h2 className="text-sm sm:text-base font-semibold text-[#111827] truncate">
+            <h2 className="text-sm sm:text-base font-semibold text-[var(--color-dark)] truncate">
               {facility.name}
             </h2>
-            <p className="text-xs text-[#9CA3AF] truncate">
+            <p className="text-xs text-[var(--color-mid-gray)] truncate">
               {[facility.city, facility.state].filter(Boolean).join(", ")}
             </p>
           </div>
@@ -348,7 +348,7 @@ function FacilityDetail({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
+            className="rounded-lg p-1.5 text-[var(--color-body-text)] transition-colors hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -358,7 +358,7 @@ function FacilityDetail({
       {/* sub-tab navigation — horizontally scrollable */}
       <div
         ref={tabScrollRef}
-        className="flex gap-0.5 overflow-x-auto border-b border-black/[0.08] px-2 sm:px-3 scrollbar-hide"
+        className="flex gap-0.5 overflow-x-auto border-b border-[var(--border-subtle)] px-2 sm:px-3 -webkit-overflow-scrolling-touch"
         style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {TABS.map((tab) => {
@@ -372,8 +372,8 @@ function FacilityDetail({
               onClick={() => onTabChange(tab.key)}
               className={`flex shrink-0 items-center gap-1 sm:gap-1.5 border-b-2 px-2 sm:px-2.5 py-2.5 sm:py-3 text-[11px] sm:text-xs font-medium transition-colors ${
                 isActive
-                  ? "border-[#3B82F6] text-[#3B82F6]"
-                  : "border-transparent text-[#9CA3AF] hover:text-[#6B7280]"
+                  ? "border-[var(--color-gold)] text-[var(--color-gold)]"
+                  : "border-transparent text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
               }`}
             >
               <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -411,20 +411,20 @@ function FacilityCard({
     <button
       type="button"
       onClick={onClick}
-      className="group w-full rounded-xl border border-black/[0.08] bg-white p-4 text-left transition-all hover:border-black/[0.12] hover:bg-[#F3F4F6]"
+      className="group w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 text-left transition-all hover:border-[var(--border-medium)] hover:bg-[var(--color-light-gray)]"
     >
       <div className="mb-3 flex items-start justify-between">
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-semibold text-[#111827]">
+          <h3 className="truncate text-sm font-semibold text-[var(--color-dark)]">
             {facility.name}
           </h3>
-          <p className="truncate text-xs text-[#9CA3AF]">
+          <p className="truncate text-xs text-[var(--color-mid-gray)]">
             {[facility.city, facility.state].filter(Boolean).join(", ") ||
               facility.address ||
               "No location"}
           </p>
         </div>
-        <ChevronRight className="h-4 w-4 shrink-0 text-[#9CA3AF] transition-transform group-hover:translate-x-0.5 group-hover:text-[#6B7280]" />
+        <ChevronRight className="h-4 w-4 shrink-0 text-[var(--color-mid-gray)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--color-body-text)]" />
       </div>
 
       <div className="mb-3 flex items-center gap-3">
@@ -432,11 +432,11 @@ function FacilityCard({
         {facility.googleRating !== undefined && (
           <div className="flex items-center gap-1">
             <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs text-[#6B7280]">
+            <span className="text-xs text-[var(--color-body-text)]">
               {facility.googleRating?.toFixed(1)}
             </span>
             {facility.reviewCount !== undefined && (
-              <span className="text-xs text-[#9CA3AF]">
+              <span className="text-xs text-[var(--color-mid-gray)]">
                 ({facility.reviewCount})
               </span>
             )}
@@ -447,12 +447,12 @@ function FacilityCard({
       {facility.occupancy !== undefined && (
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[#9CA3AF]">Occupancy</span>
-            <span className="font-medium text-[#6B7280]">
+            <span className="text-[var(--color-mid-gray)]">Occupancy</span>
+            <span className="font-medium text-[var(--color-body-text)]">
               {facility.occupancy}%
             </span>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/[0.04]">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-light-gray)]">
             <div
               className={`h-full rounded-full transition-all ${
                 facility.occupancy >= 90
@@ -572,25 +572,25 @@ function FacilitiesContent() {
       {/* search/filter bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
           <input
             type="text"
             placeholder="Search facilities..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="w-full rounded-lg border border-black/[0.08] bg-white py-2 pl-9 pr-3 text-sm text-[#111827] placeholder-[#9CA3AF] focus:border-[#3B82F6]/50 focus:outline-none focus:ring-1 focus:ring-[#3B82F6]/50"
+            className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-9 pr-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:border-[var(--color-gold)]/50 focus:outline-none focus:ring-1 focus:ring-[var(--color-gold)]/50"
           />
           {localSearch && (
             <button
               type="button"
               onClick={() => setLocalSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
-        <div className="text-xs text-[#9CA3AF]">
+        <div className="text-xs text-[var(--color-mid-gray)]">
           {loading
             ? "Loading..."
             : `${filtered.length} facilit${filtered.length === 1 ? "y" : "ies"}`}
@@ -606,7 +606,7 @@ function FacilitiesContent() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-xl border border-black/[0.08] bg-white p-4"
+              className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
             >
               <SkeletonBlock className="mb-3 h-5 w-3/4" />
               <SkeletonBlock className="mb-4 h-3 w-1/2" />
@@ -647,16 +647,16 @@ export default function FacilitiesPage() {
     <Suspense
       fallback={
         <div className="space-y-6 p-4 md:p-6">
-          <div className="h-10 w-64 animate-pulse rounded-lg bg-black/[0.04]" />
+          <div className="h-10 w-64 animate-pulse rounded-lg bg-[var(--color-light-gray)]" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-black/[0.08] bg-white p-4"
+                className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
               >
-                <div className="mb-3 h-5 w-3/4 animate-pulse rounded bg-black/[0.04]" />
-                <div className="mb-4 h-3 w-1/2 animate-pulse rounded bg-black/[0.04]" />
-                <div className="h-5 w-16 animate-pulse rounded bg-black/[0.04]" />
+                <div className="mb-3 h-5 w-3/4 animate-pulse rounded bg-[var(--color-light-gray)]" />
+                <div className="mb-4 h-3 w-1/2 animate-pulse rounded bg-[var(--color-light-gray)]" />
+                <div className="h-5 w-16 animate-pulse rounded bg-[var(--color-light-gray)]" />
               </div>
             ))}
           </div>

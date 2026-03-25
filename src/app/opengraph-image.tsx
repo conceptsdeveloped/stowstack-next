@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "StowStack — Full-Funnel Demand Engine for Self-Storage";
+export const alt = "StorageAds — Full-Funnel Demand Engine for Self-Storage";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -15,7 +15,7 @@ export default function OGImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#faf9f5",
           position: "relative",
         }}
       >
@@ -27,7 +27,7 @@ export default function OGImage() {
             left: 0,
             right: 0,
             height: "4px",
-            background: "linear-gradient(90deg, #3B82F6 0%, #1D4ED8 100%)",
+            background: "#B58B3F",
           }}
         />
 
@@ -44,16 +44,16 @@ export default function OGImage() {
             style={{
               fontSize: 72,
               fontWeight: 700,
-              color: "#FFFFFF",
+              color: "#141413",
               letterSpacing: "-2px",
             }}
           >
-            StowStack
+            StorageAds
           </div>
           <div
             style={{
               fontSize: 28,
-              color: "#9CA3AF",
+              color: "#141413",
               letterSpacing: "-0.5px",
             }}
           >
@@ -69,7 +69,7 @@ export default function OGImage() {
             width: "80px",
             height: "4px",
             borderRadius: "2px",
-            backgroundColor: "#3B82F6",
+            backgroundColor: "#B58B3F",
           }}
         />
       </div>

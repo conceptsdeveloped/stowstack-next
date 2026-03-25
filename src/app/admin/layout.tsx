@@ -1,7 +1,7 @@
 import { AdminShell } from "@/components/admin/admin-shell";
 
 export const metadata = {
-  title: "Admin | StowStack",
+  title: "Admin | StorageAds",
   robots: { index: false, follow: false },
 };
 

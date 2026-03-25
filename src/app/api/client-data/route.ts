@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Try temporary 4-digit login code first
-    if (/^\d{4}$/.test(trimmedCode)) {
+    if (/^\d{4,6}$/.test(trimmedCode)) {
       const loginCode = await db.portal_login_codes.findFirst({
         where: {
           email: { equals: sanitizedEmail, mode: "insensitive" },
@@ -121,16 +121,25 @@ export async function PATCH(req: NextRequest) {
     // Authenticate — same logic as POST
     let client: { id: string; email: string } | null = null;
 
-    if (/^\d{4}$/.test(trimmedCode)) {
-      // Check for valid (even used) login code from recent session
+    if (/^\d{4,6}$/.test(trimmedCode)) {
+      // Check for valid UNUSED login code within expiry window
       const loginCode = await db.portal_login_codes.findFirst({
         where: {
           email: { equals: sanitizedEmail, mode: "insensitive" },
           code: trimmedCode,
-          expires_at: { gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+          used: false,
+          expires_at: { gt: new Date() },
         },
         orderBy: { created_at: "desc" },
       });
+
+      // Mark code as used immediately to prevent replay
+      if (loginCode) {
+        await db.portal_login_codes.update({
+          where: { id: loginCode.id },
+          data: { used: true },
+        });
+      }
 
       if (loginCode) {
         client = await db.clients.findFirst({

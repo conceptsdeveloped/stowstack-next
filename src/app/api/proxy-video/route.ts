@@ -15,8 +15,8 @@ const ALLOWED_VIDEO_HOSTS = [
   "player.vimeo.com",
   "www.youtube.com",
   "i.ytimg.com",
-  "cdn.stowstack.co",
-  "stowstack.co",
+  "cdn.storageads.com",
+  "storageads.com",
 ];
 
 function isAllowedUrl(urlString: string): boolean {

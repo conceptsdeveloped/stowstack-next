@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /portal
 Disallow: /partner
 Disallow: /api
-Sitemap: https://stowstack.co/sitemap.xml
+Sitemap: https://storageads.com/sitemap.xml

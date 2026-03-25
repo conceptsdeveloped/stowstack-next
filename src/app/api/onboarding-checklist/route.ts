@@ -192,7 +192,7 @@ export async function GET(req: NextRequest) {
               step: step.id,
               label: step.label,
               instruction:
-                "Grant us access to your Google Ads account. Go to Tools > Access > Add user and invite blake@storepawpaw.com.",
+                "Grant us access to your Google Ads account. Go to Tools > Access > Add user and invite blake@storageads.com.",
             };
           } else if (step.id === "brand_assets") {
             nextAction = {
@@ -322,18 +322,18 @@ export async function PATCH(req: NextRequest) {
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            from: "StowStack <notifications@stowstack.co>",
+            from: "StorageAds <notifications@storageads.com>",
             to: client.email,
             subject: `Onboarding update: ${stepLabel}`,
             html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="margin: 0 0 12px; color: #1a1a1a;">Your StowStack onboarding: ${esc(stepLabel)}</h2>
+                <h2 style="margin: 0 0 12px; color: #1a1a1a;">Your StorageAds onboarding: ${esc(stepLabel)}</h2>
                 <p style="color: #666; margin: 0 0 20px;">Hey ${esc(client.name.split(" ")[0])}, just a quick update on your ${esc(client.facility_name || "")} campaign setup.</p>
                 <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
                   <p style="margin: 0; color: #16a34a; font-weight: 600;">${esc(stepLabel)}</p>
                 </div>
-                <p style="color: #666; margin: 0 0 20px;">Log in to your portal to see the full progress: <a href="https://stowstack.co/portal" style="color: #16a34a;">stowstack.co/portal</a></p>
-                <p style="color: #999; font-size: 12px; margin-top: 24px;">StowStack by StorageAds.com</p>
+                <p style="color: #666; margin: 0 0 20px;">Log in to your portal to see the full progress: <a href="https://storageads.com/portal" style="color: #16a34a;">storageads.com/portal</a></p>
+                <p style="color: #999; font-size: 12px; margin-top: 24px;">StorageAds by StorageAds.com</p>
               </div>`,
           }),
         }).catch(() => {});

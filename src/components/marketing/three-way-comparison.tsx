@@ -8,61 +8,61 @@ const ROWS = [
     label: "Landing Pages",
     diy: "Your homepage (2% conv)",
     agency: "Generic template (3-4% conv)",
-    stowstack: "Ad-specific pages (8.7% conv)",
+    storageads: "Ad-specific pages (8.7% conv)",
   },
   {
     label: "Rental Flow",
     diy: "Customer bounces to storEDGE",
     agency: "Same bounce, different URL",
-    stowstack: "Embedded on your branded page",
+    storageads: "Embedded on your branded page",
   },
   {
     label: "Attribution",
     diy: '"We got some calls this month"',
     agency: "Clicks and impressions report",
-    stowstack: "Cost per move-in by specific ad",
+    storageads: "Cost per move-in by specific ad",
   },
   {
     label: "Ad Channels",
     diy: "Boosted Facebook post",
     agency: "Google or Facebook, not both",
-    stowstack: "Meta + Google PPC + Retargeting",
+    storageads: "Meta + Google PPC + Retargeting",
   },
   {
     label: "A/B Testing",
     diy: "None",
     agency: "Occasionally tests ad copy",
-    stowstack: "Tests pages, offers, creative on revenue",
+    storageads: "Tests pages, offers, creative on revenue",
   },
   {
     label: "Reporting",
     diy: "Nothing",
     agency: "Monthly PDF of vanity metrics",
-    stowstack: "Real-time: leads → reservations → move-ins",
+    storageads: "Real-time: leads → reservations → move-ins",
   },
   {
     label: "Who Builds It",
     diy: "You, at 11pm after gate calls",
     agency: "Agency that also does dentists",
-    stowstack: "An operator who built this for his own facilities",
+    storageads: "An operator who built this for his own facilities",
   },
   {
     label: "Time to Results",
     diy: "Months (if ever)",
     agency: "30-60 days (maybe)",
-    stowstack: "7 days to first leads",
+    storageads: "7 days to first leads",
   },
   {
     label: "Follow-Up",
     diy: "You forgot to call them back",
     agency: "Not their job",
-    stowstack: "Automated SMS + email nurture sequences",
+    storageads: "Automated SMS + email nurture sequences",
   },
   {
     label: "Cost",
     diy: "Your time + wasted ad spend",
     agency: "$1,500-5,000/mo + ad spend",
-    stowstack: "$499-1,499/mo + ad spend",
+    storageads: "$499-1,499/mo + ad spend",
   },
 ];
 
@@ -71,9 +71,9 @@ export default function ThreeWayComparison() {
 
   return (
     <section
-      aria-label="Comparison of DIY, agency, and StowStack approaches"
+      aria-label="Comparison of DIY, agency, and StorageAds approaches"
       className="section"
-      style={{ background: "var(--bg-primary)" }}
+      style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
         <div
@@ -88,7 +88,7 @@ export default function ThreeWayComparison() {
             style={{ fontSize: "var(--text-section-head)" }}
           >
             Doing It Yourself vs. Hiring an Agency vs.{" "}
-            <span className="text-blue-400">Using a Demand Engine</span>
+            <span style={{ color: "var(--color-gold)" }}>Using a Demand Engine</span>
           </h2>
           <p
             className="mt-4 text-lg"
@@ -108,7 +108,7 @@ export default function ThreeWayComparison() {
         >
           <div />
           <div className="flex items-center gap-2 px-4">
-            <div className="w-6 h-6 bg-black/5 rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-[var(--color-dark)]/5 rounded-full flex items-center justify-center">
               <Minus size={12} className="text-stone-500" />
             </div>
             <span
@@ -133,14 +133,14 @@ export default function ThreeWayComparison() {
             </span>
           </div>
           <div className="flex items-center gap-2 px-4">
-            <div className="w-6 h-6 bg-blue-500/10 rounded-full flex items-center justify-center">
-              <Check size={12} className="text-blue-400" />
+            <div className="w-6 h-6 bg-[var(--color-gold)]/10 rounded-full flex items-center justify-center">
+              <Check size={12} className="text-[var(--color-gold)]" />
             </div>
             <span
-              className="text-xs font-bold text-blue-400 uppercase"
+              className="text-xs font-bold text-[var(--color-gold)] uppercase"
               style={{ letterSpacing: "var(--tracking-wide)" }}
             >
-              StowStack
+              StorageAds
             </span>
           </div>
         </div>
@@ -158,12 +158,12 @@ export default function ThreeWayComparison() {
               style={{ transitionDelay: `${200 + i * 50}ms` }}
             >
               <div className="flex items-center px-4 py-2">
-                <span className="text-sm font-semibold text-[#111827]">
+                <span className="text-sm font-semibold text-[var(--color-dark)]">
                   {row.label}
                 </span>
               </div>
 
-              <div className="bg-black/[0.02] border border-white/5 rounded-xl px-4 py-3">
+              <div className="bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-xl px-4 py-3">
                 <span
                   className="md:hidden text-[10px] font-bold uppercase"
                   style={{
@@ -191,15 +191,15 @@ export default function ThreeWayComparison() {
                 <p className="text-sm text-orange-300/80">{row.agency}</p>
               </div>
 
-              <div className="bg-blue-500/[0.08] border border-blue-500/20 rounded-xl px-4 py-3">
+              <div className="bg-[var(--color-gold)]/[0.08] border border-[var(--color-gold)]/20 rounded-xl px-4 py-3">
                 <span
-                  className="md:hidden text-[10px] font-bold text-blue-400 uppercase"
+                  className="md:hidden text-[10px] font-bold text-[var(--color-gold)] uppercase"
                   style={{ letterSpacing: "var(--tracking-wide)" }}
                 >
-                  StowStack
+                  StorageAds
                 </span>
-                <p className="text-sm text-blue-300 font-medium">
-                  {row.stowstack}
+                <p className="text-sm text-[var(--color-gold)] font-medium">
+                  {row.storageads}
                 </p>
               </div>
             </div>

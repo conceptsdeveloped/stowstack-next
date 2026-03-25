@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     const baseUrl =
       origin && origin.includes("localhost")
         ? origin
-        : "https://stowstack.co";
+        : "https://storageads.com";
 
     return jsonResponse(
       {

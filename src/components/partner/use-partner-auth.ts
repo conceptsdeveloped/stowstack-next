@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const STORAGE_KEY = "stowstack_partner_session";
+const STORAGE_KEY = "storageads_partner_session";
 
 interface PartnerSession {
   token: string;

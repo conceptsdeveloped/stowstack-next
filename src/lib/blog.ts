@@ -165,8 +165,8 @@ export function getAuthor(): Author {
   }
   return {
     name: "Blake",
-    role: "Founder, StowStack — Self-Storage Operator",
-    bio: "Runs self-storage facilities and built StowStack to solve the marketing attribution problem he lived every day.",
+    role: "Founder, StorageAds — Self-Storage Operator",
+    bio: "Runs self-storage facilities and built StorageAds to solve the marketing attribution problem he lived every day.",
     avatar: "",
     linkedin: "",
     twitter: "",

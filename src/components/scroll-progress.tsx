@@ -40,7 +40,7 @@ export default function ScrollProgress() {
         left: 0,
         width: "100%",
         height: "2px",
-        background: "#3B82F6",
+        background: "var(--color-gold)",
         transformOrigin: "left",
         transform: "scaleX(0)",
         pointerEvents: "none",

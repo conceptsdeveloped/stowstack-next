@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   const c = url.searchParams.get("c");
 
   if (!c) {
-    return NextResponse.redirect("https://stowstack.co", 302);
+    return NextResponse.redirect("https://storageads.com", 302);
   }
 
   try {
@@ -18,19 +18,19 @@ export async function GET(request: NextRequest) {
     `;
 
     if (!rows.length) {
-      return NextResponse.redirect("https://stowstack.co", 302);
+      return NextResponse.redirect("https://storageads.com", 302);
     }
 
     const link = rows[0];
 
-    let destination = "https://stowstack.co";
+    let destination = "https://storageads.com";
 
     if (link.landing_page_id) {
       const lpRows = await db.$queryRaw<{ slug: string }[]>`
         SELECT slug FROM landing_pages WHERE id = ${link.landing_page_id}::uuid
       `;
       if (lpRows.length) {
-        destination = `https://stowstack.co/lp/${lpRows[0].slug}`;
+        destination = `https://storageads.com/lp/${lpRows[0].slug}`;
       }
     }
 
@@ -48,6 +48,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.redirect(finalUrl, 302);
   } catch {
-    return NextResponse.redirect("https://stowstack.co", 302);
+    return NextResponse.redirect("https://storageads.com", 302);
   }
 }

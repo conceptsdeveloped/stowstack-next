@@ -19,7 +19,7 @@ interface CommitNote {
 const TYPE_CONFIG: Record<string, { bg: string; text: string; icon: typeof GitCommit; label: string }> = {
   feature: { bg: "rgba(34,197,94,0.1)", text: "#22C55E", icon: Sparkles, label: "Feature" },
   fix: { bg: "rgba(239,68,68,0.1)", text: "#EF4444", icon: Bug, label: "Fix" },
-  improvement: { bg: "rgba(59,130,246,0.1)", text: "#3B82F6", icon: Wrench, label: "Improvement" },
+  improvement: { bg: "rgba(181,139,63,0.1)", text: "var(--color-gold)", icon: Wrench, label: "Improvement" },
 };
 
 function ChangelogSkeleton() {
@@ -27,16 +27,16 @@ function ChangelogSkeleton() {
     <div className="space-y-8">
       {Array.from({ length: 3 }).map((_, gi) => (
         <div key={gi}>
-          <div className="h-4 w-32 rounded bg-black/5 mb-4 animate-pulse" />
+          <div className="h-4 w-32 rounded bg-[var(--color-dark)]/5 mb-4 animate-pulse" />
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
                 className="rounded-xl border p-5 animate-pulse"
-                style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+                style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
               >
-                <div className="h-4 w-2/3 rounded bg-black/5 mb-2" />
-                <div className="h-3 w-full rounded bg-black/5" />
+                <div className="h-4 w-2/3 rounded bg-[var(--color-dark)]/5 mb-2" />
+                <div className="h-3 w-full rounded bg-[var(--color-dark)]/5" />
               </div>
             ))}
           </div>
@@ -78,8 +78,8 @@ export default function ChangelogPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "#111827" }}>Changelog</h1>
-        <p className="text-sm mt-1" style={{ color: "#6E6E73" }}>
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>Changelog</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--color-mid-gray)" }}>
           Recent updates and improvements
         </p>
       </div>
@@ -97,11 +97,11 @@ export default function ChangelogPage() {
           {dateKeys.map((dateKey) => (
             <div key={dateKey}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-px flex-1" style={{ backgroundColor: "rgba(255,255,255,0.06)" }} />
-                <span className="text-xs font-medium shrink-0" style={{ color: "#6E6E73" }}>
+                <div className="h-px flex-1" style={{ backgroundColor: "var(--border-subtle)" }} />
+                <span className="text-xs font-medium shrink-0" style={{ color: "var(--color-mid-gray)" }}>
                   {dateKey}
                 </span>
-                <div className="h-px flex-1" style={{ backgroundColor: "rgba(255,255,255,0.06)" }} />
+                <div className="h-px flex-1" style={{ backgroundColor: "var(--border-subtle)" }} />
               </div>
 
               <div className="space-y-3">
@@ -112,8 +112,8 @@ export default function ChangelogPage() {
                   return (
                     <div
                       key={note.id}
-                      className="rounded-xl border p-5 transition-colors hover:bg-black/[0.02]"
-                      style={{ backgroundColor: "#FFFFFF", borderColor: "rgba(0,0,0,0.08)" }}
+                      className="rounded-xl border p-5 transition-colors hover:bg-[var(--color-light-gray)]"
+                      style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -124,7 +124,7 @@ export default function ChangelogPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-sm font-medium" style={{ color: "#111827" }}>
+                            <h3 className="text-sm font-medium" style={{ color: "var(--color-dark)" }}>
                               {note.title}
                             </h3>
                             <span
@@ -135,7 +135,7 @@ export default function ChangelogPage() {
                             </span>
                           </div>
                           {note.description && (
-                            <p className="text-sm leading-relaxed" style={{ color: "#6B7280" }}>
+                            <p className="text-sm leading-relaxed" style={{ color: "var(--color-body-text)" }}>
                               {note.description}
                             </p>
                           )}
@@ -150,8 +150,8 @@ export default function ChangelogPage() {
         </div>
       ) : (
         <div className="text-center py-16">
-          <GitCommit size={32} className="mx-auto mb-3" style={{ color: "#6E6E73" }} />
-          <p className="text-sm" style={{ color: "#6E6E73" }}>No changelog entries yet</p>
+          <GitCommit size={32} className="mx-auto mb-3" style={{ color: "var(--color-mid-gray)" }} />
+          <p className="text-sm" style={{ color: "var(--color-mid-gray)" }}>No changelog entries yet</p>
         </div>
       )}
     </div>

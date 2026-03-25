@@ -7,7 +7,7 @@ function hashIp(ip: string | null): string | null {
   if (!ip) return null;
   return crypto
     .createHash("sha256")
-    .update(ip + (process.env.IP_SALT || "stowstack"))
+    .update(ip + (process.env.IP_SALT || "storageads"))
     .digest("hex")
     .slice(0, 16);
 }

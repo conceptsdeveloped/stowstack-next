@@ -80,14 +80,14 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-[#111827]">Reports &amp; Analytics</h2>
-          <p className="text-sm text-[#9CA3AF]">
+          <h2 className="text-lg font-semibold text-[var(--color-dark)]">Reports &amp; Analytics</h2>
+          <p className="text-sm text-[var(--color-mid-gray)]">
             PMS data and unit performance for {client.facilityName}
           </p>
         </div>
         <button
           type="button"
-          className="flex items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-4 py-2 text-xs font-medium text-[#6B7280] transition-colors hover:text-[#111827]"
+          className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-2 text-xs font-medium text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)]"
         >
           <Download className="h-3.5 w-3.5" />
           Download Report
@@ -107,71 +107,71 @@ export default function ReportsPage() {
       ) : occ ? (
         <>
           <div>
-            <h3 className="mb-3 text-sm font-semibold text-[#111827]">Occupancy Snapshot</h3>
+            <h3 className="mb-3 text-sm font-semibold text-[var(--color-dark)]">Occupancy Snapshot</h3>
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
               {/* Occupancy */}
-              <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-[#3B82F6]" />
-                  <span className="text-xs text-[#9CA3AF]">Occupancy</span>
+                  <Building2 className="h-4 w-4 text-[var(--color-gold)]" />
+                  <span className="text-xs text-[var(--color-mid-gray)]">Occupancy</span>
                 </div>
-                <p className="text-xl font-bold text-[#111827]">{occ.occupancy_pct.toFixed(1)}%</p>
-                <p className="mt-1 text-xs text-[#9CA3AF]">
+                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.occupancy_pct.toFixed(1)}%</p>
+                <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
                   {occ.occupied_units} / {occ.total_units} units
                 </p>
               </div>
 
               {/* Total Units */}
-              <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <Package className="h-4 w-4 text-[#3B82F6]" />
-                  <span className="text-xs text-[#9CA3AF]">Total Units</span>
+                  <Package className="h-4 w-4 text-[var(--color-gold)]" />
+                  <span className="text-xs text-[var(--color-mid-gray)]">Total Units</span>
                 </div>
-                <p className="text-xl font-bold text-[#111827]">{occ.total_units}</p>
+                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.total_units}</p>
               </div>
 
               {/* Occupied */}
-              <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-[#3B82F6]" />
-                  <span className="text-xs text-[#9CA3AF]">Occupied Units</span>
+                  <Users className="h-4 w-4 text-[var(--color-gold)]" />
+                  <span className="text-xs text-[var(--color-mid-gray)]">Occupied Units</span>
                 </div>
-                <p className="text-xl font-bold text-[#111827]">{occ.occupied_units}</p>
+                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.occupied_units}</p>
               </div>
 
               {/* Move-Ins MTD */}
-              <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-emerald-400" />
-                  <span className="text-xs text-[#9CA3AF]">Move-Ins (MTD)</span>
+                  <span className="text-xs text-[var(--color-mid-gray)]">Move-Ins (MTD)</span>
                 </div>
-                <p className="text-xl font-bold text-[#111827]">{occ.move_ins_mtd}</p>
+                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.move_ins_mtd}</p>
               </div>
 
               {/* Move-Outs MTD */}
-              <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <TrendingDown className="h-4 w-4 text-red-400" />
-                  <span className="text-xs text-[#9CA3AF]">Move-Outs (MTD)</span>
+                  <span className="text-xs text-[var(--color-mid-gray)]">Move-Outs (MTD)</span>
                 </div>
-                <p className="text-xl font-bold text-[#111827]">{occ.move_outs_mtd}</p>
+                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.move_outs_mtd}</p>
               </div>
 
               {/* Delinquency */}
-              <div className="rounded-xl border border-black/[0.08] bg-white p-4">
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <BarChart3 className="h-4 w-4 text-amber-400" />
-                  <span className="text-xs text-[#9CA3AF]">Delinquency</span>
+                  <span className="text-xs text-[var(--color-mid-gray)]">Delinquency</span>
                 </div>
-                <p className="text-xl font-bold text-[#111827]">{occ.delinquency_pct.toFixed(1)}%</p>
+                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.delinquency_pct.toFixed(1)}%</p>
               </div>
             </div>
           </div>
         </>
       ) : !error ? (
-        <div className="rounded-xl border border-black/[0.08] bg-white p-8 text-center">
-          <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[#9CA3AF]" />
-          <p className="text-sm text-[#6B7280]">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-8 text-center">
+          <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
+          <p className="text-sm text-[var(--color-body-text)]">
             No PMS data available yet. Data will appear once your property management system is connected.
           </p>
         </div>
@@ -181,14 +181,14 @@ export default function ReportsPage() {
       {loading ? (
         <SectionSkeleton />
       ) : unitMix && unitMix.length > 0 ? (
-        <div className="overflow-hidden rounded-xl border border-black/[0.08] bg-white">
-          <div className="border-b border-black/[0.08] px-5 py-4">
-            <h3 className="text-sm font-semibold text-[#111827]">Unit Mix</h3>
+        <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
+          <div className="border-b border-[var(--border-subtle)] px-5 py-4">
+            <h3 className="text-sm font-semibold text-[var(--color-dark)]">Unit Mix</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-black/[0.08] text-[#9CA3AF]">
+                <tr className="border-b border-[var(--border-subtle)] text-[var(--color-mid-gray)]">
                   <th className="px-5 py-3 font-medium">Type</th>
                   <th className="px-4 py-3 font-medium">Size</th>
                   <th className="px-4 py-3 text-right font-medium">Total</th>
@@ -203,16 +203,16 @@ export default function ReportsPage() {
                   return (
                     <tr
                       key={i}
-                      className="border-b border-black/[0.06] last:border-0 hover:bg-black/[0.03]"
+                      className="border-b border-[var(--border-subtle)] last:border-0 hover:bg-[var(--color-light-gray)]/20"
                     >
-                      <td className="px-5 py-3 font-medium text-[#111827]">{row.type}</td>
-                      <td className="px-4 py-3 text-[#6B7280]">{row.size}</td>
-                      <td className="px-4 py-3 text-right text-[#6B7280]">{row.total}</td>
-                      <td className="px-4 py-3 text-right text-[#6B7280]">{row.occupied}</td>
-                      <td className="px-4 py-3 text-right text-[#6B7280]">
+                      <td className="px-5 py-3 font-medium text-[var(--color-dark)]">{row.type}</td>
+                      <td className="px-4 py-3 text-[var(--color-body-text)]">{row.size}</td>
+                      <td className="px-4 py-3 text-right text-[var(--color-body-text)]">{row.total}</td>
+                      <td className="px-4 py-3 text-right text-[var(--color-body-text)]">{row.occupied}</td>
+                      <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
                         {occPct.toFixed(1)}%
                       </td>
-                      <td className="px-4 py-3 text-right text-[#6B7280]">
+                      <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
                         {fmtCurrency(row.rate)}
                       </td>
                     </tr>
