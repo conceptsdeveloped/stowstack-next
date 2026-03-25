@@ -160,8 +160,8 @@ async function callFal(
 
   const model =
     mode === "image_to_video"
-      ? "fal-ai/wan/v2.2-a14b/image-to-video"
-      : "fal-ai/wan/v2.2-a14b/text-to-video";
+      ? "fal-ai/wan/v2.2/i2v-fast"
+      : "fal-ai/wan/v2.2/t2v-fast";
 
   const input: Record<string, unknown> = {
     prompt: prompt.slice(0, 500),
@@ -264,7 +264,7 @@ export async function GET(req: NextRequest) {
         if (!falKey) return errorResponse("FAL_KEY not configured", 500, origin);
 
         // Try to get status first
-        const model = "fal-ai/wan/v2.2-a14b/text-to-video";
+        const model = "fal-ai/wan/v2.2/t2v-fast";
         const statusRes = await fetch(
           `https://queue.fal.run/${model}/requests/${taskId}/status`,
           { headers: { Authorization: `Key ${falKey}` } },
