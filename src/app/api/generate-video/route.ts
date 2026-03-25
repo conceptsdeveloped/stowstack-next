@@ -154,7 +154,7 @@ async function callFal(
   prompt: string,
   imageUrl: string | null,
   mode: string,
-): Promise<{ id: string; provider: "fal" }> {
+): Promise<{ id: string; provider: "fal"; statusUrl: string; responseUrl: string }> {
   const falKey = process.env.FAL_KEY;
   if (!falKey) throw new Error("NO_FAL_KEY");
 
@@ -247,7 +247,7 @@ async function generateVideo(
   prompt: string,
   imageUrl: string | null,
   mode: string,
-): Promise<{ id: string; provider: "fal" }> {
+): Promise<{ id: string; provider: "fal"; statusUrl: string; responseUrl: string }> {
   return callFal(prompt, imageUrl, mode);
 }
 
