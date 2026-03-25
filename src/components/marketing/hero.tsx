@@ -542,9 +542,9 @@ function BecauseLetterboard() {
           </span>
           <span
             className="mx-2 sm:mx-3 text-xs sm:text-sm uppercase tracking-[0.2em] font-medium"
-            style={{ fontFamily: "var(--font-heading)", color: "rgba(250,249,245,0.25)" }}
+            style={{ fontFamily: "var(--font-heading)", color: "var(--color-light)" }}
           >
-            because
+            because...
           </span>
         </div>
 
