@@ -100,49 +100,59 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.08] bg-[#F9FAFB]/80 px-4 backdrop-blur-xl md:px-6">
+    <header
+      className="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-3 px-4 md:px-5"
+      style={{ background: "var(--admin-chrome)", fontFamily: "var(--admin-font)" }}
+    >
       <button
         type="button"
         onClick={onToggleSidebar}
-        className="rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827] md:hidden"
+        className="rounded-md p-1.5 transition-colors md:hidden"
+        style={{ color: "var(--admin-text-on-dark-muted)" }}
         aria-label="Toggle sidebar"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="text-lg font-semibold text-[#111827]">
+      <h1 className="text-sm font-medium" style={{ color: "var(--admin-text-on-dark)" }}>
         {getPageTitle(pathname)}
       </h1>
 
-      <div className="ml-auto flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-0.5">
         <button
           type="button"
           onClick={handleRefresh}
-          className="rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
+          className="rounded-md p-1.5 transition-colors"
+          style={{ color: "var(--admin-text-on-dark-muted)" }}
           aria-label="Refresh data"
         >
           <RefreshCw
-            className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+            className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
           />
         </button>
 
         <button
           type="button"
           onClick={handleExport}
-          className="rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
+          className="rounded-md p-1.5 transition-colors"
+          style={{ color: "var(--admin-text-on-dark-muted)" }}
           aria-label="Export CSV"
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-3.5 w-3.5" />
         </button>
 
         <button
           type="button"
-          className="relative rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
+          className="relative rounded-md p-1.5 transition-colors"
+          style={{ color: "var(--admin-text-on-dark-muted)" }}
           aria-label="Notifications"
         >
-          <Bell className="h-4 w-4" />
+          <Bell className="h-3.5 w-3.5" />
           {notificationCount > 0 && (
-            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3B82F6] px-1 text-[10px] font-bold text-[#111827]">
+            <span
+              className="absolute right-0.5 top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[9px] font-bold"
+              style={{ background: "var(--admin-accent-amber)", color: "var(--admin-text)" }}
+            >
               {notificationCount > 99 ? "99+" : notificationCount}
             </span>
           )}
@@ -150,14 +160,14 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
 
         <ThemeToggle />
 
-        <div className="ml-2 h-6 w-px bg-black/[0.04]" />
+        <div className="ml-1.5 h-5 w-px" style={{ background: "var(--admin-border-on-dark)" }} />
 
         {isSignedIn ? (
-          <div className="ml-2">
+          <div className="ml-1.5">
             <UserButton
               appearance={{
                 elements: {
-                  avatarBox: "h-8 w-8",
+                  avatarBox: "h-7 w-7",
                 },
               }}
             />
@@ -166,11 +176,12 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           <button
             type="button"
             onClick={logout}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors"
+            style={{ color: "var(--admin-text-on-dark-muted)" }}
             aria-label="Logout"
           >
-            <User className="h-4 w-4" />
-            <LogOut className="h-4 w-4" />
+            <User className="h-3.5 w-3.5" />
+            <LogOut className="h-3.5 w-3.5" />
           </button>
         )}
       </div>

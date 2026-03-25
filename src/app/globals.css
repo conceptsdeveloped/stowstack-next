@@ -125,6 +125,48 @@
 }
 
 /* ═══════════════════════════════════════════
+   ADMIN THEME — Ableton Classic Medium Light
+   Warm stone grays, bold functional color pops,
+   tight utilitarian sans-serif (Inter).
+   Scoped to .admin-theme so marketing site is untouched.
+   ═══════════════════════════════════════════ */
+
+.admin-theme {
+  /* ── Surfaces (warm grays with taupe undertone) ── */
+  --admin-chrome: #6E6A66;           /* header/toolbar — darkest */
+  --admin-sidebar: #87837F;          /* sidebar — dark medium */
+  --admin-sidebar-active: #9D9994;   /* sidebar active item bg */
+  --admin-bg: #B5B1AC;              /* main content — medium warm gray */
+  --admin-card: #C6C3BE;            /* elevated cards/panels */
+  --admin-input: #D0CDC8;           /* input fields, inset areas */
+  --admin-info: #3A3836;            /* info panels, tooltips — charcoal */
+
+  /* ── Text ── */
+  --admin-text: #1A1816;            /* primary — near black */
+  --admin-text-secondary: #4A4744;  /* secondary */
+  --admin-text-muted: #7A7672;      /* muted/tertiary */
+  --admin-text-on-dark: #E8E5E0;    /* on dark chrome/sidebar */
+  --admin-text-on-dark-muted: #A8A5A0; /* muted on dark surfaces */
+
+  /* ── Accent pops (Ableton track colors, functional) ── */
+  --admin-accent-amber: #E8A830;    /* primary action / CTAs */
+  --admin-accent-amber-hover: #D49828;
+  --admin-accent-green: #4CB848;    /* success, positive, signed */
+  --admin-accent-cyan: #40B8CC;     /* info, links, scheduled */
+  --admin-accent-pink: #D868A8;     /* alerts, attention */
+  --admin-accent-orange: #E07830;   /* warnings, pending */
+  --admin-accent-blue: #5080C8;     /* secondary info */
+  --admin-accent-purple: #8868C8;   /* special states */
+
+  /* ── Borders — tonal, not line-based ── */
+  --admin-border: rgba(0, 0, 0, 0.10);
+  --admin-border-on-dark: rgba(255, 255, 255, 0.08);
+
+  /* ── Font ── */
+  --admin-font: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ═══════════════════════════════════════════
    TAILWIND THEME INTEGRATION
    ═══════════════════════════════════════════ */
 

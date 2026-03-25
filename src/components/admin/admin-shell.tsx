@@ -129,11 +129,11 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
-      <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8">
+    <div className="admin-theme flex min-h-screen items-center justify-center" style={{ background: "var(--admin-bg)", fontFamily: "var(--admin-font)" }}>
+      <div className="w-full max-w-sm rounded-xl p-8" style={{ background: "var(--admin-card)" }}>
         <div className="mb-8 text-center">
-          <h1 className="mb-1 text-2xl font-bold text-[#111827]">StowStack</h1>
-          <p className="text-sm text-[#9CA3AF]">Admin Dashboard</p>
+          <h1 className="mb-1 text-2xl font-semibold" style={{ color: "var(--admin-text)" }}>StorageAds</h1>
+          <p className="text-sm" style={{ color: "var(--admin-text-muted)" }}>Admin Dashboard</p>
         </div>
 
         {mode === "clerk" ? (
@@ -141,7 +141,10 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
             <SignInButton mode="modal">
               <button
                 type="button"
-                className="mb-4 w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB]"
+                className="mb-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
+                style={{ background: "var(--admin-accent-amber)", color: "var(--admin-text)" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "var(--admin-accent-amber-hover)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "var(--admin-accent-amber)"}
               >
                 Sign In with Clerk
               </button>
@@ -149,17 +152,18 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-black/[0.08]" />
+                <div className="w-full" style={{ borderTop: "1px solid var(--admin-border)" }} />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-[#F9FAFB] px-3 text-[#9CA3AF]">or</span>
+                <span className="px-3" style={{ background: "var(--admin-card)", color: "var(--admin-text-muted)" }}>or</span>
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => setMode("key")}
-              className="w-full rounded-lg border border-black/[0.08] px-4 py-2.5 text-sm font-medium text-[#6B7280] transition-colors hover:bg-black/[0.03] hover:text-[#111827]"
+              className="w-full rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
+              style={{ border: "1px solid var(--admin-border)", color: "var(--admin-text-secondary)", background: "transparent" }}
             >
               Use Admin Key
             </button>
@@ -167,11 +171,11 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="admin-key" className="mb-2 block text-sm font-medium text-[#6B7280]">
+              <label htmlFor="admin-key" className="mb-2 block text-sm font-medium" style={{ color: "var(--admin-text-secondary)" }}>
                 Admin Key
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "var(--admin-text-muted)" }} />
                 <input
                   id="admin-key"
                   type="password"
@@ -179,19 +183,25 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin key"
                   autoFocus
-                  className="w-full rounded-lg border border-black/[0.08] bg-[#F3F4F6] py-2.5 pl-10 pr-4 text-sm text-[#111827] placeholder-[#9CA3AF] outline-none transition-colors focus:border-[#3B82F6]"
+                  className="w-full rounded-lg py-2.5 pl-10 pr-4 text-sm outline-none transition-colors"
+                  style={{ background: "var(--admin-input)", border: "1px solid var(--admin-border)", color: "var(--admin-text)" }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = "var(--admin-accent-amber)"}
+                  onBlur={(e) => e.currentTarget.style.borderColor = "var(--admin-border)"}
                 />
               </div>
             </div>
 
             {error && (
-              <p className="mb-4 text-sm text-red-400">{error}</p>
+              <p className="mb-4 text-sm" style={{ color: "#E07830" }}>{error}</p>
             )}
 
             <button
               type="submit"
               disabled={loading || !password.trim()}
-              className="mb-3 w-full rounded-lg bg-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#E5E7EB] disabled:opacity-50"
+              className="mb-3 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
+              style={{ background: "var(--admin-accent-amber)", color: "var(--admin-text)" }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--admin-accent-amber-hover)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "var(--admin-accent-amber)"}
             >
               {loading ? "Verifying..." : "Sign In"}
             </button>
@@ -199,7 +209,8 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
             <button
               type="button"
               onClick={() => setMode("clerk")}
-              className="w-full text-center text-xs text-[#9CA3AF] transition-colors hover:text-[#6B7280]"
+              className="w-full text-center text-xs transition-colors"
+              style={{ color: "var(--admin-text-muted)" }}
             >
               ← Back to sign in options
             </button>
@@ -236,43 +247,46 @@ function Sidebar({
     : NAV_GROUPS;
 
   const sidebarContent = (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col" style={{ fontFamily: "var(--admin-font)" }}>
       {/* Brand */}
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-black/[0.08] px-4">
+      <div className="flex h-14 shrink-0 items-center justify-between px-4" style={{ borderBottom: "1px solid var(--admin-border-on-dark)" }}>
         <Link
           href="/"
-          className={`text-lg font-bold text-[#111827] transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
+          className={`text-sm font-semibold tracking-wide transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
+          style={{ color: "var(--admin-text-on-dark)" }}
         >
-          StowStack
+          <span>storage</span><span style={{ color: "var(--admin-accent-amber)" }}>ads</span>
         </Link>
         {!collapsed && (
           <Link
             href="/"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#3B82F6]"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+            style={{ color: "var(--admin-accent-amber)" }}
           >
-            <Zap className="h-5 w-5" />
+            <Zap className="h-4 w-4" />
           </Link>
         )}
         {collapsed && (
           <Link
             href="/"
-            className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg text-[#3B82F6]"
+            className="mx-auto flex h-7 w-7 items-center justify-center rounded-md"
+            style={{ color: "var(--admin-accent-amber)" }}
           >
-            <Zap className="h-5 w-5" />
+            <Zap className="h-4 w-4" />
           </Link>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 overflow-y-auto px-2 py-3">
         {filteredGroups.map((group) => (
-          <div key={group.title} className="mb-6">
+          <div key={group.title} className="mb-4">
             {!collapsed && (
-              <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-[#9CA3AF]">
+              <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--admin-text-on-dark-muted)" }}>
                 {group.title}
               </p>
             )}
-            <ul className="space-y-0.5">
+            <ul className="space-y-px">
               {group.items.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
@@ -282,15 +296,16 @@ function Sidebar({
                       href={item.href}
                       onClick={onMobileClose}
                       title={collapsed ? item.label : undefined}
-                      className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
-                        isActive
-                          ? "bg-[#3B82F6]/15 font-medium text-[#111827]"
-                          : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
-                      } ${collapsed ? "justify-center" : ""}`}
+                      className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors ${collapsed ? "justify-center" : ""}`}
+                      style={{
+                        background: isActive ? "var(--admin-sidebar-active)" : "transparent",
+                        color: isActive ? "var(--admin-text-on-dark)" : "var(--admin-text-on-dark-muted)",
+                        fontWeight: isActive ? 500 : 400,
+                      }}
                     >
-                      <Icon
-                        className={`h-4 w-4 shrink-0 ${isActive ? "text-[#3B82F6]" : ""}`}
-                      />
+                      <span style={{ color: isActive ? "var(--admin-accent-amber)" : undefined }}>
+                        <Icon className="h-4 w-4 shrink-0" />
+                      </span>
                       {!collapsed && <span>{item.label}</span>}
                     </Link>
                   </li>
@@ -302,11 +317,12 @@ function Sidebar({
       </nav>
 
       {/* Collapse toggle (desktop only) */}
-      <div className="hidden shrink-0 border-t border-black/[0.08] p-3 md:block">
+      <div className="hidden shrink-0 p-2 md:block" style={{ borderTop: "1px solid var(--admin-border-on-dark)" }}>
         <button
           type="button"
           onClick={() => onCollapse(!collapsed)}
-          className="flex w-full items-center justify-center rounded-lg p-2 text-[#9CA3AF] transition-colors hover:bg-black/[0.03] hover:text-[#6B7280]"
+          className="flex w-full items-center justify-center rounded-md p-1.5 transition-colors"
+          style={{ color: "var(--admin-text-on-dark-muted)" }}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <ChevronLeft
@@ -330,18 +346,20 @@ function Sidebar({
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-black/[0.08] bg-[#F9FAFB] transition-transform duration-200 md:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-60 transition-transform duration-200 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{ background: "var(--admin-sidebar)" }}
       >
         {sidebarContent}
       </aside>
 
       {/* Desktop sidebar */}
       <aside
-        className={`hidden shrink-0 border-r border-black/[0.08] bg-[#F9FAFB] transition-all duration-200 md:block ${
-          collapsed ? "w-16" : "w-64"
+        className={`hidden shrink-0 transition-all duration-200 md:block ${
+          collapsed ? "w-14" : "w-60"
         }`}
+        style={{ background: "var(--admin-sidebar)" }}
       >
         {sidebarContent}
       </aside>
@@ -375,8 +393,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // Wait for both localStorage check and Clerk to load
   if (!checked || !clerkLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
+      <div className="admin-theme flex min-h-screen items-center justify-center" style={{ background: "var(--admin-bg)" }}>
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "var(--admin-accent-amber)", borderTopColor: "transparent" }} />
       </div>
     );
   }
@@ -387,11 +405,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // If Clerk user is signed in but has wrong role, show access denied
   if (isSignedIn && !canAccessAdmin && !adminKey) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8 text-center">
-          <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-red-400" />
-          <h2 className="mb-2 text-lg font-bold text-[#111827]">Access Denied</h2>
-          <p className="mb-6 text-sm text-[#6B7280]">
+      <div className="admin-theme flex min-h-screen items-center justify-center" style={{ background: "var(--admin-bg)", fontFamily: "var(--admin-font)" }}>
+        <div className="w-full max-w-sm rounded-xl p-8 text-center" style={{ background: "var(--admin-card)" }}>
+          <ShieldCheck className="mx-auto mb-4 h-12 w-12" style={{ color: "var(--admin-accent-orange)" }} />
+          <h2 className="mb-2 text-lg font-semibold" style={{ color: "var(--admin-text)" }}>Access Denied</h2>
+          <p className="mb-6 text-sm" style={{ color: "var(--admin-text-secondary)" }}>
             Your account ({user?.primaryEmailAddress?.emailAddress}) does not have admin access.
             Contact your administrator to request the appropriate role.
           </p>
@@ -407,7 +425,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminProvider initialKey={adminKey}>
-      <div className="flex h-screen overflow-hidden bg-white">
+      <div className="admin-theme flex h-screen overflow-hidden" style={{ background: "var(--admin-bg)", fontFamily: "var(--admin-font)" }}>
         <Sidebar
           collapsed={sidebarCollapsed}
           onCollapse={setSidebarCollapsed}
