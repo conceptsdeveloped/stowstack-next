@@ -34,7 +34,9 @@ interface GenerationJob {
   prompt: string
   imageUrl: string | null
   startedAt: number
-  provider: 'fal' | 'runway'
+  provider: 'fal'
+  statusUrl: string | null
+  responseUrl: string | null
 }
 
 interface StylePreset {
@@ -334,32 +336,6 @@ export default function VideoGenerator({ facilityId, adminKey }: {
     }).catch(() => {}).finally(() => setLoading(false))
   }, [facilityId, adminKey])
 
-  // Poll active jobs
-  useEffect(() => {
-    const activeJobs = jobs.filter(j => j.status === 'PENDING' || j.status === 'RUNNING')
-    if (activeJobs.length === 0) return
-
-    const interval = setInterval(async () => {
-      for (const job of activeJobs) {
-        try {
-          const res = await fetch(`/api/generate-video?taskId=${job.taskId}&provider=${job.provider}`, {
-            headers: { 'X-Admin-Key': adminKey },
-          })
-          const data = await res.json()
-          setJobs(prev => prev.map(j =>
-            j.taskId === job.taskId
-              ? { ...j, status: data.status, videoUrl: data.videoUrl, error: data.error }
-              : j
-          ))
-        } catch {
-          // Polling failure is non-fatal
-        }
-      }
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [jobs, adminKey])
-
   const startGeneration = useCallback(async (overridePrompt?: string, overrideImage?: string) => {
     const templateId = selectedTemplate
     if (!templateId || generating) return
@@ -382,22 +358,24 @@ export default function VideoGenerator({ facilityId, adminKey }: {
       })
       const data = await res.json()
 
-      if (data.taskId) {
+      if (data.videoUrl) {
         setJobs(prev => [{
-          taskId: data.taskId,
+          taskId: `fal-${Date.now()}`,
           templateId,
           templateName: template.name,
-          status: 'PENDING',
-          videoUrl: null,
+          status: 'SUCCEEDED',
+          videoUrl: data.videoUrl,
           error: null,
           prompt: data.prompt || overridePrompt || '',
           imageUrl: overrideImage || selectedImage || null,
           startedAt: Date.now(),
-          provider: data.provider || 'runway',
+          provider: 'fal',
+          statusUrl: null,
+          responseUrl: null,
         }, ...prev])
       } else if (data.error) {
         setJobs(prev => [{
-          taskId: `local-${Date.now()}`,
+          taskId: `fal-${Date.now()}`,
           templateId,
           templateName: template.name,
           status: 'FAILED',
@@ -407,6 +385,8 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           imageUrl: null,
           startedAt: Date.now(),
           provider: 'fal',
+          statusUrl: null,
+          responseUrl: null,
         }, ...prev])
       }
     } catch (err) {
@@ -440,22 +420,6 @@ export default function VideoGenerator({ facilityId, adminKey }: {
         <h4 className="text-sm font-semibold text-[var(--color-dark)]">AI Video Generator</h4>
         <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">Generate professional marketing videos using AI</p>
       </div>
-
-      {/* API key warning */}
-      {!configured && (
-        <div className="p-4 rounded-xl border border-dashed border-[var(--border-medium)]">
-          <div className="flex items-start gap-3">
-            <AlertTriangle size={18} className="text-amber-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-[var(--color-dark)]">Runway ML API Key Required</p>
-              <p className="text-xs text-[var(--color-mid-gray)] mt-1">
-                Add <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">RUNWAY_API_KEY</code> to your environment variables.
-                Get one at <a href="https://dev.runwayml.com" target="_blank" rel="noopener noreferrer" className="text-[var(--color-gold)] hover:underline">dev.runwayml.com</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Template selector */}
       <div>
@@ -590,7 +554,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
             {/* Generate button */}
             <button
               onClick={() => startGeneration()}
-              disabled={generating || !configured || (activeTemplate.mode === 'image_to_video' && !selectedImage)}
+              disabled={generating || (activeTemplate.mode === 'image_to_video' && !selectedImage)}
               className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
             >
               {generating ? (
@@ -628,7 +592,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                         job.status === 'FAILED' ? 'bg-red-500/20 text-red-400' :
                         'bg-amber-500/20 text-amber-400'
                       }`}>
-                        {job.status === 'PENDING' || job.status === 'RUNNING' ? 'Generating...' : job.status.toLowerCase()}
+                        {job.status === 'PENDING' || job.status === 'RUNNING' ? 'Generating...' : (job.status || 'pending').toLowerCase()}
                       </span>
                     </div>
 

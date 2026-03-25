@@ -175,22 +175,6 @@ export default function ImageGenerator({ facilityId, adminKey }: {
         <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">Generate ad creatives, lifestyle imagery, and social graphics</p>
       </div>
 
-      {/* API key warning */}
-      {!configured && (
-        <div className="p-4 rounded-xl border border-dashed border-[var(--border-medium)]">
-          <div className="flex items-start gap-3">
-            <AlertTriangle size={18} className="text-amber-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-[var(--color-dark)]">Image Generation API Required</p>
-              <p className="text-xs text-[var(--color-mid-gray)] mt-1">
-                Add <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">REPLICATE_API_TOKEN</code> or{' '}
-                <code className="px-1 py-0.5 rounded bg-[var(--color-light-gray)] text-xs text-[var(--color-body-text)]">GEMINI_API_KEY</code> (with billing) to your environment variables.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Template grid */}
       <div>
         <label className="text-xs font-medium text-[var(--color-body-text)] block mb-2">Choose Image Type</label>
@@ -293,7 +277,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
 
             <button
               onClick={() => generate()}
-              disabled={generating || !configured}
+              disabled={generating}
               className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
             >
               {generating ? (
