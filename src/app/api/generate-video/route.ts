@@ -187,14 +187,22 @@ async function callFal(
     body: JSON.stringify(input),
   });
 
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(
-      data.detail || data.message || JSON.stringify(data) || `FAL error: ${res.status}`,
-    );
+  const responseText = await res.text();
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(responseText);
+  } catch {
+    throw new Error(`FAL returned non-JSON response (${res.status}): ${responseText.slice(0, 200)}`);
   }
 
-  const videoUrl = data.video?.url;
+  if (!res.ok) {
+    const detail = typeof data.detail === 'string' ? data.detail
+      : Array.isArray(data.detail) ? data.detail.map((d: Record<string, string>) => d.msg).join(', ')
+      : data.message || JSON.stringify(data);
+    throw new Error(`FAL error (${res.status}): ${detail}`);
+  }
+
+  const videoUrl = (data.video as Record<string, string>)?.url;
   if (!videoUrl) throw new Error("FAL returned no video URL");
 
   return { videoUrl };

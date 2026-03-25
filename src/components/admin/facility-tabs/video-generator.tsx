@@ -356,7 +356,13 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           stylePreset: selectedStyle !== 'none' ? selectedStyle : undefined,
         }),
       })
-      const data = await res.json()
+      const text = await res.text()
+      let data: Record<string, unknown>
+      try {
+        data = JSON.parse(text)
+      } catch {
+        throw new Error(`Server error (${res.status}): ${text.slice(0, 200)}`)
+      }
 
       if (data.videoUrl) {
         setJobs(prev => [{
@@ -364,9 +370,9 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           templateId,
           templateName: template.name,
           status: 'SUCCEEDED',
-          videoUrl: data.videoUrl,
+          videoUrl: data.videoUrl as string,
           error: null,
-          prompt: data.prompt || overridePrompt || '',
+          prompt: (data.prompt as string) || overridePrompt || '',
           imageUrl: overrideImage || selectedImage || null,
           startedAt: Date.now(),
           provider: 'fal',
@@ -380,7 +386,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           templateName: template.name,
           status: 'FAILED',
           videoUrl: null,
-          error: data.error,
+          error: data.error as string,
           prompt: '',
           imageUrl: null,
           startedAt: Date.now(),
@@ -390,7 +396,21 @@ export default function VideoGenerator({ facilityId, adminKey }: {
         }, ...prev])
       }
     } catch (err) {
-      console.error('Video generation request failed:', err)
+      const msg = err instanceof Error ? err.message : 'Video generation failed'
+      setJobs(prev => [{
+        taskId: `err-${Date.now()}`,
+        templateId: templateId!,
+        templateName: template?.name || 'Unknown',
+        status: 'FAILED',
+        videoUrl: null,
+        error: msg,
+        prompt: '',
+        imageUrl: null,
+        startedAt: Date.now(),
+        provider: 'fal',
+        statusUrl: null,
+        responseUrl: null,
+      }, ...prev])
     } finally {
       setGenerating(false)
     }
