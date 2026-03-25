@@ -348,7 +348,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           const data = await res.json()
           setJobs(prev => prev.map(j =>
             j.taskId === job.taskId
-              ? { ...j, status: data.status, videoUrl: data.videoUrl, error: data.error }
+              ? { ...j, status: data.status || j.status, videoUrl: data.videoUrl || j.videoUrl, error: data.error || null }
               : j
           ))
         } catch {
@@ -612,7 +612,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                         job.status === 'FAILED' ? 'bg-red-500/20 text-red-400' :
                         'bg-amber-500/20 text-amber-400'
                       }`}>
-                        {job.status === 'PENDING' || job.status === 'RUNNING' ? 'Generating...' : job.status.toLowerCase()}
+                        {job.status === 'PENDING' || job.status === 'RUNNING' ? 'Generating...' : (job.status || 'pending').toLowerCase()}
                       </span>
                     </div>
 
