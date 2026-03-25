@@ -236,91 +236,14 @@ async function getFalResult(requestId: string, model: string) {
   };
 }
 
-/* ── Runway Video Generation (fallback) ── */
-
-async function callRunway(
-  prompt: string,
-  imageUrl: string | null,
-  mode: string,
-): Promise<{ id: string; provider: "runway" }> {
-  const runwayKey = process.env.RUNWAY_API_KEY;
-  if (!runwayKey) throw new Error("NO_RUNWAY_KEY");
-
-  const baseUrl = "https://api.dev.runwayml.com/v1";
-  const endpoint =
-    mode === "image_to_video"
-      ? `${baseUrl}/image_to_video`
-      : `${baseUrl}/text_to_video`;
-
-  const body =
-    mode === "image_to_video"
-      ? {
-          model: "gen4_turbo",
-          promptImage: imageUrl,
-          promptText: prompt.slice(0, 1000),
-          duration: 5,
-          ratio: "720:1280",
-        }
-      : {
-          model: "gen4.5",
-          promptText: prompt.slice(0, 1000),
-          duration: 5,
-          ratio: "720:1280",
-        };
-
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${runwayKey}`,
-      "Content-Type": "application/json",
-      "X-Runway-Version": "2024-11-06",
-    },
-    body: JSON.stringify(body),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(
-      data.error ||
-        data.message ||
-        JSON.stringify(data) ||
-        `Runway API error: ${res.status}`,
-    );
-  }
-
-  return { id: data.id, provider: "runway" };
-}
-
-/* ── Provider selection: FAL → Runway ── */
+/* ── Generate video — FAL.ai exclusively ── */
 
 async function generateVideo(
   prompt: string,
   imageUrl: string | null,
   mode: string,
-): Promise<{ id: string; provider: "fal" | "runway" }> {
-  // Try FAL first (Wan2.2), fall back to Runway
-  try {
-    return await callFal(prompt, imageUrl, mode);
-  } catch (falErr) {
-    const msg = (falErr as Error).message;
-    if (msg === "NO_FAL_KEY") {
-      // FAL not configured, try Runway
-    } else {
-      console.error("FAL failed, falling back to Runway:", msg);
-    }
-  }
-
-  try {
-    return await callRunway(prompt, imageUrl, mode);
-  } catch (runwayErr) {
-    const msg = (runwayErr as Error).message;
-    if (msg === "NO_RUNWAY_KEY") {
-      throw new Error(
-        "No video API configured. Add FAL_KEY (Wan2.2) or RUNWAY_API_KEY to your environment variables.",
-      );
-    }
-    throw runwayErr;
-  }
+): Promise<{ id: string; provider: "fal" }> {
+  return callFal(prompt, imageUrl, mode);
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -332,11 +255,10 @@ export async function GET(req: NextRequest) {
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   const taskId = req.nextUrl.searchParams.get("taskId");
-  const provider = req.nextUrl.searchParams.get("provider") || "runway";
 
   if (taskId) {
     try {
-      if (provider === "fal") {
+      {
         // Poll FAL.ai
         const falKey = process.env.FAL_KEY;
         if (!falKey) return errorResponse("FAL_KEY not configured", 500, origin);
@@ -380,35 +302,6 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      // Runway polling
-      const runwayKey = process.env.RUNWAY_API_KEY;
-      if (!runwayKey)
-        return errorResponse("RUNWAY_API_KEY not configured", 500, origin);
-
-      const taskRes = await fetch(
-        `https://api.dev.runwayml.com/v1/tasks/${taskId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${runwayKey}`,
-            "X-Runway-Version": "2024-11-06",
-          },
-        },
-      );
-      const data = await taskRes.json();
-      return jsonResponse(
-        {
-          status: data.status,
-          progress: data.progress || null,
-          videoUrl:
-            data.status === "SUCCEEDED" ? data.output?.[0] || null : null,
-          error:
-            data.status === "FAILED"
-              ? data.failure || "Generation failed"
-              : null,
-        },
-        200,
-        origin,
-      );
     } catch (err) {
       return errorResponse(
         err instanceof Error ? err.message : "Unknown error",
@@ -430,7 +323,7 @@ export async function GET(req: NextRequest) {
   }));
 
   return jsonResponse(
-    { templates, styles, configured: !!(process.env.FAL_KEY || process.env.RUNWAY_API_KEY), provider: process.env.FAL_KEY ? "fal" : "runway" },
+    { templates, styles, configured: !!process.env.FAL_KEY, provider: "fal" },
     200,
     origin,
   );
