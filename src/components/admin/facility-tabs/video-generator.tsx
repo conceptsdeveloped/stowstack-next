@@ -336,35 +336,6 @@ export default function VideoGenerator({ facilityId, adminKey }: {
     }).catch(() => {}).finally(() => setLoading(false))
   }, [facilityId, adminKey])
 
-  // Poll active jobs
-  useEffect(() => {
-    const activeJobs = jobs.filter(j => j.status === 'PENDING' || j.status === 'RUNNING')
-    if (activeJobs.length === 0) return
-
-    const interval = setInterval(async () => {
-      for (const job of activeJobs) {
-        try {
-          const params = new URLSearchParams({ taskId: job.taskId, provider: job.provider })
-          if (job.statusUrl) params.set('statusUrl', job.statusUrl)
-          if (job.responseUrl) params.set('responseUrl', job.responseUrl)
-          const res = await fetch(`/api/generate-video?${params}`, {
-            headers: { 'X-Admin-Key': adminKey },
-          })
-          const data = await res.json()
-          setJobs(prev => prev.map(j =>
-            j.taskId === job.taskId
-              ? { ...j, status: data.status || j.status, videoUrl: data.videoUrl || j.videoUrl, error: data.error || null }
-              : j
-          ))
-        } catch {
-          // Polling failure is non-fatal
-        }
-      }
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [jobs, adminKey])
-
   const startGeneration = useCallback(async (overridePrompt?: string, overrideImage?: string) => {
     const templateId = selectedTemplate
     if (!templateId || generating) return
@@ -387,24 +358,24 @@ export default function VideoGenerator({ facilityId, adminKey }: {
       })
       const data = await res.json()
 
-      if (data.taskId) {
+      if (data.videoUrl) {
         setJobs(prev => [{
-          taskId: data.taskId,
+          taskId: `fal-${Date.now()}`,
           templateId,
           templateName: template.name,
-          status: 'PENDING',
-          videoUrl: null,
+          status: 'SUCCEEDED',
+          videoUrl: data.videoUrl,
           error: null,
           prompt: data.prompt || overridePrompt || '',
           imageUrl: overrideImage || selectedImage || null,
           startedAt: Date.now(),
           provider: 'fal',
-          statusUrl: data.statusUrl || null,
-          responseUrl: data.responseUrl || null,
+          statusUrl: null,
+          responseUrl: null,
         }, ...prev])
       } else if (data.error) {
         setJobs(prev => [{
-          taskId: `local-${Date.now()}`,
+          taskId: `fal-${Date.now()}`,
           templateId,
           templateName: template.name,
           status: 'FAILED',
