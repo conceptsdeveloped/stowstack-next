@@ -505,6 +505,111 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
 }
 
 /* ═══════════════════════════════════════════
+   "BECAUSE" LETTERBOARD
+   ═══════════════════════════════════════════ */
+
+const BECAUSE_LINES = [
+  "a sign on a chainlink fence is not an acquisition strategy",
+  "your nephew's Facebook boost is not a campaign",
+  "a 3-star Google rating shouldn't be your best marketing asset",
+  "yelling 'FIRST MONTH FREE' into the void isn't targeting",
+  "your website loads slower than your tenants pay rent",
+  "you're still counting clicks instead of counting leases",
+  "your competitor's billboard has more strategy than your ad account",
+  "no one has ever impulse-rented a 10x20",
+  "your CPA should stand for Cost Per Acquisition, not Can't Prove Anything",
+  "that QR code on your business card goes to a homepage from 2019",
+  "the last 'marketing guy' couldn't tell you your cost per move-in",
+  "your Google Ads are bidding on your own facility name and calling it growth",
+  "paying $200 per move-in when it should be $14 is not a business model",
+];
+
+function BecauseLetterboard() {
+  const { ref, isVisible } = useInView(0.3);
+  const [lineIdx, setLineIdx] = useState(0);
+  const [animating, setAnimating] = useState(false);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    const interval = setInterval(() => {
+      setAnimating(true);
+      setTimeout(() => {
+        setLineIdx((i) => (i + 1) % BECAUSE_LINES.length);
+        setAnimating(false);
+      }, 400);
+    }, 3800);
+    return () => clearInterval(interval);
+  }, [isVisible]);
+
+  return (
+    <div
+      ref={ref}
+      className="relative border-t overflow-hidden"
+      style={{ borderColor: "var(--border-subtle)", background: "var(--color-dark)" }}
+    >
+      <style>{`
+        @keyframes letterboard-in {
+          0% { transform: translateY(100%); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes letterboard-out {
+          0% { transform: translateY(0); opacity: 1; }
+          100% { transform: translateY(-100%); opacity: 0; }
+        }
+      `}</style>
+
+      <div className="max-w-[1280px] mx-auto px-7 sm:px-10 lg:px-14 py-10 sm:py-14 text-center">
+        {/* "storageads.com" */}
+        <div
+          className={`transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        >
+          <span
+            className="text-sm sm:text-base font-semibold tracking-wide"
+            style={{ fontFamily: "var(--font-heading)", color: "var(--color-gold)", letterSpacing: "0.05em" }}
+          >
+            storageads.com
+          </span>
+        </div>
+
+        {/* "because" */}
+        <div
+          className={`mt-2 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          style={{ transitionDelay: "150ms" }}
+        >
+          <span
+            className="text-xs sm:text-sm uppercase tracking-[0.2em] font-medium"
+            style={{ fontFamily: "var(--font-heading)", color: "rgba(250,249,245,0.35)" }}
+          >
+            because
+          </span>
+        </div>
+
+        {/* The cycling line */}
+        <div
+          className={`mt-3 sm:mt-4 h-[2.2em] sm:h-[1.8em] overflow-hidden transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          style={{ transitionDelay: "300ms" }}
+        >
+          <p
+            key={lineIdx}
+            className="text-lg sm:text-xl md:text-2xl font-medium"
+            style={{
+              fontFamily: "var(--font-body)",
+              color: "var(--color-light)",
+              lineHeight: 1.3,
+              animation: animating
+                ? "letterboard-out 0.4s ease-in forwards"
+                : "letterboard-in 0.4s ease-out forwards",
+            }}
+          >
+            {BECAUSE_LINES[lineIdx]}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
    HERO — Main Export
    ═══════════════════════════════════════════ */
 
@@ -614,6 +719,9 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      {/* ── "Because" letterboard ── */}
+      <BecauseLetterboard />
 
       {/* ── Capabilities grid ── */}
       <div ref={capsRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
