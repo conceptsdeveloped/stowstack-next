@@ -5,7 +5,7 @@
   background: #0d0d0d;
   border: 2px solid #1a1a1a;
   border-radius: 8px;
-  padding: 24px 20px;
+  padding: 16px 12px;
   box-shadow:
     0 0 0 1px rgba(255,255,255,0.03),
     0 20px 60px rgba(0,0,0,0.8),
@@ -26,8 +26,8 @@
 
 .boardRow {
   display: flex;
-  gap: 3px;
-  margin: 4px 0;
+  gap: 2px;
+  margin: 2px 0;
   justify-content: center;
 }
 

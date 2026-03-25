@@ -72,12 +72,21 @@ export function SplitFlap({ messages, cols: colsProp, rows: rowsProp, holdTime =
   // Responsive sizing based on viewport and cols
   useEffect(() => {
     function updateSize() {
-      const vw = window.innerWidth;
-      const availableWidth = vw - 40; // padding
-      const maxFlapW = Math.floor(availableWidth / cols) - 3; // gap
-      const w = Math.max(10, Math.min(42, maxFlapW));
-      const h = Math.max(16, Math.floor(w * 1.43));
-      const f = Math.max(8, Math.floor(w * 0.8));
+      // Measure from the actual board container if available
+      const boardEl = boardRef.current;
+      const containerWidth = boardEl
+        ? boardEl.parentElement?.clientWidth ?? window.innerWidth
+        : window.innerWidth;
+
+      // Account for: outer section padding, board frame padding, inter-flap gaps
+      const sectionPadding = 24; // px-3 = 12px each side
+      const boardPadding = 28;   // board frame padding (12px + 2px border each side)
+      const totalGaps = (cols - 1) * 2; // 2px gap between each flap
+      const availableForFlaps = containerWidth - sectionPadding - boardPadding - totalGaps;
+      const maxFlapW = Math.floor(availableForFlaps / cols);
+      const w = Math.max(8, Math.min(30, maxFlapW));
+      const h = Math.max(12, Math.floor(w * 1.43));
+      const f = Math.max(6, Math.floor(w * 0.8));
       setFlapSize({ width: w, height: h, fontSize: f });
     }
     updateSize();
