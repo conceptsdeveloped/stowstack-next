@@ -532,9 +532,9 @@ function ResponsiveSplitFlap({ messages, holdTime }: { messages: string[]; holdT
     function update() {
       const w = window.innerWidth;
       if (w < 480) {
-        setLayout({ cols: 18, rows: 4 });
+        setLayout({ cols: 14, rows: 6 });
       } else if (w < 768) {
-        setLayout({ cols: 24, rows: 3 });
+        setLayout({ cols: 18, rows: 4 });
       } else {
         setLayout({ cols: 32, rows: 3 });
       }
