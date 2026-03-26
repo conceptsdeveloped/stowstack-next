@@ -19,7 +19,7 @@ const ROWS = [
   {
     label: "Attribution",
     diy: '"We got some calls this month"',
-    agency: "Clicks and impressions report",
+    agency: "Clicks and impressions (40% may be existing tenants)",
     storageads: "Cost per move-in by specific ad",
   },
   {
@@ -61,7 +61,7 @@ const ROWS = [
   {
     label: "Cost",
     diy: "Your time + wasted ad spend",
-    agency: "$1,500-5,000/mo + ad spend",
+    agency: "$1,500-5,000/mo + ad spend (% of spend = misaligned)",
     storageads: "$499-1,499/mo + ad spend",
   },
 ];

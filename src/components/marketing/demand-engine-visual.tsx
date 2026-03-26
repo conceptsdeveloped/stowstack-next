@@ -1,62 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Brain,
-  Megaphone,
-  FileText,
-  ShoppingCart,
-  BarChart3,
-  RefreshCw,
-  ArrowRight,
-  ChevronDown,
-} from "lucide-react";
 import { useInView } from "./use-in-view";
 
 const COMPONENTS = [
   {
     id: "intelligence",
-    icon: Brain,
+    number: "01",
     title: "Demand Intelligence",
-    subtitle: "Know your market",
-    color: "text-violet-400",
-    bg: "bg-violet-500/10 border-violet-500/30",
-    activeBg: "bg-violet-500/20 border-violet-400 shadow-violet-500/20",
-    detail:
+    summary:
       "We analyze your market, competitors, pricing, occupancy, and demographics to find where demand exists and how to capture it.",
-    bullets: [
-      "Competitor pricing & review tracking",
-      "Census demographics & renter data",
+    detail: [
+      "Competitor pricing and review tracking",
+      "Census demographics and renter data",
       "Search volume estimation for your area",
     ],
   },
   {
     id: "engine",
-    icon: Megaphone,
+    number: "02",
     title: "Ad Engine",
-    subtitle: "Create demand",
-    color: "text-orange-400",
-    bg: "bg-orange-500/10 border-orange-500/30",
-    activeBg: "bg-orange-500/20 border-orange-400 shadow-orange-500/20",
-    detail:
+    summary:
       "Meta ads create new demand. Google PPC captures search intent. Retargeting brings back visitors. All three channels, managed together.",
-    bullets: [
+    detail: [
       "Facebook + Instagram ad campaigns",
-      "Google Search & Display PPC",
+      "Google Search and Display PPC",
       "Multi-window retargeting sequences",
     ],
   },
   {
     id: "pages",
-    icon: FileText,
+    number: "03",
     title: "Landing Pages",
-    subtitle: "Catch the click",
-    color: "text-orange-400",
-    bg: "bg-orange-500/10 border-orange-500/30",
-    activeBg: "bg-orange-500/20 border-orange-400 shadow-orange-500/20",
-    detail:
+    summary:
       "Every ad gets its own page with its own headline, offer, and tracking. Not your homepage. A conversion-optimized page built for that specific audience.",
-    bullets: [
+    detail: [
       "Ad-specific URLs with unique offers",
       "8.7% average conversion rate",
       "Mobile-first, fast-loading design",
@@ -64,47 +42,35 @@ const COMPONENTS = [
   },
   {
     id: "conversion",
-    icon: ShoppingCart,
+    number: "04",
     title: "Conversion Flow",
-    subtitle: "Close the deal",
-    color: "text-amber-400",
-    bg: "bg-amber-500/10 border-amber-500/30",
-    activeBg: "bg-amber-500/20 border-amber-400 shadow-amber-500/20",
-    detail:
+    summary:
       "Embedded storEDGE rental functionality. The customer reserves on YOUR branded page. No redirect. No off-brand experience. No friction.",
-    bullets: [
-      "Embedded reservation & move-in flow",
+    detail: [
+      "Embedded reservation and move-in flow",
       "Customer stays on your branded page",
-      "Real-time unit availability & pricing",
+      "Real-time unit availability and pricing",
     ],
   },
   {
     id: "attribution",
-    icon: BarChart3,
-    title: "Attribution Layer",
-    subtitle: "Prove it works",
-    color: "text-rose-400",
-    bg: "bg-rose-500/10 border-rose-500/30",
-    activeBg: "bg-rose-500/20 border-rose-400 shadow-rose-500/20",
-    detail:
+    number: "05",
+    title: "Attribution",
+    summary:
       "Every move-in traces to the specific ad that produced it. Cost per reservation. Cost per move-in. ROAS by creative. Revenue, not clicks.",
-    bullets: [
-      "Ad → page → reservation → move-in tracking",
+    detail: [
+      "Ad \u2192 page \u2192 reservation \u2192 move-in tracking",
       "Cost per move-in by campaign",
       "ROAS by creative and audience",
     ],
   },
   {
     id: "optimize",
-    icon: RefreshCw,
+    number: "06",
     title: "Optimization Loop",
-    subtitle: "Get smarter",
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10 border-cyan-500/30",
-    activeBg: "bg-cyan-500/20 border-cyan-400 shadow-cyan-500/20",
-    detail:
-      "A/B testing on headlines, offers, and layouts. Winners are picked by actual move-in behavior. The machine gets smarter every month.",
-    bullets: [
+    summary:
+      "A/B testing on headlines, offers, and layouts. Winners are picked by actual move-in behavior. The system gets smarter every month.",
+    detail: [
       "Revenue-based A/B testing",
       "Creative performance scoring",
       "Compounding returns over time",
@@ -116,163 +82,143 @@ export default function DemandEngineVisual() {
   const { ref, isVisible } = useInView();
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const activeComponent = COMPONENTS.find((c) => c.id === activeId);
-
   return (
     <section
       id="demand-engine"
       aria-label="The six components of the StorageAds demand engine"
-      className="section relative overflow-hidden"
+      className="section"
       style={{ background: "var(--color-light)" }}
     >
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(181,139,63,0.04), transparent 70%)",
-        }}
-      />
-
-      <div ref={ref} className="section-content relative">
+      <div ref={ref} className="text-container">
         <div
-          className={`max-w-3xl mx-auto text-center mb-14 transition-all duration-700 ${
+          className={`max-w-3xl mx-auto text-center mb-16 transition-all duration-700 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
           }`}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/30 text-[var(--color-gold)] text-sm font-medium mb-6">
-            This isn't an ad agency. This is a revenue machine.
-          </div>
           <h2
             className="font-bold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            6 Systems Working Together to{" "}
-            <span style={{ color: "var(--color-gold)" }}>Fill Your Units</span>
+            Six systems. One engine.{" "}
+            <span style={{ color: "var(--color-gold)" }}>Every unit filled.</span>
           </h2>
-          <p className="mt-4 text-lg" style={{ color: "var(--text-secondary)" }}>
-            Click any component to see how it works. Together, they form a
-            closed-loop demand engine.
+          <p
+            className="mt-4"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "var(--text-body)",
+            }}
+          >
+            Ads, pages, attribution, optimization — all connected. This is not
+            an ad agency. This is how you stop guessing and start scaling.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        <div className="space-y-0">
           {COMPONENTS.map((comp, i) => {
-            const Icon = comp.icon;
             const isActive = activeId === comp.id;
             return (
-              <button
-                key={comp.id}
-                onClick={() => setActiveId(isActive ? null : comp.id)}
-                aria-expanded={isActive}
-                aria-label={`${comp.title}: ${comp.subtitle}`}
-                className={`relative rounded-xl p-4 border text-center transition-all duration-300 cursor-pointer ${
-                  isActive
-                    ? `${comp.activeBg} shadow-lg`
-                    : `${comp.bg} hover:border-[var(--color-dark)]/20`
-                } ${
-                  isVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-6"
-                }`}
-                style={{ transitionDelay: `${200 + i * 80}ms` }}
-              >
-                <Icon size={24} className={`mx-auto mb-2 ${comp.color}`} />
-                <p className="text-xs font-semibold text-[var(--color-dark)] leading-tight">
-                  {comp.title}
-                </p>
-                <p
-                  className="text-[10px] mt-0.5"
-                  style={{ color: "var(--text-tertiary)" }}
+              <div key={comp.id}>
+                {/* Divider */}
+                <div
+                  className={`h-px transition-all duration-700 ${
+                    isVisible ? "w-full" : "w-0"
+                  }`}
+                  style={{
+                    background: "var(--border-subtle)",
+                    transitionDelay: `${200 + i * 100}ms`,
+                  }}
+                />
+
+                <button
+                  onClick={() => setActiveId(isActive ? null : comp.id)}
+                  aria-expanded={isActive}
+                  className={`w-full text-left py-8 transition-all duration-500 cursor-pointer ${
+                    isVisible
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{ transitionDelay: `${300 + i * 100}ms` }}
                 >
-                  {comp.subtitle}
-                </p>
-                {i < COMPONENTS.length - 1 && (
-                  <ArrowRight
-                    size={12}
-                    className="absolute -right-2 top-1/2 -translate-y-1/2 text-stone-600 hidden lg:block"
-                  />
-                )}
-              </button>
+                  <div className="flex items-baseline gap-4 md:gap-6">
+                    <span
+                      className="text-sm font-semibold tabular-nums flex-shrink-0"
+                      style={{ color: "var(--color-gold)", fontFamily: "var(--font-heading)" }}
+                    >
+                      {comp.number}
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-baseline justify-between gap-4">
+                        <h3
+                          className="font-bold"
+                          style={{
+                            fontSize: "var(--text-subhead)",
+                            color: "var(--text-primary)",
+                          }}
+                        >
+                          {comp.title}
+                        </h3>
+                        <span
+                          className="text-sm flex-shrink-0 hidden md:block"
+                          style={{ color: "var(--text-tertiary)" }}
+                        >
+                          {isActive ? "\u2212" : "+"}
+                        </span>
+                      </div>
+                      <p
+                        className="mt-1 text-sm"
+                        style={{
+                          color: "var(--text-secondary)",
+                          maxWidth: "580px",
+                        }}
+                      >
+                        {comp.summary}
+                      </p>
+
+                      {/* Expandable detail */}
+                      <div
+                        className="overflow-hidden transition-all duration-300"
+                        style={{
+                          maxHeight: isActive ? "200px" : "0",
+                          opacity: isActive ? 1 : 0,
+                        }}
+                      >
+                        <ul className="mt-4 space-y-2">
+                          {comp.detail.map((item, j) => (
+                            <li
+                              key={j}
+                              className="flex items-center gap-3 text-sm"
+                              style={{ color: "var(--text-secondary)" }}
+                            >
+                              <span
+                                className="w-1 h-1 rounded-full flex-shrink-0"
+                                style={{ background: "var(--color-gold)" }}
+                              />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </div>
             );
           })}
-        </div>
 
-        <div
-          className={`hidden lg:flex items-center justify-center gap-1 mb-8 transition-all duration-700 delay-700 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          {COMPONENTS.map((comp, i) => (
-            <div key={comp.id} className="flex items-center">
-              <div
-                className={`w-3 h-3 rounded-full ${comp.color.replace(
-                  "text-",
-                  "bg-"
-                )} opacity-60`}
-              />
-              {i < COMPONENTS.length - 1 && (
-                <div className="w-12 h-px bg-gradient-to-r from-[var(--color-dark)]/10 to-[var(--color-dark)]/10 mx-1" />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {activeComponent && (
-          <div className="bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-2xl p-6 md:p-8 transition-all duration-300">
-            <div className="flex items-start gap-4">
-              <div
-                className={`w-12 h-12 rounded-xl ${activeComponent.bg} flex items-center justify-center flex-shrink-0`}
-              >
-                <activeComponent.icon
-                  size={24}
-                  className={activeComponent.color}
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-[var(--color-dark)]">
-                  {activeComponent.title}
-                </h3>
-                <p
-                  className="text-sm mt-2 leading-relaxed"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  {activeComponent.detail}
-                </p>
-                <ul className="mt-4 space-y-2">
-                  {activeComponent.bullets.map((b, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center gap-2 text-sm"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <div
-                        className={`w-1.5 h-1.5 rounded-full ${activeComponent.color.replace(
-                          "text-",
-                          "bg-"
-                        )}`}
-                      />
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!activeId && (
-          <p
-            className={`text-center text-sm flex items-center justify-center gap-1 transition-all duration-500 delay-1000 ${
-              isVisible ? "opacity-100" : "opacity-0"
+          {/* Final divider */}
+          <div
+            className={`h-px transition-all duration-700 ${
+              isVisible ? "w-full" : "w-0"
             }`}
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            <ChevronDown size={14} className="animate-bounce" /> Click a
-            component above to explore
-          </p>
-        )}
+            style={{
+              background: "var(--border-subtle)",
+              transitionDelay: "800ms",
+            }}
+          />
+        </div>
       </div>
     </section>
   );

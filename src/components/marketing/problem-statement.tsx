@@ -5,7 +5,7 @@ import { useInView } from "./use-in-view";
 const PROBLEMS = [
   {
     heading: "Every ad goes to the same page.",
-    body: 'Your Google ads, your Facebook ads, your retargeting — all of it dumps traffic onto your homepage or a generic storEDGE rental page. A customer searching "climate controlled storage in Paw Paw" lands on the same page as someone clicking a "first month free" ad. Different intent. Same dead-end experience.',
+    body: 'Your Google ads, your Facebook ads, your retargeting — all of it dumps traffic onto your homepage or a generic storEDGE rental page. A customer searching "climate controlled storage in Paw Paw" lands on the same page as someone clicking a "first month free" ad. Different intent — same dead-end experience.',
     highlight: "same dead-end experience",
   },
   {
@@ -52,10 +52,9 @@ export default function ProblemStatement() {
               fontSize: "var(--text-body)",
             }}
           >
-            Your agency sends you a report full of impressions and
-            click-through rates. None of those numbers connect to a signed
-            lease. You&apos;re told the campaign is &quot;performing
-            well&quot; while your vacancy stays the same.
+            National occupancy is at 77%. Google CPCs are up 45%. Up to 90% of
+            lead conversions go unattributed. And fewer than 5% of independent
+            operators run Meta ads — where CPCs are 75-95% cheaper than Google.
           </p>
           <p
             className="mt-4 font-medium"

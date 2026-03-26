@@ -535,6 +535,97 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* SpareFoot Comparison */}
+      <section className="py-20" style={{ background: "var(--color-light)" }}>
+        <div className="max-w-3xl mx-auto px-6">
+          <h2
+            className="font-bold mb-4 text-center"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            The SpareFoot math
+          </h2>
+          <p
+            className="mb-10 text-center mx-auto"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "var(--text-body)",
+              maxWidth: "580px",
+            }}
+          >
+            Most operators are already paying for marketing through aggregator
+            commissions. Here is what that actually costs.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* SpareFoot */}
+            <div
+              className="rounded-lg p-6"
+              style={{ border: "1px solid var(--border-subtle)" }}
+            >
+              <h3
+                className="text-sm font-semibold uppercase mb-4"
+                style={{
+                  color: "var(--text-tertiary)",
+                  letterSpacing: "var(--tracking-wide)",
+                }}
+              >
+                SpareFoot / Aggregator
+              </h3>
+              <div className="space-y-3 text-sm" style={{ color: "var(--text-secondary)" }}>
+                <p>
+                  Standard commission: <strong style={{ color: "var(--text-primary)" }}>2x first month&apos;s rent</strong>
+                </p>
+                <p>
+                  On a $130/month unit: <strong style={{ color: "var(--text-primary)" }}>$260 per move-in</strong>
+                </p>
+                <p>
+                  Two full months of rent gone before the tenant unpacks.
+                </p>
+                <p>
+                  Typical range across unit sizes: <strong style={{ color: "var(--text-primary)" }}>$130-390 per move-in</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* StorageAds */}
+            <div
+              className="rounded-lg p-6"
+              style={{
+                background: "rgba(181,139,63,0.06)",
+                border: "1px solid var(--color-gold)",
+              }}
+            >
+              <h3
+                className="text-sm font-semibold uppercase mb-4"
+                style={{
+                  color: "var(--accent)",
+                  letterSpacing: "var(--tracking-wide)",
+                }}
+              >
+                StorageAds
+              </h3>
+              <div className="space-y-3 text-sm" style={{ color: "var(--text-secondary)" }}>
+                <p>
+                  Monthly retainer: <strong style={{ color: "var(--text-primary)" }}>$750-1,500</strong>
+                </p>
+                <p>
+                  Target cost per move-in via Meta: <strong style={{ color: "var(--text-primary)" }}>$30-80</strong>
+                </p>
+                <p>
+                  Break even at just <strong style={{ color: "var(--accent)" }}>3-5 move-ins per month</strong>
+                </p>
+                <p>
+                  Every move-in after that is pure upside — and you keep your first month&apos;s rent.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-24" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6 text-center">

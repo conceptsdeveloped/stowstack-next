@@ -43,8 +43,8 @@ export default async function BlogIndex({ searchParams }: PageProps) {
           >
             <ArrowLeft size={20} />
           </Link>
-          <span className="text-sm font-bold tracking-tight">
-            Stow<span style={{ color: "var(--accent)" }}>Stack</span>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 600, letterSpacing: "-0.5px" }}>
+            <span style={{ color: "var(--color-dark)" }}>storage</span><span style={{ color: "var(--color-gold)" }}>ads</span>
           </span>
           <span
             className="text-sm ml-2"

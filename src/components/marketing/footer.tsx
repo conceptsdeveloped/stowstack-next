@@ -4,7 +4,9 @@ const FOOTER_LINKS = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Pricing", href: "/pricing" },
   { label: "Free Diagnostic", href: "/diagnostic" },
-  { label: "API Docs", href: "/docs" },
+  { label: "About", href: "/about" },
+  { label: "Blog", href: "/blog" },
+  { label: "Insights", href: "/insights" },
   { label: "Demo", href: "/demo" },
   { label: "Book a Call", href: "#cta" },
 ];

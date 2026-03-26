@@ -84,9 +84,9 @@ export function SplitFlap({ messages, cols: colsProp, rows: rowsProp, holdTime =
       const totalGaps = (cols - 1) * 2; // 2px gap between each flap
       const availableForFlaps = containerWidth - sectionPadding - boardPadding - totalGaps;
       const maxFlapW = Math.floor(availableForFlaps / cols);
-      const w = Math.max(8, Math.min(30, maxFlapW));
-      const h = Math.max(12, Math.floor(w * 1.43));
-      const f = Math.max(6, Math.floor(w * 0.8));
+      const w = Math.max(10, Math.min(42, maxFlapW));
+      const h = Math.max(14, Math.floor(w * 1.43));
+      const f = Math.max(8, Math.floor(w * 0.8));
       setFlapSize({ width: w, height: h, fontSize: f });
     }
     updateSize();

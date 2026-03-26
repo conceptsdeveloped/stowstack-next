@@ -525,6 +525,28 @@ const BECAUSE_MESSAGES = [
   "THE MARKETING MEETING WAS YOU AND YOUR MANAGER STARING AT GOOGLE REVIEWS",
 ];
 
+function ResponsiveSplitFlap({ messages, holdTime }: { messages: string[]; holdTime: number }) {
+  const [layout, setLayout] = useState({ cols: 26, rows: 3 });
+
+  useEffect(() => {
+    function update() {
+      const w = window.innerWidth;
+      if (w < 480) {
+        setLayout({ cols: 18, rows: 4 });
+      } else if (w < 768) {
+        setLayout({ cols: 24, rows: 3 });
+      } else {
+        setLayout({ cols: 32, rows: 3 });
+      }
+    }
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return <SplitFlapComponent messages={messages} cols={layout.cols} rows={layout.rows} holdTime={holdTime} />;
+}
+
 function BecauseLetterboard() {
   return (
     <div
@@ -548,8 +570,8 @@ function BecauseLetterboard() {
           </span>
         </div>
 
-        {/* Split-flap display — 42 cols x 3 rows, word-wrapped */}
-        <SplitFlapComponent messages={BECAUSE_MESSAGES} cols={42} rows={3} holdTime={4500} />
+        {/* Split-flap display — responsive cols/rows */}
+        <ResponsiveSplitFlap messages={BECAUSE_MESSAGES} holdTime={4500} />
       </div>
     </div>
   );
@@ -669,32 +691,16 @@ export default function Hero() {
       {/* ── "Because" letterboard ── */}
       <BecauseLetterboard />
 
-      {/* ── Capabilities grid ── */}
+      {/* ── Capabilities strip ── */}
       <div ref={capsRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
-        <div className="max-w-[1280px] mx-auto px-7 sm:px-10 lg:px-14 py-8 sm:py-10">
-          <div className={`text-center mb-6 transition-all duration-700 ${capsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-            <h2 className="text-lg sm:text-xl font-bold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
-              Everything you need to <span style={{ color: "var(--color-gold)" }}>fill units</span>
-            </h2>
-            <p className="text-sm mt-1 mx-auto" style={{ color: "var(--text-secondary)", maxWidth: "420px" }}>
-              One platform. Ads, pages, attribution, optimization — all connected.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-            {CAPABILITIES.map((cap, i) => {
-              const Icon = cap.icon;
-              return (
-                <div key={cap.label} className="flex items-start gap-2.5 p-3 sm:flex-col sm:items-center sm:text-center sm:p-3.5 rounded-xl border transition-all duration-500 hover:border-[var(--color-gold)]/25 hover:shadow-md hover:-translate-y-0.5 group cursor-default" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-elevated)", transitionDelay: `${i * 60}ms`, opacity: capsVisible ? 1 : 0, transform: capsVisible ? "translateY(0)" : "translateY(16px)" }}>
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 sm:mb-2 transition-all duration-300 group-hover:scale-110" style={{ background: "rgba(181,139,63,0.06)", border: "1px solid rgba(181,139,63,0.12)" }}>
-                    <Icon size={16} style={{ color: "var(--color-gold)" }} />
-                  </div>
-                  <div className="min-w-0 sm:w-full">
-                    <div className="text-[12px] sm:text-[13px] font-semibold leading-tight" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>{cap.label}</div>
-                    <div className="text-[10px] sm:text-[11px] mt-0.5 sm:mt-1 leading-snug" style={{ color: "var(--text-tertiary)" }}>{cap.desc}</div>
-                  </div>
-                </div>
-              );
-            })}
+        <div className="max-w-[1280px] mx-auto px-7 sm:px-10 lg:px-14 py-6 sm:py-8">
+          <div className={`flex flex-wrap items-center justify-center gap-x-6 gap-y-2 transition-all duration-700 ${capsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            {CAPABILITIES.map((cap, i) => (
+              <span key={cap.label} className="text-xs sm:text-sm whitespace-nowrap transition-opacity duration-500" style={{ color: "var(--text-tertiary)", transitionDelay: `${i * 60}ms`, opacity: capsVisible ? 1 : 0 }}>
+                <span style={{ color: "var(--color-gold)", fontWeight: 600 }}>{cap.label}</span>
+                <span className="hidden sm:inline"> — {cap.desc}</span>
+              </span>
+            ))}
           </div>
         </div>
       </div>
