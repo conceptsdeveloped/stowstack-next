@@ -8,7 +8,7 @@ const CALCOM_SLUG = "storageads/30min";
 
 const TRUST_SIGNALS = [
   { icon: Shield, text: "No contracts required" },
-  { icon: Clock, text: "Results in days, not months" },
+  { icon: Clock, text: "First leads within 7 days" },
   { icon: Wrench, text: "Built and run by a storage operator" },
   { icon: Zap, text: "storEDGE integrated" },
 ];
@@ -113,7 +113,7 @@ export default function CTASection() {
           >
             Get a free facility audit. We will look at your current digital
             presence, ad spend, landing pages, rental flow, and competitive
-            landscape — then show you exactly where the leaky bucket is.
+            landscape — then show you exactly where you&apos;re losing move-ins.
           </p>
           <p
             className="mt-2"

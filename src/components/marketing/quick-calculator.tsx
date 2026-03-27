@@ -14,7 +14,8 @@ export default function QuickCalculator() {
   const monthlyLoss = vacantUnits * avgRate;
   const annualLoss = monthlyLoss * 12;
   const storageadsCost = 999;
-  const projectedMoveIns = 8;
+  // Scale projected move-ins with vacant units (roughly 15-25% of vacants recoverable)
+  const projectedMoveIns = Math.max(2, Math.min(30, Math.round(vacantUnits * 0.2)));
   const projectedRecovery = projectedMoveIns * avgRate;
   const roi =
     storageadsCost + 1500 > 0
@@ -157,7 +158,7 @@ export default function QuickCalculator() {
                     className="text-xs uppercase text-[var(--color-gold)] mb-1"
                     style={{ letterSpacing: "var(--tracking-wide)" }}
                   >
-                    StorageAds Projects
+                    StorageAds Projection
                   </p>
                   <p className="text-3xl font-black text-[var(--color-gold)]">
                     {projectedMoveIns}{" "}

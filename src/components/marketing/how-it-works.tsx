@@ -60,9 +60,9 @@ export default function HowItWorks() {
             className="mt-4 mx-auto max-w-2xl"
             style={{ color: "var(--text-secondary)" }}
           >
-            StorageAds operates as a closed-loop system with four layers. Each
-            feeds the next. Together they form a complete path from ad click to
-            move-in — with full attribution at every step.
+            Every step connects. The ad drives the click, the landing page
+            converts it, the rental flow closes it, and attribution tells you
+            which ad deserves the credit.
           </p>
         </div>
 

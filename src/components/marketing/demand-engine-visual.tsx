@@ -102,7 +102,7 @@ export default function DemandEngineVisual() {
             style={{ fontSize: "var(--text-section-head)" }}
           >
             Six systems. One engine.{" "}
-            <span style={{ color: "var(--color-gold)" }}>Every unit filled.</span>
+            <span style={{ color: "var(--color-gold)" }}>Every move-in attributed.</span>
           </h2>
           <p
             className="mt-4"
@@ -111,8 +111,8 @@ export default function DemandEngineVisual() {
               fontSize: "var(--text-body)",
             }}
           >
-            Ads, pages, attribution, optimization — all connected. This is not
-            an ad agency. This is how you stop guessing and start scaling.
+            Ads, pages, attribution, optimization — all connected. Not an
+            agency guessing on your behalf. A system that shows you what&apos;s working and what isn&apos;t.
           </p>
         </div>
 

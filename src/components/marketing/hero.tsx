@@ -154,7 +154,7 @@ const CAPABILITIES = [
   { icon: Activity, label: "Live Monitoring", desc: "Real-time performance alerts", color: "#8a70b0" },
 ];
 
-const TYPEWRITER_WORDS = ["Fill units.", "Prove ROAS.", "Cut waste.", "Scale revenue.", "Win move-ins."];
+const TYPEWRITER_WORDS = ["Fill units.", "Prove ROAS.", "Kill bad spend.", "Track every move-in.", "Win your zip code."];
 
 const NOTIFICATION_FEED = [
   { text: "New move-in — Climate Control 10x10", time: "2m", color: "var(--color-blue)", icon: "🎯" },
@@ -1045,7 +1045,7 @@ export default function Hero() {
               className={`mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ color: "var(--text-secondary)", lineHeight: 1.55, transitionDelay: "350ms", maxWidth: "460px" }}
             >
-              Ad-specific landing pages with embedded rental flow. Full-funnel attribution from impression to signed lease. Every dollar accounted for.
+              Ad-specific landing pages with embedded rental flow. Full-funnel attribution from ad click to signed lease. You&apos;ll know exactly what each move-in cost.
             </p>
 
             {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
@@ -1070,7 +1070,7 @@ export default function Hero() {
               <div className="flex items-center gap-4 justify-center lg:justify-start flex-wrap">
                 {[
                   { icon: Layers, text: "storEDGE integrated" },
-                  { icon: Globe, text: "50+ facilities" },
+                  { icon: Globe, text: "Tested on our own facilities first" },
                   { icon: Star, text: "Full-funnel attribution" },
                 ].map((badge, i) => {
                   const BadgeIcon = badge.icon;

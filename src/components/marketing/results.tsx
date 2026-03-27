@@ -49,7 +49,7 @@ export default function Results() {
             className="font-bold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            What operators are seeing with StorageAds.
+            Results from our own facilities.
           </h2>
         </div>
 
@@ -111,7 +111,7 @@ export default function Results() {
             className="text-sm leading-relaxed"
             style={{ color: "var(--text-secondary)" }}
           >
-            <strong className="text-[var(--color-dark)]">The math is simple.</strong> A
+            <strong className="text-[var(--color-dark)]">Here is the unit economics.</strong> A
             single move-in at a typical facility is worth $100-150/mo in
             recurring revenue. At a 12-month average tenant stay, that is
             $1,200-1,800 in lifetime value per move-in. If StorageAds&apos;s

@@ -36,7 +36,7 @@ export default function Footer() {
               className="text-sm"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Full-funnel acquisition and conversion for self-storage.
+              Marketing that tells you which ads fill units.
             </p>
             <p
               className="text-xs mt-4 italic"

@@ -185,7 +185,7 @@ export default function InactionTimeline() {
               className="text-sm mt-1"
               style={{ color: "var(--text-secondary)" }}
             >
-              And it only gets worse from here
+              Lost revenue that compounds every month
             </p>
           </div>
           <div className="bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/20 rounded-2xl p-6 text-center">
@@ -204,7 +204,7 @@ export default function InactionTimeline() {
               className="text-sm mt-1"
               style={{ color: "var(--text-secondary)" }}
             >
-              Projected recovered revenue (Growth plan)
+              Based on $41 cost-per-move-in at 8 move-ins/mo (Growth plan)
             </p>
           </div>
         </div>
