@@ -759,7 +759,33 @@ export default function GBPFull({
                 Sync Now
               </button>
             )}
-            {(!connection || connection.status !== "connected") && (
+            {connection?.status === "pending_location_selection" && (
+              <div className="w-full mt-3">
+                <p className="text-xs text-amber-400 mb-2">Multiple locations found. Select one:</p>
+                <div className="space-y-2">
+                  {((connection.sync_config as Record<string, unknown>)?.pending_locations as Array<{ name: string; title: string }> || []).map((loc) => (
+                    <button
+                      key={loc.name}
+                      className="w-full text-left rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] p-3 text-sm hover:border-[var(--accent)] transition-colors"
+                      onClick={async () => {
+                        try {
+                          await fetch(`/api/gbp-sync`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+                            body: JSON.stringify({ facilityId, type: "select-location", locationId: loc.name, locationName: loc.title }),
+                          })
+                          loadAll()
+                        } catch { /* retry */ }
+                      }}
+                    >
+                      <span className="font-medium text-[var(--text-primary)]">{loc.title}</span>
+                      <span className="block text-xs text-[var(--text-tertiary)]">{loc.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {(!connection || (connection.status !== "connected" && connection.status !== "pending_location_selection")) && (
               <button
                 className={btnPrimary}
                 onClick={() => {

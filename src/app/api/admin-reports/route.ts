@@ -137,6 +137,50 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      // Move-in attribution count
+      const moveInCount = await db.activity_log.count({
+        where: {
+          type: "attributed_move_in",
+          facility_id: facilityId !== "all" ? facilityId : undefined,
+          created_at: { gte: startDate, lte: endDate },
+        },
+      });
+
+      // Cost per move-in trend (monthly aggregation for chart)
+      const spendByMonth = new Map<string, { spend: number; moveIns: number }>();
+      for (const s of spendData) {
+        const month = s.date.toISOString().slice(0, 7);
+        const existing = spendByMonth.get(month) || { spend: 0, moveIns: 0 };
+        existing.spend += Number(s.spend);
+        spendByMonth.set(month, existing);
+      }
+      // Get move-in counts per month
+      const moveInsByMonth = facilityId !== "all"
+        ? await db.$queryRaw<Array<{ month: string; count: number }>>`
+            SELECT to_char(created_at, 'YYYY-MM') AS month, COUNT(*)::int AS count
+            FROM activity_log
+            WHERE type = 'attributed_move_in' AND facility_id = ${facilityId}::uuid
+              AND created_at >= ${startDate} AND created_at <= ${endDate}
+            GROUP BY to_char(created_at, 'YYYY-MM') ORDER BY month
+          `
+        : await db.$queryRaw<Array<{ month: string; count: number }>>`
+            SELECT to_char(created_at, 'YYYY-MM') AS month, COUNT(*)::int AS count
+            FROM activity_log
+            WHERE type = 'attributed_move_in'
+              AND created_at >= ${startDate} AND created_at <= ${endDate}
+            GROUP BY to_char(created_at, 'YYYY-MM') ORDER BY month
+          `;
+      for (const m of moveInsByMonth) {
+        const existing = spendByMonth.get(m.month);
+        if (existing) existing.moveIns = m.count;
+      }
+      const costPerMoveInTrend = Array.from(spendByMonth.entries()).map(([month, d]) => ({
+        month,
+        spend: d.spend,
+        moveIns: d.moveIns,
+        costPerMoveIn: d.moveIns > 0 ? d.spend / d.moveIns : null,
+      }));
+
       reportData = {
         format,
         summary: {
@@ -150,7 +194,10 @@ export async function POST(req: NextRequest) {
           totalCalls: callData.length,
           qualifiedCalls,
           costPerLead: leads > 0 ? (totalSpend / leads).toFixed(2) : "N/A",
+          moveIns: moveInCount,
+          costPerMoveIn: moveInCount > 0 ? (totalSpend / moveInCount).toFixed(2) : "N/A",
         },
+        costPerMoveInTrend,
         campaigns: spendData.map((s) => ({
           date: s.date.toISOString().slice(0, 10),
           platform: s.platform,
@@ -289,6 +336,117 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("Admin reports POST error:", err);
     return errorResponse("Failed to generate report", 500, origin);
+  }
+}
+
+/**
+ * PATCH /api/admin-reports
+ * Approve or reject a preview report.
+ * - approve: send the report email via Resend, update status to "sent"
+ * - reject: delete the report row
+ */
+export async function PATCH(req: NextRequest) {
+  const origin = getOrigin(req);
+  const authError = requireAdminKey(req);
+  if (authError) return authError;
+
+  try {
+    const body = await req.json();
+    const { id, action } = body as { id?: string; action?: string };
+
+    if (!id || !action) {
+      return errorResponse("Missing required fields: id, action", 400, origin);
+    }
+
+    if (action !== "approve" && action !== "reject") {
+      return errorResponse("Action must be 'approve' or 'reject'", 400, origin);
+    }
+
+    // Fetch the report with its client relation
+    const report = await db.client_reports.findUnique({
+      where: { id },
+      include: {
+        clients: { select: { email: true, name: true } },
+        facilities: { select: { name: true } },
+      },
+    });
+
+    if (!report) {
+      return errorResponse("Report not found", 404, origin);
+    }
+
+    if (action === "reject") {
+      await db.client_reports.delete({ where: { id } });
+      return jsonResponse({ success: true, action: "rejected", id }, 200, origin);
+    }
+
+    // action === "approve"
+    // Update status to generated first
+    await db.client_reports.update({
+      where: { id },
+      data: { status: "generated" },
+    });
+
+    // Send the email via Resend
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      return errorResponse("RESEND_API_KEY not configured", 500, origin);
+    }
+
+    const clientEmail = report.clients?.email;
+    if (!clientEmail) {
+      return errorResponse("No client email found for this report", 400, origin);
+    }
+
+    const facilityName = report.facilities?.name || "Your Facility";
+    const isWeekly = report.report_type === "weekly";
+    const subject = `${facilityName} — ${isWeekly ? "Weekly" : "Monthly"} Performance Report`;
+
+    const emailRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: "StorageAds <reports@storageads.com>",
+        to: clientEmail,
+        subject,
+        html: report.report_html || "",
+      }),
+    });
+
+    if (!emailRes.ok) {
+      const errText = await emailRes.text();
+      await db.client_reports.update({
+        where: { id },
+        data: { status: "failed" },
+      });
+      console.error("Report email send failed:", errText);
+      return errorResponse(`Email send failed: ${errText}`, 500, origin);
+    }
+
+    // Mark as sent
+    await db.client_reports.update({
+      where: { id },
+      data: { status: "sent", sent_at: new Date() },
+    });
+
+    // Log activity
+    db.$executeRaw`
+      INSERT INTO activity_log (type, facility_id, facility_name, detail)
+      VALUES ('report_sent', ${report.facility_id}::uuid, ${facilityName}, ${`${isWeekly ? "Weekly" : "Monthly"} report approved and sent to ${clientEmail}`})
+    `.catch(() => {});
+
+    return jsonResponse({
+      success: true,
+      action: "approved",
+      id,
+      sentTo: clientEmail,
+    }, 200, origin);
+  } catch (err) {
+    console.error("Admin reports PATCH error:", err);
+    return errorResponse("Failed to process report action", 500, origin);
   }
 }
 

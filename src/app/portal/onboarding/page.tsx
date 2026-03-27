@@ -69,7 +69,7 @@ const STEP_META: Record<
     icon: <Building2 className="h-4 w-4" />,
   },
   targetDemographics: {
-    label: "Target Demographics",
+    label: "Target Demographics (Optional)",
     icon: <Users className="h-4 w-4" />,
   },
   unitMix: {
@@ -77,7 +77,7 @@ const STEP_META: Record<
     icon: <Package className="h-4 w-4" />,
   },
   competitorIntel: {
-    label: "Competitor Intel",
+    label: "Competitor Intel (Optional)",
     icon: <Search className="h-4 w-4" />,
   },
   adPreferences: {

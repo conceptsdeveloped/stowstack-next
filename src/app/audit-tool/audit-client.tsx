@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { ExitIntentPopup } from "@/components/marketing/exit-intent-popup";
 import {
   Search,
   Loader2,
@@ -286,6 +287,12 @@ export default function AuditToolPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-void)]">
+      {result && (
+        <ExitIntentPopup
+          facilityName={result.name}
+          auditScore={auditScore?.overall}
+        />
+      )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/90 backdrop-blur-md">
         <div className="mx-auto max-w-4xl flex items-center justify-between px-5 h-14">

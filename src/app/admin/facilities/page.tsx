@@ -103,6 +103,9 @@ const TenantManagement = lazy(
 const PmsDashboard = lazy(
   () => import("@/components/admin/facility-tabs/pms-dashboard")
 );
+const CallTracking = lazy(
+  () => import("@/components/admin/facility-tabs/call-tracking")
+);
 
 /* ================================================================
    Types
@@ -152,6 +155,7 @@ const TABS = [
   { key: "revenue", label: "Revenue Analytics", icon: BarChart3 },
   { key: "tenants", label: "Tenant CRM", icon: Users },
   { key: "pms", label: "PMS Data", icon: FileText },
+  { key: "call-tracking", label: "Call Tracking", icon: Phone },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -283,6 +287,7 @@ function TabContent({
       {activeTab === "revenue" && <RevenueAnalytics {...commonProps} />}
       {activeTab === "tenants" && <TenantManagement {...commonProps} />}
       {activeTab === "pms" && <PmsDashboard {...commonProps} />}
+      {activeTab === "call-tracking" && <CallTracking {...commonProps} />}
     </Suspense>
   );
 }

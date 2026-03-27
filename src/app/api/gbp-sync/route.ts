@@ -263,8 +263,23 @@ export async function POST(req: NextRequest) {
   if (authErr) return authErr;
 
   try {
-    const { facilityId, type } = await req.json();
+    const { facilityId, type, locationId, locationName } = await req.json();
     if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+    // Handle location selection for multi-location accounts
+    if (type === "select-location") {
+      if (!locationId) return errorResponse("locationId required", 400, origin);
+      await db.gbp_connections.updateMany({
+        where: { facility_id: facilityId },
+        data: {
+          location_id: locationId,
+          location_name: locationName || locationId,
+          status: "connected",
+          sync_config: {},
+        },
+      });
+      return jsonResponse({ ok: true, locationId, locationName }, 200, origin);
+    }
 
     const connection = await db.gbp_connections.findFirst({
       where: { facility_id: facilityId, status: "connected" },
