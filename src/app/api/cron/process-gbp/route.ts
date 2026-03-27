@@ -119,21 +119,122 @@ async function publishPost(
   return result.name;
 }
 
+interface NewReview {
+  facilityId: string;
+  authorName: string;
+  rating: number;
+  reviewText: string;
+}
+
+function esc(str: string | null | undefined): string {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderStars(rating: number): string {
+  return "&#9733;".repeat(rating) + "&#9734;".repeat(5 - rating);
+}
+
+function buildNewReviewEmailHtml(
+  facilityName: string,
+  authorName: string,
+  rating: number,
+  reviewText: string
+): string {
+  const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://storageads.com";
+  const adminReviewsUrl = `${baseUrl}/admin?tab=gbp-reviews`;
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,system-ui,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#faf9f5;">
+<div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+  <div style="text-align:center;margin-bottom:24px;">
+    <span style="font-size:20px;font-weight:600;letter-spacing:-0.5px;">
+      <span style="color:#141413;">storage</span><span style="color:#B58B3F;">ads</span>
+    </span>
+  </div>
+  <div style="background:#ffffff;border:1px solid #e8e6dc;border-radius:8px;padding:28px 24px;">
+    <h1 style="margin:0 0 4px;font-size:18px;font-weight:600;color:#141413;">New ${rating}-Star Review</h1>
+    <p style="margin:0 0 20px;font-size:14px;color:#6a6560;">${esc(facilityName)}</p>
+
+    <div style="background:#faf9f5;border:1px solid #e8e6dc;border-radius:6px;padding:16px;margin-bottom:20px;">
+      <div style="margin-bottom:8px;">
+        <span style="font-weight:600;color:#141413;font-size:14px;">${esc(authorName)}</span>
+      </div>
+      <div style="font-size:18px;color:#B58B3F;margin-bottom:8px;">${renderStars(rating)}</div>
+      ${reviewText ? `<p style="margin:0;font-size:14px;color:#141413;line-height:1.5;">${esc(reviewText)}</p>` : '<p style="margin:0;font-size:14px;color:#6a6560;font-style:italic;">No review text provided</p>'}
+    </div>
+
+    <div style="text-align:center;">
+      <a href="${adminReviewsUrl}" style="display:inline-block;background:#B58B3F;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:500;">View in Admin</a>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:16px;font-size:12px;color:#b0aea5;">StorageAds Review Notification</p>
+</div>
+</body></html>`;
+}
+
+async function sendNewReviewNotification(
+  facilityName: string,
+  contactEmail: string | null,
+  review: NewReview
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return;
+
+  const recipients = ["blake@storageads.com"];
+  if (contactEmail && contactEmail !== "blake@storageads.com") {
+    recipients.push(contactEmail);
+  }
+
+  const html = buildNewReviewEmailHtml(
+    facilityName,
+    review.authorName,
+    review.rating,
+    review.reviewText
+  );
+
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: "StorageAds <notifications@storageads.com>",
+        to: recipients,
+        subject: `New ${review.rating}-star review for ${facilityName}`,
+        html,
+      }),
+    });
+  } catch {
+    // Email send failed — non-blocking, continue sync
+  }
+}
+
 async function syncReviewsForConnection(
   connection: GbpConnection
-): Promise<number> {
+): Promise<{ synced: number; newReviews: NewReview[] }> {
   const token = await getValidToken(connection);
-  if (!token) return 0;
+  if (!token) return { synced: 0, newReviews: [] };
 
   const res = await fetch(
     `https://mybusiness.googleapis.com/v4/${connection.location_id}/reviews?pageSize=50`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
-  if (!res.ok) return 0;
+  if (!res.ok) return { synced: 0, newReviews: [] };
 
   const data = await res.json();
   const reviews = data.reviews || [];
   let synced = 0;
+  const newReviews: NewReview[] = [];
 
   const ratingMap: Record<string, number> = {
     ONE: 1,
@@ -149,23 +250,33 @@ async function syncReviewsForConnection(
       SELECT id FROM gbp_reviews WHERE external_review_id = ${externalId}
     `;
     if (existing.length === 0) {
+      const authorName = review.reviewer?.displayName || "Anonymous";
+      const rating = review.starRating ? ratingMap[review.starRating] || 5 : 5;
+      const reviewText = review.comment || "";
+
       await db.$executeRaw`
         INSERT INTO gbp_reviews (facility_id, gbp_connection_id, external_review_id, author_name, rating, review_text, review_time, response_text, response_status, synced_at)
         VALUES (${connection.facility_id}::uuid, ${connection.id}::uuid, ${externalId},
-                ${review.reviewer?.displayName || "Anonymous"},
-                ${review.starRating ? ratingMap[review.starRating] || 5 : 5},
-                ${review.comment || ""}, ${review.createTime || new Date().toISOString()}::timestamptz,
+                ${authorName},
+                ${rating},
+                ${reviewText}, ${review.createTime || new Date().toISOString()}::timestamptz,
                 ${review.reviewReply?.comment || null},
                 ${review.reviewReply ? "published" : "pending"}, NOW())
       `;
       synced++;
+      newReviews.push({
+        facilityId: connection.facility_id,
+        authorName,
+        rating,
+        reviewText,
+      });
     }
   }
 
   await db.$executeRaw`
     UPDATE gbp_connections SET last_sync_at = NOW(), updated_at = NOW() WHERE id = ${connection.id}::uuid
   `;
-  return synced;
+  return { synced, newReviews };
 }
 
 function generateTemplateResponse(
@@ -254,8 +365,25 @@ export async function GET(request: NextRequest) {
     `;
 
     for (const conn of connections) {
-      const synced = await syncReviewsForConnection(conn);
+      const { synced, newReviews } = await syncReviewsForConnection(conn);
       results.reviews_synced += synced;
+
+      // Send email notifications for new reviews
+      if (newReviews.length > 0) {
+        const facilityRows = await db.$queryRaw<
+          { name: string; contact_email: string | null }[]
+        >`SELECT name, contact_email FROM facilities WHERE id = ${conn.facility_id}::uuid`;
+        const facility = facilityRows[0];
+        if (facility) {
+          for (const nr of newReviews) {
+            await sendNewReviewNotification(
+              facility.name,
+              facility.contact_email,
+              nr
+            );
+          }
+        }
+      }
 
       const config = conn.sync_config || {};
 

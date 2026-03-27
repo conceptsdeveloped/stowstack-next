@@ -30,6 +30,7 @@ interface CallLog {
   call_outcome?: string
   campaign_source?: string
   recording_url?: string
+  move_in_linked?: boolean
   started_at: string
   ended_at?: string
   tracking_label?: string
@@ -256,6 +257,7 @@ export default function CallTracking({ facilityId, adminKey }: CallTrackingProps
                 <th className="px-4 py-3 font-medium">Campaign</th>
                 <th className="px-4 py-3 font-medium">Outcome</th>
                 <th className="px-4 py-3 font-medium text-center">Recording</th>
+                <th className="px-4 py-3 font-medium text-center">Move-In</th>
               </tr>
             </thead>
             <tbody>
@@ -364,6 +366,31 @@ export default function CallTracking({ facilityId, adminKey }: CallTrackingProps
                       ) : (
                         <PhoneOff className="mx-auto h-4 w-4 text-[var(--color-mid-gray)]" />
                       )}
+                    </td>
+                    {/* Move-In Toggle */}
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        type="button"
+                        title={log.move_in_linked ? "Linked to move-in" : "Mark as move-in"}
+                        className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
+                          log.move_in_linked
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : "bg-[var(--color-light-gray)]/30 text-[var(--color-mid-gray)] hover:bg-emerald-500/10 hover:text-emerald-400"
+                        }`}
+                        onClick={async () => {
+                          const newVal = !log.move_in_linked
+                          try {
+                            await fetch("/api/call-logs", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+                              body: JSON.stringify({ id: log.id, move_in_linked: newVal }),
+                            })
+                            setLogs((prev) => prev.map((l) => l.id === log.id ? { ...l, move_in_linked: newVal } : l))
+                          } catch { /* silent */ }
+                        }}
+                      >
+                        <TrendingUp className="h-3.5 w-3.5" />
+                      </button>
                     </td>
                   </tr>
                 ))

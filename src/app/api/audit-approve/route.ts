@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const auditUrl = `https://storageads.com/audit/${slug}`;
+    const auditUrl = `https://storageads.com/audit/${slug}?utm_source=email&utm_medium=drip&utm_campaign=audit_results&utm_content=view_audit`;
 
     // Email the audit to the lead
     const resendKey = process.env.RESEND_API_KEY;

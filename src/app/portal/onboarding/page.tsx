@@ -47,7 +47,8 @@ interface OnboardingResponse {
 /* ─── constants ─── */
 
 const SESSION_KEY = "storageads_portal_session";
-const SESSION_TTL = 24 * 60 * 60 * 1000;
+// Extended TTL for onboarding — 7 days so clients can complete across sessions
+const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
 
 const STEP_KEYS = [
   "facilityDetails",

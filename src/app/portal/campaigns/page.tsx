@@ -9,6 +9,8 @@ import {
   TrendingUp,
   Loader2,
   BarChart3,
+  Award,
+  Lightbulb,
 } from "lucide-react";
 import { usePortal } from "@/components/portal/portal-shell";
 import {
@@ -74,6 +76,36 @@ export default function CampaignsPage() {
       ]
     : [];
 
+  /* ─── campaign insights (client-side) ─── */
+
+  const insights = (() => {
+    if (!data?.hasData || !data.campaigns || data.campaigns.length === 0) return null;
+
+    const campaignsWithSpend = data.campaigns.filter((c) => c.spend > 0);
+    if (campaignsWithSpend.length === 0) return null;
+
+    const bestRoas = campaignsWithSpend.reduce((best, c) =>
+      c.roas > best.roas ? c : best
+    );
+    const highestSpend = campaignsWithSpend.reduce((top, c) =>
+      c.spend > top.spend ? c : top
+    );
+
+    const bestName = bestRoas.campaign || "Unattributed";
+    const spendName = highestSpend.campaign || "Unattributed";
+
+    let tip = "";
+    if (bestRoas.roas >= 2) {
+      tip = `Your ${bestName} campaign has the best ROAS at ${bestRoas.roas.toFixed(1)}x \u2014 consider shifting more budget there.`;
+    } else if (highestSpend.roas < 1) {
+      tip = `Your highest-spend campaign (${spendName}) is underperforming on ROAS. Review targeting or creative to improve returns.`;
+    } else {
+      tip = `Campaigns are performing steadily. Monitor ${bestName} for continued strong results.`;
+    }
+
+    return { bestRoas, highestSpend, tip };
+  })();
+
   /* ─── trend max for bar scaling ─── */
 
   const trendMax =
@@ -138,6 +170,62 @@ export default function CampaignsPage() {
           <p className="text-sm text-[var(--color-body-text)]">No campaign data for this period.</p>
         </div>
       ) : null}
+
+      {/* Campaign Insights */}
+      {!loading && insights && (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--color-dark)]">
+            <TrendingUp className="h-4 w-4 text-[var(--color-gold)]" />
+            Campaign Insights
+          </h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Best ROAS */}
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4">
+              <div className="mb-1 flex items-center gap-2">
+                <Award className="h-4 w-4 text-emerald-600" />
+                <span className="text-xs font-medium text-emerald-700">Best ROAS</span>
+              </div>
+              <p className="text-sm font-semibold text-[var(--color-dark)]">
+                {insights.bestRoas.campaign || "Unattributed"}
+              </p>
+              <p className="mt-0.5 text-xs text-[var(--color-body-text)]">
+                <span className="font-semibold text-[var(--color-gold)]">
+                  {insights.bestRoas.roas.toFixed(1)}x
+                </span>{" "}
+                return on ad spend
+              </p>
+            </div>
+
+            {/* Highest spend */}
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light)]/50 p-4">
+              <div className="mb-1 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-[var(--color-gold)]" />
+                <span className="text-xs font-medium text-[var(--color-body-text)]">Highest Spend</span>
+              </div>
+              <p className="text-sm font-semibold text-[var(--color-dark)]">
+                {insights.highestSpend.campaign || "Unattributed"}
+              </p>
+              <p className="mt-0.5 text-xs text-[var(--color-body-text)]">
+                <span className="font-semibold text-[var(--color-gold)]">
+                  ${insights.highestSpend.spend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </span>{" "}
+                total spend
+              </p>
+            </div>
+
+            {/* AI tip */}
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--color-gold-light)]/40 p-4 sm:col-span-2 lg:col-span-1">
+              <div className="mb-1 flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-[var(--color-gold)]" />
+                <span className="text-xs font-medium text-[var(--color-gold)]">Insight</span>
+              </div>
+              <p className="text-sm leading-relaxed text-[var(--color-body-text)]">
+                {insights.tip}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Campaign Table */}
       {loading ? (

@@ -145,8 +145,16 @@ async function syncReviewsFromGBP(
 
 async function generateAIResponse(
   review: { rating: number; author_name: string | null; review_text: string | null },
-  facilityName: string
+  facilityName: string,
+  responseTone: string = "professional"
 ): Promise<string> {
+  const toneDescriptions: Record<string, string> = {
+    friendly: "warm, friendly, and conversational — like a neighbor who genuinely cares",
+    professional: "professional yet personable — courteous and competent",
+    casual: "casual and down-to-earth — relaxed but respectful",
+  };
+  const toneGuide = toneDescriptions[responseTone] || toneDescriptions.professional;
+
   if (process.env.ANTHROPIC_API_KEY) {
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -162,14 +170,16 @@ async function generateAIResponse(
           messages: [
             {
               role: "user",
-              content: `Write a professional, warm Google Business Profile review response for a self-storage facility called "${facilityName}".
+              content: `Write a Google Business Profile review response for a self-storage facility called "${facilityName}".
+
+Tone: ${toneGuide}
 
 The review is ${review.rating}/5 stars from "${review.author_name || "a customer"}".
 Review text: "${review.review_text || "(no text)"}"
 
 Guidelines:
 - Keep it under 150 words
-- Be genuine and empathetic
+- Match the tone described above consistently
 - For negative reviews: apologize, offer to resolve, invite direct contact
 - For positive reviews: express gratitude, mention specific points they raised
 - Don't be overly corporate or use buzzwords
@@ -346,9 +356,14 @@ export async function POST(req: NextRequest) {
       });
       if (!review) return errorResponse("Review not found", 404, origin);
 
+      // Response tone — gbp_review_settings table not yet created;
+      // default to "professional" until settings UI is built
+      const responseTone = "professional";
+
       const aiDraft = await generateAIResponse(
         review,
-        review.facilities.name
+        review.facilities.name,
+        responseTone
       );
       await db.gbp_reviews.update({
         where: { id: reviewId },
@@ -408,11 +423,16 @@ export async function POST(req: NextRequest) {
         include: { facilities: { select: { name: true } } },
       });
 
+      // Response tone — gbp_review_settings table not yet created;
+      // default to "professional" until settings UI is built
+      const bulkTone = "professional";
+
       let generated = 0;
       for (const review of pending) {
         const aiDraft = await generateAIResponse(
           review,
-          review.facilities.name
+          review.facilities.name,
+          bulkTone
         );
         await db.gbp_reviews.update({
           where: { id: review.id },

@@ -106,7 +106,19 @@ export default function ReportsPage() {
         </div>
         <button
           type="button"
-          className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-2 text-xs font-medium text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)]"
+          onClick={() => {
+            if (!data) return;
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${client.facilityName || "report"}-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          disabled={!data}
+          className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-2 text-xs font-medium text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)] disabled:opacity-40"
         >
           <Download className="h-3.5 w-3.5" />
           Download Report

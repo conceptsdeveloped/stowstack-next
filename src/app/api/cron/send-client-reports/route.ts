@@ -372,6 +372,33 @@ export async function GET(request: NextRequest) {
 
         const apiKey = process.env.RESEND_API_KEY;
         if (apiKey) {
+          // Generate PDF attachment
+          let pdfAttachment: { filename: string; content: string } | undefined;
+          try {
+            const { generatePdfReport } = await import("@/lib/pdf-report");
+            const pdfBuffer = await generatePdfReport({
+              type: "monthly_performance",
+              summary: {
+                facilityName: (client.fac_name as string) || (client.facility_name as string),
+                period: { start: periodStartStr, end: periodEndStr },
+                totalSpend: reportData.current.spend.toFixed(2),
+                totalImpressions: 0,
+                totalClicks: 0,
+                ctr: "0.00",
+                totalLeads: reportData.current.leads,
+                totalCalls: reportData.current.calls,
+                qualifiedCalls: reportData.current.calls,
+                costPerLead: reportData.current.cpl > 0 ? reportData.current.cpl.toFixed(2) : "N/A",
+              },
+            });
+            pdfAttachment = {
+              filename: `report-${periodStartStr}.pdf`,
+              content: pdfBuffer.toString("base64"),
+            };
+          } catch {
+            // PDF generation failed — send without attachment
+          }
+
           const emailRes = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
@@ -383,6 +410,7 @@ export async function GET(request: NextRequest) {
               to: client.email,
               subject: `${client.fac_name || client.facility_name} — ${isWeekly ? "Weekly" : "Monthly"} Performance Report`,
               html,
+              ...(pdfAttachment ? { attachments: [pdfAttachment] } : {}),
             }),
           });
 

@@ -59,15 +59,50 @@ export const viewport: Viewport = {
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: "StorageAds",
-  url: "https://storageads.com",
-  description: siteDescription,
-  areaServed: "US",
-  serviceType: "Self-Storage Digital Marketing",
-  telephone: "+12699298541",
-  email: "blake@storageads.com",
-  sameAs: [],
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://storageads.com/#organization",
+      name: "StorageAds",
+      url: "https://storageads.com",
+      description: siteDescription,
+      email: "blake@storageads.com",
+      telephone: "+12699298541",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://storageads.com/og-image.png",
+      },
+      areaServed: { "@type": "Country", name: "US" },
+      founder: {
+        "@type": "Person",
+        name: "Blake Burkett",
+        jobTitle: "Founder",
+      },
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "StorageAds",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: "https://storageads.com",
+      description: "Full-funnel marketing automation for self-storage facilities. Ads, landing pages, call tracking, and move-in attribution.",
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: "USD",
+        lowPrice: "499",
+        highPrice: "2499",
+        offerCount: "4",
+      },
+      provider: { "@id": "https://storageads.com/#organization" },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://storageads.com/#website",
+      url: "https://storageads.com",
+      name: "StorageAds",
+      publisher: { "@id": "https://storageads.com/#organization" },
+    },
+  ],
 };
 
 export default function RootLayout({

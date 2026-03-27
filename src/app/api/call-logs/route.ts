@@ -144,16 +144,38 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { id, call_outcome } = body;
+    const { id, call_outcome, move_in_linked } = body;
     if (!id) return errorResponse("Call log ID required", 400, origin);
     if (call_outcome && !VALID_OUTCOMES.includes(call_outcome)) {
       return errorResponse(`Invalid outcome. Valid: ${VALID_OUTCOMES.join(", ")}`, 400, origin);
     }
 
+    const updateData: Record<string, unknown> = {};
+    if (call_outcome !== undefined) updateData.call_outcome = call_outcome || null;
+    if (move_in_linked !== undefined) updateData.move_in_linked = !!move_in_linked;
+
     await db.call_logs.update({
       where: { id },
-      data: { call_outcome: call_outcome || null },
+      data: updateData,
     });
+
+    // If marking as move-in, create an activity log entry for attribution
+    if (move_in_linked) {
+      const callLog = await db.call_logs.findUnique({
+        where: { id },
+        select: { facility_id: true, caller_number: true, campaign_source: true },
+      });
+      if (callLog) {
+        db.activity_log.create({
+          data: {
+            type: "attributed_move_in",
+            facility_id: callLog.facility_id,
+            detail: `Move-in attributed from phone call${callLog.campaign_source ? ` (${callLog.campaign_source})` : ""}`,
+            meta: { source: "phone_call", call_log_id: id, campaign: callLog.campaign_source },
+          },
+        }).catch(() => {});
+      }
+    }
 
     return jsonResponse({ success: true }, 200, origin);
   } catch {
