@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   ArrowRight,
   Play,
@@ -20,6 +20,20 @@ import {
   Activity,
   ChevronDown,
   Smartphone,
+  Clock,
+  CheckCircle,
+  Users,
+  ArrowUpRight,
+  LineChart,
+  PieChart,
+  Search,
+  Bell,
+  Settings,
+  LayoutDashboard,
+  Percent,
+  CalendarDays,
+  MapPin,
+  Star,
 } from "lucide-react";
 import { useInView } from "./use-in-view";
 import { SplitFlap as SplitFlapComponent } from "./split-flap";
@@ -106,6 +120,18 @@ function useMouseTilt(enabled: boolean) {
   return { ref, tilt };
 }
 
+function useStaggeredReveal(count: number, active: boolean, baseDelay = 0, stagger = 80) {
+  const [revealed, setRevealed] = useState<boolean[]>(new Array(count).fill(false));
+  useEffect(() => {
+    if (!active) return;
+    const timers = Array.from({ length: count }, (_, i) =>
+      setTimeout(() => setRevealed((prev) => { const next = [...prev]; next[i] = true; return next; }), baseDelay + i * stagger)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [active, count, baseDelay, stagger]);
+  return revealed;
+}
+
 /* ═══════════════════════════════════════════
    DATA
    ═══════════════════════════════════════════ */
@@ -118,14 +144,14 @@ const STATS = [
 ];
 
 const CAPABILITIES = [
-  { icon: Megaphone, label: "Meta & Google Ads", desc: "Full-funnel campaigns across platforms" },
-  { icon: FileText, label: "Landing Pages", desc: "Ad-specific, conversion-optimized" },
-  { icon: Target, label: "Full Attribution", desc: "Ad → page → reservation → move-in" },
-  { icon: Zap, label: "storEDGE Integration", desc: "Embedded rental & reservation flow" },
-  { icon: BarChart3, label: "Revenue Analytics", desc: "ROAS by creative & campaign" },
-  { icon: Eye, label: "A/B Testing", desc: "Revenue-based winner selection" },
-  { icon: Sparkles, label: "AI Creative Studio", desc: "Generate ads, copy & pages" },
-  { icon: Activity, label: "Live Monitoring", desc: "Real-time performance alerts" },
+  { icon: Megaphone, label: "Meta & Google Ads", desc: "Full-funnel campaigns across platforms", color: "var(--color-blue)" },
+  { icon: FileText, label: "Landing Pages", desc: "Ad-specific, conversion-optimized", color: "var(--color-gold)" },
+  { icon: Target, label: "Full Attribution", desc: "Ad → page → reservation → move-in", color: "var(--color-green)" },
+  { icon: Zap, label: "storEDGE Integration", desc: "Embedded rental & reservation flow", color: "#8a70b0" },
+  { icon: BarChart3, label: "Revenue Analytics", desc: "ROAS by creative & campaign", color: "var(--color-gold)" },
+  { icon: Eye, label: "A/B Testing", desc: "Revenue-based winner selection", color: "var(--color-blue)" },
+  { icon: Sparkles, label: "AI Creative Studio", desc: "Generate ads, copy & pages", color: "var(--color-green)" },
+  { icon: Activity, label: "Live Monitoring", desc: "Real-time performance alerts", color: "#8a70b0" },
 ];
 
 const TYPEWRITER_WORDS = ["Fill units.", "Prove ROAS.", "Cut waste.", "Scale revenue.", "Win move-ins."];
@@ -143,6 +169,20 @@ const PIPELINE_STEPS = [
   { icon: FileText, label: "Page", sublabel: "Custom LP" },
   { icon: Smartphone, label: "Reserve", sublabel: "storEDGE" },
   { icon: Target, label: "Move-in", sublabel: "Attributed" },
+];
+
+const FEATURE_HIGHLIGHTS = [
+  { icon: LineChart, title: "Revenue Attribution", stat: "35x ROAS", desc: "Track every dollar from ad impression to signed lease. Know exactly which campaigns produce move-ins." },
+  { icon: FileText, title: "Smart Landing Pages", stat: "8.7% CVR", desc: "Custom pages per ad with embedded storEDGE rental. No more generic website sends." },
+  { icon: Sparkles, title: "AI Creative Engine", stat: "4x faster", desc: "Generate ad copy, headlines, and page variants. Test winners automatically by revenue." },
+  { icon: PieChart, title: "Occupancy Intelligence", stat: "Live data", desc: "Market-wide occupancy and pricing intelligence scraped from every competitor in your radius." },
+];
+
+const BEFORE_AFTER = [
+  { before: "Vanity metrics (clicks, impressions)", after: "Revenue attribution per ad" },
+  { before: "Generic website as landing page", after: "Custom LP per campaign" },
+  { before: "Monthly agency PDF report", after: "Real-time live dashboard" },
+  { before: "Guessing which ads work", after: "Move-in level tracking" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -164,6 +204,17 @@ function HeroStyles() {
       @keyframes hero-scroll-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
       @keyframes hero-pipeline-flow{0%{width:0}100%{width:100%}}
       @keyframes hero-border-glow{0%,100%{box-shadow:0 0 0 1px rgba(181,139,63,0.08),0 20px 50px rgba(0,0,0,0.07)}50%{box-shadow:0 0 0 1px rgba(181,139,63,0.2),0 20px 60px rgba(181,139,63,0.08),0 40px 100px rgba(0,0,0,0.04)}}
+      @keyframes hero-blur-in{0%{opacity:0;filter:blur(8px);transform:translateY(16px)}100%{opacity:1;filter:blur(0);transform:translateY(0)}}
+      @keyframes hero-scale-in{0%{opacity:0;transform:scale(0.85)}100%{opacity:1;transform:scale(1)}}
+      @keyframes hero-slide-right{0%{opacity:0;transform:translateX(-24px)}100%{opacity:1;transform:translateX(0)}}
+      @keyframes hero-slide-left{0%{opacity:0;transform:translateX(24px)}100%{opacity:1;transform:translateX(0)}}
+      @keyframes hero-rotate-in{0%{opacity:0;transform:rotate(-3deg) scale(0.95)}100%{opacity:1;transform:rotate(0) scale(1)}}
+      @keyframes hero-number-pop{0%{opacity:0;transform:scale(0.6)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+      @keyframes hero-draw-check{0%{stroke-dashoffset:24}100%{stroke-dashoffset:0}}
+      @keyframes hero-bar-fill{0%{width:0}100%{width:var(--bar-width)}}
+      @keyframes hero-card-lift{0%{box-shadow:0 1px 3px rgba(0,0,0,0.04)}100%{box-shadow:0 8px 24px rgba(0,0,0,0.08)}}
+      @keyframes hero-ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+      @keyframes hero-badge-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
     `}</style>
   );
 }
@@ -185,6 +236,7 @@ function DotGrid() {
       </svg>
       <div className="absolute w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full" style={{ top: "10%", left: "5%", background: "radial-gradient(circle, rgba(181,139,63,0.06), transparent 70%)", animation: "hero-orb-drift 12s ease-in-out infinite alternate" }} />
       <div className="absolute w-[250px] h-[250px] sm:w-[400px] sm:h-[400px] rounded-full" style={{ bottom: "5%", right: "0%", background: "radial-gradient(circle, rgba(106,155,204,0.05), transparent 70%)", animation: "hero-orb-drift 10s ease-in-out infinite alternate-reverse" }} />
+      <div className="absolute w-[200px] h-[200px] rounded-full" style={{ top: "40%", right: "20%", background: "radial-gradient(circle, rgba(120,140,93,0.04), transparent 70%)", animation: "hero-orb-drift 14s ease-in-out infinite alternate" }} />
     </div>
   );
 }
@@ -210,7 +262,7 @@ function PipelineFlow({ isVisible }: { isVisible: boolean }) {
       className={`transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       style={{ transitionDelay: "900ms" }}
     >
-      <div className="flex items-center justify-between max-w-md mx-auto lg:mx-0 relative">
+      <div className="flex items-center justify-between max-w-sm mx-auto lg:mx-0 relative">
         {/* Connecting line */}
         <div className="absolute top-5 left-[10%] right-[10%] h-[2px]" style={{ background: "var(--border-subtle)" }}>
           <div
@@ -349,15 +401,15 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
           {/* Shimmer */}
           <div className="absolute inset-0 pointer-events-none z-10" style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.25) 50%, transparent 60%)", backgroundSize: "200% 100%", animation: "hero-shimmer 5s ease-in-out infinite", animationDelay: "2s" }} />
 
-          <div className="flex" style={{ height: "clamp(300px, 40vw, 480px)" }}>
+          <div className="flex" style={{ height: "clamp(280px, 40vw, 480px)" }}>
             {/* Sidebar */}
             <div className="hidden sm:flex flex-col items-center py-4 gap-2 flex-shrink-0" style={{ width: "52px", background: "var(--color-dark)" }}>
               <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-2" style={{ background: "var(--color-gold)" }}>
                 <span className="text-[10px] font-bold text-white" style={{ fontFamily: "var(--font-heading)" }}>SA</span>
               </div>
-              {[0, 1, 2, 3, 4].map((i) => (
+              {[LayoutDashboard, Megaphone, FileText, BarChart3, Settings].map((SideIcon, i) => (
                 <div key={i} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-500" style={{ background: i === 0 ? "rgba(181,139,63,0.2)" : "transparent", border: i === 0 ? "1px solid rgba(181,139,63,0.4)" : "1px solid transparent", transitionDelay: `${500 + i * 60}ms`, opacity: isVisible ? 1 : 0 }}>
-                  <div className="w-3.5 h-3.5 rounded-sm" style={{ background: i === 0 ? "var(--color-gold)" : "rgba(255,255,255,0.12)", opacity: i === 0 ? 1 : 0.5 }} />
+                  <SideIcon size={14} style={{ color: i === 0 ? "var(--color-gold)" : "rgba(255,255,255,0.3)" }} />
                 </div>
               ))}
               <div className="flex-1" />
@@ -369,13 +421,13 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
               {/* Top bar */}
               <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b transition-all duration-500" style={{ borderColor: "var(--border-subtle)", background: "rgba(250,249,245,0.5)", transitionDelay: "400ms", opacity: isVisible ? 1 : 0 }}>
                 <div className="h-7 w-28 sm:w-36 rounded-md flex items-center gap-2 px-2.5" style={{ background: "var(--border-subtle)" }}>
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="rgba(0,0,0,0.2)" strokeWidth="1.5" /><line x1="8.5" y1="8.5" x2="11" y2="11" stroke="rgba(0,0,0,0.2)" strokeWidth="1.5" strokeLinecap="round" /></svg>
+                  <Search size={10} style={{ color: "var(--text-tertiary)" }} />
                   <span className="text-[10px] hidden sm:inline" style={{ color: "var(--text-tertiary)" }}>Search facilities...</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="relative">
                     <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "var(--border-subtle)" }}>
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v4M6 9v.01M2 5.5C2 3 3.8 1 6 1s4 2 4 4.5c0 1.5-.5 2.5-1 3.5H3c-.5-1-1-2-1-3.5z" stroke="rgba(0,0,0,0.25)" strokeWidth="1" strokeLinecap="round" /></svg>
+                      <Bell size={11} style={{ color: "var(--text-tertiary)" }} />
                     </div>
                     <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 animate-pulse" style={{ background: "var(--color-red)", borderColor: "var(--bg-elevated)" }} />
                   </div>
@@ -506,6 +558,251 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
 }
 
 /* ═══════════════════════════════════════════
+   MOBILE LIVE ACTIVITY TICKER
+   Visible only on mobile (below sm) so they
+   don't miss the live feed hidden in dashboard
+   ═══════════════════════════════════════════ */
+
+function MobileLiveTicker({ isVisible }: { isVisible: boolean }) {
+  return (
+    <div
+      className="sm:hidden overflow-hidden rounded-xl border transition-all duration-700"
+      style={{
+        borderColor: "var(--border-subtle)",
+        background: "var(--bg-elevated)",
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(12px)",
+        transitionDelay: "1200ms",
+      }}
+    >
+      <div className="flex items-center gap-1.5 px-3 py-2 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-green)", animation: "hero-live-dot 2s ease-in-out infinite" }} />
+        <span className="text-[11px] font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>Live Activity</span>
+      </div>
+      <div className="overflow-hidden relative" style={{ height: "36px" }}>
+        <div className="flex items-center gap-8 absolute whitespace-nowrap" style={{ animation: "hero-ticker-scroll 25s linear infinite" }}>
+          {[...NOTIFICATION_FEED, ...NOTIFICATION_FEED].map((item, i) => (
+            <span key={i} className="flex items-center gap-2 text-[11px]" style={{ fontFamily: "var(--font-heading)" }}>
+              <span>{item.icon}</span>
+              <span style={{ color: "var(--color-dark)", fontWeight: 500 }}>{item.text}</span>
+              <span style={{ color: "var(--text-tertiary)" }}>{item.time} ago</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   FEATURE HIGHLIGHT CARDS
+   Interactive cards with hover lift + animated icons
+   ═══════════════════════════════════════════ */
+
+function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
+  const revealed = useStaggeredReveal(FEATURE_HIGHLIGHTS.length, isVisible, 200, 120);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {FEATURE_HIGHLIGHTS.map((feat, i) => {
+        const Icon = feat.icon;
+        const isHovered = hoveredIdx === i;
+        return (
+          <div
+            key={feat.title}
+            className="relative rounded-2xl border p-5 transition-all duration-500 cursor-default group"
+            style={{
+              borderColor: isHovered ? "rgba(181,139,63,0.3)" : "var(--border-subtle)",
+              background: isHovered ? "var(--bg-elevated)" : "var(--color-light)",
+              opacity: revealed[i] ? 1 : 0,
+              transform: revealed[i]
+                ? isHovered ? "translateY(-4px)" : "translateY(0)"
+                : "translateY(20px) scale(0.95)",
+              boxShadow: isHovered
+                ? "0 12px 32px rgba(0,0,0,0.08), 0 0 0 1px rgba(181,139,63,0.1)"
+                : "0 1px 3px rgba(0,0,0,0.04)",
+            }}
+            onMouseEnter={() => setHoveredIdx(i)}
+            onMouseLeave={() => setHoveredIdx(null)}
+          >
+            {/* Icon */}
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-500"
+              style={{
+                background: isHovered ? "rgba(181,139,63,0.12)" : "rgba(181,139,63,0.06)",
+                border: "1px solid rgba(181,139,63,0.15)",
+                transform: isHovered ? "scale(1.1) rotate(-3deg)" : "scale(1)",
+              }}
+            >
+              <Icon size={18} style={{ color: "var(--color-gold)" }} />
+            </div>
+
+            {/* Stat badge */}
+            <div
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold mb-2 transition-all duration-300"
+              style={{
+                background: "rgba(181,139,63,0.08)",
+                color: "var(--color-gold)",
+                fontFamily: "var(--font-heading)",
+                transform: isHovered ? "translateX(2px)" : "translateX(0)",
+              }}
+            >
+              {feat.stat}
+            </div>
+
+            {/* Title */}
+            <h3
+              className="text-sm font-semibold mb-1"
+              style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}
+            >
+              {feat.title}
+            </h3>
+
+            {/* Description */}
+            <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)", maxWidth: "none" }}>
+              {feat.desc}
+            </p>
+
+            {/* Hover arrow */}
+            <div
+              className="absolute top-4 right-4 transition-all duration-300"
+              style={{
+                opacity: isHovered ? 1 : 0,
+                transform: isHovered ? "translate(0, 0)" : "translate(-4px, 4px)",
+              }}
+            >
+              <ArrowUpRight size={14} style={{ color: "var(--color-gold)" }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   BEFORE / AFTER COMPARISON
+   Animated check reveals
+   ═══════════════════════════════════════════ */
+
+function BeforeAfterComparison({ isVisible }: { isVisible: boolean }) {
+  const revealed = useStaggeredReveal(BEFORE_AFTER.length, isVisible, 400, 150);
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {BEFORE_AFTER.map((item, i) => (
+        <div
+          key={i}
+          className="flex items-start gap-3 rounded-xl border p-4 transition-all duration-600"
+          style={{
+            borderColor: "var(--border-subtle)",
+            background: "var(--bg-elevated)",
+            opacity: revealed[i] ? 1 : 0,
+            transform: revealed[i] ? "translateX(0)" : i % 2 === 0 ? "translateX(-16px)" : "translateX(16px)",
+          }}
+        >
+          <div className="flex flex-col items-center gap-1 flex-shrink-0 mt-0.5">
+            {/* X icon for before */}
+            <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(176,74,58,0.1)" }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M2.5 2.5L7.5 7.5M7.5 2.5L2.5 7.5" stroke="var(--color-red)" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </div>
+            {/* Arrow down */}
+            <div className="w-px h-3" style={{ background: "var(--border-medium)" }} />
+            {/* Check icon for after */}
+            <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(120,140,93,0.12)" }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path
+                  d="M2 5.5L4 7.5L8 3"
+                  stroke="var(--color-green)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    strokeDasharray: 12,
+                    strokeDashoffset: revealed[i] ? 0 : 12,
+                    transition: "stroke-dashoffset 0.6s ease-out",
+                    transitionDelay: `${600 + i * 150}ms`,
+                  }}
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] line-through" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>
+              {item.before}
+            </div>
+            <div className="text-[12px] font-semibold mt-1" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>
+              {item.after}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   CAPABILITIES INTERACTIVE GRID
+   ═══════════════════════════════════════════ */
+
+function CapabilitiesGrid({ isVisible }: { isVisible: boolean }) {
+  const revealed = useStaggeredReveal(CAPABILITIES.length, isVisible, 200, 80);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {CAPABILITIES.map((cap, i) => {
+        const Icon = cap.icon;
+        const isActive = activeIdx === i;
+        return (
+          <div
+            key={cap.label}
+            className="relative rounded-xl border p-3 sm:p-4 transition-all duration-400 cursor-default"
+            style={{
+              borderColor: isActive ? "rgba(181,139,63,0.3)" : "var(--border-subtle)",
+              background: isActive ? "var(--bg-elevated)" : "transparent",
+              opacity: revealed[i] ? 1 : 0,
+              transform: revealed[i]
+                ? isActive ? "translateY(-2px) scale(1.02)" : "translateY(0) scale(1)"
+                : "translateY(12px) scale(0.95)",
+              boxShadow: isActive ? "0 8px 24px rgba(0,0,0,0.06)" : "none",
+            }}
+            onMouseEnter={() => setActiveIdx(i)}
+            onMouseLeave={() => setActiveIdx(null)}
+          >
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center mb-2 transition-all duration-300"
+              style={{
+                background: `color-mix(in srgb, ${cap.color} 10%, transparent)`,
+                transform: isActive ? "scale(1.15)" : "scale(1)",
+              }}
+            >
+              <Icon size={15} style={{ color: cap.color, transition: "color 0.3s" }} />
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>
+              {cap.label}
+            </div>
+            <div
+              className="text-[10px] mt-0.5 leading-snug transition-all duration-300 overflow-hidden"
+              style={{
+                color: "var(--text-tertiary)",
+                maxHeight: isActive ? "40px" : "0px",
+                opacity: isActive ? 1 : 0,
+              }}
+            >
+              {cap.desc}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
    "BECAUSE" — SPLIT-FLAP FULL SENTENCES
    ═══════════════════════════════════════════ */
 
@@ -591,7 +888,7 @@ function BecauseLetterboard() {
       className="relative border-t overflow-hidden"
       style={{ borderColor: "var(--border-subtle)", background: "var(--color-dark)" }}
     >
-      <div className="max-w-[1280px] mx-auto px-3 sm:px-6 lg:px-10 py-8 sm:py-12 text-center">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-12 text-center">
         {/* "storageads.com — because" label */}
         <div className="mb-4 sm:mb-6">
           <span
@@ -616,6 +913,89 @@ function BecauseLetterboard() {
 }
 
 /* ═══════════════════════════════════════════
+   ROI TEASER — quick animated value prop
+   ═══════════════════════════════════════════ */
+
+function ROITeaser({ isVisible }: { isVisible: boolean }) {
+  const adSpend = useCountUp(2400, 2000, 0, isVisible);
+  const moveIns = useCountUp(34, 2200, 0, isVisible);
+  const costPerMI = useCountUp(41, 2000, 0, isVisible);
+  const revenue = useCountUp(27200, 2400, 0, isVisible);
+
+  return (
+    <div
+      className="relative rounded-2xl border overflow-hidden transition-all duration-700"
+      style={{
+        borderColor: "var(--border-subtle)",
+        background: "linear-gradient(135deg, var(--bg-elevated), var(--color-light))",
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(20px)",
+        transitionDelay: "300ms",
+      }}
+    >
+      <div className="p-5 sm:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(181,139,63,0.1)" }}>
+            <DollarSign size={16} style={{ color: "var(--color-gold)" }} />
+          </div>
+          <h3 className="text-sm font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
+            Real facility results — 90 day snapshot
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { label: "Ad Spend", value: `$${adSpend.toLocaleString()}`, sub: "/month", color: "var(--color-blue)" },
+            { label: "Move-ins", value: String(moveIns), sub: "attributed", color: "var(--color-green)" },
+            { label: "Cost / Move-in", value: `$${costPerMI}`, sub: "avg", color: "var(--color-gold)" },
+            { label: "Revenue Generated", value: `$${revenue.toLocaleString()}`, sub: "90 days", color: "var(--color-green)" },
+          ].map((item, i) => (
+            <div
+              key={item.label}
+              className="text-center sm:text-left transition-all duration-500"
+              style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(12px)",
+                transitionDelay: `${500 + i * 100}ms`,
+              }}
+            >
+              <div className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>
+                {item.label}
+              </div>
+              <div className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "var(--font-heading)", color: item.color }}>
+                {item.value}
+              </div>
+              <div className="text-[10px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+                {item.sub}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Visual bar */}
+        <div className="mt-4 pt-4 border-t flex items-center gap-3" style={{ borderColor: "var(--border-subtle)" }}>
+          <span className="text-[11px] font-semibold flex-shrink-0" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>ROAS</span>
+          <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: "var(--border-subtle)" }}>
+            <div
+              className="h-full rounded-full transition-all duration-1500"
+              style={{
+                background: "linear-gradient(90deg, var(--color-gold), var(--color-green))",
+                width: isVisible ? "88%" : "0%",
+                transitionDelay: "800ms",
+                transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+              }}
+            />
+          </div>
+          <span className="text-sm font-bold" style={{ color: "var(--color-green)", fontFamily: "var(--font-heading)" }}>
+            35x
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
    HERO — Main Export
    ═══════════════════════════════════════════ */
 
@@ -623,6 +1003,9 @@ export default function Hero() {
   const { ref, isVisible } = useInView(0.02);
   const { ref: statsRef, isVisible: statsVisible } = useInView(0.1);
   const { ref: capsRef, isVisible: capsVisible } = useInView(0.1);
+  const { ref: featRef, isVisible: featVisible } = useInView(0.08);
+  const { ref: baRef, isVisible: baVisible } = useInView(0.1);
+  const { ref: roiRef, isVisible: roiVisible } = useInView(0.1);
   const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
@@ -631,15 +1014,15 @@ export default function Hero() {
       <DotGrid />
 
       {/* ── Hero content ── */}
-      <div ref={ref} className="relative w-full pt-24 sm:pt-28 lg:pt-32 pb-10 lg:pb-14 px-7 sm:px-10 lg:px-14">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-14 items-center max-w-[1280px] mx-auto">
+      <div ref={ref} className="relative w-full pt-24 sm:pt-28 lg:pt-32 pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
 
           {/* ── Left column ── */}
           <div className="text-center lg:text-left max-w-xl mx-auto lg:mx-0">
             {/* Headline */}
             <h1
               className={`font-black transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{ fontSize: "clamp(1.85rem, 5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--font-heading)" }}
+              style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--font-heading)" }}
             >
               The marketing system that{" "}
               <span className="relative inline-block">
@@ -666,7 +1049,7 @@ export default function Hero() {
             </p>
 
             {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
-            <div className="mt-6 mb-6">
+            <div className="mt-5 mb-5">
               <PipelineFlow isVisible={isVisible} />
             </div>
 
@@ -682,13 +1065,13 @@ export default function Hero() {
               </a>
             </div>
 
-            {/* Trust signals */}
-            <div className={`mt-6 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
+            {/* Trust signals — removed "Operator-founded" per Blake's request */}
+            <div className={`mt-5 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
               <div className="flex items-center gap-4 justify-center lg:justify-start flex-wrap">
                 {[
-                  { icon: ShieldCheck, text: "Operator-founded" },
                   { icon: Layers, text: "storEDGE integrated" },
                   { icon: Globe, text: "50+ facilities" },
+                  { icon: Star, text: "Full-funnel attribution" },
                 ].map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
@@ -705,10 +1088,15 @@ export default function Hero() {
           {/* ── Right column — Dashboard ── */}
           <DashboardMockup isVisible={isVisible} />
         </div>
+
+        {/* Mobile live activity ticker — only visible on mobile */}
+        <div className="max-w-[1280px] mx-auto mt-6">
+          <MobileLiveTicker isVisible={isVisible} />
+        </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className={`flex justify-center pb-6 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
+      <div className={`flex justify-center pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
         <a href="#problem" className="flex flex-col items-center gap-1 group" aria-label="Scroll to learn more">
           <span className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>Learn more</span>
           <ChevronDown size={16} style={{ color: "var(--text-tertiary)", animation: "hero-scroll-bounce 2s ease-in-out infinite" }} />
@@ -717,7 +1105,7 @@ export default function Hero() {
 
       {/* ── Stats bar ── */}
       <div ref={statsRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "rgba(255,255,255,0.5)" }}>
-        <div className="max-w-[1280px] mx-auto px-7 sm:px-10 lg:px-14 py-8 sm:py-10">
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {STATS.map((stat, i) => (
               <StatItem key={stat.label} stat={stat} active={statsVisible} delay={i * 120} />
@@ -726,20 +1114,64 @@ export default function Hero() {
         </div>
       </div>
 
+      {/* ── ROI Teaser ── */}
+      <div ref={roiRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
+          <ROITeaser isVisible={roiVisible} />
+        </div>
+      </div>
+
+      {/* ── Feature Highlight Cards ── */}
+      <div ref={featRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
+          <div className={`text-center mb-6 transition-all duration-700 ${featVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+            <h2
+              className="text-lg sm:text-xl font-semibold"
+              style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}
+            >
+              Everything you need to fill units
+            </h2>
+            <p className="text-sm mt-1 mx-auto" style={{ color: "var(--text-secondary)", maxWidth: "480px" }}>
+              From ad creation to move-in attribution — one platform, full visibility.
+            </p>
+          </div>
+          <FeatureHighlights isVisible={featVisible} />
+        </div>
+      </div>
+
+      {/* ── Before / After ── */}
+      <div ref={baRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "rgba(255,255,255,0.3)" }}>
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
+          <div className={`text-center mb-6 transition-all duration-700 ${baVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+            <h2
+              className="text-lg sm:text-xl font-semibold"
+              style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}
+            >
+              Stop guessing. Start knowing.
+            </h2>
+            <p className="text-sm mt-1 mx-auto" style={{ color: "var(--text-secondary)", maxWidth: "420px" }}>
+              See how StorageAds replaces every broken workflow.
+            </p>
+          </div>
+          <BeforeAfterComparison isVisible={baVisible} />
+        </div>
+      </div>
+
       {/* ── "Because" letterboard ── */}
       <BecauseLetterboard />
 
-      {/* ── Capabilities strip ── */}
+      {/* ── Capabilities interactive grid ── */}
       <div ref={capsRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
-        <div className="max-w-[1280px] mx-auto px-7 sm:px-10 lg:px-14 py-6 sm:py-8">
-          <div className={`flex flex-wrap items-center justify-center gap-x-6 gap-y-2 transition-all duration-700 ${capsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-            {CAPABILITIES.map((cap, i) => (
-              <span key={cap.label} className="text-xs sm:text-sm whitespace-nowrap transition-opacity duration-500" style={{ color: "var(--text-tertiary)", transitionDelay: `${i * 60}ms`, opacity: capsVisible ? 1 : 0 }}>
-                <span style={{ color: "var(--color-gold)", fontWeight: 600 }}>{cap.label}</span>
-                <span className="hidden sm:inline"> — {cap.desc}</span>
-              </span>
-            ))}
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
+          <div className={`text-center mb-5 transition-all duration-700 ${capsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+            <h2
+              className="text-lg sm:text-xl font-semibold"
+              style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}
+            >
+              Full platform capabilities
+            </h2>
           </div>
+          <CapabilitiesGrid isVisible={capsVisible} />
         </div>
       </div>
     </section>

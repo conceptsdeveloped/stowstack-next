@@ -1,0 +1,63 @@
+PLACEHOLDER: operator-spend-benchmarks.xlsx
+================================================================================
+
+This file will be developed as an Excel/Sheets file to compile operator marketing spend data.
+
+PLANNED STRUCTURE:
+
+Sheet 1: Spend Benchmarks by Facility Size
+- Facility size (sq ft): 5k, 10k, 25k, 50k, 100k+
+- Average monthly ad spend
+- Average monthly platform fees (SaaS vs. agency)
+- Total marketing spend (fees + ad spend)
+- % of revenue allocated to marketing
+
+Sheet 2: Spend by Operator Type
+- Single-facility independent operators
+- Small chains (2-5 facilities)
+- Regional chains (6-20 facilities)
+- Enterprise portfolios (20+)
+- Management companies (white-label)
+
+For each:
+- Typical monthly ad spend
+- Typical platform/agency fees
+- Total marketing budget
+- Channels invested in (Meta, Google, SEO, email, landing pages, etc.)
+
+Sheet 3: ROI Benchmarks
+- Average cost-per-lead (all channels combined)
+- Average cost-per-rental (by channel)
+- Average revenue per rental (by facility type)
+- Implied marketing ROI
+
+Sheet 4: Pricing Tier Breakdown
+- Tier: Budget/DIY, Mid-market SaaS, Mid-market Agency, Premium, Enterprise
+- % of operators in each tier
+- Average monthly spend in each tier
+- Typical facility count per tier
+
+Sheet 5: Geographic & Market Variation
+- Hot markets (high competition, high spend): e.g., Austin, Phoenix, Denver
+- Moderate markets: Typical mid-US cities
+- Cold markets (low competition, low spend): Rural areas, declining markets
+
+For each:
+- Average ad spend per facility
+- Average platform fees
+- Typical ad spend allocation (% Meta, % Google, % SpareFoot, etc.)
+
+DATA SOURCES:
+- StorageAds customer data (actual spend)
+- Public API integrations (Meta ads library, Google transparency data)
+- Industry reports (SSA, SELFSTORAGE.com)
+- Competitive pricing pages
+- Interviews with operators and agencies
+
+STATUS:
+To be built in Google Sheets and exported to .xlsx format.
+Will be updated quarterly as new customer data becomes available.
+
+LAST UPDATED: 2026-03-25
+CREATED BY: Market Research Phase 2
+================================================================================

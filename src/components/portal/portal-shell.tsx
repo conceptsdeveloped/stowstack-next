@@ -19,6 +19,7 @@ import {
   X,
   ClipboardCheck,
   CreditCard,
+  MapPin,
 } from "lucide-react";
 import {
   type PortalSession,
@@ -50,6 +51,7 @@ export function usePortal() {
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
   { label: "Campaigns", href: "/portal/campaigns", icon: Megaphone },
+  { label: "GBP", href: "/portal/gbp", icon: MapPin },
   { label: "Reports", href: "/portal/reports", icon: BarChart3 },
   { label: "Messages", href: "/portal/messages", icon: MessageSquare },
   { label: "Billing", href: "/portal/billing", icon: CreditCard },
