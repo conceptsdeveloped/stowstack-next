@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTrackingParams } from "@/hooks/use-tracking-params";
 import {
   Phone,
   Mail,
@@ -1265,6 +1266,9 @@ export default function LandingPageRoute() {
   const [showExitPopup, setShowExitPopup] = useState(false);
   const pageTrackerInitialized = useRef(false);
 
+  // Wire into visit tracking (fires once per session)
+  useTrackingParams(page?.id, page?.facility_id);
+
   // Capture UTM params on mount
   useEffect(() => {
     const utm = {
@@ -1348,13 +1352,14 @@ export default function LandingPageRoute() {
         }
         if (!res.ok) throw new Error("Failed to load page");
         const data = await res.json();
-        setPage(data.data);
+        const pageData = data.page;
+        setPage(pageData);
 
         // Fetch tracking number
-        if (data.data?.id) {
+        if (pageData?.id) {
           try {
             const tnRes = await fetch(
-              `/api/call-tracking?landingPageId=${data.data.id}`
+              `/api/call-tracking?landingPageId=${pageData.id}`
             );
             if (tnRes.ok) {
               const tnData = await tnRes.json();
@@ -1366,12 +1371,12 @@ export default function LandingPageRoute() {
         }
 
         // Set SEO meta
-        if (data.data.meta_title) document.title = data.data.meta_title;
-        else if (data.data.title) document.title = data.data.title;
+        if (pageData?.meta_title) document.title = pageData.meta_title;
+        else if (pageData?.title) document.title = pageData.title;
 
         const metaDesc = document.querySelector('meta[name="description"]');
-        if (data.data.meta_description && metaDesc) {
-          metaDesc.setAttribute("content", data.data.meta_description);
+        if (pageData?.meta_description && metaDesc) {
+          metaDesc.setAttribute("content", pageData.meta_description);
         }
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Unknown error");
@@ -1388,24 +1393,38 @@ export default function LandingPageRoute() {
     pageTrackerInitialized.current = true;
 
     const w = window as unknown as Record<string, unknown>;
+    // Generate shared event_id for browser/server deduplication
+    const capiEventId = crypto.randomUUID();
+
     if (typeof w.fbq === "function")
-      (w.fbq as Function)("track", "PageView");
+      (w.fbq as Function)("track", "PageView", {}, { eventID: capiEventId });
     if (typeof w.gtag === "function")
       (w.gtag as Function)("event", "page_view", {
         page_title: page.title,
         page_location: window.location.href,
       });
 
-    // Fire server-side CAPI
+    // Fire server-side CAPI with matching event_id
     const params = new URLSearchParams(window.location.search);
+    const fbclid = params.get("fbclid") || undefined;
     fetch("/api/meta-capi", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        eventName: "PageView",
-        sourceUrl: window.location.href,
-        fbclid: params.get("fbclid") || undefined,
-        userAgent: navigator.userAgent,
+        event_name: "PageView",
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: capiEventId,
+        event_source_url: window.location.href,
+        action_source: "website",
+        user_data: {
+          fbc: fbclid ? `fb.1.${Date.now()}.${fbclid}` : undefined,
+          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] || undefined,
+          client_user_agent: navigator.userAgent,
+        },
+        custom_data: {
+          content_name: page.title,
+          content_type: "landing_page",
+        },
       }),
       keepalive: true,
     }).catch(() => {});

@@ -225,17 +225,21 @@ export async function PATCH(req: NextRequest) {
 
     // Provision portal access on client_signed
     if (status === "client_signed" && !facility.access_code) {
-      const code = Math.random().toString(36).slice(2, 10).toUpperCase();
+      const { randomBytes } = await import("crypto");
+      const code = randomBytes(4).toString("hex").toUpperCase();
       await db.facilities.update({
         where: { id },
         data: { access_code: code },
       });
 
+      const clientEmail = facility.contact_email || "";
+      const clientName = facility.contact_name || "";
+
       await db.clients.create({
         data: {
           facility_id: id,
-          email: facility.contact_email || "",
-          name: facility.contact_name || "",
+          email: clientEmail,
+          name: clientName,
           facility_name: facility.name || "",
           location: facility.location || "",
           occupancy_range: facility.occupancy_range || "",
@@ -243,6 +247,49 @@ export async function PATCH(req: NextRequest) {
           access_code: code,
         },
       });
+
+      // Auto-send welcome email with portal access instructions
+      if (clientEmail && process.env.RESEND_API_KEY) {
+        const portalUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
+        fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "StorageAds <noreply@storageads.com>",
+            to: clientEmail,
+            subject: `Welcome to StorageAds — Your ${facility.name || "Facility"} Portal is Ready`,
+            html: `
+              <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 560px; margin: 0 auto; background: #faf9f5; color: #141413;">
+                <div style="background: linear-gradient(135deg, #B58B3F, #9E7A36); padding: 28px 24px; border-radius: 12px 12px 0 0;">
+                  <h1 style="color: #faf9f5; margin: 0; font-size: 22px;">Welcome to StorageAds</h1>
+                  <p style="color: rgba(250,249,245,0.85); margin: 8px 0 0; font-size: 14px;">Your client portal is ready</p>
+                </div>
+                <div style="padding: 28px 24px; border: 1px solid #e8e6dc; border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
+                  <p style="color: #6a6560; font-size: 15px; margin: 0 0 16px;">Hi ${clientName || "there"},</p>
+                  <p style="color: #6a6560; font-size: 15px; margin: 0 0 20px;">Your StorageAds portal for <strong>${facility.name || "your facility"}</strong> is set up and ready. You can log in to track campaigns, view reports, and message our team.</p>
+                  <div style="text-align: center; margin: 24px 0;">
+                    <a href="${portalUrl}/portal" style="display: inline-block; background: #B58B3F; color: #faf9f5; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600;">
+                      Open Your Portal
+                    </a>
+                  </div>
+                  <p style="color: #6a6560; font-size: 14px; margin: 20px 0 8px;">To log in, go to <strong>${portalUrl}/portal</strong> and enter your email. We'll send a one-time login code.</p>
+                  <hr style="border: none; border-top: 1px solid #e8e6dc; margin: 24px 0;" />
+                  <p style="color: #6a6560; font-size: 14px; margin: 0 0 4px;"><strong>What happens next:</strong></p>
+                  <ol style="color: #6a6560; font-size: 14px; padding-left: 20px; margin: 8px 0;">
+                    <li style="margin-bottom: 6px;">Complete the onboarding wizard (5-10 minutes)</li>
+                    <li style="margin-bottom: 6px;">We build your campaigns (within 48 hours)</li>
+                    <li style="margin-bottom: 6px;">Ads go live and you start seeing results</li>
+                  </ol>
+                  <p style="color: #b0aea5; font-size: 12px; margin-top: 24px;">Questions? Reply to this email or reach Blake at blake@storageads.com.</p>
+                </div>
+              </div>
+            `,
+          }),
+        }).catch(() => { /* email send failure is non-critical */ });
+      }
     }
 
     // Fire-and-forget activity logging

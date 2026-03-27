@@ -324,6 +324,44 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
+    // Notify admin when onboarding is fully complete
+    if (allDone && process.env.RESEND_API_KEY) {
+      const client = await db.clients.findUnique({
+        where: { id: row.client_id },
+        select: { name: true, email: true, facility_name: true },
+      });
+      if (client) {
+        const adminEmail = process.env.ADMIN_EMAIL || "blake@storageads.com";
+        fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "StorageAds <noreply@storageads.com>",
+            to: adminEmail,
+            subject: `Onboarding Complete: ${client.facility_name || client.name}`,
+            html: `
+              <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; color: #141413;">
+                <h2 style="color: #B58B3F; margin: 0 0 12px;">Onboarding Complete</h2>
+                <p><strong>${client.name}</strong> (${client.email}) has completed all 5 onboarding steps for <strong>${client.facility_name || "their facility"}</strong>.</p>
+                <p style="margin-top: 16px;">Next steps:</p>
+                <ol>
+                  <li>Review their onboarding data in the admin dashboard</li>
+                  <li>Build their campaigns</li>
+                  <li>Launch within 48 hours</li>
+                </ol>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com"}/admin/facilities" style="display: inline-block; background: #B58B3F; color: #faf9f5; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-size: 14px; margin-top: 12px;">
+                  Review in Admin
+                </a>
+              </div>
+            `,
+          }),
+        }).catch(() => { /* non-critical */ });
+      }
+    }
+
     const onboarding = {
       accessCode: code,
       updatedAt: new Date().toISOString(),

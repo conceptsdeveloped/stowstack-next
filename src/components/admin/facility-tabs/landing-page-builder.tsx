@@ -1011,7 +1011,7 @@ export default function LandingPageBuilder({
       )
       if (!res.ok) throw new Error("Failed to fetch pages")
       const data = await res.json()
-      setPages(data.data || data.pages || [])
+      setPages(data.pages || data.data || [])
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Unknown error")
     } finally {
@@ -1074,7 +1074,7 @@ export default function LandingPageBuilder({
       if (!res.ok) throw new Error("Clone failed")
       const data = await res.json()
       fetchPages()
-      setEditingPage(data.data)
+      setEditingPage(data.page || data.data)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Unknown error")
     }
@@ -1119,7 +1119,7 @@ export default function LandingPageBuilder({
       if (!res.ok)
         throw new Error(data.error || data.fields?.slug || "Save failed")
 
-      setEditingPage(data.data)
+      setEditingPage(data.page || data.data)
       fetchPages()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Unknown error")
@@ -1182,7 +1182,7 @@ export default function LandingPageBuilder({
       })
       if (!res.ok) throw new Error("Failed to load page")
       const data = await res.json()
-      setEditingPage(data.data)
+      setEditingPage(data.page || data.data)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Unknown error")
     }

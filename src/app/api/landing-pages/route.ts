@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   const session = !isAdmin ? await getSession(req) : null;
   if (!isAdmin && !session) return errorResponse("Unauthorized", 401, origin);
 
-  const facilityId = url.searchParams.get("facility_id");
+  const facilityId = url.searchParams.get("facility_id") || url.searchParams.get("facilityId");
   const id = url.searchParams.get("id");
 
   if (id) {
@@ -72,10 +72,44 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { facilityId, name, slug, templateType, cloneFrom } = body;
+    const { facilityId, name, title, slug, templateType, cloneFrom } = body;
+    const pageName = name || title;
 
-    if (!facilityId || !name || !slug) {
-      return errorResponse("Missing required fields: facilityId, name, slug", 400, origin);
+    // For clone-only requests, generate name/slug automatically
+    if (cloneFrom && (!pageName || !slug)) {
+      const sourceP = await db.landing_pages.findUnique({ where: { id: cloneFrom } });
+      if (!sourceP) return errorResponse("Source page not found", 404, origin);
+      const cloneName = pageName || `${sourceP.title} (Copy)`;
+      const cloneSlug = slug || `${sourceP.slug}-copy-${Date.now().toString(36)}`;
+      const cloneFacility = facilityId || sourceP.facility_id;
+
+      const existing = await db.landing_pages.findFirst({ where: { slug: cloneSlug } });
+      if (existing) return errorResponse("Slug already exists", 400, origin);
+
+      const clonedPage = await db.landing_pages.create({
+        data: { facility_id: cloneFacility, title: cloneName, slug: cloneSlug, status: "draft" },
+      });
+
+      const sourceSections = await db.landing_page_sections.findMany({
+        where: { landing_page_id: cloneFrom },
+        orderBy: { sort_order: "asc" },
+      });
+      for (const section of sourceSections) {
+        await db.landing_page_sections.create({
+          data: {
+            landing_page_id: clonedPage.id,
+            section_type: section.section_type,
+            sort_order: section.sort_order,
+            config: section.config as object,
+          },
+        });
+      }
+
+      return jsonResponse({ page: clonedPage }, 200, origin);
+    }
+
+    if (!facilityId || !pageName || !slug) {
+      return errorResponse("Missing required fields: facilityId, name/title, slug", 400, origin);
     }
 
     // Check slug uniqueness
@@ -85,7 +119,7 @@ export async function POST(req: NextRequest) {
     const page = await db.landing_pages.create({
       data: {
         facility_id: facilityId,
-        title: name,
+        title: pageName,
         slug,
         status: "draft",
       },
@@ -122,27 +156,30 @@ export async function PATCH(req: NextRequest) {
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {
+    const url = new URL(req.url);
     const body = await req.json();
-    const { id, ...updates } = body;
+    const id = body.id || url.searchParams.get("id");
     if (!id) return errorResponse("Missing page ID", 400, origin);
+
+    const { ...updates } = body;
+    delete updates.id;
 
     const page = await db.landing_pages.findUnique({ where: { id } });
     if (!page) return errorResponse("Page not found", 404, origin);
 
-    // Handle sections replacement
-    if (updates.sections) {
-      // Delete existing sections
+    // Handle sections replacement (accept both snake_case and camelCase)
+    const sections = updates.sections;
+    if (sections) {
       await db.landing_page_sections.deleteMany({
         where: { landing_page_id: id },
       });
 
-      // Create new sections
-      for (const section of updates.sections) {
+      for (const section of sections) {
         await db.landing_page_sections.create({
           data: {
             landing_page_id: id,
-            section_type: section.section_type,
-            sort_order: section.sort_order,
+            section_type: section.section_type || section.sectionType,
+            sort_order: section.sort_order ?? section.sortOrder ?? 0,
             config: section.config,
           },
         });
@@ -150,6 +187,27 @@ export async function PATCH(req: NextRequest) {
 
       delete updates.sections;
     }
+
+    // Map camelCase field names to snake_case
+    const fieldMap: Record<string, string> = {
+      metaTitle: "meta_title",
+      metaDescription: "meta_description",
+      storedgeWidgetUrl: "storedge_url",
+      storedgeUrl: "storedge_url",
+      ogImage: "og_image",
+      templateType: "template_type",
+    };
+    for (const [camel, snake] of Object.entries(fieldMap)) {
+      if (updates[camel] !== undefined && updates[snake] === undefined) {
+        updates[snake] = updates[camel];
+      }
+      delete updates[camel];
+    }
+    // Also accept "title" as alias for "name" (builder sends title)
+    if (updates.title !== undefined && updates.name === undefined) {
+      updates.name = updates.title;
+    }
+    delete updates.title;
 
     // Update page fields
     const allowedFields = ["name", "slug", "status", "template_type", "meta_title", "meta_description", "og_image", "theme", "storedge_url"];
@@ -164,12 +222,12 @@ export async function PATCH(req: NextRequest) {
 
     // Fetch updated page
     const updated = await db.landing_pages.findUnique({ where: { id } });
-    const sections = await db.landing_page_sections.findMany({
+    const updatedSections = await db.landing_page_sections.findMany({
       where: { landing_page_id: id },
       orderBy: { sort_order: "asc" },
     });
 
-    return jsonResponse({ page: { ...updated, sections } }, 200, origin);
+    return jsonResponse({ page: { ...updated, sections: updatedSections } }, 200, origin);
   } catch (err) {
     console.error("Landing page update error:", err);
     return errorResponse("Failed to update page", 500, origin);

@@ -235,6 +235,24 @@ export async function POST(req: NextRequest) {
       })
       .catch(() => {});
 
+    // Enroll in post-audit drip sequence (day 1, 3, 7 follow-ups)
+    const existingDrip = await db.drip_sequences.findUnique({
+      where: { facility_id: facilityId },
+    });
+    if (!existingDrip) {
+      const firstSendAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // Day 2
+      await db.drip_sequences.create({
+        data: {
+          facility_id: facilityId,
+          sequence_id: "post_audit",
+          current_step: 0,
+          status: "active",
+          next_send_at: firstSendAt,
+          history: [],
+        },
+      });
+    }
+
     return jsonResponse(
       {
         success: true,

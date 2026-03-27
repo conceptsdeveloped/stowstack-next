@@ -5,7 +5,8 @@
     { "path": "/api/cron/cleanup-sessions", "schedule": "0 3 * * *" },
     { "path": "/api/cron/send-client-reports", "schedule": "0 9 * * 1" },
     { "path": "/api/cron/aggregate-page-stats", "schedule": "0 2 * * *" },
-    { "path": "/api/cron/sync-audiences", "schedule": "0 1 * * 0" }
+    { "path": "/api/cron/sync-audiences", "schedule": "0 1 * * 0" },
+    { "path": "/api/cron/weekly-digest", "schedule": "0 9 * * 5" }
   ],
   "headers": [
     {

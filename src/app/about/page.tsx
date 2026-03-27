@@ -6,6 +6,16 @@ export const metadata: Metadata = {
   title: "About StorageAds — Built by an Operator",
   description:
     "StorageAds was built by a storage operator who got tired of guessing which ads were filling units. Every feature is tested on real facilities before it ships.",
+  openGraph: {
+    title: "About StorageAds — Built by an Operator",
+    description: "StorageAds was built by a storage operator who got tired of guessing which ads were filling units. Every feature is tested on real facilities before it ships.",
+    url: "https://storageads.com/about",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About StorageAds — Built by an Operator",
+    description: "Built by a storage operator who got tired of guessing which ads were filling units.",
+  },
 };
 
 export default function AboutPage() {

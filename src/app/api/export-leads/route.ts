@@ -30,12 +30,12 @@ export async function GET(request: NextRequest) {
   if (denied) return denied;
 
   try {
-    const facilities = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `SELECT f.*,
-              (SELECT COUNT(*) FROM lead_notes WHERE facility_id = f.id) AS notes_count
-       FROM facilities f
-       ORDER BY f.created_at DESC`
-    );
+    const facilities = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT f.*,
+             (SELECT COUNT(*) FROM lead_notes WHERE facility_id = f.id) AS notes_count
+      FROM facilities f
+      ORDER BY f.created_at DESC
+    `;
 
     const rows = facilities.map((f) =>
       [

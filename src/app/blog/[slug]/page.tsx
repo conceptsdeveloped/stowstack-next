@@ -9,7 +9,9 @@ import {
   getAuthor,
   PILLARS,
 } from "@/lib/blog";
-import { MarkdownRenderer } from "@/lib/markdown";
+import { MarkdownRenderer, extractHeadings } from "@/lib/markdown";
+import { TableOfContents } from "@/components/blog/table-of-contents";
+import { AuthorBio } from "@/components/blog/author-bio";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -62,12 +64,41 @@ export default async function BlogPostPage({ params }: PageProps) {
   const { prev, next } = getAdjacentPosts(slug);
   const author = getAuthor();
   const pillar = PILLARS[post.pillar];
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    author: {
+      "@type": "Person",
+      name: author.name,
+      jobTitle: author.role,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "StorageAds",
+      url: siteUrl,
+    },
+    mainEntityOfPage: `${siteUrl}/blog/${slug}`,
+    keywords: post.tags.join(", "),
+    wordCount: post.content.split(/\s+/).length,
+    timeRequired: `PT${post.readingTime}M`,
+  };
+
+  const tocItems = extractHeadings(post.content);
 
   return (
     <div
       className="min-h-screen"
       style={{ background: "var(--bg-void)", color: "var(--text-primary)" }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Nav */}
       <header
         className="sticky top-0 z-[100] border-b"
@@ -171,8 +202,20 @@ export default async function BlogPostPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Content */}
-        <MarkdownRenderer content={post.content} />
+        {/* TOC + Content */}
+        <div className="relative">
+          {tocItems.length > 2 && (
+            <aside className="hidden xl:block absolute -left-64 w-56 top-0">
+              <div className="sticky top-24">
+                <TableOfContents items={tocItems} />
+              </div>
+            </aside>
+          )}
+          <MarkdownRenderer content={post.content} />
+        </div>
+
+        {/* Author Bio */}
+        <AuthorBio name={author.name} bio={author.bio} />
 
         {/* Tags + Share */}
         <div

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "./db";
+import { checkRateLimit } from "./rate-limit";
 
 const V1_CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "",
@@ -61,6 +62,14 @@ export async function requireApiAuth(
 
   if (row.expires_at && new Date(row.expires_at) < new Date()) {
     return v1Error("API key has expired", 401);
+  }
+
+  // Enforce rate limits if configured
+  if (row.rate_limit) {
+    const rl = await checkRateLimit(`v1:${row.id}`, row.rate_limit, 60);
+    if (!rl.allowed) {
+      return v1Error("Rate limit exceeded. Retry after the window resets.", 429);
+    }
   }
 
   db.$executeRaw`UPDATE api_keys SET last_used_at = NOW() WHERE id = ${row.id}`.catch(

@@ -136,6 +136,10 @@ async function lookupSession(token: string): Promise<Session | null> {
 }
 
 async function lookupLegacyToken(token: string): Promise<Session | null> {
+  // Hard deadline: reject all legacy base64 tokens after June 24, 2026
+  const LEGACY_TOKEN_DEADLINE = new Date("2026-06-24T00:00:00Z");
+  if (new Date() > LEGACY_TOKEN_DEADLINE) return null;
+
   try {
     const decoded = Buffer.from(token, "base64").toString();
     const [orgId, email] = decoded.split(":");

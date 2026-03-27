@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
   const trackingNum = await db.call_tracking_numbers.findFirst({
     where: { phone_number: To, status: "active" },
-    select: { id: true, facility_id: true, forward_to: true },
+    select: { id: true, facility_id: true, forward_to: true, utm_link_id: true },
   });
 
   if (!trackingNum) {
@@ -70,16 +70,28 @@ export async function POST(req: NextRequest) {
     return twimlResponse(twiml);
   }
 
-  // Log the call (fire-and-forget style with conflict handling)
+  // Derive campaign attribution from tracking number → UTM link
+  let campaignSource: string | null = null;
+  if (trackingNum.utm_link_id) {
+    try {
+      const utmLink = await db.utm_links.findUnique({
+        where: { id: trackingNum.utm_link_id },
+        select: { utm_campaign: true },
+      });
+      campaignSource = utmLink?.utm_campaign || null;
+    } catch { /* non-critical */ }
+  }
+
+  // Log the call with campaign attribution (fire-and-forget)
   db.$executeRaw`
-    INSERT INTO call_logs (tracking_number_id, facility_id, twilio_call_sid, caller_number, caller_city, caller_state, status, started_at)
-    VALUES (${trackingNum.id}::uuid, ${trackingNum.facility_id}::uuid, ${CallSid}, ${From || null}, ${FromCity || null}, ${FromState || null}, 'ringing', NOW())
+    INSERT INTO call_logs (tracking_number_id, facility_id, twilio_call_sid, caller_number, caller_city, caller_state, campaign_source, status, started_at)
+    VALUES (${trackingNum.id}::uuid, ${trackingNum.facility_id}::uuid, ${CallSid}, ${From || null}, ${FromCity || null}, ${FromState || null}, ${campaignSource}, 'ringing', NOW())
     ON CONFLICT (twilio_call_sid) DO NOTHING
   `.catch(() => {});
 
-  // Generate TwiML to forward the call
+  // Generate TwiML to forward the call with recording
   const twiml = new VoiceResponse();
-  twiml.dial({ callerId: To }, trackingNum.forward_to);
+  twiml.dial({ callerId: To, record: "record-from-answer" }, trackingNum.forward_to);
 
   return twimlResponse(twiml);
 }

@@ -27,15 +27,14 @@ export async function GET(req: NextRequest) {
     const orgId = url.searchParams.get("orgId") || orgUser?.organization_id;
     if (!orgId) return errorResponse("Organization ID required", 400, origin);
 
-    const activities = await db.$queryRawUnsafe<Array<Record<string, unknown>>>(
-      `SELECT al.id, al.type, al.facility_name, al.detail, al.created_at
-       FROM activity_log al
-       JOIN facilities f ON f.id = al.facility_id
-       WHERE f.organization_id = $1
-       ORDER BY al.created_at DESC
-       LIMIT 50`,
-      orgId
-    );
+    const activities = await db.$queryRaw<Array<Record<string, unknown>>>`
+      SELECT al.id, al.type, al.facility_name, al.detail, al.created_at
+      FROM activity_log al
+      JOIN facilities f ON f.id = al.facility_id
+      WHERE f.organization_id = ${orgId}::uuid
+      ORDER BY al.created_at DESC
+      LIMIT 50
+    `;
 
     return jsonResponse({ activities }, 200, origin);
   } catch {

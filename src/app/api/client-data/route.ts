@@ -6,6 +6,7 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -23,6 +24,12 @@ export async function POST(req: NextRequest) {
 
     const sanitizedEmail = email.trim().toLowerCase();
     const trimmedCode = accessCode.trim();
+
+    // Brute-force protection: max 5 verification attempts per 15 minutes per email
+    const rl = await checkRateLimit(`portal_verify:${sanitizedEmail}`, 5, 900);
+    if (!rl.allowed) {
+      return errorResponse("Too many attempts. Please try again later.", 429, origin);
+    }
 
     // Helper to build client response
     function clientResponse(c: {
@@ -80,7 +87,10 @@ export async function POST(req: NextRequest) {
           where: { email: { equals: sanitizedEmail, mode: "insensitive" } },
         });
 
-        if (client) return clientResponse(client);
+        if (client) {
+          resetRateLimit(`portal_verify:${sanitizedEmail}`).catch(() => {});
+          return clientResponse(client);
+        }
       }
     }
 
@@ -97,6 +107,7 @@ export async function POST(req: NextRequest) {
       return errorResponse("Invalid credentials", 401, origin);
     }
 
+    resetRateLimit(`portal_verify:${sanitizedEmail}`).catch(() => {});
     return clientResponse(client);
   } catch {
     return errorResponse("Internal error", 500, origin);

@@ -79,6 +79,8 @@ interface EventBody {
   event_name?: string;
   event_time?: number;
   event_id?: string;
+  event_source_url?: string;
+  action_source?: string;
   user_data?: UserData;
   custom_data?: CustomData;
 }
@@ -97,6 +99,12 @@ function buildCAPIEvent(
   if (data.event_id) {
     event.event_id = data.event_id;
   }
+
+  if (data.event_source_url) {
+    event.event_source_url = data.event_source_url;
+  }
+
+  event.action_source = data.action_source || "website";
 
   if (data.user_data) {
     const userData: Record<string, unknown> = normalizeUserData(

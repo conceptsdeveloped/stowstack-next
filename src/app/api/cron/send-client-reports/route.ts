@@ -57,6 +57,9 @@ interface ReportData {
     roas: number;
   } | null;
   totals: { spend: number; leads: number; moveIns: number };
+  aiNarrative?: string;
+  bestCampaign?: { name: string; roas: number } | null;
+  worstCampaign?: { name: string; roas: number } | null;
 }
 
 function renderReportHTML(
@@ -65,7 +68,7 @@ function renderReportHTML(
   facilityName: string,
   reportId: string
 ): string {
-  const { current, previous } = data;
+  const { current, previous, aiNarrative, bestCampaign, worstCampaign } = data;
   const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "https://storageads.com";
@@ -122,6 +125,17 @@ function renderReportHTML(
   </div>`
       : ""
   }
+  ${aiNarrative ? `<div style="background:#faf9f5;border:1px solid #e8e6dc;border-radius:12px;padding:16px;margin-bottom:20px;">
+    <h3 style="margin:0 0 8px;font-size:13px;color:#B58B3F;text-transform:uppercase;letter-spacing:0.5px;">What We Did This Month</h3>
+    <p style="margin:0;font-size:13px;color:#141413;line-height:1.6;">${esc(aiNarrative)}</p>
+  </div>` : ""}
+  ${bestCampaign || worstCampaign ? `<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:20px;">
+    <h3 style="margin:0 0 12px;font-size:14px;color:#0f172a;">Campaign Spotlight</h3>
+    <table style="width:100%;border-collapse:collapse;">
+      ${bestCampaign ? `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 0;font-size:13px;color:#16a34a;font-weight:600;">&#9733; Best</td><td style="padding:8px 0;font-size:13px;">${esc(bestCampaign.name)}</td><td style="padding:8px 0;font-size:13px;text-align:right;font-weight:600;">${bestCampaign.roas.toFixed(1)}x ROAS</td></tr>` : ""}
+      ${worstCampaign && worstCampaign.name !== bestCampaign?.name ? `<tr><td style="padding:8px 0;font-size:13px;color:#dc2626;font-weight:600;">Needs Work</td><td style="padding:8px 0;font-size:13px;">${esc(worstCampaign.name)}</td><td style="padding:8px 0;font-size:13px;text-align:right;font-weight:600;">${worstCampaign.roas.toFixed(1)}x ROAS</td></tr>` : ""}
+    </table>
+  </div>` : ""}
   <div style="text-align:center;margin-bottom:24px;">
     <a href="${baseUrl}/portal" style="display:inline-block;padding:14px 32px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">View Full Dashboard</a>
   </div>
@@ -214,13 +228,17 @@ export async function GET(request: NextRequest) {
           // No call tracking
         }
 
+        // Walk-in count from activity_log (walkin_attributions table was never created)
         let walkinCount = 0;
         try {
-          const walkins = await db.$queryRaw<{ cnt: number }[]>`
-            SELECT COUNT(*)::int AS cnt FROM walkin_attributions WHERE facility_id = ${client.fac_id}::uuid
-            AND created_at >= ${periodStartStr}::date AND created_at <= ${periodEndStr}::date
-          `;
-          walkinCount = walkins[0]?.cnt || 0;
+          const walkins = await db.activity_log.count({
+            where: {
+              type: "walkin",
+              facility_id: client.fac_id as string,
+              created_at: { gte: new Date(periodStartStr), lte: new Date(periodEndStr) },
+            },
+          });
+          walkinCount = walkins;
         } catch {
           // No walkin data
         }
@@ -233,6 +251,68 @@ export async function GET(request: NextRequest) {
           }),
           { spend: 0, leads: 0, moveIns: 0 }
         );
+
+        // Best/worst campaigns by ROAS
+        let bestCampaign: { name: string; roas: number } | null = null;
+        let worstCampaign: { name: string; roas: number } | null = null;
+        try {
+          const campaignDetails = await db.$queryRaw<Array<{ campaign_name: string; spend: number; move_ins: number }>>`
+            SELECT campaign_name, SUM(spend)::float AS spend, SUM(move_ins)::int AS move_ins
+            FROM client_campaigns
+            WHERE client_id = ${client.id}::uuid AND spend > 0
+            GROUP BY campaign_name
+          `;
+          const withRoas = campaignDetails
+            .filter((c) => c.spend > 0)
+            .map((c) => ({
+              name: c.campaign_name || "Unnamed",
+              roas: c.move_ins > 0 ? (c.move_ins * 110 * 12) / c.spend : 0,
+            }))
+            .sort((a, b) => b.roas - a.roas);
+          if (withRoas.length >= 1) bestCampaign = withRoas[0];
+          if (withRoas.length >= 2) worstCampaign = withRoas[withRoas.length - 1];
+        } catch { /* campaign details unavailable */ }
+
+        // AI-generated narrative from activity log
+        let aiNarrative = "";
+        try {
+          const activities = await db.activity_log.findMany({
+            where: {
+              facility_id: client.fac_id as string,
+              created_at: { gte: new Date(periodStartStr), lte: new Date(periodEndStr) },
+            },
+            orderBy: { created_at: "desc" },
+            take: 50,
+            select: { type: true, detail: true },
+          });
+
+          if (activities.length > 0 && process.env.ANTHROPIC_API_KEY) {
+            const activitySummary = activities
+              .map((a) => `${a.type}: ${a.detail}`)
+              .join("\n");
+
+            const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-api-key": process.env.ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+              },
+              body: JSON.stringify({
+                model: "claude-haiku-4-5-20251001",
+                max_tokens: 150,
+                messages: [{
+                  role: "user",
+                  content: `Summarize what StorageAds did this month for a self-storage facility in 2-3 sentences. Be specific and professional. Activities:\n${activitySummary}`,
+                }],
+              }),
+            });
+            if (claudeRes.ok) {
+              const claudeData = await claudeRes.json();
+              aiNarrative = claudeData.content?.[0]?.text || "";
+            }
+          }
+        } catch { /* AI narrative is optional */ }
 
         const reportData: ReportData = {
           periodLabel: isWeekly
@@ -260,11 +340,17 @@ export async function GET(request: NextRequest) {
               }
             : null,
           totals,
+          aiNarrative: aiNarrative || undefined,
+          bestCampaign,
+          worstCampaign,
         };
+
+        // Check if this is a preview-only request (admin previewing before send)
+        const isPreview = client.report_preview_mode === true;
 
         const reportRow = await db.$queryRaw<{ id: string }[]>`
           INSERT INTO client_reports (client_id, facility_id, report_type, period_start, period_end, report_html, report_data, status)
-          VALUES (${client.id}::uuid, ${client.fac_id}::uuid, ${isWeekly ? "weekly" : "monthly"}, ${periodStartStr}::date, ${periodEndStr}::date, '', ${JSON.stringify(reportData)}::jsonb, 'generated')
+          VALUES (${client.id}::uuid, ${client.fac_id}::uuid, ${isWeekly ? "weekly" : "monthly"}, ${periodStartStr}::date, ${periodEndStr}::date, '', ${JSON.stringify(reportData)}::jsonb, ${isPreview ? "preview" : "generated"})
           RETURNING id
         `;
         const reportId = reportRow[0].id;
@@ -277,6 +363,12 @@ export async function GET(request: NextRequest) {
         );
 
         await db.$executeRaw`UPDATE client_reports SET report_html = ${html} WHERE id = ${reportId}::uuid`;
+
+        // Preview mode: generate but don't send — admin reviews first
+        if (isPreview) {
+          results.skipped++;
+          continue;
+        }
 
         const apiKey = process.env.RESEND_API_KEY;
         if (apiKey) {

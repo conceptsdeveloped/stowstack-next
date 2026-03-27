@@ -6,6 +6,16 @@ export const metadata: Metadata = {
   title: "Operator Notes — StorageAds",
   description:
     "Short-form thoughts on self-storage marketing from an operator who spends his own money on ads every month. Attribution, cost per move-in, and what actually works.",
+  openGraph: {
+    title: "Operator Notes — StorageAds",
+    description: "Short-form thoughts on self-storage marketing from an operator who spends his own money on ads every month.",
+    url: "https://storageads.com/insights",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Operator Notes — StorageAds",
+    description: "Short-form thoughts on self-storage marketing from an operator who spends his own money on ads.",
+  },
 };
 
 const POSTS = [

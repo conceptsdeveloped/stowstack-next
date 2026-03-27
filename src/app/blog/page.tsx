@@ -7,6 +7,16 @@ export const metadata: Metadata = {
   title: "Blog",
   description:
     "Operator math, campaign insights, and hard-won lessons from running self-storage facilities and filling them with paid ads.",
+  openGraph: {
+    title: "Blog — StorageAds",
+    description: "Operator math, campaign insights, and hard-won lessons from running self-storage facilities and filling them with paid ads.",
+    url: "https://storageads.com/blog",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog — StorageAds",
+    description: "Operator math, campaign insights, and hard-won lessons from self-storage marketing.",
+  },
 };
 
 interface PageProps {

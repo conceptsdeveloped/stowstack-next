@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { promisify } from "util";
 import { db } from "@/lib/db";
+import { destroyAllSessions } from "@/lib/session-auth";
 import {
   jsonResponse,
   errorResponse,
@@ -144,6 +145,9 @@ export async function POST(req: NextRequest) {
       if (!users.length) {
         return errorResponse("Invalid or expired reset link", 400, origin);
       }
+
+      // Destroy all existing sessions before changing password
+      await destroyAllSessions(users[0].id);
 
       const passwordHash = await hashPassword(newPassword);
       await db.$executeRaw`

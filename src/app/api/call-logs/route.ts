@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
         Array<{
           total_calls: bigint;
           completed_calls: bigint;
+          qualified_calls: bigint;
           avg_duration: number;
           unique_callers: bigint;
           calls_today: bigint;
@@ -38,6 +39,7 @@ export async function GET(req: NextRequest) {
         SELECT
           COUNT(*) as total_calls,
           COUNT(*) FILTER (WHERE cl.status = 'completed') as completed_calls,
+          COUNT(*) FILTER (WHERE cl.status = 'completed' AND cl.duration >= 30) as qualified_calls,
           COALESCE(AVG(cl.duration) FILTER (WHERE cl.status = 'completed'), 0) as avg_duration,
           COUNT(DISTINCT cl.caller_number) as unique_callers,
           COUNT(*) FILTER (WHERE cl.started_at > NOW() - INTERVAL '24 hours') as calls_today,
@@ -68,6 +70,7 @@ export async function GET(req: NextRequest) {
         ? {
             total_calls: Number(stats.total_calls),
             completed_calls: Number(stats.completed_calls),
+            qualified_calls: Number(stats.qualified_calls),
             avg_duration: Number(stats.avg_duration),
             unique_callers: Number(stats.unique_callers),
             calls_today: Number(stats.calls_today),
@@ -129,5 +132,31 @@ export async function GET(req: NextRequest) {
     );
   } catch {
     return errorResponse("Failed to fetch call logs", 500, origin);
+  }
+}
+
+const VALID_OUTCOMES = ["qualified", "existing_tenant", "spam", "wrong_number", "unknown"];
+
+export async function PATCH(req: NextRequest) {
+  const origin = getOrigin(req);
+  if (!isAdminRequest(req))
+    return errorResponse("Unauthorized", 401, origin);
+
+  try {
+    const body = await req.json();
+    const { id, call_outcome } = body;
+    if (!id) return errorResponse("Call log ID required", 400, origin);
+    if (call_outcome && !VALID_OUTCOMES.includes(call_outcome)) {
+      return errorResponse(`Invalid outcome. Valid: ${VALID_OUTCOMES.join(", ")}`, 400, origin);
+    }
+
+    await db.call_logs.update({
+      where: { id },
+      data: { call_outcome: call_outcome || null },
+    });
+
+    return jsonResponse({ success: true }, 200, origin);
+  } catch {
+    return errorResponse("Failed to update call log", 500, origin);
   }
 }

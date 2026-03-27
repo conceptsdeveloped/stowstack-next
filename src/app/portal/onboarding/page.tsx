@@ -1319,8 +1319,14 @@ function ReviewStep({
         </div>
         <h2 className="text-lg font-bold">Onboarding Complete</h2>
         <p className="mt-2 text-sm text-[var(--color-body-text)]">
-          Your setup is finished. The StorageAds team is building your campaigns.
+          Your setup is finished. The StorageAds team is building your campaigns now.
         </p>
+        <div
+          className="mt-4 mx-auto max-w-sm rounded-lg px-4 py-3 text-sm font-medium"
+          style={{ backgroundColor: "var(--color-gold-light)", color: "var(--color-gold)" }}
+        >
+          Your campaigns will be live within 48 hours.
+        </div>
         <a
           href="/portal"
           className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[var(--color-gold)] px-6 py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)]"

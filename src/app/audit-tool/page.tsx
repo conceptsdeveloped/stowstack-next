@@ -5,6 +5,16 @@ export const metadata: Metadata = {
   title: "Free Storage Audit Tool",
   description:
     "Check your self-storage facility's online presence. Get an instant marketing audit score across Google rating, reviews, photos, and more.",
+  openGraph: {
+    title: "Free Storage Audit Tool — StorageAds",
+    description: "Check your self-storage facility's online presence. Get an instant marketing audit score across Google rating, reviews, photos, and more.",
+    url: "https://storageads.com/audit-tool",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free Storage Audit Tool — StorageAds",
+    description: "Get an instant marketing audit score for your self-storage facility.",
+  },
 };
 
 export default function Page() {

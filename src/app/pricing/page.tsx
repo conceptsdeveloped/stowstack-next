@@ -6,6 +6,16 @@ export const metadata: Metadata = {
   title: "Pricing",
   description:
     "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+  openGraph: {
+    title: "Pricing — StorageAds",
+    description: "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+    url: "https://storageads.com/pricing",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pricing — StorageAds",
+    description: "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+  },
 };
 
 const demandEnginePlans = [

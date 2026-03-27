@@ -9,7 +9,17 @@ import {
   Download,
   BarChart3,
   Package,
+  Activity,
 } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from "recharts";
 import { usePortal } from "@/components/portal/portal-shell";
 import {
   fmtCurrency,
@@ -38,9 +48,16 @@ interface UnitMixRow {
   rate: number;
 }
 
+interface TrendPoint {
+  date: string;
+  occupancy_pct: number;
+}
+
 interface ReportData {
   occupancy?: OccupancySnapshot;
   unitMix?: UnitMixRow[];
+  occupancyTrend?: TrendPoint[];
+  signedAt?: string | null;
 }
 
 /* ─── page ─── */
@@ -56,7 +73,7 @@ export default function ReportsPage() {
     setError("");
     try {
       const res = await fetch(
-        `/api/client-reports?code=${session.accessCode}&email=${encodeURIComponent(session.email)}`
+        `/api/client-reports?accessCode=${session.accessCode}&email=${encodeURIComponent(session.email)}`
       );
       if (!res.ok) throw new Error("Failed to fetch");
       const json = await res.json();
@@ -74,6 +91,8 @@ export default function ReportsPage() {
 
   const occ = data?.occupancy;
   const unitMix = data?.unitMix;
+  const trend = data?.occupancyTrend;
+  const signedAt = data?.signedAt?.slice(0, 10);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
@@ -96,6 +115,51 @@ export default function ReportsPage() {
 
       {/* Error */}
       {error && <ErrorState message={error} onRetry={fetchData} />}
+
+      {/* Occupancy Trend Chart */}
+      {!loading && trend && trend.length > 1 && (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Activity className="h-4 w-4 text-[var(--color-gold)]" />
+            <h3 className="text-sm font-semibold text-[var(--color-dark)]">Occupancy Trend</h3>
+          </div>
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={trend} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }}
+                tickFormatter={(d: string) => d.slice(5)}
+              />
+              <YAxis
+                domain={[0, 100]}
+                tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }}
+                tickFormatter={(v: number) => `${v}%`}
+                width={45}
+              />
+              <Tooltip
+                formatter={(v) => [`${Number(v).toFixed(1)}%`, "Occupancy"]}
+                contentStyle={{ background: "var(--color-light)", border: "1px solid var(--color-light-gray)", borderRadius: "8px", fontSize: "12px" }}
+              />
+              {signedAt && (
+                <ReferenceLine
+                  x={signedAt}
+                  stroke="var(--color-gold)"
+                  strokeDasharray="4 4"
+                  label={{ value: "StorageAds Started", position: "top", fontSize: 10, fill: "var(--color-gold)" }}
+                />
+              )}
+              <Line
+                type="monotone"
+                dataKey="occupancy_pct"
+                stroke="var(--color-gold)"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, fill: "var(--color-gold)" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Occupancy Snapshot */}
       {loading ? (

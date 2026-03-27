@@ -96,6 +96,17 @@ export async function POST(req: NextRequest) {
         return errorResponse("Invalid credentials", 401, origin);
       }
 
+      // Rehash legacy SHA-256 passwords to scrypt on successful login
+      if (!user.password_hash.startsWith("scrypt:")) {
+        const salt = crypto.randomBytes(16);
+        const hash = (await scryptAsync(password, salt, SCRYPT_KEYLEN)) as Buffer;
+        const newHash = `scrypt:${salt.toString("hex")}:${hash.toString("hex")}`;
+        await db.org_users.update({
+          where: { id: user.id },
+          data: { password_hash: newHash },
+        });
+      }
+
       const token = await createSession(user.id, req);
 
       return jsonResponse(

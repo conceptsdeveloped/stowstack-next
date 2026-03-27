@@ -177,6 +177,8 @@ model call_logs {
   duration              Int?                  @default(0)
   status                String
   recording_url         String?
+  call_outcome          String?               @db.VarChar(32)
+  campaign_source       String?
   started_at            DateTime              @db.Timestamptz(6)
   ended_at              DateTime?             @db.Timestamptz(6)
   created_at            DateTime?             @default(now()) @db.Timestamptz(6)
@@ -283,22 +285,44 @@ model client_onboarding {
   @@index([access_code], map: "idx_client_onboarding_code")
 }
 
+model client_reports {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_id    String    @db.Uuid
+  facility_id  String    @db.Uuid
+  report_type  String    @default("monthly") @db.VarChar(32)
+  period_start DateTime  @db.Date
+  period_end   DateTime  @db.Date
+  report_html  String?
+  report_data  Json?
+  status       String    @default("generated") @db.VarChar(16)
+  sent_at      DateTime? @db.Timestamptz(6)
+  opened_at    DateTime? @db.Timestamptz(6)
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  clients      clients   @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  facilities   facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([client_id], map: "idx_client_reports_client")
+  @@index([facility_id], map: "idx_client_reports_facility")
+  @@index([period_start, period_end], map: "idx_client_reports_period")
+}
+
 model clients {
-  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  facility_id       String             @db.Uuid
-  email             String
-  name              String
-  facility_name     String?
-  location          String?
-  occupancy_range   String?
-  total_units       String?
-  access_code       String             @unique @db.VarChar(16)
-  monthly_goal      Int?               @default(0)
-  signed_at         DateTime?          @default(now()) @db.Timestamptz(6)
-  created_at        DateTime?          @default(now()) @db.Timestamptz(6)
-  client_campaigns  client_campaigns[]
-  client_onboarding client_onboarding?
-  facilities        facilities         @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                  String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id         String             @db.Uuid
+  email               String
+  name                String
+  facility_name       String?
+  location            String?
+  occupancy_range     String?
+  total_units         String?
+  access_code         String             @unique @db.VarChar(16)
+  monthly_goal        Int?               @default(0)
+  signed_at           DateTime?          @default(now()) @db.Timestamptz(6)
+  created_at          DateTime?          @default(now()) @db.Timestamptz(6)
+  client_campaigns    client_campaigns[]
+  client_onboarding   client_onboarding?
+  client_reports      client_reports[]
+  facilities          facilities         @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([access_code], map: "idx_clients_access_code")
   @@index([facility_id], map: "idx_clients_facility")
@@ -470,6 +494,8 @@ model facilities {
   lead_score                   Int?
   updated_at                   DateTime?                      @default(now()) @db.Timestamptz(6)
   organization_id              String?                        @db.Uuid
+  baseline_occupancy           Float?
+  baseline_date                DateTime?                      @db.Date
   ab_tests                     ab_tests[]
   activity_log                 activity_log[]
   ad_variations                ad_variations[]
@@ -480,6 +506,7 @@ model facilities {
   call_tracking_numbers        call_tracking_numbers[]
   campaign_spend               campaign_spend[]
   churn_predictions            churn_predictions[]
+  client_reports               client_reports[]
   clients                      clients[]
   creative_briefs              creative_briefs[]
   delinquency_escalations      delinquency_escalations[]

@@ -60,12 +60,11 @@ export const SEQUENCES: Record<string, DripSequence> = {
   post_audit: {
     id: "post_audit",
     name: "Post-Audit Follow-up",
-    description: "Automated nurture sequence after audit form submission",
+    description: "3-email drip after audit sent: what you're missing → cost of waiting → book a call",
     steps: [
-      { delayDays: 2, templateId: "follow_up", label: "Warm follow-up" },
-      { delayDays: 5, templateId: "value_add", label: "Personalized tip" },
-      { delayDays: 10, templateId: "check_in", label: "Check-in" },
-      { delayDays: 21, templateId: "last_chance", label: "Final touch" },
+      { delayDays: 1, templateId: "follow_up", label: "Day 1: Warm follow-up" },
+      { delayDays: 3, templateId: "value_add", label: "Day 3: Cost of waiting" },
+      { delayDays: 7, templateId: "check_in", label: "Day 7: Book a call" },
     ],
   },
   recovery: {

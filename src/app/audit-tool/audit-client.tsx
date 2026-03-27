@@ -230,6 +230,9 @@ export default function AuditToolPage() {
   const [result, setResult] = useState<PlacesResult | null>(null);
   const [auditScore, setAuditScore] = useState<AuditScore | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [captureEmail, setCaptureEmail] = useState("");
+  const [captureSubmitted, setCaptureSubmitted] = useState(false);
+  const [captureLoading, setCaptureLoading] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -578,7 +581,7 @@ export default function AuditToolPage() {
                   </div>
                 )}
 
-                {/* CTA */}
+                {/* CTA with email capture */}
                 <div className="rounded-2xl bg-gradient-to-br from-[var(--accent-glow)] to-transparent border border-[var(--accent)]/20 p-8 text-center">
                   <TrendingUp className="w-8 h-8 text-[var(--accent)] mx-auto mb-3" />
                   <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
@@ -589,13 +592,69 @@ export default function AuditToolPage() {
                     projections, competitive insights, and personalized
                     recommendations.
                   </p>
-                  <Link
-                    href="/#cta"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--accent)] text-white font-semibold hover:bg-[var(--accent-hover)] transition-colors"
-                  >
-                    Get Your Free Full Audit
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  {captureSubmitted ? (
+                    <div className="flex items-center justify-center gap-2 text-[var(--accent)] font-semibold">
+                      <CheckCircle2 className="w-5 h-5" />
+                      We&apos;ll send your full audit shortly.
+                    </div>
+                  ) : (
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!captureEmail.trim()) return;
+                        setCaptureLoading(true);
+                        try {
+                          await fetch("/api/consumer-lead", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              email: captureEmail.trim(),
+                              facilityName: result?.name || facilityName,
+                              location: result?.address || location,
+                              source: "audit_tool",
+                              placeId: result?.placeId,
+                              auditScore: auditScore?.overall,
+                            }),
+                          });
+                          setCaptureSubmitted(true);
+                        } catch {
+                          // Fall back to homepage CTA
+                          window.location.href = "/#cta";
+                        } finally {
+                          setCaptureLoading(false);
+                        }
+                      }}
+                      className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+                    >
+                      <input
+                        type="email"
+                        required
+                        placeholder="Your work email"
+                        value={captureEmail}
+                        onChange={(e) => setCaptureEmail(e.target.value)}
+                        className="flex-1 px-4 py-3 rounded-xl border text-sm"
+                        style={{
+                          borderColor: "var(--border-subtle)",
+                          background: "var(--bg-surface)",
+                          color: "var(--text-primary)",
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={captureLoading}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--accent)] text-white font-semibold hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-70"
+                      >
+                        {captureLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            Get Full Audit
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  )}
                 </div>
               </div>
             )}

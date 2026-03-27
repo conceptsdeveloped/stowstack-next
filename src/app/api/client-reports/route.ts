@@ -43,6 +43,63 @@ export async function GET(req: NextRequest) {
       return errorResponse("Missing client identifier", 400, origin);
     }
 
+    // Get client's facility for PMS data
+    const client = await db.clients.findUnique({
+      where: { id: resolvedClientId },
+      select: { facility_id: true, signed_at: true },
+    });
+
+    // Fetch PMS snapshots for occupancy trend chart
+    let occupancyTrend: { date: string; occupancy_pct: number }[] = [];
+    let occupancy: { total_units: number; occupied_units: number; occupancy_pct: number; move_ins_mtd: number; move_outs_mtd: number; delinquency_pct: number } | null = null;
+    let unitMix: { type: string; size: string; total: number; occupied: number; rate: number }[] = [];
+
+    if (client?.facility_id) {
+      // Occupancy trend from PMS snapshots (last 90 days)
+      const snapshots = await db.facility_pms_snapshots.findMany({
+        where: { facility_id: client.facility_id },
+        orderBy: { snapshot_date: "asc" },
+        take: 90,
+        select: { snapshot_date: true, occupancy_pct: true, total_units: true, occupied_units: true },
+      });
+
+      if (snapshots.length > 0) {
+        occupancyTrend = snapshots.map((s) => ({
+          date: s.snapshot_date.toISOString().slice(0, 10),
+          occupancy_pct: Number(s.occupancy_pct) || 0,
+        }));
+
+        // Latest snapshot as current occupancy
+        const latest = snapshots[snapshots.length - 1];
+        const totalUnits = latest.total_units || 0;
+        const occupiedUnits = latest.occupied_units || 0;
+        occupancy = {
+          total_units: totalUnits,
+          occupied_units: occupiedUnits,
+          occupancy_pct: totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0,
+          move_ins_mtd: 0,
+          move_outs_mtd: 0,
+          delinquency_pct: 0,
+        };
+      }
+
+      // Unit mix from PMS units
+      const units = await db.facility_pms_units.findMany({
+        where: { facility_id: client.facility_id },
+        select: { unit_type: true, size_label: true, total_count: true, occupied_count: true, street_rate: true },
+      });
+      if (units.length > 0) {
+        unitMix = units.map((u) => ({
+          type: u.unit_type || "Standard",
+          size: u.size_label || "",
+          total: u.total_count || 0,
+          occupied: u.occupied_count || 0,
+          rate: Number(u.street_rate) || 0,
+        }));
+      }
+    }
+
+    // Fetch report history
     const reports = await db.$queryRaw<
       Array<{
         id: string;
@@ -62,7 +119,13 @@ export async function GET(req: NextRequest) {
       LIMIT ${limit}
     `;
 
-    return jsonResponse({ success: true, data: reports }, 200, origin);
+    return jsonResponse({
+      occupancy,
+      unitMix,
+      occupancyTrend,
+      signedAt: client?.signed_at?.toISOString() || null,
+      reports,
+    }, 200, origin);
   } catch {
     return errorResponse("Internal server error", 500, origin);
   }
