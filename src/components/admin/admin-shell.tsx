@@ -17,14 +17,11 @@ import {
   Layout,
   Lock,
   Mail,
-  Megaphone,
   Phone,
-  PieChart,
   Search,
   Settings,
   ShieldCheck,
   Target,
-  TrendingUp,
   Users,
   Zap,
 } from "lucide-react";
@@ -132,7 +129,10 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
     <div className="flex min-h-screen items-center justify-center bg-white">
       <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8">
         <div className="mb-8 text-center">
-          <h1 className="mb-1 text-2xl font-bold text-[#111827]">StowStack</h1>
+          <h1 className="mb-1 text-2xl font-bold text-[#111827]">
+            <span className="text-[var(--color-dark)]">storage</span>
+            <span className="text-[var(--color-gold)]">ads</span>
+          </h1>
           <p className="text-sm text-[#9CA3AF]">Admin Dashboard</p>
         </div>
 
@@ -241,9 +241,10 @@ function Sidebar({
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-black/[0.08] px-4">
         <Link
           href="/"
-          className={`text-lg font-bold text-[#111827] transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
+          className={`text-lg font-bold transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
         >
-          StowStack
+          <span className="text-[var(--color-dark)]">storage</span>
+          <span className="text-[var(--color-gold)]">ads</span>
         </Link>
         {!collapsed && (
           <Link
@@ -284,12 +285,12 @@ function Sidebar({
                       title={collapsed ? item.label : undefined}
                       className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
                         isActive
-                          ? "bg-[#3B82F6]/15 font-medium text-[#111827]"
+                          ? "bg-[var(--color-gold)]/10 font-medium text-[var(--color-dark)]"
                           : "text-[#6B7280] hover:bg-black/[0.03] hover:text-[#111827]"
                       } ${collapsed ? "justify-center" : ""}`}
                     >
                       <Icon
-                        className={`h-4 w-4 shrink-0 ${isActive ? "text-[#3B82F6]" : ""}`}
+                        className={`h-4 w-4 shrink-0 ${isActive ? "text-[var(--color-gold)]" : ""}`}
                       />
                       {!collapsed && <span>{item.label}</span>}
                     </Link>

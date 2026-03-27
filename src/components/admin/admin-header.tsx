@@ -18,24 +18,21 @@ const ROUTE_TITLES: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/pipeline": "Pipeline",
   "/admin/kanban": "Kanban",
-  "/admin/inbound-leads": "Inbound Leads",
-  "/admin/campaign-alerts": "Campaign Alerts",
-  "/admin/portfolio": "Portfolio",
-  "/admin/facility-manager": "Facility Manager",
-  "/admin/facilities": "Facilities",
-  "/admin/spend-optimizer": "Spend Optimizer",
-  "/admin/email-sequences": "Email Sequences",
-  "/admin/attribution": "Attribution",
+  "/admin/consumer-leads": "Consumer Leads",
   "/admin/recovery": "Recovery",
+  "/admin/portfolio": "Portfolio",
+  "/admin/facilities": "Facility Manager",
+  "/admin/style-references": "Creative Library",
+  "/admin/sequences": "Sequences",
   "/admin/insights": "Insights",
   "/admin/billing": "Billing",
-  "/admin/upsell": "Upsell",
-  "/admin/activity-log": "Activity Log",
-  "/admin/call-tracking": "Call Tracking",
-  "/admin/audits": "Audits",
+  "/admin/activity": "Activity",
+  "/admin/calls": "Call Tracking",
+  "/admin/audits": "Diagnostics",
   "/admin/partners": "Partners",
   "/admin/settings": "Settings",
   "/admin/changelog": "Changelog",
+  "/admin/campaigns": "Campaigns",
 };
 
 function getPageTitle(pathname: string): string {
@@ -94,7 +91,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `stowstack-${segment}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `storageads-${segment}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
