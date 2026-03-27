@@ -25,9 +25,64 @@ export async function GET(req: NextRequest) {
   if (authError) return authError;
 
   const url = new URL(req.url);
+  const downloadId = url.searchParams.get("download");
   const facilityId = url.searchParams.get("facilityId");
 
   try {
+    // Download a specific report
+    if (downloadId) {
+      const report = await db.client_reports.findUnique({
+        where: { id: downloadId },
+        select: { id: true, report_html: true, report_data: true, report_type: true, period_start: true },
+      });
+      if (!report) return errorResponse("Report not found", 404, origin);
+
+      const reportData = report.report_data as Record<string, unknown> | null;
+      const format = (reportData?.format as string) || "html";
+
+      if (format === "csv") {
+        const csv = report.report_html || "";
+        return new NextResponse(csv, {
+          status: 200,
+          headers: {
+            ...getCorsHeaders(origin),
+            "Content-Type": "text/csv",
+            "Content-Disposition": `attachment; filename="report-${report.report_type}-${report.period_start.toISOString().slice(0, 10)}.csv"`,
+          },
+        });
+      }
+
+      if (format === "pdf") {
+        try {
+          const pdfBuffer = await generatePdfReport({
+            type: report.report_type || "monthly_performance",
+            summary: (reportData?.summary as Parameters<typeof generatePdfReport>[0]["summary"]) || undefined,
+            campaigns: (reportData?.campaigns as Parameters<typeof generatePdfReport>[0]["campaigns"]) || undefined,
+          });
+          return new NextResponse(new Uint8Array(pdfBuffer), {
+            status: 200,
+            headers: {
+              ...getCorsHeaders(origin),
+              "Content-Type": "application/pdf",
+              "Content-Disposition": `attachment; filename="report-${report.report_type}-${report.period_start.toISOString().slice(0, 10)}.pdf"`,
+            },
+          });
+        } catch {
+          return errorResponse("PDF generation failed", 500, origin);
+        }
+      }
+
+      // Default: return HTML
+      return new NextResponse(report.report_html || "", {
+        status: 200,
+        headers: {
+          ...getCorsHeaders(origin),
+          "Content-Type": "text/html",
+          "Content-Disposition": `inline; filename="report-${report.report_type}.html"`,
+        },
+      });
+    }
+
     const where: Record<string, unknown> = {};
     if (facilityId && facilityId !== "all") {
       where.facility_id = facilityId;

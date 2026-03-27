@@ -784,7 +784,7 @@ model fb_deletion_requests {
 model portal_login_codes {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email      String
-  code       String   @db.VarChar(4)
+  code       String   @db.VarChar(8)
   expires_at DateTime @db.Timestamptz(6)
   used       Boolean  @default(false)
   created_at DateTime @default(now()) @db.Timestamptz(6)

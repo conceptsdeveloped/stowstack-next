@@ -286,6 +286,22 @@ export async function GET(request: NextRequest) {
             select: { type: true, detail: true },
           });
 
+          // Generate fallback from raw activity counts if AI fails
+          if (activities.length > 0) {
+            const typeCounts = new Map<string, number>();
+            for (const a of activities) {
+              typeCounts.set(a.type, (typeCounts.get(a.type) || 0) + 1);
+            }
+            const fallbackParts: string[] = [];
+            if (typeCounts.get("campaign_launched")) fallbackParts.push(`launched ${typeCounts.get("campaign_launched")} new campaigns`);
+            if (typeCounts.get("gbp_post_published")) fallbackParts.push(`published ${typeCounts.get("gbp_post_published")} GBP posts`);
+            if (typeCounts.get("gbp_review_responded")) fallbackParts.push(`responded to ${typeCounts.get("gbp_review_responded")} reviews`);
+            if (typeCounts.get("landing_page_published")) fallbackParts.push(`published ${typeCounts.get("landing_page_published")} landing pages`);
+            if (fallbackParts.length > 0) {
+              aiNarrative = `This month we ${fallbackParts.join(", ")}.`;
+            }
+          }
+
           if (activities.length > 0 && process.env.ANTHROPIC_API_KEY) {
             const activitySummary = activities
               .map((a) => `${a.type}: ${a.detail}`)

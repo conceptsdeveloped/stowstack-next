@@ -7,7 +7,12 @@
     { "path": "/api/cron/aggregate-page-stats", "schedule": "0 2 * * *" },
     { "path": "/api/cron/sync-audiences", "schedule": "0 1 * * 0" },
     { "path": "/api/cron/weekly-digest", "schedule": "0 9 * * 5" },
-    { "path": "/api/cron/review-solicitation", "schedule": "0 10 * * *" }
+    { "path": "/api/cron/review-solicitation", "schedule": "0 10 * * *" },
+    { "path": "/api/cron/process-gbp", "schedule": "0 4 * * *" },
+    { "path": "/api/cron/process-drips", "schedule": "0 5 * * *" },
+    { "path": "/api/cron/process-nurture", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/process-recovery", "schedule": "0 7 * * *" },
+    { "path": "/api/cron/check-campaign-alerts", "schedule": "0 8 * * *" }
   ],
   "headers": [
     {

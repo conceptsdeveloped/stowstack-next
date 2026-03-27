@@ -93,7 +93,7 @@ function buildCAPIEvent(
 ): Record<string, unknown> {
   const event: Record<string, unknown> = {
     event_name: mapEventName(data.event_name || ""),
-    event_time: data.event_time,
+    event_time: data.event_time || Math.floor(Date.now() / 1000),
   };
 
   if (data.event_id) {
@@ -176,8 +176,8 @@ function validateEventData(
   if (!body.event_name || typeof body.event_name !== "string") {
     errors.event_name = "event_name is required";
   }
-  if (!body.event_time || typeof body.event_time !== "number") {
-    errors.event_time = "event_time (Unix timestamp) is required";
+  if (body.event_time && typeof body.event_time !== "number") {
+    errors.event_time = "event_time must be a Unix timestamp number";
   }
   if (!body.user_data || typeof body.user_data !== "object") {
     errors.user_data = "user_data object is required";
