@@ -525,24 +525,62 @@ const BECAUSE_MESSAGES = [
   "THE MARKETING MEETING WAS YOU AND YOUR MANAGER STARING AT GOOGLE REVIEWS",
 ];
 
+/** Count how many rows a message needs at a given column width (word-wrap) */
+function rowsNeeded(msg: string, cols: number): number {
+  const words = msg.split(" ");
+  let lines = 0;
+  let current = 0;
+  for (const word of words) {
+    if (current === 0) {
+      current = word.length;
+      lines = 1;
+    } else if (current + 1 + word.length <= cols) {
+      current += 1 + word.length;
+    } else {
+      lines++;
+      current = word.length;
+    }
+  }
+  return lines;
+}
+
+/** Calculate minimum rows needed so ALL messages fit at a given column width */
+function minRowsForMessages(messages: string[], cols: number): number {
+  let max = 1;
+  for (const msg of messages) {
+    const needed = rowsNeeded(msg, cols);
+    if (needed > max) max = needed;
+  }
+  return max;
+}
+
 function ResponsiveSplitFlap({ messages, holdTime }: { messages: string[]; holdTime: number }) {
-  const [layout, setLayout] = useState({ cols: 26, rows: 3 });
+  const [layout, setLayout] = useState({ cols: 26, rows: 4 });
 
   useEffect(() => {
     function update() {
       const w = window.innerWidth;
-      if (w < 480) {
-        setLayout({ cols: 14, rows: 6 });
+      let cols: number;
+      if (w < 400) {
+        cols = 14;
+      } else if (w < 480) {
+        cols = 16;
+      } else if (w < 640) {
+        cols = 20;
       } else if (w < 768) {
-        setLayout({ cols: 18, rows: 4 });
+        cols = 24;
+      } else if (w < 1024) {
+        cols = 30;
       } else {
-        setLayout({ cols: 32, rows: 3 });
+        cols = 36;
       }
+      const rows = minRowsForMessages(messages, cols);
+      setLayout({ cols, rows });
     }
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, []);
+  }, [messages]);
 
   return <SplitFlapComponent messages={messages} cols={layout.cols} rows={layout.rows} holdTime={holdTime} />;
 }
