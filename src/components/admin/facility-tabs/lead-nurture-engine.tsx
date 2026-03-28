@@ -126,7 +126,7 @@ function MetricCard({ label, value, accent }: { label: string; value: string; ac
   return (
     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2">
       <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">{label}</p>
-      <p className={`text-lg font-bold ${accent || 'text-[var(--color-dark)]'}`}>{value}</p>
+      <p className={`text-lg font-semibold ${accent || 'text-[var(--color-dark)]'}`}>{value}</p>
     </div>
   )
 }
@@ -265,7 +265,7 @@ export default function LeadNurtureEngine({ facilityId, adminKey }: {
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[var(--color-dark)]">Lead Nurture Engine</h2>
+            <h2 className="text-lg font-semibold text-[var(--color-dark)]">Lead Nurture Engine</h2>
             <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">
               Automated SMS + email follow-up sequences for leads and tenants
             </p>
@@ -323,7 +323,7 @@ export default function LeadNurtureEngine({ facilityId, adminKey }: {
           {/* Template setup cards (no sequences yet) */}
           {templates.length > 0 && sequences.length === 0 && (
             <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-              <h3 className="text-sm font-bold mb-3 text-[var(--color-dark)]">
+              <h3 className="text-sm font-semibold mb-3 text-[var(--color-dark)]">
                 Get Started — Pick a Sequence Template
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -337,7 +337,7 @@ export default function LeadNurtureEngine({ facilityId, adminKey }: {
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span>{trigger.icon}</span>
-                        <span className={`text-xs font-bold ${trigger.color}`}>{trigger.label}</span>
+                        <span className={`text-xs font-semibold ${trigger.color}`}>{trigger.label}</span>
                       </div>
                       <p className="text-sm font-medium text-[var(--color-dark)]">{t.name}</p>
                       <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">{t.stepCount} steps · SMS + Email</p>
@@ -673,7 +673,7 @@ export default function LeadNurtureEngine({ facilityId, adminKey }: {
             onClick={e => e.stopPropagation()}
           >
             <div className="p-5 space-y-4">
-              <h3 className="font-bold text-[var(--color-dark)]">Enroll Lead in Sequence</h3>
+              <h3 className="font-semibold text-[var(--color-dark)]">Enroll Lead in Sequence</h3>
               <div className="space-y-3">
                 <div>
                   <label className="text-xs font-medium text-[var(--color-mid-gray)]">Name</label>

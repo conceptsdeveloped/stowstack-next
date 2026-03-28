@@ -155,7 +155,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
         {/* Title */}
         <h1
-          className="font-bold mb-6"
+          className="font-semibold mb-6"
           style={{
             fontSize: "var(--text-section-head)",
             lineHeight: "var(--leading-tight)",
@@ -183,7 +183,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           style={{ borderColor: "var(--border-subtle)" }}
         >
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
             style={{
               background: "var(--bg-elevated)",
               color: "var(--accent)",

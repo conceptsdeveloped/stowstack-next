@@ -305,7 +305,7 @@ export default function InsightsPage() {
       {/* Header */}
       <div className="max-w-2xl mx-auto px-6 pt-24 pb-8">
         <h1
-          className="font-bold mb-3"
+          className="font-semibold mb-3"
           style={{
             fontSize: "var(--text-section-head)",
             lineHeight: "var(--leading-tight)",
@@ -341,7 +341,7 @@ export default function InsightsPage() {
 
             <div className="py-10">
               <h2
-                className="font-bold mb-4"
+                className="font-semibold mb-4"
                 style={{
                   fontSize: "var(--text-subhead)",
                   lineHeight: "var(--leading-snug)",

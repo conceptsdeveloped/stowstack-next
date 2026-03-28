@@ -23,7 +23,7 @@ function Step({ n, children }: { n: number; children: React.ReactNode }) {
   return (
     <div className="flex gap-3 items-start">
       <div
-        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
+        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 mt-0.5"
         style={{ background: "var(--accent-glow)", color: "var(--accent)" }}
       >
         {n}
@@ -58,7 +58,7 @@ function Section({
           border: "1px solid var(--border-subtle)",
         }}
       >
-        <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
+        <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
           <Icon size={20} className="text-[var(--color-blue)]" /> {title}
         </h2>
         <div className="space-y-4">{children}</div>
@@ -161,7 +161,7 @@ export default function GuidePage() {
             <ArrowLeft size={20} />
           </Link>
           <span
-            className="text-sm font-bold tracking-tight"
+            className="text-sm font-semibold tracking-tight"
             style={{ color: "var(--text-primary)" }}
           >
             Stow<span style={{ color: "var(--accent)" }}>Stack</span>
@@ -178,7 +178,7 @@ export default function GuidePage() {
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="mb-8">
           <h1
-            className="text-2xl sm:text-3xl font-bold tracking-tight mb-2"
+            className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2"
             style={{ color: "var(--text-primary)" }}
           >
             Client Guide
@@ -405,7 +405,7 @@ export default function GuidePage() {
                   }}
                 >
                   <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
                     style={{
                       background: "var(--accent-glow)",
                       color: "var(--accent)",
@@ -485,7 +485,7 @@ export default function GuidePage() {
               <div className="space-y-2 mt-1">
                 <div className="flex items-start gap-2">
                   <span
-                    className="font-bold text-sm mt-0.5"
+                    className="font-semibold text-sm mt-0.5"
                     style={{ color: "rgba(34,197,94,0.8)" }}
                   >
                     ↑
@@ -500,7 +500,7 @@ export default function GuidePage() {
                 </div>
                 <div className="flex items-start gap-2">
                   <span
-                    className="font-bold text-sm mt-0.5"
+                    className="font-semibold text-sm mt-0.5"
                     style={{ color: "rgba(239,68,68,0.8)" }}
                   >
                     ↓

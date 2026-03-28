@@ -315,7 +315,7 @@ export default function AdPublisher({
               >
                 <div className="flex items-start gap-3">
                   <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold ${PLATFORM_COLORS[platform.id] || "bg-[var(--color-gold)]"}`}
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-semibold ${PLATFORM_COLORS[platform.id] || "bg-[var(--color-gold)]"}`}
                   >
                     {PLATFORM_LETTERS[platform.id] || "?"}
                   </div>
@@ -538,6 +538,7 @@ export default function AdPublisher({
                 )}
               </button>
               {selectedImage && (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={selectedImage}
                   alt=""
@@ -620,7 +621,7 @@ export default function AdPublisher({
                 className="grid grid-cols-[40px_1fr_100px_80px_80px] gap-3 px-4 py-3 border-b border-[var(--border-subtle)] last:border-b-0 items-center hover:bg-[var(--color-light-gray)] transition-colors"
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold ${PLATFORM_COLORS[log.platform] || "bg-[var(--color-gold)]"}`}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-semibold ${PLATFORM_COLORS[log.platform] || "bg-[var(--color-gold)]"}`}
                 >
                   {PLATFORM_LETTERS[log.platform] || "?"}
                 </div>

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import {
   Loader2,
   Globe,
-  Image,
+  Image as ImageIcon,
   Film,
   FileText,
   Trash2,
@@ -89,7 +89,7 @@ function ImageWithFallback({
 
       {status === "loading" && (
         <div className="absolute inset-0 bg-[var(--color-light-gray)] animate-pulse flex items-center justify-center z-10">
-          <Image size={16} className="text-[var(--color-mid-gray)]" />
+          <ImageIcon size={16} className="text-[var(--color-mid-gray)]" />
         </div>
       )}
 
@@ -100,6 +100,7 @@ function ImageWithFallback({
         </div>
       )}
 
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
@@ -413,7 +414,7 @@ export default function MediaLibrary({
                 : "border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]"
             }`}
           >
-            <Image size={14} />
+            <ImageIcon size={14} />
             Stock Library
           </button>
         </div>
@@ -758,7 +759,7 @@ export default function MediaLibrary({
           {photos.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Image size={15} className="text-[var(--color-mid-gray)]" />
+                <ImageIcon size={15} className="text-[var(--color-mid-gray)]" />
                 <h4 className="text-sm font-semibold text-[var(--color-dark)]">
                   Images
                 </h4>
@@ -918,7 +919,7 @@ export default function MediaLibrary({
       {assets.length === 0 && !scrapeResult && !showLibrary && (
         <div className="text-center py-12">
           <div className="mx-auto w-12 h-12 rounded-full bg-[var(--color-light-gray)] flex items-center justify-center mb-3">
-            <Image size={20} className="text-[var(--color-mid-gray)]" />
+            <ImageIcon size={20} className="text-[var(--color-mid-gray)]" />
           </div>
           <p className="text-sm text-[var(--color-body-text)]">
             No assets yet. Scrape a website, browse the stock library, or paste

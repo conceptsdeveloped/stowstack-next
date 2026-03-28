@@ -122,7 +122,7 @@ export default function RevenuePage() {
                   {currentTier.name} Partner
                 </span>
               </div>
-              <h2 className="text-3xl font-black tracking-tight sm:text-4xl">
+              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                 ${monthlyEarnings.toLocaleString()}
                 <span className="text-lg font-medium opacity-75">/mo</span>
               </h2>
@@ -131,7 +131,7 @@ export default function RevenuePage() {
               </p>
             </div>
             <div className="hidden text-right sm:block">
-              <div className="text-3xl font-black">{currentTier.pct}%</div>
+              <div className="text-3xl font-semibold">{currentTier.pct}%</div>
               <div className="text-xs opacity-75">rev share rate</div>
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function RevenuePage() {
                 key={item.label}
                 className="rounded-xl bg-[var(--color-light-gray)] p-3 backdrop-blur-sm"
               >
-                <div className="text-xl font-bold">{item.value}</div>
+                <div className="text-xl font-semibold">{item.value}</div>
                 <div className="text-[11px] opacity-75">{item.label}</div>
               </div>
             ))}
@@ -163,17 +163,17 @@ export default function RevenuePage() {
               <Rocket className="h-5 w-5 text-[var(--color-light)]" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-emerald-400">
+              <h3 className="font-semibold text-emerald-400">
                 Unlock {nextTier.name} — {nextTier.pct}% Revenue Share
               </h3>
               <p className="mt-1 text-sm text-[var(--color-body-text)]">
                 Add{" "}
-                <span className="font-bold text-[var(--color-dark)]">
+                <span className="font-semibold text-[var(--color-dark)]">
                   {facilitiesToNext} more{" "}
                   {facilitiesToNext === 1 ? "facility" : "facilities"}
                 </span>{" "}
                 to reach {nextTier.name} tier and earn{" "}
-                <span className="font-bold text-emerald-400">
+                <span className="font-semibold text-emerald-400">
                   ${nextTierMonthly.toLocaleString()}/mo
                 </span>
               </p>
@@ -226,13 +226,13 @@ export default function RevenuePage() {
                   style={{ color: tier.color }}
                 />
                 <div
-                  className="text-sm font-bold"
+                  className="text-sm font-semibold"
                   style={{ color: tier.color }}
                 >
                   {tier.name}
                 </div>
                 <div
-                  className={`mt-1 text-3xl font-black ${isActive ? "text-[var(--color-gold)]" : "text-[var(--color-dark)]"}`}
+                  className={`mt-1 text-3xl font-semibold ${isActive ? "text-[var(--color-gold)]" : "text-[var(--color-dark)]"}`}
                 >
                   {tier.pct}%
                 </div>
@@ -242,7 +242,7 @@ export default function RevenuePage() {
                     : `${tier.min}\u2013${tier.max} facilities`}
                 </div>
                 {isActive && (
-                  <div className="mt-2 inline-block rounded-full bg-[var(--color-gold)]/20 px-2 py-0.5 text-[10px] font-bold text-[var(--color-gold)]">
+                  <div className="mt-2 inline-block rounded-full bg-[var(--color-gold)]/20 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
                     YOUR TIER
                   </div>
                 )}

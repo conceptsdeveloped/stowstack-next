@@ -13,17 +13,17 @@ const STEPS = [
     title: "Every ad gets its own landing page.",
     body: "Not your homepage. Not a generic rental page. A dedicated URL built for that specific campaign, with its own headline, its own offer, and its own tracking.",
     examples: [
-      "storageads.com/climate-pawpaw-a — for the climate-controlled search ad",
-      "storageads.com/10x10-offer-b — for the first-month-free Facebook ad",
-      "storageads.com/finish-your-rental-c — for the retargeting campaign",
+      "storageads.com/climate-pawpaw-a: for the climate-controlled search ad",
+      "storageads.com/10x10-offer-b: for the first-month-free Facebook ad",
+      "storageads.com/finish-your-rental-c: for the retargeting campaign",
     ],
     kicker:
-      "Different intent. Different pages. Different offers. That is how conversion rate goes up.",
+      "Different intent. Different pages. Different offers. That's how conversion rate goes up.",
   },
   {
     number: "03",
     title: "The rental flow is embedded in the page.",
-    body: "storEDGE handles real-time availability, reservation processing, and payment. But the customer never leaves your branded page. They see your facility. Your branding. Your offer. And they rent — right there.",
+    body: "storEDGE handles real-time availability, reservation processing, and payment. But the customer never leaves your branded page. They see your facility. Your branding. Your offer. And they rent: right there.",
   },
   {
     number: "04",
@@ -51,7 +51,7 @@ export default function HowItWorks() {
           }`}
         >
           <h2
-            className="font-bold max-w-3xl mx-auto"
+            className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
             From ad impression to signed lease. One system. Full visibility.
@@ -89,7 +89,7 @@ export default function HowItWorks() {
               >
                 <div className="flex items-start gap-6">
                   <span
-                    className="text-3xl font-black flex-shrink-0"
+                    className="text-3xl font-semibold flex-shrink-0"
                     style={{
                       color: "var(--accent)",
                       fontFamily: "var(--font-mono-family)",
@@ -99,7 +99,7 @@ export default function HowItWorks() {
                   </span>
                   <div>
                     <h3
-                      className="font-bold mb-3"
+                      className="font-semibold mb-3"
                       style={{ fontSize: "var(--text-subhead)" }}
                     >
                       {step.title}

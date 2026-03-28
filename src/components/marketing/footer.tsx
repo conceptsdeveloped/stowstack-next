@@ -49,7 +49,7 @@ export default function Footer() {
           {/* Links */}
           <div>
             <p
-              className="text-xs font-bold uppercase mb-4"
+              className="text-xs font-semibold uppercase mb-4"
               style={{
                 color: "var(--text-tertiary)",
                 letterSpacing: "var(--tracking-wide)",
@@ -74,7 +74,7 @@ export default function Footer() {
           {/* Contact & Legal */}
           <div>
             <p
-              className="text-xs font-bold uppercase mb-4"
+              className="text-xs font-semibold uppercase mb-4"
               style={{
                 color: "var(--text-tertiary)",
                 letterSpacing: "var(--tracking-wide)",
@@ -92,7 +92,7 @@ export default function Footer() {
             </a>
 
             <p
-              className="text-xs font-bold uppercase mb-4"
+              className="text-xs font-semibold uppercase mb-4"
               style={{
                 color: "var(--text-tertiary)",
                 letterSpacing: "var(--tracking-wide)",

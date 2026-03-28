@@ -31,7 +31,7 @@ export function CancelSubscriptionFlow({
   const [reason, setReason] = useState('');
   const [otherReason, setOtherReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
-  const [error, setError] = useState('');
+  const [_error, setError] = useState('');
 
   if (!open) return null;
 

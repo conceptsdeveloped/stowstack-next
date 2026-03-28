@@ -205,7 +205,7 @@ function ScoreRing({
         x="60"
         y="55"
         textAnchor="middle"
-        className="fill-[var(--text-primary)] font-bold"
+        className="fill-[var(--text-primary)] font-semibold"
         fontSize="28"
       >
         {score}
@@ -298,7 +298,7 @@ export default function AuditToolPage() {
         <div className="mx-auto max-w-4xl flex items-center justify-between px-5 h-14">
           <Link
             href="/"
-            className="text-sm font-bold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+            className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
           >
             StorageAds
           </Link>
@@ -315,7 +315,7 @@ export default function AuditToolPage() {
             <BarChart3 className="w-3.5 h-3.5" />
             Self-Service Audit
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight mb-3">
+          <h1 className="text-3xl sm:text-4xl font-semibold text-[var(--text-primary)] tracking-tight mb-3">
             How does your facility show up online?
           </h1>
           <p className="text-[var(--text-secondary)] max-w-xl mx-auto leading-relaxed">
@@ -415,7 +415,7 @@ export default function AuditToolPage() {
                           Online Presence Score
                         </p>
                         <p
-                          className={`text-3xl font-bold ${gradeColor(auditScore.grade)}`}
+                          className={`text-3xl font-semibold ${gradeColor(auditScore.grade)}`}
                         >
                           {auditScore.grade}
                         </p>
@@ -441,7 +441,7 @@ export default function AuditToolPage() {
                           <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                             {item.label}
                           </p>
-                          <p className="text-lg font-bold text-[var(--text-primary)]">
+                          <p className="text-lg font-semibold text-[var(--text-primary)]">
                             {item.score}
                             <span className="text-xs font-normal text-[var(--text-tertiary)]">
                               /{item.maxScore}
@@ -591,7 +591,7 @@ export default function AuditToolPage() {
                 {/* CTA with email capture */}
                 <div className="rounded-2xl bg-gradient-to-br from-[var(--accent-glow)] to-transparent border border-[var(--accent)]/20 p-8 text-center">
                   <TrendingUp className="w-8 h-8 text-[var(--accent)] mx-auto mb-3" />
-                  <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+                  <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                     Want a full marketing audit?
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)] mb-5 max-w-md mx-auto">

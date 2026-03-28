@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-  Loader2, Download, Sparkles, ImageIcon, AlertTriangle,
-  Send, RefreshCw, Edit3, Plus, Trash2, Type,
+  Loader2, Download, Sparkles, ImageIcon,
+  RefreshCw, Edit3, Plus, Trash2, Type,
   Building2, Sunrise, PartyPopper, Zap, Package, Star, Pencil,
-  Copy, ExternalLink, Play
+  Copy, Play
 } from 'lucide-react'
 
 /* ── Types ── */
@@ -100,6 +100,7 @@ const POSITION_OPTIONS: { id: TextLayer['position']; label: string }[] = [
 
 /* ── Text Overlay Editor Sub-component ── */
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function TextOverlayEditor({ videoUrl, adminKey }: {
   videoUrl: string
   adminKey: string
@@ -301,6 +302,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
   adminKey: string
 }) {
   const [templates, setTemplates] = useState<VideoTemplate[]>([])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [configured, setConfigured] = useState(false)
   const [assets, setAssets] = useState<Asset[]>([])
   const [styles, setStyles] = useState<StylePreset[]>([])
@@ -506,6 +508,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
                         selectedImage === a.url ? 'ring-2 ring-[var(--color-gold)]' : 'hover:ring-1 hover:ring-white/20'
                       }`}
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={a.url} alt="" className="w-full h-full object-cover" />
                     </button>
                   ))}

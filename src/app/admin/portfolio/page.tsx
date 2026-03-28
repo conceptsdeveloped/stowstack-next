@@ -157,7 +157,7 @@ function KPICard({ label, value, icon, accent, change }: KPICardProps) {
         </span>
       </div>
       <p
-        className={`text-2xl font-bold ${
+        className={`text-2xl font-semibold ${
           accent ? "text-[var(--color-gold)]" : "text-[var(--color-dark)]"
         }`}
       >
@@ -223,15 +223,12 @@ export default function PortfolioPage() {
     error: leadsError,
     refetch: refetchLeads,
   } = useAdminFetch<{ leads: Lead[]; auditCount: number; pagination: unknown }>("/api/admin-leads");
-  const leads = leadsRaw?.leads ?? [];
-
   const {
     data: campaignsRaw,
     loading: campaignsLoading,
     error: campaignsError,
     refetch: refetchCampaigns,
   } = useAdminFetch<{ campaigns: Campaign[] }>("/api/client-campaigns");
-  const campaigns = campaignsRaw?.campaigns ?? [];
 
   const {
     data: alertsRaw,
@@ -239,13 +236,15 @@ export default function PortfolioPage() {
     error: alertsError,
     refetch: refetchAlerts,
   } = useAdminFetch<{ alerts: CampaignAlert[]; clientAlerts: unknown; summary: unknown }>("/api/campaign-alerts");
-  const alerts = alertsRaw?.alerts ?? [];
 
   const loading = leadsLoading || campaignsLoading;
 
   /* derived metrics */
   const metrics = useMemo(() => {
     if (!leadsRaw || !campaignsRaw) return null;
+
+    const leads = leadsRaw.leads ?? [];
+    const campaigns = campaignsRaw.campaigns ?? [];
 
     const signedClients = new Set(
       leads
@@ -267,12 +266,13 @@ export default function PortfolioPage() {
       avgCPL,
       costPerMoveIn,
     };
-  }, [leads, campaigns, leadsRaw, campaignsRaw]);
+  }, [leadsRaw, campaignsRaw]);
 
   /* monthly chart data */
   const monthlyData = useMemo(() => {
     if (!campaignsRaw) return [];
 
+    const campaigns = campaignsRaw.campaigns ?? [];
     const byMonth = new Map<
       string,
       { spend: number; leads: number; moveIns: number }
@@ -299,12 +299,13 @@ export default function PortfolioPage() {
         Leads: d.leads,
         "Move-Ins": d.moveIns,
       }));
-  }, [campaigns, campaignsRaw]);
+  }, [campaignsRaw]);
 
   /* client rankings */
   const clientRankings = useMemo(() => {
     if (!campaignsRaw) return [];
 
+    const campaigns = campaignsRaw.campaigns ?? [];
     const byClient = new Map<
       string,
       {
@@ -338,7 +339,7 @@ export default function PortfolioPage() {
         roas: r.spend > 0 ? (r.moveIns * 1200) / r.spend : 0,
       }))
       .sort((a, b) => b.moveIns - a.moveIns);
-  }, [campaigns, campaignsRaw]);
+  }, [campaignsRaw]);
 
   const retryAll = useCallback(() => {
     refetchLeads();
@@ -349,10 +350,10 @@ export default function PortfolioPage() {
   /* critical alerts */
   const criticalAlerts = useMemo(
     () =>
-      alerts.filter(
+      (alertsRaw?.alerts ?? []).filter(
         (a) => a.severity === "critical" || a.severity === "warning",
       ),
-    [alerts],
+    [alertsRaw],
   );
 
   return (
@@ -385,7 +386,7 @@ export default function PortfolioPage() {
                   }`}
                 >
                   {alert.clientName && (
-                    <span className="mr-1 font-bold">{alert.clientName}:</span>
+                    <span className="mr-1 font-semibold">{alert.clientName}:</span>
                   )}
                   {alert.message}
                 </p>

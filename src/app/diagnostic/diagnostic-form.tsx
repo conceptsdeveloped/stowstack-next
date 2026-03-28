@@ -475,7 +475,7 @@ export function DiagnosticForm() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-3">
+          <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-3">
             Your Diagnostic is Being Generated
           </h2>
           <p className="text-[var(--text-secondary)] mb-6 leading-relaxed">
@@ -518,7 +518,7 @@ export function DiagnosticForm() {
           </svg>
           StorageAds
         </Link>
-        <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-3">
+        <h1 className="text-3xl sm:text-4xl font-semibold text-[var(--text-primary)] mb-3">
           Free Facility Diagnostic
         </h1>
         <p className="text-[var(--text-secondary)] max-w-lg mx-auto leading-relaxed">
@@ -573,7 +573,7 @@ export function DiagnosticForm() {
       <div className="rounded-2xl border border-[var(--color-dark)]/10 bg-[var(--bg-elevated)] p-6 sm:p-8">
         {step === 0 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-1">
+            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">
               Facility Information
             </h2>
             <p className="text-sm text-[var(--text-secondary)] mb-4">
@@ -634,7 +634,7 @@ export function DiagnosticForm() {
 
         {step === 1 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-1">
+            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">
               Occupancy Snapshot
             </h2>
             <p className="text-sm text-[var(--text-secondary)] mb-4">
@@ -682,7 +682,7 @@ export function DiagnosticForm() {
 
         {step === 2 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-1">
+            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">
               Marketing & Advertising
             </h2>
             <p className="text-sm text-[var(--text-secondary)] mb-4">
@@ -720,7 +720,7 @@ export function DiagnosticForm() {
 
         {step === 3 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-1">
+            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">
               Digital Presence
             </h2>
             <p className="text-sm text-[var(--text-secondary)] mb-4">
@@ -768,7 +768,7 @@ export function DiagnosticForm() {
 
         {step === 4 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-1">
+            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">
               Priorities & Goals
             </h2>
             <p className="text-sm text-[var(--text-secondary)] mb-4">

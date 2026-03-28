@@ -52,26 +52,25 @@ export default function StyleReferencesPage() {
 
   useEffect(() => {
     if (!adminKey) return
+    async function fetchRefs() {
+      try {
+        const res = await fetch('/api/style-references', {
+          headers: { 'X-Admin-Key': adminKey! },
+        })
+        const data = await res.json()
+        if (!res.ok || data.error) {
+          setError(data.error || `Load failed (${res.status})`)
+          return
+        }
+        if (data.references) setReferences(data.references)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load style references.')
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchRefs()
   }, [adminKey])
-
-  async function fetchRefs() {
-    try {
-      const res = await fetch('/api/style-references', {
-        headers: { 'X-Admin-Key': adminKey! },
-      })
-      const data = await res.json()
-      if (!res.ok || data.error) {
-        setError(data.error || `Load failed (${res.status})`)
-        return
-      }
-      if (data.references) setReferences(data.references)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load style references.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   async function uploadSingle(file: File) {
     const isVideo = file.type.startsWith('video/')
@@ -468,6 +467,7 @@ export default function StyleReferencesPage() {
                           onMouseLeave={e => { const v = e.target as HTMLVideoElement; v.pause(); v.currentTime = 0 }}
                         />
                       ) : (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={ref.image_url}
                           alt={ref.title || 'Style reference'}
@@ -666,6 +666,7 @@ export default function StyleReferencesPage() {
               onClick={e => e.stopPropagation()}
             />
           ) : (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={lightboxUrl}
               alt="Full view"

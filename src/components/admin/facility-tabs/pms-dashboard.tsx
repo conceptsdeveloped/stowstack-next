@@ -677,7 +677,7 @@ function AgingTab({ data }: { data: PmsData }) {
           <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Total Outstanding
           </div>
-          <div className="text-2xl font-bold text-[var(--color-dark)]">
+          <div className="text-2xl font-semibold text-[var(--color-dark)]">
             {fmtCurrency(buckets.total)}
           </div>
         </div>
@@ -685,7 +685,7 @@ function AgingTab({ data }: { data: PmsData }) {
           <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Delinquent Accounts
           </div>
-          <div className="text-2xl font-bold text-[var(--color-dark)]">
+          <div className="text-2xl font-semibold text-[var(--color-dark)]">
             {rows.length}
           </div>
         </div>
@@ -693,7 +693,7 @@ function AgingTab({ data }: { data: PmsData }) {
           <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Avg Outstanding
           </div>
-          <div className="text-2xl font-bold text-[var(--color-dark)]">
+          <div className="text-2xl font-semibold text-[var(--color-dark)]">
             {rows.length > 0
               ? fmtCurrency(buckets.total / rows.length)
               : "—"}
@@ -819,7 +819,7 @@ function AgingTab({ data }: { data: PmsData }) {
                 <td className="px-3 py-2.5 text-right text-sm font-semibold text-red-400">
                   {fmtCurrency(buckets.b120_plus)}
                 </td>
-                <td className="px-3 py-2.5 text-right text-sm font-bold text-[var(--color-dark)]">
+                <td className="px-3 py-2.5 text-right text-sm font-semibold text-[var(--color-dark)]">
                   {fmtCurrency(buckets.total)}
                 </td>
               </tr>
@@ -896,7 +896,7 @@ function RevenueTab({ data }: { data: PmsData }) {
             <div className="text-xs text-[var(--color-mid-gray)] mb-1">
               {yoyData.currentYear} Revenue (YTD)
             </div>
-            <div className="text-2xl font-bold text-[var(--color-dark)]">
+            <div className="text-2xl font-semibold text-[var(--color-dark)]">
               {fmtCurrency(yoyData.curTotal)}
             </div>
           </div>
@@ -904,14 +904,14 @@ function RevenueTab({ data }: { data: PmsData }) {
             <div className="text-xs text-[var(--color-mid-gray)] mb-1">
               {yoyData.prevYear} Revenue
             </div>
-            <div className="text-2xl font-bold text-[var(--color-body-text)]">
+            <div className="text-2xl font-semibold text-[var(--color-body-text)]">
               {fmtCurrency(yoyData.prevTotal)}
             </div>
           </div>
           <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
             <div className="text-xs text-[var(--color-mid-gray)] mb-1">YoY Change</div>
             <div
-              className={`text-2xl font-bold ${
+              className={`text-2xl font-semibold ${
                 yoyData.pctChange >= 0 ? "text-green-400" : "text-red-400"
               }`}
             >
@@ -1096,17 +1096,16 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
   const rows = data.lengthOfStay;
 
   // Distribution buckets
-  const bucketDefs = [
-    { label: "< 30 days", min: 0, max: 30 },
-    { label: "1-3 months", min: 30, max: 90 },
-    { label: "3-6 months", min: 90, max: 180 },
-    { label: "6-12 months", min: 180, max: 365 },
-    { label: "1-2 years", min: 365, max: 730 },
-    { label: "2-3 years", min: 730, max: 1095 },
-    { label: "3+ years", min: 1095, max: Infinity },
-  ];
-
   const distribution = useMemo(() => {
+    const bucketDefs = [
+      { label: "< 30 days", min: 0, max: 30 },
+      { label: "1-3 months", min: 30, max: 90 },
+      { label: "3-6 months", min: 90, max: 180 },
+      { label: "6-12 months", min: 180, max: 365 },
+      { label: "1-2 years", min: 365, max: 730 },
+      { label: "2-3 years", min: 730, max: 1095 },
+      { label: "3+ years", min: 1095, max: Infinity },
+    ];
     return bucketDefs.map((b) => ({
       ...b,
       count: rows.filter((r) => {
@@ -1143,7 +1142,7 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
           <div className="text-xs text-[var(--color-mid-gray)] mb-1">Total Records</div>
-          <div className="text-2xl font-bold text-[var(--color-dark)]">
+          <div className="text-2xl font-semibold text-[var(--color-dark)]">
             {stats.total}
           </div>
         </div>
@@ -1151,7 +1150,7 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
           <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Average Stay
           </div>
-          <div className="text-2xl font-bold text-[var(--color-gold)]">
+          <div className="text-2xl font-semibold text-[var(--color-gold)]">
             {fmt(stats.avg)} days
           </div>
           <div className="text-xs text-[var(--color-mid-gray)] mt-0.5">
@@ -1162,7 +1161,7 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
           <div className="text-xs text-[var(--color-mid-gray)] mb-1">
             Median Stay
           </div>
-          <div className="text-2xl font-bold text-[#8B5CF6]">
+          <div className="text-2xl font-semibold text-[#8B5CF6]">
             {fmt(stats.median)} days
           </div>
           <div className="text-xs text-[var(--color-mid-gray)] mt-0.5">
@@ -1171,7 +1170,7 @@ function LengthOfStayTab({ data }: { data: PmsData }) {
         </div>
         <div className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-xl p-4">
           <div className="text-xs text-[var(--color-mid-gray)] mb-1">Active / Moved Out</div>
-          <div className="text-2xl font-bold text-[var(--color-dark)]">
+          <div className="text-2xl font-semibold text-[var(--color-dark)]">
             <span className="text-green-400">{activeCount}</span>
             <span className="text-[var(--color-mid-gray)] mx-1">/</span>
             <span className="text-red-400">{movedOutCount}</span>

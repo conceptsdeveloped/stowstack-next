@@ -41,7 +41,7 @@ export default function QuickCalculator() {
               <Calculator size={14} /> Quick Revenue Calculator
             </div>
             <h2
-              className="font-bold"
+              className="font-semibold"
               style={{ fontSize: "var(--text-section-head)" }}
             >
               See What You&apos;re Losing in 10 Seconds
@@ -59,7 +59,7 @@ export default function QuickCalculator() {
                     >
                       Total Units
                     </label>
-                    <span className="text-sm font-bold text-[var(--color-gold)]">
+                    <span className="text-sm font-semibold text-[var(--color-gold)]">
                       {totalUnits}
                     </span>
                   </div>
@@ -98,7 +98,7 @@ export default function QuickCalculator() {
                       Current Occupancy
                     </label>
                     <span
-                      className={`text-sm font-bold ${
+                      className={`text-sm font-semibold ${
                         occupancy < 85 ? "text-red-400" : "text-[var(--color-gold)]"
                       }`}
                     >
@@ -140,7 +140,7 @@ export default function QuickCalculator() {
                   >
                     You&apos;re Losing
                   </p>
-                  <p className="text-3xl font-black text-red-400">
+                  <p className="text-3xl font-semibold text-red-400">
                     ${monthlyLoss.toLocaleString()}
                     <span className="text-lg font-medium">/mo</span>
                   </p>
@@ -160,7 +160,7 @@ export default function QuickCalculator() {
                   >
                     StorageAds Projection
                   </p>
-                  <p className="text-3xl font-black text-[var(--color-gold)]">
+                  <p className="text-3xl font-semibold text-[var(--color-gold)]">
                     {projectedMoveIns}{" "}
                     <span className="text-lg font-medium">move-ins/mo</span>
                   </p>

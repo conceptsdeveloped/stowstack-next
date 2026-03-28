@@ -5,7 +5,7 @@ import { useInView } from "./use-in-view";
 const PROBLEMS = [
   {
     heading: "Every ad goes to the same page.",
-    body: 'Your Google ads, your Facebook ads, your retargeting — all of it dumps traffic onto your homepage or a generic storEDGE rental page. A customer searching "climate controlled storage in Paw Paw" lands on the same page as someone clicking a "first month free" ad. Different intent — same dead-end experience.',
+    body: 'Your Google ads, your Facebook ads, your retargeting: all of it dumps traffic onto your homepage or a generic storEDGE rental page. A customer searching "climate controlled storage in Paw Paw" lands on the same page as someone clicking a "first month free" ad. Different intent: same dead-end experience.',
     highlight: "same dead-end experience",
   },
   {
@@ -39,7 +39,7 @@ export default function ProblemStatement() {
           }`}
         >
           <h2
-            className="font-bold"
+            className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
             You&apos;re spending money on ads. You have no idea which ones are
@@ -54,13 +54,13 @@ export default function ProblemStatement() {
           >
             National occupancy is at 77%. Google CPCs are up 45%. Up to 90% of
             lead conversions go unattributed. And fewer than 5% of independent
-            operators run Meta ads — where CPCs are 75-95% cheaper than Google.
+            operators run Meta ads: CPCs are 75-95% cheaper than Google.
           </p>
           <p
             className="mt-4 font-medium"
             style={{ color: "var(--text-primary)" }}
           >
-            Here is what is actually happening.
+            Here&apos;s what&apos;s actually happening.
           </p>
         </div>
 
@@ -88,7 +88,7 @@ export default function ProblemStatement() {
                 style={{ transitionDelay: `${400 + i * 200}ms` }}
               >
                 <h3
-                  className="font-bold mb-4"
+                  className="font-semibold mb-4"
                   style={{
                     fontSize: "var(--text-subhead)",
                     color: "var(--text-primary)",
@@ -139,7 +139,7 @@ export default function ProblemStatement() {
           }`}
         >
           <p
-            className="text-xl font-bold"
+            className="text-xl font-semibold"
             style={{ color: "var(--accent)" }}
           >
             You&apos;re not paying for marketing. You&apos;re paying for

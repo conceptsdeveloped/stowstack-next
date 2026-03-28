@@ -89,7 +89,7 @@ function KpiCard({ icon: Icon, label, value, prefix = "", suffix = "", change, i
           </span>
         )}
       </div>
-      <p className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: isAccent ? "var(--accent)" : "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
+      <p className="text-2xl sm:text-3xl font-semibold tracking-tight" style={{ color: isAccent ? "var(--accent)" : "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
         {prefix}{display}{suffix}
       </p>
       <p className="text-xs mt-1 uppercase font-medium" style={{ color: "var(--text-tertiary)", letterSpacing: "var(--tracking-wide)" }}>{label}</p>
@@ -146,7 +146,7 @@ export default function DemoDashboardClient() {
               <Building2 size={16} style={{ color: "var(--text-inverse)" }} />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight">{FACILITY.name}</h1>
+              <h1 className="text-lg font-semibold tracking-tight">{FACILITY.name}</h1>
               <div className="flex items-center gap-2 -mt-0.5">
                 <MapPin size={10} style={{ color: "var(--text-tertiary)" }} />
                 <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>{FACILITY.location}</p>
@@ -170,7 +170,7 @@ export default function DemoDashboardClient() {
               <Calendar size={14} style={{ opacity: 0.7 }} />
               <span className="text-xs font-medium" style={{ opacity: 0.7 }}>6-Month Campaign Summary</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-1">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-1">
               From {FACILITY.startingOccupancy}% to {MONTHS[MONTHS.length - 1].occupancy}% occupancy
             </h2>
             <p className="text-sm" style={{ opacity: 0.8 }}>
@@ -431,7 +431,7 @@ export default function DemoDashboardClient() {
         {/* Bottom CTA */}
         <div className="rounded-xl p-8 text-center" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-subtle)" }}>
           <Megaphone size={32} className="mx-auto mb-4" style={{ color: "var(--accent)" }} />
-          <h3 className="text-xl sm:text-2xl font-bold mb-2">Ready to see these numbers for your facility?</h3>
+          <h3 className="text-xl sm:text-2xl font-semibold mb-2">Ready to see these numbers for your facility?</h3>
           <p className="max-w-lg mx-auto mb-6 text-sm" style={{ color: "var(--text-secondary)" }}>
             Every facility is different. Our free audit analyzes your specific market, unit mix, and competition to project what campaigns could deliver for you.
           </p>

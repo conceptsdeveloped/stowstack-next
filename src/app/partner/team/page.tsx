@@ -207,7 +207,7 @@ export default function TeamPage() {
               className="flex items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-light-gray)] text-xs font-bold text-[var(--color-body-text)]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-light-gray)] text-xs font-semibold text-[var(--color-body-text)]">
                   {u.name
                     .split(" ")
                     .map((w) => w[0])

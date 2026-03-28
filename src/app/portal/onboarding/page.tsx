@@ -451,7 +451,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
         Back to Portal
       </a>
 
-      <h1 className="mb-6 text-xl font-bold">Onboarding Setup</h1>
+      <h1 className="mb-6 text-xl font-semibold">Onboarding Setup</h1>
 
       {/* step indicator */}
       <div className="mb-8">
@@ -467,7 +467,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
                     setCurrentStep(i);
                     window.scrollTo(0, 0);
                   }}
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
                     isActive
                       ? "bg-[var(--color-gold)] text-[var(--color-light)]"
                       : isComplete
@@ -1330,7 +1330,7 @@ function ReviewStep({
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
           <Check className="h-8 w-8 text-green-400" />
         </div>
-        <h2 className="text-lg font-bold">Onboarding Complete</h2>
+        <h2 className="text-lg font-semibold">Onboarding Complete</h2>
         <p className="mt-2 text-sm text-[var(--color-body-text)]">
           Your setup is finished. The StorageAds team is building your campaigns now.
         </p>

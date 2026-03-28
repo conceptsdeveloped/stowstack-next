@@ -249,6 +249,7 @@ function PhotoWithFallback({
           <span className="text-[10px] text-[var(--color-mid-gray)]">Failed</span>
         </div>
       )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
@@ -312,6 +313,29 @@ function CollapsibleSection({
 }
 
 // ---------------------------------------------------------------------------
+// Facility prop type (matches API response shape)
+// ---------------------------------------------------------------------------
+interface FacilityProp {
+  id: string
+  name: string
+  contact_name?: string
+  contact_email?: string
+  contact_phone?: string
+  website?: string
+  google_address?: string
+  occupancy_range?: string
+  total_units?: string
+  biggest_issue?: string
+  notes?: string
+  google_photos?: string[]
+  google_reviews?: GoogleReview[]
+  google_rating?: number
+  review_count?: number
+  google_phone?: string
+  google_maps_url?: string
+}
+
+// ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
 
@@ -320,7 +344,7 @@ export default function FacilityOverview({
   adminKey,
   onUpdate,
 }: {
-  facility: any
+  facility: FacilityProp
   adminKey: string
   onUpdate: () => void
 }) {
@@ -1260,7 +1284,7 @@ export default function FacilityOverview({
                   <p className="text-[10px] uppercase text-[var(--color-mid-gray)]">
                     Monthly Budget
                   </p>
-                  <p className="text-lg font-bold text-[var(--color-dark)]">
+                  <p className="text-lg font-semibold text-[var(--color-dark)]">
                     $
                     {plan.spend_recommendation.monthlyBudget.min.toLocaleString()}{" "}
                     - $
@@ -1462,7 +1486,7 @@ export default function FacilityOverview({
                     className="flex gap-3 p-3 rounded-lg bg-[var(--color-light-gray)] border border-[var(--border-subtle)]"
                   >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-[var(--color-light-gray)]">
-                      <span className="text-xs font-bold text-[var(--color-dark)]">
+                      <span className="text-xs font-semibold text-[var(--color-dark)]">
                         W{w.week}
                       </span>
                     </div>
@@ -1502,7 +1526,7 @@ export default function FacilityOverview({
                     key={i}
                     className="p-3 rounded-lg text-center bg-[var(--color-light-gray)] border border-[var(--border-subtle)]"
                   >
-                    <p className="text-lg font-bold text-[var(--color-dark)]">
+                    <p className="text-lg font-semibold text-[var(--color-dark)]">
                       {kpi.target}
                     </p>
                     <p className="text-[10px] uppercase text-[var(--color-mid-gray)]">

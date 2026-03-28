@@ -68,7 +68,7 @@ export default async function BlogIndex({ searchParams }: PageProps) {
       <div className="max-w-5xl mx-auto px-6 py-16">
         {/* Header */}
         <h1
-          className="font-bold mb-3"
+          className="font-semibold mb-3"
           style={{
             fontSize: "var(--text-section-head)",
             lineHeight: "var(--leading-tight)",
@@ -138,7 +138,7 @@ export default async function BlogIndex({ searchParams }: PageProps) {
               Featured
             </span>
             <h2
-              className="font-bold mb-3 group-hover:opacity-80 transition-opacity"
+              className="font-semibold mb-3 group-hover:opacity-80 transition-opacity"
               style={{
                 fontSize: "var(--text-subhead)",
                 lineHeight: "var(--leading-snug)",

@@ -143,6 +143,17 @@ model audit_report_cache {
   facilities  facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
+model website_scrape_cache {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url         String      @unique
+  facility_id String?     @db.Uuid
+  scrape_json Json
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+  facilities  facilities? @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([url], map: "idx_scrape_cache_url")
+}
+
 model audits {
   id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   facility_id   String?     @db.Uuid
@@ -553,6 +564,7 @@ model facilities {
   upsell_opportunities         upsell_opportunities[]
   style_references             style_references[]
   utm_links                    utm_links[]
+  website_scrape_cache         website_scrape_cache[]
 
   @@index([access_code], map: "idx_facilities_access_code")
   @@index([contact_email], map: "idx_facilities_contact_email")

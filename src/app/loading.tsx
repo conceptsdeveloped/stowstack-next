@@ -2,7 +2,7 @@ export default function Loading() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)]">
       <div className="flex flex-col items-center gap-4">
-        <span className="animate-pulse text-2xl font-bold tracking-tight text-[var(--color-dark)]">
+        <span className="animate-pulse text-2xl font-semibold tracking-tight text-[var(--color-dark)]">
           StorageAds
         </span>
         <div className="h-1 w-24 overflow-hidden rounded-full bg-[var(--color-light-gray)]">

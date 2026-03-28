@@ -131,7 +131,7 @@ export default function PartnerOverviewPage() {
                   <Icon className={`h-4 w-4 ${kpi.color}`} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-[var(--color-dark)]">{kpi.value}</p>
+              <p className="text-2xl font-semibold text-[var(--color-dark)]">{kpi.value}</p>
               <p className="mt-1 text-xs text-[var(--color-mid-gray)]">{kpi.label}</p>
             </div>
           );

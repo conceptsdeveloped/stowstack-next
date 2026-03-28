@@ -6,7 +6,7 @@ export default function NotFound() {
       <p className="text-sm font-medium uppercase tracking-widest text-[var(--color-blue)]">
         404
       </p>
-      <h1 className="mt-4 text-4xl font-bold tracking-tight text-[var(--color-dark)] sm:text-5xl">
+      <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--color-dark)] sm:text-5xl">
         Page not found
       </h1>
       <p className="mt-4 max-w-md text-base text-[var(--color-mid-gray)]">

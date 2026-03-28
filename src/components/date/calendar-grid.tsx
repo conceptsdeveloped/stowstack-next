@@ -133,6 +133,7 @@ export function CalendarGrid({
       {/* Calendar weeks */}
       {weeks.map((week, wi) => (
         <div key={wi} className="grid grid-cols-7">
+          {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
           {week.map((day, di) => {
             const key = dateKey(day);
             const disabled = isDisabled(day);

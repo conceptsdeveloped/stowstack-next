@@ -207,7 +207,7 @@ export default function GbpPage() {
         {/* Average rating */}
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5 text-center">
           <p className="mb-1 text-xs text-[var(--color-mid-gray)]">Average Rating</p>
-          <p className="text-3xl font-bold text-[var(--color-gold)]">
+          <p className="text-3xl font-semibold text-[var(--color-gold)]">
             {data.averageRating.toFixed(1)}
           </p>
           <div className="mt-2 flex justify-center">
@@ -218,7 +218,7 @@ export default function GbpPage() {
         {/* Total reviews */}
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5 text-center">
           <p className="mb-1 text-xs text-[var(--color-mid-gray)]">Total Reviews</p>
-          <p className="text-3xl font-bold text-[var(--color-dark)]">
+          <p className="text-3xl font-semibold text-[var(--color-dark)]">
             {data.totalReviews}
           </p>
           <p className="mt-2 text-xs text-[var(--color-body-text)]">
@@ -229,7 +229,7 @@ export default function GbpPage() {
         {/* Response rate */}
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5 text-center">
           <p className="mb-1 text-xs text-[var(--color-mid-gray)]">Response Rate</p>
-          <p className="text-3xl font-bold text-[var(--color-dark)]">
+          <p className="text-3xl font-semibold text-[var(--color-dark)]">
             {data.responseRate}%
           </p>
           <div className="mx-auto mt-2 h-1.5 w-24 overflow-hidden rounded-full bg-[var(--color-light-gray)]">

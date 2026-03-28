@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, Wrench, Zap } from "lucide-react";
+import { Sparkles, Wrench, Zap } from "lucide-react";
 
 type ChangelogType = "feature" | "improvement" | "fix";
 

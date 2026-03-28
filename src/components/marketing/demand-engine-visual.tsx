@@ -45,7 +45,7 @@ const COMPONENTS = [
     number: "04",
     title: "Conversion Flow",
     summary:
-      "Embedded storEDGE rental functionality. The customer reserves on YOUR branded page. No redirect. No off-brand experience. No friction.",
+      "Embedded storEDGE rental functionality. The customer reserves on YOUR branded page: no redirect, no friction. They stay on your site the entire time.",
     detail: [
       "Embedded reservation and move-in flow",
       "Customer stays on your branded page",
@@ -98,7 +98,7 @@ export default function DemandEngineVisual() {
           }`}
         >
           <h2
-            className="font-bold"
+            className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
             Six systems. One engine.{" "}
@@ -111,7 +111,7 @@ export default function DemandEngineVisual() {
               fontSize: "var(--text-body)",
             }}
           >
-            Ads, pages, attribution, optimization — all connected. Not an
+            Ads, pages, attribution, optimization: all connected. Not an
             agency guessing on your behalf. A system that shows you what&apos;s working and what isn&apos;t.
           </p>
         </div>
@@ -152,7 +152,7 @@ export default function DemandEngineVisual() {
                     <div className="flex-1">
                       <div className="flex items-baseline justify-between gap-4">
                         <h3
-                          className="font-bold"
+                          className="font-semibold"
                           style={{
                             fontSize: "var(--text-subhead)",
                             color: "var(--text-primary)",

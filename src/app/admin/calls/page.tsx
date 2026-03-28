@@ -127,7 +127,7 @@ export default function CallsPage() {
                   <Icon size={16} style={{ color: kpi.color }} />
                   <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>{kpi.label}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{kpi.value}</p>
+                <p className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>{kpi.value}</p>
               </div>
             );
           })}

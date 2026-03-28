@@ -345,7 +345,7 @@ export default function UTMLinks({
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
               Total Links
             </p>
-            <p className="text-lg font-bold text-[var(--color-dark)]">
+            <p className="text-lg font-semibold text-[var(--color-dark)]">
               {links.length}
             </p>
           </div>
@@ -353,7 +353,7 @@ export default function UTMLinks({
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">
               Total Clicks
             </p>
-            <p className="text-lg font-bold text-[var(--color-dark)]">
+            <p className="text-lg font-semibold text-[var(--color-dark)]">
               {totalClicks}
             </p>
           </div>
@@ -787,6 +787,7 @@ export default function UTMLinks({
                         <p className="text-xs font-medium text-[var(--color-mid-gray)]">
                           QR Code (for print / signage)
                         </p>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(trackingUrl)}&bgcolor=ffffff&color=000000&margin=8`}
                           alt="QR Code"

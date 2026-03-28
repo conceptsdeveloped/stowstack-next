@@ -24,6 +24,7 @@ export function AuthorBio({ name, bio, avatarUrl }: AuthorBioProps) {
       }}
     >
       {avatarUrl ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
         <img
           src={avatarUrl}
           alt={name}

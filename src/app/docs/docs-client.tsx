@@ -478,7 +478,7 @@ function EndpointCard({ endpoint }: { endpoint: Endpoint }) {
         className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-white/[0.02]"
       >
         <span
-          className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-wider ${
+          className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold tracking-wider ${
             METHOD_COLORS[endpoint.method]
           }`}
         >
@@ -580,10 +580,10 @@ export function DocsClient() {
           </Link>
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-gold)]">
-              <span className="text-sm font-bold text-[var(--color-light)]">S</span>
+              <span className="text-sm font-semibold text-[var(--color-light)]">S</span>
             </div>
             <div>
-              <h1 className="text-base font-bold tracking-tight">StorageAds API</h1>
+              <h1 className="text-base font-semibold tracking-tight">StorageAds API</h1>
               <p className="text-[10px] text-[var(--color-mid-gray)]">v1 — REST API Documentation</p>
             </div>
           </div>
@@ -686,7 +686,7 @@ export function DocsClient() {
           {activeSection === "auth" ? (
             <div className="max-w-3xl space-y-8">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight">Authentication</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">Authentication</h2>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--color-body-text)]">
                   All API requests require a Bearer token in the Authorization header.
                   API keys are scoped — each key has specific permissions that control
@@ -784,7 +784,7 @@ export function DocsClient() {
                     {section.title}
                   </span>
                 </div>
-                <h2 className="text-2xl font-bold tracking-tight">{section.title}</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">{section.title}</h2>
                 <p className="mt-2 text-sm text-[var(--color-body-text)]">{section.description}</p>
               </div>
               <div className="space-y-3">

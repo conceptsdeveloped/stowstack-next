@@ -32,7 +32,7 @@ const demandEnginePlans = [
       "Monthly performance report with cost-per-move-in data",
     ],
     bestFor:
-      "Single-facility operators testing paid ads for the first time. You want to see if this works before going deeper.",
+      "Single-facility operators testing paid ads for the first time.",
     isRecommended: false,
   },
   {
@@ -40,7 +40,7 @@ const demandEnginePlans = [
     price: "$1,500",
     period: "/mo per facility",
     description:
-      "The full system. This is where the compounding starts.",
+      "The full system. This is where compounding kicks in.",
     features: [
       "Meta ad campaigns (Facebook + Instagram)",
       "Google PPC campaigns (search + display)",
@@ -48,11 +48,11 @@ const demandEnginePlans = [
       "Retargeting campaigns for abandoned visitors",
       "A/B testing on creative and landing pages",
       "Video creative production",
-      "Full attribution dashboard — cost per reservation, cost per move-in, ROAS by creative",
+      "Full attribution dashboard: cost per reservation, cost per move-in, ROAS by creative",
       "Bi-weekly optimization calls",
     ],
     bestFor:
-      "Operators who want the complete acquisition system. You want every dollar tracked to a move-in and a dedicated team optimizing your campaigns every two weeks.",
+      "Operators who want every dollar tracked to a move-in and a dedicated team optimizing campaigns every two weeks.",
     isRecommended: true,
   },
   {
@@ -80,12 +80,12 @@ const conversionPlans = [
     price: "$3,000 build + $199/mo",
     features: [
       "Custom designed and branded to your facility",
-      "Embedded storEDGE rental flow — customers reserve without leaving your site",
+      "Embedded storEDGE rental flow: customers reserve without leaving your site",
       "Mobile-optimized and speed-optimized",
       "Trust elements and social proof built in",
     ],
     bestFor:
-      "Operators whose current website is a default template or a page they have not touched in years. You need a site that converts, not one that exists.",
+      "Operators whose current website is a default template or a page they haven't touched in years.",
   },
   {
     name: "Site + Landing Pages",
@@ -145,7 +145,7 @@ export default function PricingPage() {
       {/* Intro */}
       <section className="max-w-3xl mx-auto px-6 pt-24 pb-16 text-center">
         <h1
-          className="font-bold mb-6"
+          className="font-semibold mb-6"
           style={{
             fontSize: "var(--text-section-head)",
             lineHeight: "var(--leading-tight)",
@@ -166,11 +166,11 @@ export default function PricingPage() {
           <p>
             A single move-in at a typical self-storage facility generates
             $100-150 per month in recurring revenue. The average tenant stays 12
-            months. That is $1,200-1,800 in lifetime value from one move-in.
+            months. That&apos;s $1,200-1,800 in lifetime value from one move-in.
           </p>
           <p>
-            If StorageAds produces 5 additional move-ins in a month, that is
-            $6,000-9,000 in annualized revenue. If it produces 10, that is
+            If StorageAds produces 5 additional move-ins in a month, that&apos;s
+            $6,000-9,000 in annualized revenue. If it produces 10, that&apos;s
             $12,000-18,000.
           </p>
           <p style={{ color: "var(--text-primary)", fontWeight: 500 }}>
@@ -197,7 +197,7 @@ export default function PricingPage() {
             </span>
           </div>
           <h2
-            className="font-bold mb-2"
+            className="font-semibold mb-2"
             style={{
               fontSize: "var(--text-subhead)",
               lineHeight: "var(--leading-snug)",
@@ -223,7 +223,7 @@ export default function PricingPage() {
               fontSize: "var(--text-small)",
             }}
           >
-            Monthly retainer. Ad spend paid directly to Meta/Google — separate
+            Monthly retainer. Ad spend paid directly to Meta/Google: separate
             from StorageAds fees.
           </p>
 
@@ -251,10 +251,10 @@ export default function PricingPage() {
                     recommended
                   </span>
                 )}
-                <h3 className="text-lg font-bold mb-2">{plan.name}</h3>
+                <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
                 <div className="mb-3">
                   <span
-                    className="text-2xl font-bold"
+                    className="text-2xl font-semibold"
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
                     {plan.price}
@@ -323,7 +323,7 @@ export default function PricingPage() {
             </span>
           </div>
           <h2
-            className="font-bold mb-2"
+            className="font-semibold mb-2"
             style={{
               fontSize: "var(--text-subhead)",
               lineHeight: "var(--leading-snug)",
@@ -377,7 +377,7 @@ export default function PricingPage() {
                     {plan.tag}
                   </span>
                 )}
-                <h3 className="text-lg font-bold mb-3">{plan.name}</h3>
+                <h3 className="text-lg font-semibold mb-3">{plan.name}</h3>
                 <div
                   className="mb-6 text-sm font-semibold"
                   style={{ fontFamily: "var(--font-mono)" }}
@@ -424,7 +424,7 @@ export default function PricingPage() {
       <section className="py-20" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2
-            className="font-bold mb-2"
+            className="font-semibold mb-2"
             style={{
               fontSize: "var(--text-subhead)",
               lineHeight: "var(--leading-snug)",
@@ -451,7 +451,7 @@ export default function PricingPage() {
           >
             <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-body)" }}>
               Commit to 6 months of Growth and the site build drops from $5,000
-              to $2,500. That is a $2,500 discount that locks in your full
+              to $2,500. That&apos;s a $2,500 discount that locks in your full
               acquisition system from day one.
             </p>
             <ul className="space-y-2 text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -469,11 +469,10 @@ export default function PricingPage() {
               </li>
             </ul>
             <p className="pt-4" style={{ color: "var(--text-secondary)", fontSize: "var(--text-body)" }}>
-              You are paying one company for a website and another for ads.
+              You&apos;re paying one company for a website and another for ads.
               Neither one can tell you which ad produced a move-in. With
-              StorageAds, it is one system — the ad, the page, the rental flow,
-              and the reporting — all connected. That is how you stop guessing
-              and start scaling.
+              StorageAds, it&apos;s one system: the ad, the page, the rental flow,
+              and the reporting. All connected.
             </p>
           </div>
         </div>
@@ -483,27 +482,27 @@ export default function PricingPage() {
       <section className="py-20" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6">
           <h2
-            className="font-bold mb-8 text-center"
+            className="font-semibold mb-8 text-center"
             style={{
               fontSize: "var(--text-subhead)",
               lineHeight: "var(--leading-snug)",
             }}
           >
-            What you are actually paying for
+            What you&apos;re actually paying for
           </h2>
           <div className="space-y-6">
             {[
               {
                 price: "$299-899/mo on an SEO shop",
-                copy: "You get a nice website and a promise that organic traffic will build in 3-6 months. No paid traffic. No embedded rental flow. No attribution. No idea which page produced a move-in. You wait.",
+                copy: "You get a nice website and a promise that organic traffic will build in 3-6 months. No paid traffic. No embedded rental flow. No attribution. No idea which page produced a move-in.",
               },
               {
                 price: "$149-399/mo on a Google-only platform",
-                copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No full-funnel attribution. They optimize for clicks, not leases. You guess.',
+                copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No full-funnel attribution. They optimize for clicks, not leases.',
               },
               {
                 price: "$750-1,500/mo on StorageAds",
-                copy: "You get Meta ads + Google PPC + retargeting driving traffic to ad-specific landing pages with embedded storEDGE rental flow. Every move-in traced to the ad that produced it. A/B testing based on revenue. Cost per move-in drops every month. You know.",
+                copy: "You get Meta ads + Google PPC + retargeting driving traffic to ad-specific landing pages with embedded storEDGE rental flow. Every move-in traced to the ad that produced it. A/B testing based on revenue. Cost per move-in drops every month.",
                 isHighlighted: true,
               },
             ].map((item) => (
@@ -549,7 +548,7 @@ export default function PricingPage() {
       <section className="py-20" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6">
           <h2
-            className="font-bold mb-4 text-center"
+            className="font-semibold mb-4 text-center"
             style={{
               fontSize: "var(--text-subhead)",
               lineHeight: "var(--leading-snug)",
@@ -566,7 +565,7 @@ export default function PricingPage() {
             }}
           >
             Most operators are already paying for marketing through aggregator
-            commissions. Here is what that actually costs.
+            commissions. Here&apos;s what that actually costs.
           </p>
 
           <div className="grid gap-6 md:grid-cols-2">
@@ -628,7 +627,7 @@ export default function PricingPage() {
                   Break even at just <strong style={{ color: "var(--accent)" }}>3-5 move-ins per month</strong>
                 </p>
                 <p>
-                  Every move-in after that is pure upside — and you keep your first month&apos;s rent.
+                  Every move-in after that is pure upside: you keep your first month&apos;s rent.
                 </p>
               </div>
             </div>
@@ -640,7 +639,7 @@ export default function PricingPage() {
       <section className="py-24" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2
-            className="font-bold mb-4"
+            className="font-semibold mb-4"
             style={{
               fontSize: "var(--text-subhead)",
               lineHeight: "var(--leading-snug)",
@@ -656,10 +655,9 @@ export default function PricingPage() {
               maxWidth: "520px",
             }}
           >
-            This is not a self-serve checkout. StorageAds is built for operators
+            This isn&apos;t a self-serve checkout. StorageAds is built for operators
             who want a real conversation about their vacancy, their market, and
-            what a full-funnel system would look like for their specific
-            facilities.
+            what a full-funnel system would look like for their facilities.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

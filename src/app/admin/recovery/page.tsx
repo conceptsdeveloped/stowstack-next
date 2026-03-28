@@ -150,7 +150,7 @@ export default function RecoveryPage() {
                   <Icon size={16} style={{ color: s.color }} />
                   <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>{s.label}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{s.value}</p>
+                <p className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>{s.value}</p>
               </div>
             );
           })}

@@ -395,6 +395,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                 {/* Slide image with Ken Burns */}
                 {activeSlide && (
                   <div className="absolute inset-0 overflow-hidden" key={activeSlide.id + '-' + activeSlideIdx}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={activeSlide.imageUrl}
                       alt=""
@@ -438,7 +439,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                   }`}>
                     {activeSlide.textOverlay && (
                       <p
-                        className={`text-white font-bold leading-tight ${
+                        className={`text-white font-semibold leading-tight ${
                           activeSlide.textOverlay.length > 30 ? 'text-base' : 'text-lg'
                         }`}
                         style={{
@@ -590,6 +591,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                         : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:border-[var(--border-medium)]'
                     }`}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={slide.imageUrl}
                       alt=""
@@ -674,6 +676,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
                       onClick={() => addSlide(a.url)}
                       className="relative h-10 rounded overflow-hidden hover:ring-2 hover:ring-[var(--color-gold)] transition-all"
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={a.url} alt="" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                         <Plus size={12} className="text-white" />

@@ -192,21 +192,21 @@ export default function BillingPage() {
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
               <span className="text-xs text-[var(--color-mid-gray)]">Total Paid</span>
             </div>
-            <p className="text-xl font-bold text-[var(--color-dark)]">{fmtCurrency(totalPaid)}</p>
+            <p className="text-xl font-semibold text-[var(--color-dark)]">{fmtCurrency(totalPaid)}</p>
           </div>
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
             <div className="mb-2 flex items-center gap-2">
               <Clock className="h-4 w-4 text-amber-400" />
               <span className="text-xs text-[var(--color-mid-gray)]">Outstanding</span>
             </div>
-            <p className="text-xl font-bold text-[var(--color-dark)]">{fmtCurrency(totalOutstanding)}</p>
+            <p className="text-xl font-semibold text-[var(--color-dark)]">{fmtCurrency(totalOutstanding)}</p>
           </div>
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
             <div className="mb-2 flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-[var(--color-gold)]" />
               <span className="text-xs text-[var(--color-mid-gray)]">Total Ad Spend</span>
             </div>
-            <p className="text-xl font-bold text-[var(--color-dark)]">{fmtCurrency(totalAdSpend)}</p>
+            <p className="text-xl font-semibold text-[var(--color-dark)]">{fmtCurrency(totalAdSpend)}</p>
           </div>
         </div>
       )}

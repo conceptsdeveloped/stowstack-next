@@ -84,7 +84,7 @@ export default function ThreeWayComparison() {
           }`}
         >
           <h2
-            className="font-bold"
+            className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
             Doing It Yourself vs. Hiring an Agency vs.{" "}
@@ -112,7 +112,7 @@ export default function ThreeWayComparison() {
               <Minus size={12} className="text-stone-500" />
             </div>
             <span
-              className="text-xs font-bold uppercase"
+              className="text-xs font-semibold uppercase"
               style={{
                 color: "var(--text-tertiary)",
                 letterSpacing: "var(--tracking-wide)",
@@ -126,7 +126,7 @@ export default function ThreeWayComparison() {
               <X size={12} className="text-orange-500" />
             </div>
             <span
-              className="text-xs font-bold text-orange-400 uppercase"
+              className="text-xs font-semibold text-orange-400 uppercase"
               style={{ letterSpacing: "var(--tracking-wide)" }}
             >
               Ad Agency
@@ -137,7 +137,7 @@ export default function ThreeWayComparison() {
               <Check size={12} className="text-[var(--color-gold)]" />
             </div>
             <span
-              className="text-xs font-bold text-[var(--color-gold)] uppercase"
+              className="text-xs font-semibold text-[var(--color-gold)] uppercase"
               style={{ letterSpacing: "var(--tracking-wide)" }}
             >
               StorageAds
@@ -165,7 +165,7 @@ export default function ThreeWayComparison() {
 
               <div className="bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-xl px-4 py-3">
                 <span
-                  className="md:hidden text-[10px] font-bold uppercase"
+                  className="md:hidden text-[10px] font-semibold uppercase"
                   style={{
                     color: "var(--text-tertiary)",
                     letterSpacing: "var(--tracking-wide)",
@@ -183,7 +183,7 @@ export default function ThreeWayComparison() {
 
               <div className="bg-orange-500/[0.05] border border-orange-500/10 rounded-xl px-4 py-3">
                 <span
-                  className="md:hidden text-[10px] font-bold text-orange-400 uppercase"
+                  className="md:hidden text-[10px] font-semibold text-orange-400 uppercase"
                   style={{ letterSpacing: "var(--tracking-wide)" }}
                 >
                   Agency
@@ -193,7 +193,7 @@ export default function ThreeWayComparison() {
 
               <div className="bg-[var(--color-gold)]/[0.08] border border-[var(--color-gold)]/20 rounded-xl px-4 py-3">
                 <span
-                  className="md:hidden text-[10px] font-bold text-[var(--color-gold)] uppercase"
+                  className="md:hidden text-[10px] font-semibold text-[var(--color-gold)] uppercase"
                   style={{ letterSpacing: "var(--tracking-wide)" }}
                 >
                   StorageAds

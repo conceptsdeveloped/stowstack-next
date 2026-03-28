@@ -94,21 +94,21 @@ export default function PartnersPage() {
               <Building2 size={16} style={{ color: "var(--color-gold)" }} />
               <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>Total Partners</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{orgs.length}</p>
+            <p className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>{orgs.length}</p>
           </div>
           <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Users size={16} style={{ color: "#22C55E" }} />
               <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>Active</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{activeCount}</p>
+            <p className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>{activeCount}</p>
           </div>
           <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
             <div className="flex items-center gap-2 mb-2">
               <DollarSign size={16} style={{ color: "#EAB308" }} />
               <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>Total MRR</span>
             </div>
-            <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>${totalMrr.toLocaleString()}</p>
+            <p className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>${totalMrr.toLocaleString()}</p>
           </div>
         </div>
       )}

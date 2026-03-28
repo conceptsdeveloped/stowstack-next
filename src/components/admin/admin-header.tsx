@@ -139,7 +139,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         >
           <Bell className="h-4 w-4" />
           {notificationCount > 0 && (
-            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3B82F6] px-1 text-[10px] font-bold text-[#111827]">
+            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3B82F6] px-1 text-[10px] font-semibold text-[#111827]">
               {notificationCount > 99 ? "99+" : notificationCount}
             </span>
           )}

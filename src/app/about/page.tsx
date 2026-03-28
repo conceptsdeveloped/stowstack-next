@@ -62,7 +62,7 @@ export default function AboutPage() {
       {/* Content */}
       <article className="max-w-2xl mx-auto px-6 pt-24 pb-32">
         <h1
-          className="font-bold mb-12"
+          className="font-semibold mb-12"
           style={{
             fontSize: "var(--text-section-head)",
             lineHeight: "var(--leading-tight)",
@@ -101,7 +101,7 @@ export default function AboutPage() {
           <p>
             Not a generic marketing platform. Not something designed for
             e-commerce and retrofitted for storage. A system built specifically
-            for the way storage operators think about their business — in
+            for the way storage operators think about their business:
             move-ins, occupancy, and revenue.
           </p>
 
@@ -145,7 +145,7 @@ export default function AboutPage() {
           <p>
             StorageAds exists because operators deserve to know where their money
             is going. Not &quot;impressions&quot; and &quot;click-through
-            rates&quot; — real answers. How many move-ins did my ads drive this
+            rates&quot;: real answers. How many move-ins did my ads drive this
             month? What did each one cost? Which campaigns should I keep and
             which should I kill?
           </p>
@@ -214,7 +214,7 @@ export default function AboutPage() {
             className="mb-6 text-sm"
             style={{ color: "var(--text-secondary)" }}
           >
-            Get a free diagnostic — no pitch deck, no commitment.
+            Get a free diagnostic: no pitch deck, no commitment.
           </p>
           <Link href="/diagnostic" className="btn-primary inline-block">
             Get your free facility audit

@@ -23,7 +23,7 @@ const MONTHS = [
   {
     month: 3,
     title: "5 move-outs, 2 move-ins",
-    detail: "Net loss of 3 units — now 6 vacant",
+    detail: "Net loss of 3 units: now 6 vacant",
     loss: 900,
     cumulative: 1950,
     severity: "bg-red-500/70",
@@ -39,7 +39,7 @@ const MONTHS = [
   {
     month: 5,
     title: "8 vacant units",
-    detail: "$1,200/mo lost — competitor raises rates (you can't)",
+    detail: "$1,200/mo lost: competitor raises rates (you can't)",
     loss: 1200,
     cumulative: 4350,
     severity: "bg-red-500/90",
@@ -47,7 +47,7 @@ const MONTHS = [
   {
     month: 6,
     title: "Occupancy below 80%",
-    detail: "Revenue spiral — cutting rates to attract tenants",
+    detail: "Revenue spiral: cutting rates to attract tenants",
     loss: 1500,
     cumulative: 5850,
     severity: "bg-red-600",
@@ -83,10 +83,10 @@ export default function InactionTimeline() {
             <AlertTriangle size={14} /> The Cost of Doing Nothing
           </div>
           <h2
-            className="font-bold"
+            className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Every Month You Wait Costs More Than StorageAds
+            Every month you wait costs more than StorageAds
           </h2>
           <p
             className="mt-4 text-lg mx-auto"
@@ -118,7 +118,7 @@ export default function InactionTimeline() {
                     <p className="text-[10px] text-red-900 uppercase leading-none">
                       Month
                     </p>
-                    <p className="text-lg font-bold text-[var(--color-dark)] leading-none">
+                    <p className="text-lg font-semibold text-[var(--color-dark)] leading-none">
                       {m.month}
                     </p>
                   </div>
@@ -180,7 +180,7 @@ export default function InactionTimeline() {
             >
               6-Month Inaction Cost
             </p>
-            <p className="text-3xl font-black text-red-400">-$5,850</p>
+            <p className="text-3xl font-semibold text-red-400">-$5,850</p>
             <p
               className="text-sm mt-1"
               style={{ color: "var(--text-secondary)" }}
@@ -199,7 +199,7 @@ export default function InactionTimeline() {
             >
               6 Months with StorageAds
             </p>
-            <p className="text-3xl font-black text-[var(--color-gold)]">+$43,200</p>
+            <p className="text-3xl font-semibold text-[var(--color-gold)]">+$43,200</p>
             <p
               className="text-sm mt-1"
               style={{ color: "var(--text-secondary)" }}

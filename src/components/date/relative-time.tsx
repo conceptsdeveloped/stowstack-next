@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { formatRelativeTime } from '@/lib/relative-time';
 import { formatDateTimeTz } from '@/lib/dates';
 import { useTimezone } from '@/hooks/use-timezone';
@@ -20,7 +20,7 @@ interface RelativeTimeProps {
 export function RelativeTime({ date, timezone: tzOverride }: RelativeTimeProps) {
   const { timezone: autoTz } = useTimezone();
   const tz = tzOverride || autoTz;
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = useMemo(() => typeof date === 'string' ? new Date(date) : date, [date]);
   const [now, setNow] = useState(() => new Date());
 
   // Auto-update for recent timestamps (< 1 hour old)

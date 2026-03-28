@@ -102,7 +102,7 @@ export default function CTASection() {
           }`}
         >
           <h2
-            className="font-bold max-w-3xl mx-auto"
+            className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
             Your ads are going to the wrong page. Let&apos;s fix that.
@@ -111,15 +111,15 @@ export default function CTASection() {
             className="mt-4 max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary)" }}
           >
-            Get a free facility audit. We will look at your current digital
+            Get a free facility audit. We&apos;ll look at your current digital
             presence, ad spend, landing pages, rental flow, and competitive
-            landscape — then show you exactly where you&apos;re losing move-ins.
+            landscape: then show you exactly where you&apos;re losing move-ins.
           </p>
           <p
             className="mt-2"
             style={{ color: "var(--text-tertiary)" }}
           >
-            No contracts. No commitment. Just a clear picture of what is
+            No contracts. No commitment. Just a clear picture of what&apos;s
             costing you move-ins.
           </p>
         </div>
@@ -163,7 +163,7 @@ export default function CTASection() {
                 : "opacity-0 translate-y-6"
             }`}
           >
-            <h3 className="text-lg font-bold text-[var(--color-dark)] mb-6">
+            <h3 className="text-lg font-semibold text-[var(--color-dark)] mb-6">
               Tell us about your facility.
             </h3>
 
@@ -189,7 +189,7 @@ export default function CTASection() {
                 <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
                   <Check size={32} className="text-green-400" />
                 </div>
-                <h4 className="text-xl font-bold text-[var(--color-dark)] mb-2">
+                <h4 className="text-xl font-semibold text-[var(--color-dark)] mb-2">
                   Audit requested
                 </h4>
                 <p style={{ color: "var(--text-secondary)" }}>
@@ -299,7 +299,7 @@ export default function CTASection() {
                 </button>
 
                 <div className="flex flex-wrap gap-4 justify-center pt-2">
-                  {["No contracts. No commitment.", "Response within 24 hours.", "Built and run by a storage operator."].map(
+                  {["Response within 24 hours.", "Built and run by a storage operator.", "No contracts required."].map(
                     (text) => (
                       <p
                         key={text}
@@ -328,7 +328,7 @@ export default function CTASection() {
           >
             <div className="flex items-center gap-3 mb-3">
               <Calendar size={20} style={{ color: "var(--accent)" }} />
-              <h3 className="text-lg font-bold text-[var(--color-dark)]">
+              <h3 className="text-lg font-semibold text-[var(--color-dark)]">
                 Book with me anytime
               </h3>
             </div>

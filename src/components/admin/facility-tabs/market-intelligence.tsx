@@ -9,6 +9,12 @@ import {
 
 /* ── Types ── */
 
+interface CompetitorUnit {
+  size: string
+  price: string | null
+  type: string | null
+}
+
 interface Competitor {
   name: string
   address: string
@@ -18,6 +24,8 @@ interface Competitor {
   mapsUrl: string | null
   website: string | null
   source: string
+  units?: CompetitorUnit[]
+  promotions?: Array<{ text: string }>
 }
 
 interface DemandDriver {
@@ -123,7 +131,7 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
       const res = await fetch('/api/market-intel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
-        body: JSON.stringify({ facilityId }),
+        body: JSON.stringify({ facilityId, force: true }),
       })
       const data = await res.json()
       if (data.intel) {
@@ -291,6 +299,35 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
                         <span className="text-xs text-[var(--color-mid-gray)] ml-auto">{c.distance_miles} mi</span>
                       )}
                     </div>
+                    {c.units && c.units.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
+                        <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)] mb-1">
+                          <DollarSign size={10} className="inline mr-0.5" />
+                          Pricing ({c.units.length} unit{c.units.length !== 1 ? 's' : ''})
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {c.units.slice(0, 4).map((u, ui) => (
+                            <span key={ui} className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-light)] text-[var(--color-body-text)]">
+                              {u.size}{u.price ? ` — ${u.price}/mo` : ''}
+                            </span>
+                          ))}
+                          {c.units.length > 4 && (
+                            <span className="text-[10px] px-1.5 py-0.5 text-[var(--color-mid-gray)]">
+                              +{c.units.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {c.promotions && c.promotions.length > 0 && (
+                      <div className="mt-1.5">
+                        {c.promotions.slice(0, 2).map((p, pi) => (
+                          <p key={pi} className="text-[10px] text-[var(--color-gold)] truncate">
+                            {p.text}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -347,24 +384,24 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                 <div className="p-3 rounded-lg text-center bg-[var(--color-light-gray)]">
                   <Users size={14} className="mx-auto mb-1 text-[var(--color-mid-gray)]" />
-                  <p className="text-lg font-bold text-[var(--color-dark)]">{demographics.population?.toLocaleString() || '\u2014'}</p>
+                  <p className="text-lg font-semibold text-[var(--color-dark)]">{demographics.population?.toLocaleString() || '\u2014'}</p>
                   <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)]">Population</p>
                 </div>
                 <div className="p-3 rounded-lg text-center bg-[var(--color-light-gray)]">
                   <DollarSign size={14} className="mx-auto mb-1 text-[var(--color-mid-gray)]" />
-                  <p className="text-lg font-bold text-[var(--color-dark)]">
+                  <p className="text-lg font-semibold text-[var(--color-dark)]">
                     {demographics.median_income ? `$${(demographics.median_income / 1000).toFixed(0)}k` : '\u2014'}
                   </p>
                   <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)]">Median Income</p>
                 </div>
                 <div className="p-3 rounded-lg text-center bg-[var(--color-light-gray)]">
                   <Calendar size={14} className="mx-auto mb-1 text-[var(--color-mid-gray)]" />
-                  <p className="text-lg font-bold text-[var(--color-dark)]">{demographics.median_age || '\u2014'}</p>
+                  <p className="text-lg font-semibold text-[var(--color-dark)]">{demographics.median_age || '\u2014'}</p>
                   <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)]">Median Age</p>
                 </div>
                 <div className={`p-3 rounded-lg text-center ${(demographics.renter_pct || 0) > 40 ? 'bg-emerald-500/5 border border-emerald-500/20' : 'bg-[var(--color-light-gray)]'}`}>
                   <TrendingUp size={14} className={`mx-auto mb-1 ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-500' : 'text-[var(--color-mid-gray)]'}`} />
-                  <p className={`text-lg font-bold ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-400' : 'text-[var(--color-dark)]'}`}>
+                  <p className={`text-lg font-semibold ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-400' : 'text-[var(--color-dark)]'}`}>
                     {demographics.renter_pct != null ? `${demographics.renter_pct}%` : '\u2014'}
                   </p>
                   <p className={`text-[10px] uppercase tracking-wide ${(demographics.renter_pct || 0) > 40 ? 'text-emerald-500' : 'text-[var(--color-mid-gray)]'}`}>
@@ -373,7 +410,7 @@ export default function MarketIntelligence({ facilityId, adminKey }: {
                 </div>
                 <div className="p-3 rounded-lg text-center bg-[var(--color-light-gray)]">
                   <Home size={14} className="mx-auto mb-1 text-[var(--color-mid-gray)]" />
-                  <p className="text-lg font-bold text-[var(--color-dark)]">
+                  <p className="text-lg font-semibold text-[var(--color-dark)]">
                     {demographics.median_home_value ? `$${(demographics.median_home_value / 1000).toFixed(0)}k` : '\u2014'}
                   </p>
                   <p className="text-[10px] uppercase tracking-wide text-[var(--color-mid-gray)]">Home Value</p>

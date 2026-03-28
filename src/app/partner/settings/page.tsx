@@ -272,7 +272,7 @@ export default function SettingsPage() {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold capitalize text-[var(--color-dark)]">
+                  <span className="text-lg font-semibold capitalize text-[var(--color-dark)]">
                     {org.plan}
                   </span>
                   <span

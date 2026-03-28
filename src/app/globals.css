@@ -514,6 +514,11 @@ body {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Desktop nav link hover underline */
+.nav-desktop-link:hover .nav-desktop-underline {
+  transform: scaleX(1) !important;
+}
+
 /* Prevent horizontal overflow on mobile */
 @layer base {
   body { overflow-x: hidden; }

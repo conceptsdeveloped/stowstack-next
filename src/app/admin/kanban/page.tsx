@@ -235,11 +235,12 @@ export default function AdminKanbanPage() {
   const leads = data?.leads || [];
 
   const columnData = useMemo(() => {
+    const allLeads = data?.leads || [];
     const columns: Record<string, Lead[]> = {};
     for (const col of COLUMNS) {
       columns[col] = [];
     }
-    for (const lead of leads) {
+    for (const lead of allLeads) {
       const effectiveStatus = optimisticUpdates[lead.id] || lead.status;
       if (columns[effectiveStatus]) {
         columns[effectiveStatus].push({ ...lead, status: effectiveStatus });
@@ -248,7 +249,7 @@ export default function AdminKanbanPage() {
       }
     }
     return columns;
-  }, [leads, optimisticUpdates]);
+  }, [data, optimisticUpdates]);
 
   function handleDragStart(e: React.DragEvent, id: string) {
     draggedIdRef.current = id;
@@ -309,7 +310,7 @@ export default function AdminKanbanPage() {
       <div className="border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 backdrop-blur-sm sticky top-0 z-30">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">Kanban Board</h1>
+            <h1 className="text-xl font-semibold">Kanban Board</h1>
             <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">
               Drag leads between stages to update status
             </p>

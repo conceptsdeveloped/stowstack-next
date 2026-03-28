@@ -115,7 +115,7 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
             </h3>
             <p className="text-sm mb-6" style={{ color: "var(--color-body-text)" }}>
               {facilityName
-                ? `We'll email the complete breakdown for ${facilityName} — including the fixes that matter most.`
+                ? `We'll email the complete breakdown for ${facilityName}: the fixes that matter most.`
                 : "Enter your email and we'll send you the complete breakdown with actionable recommendations."}
             </p>
 

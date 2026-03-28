@@ -26,7 +26,7 @@ export function LegalLayout({
             <ArrowLeft size={20} />
           </Link>
           <span
-            className="text-sm font-bold tracking-tight"
+            className="text-sm font-semibold tracking-tight"
             style={{ color: "var(--text-primary)" }}
           >
             Stow
@@ -36,7 +36,7 @@ export function LegalLayout({
       </header>
       <article className="max-w-3xl mx-auto px-6 py-10">
         <h1
-          className="text-2xl font-bold mb-1"
+          className="text-2xl font-semibold mb-1"
           style={{ color: "var(--text-primary)" }}
         >
           {title}

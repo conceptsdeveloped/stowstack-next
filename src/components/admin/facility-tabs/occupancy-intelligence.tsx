@@ -224,7 +224,7 @@ function StackedBar({ segments, height = 28 }: { segments: { value: number; colo
           style={{ width: `${(seg.value / total) * 100}%`, minWidth: seg.value > 0 ? '2px' : 0 }}
         >
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <span className="text-[10px] font-bold text-white drop-shadow-sm whitespace-nowrap">
+            <span className="text-[10px] font-semibold text-white drop-shadow-sm whitespace-nowrap">
               {seg.label}
             </span>
           </div>
@@ -353,22 +353,22 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
           <div className="grid grid-cols-2 gap-3 content-center">
             <div className="rounded-lg p-3 bg-[var(--color-light-gray)]">
               <p className="text-xs font-medium text-[var(--color-mid-gray)]">Total Units</p>
-              <p className="text-xl font-bold text-[var(--color-dark)]">{fl.total_units}</p>
+              <p className="text-xl font-semibold text-[var(--color-dark)]">{fl.total_units}</p>
               <p className="text-xs text-[var(--color-mid-gray)]">{fl.occupied_units} occupied</p>
             </div>
             <div className="rounded-lg p-3 bg-[var(--color-light-gray)]">
               <p className="text-xs font-medium text-[var(--color-mid-gray)]">Vacant</p>
-              <p className="text-xl font-bold text-red-500">{fl.vacant_units}</p>
+              <p className="text-xl font-semibold text-red-500">{fl.vacant_units}</p>
               <p className="text-xs text-[var(--color-mid-gray)]">{money(gd.vacancy_loss)}/mo lost</p>
             </div>
             <div className="rounded-lg p-3 bg-[var(--color-light-gray)]">
               <p className="text-xs font-medium text-[var(--color-mid-gray)]">Gross Potential</p>
-              <p className="text-xl font-bold text-[var(--color-dark)]">{money(fl.gross_potential)}</p>
+              <p className="text-xl font-semibold text-[var(--color-dark)]">{money(fl.gross_potential)}</p>
               <p className="text-xs text-[var(--color-mid-gray)]">at street rates</p>
             </div>
             <div className="rounded-lg p-3 bg-[var(--color-light-gray)]">
               <p className="text-xs font-medium text-[var(--color-mid-gray)]">Actual MRR</p>
-              <p className="text-xl font-bold text-emerald-500">{money(fl.actual_revenue)}</p>
+              <p className="text-xl font-semibold text-emerald-500">{money(fl.actual_revenue)}</p>
               <p className="text-xs text-[var(--color-mid-gray)]">{pct(fl.economic_occ_pct)} capture</p>
             </div>
           </div>
@@ -385,7 +385,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
               <div key={bar.label}>
                 <div className="flex justify-between mb-1">
                   <span className="text-xs font-medium text-[var(--color-body-text)]">{bar.label}</span>
-                  <span className="text-xs font-bold text-[var(--color-dark)]">{pct(bar.value)}</span>
+                  <span className="text-xs font-semibold text-[var(--color-dark)]">{pct(bar.value)}</span>
                 </div>
                 <div className="w-full h-4 rounded-full bg-[var(--color-light-gray)]">
                   <div
@@ -463,7 +463,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                   <Building2 size={16} className="text-red-500" />
                   <span className="text-xs font-semibold uppercase tracking-wide text-red-400">Vacancy</span>
                 </div>
-                <p className="text-2xl font-bold text-red-500">{money(gd.vacancy_loss)}</p>
+                <p className="text-2xl font-semibold text-red-500">{money(gd.vacancy_loss)}</p>
                 <p className="text-xs text-[var(--color-mid-gray)]">/mo &middot; {pct(gd.vacancy_drag_pct)} of potential</p>
                 <p className="text-xs mt-2 text-[var(--color-mid-gray)]">{fl.vacant_units} empty units at street rate</p>
               </div>
@@ -473,7 +473,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                   <DollarSign size={16} className="text-amber-500" />
                   <span className="text-xs font-semibold uppercase tracking-wide text-amber-400">Rate Gap</span>
                 </div>
-                <p className="text-2xl font-bold text-amber-500">{money(gd.rate_gap_loss)}</p>
+                <p className="text-2xl font-semibold text-amber-500">{money(gd.rate_gap_loss)}</p>
                 <p className="text-xs text-[var(--color-mid-gray)]">/mo &middot; {pct(gd.rate_gap_drag_pct)} of potential</p>
                 <p className="text-xs mt-2 text-[var(--color-mid-gray)]">
                   {bands.severe.count > 0 && <span className="text-red-500 font-medium">{bands.severe.count} severe</span>}
@@ -490,7 +490,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                   <Users size={16} className="text-orange-500" />
                   <span className="text-xs font-semibold uppercase tracking-wide text-orange-400">Discounts</span>
                 </div>
-                <p className="text-2xl font-bold text-orange-500">{money(gd.discount_drag)}</p>
+                <p className="text-2xl font-semibold text-orange-500">{money(gd.discount_drag)}</p>
                 <p className="text-xs text-[var(--color-mid-gray)]">/mo &middot; {pct(gd.discount_drag_pct)} of potential</p>
                 <p className="text-xs mt-2 text-[var(--color-mid-gray)]">{discTenants.length} tenants with active discounts</p>
               </div>
@@ -500,7 +500,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                   <ShieldAlert size={16} className="text-purple-500" />
                   <span className="text-xs font-semibold uppercase tracking-wide text-purple-400">Delinquency</span>
                 </div>
-                <p className="text-2xl font-bold text-purple-500">{money(gd.delinquency_drag)}</p>
+                <p className="text-2xl font-semibold text-purple-500">{money(gd.delinquency_drag)}</p>
                 <p className="text-xs text-[var(--color-mid-gray)]">/mo &middot; {pct(gd.delinquency_drag_pct)} of potential</p>
                 <p className="text-xs mt-2 text-[var(--color-mid-gray)]">{ab.count} delinquent accounts</p>
               </div>
@@ -510,22 +510,22 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
             <div className="rounded-lg p-4 bg-[var(--color-light-gray)]">
               <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)] mb-3">Revenue Bridge</p>
               <div className="flex items-center gap-2 flex-wrap text-sm">
-                <span className="font-bold text-[var(--color-dark)]">{money(fl.gross_potential)}</span>
+                <span className="font-semibold text-[var(--color-dark)]">{money(fl.gross_potential)}</span>
                 <span className="text-[var(--color-mid-gray)]">Potential</span>
                 <ArrowRight size={14} className="text-[var(--color-mid-gray)]" />
-                <span className="font-bold text-red-500">-{money(gd.vacancy_loss)}</span>
+                <span className="font-semibold text-red-500">-{money(gd.vacancy_loss)}</span>
                 <span className="text-[var(--color-mid-gray)]">Vacancy</span>
                 <ArrowRight size={14} className="text-[var(--color-mid-gray)]" />
-                <span className="font-bold text-amber-500">-{money(gd.rate_gap_loss)}</span>
+                <span className="font-semibold text-amber-500">-{money(gd.rate_gap_loss)}</span>
                 <span className="text-[var(--color-mid-gray)]">Rate Gap</span>
                 <ArrowRight size={14} className="text-[var(--color-mid-gray)]" />
-                <span className="font-bold text-orange-500">-{money(gd.discount_drag)}</span>
+                <span className="font-semibold text-orange-500">-{money(gd.discount_drag)}</span>
                 <span className="text-[var(--color-mid-gray)]">Discounts</span>
                 <ArrowRight size={14} className="text-[var(--color-mid-gray)]" />
-                <span className="font-bold text-purple-500">-{money(gd.delinquency_drag)}</span>
+                <span className="font-semibold text-purple-500">-{money(gd.delinquency_drag)}</span>
                 <span className="text-[var(--color-mid-gray)]">Delinquency</span>
                 <ArrowRight size={14} className="text-[var(--color-mid-gray)]" />
-                <span className="font-bold text-emerald-500">{money(fl.actual_revenue)}</span>
+                <span className="font-semibold text-emerald-500">{money(fl.actual_revenue)}</span>
                 <span className="text-[var(--color-mid-gray)]">Collected</span>
               </div>
             </div>
@@ -564,7 +564,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                       <div>
                         <div className="flex justify-between mb-0.5">
                           <span className="text-[10px] font-medium text-[var(--color-mid-gray)]">Physical</span>
-                          <span className="text-[10px] font-bold text-[var(--color-dark)]">{pct(u.physical_occ_pct)}</span>
+                          <span className="text-[10px] font-semibold text-[var(--color-dark)]">{pct(u.physical_occ_pct)}</span>
                         </div>
                         <div className="w-full h-2.5 rounded-full bg-[var(--color-light-gray)]">
                           <div className="h-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400" style={{ width: `${Math.min(u.physical_occ_pct, 100)}%` }} />
@@ -573,7 +573,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                       <div>
                         <div className="flex justify-between mb-0.5">
                           <span className="text-[10px] font-medium text-[var(--color-mid-gray)]">Economic</span>
-                          <span className="text-[10px] font-bold text-[var(--color-dark)]">{pct(u.economic_occ_pct)}</span>
+                          <span className="text-[10px] font-semibold text-[var(--color-dark)]">{pct(u.economic_occ_pct)}</span>
                         </div>
                         <div className="w-full h-2.5 rounded-full bg-[var(--color-light-gray)]">
                           <div className="h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400" style={{ width: `${Math.min(u.economic_occ_pct, 100)}%` }} />
@@ -583,15 +583,15 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                     <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-dashed border-[var(--border-subtle)]">
                       <div className="text-center">
                         <p className="text-[10px] text-[var(--color-mid-gray)]">Gap</p>
-                        <p className={`text-sm font-bold ${gapColor}`}>{u.gap > 0 ? '+' : ''}{u.gap}pt</p>
+                        <p className={`text-sm font-semibold ${gapColor}`}>{u.gap > 0 ? '+' : ''}{u.gap}pt</p>
                       </div>
                       <div className="text-center">
                         <p className="text-[10px] text-[var(--color-mid-gray)]">Vacancy $</p>
-                        <p className="text-sm font-bold text-red-500">{money(u.vacancy_cost_monthly)}</p>
+                        <p className="text-sm font-semibold text-red-500">{money(u.vacancy_cost_monthly)}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-[10px] text-[var(--color-mid-gray)]">Rate Gap $</p>
-                        <p className="text-sm font-bold text-amber-500">{money(u.rate_gap_monthly)}</p>
+                        <p className="text-sm font-semibold text-amber-500">{money(u.rate_gap_monthly)}</p>
                       </div>
                     </div>
                   </div>
@@ -625,12 +625,12 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                           {u.vacant_count > 0 && <span className="text-red-500 text-xs ml-1">({u.vacant_count}v)</span>}
                         </td>
                         <td className="px-3 py-3 text-center">
-                          <span className={`text-sm font-bold ${u.physical_occ_pct >= 85 ? 'text-emerald-500' : u.physical_occ_pct >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
+                          <span className={`text-sm font-semibold ${u.physical_occ_pct >= 85 ? 'text-emerald-500' : u.physical_occ_pct >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
                             {pct(u.physical_occ_pct)}
                           </span>
                         </td>
                         <td className="px-3 py-3 text-center">
-                          <span className={`text-sm font-bold ${u.economic_occ_pct >= 85 ? 'text-indigo-500' : u.economic_occ_pct >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
+                          <span className={`text-sm font-semibold ${u.economic_occ_pct >= 85 ? 'text-indigo-500' : u.economic_occ_pct >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
                             {pct(u.economic_occ_pct)}
                           </span>
                         </td>
@@ -648,7 +648,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                         </td>
                         <td className="px-4 py-3 text-right">
                           {totalDrag > 0
-                            ? <span className="text-red-500 font-bold">{money(totalDrag)}</span>
+                            ? <span className="text-red-500 font-semibold">{money(totalDrag)}</span>
                             : <span className="text-emerald-500 font-medium">$0</span>}
                         </td>
                       </tr>
@@ -657,22 +657,22 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                 </tbody>
                 <tfoot>
                   <tr className="bg-[var(--color-light-gray)] border-t border-[var(--border-medium)]">
-                    <td className="px-4 py-3 font-bold text-[var(--color-dark)]">FACILITY</td>
+                    <td className="px-4 py-3 font-semibold text-[var(--color-dark)]">FACILITY</td>
                     <td className="px-3 py-3 text-center">
-                      <span className="font-bold text-[var(--color-dark)]">{fl.occupied_units}</span>
+                      <span className="font-semibold text-[var(--color-dark)]">{fl.occupied_units}</span>
                       <span className="text-[var(--color-mid-gray)]">/{fl.total_units}</span>
                     </td>
-                    <td className="px-3 py-3 text-center"><span className="font-bold text-emerald-500">{pct(fl.physical_occ_pct)}</span></td>
-                    <td className="px-3 py-3 text-center"><span className="font-bold text-indigo-500">{pct(fl.economic_occ_pct)}</span></td>
+                    <td className="px-3 py-3 text-center"><span className="font-semibold text-emerald-500">{pct(fl.physical_occ_pct)}</span></td>
+                    <td className="px-3 py-3 text-center"><span className="font-semibold text-indigo-500">{pct(fl.economic_occ_pct)}</span></td>
                     <td className="px-3 py-3 text-center">
-                      <span className={`font-bold ${fl.occupancy_gap > 5 ? 'text-red-500' : fl.occupancy_gap > 2 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                      <span className={`font-semibold ${fl.occupancy_gap > 5 ? 'text-red-500' : fl.occupancy_gap > 2 ? 'text-amber-500' : 'text-emerald-500'}`}>
                         {fl.occupancy_gap > 0 ? '+' : ''}{fl.occupancy_gap}pt
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-right font-bold text-[var(--color-dark)]">{money(fl.gross_potential)}</td>
-                    <td className="px-3 py-3 text-right font-bold text-emerald-500">{money(fl.actual_revenue)}</td>
+                    <td className="px-3 py-3 text-right font-semibold text-[var(--color-dark)]">{money(fl.gross_potential)}</td>
+                    <td className="px-3 py-3 text-right font-semibold text-emerald-500">{money(fl.actual_revenue)}</td>
                     <td className="px-3 py-3 text-right text-[var(--color-mid-gray)]">--</td>
-                    <td className="px-4 py-3 text-right font-bold text-red-500">{money(gd.total_drag)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-red-500">{money(gd.total_drag)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -713,7 +713,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                             <p>Revenue: {money(t.revenue)}</p>
                             <p className="text-emerald-500">Move-ins: {t.move_ins}</p>
                             <p className="text-red-500">Move-outs: {t.move_outs}</p>
-                            <p className={t.net_movement >= 0 ? 'text-emerald-500 font-bold' : 'text-red-500 font-bold'}>
+                            <p className={t.net_movement >= 0 ? 'text-emerald-500 font-semibold' : 'text-red-500 font-semibold'}>
                               Net: {t.net_movement >= 0 ? '+' : ''}{t.net_movement}
                             </p>
                           </div>
@@ -753,7 +753,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                 <div className="flex justify-between mt-1">
                   <span className="text-[10px] text-[var(--color-mid-gray)]">
                     Total net:{' '}
-                    <span className={trend.reduce((s, t) => s + t.net_movement, 0) >= 0 ? 'text-emerald-500 font-bold' : 'text-red-500 font-bold'}>
+                    <span className={trend.reduce((s, t) => s + t.net_movement, 0) >= 0 ? 'text-emerald-500 font-semibold' : 'text-red-500 font-semibold'}>
                       {trend.reduce((s, t) => s + t.net_movement, 0) >= 0 ? '+' : ''}{trend.reduce((s, t) => s + t.net_movement, 0)} units
                     </span>
                   </span>
@@ -831,7 +831,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                             <td className="px-3 py-2 text-[var(--color-dark)]">{t.tenant}</td>
                             <td className="px-3 py-2 text-right font-mono text-[var(--color-dark)]">{money(t.rent_rate)}</td>
                             <td className="px-3 py-2 text-right font-mono text-red-500 font-medium">{money(t.total_due)}</td>
-                            <td className={`px-3 py-2 text-center font-bold ${
+                            <td className={`px-3 py-2 text-center font-semibold ${
                               t.days_past_due > 90 ? 'text-red-500' : t.days_past_due > 60 ? 'text-orange-500' : t.days_past_due > 30 ? 'text-amber-500' : 'text-[var(--color-blue)]'
                             }`}>{t.days_past_due}</td>
                             <td className="px-4 py-2 text-center">
@@ -914,10 +914,10 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                 </tbody>
                 <tfoot>
                   <tr className="bg-[var(--color-light-gray)] border-t border-[var(--border-medium)]">
-                    <td colSpan={5} className="px-4 py-2.5 font-bold text-[var(--color-dark)]">
+                    <td colSpan={5} className="px-4 py-2.5 font-semibold text-[var(--color-dark)]">
                       Total Discount Impact ({discTenants.length} tenants)
                     </td>
-                    <td className="px-3 py-2.5 text-right font-mono text-orange-500 font-bold">
+                    <td className="px-3 py-2.5 text-right font-mono text-orange-500 font-semibold">
                       -{money(gd.discount_drag)}
                     </td>
                     <td colSpan={2} className="px-3 py-2.5 text-right text-xs text-[var(--color-mid-gray)]">
@@ -949,7 +949,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                     <div className="w-3 h-3 rounded-full bg-[var(--color-blue)]" />
                     <span className="text-sm font-semibold text-[var(--color-dark)]">Slight ($1-10 below)</span>
                   </div>
-                  <p className="text-3xl font-bold text-[var(--color-blue)]">{bands.slight.count}</p>
+                  <p className="text-3xl font-semibold text-[var(--color-blue)]">{bands.slight.count}</p>
                   <p className="text-xs text-[var(--color-mid-gray)]">tenants &middot; {money(bands.slight.loss)}/mo</p>
                   <p className="text-xs mt-2 text-[var(--color-mid-gray)]">Low priority \u2014 monitor at next lease renewal</p>
                 </div>
@@ -958,7 +958,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                     <div className="w-3 h-3 rounded-full bg-amber-400" />
                     <span className="text-sm font-semibold text-[var(--color-dark)]">Moderate ($11-30 below)</span>
                   </div>
-                  <p className="text-3xl font-bold text-amber-500">{bands.moderate.count}</p>
+                  <p className="text-3xl font-semibold text-amber-500">{bands.moderate.count}</p>
                   <p className="text-xs text-[var(--color-mid-gray)]">tenants &middot; {money(bands.moderate.loss)}/mo</p>
                   <p className="text-xs mt-2 text-[var(--color-mid-gray)]">ECRI candidates \u2014 phase increases over 2-3 months</p>
                 </div>
@@ -967,7 +967,7 @@ export default function OccupancyIntelligence({ facilityId, adminKey }: {
                     <div className="w-3 h-3 rounded-full bg-red-500" />
                     <span className="text-sm font-semibold text-[var(--color-dark)]">Severe ($30+ below)</span>
                   </div>
-                  <p className="text-3xl font-bold text-red-500">{bands.severe.count}</p>
+                  <p className="text-3xl font-semibold text-red-500">{bands.severe.count}</p>
                   <p className="text-xs text-[var(--color-mid-gray)]">tenants &middot; {money(bands.severe.loss)}/mo</p>
                   <p className="text-xs mt-2 text-[var(--color-mid-gray)]">Immediate action \u2014 largest revenue recovery opportunity</p>
                 </div>

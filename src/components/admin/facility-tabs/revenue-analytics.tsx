@@ -280,12 +280,12 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <div className="text-center">
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">Gross Potential</p>
-            <p className="text-2xl font-bold text-[var(--color-dark)]">{money(s.total_gross_potential)}</p>
+            <p className="text-2xl font-semibold text-[var(--color-dark)]">{money(s.total_gross_potential)}</p>
             <p className="text-xs text-[var(--color-mid-gray)]">at street rates</p>
           </div>
           <div className="text-center">
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">Actual MRR</p>
-            <p className="text-2xl font-bold text-emerald-500">{money(s.total_actual_revenue)}</p>
+            <p className="text-2xl font-semibold text-emerald-500">{money(s.total_actual_revenue)}</p>
             <p className="text-xs text-[var(--color-mid-gray)]">
               {s.revenue_trend_pct != null && (
                 <span className={s.revenue_trend_pct >= 0 ? 'text-emerald-500' : 'text-red-500'}>
@@ -296,29 +296,29 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
           </div>
           <div className="text-center">
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">Lost to Vacancy</p>
-            <p className="text-2xl font-bold text-red-500">{money(s.total_lost_revenue)}</p>
+            <p className="text-2xl font-semibold text-red-500">{money(s.total_lost_revenue)}</p>
             <p className="text-xs text-[var(--color-mid-gray)]">{money(s.total_lost_revenue * 12)}/yr</p>
           </div>
           <div className="text-center">
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">Revenue Capture</p>
-            <p className={`text-2xl font-bold ${s.revenue_capture_pct >= 85 ? 'text-emerald-500' : s.revenue_capture_pct >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
+            <p className={`text-2xl font-semibold ${s.revenue_capture_pct >= 85 ? 'text-emerald-500' : s.revenue_capture_pct >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
               {pct(s.revenue_capture_pct)}
             </p>
             <p className="text-xs text-[var(--color-mid-gray)]">actual &divide; potential</p>
           </div>
           <div className="text-center">
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">ECRI Opportunity</p>
-            <p className="text-2xl font-bold text-[var(--color-gold)]">{money(s.ecri_monthly_lift)}</p>
+            <p className="text-2xl font-semibold text-[var(--color-gold)]">{money(s.ecri_monthly_lift)}</p>
             <p className="text-xs text-[var(--color-mid-gray)]">{s.ecri_eligible_count} tenants &middot; {money(s.ecri_annual_lift)}/yr</p>
           </div>
           <div className="text-center">
             <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-mid-gray)]">Rate Position</p>
             <div className="flex items-center justify-center gap-1 mt-1">
-              <span className="text-emerald-500 text-sm font-bold">{s.tenants_above_street}</span>
+              <span className="text-emerald-500 text-sm font-semibold">{s.tenants_above_street}</span>
               <ArrowUpRight size={14} className="text-emerald-500" />
-              <span className="text-sm font-bold text-[var(--color-body-text)]">{s.tenants_at_street}</span>
+              <span className="text-sm font-semibold text-[var(--color-body-text)]">{s.tenants_at_street}</span>
               <Minus size={14} className="text-[var(--color-body-text)]" />
-              <span className="text-red-500 text-sm font-bold">{s.tenants_below_street}</span>
+              <span className="text-red-500 text-sm font-semibold">{s.tenants_below_street}</span>
               <ArrowDownRight size={14} className="text-red-500" />
             </div>
             <p className="text-xs text-[var(--color-mid-gray)]">{s.total_tenants_rated} rated</p>
@@ -414,7 +414,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                           <span className="text-xs text-[var(--color-mid-gray)]">{u.vacant_count} vacant @ ${u.street_rate?.toFixed(0)}/mo</span>
                         </div>
                         <div className="text-right">
-                          <span className="text-sm font-bold text-red-500">{money(u.vacant_lost_monthly)}/mo</span>
+                          <span className="text-sm font-semibold text-red-500">{money(u.vacant_lost_monthly)}/mo</span>
                           <span className="text-xs ml-2 text-[var(--color-mid-gray)]">{money(u.vacant_lost_annual)}/yr</span>
                         </div>
                       </div>
@@ -427,15 +427,15 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
                         <p className="text-xs font-medium text-[var(--color-mid-gray)]">Monthly Lost Revenue</p>
-                        <p className="text-xl font-bold text-red-500">{money(s.total_lost_revenue)}</p>
+                        <p className="text-xl font-semibold text-red-500">{money(s.total_lost_revenue)}</p>
                       </div>
                       <div>
                         <p className="text-xs font-medium text-[var(--color-mid-gray)]">Annual Impact</p>
-                        <p className="text-xl font-bold text-red-500">{money(s.total_lost_revenue * 12)}</p>
+                        <p className="text-xl font-semibold text-red-500">{money(s.total_lost_revenue * 12)}</p>
                       </div>
                       <div>
                         <p className="text-xs font-medium text-[var(--color-mid-gray)]">% of Potential</p>
-                        <p className="text-xl font-bold text-[var(--color-dark)]">
+                        <p className="text-xl font-semibold text-[var(--color-dark)]">
                           {s.total_gross_potential > 0 ? (s.total_lost_revenue / s.total_gross_potential * 100).toFixed(1) : 0}%
                         </p>
                       </div>
@@ -463,19 +463,19 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="rounded-lg p-3 bg-[var(--color-gold)]/5 border border-[var(--color-gold)]/20">
                   <p className="text-xs font-medium text-[var(--color-mid-gray)]">Eligible Tenants</p>
-                  <p className="text-xl font-bold text-[var(--color-gold)]">{ecri_tenants.length}</p>
+                  <p className="text-xl font-semibold text-[var(--color-gold)]">{ecri_tenants.length}</p>
                 </div>
                 <div className="rounded-lg p-3 bg-emerald-500/5 border border-emerald-500/20">
                   <p className="text-xs font-medium text-[var(--color-mid-gray)]">Monthly Lift</p>
-                  <p className="text-xl font-bold text-emerald-500">{money(s.ecri_monthly_lift)}</p>
+                  <p className="text-xl font-semibold text-emerald-500">{money(s.ecri_monthly_lift)}</p>
                 </div>
                 <div className="rounded-lg p-3 bg-emerald-500/5 border border-emerald-500/20">
                   <p className="text-xs font-medium text-[var(--color-mid-gray)]">Annual Lift</p>
-                  <p className="text-xl font-bold text-emerald-500">{money(s.ecri_annual_lift)}</p>
+                  <p className="text-xl font-semibold text-emerald-500">{money(s.ecri_annual_lift)}</p>
                 </div>
                 <div className="rounded-lg p-3 bg-[var(--color-light-gray)] border border-[var(--border-subtle)]">
                   <p className="text-xs font-medium text-[var(--color-mid-gray)]">Avg Tenure</p>
-                  <p className="text-xl font-bold text-[var(--color-dark)]">
+                  <p className="text-xl font-semibold text-[var(--color-dark)]">
                     {Math.round(ecri_tenants.reduce((sum, t) => sum + (t.days_as_tenant || 0), 0) / ecri_tenants.length / 30)}mo
                   </p>
                 </div>
@@ -520,7 +520,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                       <td className="px-3 py-2 text-right font-mono text-red-500">${t.actual_rate?.toFixed(0)}</td>
                       <td className="px-3 py-2 text-right font-mono text-red-500">-${Math.abs(t.rate_variance || 0).toFixed(0)}</td>
                       <td className="px-3 py-2 text-right font-mono text-[var(--color-gold)]">${t.ecri_suggested?.toFixed(0)}</td>
-                      <td className="px-4 py-2 text-right font-bold text-emerald-500">+${t.ecri_revenue_lift?.toFixed(0)}</td>
+                      <td className="px-4 py-2 text-right font-semibold text-emerald-500">+${t.ecri_revenue_lift?.toFixed(0)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -557,17 +557,17 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                 <div className="flex h-8 rounded-lg overflow-hidden">
                   {rate_distribution.below.length > 0 && (
                     <div className="bg-gradient-to-r from-red-500 to-red-400 flex items-center justify-center" style={{ width: `${(rate_distribution.below.length / s.total_tenants_rated) * 100}%` }}>
-                      <span className="text-xs font-bold text-white">{rate_distribution.below.length}</span>
+                      <span className="text-xs font-semibold text-white">{rate_distribution.below.length}</span>
                     </div>
                   )}
                   {s.tenants_at_street > 0 && (
                     <div className="bg-[var(--color-light-gray)] flex items-center justify-center" style={{ width: `${(s.tenants_at_street / s.total_tenants_rated) * 100}%` }}>
-                      <span className="text-xs font-bold text-[var(--color-body-text)]">{s.tenants_at_street}</span>
+                      <span className="text-xs font-semibold text-[var(--color-body-text)]">{s.tenants_at_street}</span>
                     </div>
                   )}
                   {rate_distribution.above.length > 0 && (
                     <div className="bg-gradient-to-r from-emerald-400 to-emerald-500 flex items-center justify-center" style={{ width: `${(rate_distribution.above.length / s.total_tenants_rated) * 100}%` }}>
-                      <span className="text-xs font-bold text-white">{rate_distribution.above.length}</span>
+                      <span className="text-xs font-semibold text-white">{rate_distribution.above.length}</span>
                     </div>
                   )}
                 </div>
@@ -682,11 +682,11 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                 <div className="mt-4 grid grid-cols-2 gap-4">
                   <div className="rounded-lg p-3 bg-emerald-500/5 border border-emerald-500/20">
                     <p className="text-xs font-medium text-[var(--color-mid-gray)]">Total Move-Ins (shown period)</p>
-                    <p className="text-lg font-bold text-emerald-500">{revenue_history.reduce((sum, m) => sum + (m.move_ins || 0), 0)}</p>
+                    <p className="text-lg font-semibold text-emerald-500">{revenue_history.reduce((sum, m) => sum + (m.move_ins || 0), 0)}</p>
                   </div>
                   <div className="rounded-lg p-3 bg-red-500/5 border border-red-500/20">
                     <p className="text-xs font-medium text-[var(--color-mid-gray)]">Total Move-Outs (shown period)</p>
-                    <p className="text-lg font-bold text-red-500">{revenue_history.reduce((sum, m) => sum + (m.move_outs || 0), 0)}</p>
+                    <p className="text-lg font-semibold text-red-500">{revenue_history.reduce((sum, m) => sum + (m.move_outs || 0), 0)}</p>
                   </div>
                 </div>
               </div>
@@ -705,7 +705,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
             expanded={expandedSection === 'health'}
             onToggle={() => toggle('health')}
             rightContent={
-              <div className={`text-2xl font-black ${health.overall >= 75 ? 'text-emerald-500' : health.overall >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+              <div className={`text-2xl font-semibold ${health.overall >= 75 ? 'text-emerald-500' : health.overall >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
                 {health.overall}
               </div>
             }
@@ -727,7 +727,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-end justify-center pb-1">
-                    <span className={`text-4xl font-black ${health.overall >= 75 ? 'text-emerald-500' : health.overall >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+                    <span className={`text-4xl font-semibold ${health.overall >= 75 ? 'text-emerald-500' : health.overall >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
                       {health.overall}
                     </span>
                     <span className="text-sm ml-1 mb-1 text-[var(--color-mid-gray)]">/100</span>
@@ -753,7 +753,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-[var(--color-mid-gray)]">{item.detail}</span>
-                        <span className={`text-sm font-bold ${item.data.score >= 75 ? 'text-emerald-500' : item.data.score >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+                        <span className={`text-sm font-semibold ${item.data.score >= 75 ? 'text-emerald-500' : item.data.score >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
                           {item.data.score}
                         </span>
                       </div>
@@ -805,7 +805,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                         <div key={i}>
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-sm font-medium text-[var(--color-dark)]">{step.label}</span>
-                            <span className={`text-sm font-bold ${isLoss ? 'text-red-500' : i === steps.length - 1 ? 'text-emerald-500' : 'text-[var(--color-dark)]'}`}>
+                            <span className={`text-sm font-semibold ${isLoss ? 'text-red-500' : i === steps.length - 1 ? 'text-emerald-500' : 'text-[var(--color-dark)]'}`}>
                               {isLoss ? '-' : ''}{money(Math.abs(step.value))}
                             </span>
                           </div>
@@ -822,13 +822,13 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                       <div className="grid grid-cols-3 gap-4 text-center">
                         <div>
                           <p className="text-xs text-[var(--color-mid-gray)]">Total Leakage</p>
-                          <p className="text-lg font-bold text-red-500">
+                          <p className="text-lg font-semibold text-red-500">
                             {money(waterfall.vacancy_loss + waterfall.rate_gap_loss + waterfall.delinquency_loss)}
                           </p>
                         </div>
                         <div>
                           <p className="text-xs text-[var(--color-mid-gray)]">Leakage Rate</p>
-                          <p className="text-lg font-bold text-[var(--color-dark)]">
+                          <p className="text-lg font-semibold text-[var(--color-dark)]">
                             {waterfall.gross_potential > 0
                               ? ((waterfall.vacancy_loss + waterfall.rate_gap_loss + waterfall.delinquency_loss) / waterfall.gross_potential * 100).toFixed(1)
                               : 0}%
@@ -836,7 +836,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                         </div>
                         <div>
                           <p className="text-xs text-[var(--color-mid-gray)]">Collection Rate</p>
-                          <p className="text-lg font-bold text-emerald-500">
+                          <p className="text-lg font-semibold text-emerald-500">
                             {waterfall.gross_potential > 0 ? (waterfall.actual_collected / waterfall.gross_potential * 100).toFixed(1) : 0}%
                           </p>
                         </div>
@@ -876,7 +876,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-sm font-medium text-[var(--color-dark)]">Fill Vacancies</label>
-                        <span className="text-sm font-bold text-emerald-500">{scenVacancyFill}%</span>
+                        <span className="text-sm font-semibold text-emerald-500">{scenVacancyFill}%</span>
                       </div>
                       <input type="range" min={0} max={100} step={5} value={scenVacancyFill} onChange={e => setScenVacancyFill(Number(e.target.value))} className="w-full accent-emerald-500" />
                       <div className="flex justify-between mt-1">
@@ -887,7 +887,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-sm font-medium text-[var(--color-dark)]">Rate Increase</label>
-                        <span className="text-sm font-bold text-[var(--color-gold)]">{scenRateIncrease}%</span>
+                        <span className="text-sm font-semibold text-[var(--color-gold)]">{scenRateIncrease}%</span>
                       </div>
                       <input type="range" min={0} max={15} step={1} value={scenRateIncrease} onChange={e => setScenRateIncrease(Number(e.target.value))} className="w-full accent-[var(--color-gold)]" />
                       <div className="flex justify-between mt-1">
@@ -898,7 +898,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-sm font-medium text-[var(--color-dark)]">Apply ECRI</label>
-                        <span className="text-sm font-bold text-violet-500">{scenEcriApply}%</span>
+                        <span className="text-sm font-semibold text-violet-500">{scenEcriApply}%</span>
                       </div>
                       <input type="range" min={0} max={100} step={10} value={scenEcriApply} onChange={e => setScenEcriApply(Number(e.target.value))} className="w-full accent-violet-500" />
                       <div className="flex justify-between mt-1">
@@ -912,19 +912,19 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                       <div>
                         <p className="text-xs font-medium text-[var(--color-mid-gray)]">Current MRR</p>
-                        <p className="text-xl font-bold text-[var(--color-dark)]">{money(s.total_actual_revenue)}</p>
+                        <p className="text-xl font-semibold text-[var(--color-dark)]">{money(s.total_actual_revenue)}</p>
                       </div>
                       <div>
                         <p className="text-xs font-medium text-[var(--color-mid-gray)]">Scenario Gain</p>
-                        <p className="text-xl font-bold text-emerald-500">+{money(totalScenarioGain)}</p>
+                        <p className="text-xl font-semibold text-emerald-500">+{money(totalScenarioGain)}</p>
                       </div>
                       <div>
                         <p className="text-xs font-medium text-[var(--color-mid-gray)]">Projected MRR</p>
-                        <p className="text-xl font-bold text-[var(--color-gold)]">{money(projectedMRR)}</p>
+                        <p className="text-xl font-semibold text-[var(--color-gold)]">{money(projectedMRR)}</p>
                       </div>
                       <div>
                         <p className="text-xs font-medium text-[var(--color-mid-gray)]">Annual Impact</p>
-                        <p className="text-xl font-bold text-violet-500">+{money(totalScenarioGain * 12)}/yr</p>
+                        <p className="text-xl font-semibold text-violet-500">+{money(totalScenarioGain * 12)}/yr</p>
                       </div>
                     </div>
                     <div className="mt-4">
@@ -936,14 +936,14 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                           className="h-8 bg-emerald-500 flex items-center justify-center transition-all"
                           style={{ width: `${s.total_gross_potential > 0 ? (s.total_actual_revenue / s.total_gross_potential * 100) : 0}%` }}
                         >
-                          <span className="text-xs font-bold text-white">Current</span>
+                          <span className="text-xs font-semibold text-white">Current</span>
                         </div>
                         {totalScenarioGain > 0 && (
                           <div
                             className="h-8 bg-[var(--color-gold)] flex items-center justify-center transition-all"
                             style={{ width: `${s.total_gross_potential > 0 ? (totalScenarioGain / s.total_gross_potential * 100) : 0}%` }}
                           >
-                            <span className="text-xs font-bold text-white">+Scenario</span>
+                            <span className="text-xs font-semibold text-white">+Scenario</span>
                           </div>
                         )}
                       </div>
@@ -988,7 +988,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                             <span className="text-xs text-[var(--color-mid-gray)]">Street: </span>
                             <span className="text-xs font-mono text-[var(--color-mid-gray)]">${u.street_per_sqft.toFixed(2)}/sf</span>
                           </div>
-                          <span className={`text-sm font-bold ${u.actual_per_sqft >= u.street_per_sqft ? 'text-emerald-500' : 'text-amber-500'}`}>
+                          <span className={`text-sm font-semibold ${u.actual_per_sqft >= u.street_per_sqft ? 'text-emerald-500' : 'text-amber-500'}`}>
                             ${u.actual_per_sqft.toFixed(2)}/sf
                           </span>
                         </div>
@@ -1075,9 +1075,9 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                   <div className="rounded-lg p-3 bg-yellow-500/5 border border-yellow-500/20">
                     <p className="text-xs text-[var(--color-dark)]">
                       <span className="font-semibold">Insight:</span>{' '}
-                      Peak move-in month is <span className="font-bold text-emerald-500">{peakMonth.month}</span> ({peakMonth.avg_move_ins.toFixed(1)} avg).
-                      Slowest is <span className="font-bold text-amber-500">{troughMonth.month}</span> ({troughMonth.avg_move_ins.toFixed(1)} avg).
-                      Worst net absorption is <span className="font-bold text-red-500">{worstNetMonth.month}</span> (net {(worstNetMonth.avg_move_ins - worstNetMonth.avg_move_outs).toFixed(1)}).
+                      Peak move-in month is <span className="font-semibold text-emerald-500">{peakMonth.month}</span> ({peakMonth.avg_move_ins.toFixed(1)} avg).
+                      Slowest is <span className="font-semibold text-amber-500">{troughMonth.month}</span> ({troughMonth.avg_move_ins.toFixed(1)} avg).
+                      Worst net absorption is <span className="font-semibold text-red-500">{worstNetMonth.month}</span> (net {(worstNetMonth.avg_move_ins - worstNetMonth.avg_move_outs).toFixed(1)}).
                       <span className="font-semibold"> Ramp ad spend in {seasonal_pattern.filter(m => m.avg_move_ins >= peakMonth.avg_move_ins * 0.8).map(m => m.month).join(', ')}.</span>
                     </p>
                   </div>
@@ -1120,7 +1120,7 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                         <div className={`w-3/4 rounded-t ${b.color} transition-all`} style={{ height: `${(b.value / maxBucket * 100)}%`, minHeight: b.value > 0 ? '4px' : '0' }} />
                       </div>
                       <p className="text-xs font-medium mt-2 text-[var(--color-dark)]">{b.label}</p>
-                      <p className={`text-sm font-bold ${b.value > 0 ? 'text-red-500' : 'text-[var(--color-mid-gray)]'}`}>{money(b.value)}</p>
+                      <p className={`text-sm font-semibold ${b.value > 0 ? 'text-red-500' : 'text-[var(--color-mid-gray)]'}`}>{money(b.value)}</p>
                       <p className="text-[10px] text-[var(--color-mid-gray)]">{(b.recovery * 100).toFixed(0)}% recovery</p>
                     </div>
                   ))}
@@ -1128,15 +1128,15 @@ export default function RevenueAnalytics({ facilityId, adminKey }: {
                 <div className="grid grid-cols-3 gap-4">
                   <div className="rounded-lg p-3 text-center bg-red-500/5 border border-red-500/20">
                     <p className="text-xs font-medium text-[var(--color-mid-gray)]">Total Outstanding</p>
-                    <p className="text-lg font-bold text-red-500">{money(total)}</p>
+                    <p className="text-lg font-semibold text-red-500">{money(total)}</p>
                   </div>
                   <div className="rounded-lg p-3 text-center bg-emerald-500/5 border border-emerald-500/20">
                     <p className="text-xs font-medium text-[var(--color-mid-gray)]">Expected Recovery</p>
-                    <p className="text-lg font-bold text-emerald-500">{money(expectedRecovery)}</p>
+                    <p className="text-lg font-semibold text-emerald-500">{money(expectedRecovery)}</p>
                   </div>
                   <div className="rounded-lg p-3 text-center bg-[var(--color-light-gray)] border border-[var(--border-subtle)]">
                     <p className="text-xs font-medium text-[var(--color-mid-gray)]">Projected Write-Off</p>
-                    <p className="text-lg font-bold text-[var(--color-dark)]">{money(projectedWriteOff)}</p>
+                    <p className="text-lg font-semibold text-[var(--color-dark)]">{money(projectedWriteOff)}</p>
                   </div>
                 </div>
                 <div className="rounded-lg p-3 bg-orange-500/5 border border-orange-500/20">

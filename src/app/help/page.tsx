@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Mail, Phone, MessageCircle, ChevronDown, ChevronRight } from "lucide-react";
+import { Mail, Phone, MessageCircle, ChevronDown } from "lucide-react";
 
 interface FaqItem {
   question: string;
@@ -29,7 +29,7 @@ const FAQ_CATEGORIES: { title: string; items: FaqItem[] }[] = [
   {
     title: "Campaigns & Reporting",
     items: [
-      { question: "What is cost per move-in?", answer: "Cost per move-in is your total ad spend divided by the number of attributed move-ins. Unlike cost per lead or cost per click, this measures actual revenue — a signed lease, not just interest." },
+      { question: "What is cost per move-in?", answer: "Cost per move-in is your total ad spend divided by the number of attributed move-ins. Unlike cost per lead or cost per click, this measures actual revenue: a signed lease, not just interest." },
       { question: "How accurate is the attribution?", answer: "We track the full journey: ad click → landing page → storEDGE reservation → move-in. Attribution is based on this complete chain, not estimates." },
       { question: "Can I download reports?", answer: "Yes. Go to Reports in your dashboard to generate PDF or CSV reports for any date range. Reports include move-in attribution, campaign performance, and ROI breakdowns." },
     ],

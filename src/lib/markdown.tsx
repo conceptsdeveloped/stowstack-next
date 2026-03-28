@@ -281,6 +281,7 @@ function renderInline(text: string): React.ReactNode {
         parts.push(remaining.slice(0, inlineImgMatch.index));
       }
       parts.push(
+        /* eslint-disable-next-line @next/next/no-img-element */
         <img
           key={key++}
           src={inlineImgMatch[2]}
@@ -427,6 +428,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
           case "image":
             return (
               <figure key={i} style={{ margin: "32px 0" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={node.url}
                   alt={node.alt || ""}

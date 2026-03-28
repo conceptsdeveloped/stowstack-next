@@ -43,22 +43,21 @@ export default function StyleReferences({ facilityId, adminKey }: {
   const [dragOver, setDragOver] = useState(false)
 
   useEffect(() => {
+    async function fetchRefs() {
+      try {
+        const res = await fetch(`/api/style-references?facilityId=${facilityId}`, {
+          headers: { 'X-Admin-Key': adminKey },
+        })
+        const data = await res.json()
+        if (data.references) setReferences(data.references)
+      } catch {
+        setError('Failed to load style references.')
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchRefs()
   }, [facilityId, adminKey])
-
-  async function fetchRefs() {
-    try {
-      const res = await fetch(`/api/style-references?facilityId=${facilityId}`, {
-        headers: { 'X-Admin-Key': adminKey },
-      })
-      const data = await res.json()
-      if (data.references) setReferences(data.references)
-    } catch {
-      setError('Failed to load style references.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   async function handleUpload(file: File) {
     setUploading(true)
@@ -289,6 +288,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
               >
                 {/* Image */}
                 <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={ref.image_url}
                     alt={ref.title || 'Style reference'}

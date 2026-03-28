@@ -117,7 +117,7 @@ export default function WalkInAttributionPage() {
           <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-[var(--bg-surface)] flex items-center justify-center">
             <AlertTriangle className="w-6 h-6 text-[var(--text-tertiary)]" />
           </div>
-          <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+          <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
             Invalid Access Code
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mb-6">
@@ -142,7 +142,7 @@ export default function WalkInAttributionPage() {
           <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-[var(--accent-glow)] flex items-center justify-center">
             <ClipboardList size={24} className="text-[var(--accent)]" />
           </div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
             Walk-In Attribution
           </h1>
           {facilityName && (

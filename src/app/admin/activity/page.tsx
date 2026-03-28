@@ -77,10 +77,9 @@ export default function ActivityPage() {
     "/api/activity-log",
     params
   );
-  const data = rawData?.logs ?? [];
-
   useEffect(() => {
     if (rawData) {
+      const data = rawData.logs ?? [];
       if (offset === 0) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setAllEntries(data);
@@ -90,7 +89,7 @@ export default function ActivityPage() {
       setHasMore(data.length === 50);
       setLoadingMore(false);
     }
-  }, [rawData, data, offset]);
+  }, [rawData, offset]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

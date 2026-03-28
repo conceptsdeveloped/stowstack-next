@@ -110,7 +110,7 @@ export function DataDeletionClient() {
             <ArrowLeft size={20} />
           </Link>
           <span
-            className="text-sm font-bold tracking-tight"
+            className="text-sm font-semibold tracking-tight"
             style={{ color: "var(--text-primary)" }}
           >
             Stow
@@ -121,7 +121,7 @@ export function DataDeletionClient() {
 
       <main className="max-w-3xl mx-auto px-6 py-10">
         <h1
-          className="text-2xl font-bold mb-1"
+          className="text-2xl font-semibold mb-1"
           style={{ color: "var(--text-primary)" }}
         >
           Data Deletion Request
@@ -471,7 +471,7 @@ export function DataDeletionClient() {
             ].map((item) => (
               <div key={item.step} className="flex items-start gap-3">
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold"
                   style={{
                     backgroundColor: "rgba(181,139,63,0.15)",
                     color: "var(--accent)",
