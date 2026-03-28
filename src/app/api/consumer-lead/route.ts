@@ -13,8 +13,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       sessionId, email, phone, name, unitSize, facilityId, landingPageId,
-      fbclid, gclid, fbc, fbp,
-      utm_source, utm_medium, utm_campaign, utm_content, utm_term,
+      fbclid, gclid, fbc: _fbc, fbp: _fbp,
+      utm_source, utm_medium, utm_campaign, utm_content, utm_term: _utm_term,
     } = body;
 
     if (!sessionId) {

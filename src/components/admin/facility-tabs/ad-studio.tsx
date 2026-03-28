@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import {
-  Loader2, Download, Sparkles, AlertTriangle, Edit3, RefreshCw,
+  Loader2, Sparkles, AlertTriangle, Edit3, RefreshCw,
   ImageIcon, Package, Star, Sunrise, Type, Pencil,
   Send, MoreHorizontal, Heart, MessageCircle, Bookmark, Globe,
   Copy, Check, ChevronRight, Eye, Wand2, ArrowDown, ArrowUp, Smartphone,
-  Mail, MessageSquare, MousePointer, Layout, GripVertical,
+  Mail, MessageSquare, MousePointer, Layout,
 } from 'lucide-react'
 
 /* ── Types ── */
@@ -127,6 +127,7 @@ function AdMockup({ format, image, copy, facilityName }: {
     return (
       <div className="w-[270px] h-[480px] bg-black rounded-2xl overflow-hidden relative shadow-2xl flex-shrink-0">
         {image ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-elevated)] to-[var(--color-light)]" />
@@ -138,17 +139,17 @@ function AdMockup({ format, image, copy, facilityName }: {
           <div className="h-0.5 flex-1 bg-white/30 rounded-full" />
         </div>
         <div className="absolute top-6 left-3 flex items-center gap-2">
-          <div className="w-7 h-7 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[9px] font-bold">SS</div>
+          <div className="w-7 h-7 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[9px] font-semibold">SS</div>
           <div>
             <p className="text-white text-[10px] font-semibold">{facilityName}</p>
             <p className="text-white/60 text-[8px]">Sponsored</p>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
-          <p className="text-white text-lg font-extrabold uppercase tracking-wide leading-none" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <p className="text-white text-lg font-semibold uppercase tracking-wide leading-none" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           <p className="text-white/80 text-[11px] leading-relaxed line-clamp-3" style={{ fontFamily: 'var(--font-ad-body)' }}>{primaryText}</p>
           <div className="flex justify-center pt-2">
-            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-black" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</div>
+            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-black" style={{ fontFamily: 'var(--font-ad-headline)' }}>{cta}</div>
           </div>
         </div>
       </div>
@@ -159,7 +160,7 @@ function AdMockup({ format, image, copy, facilityName }: {
     return (
       <div className="w-[320px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
         <div className="flex items-center gap-2 p-3">
-          <div className="w-8 h-8 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[10px] font-bold">SS</div>
+          <div className="w-8 h-8 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[10px] font-semibold">SS</div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-[var(--color-dark)]">{facilityName.toLowerCase().replace(/\s+/g, '')}</p>
             <p className="text-[10px] text-[var(--color-mid-gray)]">Sponsored</p>
@@ -168,6 +169,7 @@ function AdMockup({ format, image, copy, facilityName }: {
         </div>
         <div className="w-full aspect-square bg-[var(--color-light-gray)] relative">
           {image ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
@@ -175,7 +177,7 @@ function AdMockup({ format, image, copy, facilityName }: {
             </div>
           )}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16">
-            <p className="text-white text-xl font-extrabold uppercase tracking-wide leading-none" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+            <p className="text-white text-xl font-semibold uppercase tracking-wide leading-none" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           </div>
         </div>
         <div className="flex items-center gap-4 px-3 py-2 text-[var(--color-dark)]">
@@ -198,7 +200,7 @@ function AdMockup({ format, image, copy, facilityName }: {
     return (
       <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
         <div className="flex items-center gap-2 p-3">
-          <div className="w-10 h-10 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-xs font-bold">SS</div>
+          <div className="w-10 h-10 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-xs font-semibold">SS</div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-[var(--color-dark)]">{facilityName}</p>
             <p className="text-[11px] text-[var(--color-mid-gray)]">Sponsored &middot; <Globe size={10} className="inline" /></p>
@@ -208,6 +210,7 @@ function AdMockup({ format, image, copy, facilityName }: {
         <div className="px-3 pb-2"><p className="text-sm text-[var(--color-dark)]" style={{ fontFamily: 'var(--font-ad-body)' }}>{primaryText}</p></div>
         <div className="w-full aspect-[1.91/1] bg-[var(--color-light-gray)] relative">
           {image ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
@@ -235,16 +238,17 @@ function AdMockup({ format, image, copy, facilityName }: {
       <div className="w-[300px] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
         <div className="w-full h-[150px] bg-[var(--color-light-gray)] relative">
           {image ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
               <ImageIcon size={24} className="text-[var(--color-mid-gray)]" />
             </div>
           )}
-          <div className="absolute top-1 left-1 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded">Ad</div>
+          <div className="absolute top-1 left-1 bg-yellow-400 text-black text-[8px] font-semibold px-1 rounded">Ad</div>
         </div>
         <div className="p-3 space-y-1.5">
-          <p className="text-sm font-bold leading-tight text-[var(--color-dark)]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
+          <p className="text-sm font-semibold leading-tight text-[var(--color-dark)]" style={{ fontFamily: 'var(--font-ad-headline)' }}>{headline}</p>
           <p className="text-[11px] text-[var(--color-mid-gray)] line-clamp-2">{description || primaryText}</p>
           <div className="flex items-center justify-between pt-1">
             <span className="text-[10px] text-[var(--color-mid-gray)]">{facilityName}</span>
@@ -498,14 +502,15 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
       <div className="relative">
         <div className="border border-[var(--border-subtle)] rounded-xl p-4 bg-[var(--bg-elevated)]">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-bold">1</div>
+            <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-semibold">1</div>
             <span className="text-xs font-semibold text-[var(--color-dark)]">Ad Impression</span>
             <span className="text-[10px] text-[var(--color-mid-gray)] ml-auto">Meta / Google</span>
           </div>
           <div className="flex gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             {image && <img src={image} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />}
             <div className="min-w-0">
-              <p className="text-xs font-bold text-[var(--color-dark)] uppercase tracking-wide" style={{ fontFamily: 'var(--font-ad-headline)' }}>{copy.headline || 'Headline'}</p>
+              <p className="text-xs font-semibold text-[var(--color-dark)] uppercase tracking-wide" style={{ fontFamily: 'var(--font-ad-headline)' }}>{copy.headline || 'Headline'}</p>
               <p className="text-[11px] text-[var(--color-body-text)] mt-1 line-clamp-2" style={{ fontFamily: 'var(--font-ad-body)' }}>{copy.primaryText || 'Primary text'}</p>
               <p className="text-[10px] text-[var(--color-gold)] mt-1">{copy.cta || 'Learn More'} →</p>
             </div>
@@ -518,7 +523,7 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
       <div className="relative">
         <div className="border border-[var(--border-subtle)] rounded-xl p-4 bg-[var(--bg-elevated)]">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-bold">2</div>
+            <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-semibold">2</div>
             <span className="text-xs font-semibold text-[var(--color-dark)]">Landing Page</span>
             <span className="text-[10px] text-[var(--color-mid-gray)] ml-auto">storageads.com/{facilityName.toLowerCase().replace(/\s+/g, '-')}</span>
           </div>
@@ -541,7 +546,7 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
               </div>
             ) : (
               <>
-                <p className="text-sm font-bold text-[var(--color-dark)] mb-2" style={{ fontFamily: 'var(--font-ad-headline)' }}>
+                <p className="text-sm font-semibold text-[var(--color-dark)] mb-2" style={{ fontFamily: 'var(--font-ad-headline)' }}>
                   {fillVars(config.landingHero)}
                 </p>
                 <div className="space-y-1.5">
@@ -569,7 +574,7 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
       <div className="relative">
         <div className="border border-emerald-500/20 rounded-xl p-4 bg-emerald-500/5">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[10px] font-bold">3</div>
+            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[10px] font-semibold">3</div>
             <span className="text-xs font-semibold text-emerald-400">Reservation Complete</span>
             <span className="text-[10px] text-emerald-400/60 ml-auto">Event fires → CAPI</span>
           </div>
@@ -581,7 +586,7 @@ function FunnelTest({ copy, image, facilityName, variationId, adminKey, savedCon
       {/* Step 4: Post-conversion */}
       <div className="border border-[var(--border-subtle)] rounded-xl p-4 bg-[var(--bg-elevated)]">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-bold">4</div>
+          <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center text-white text-[10px] font-semibold">4</div>
           <span className="text-xs font-semibold text-[var(--color-dark)]">Post-Conversion Sequence</span>
           {editing && (
             <button onClick={addPostConversion} className="ml-auto text-[10px] text-[var(--color-gold)] hover:text-[var(--color-blue)]">+ Add Step</button>
@@ -700,7 +705,7 @@ function StepIndicator({ current, onStep }: { current: StudioStep; onStep: (s: S
                 : 'text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]'
             }`}
           >
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ${
               current === s.key ? 'bg-[var(--color-dark)]/20' : 'bg-[var(--color-light-gray)]'
             }`}>{s.num}</span>
             <span className="hidden sm:inline">{s.label}</span>
@@ -958,6 +963,7 @@ export default function AdStudio({ facilityId, adminKey, facilityName }: {
                         : 'ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]'
                     }`}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={img.url} alt="" className="h-16 w-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                   </button>
                 ))}
@@ -980,6 +986,7 @@ export default function AdStudio({ facilityId, adminKey, facilityName }: {
                         : 'ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]'
                     }`}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={job.imageUrl!} alt="" className="h-20 w-full object-cover" />
                     <span className="absolute bottom-1 right-1 text-[8px] px-1 py-0.5 rounded bg-black/60 text-white">{ASPECT_LABELS[job.aspect]}</span>
                   </button>
@@ -1245,6 +1252,7 @@ export default function AdStudio({ facilityId, adminKey, facilityName }: {
                           : 'ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]'
                       }`}
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={job.imageUrl!} alt="" className="h-16 w-full object-cover" />
                       <span className="absolute bottom-0.5 right-0.5 text-[7px] px-1 rounded bg-[var(--color-gold)]/80 text-[var(--color-light)]">AI</span>
                     </button>
@@ -1260,6 +1268,7 @@ export default function AdStudio({ facilityId, adminKey, facilityName }: {
                           : 'ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]'
                       }`}
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={img.url} alt="" className="h-16 w-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                     </button>
                   ))}

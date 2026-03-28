@@ -117,7 +117,7 @@ export default async function ComparisonPage({ params }: PageProps) {
                       {cat}
                     </td>
                   </tr>
-                  {FEATURES.filter((f) => f.category === cat).map((feature, idx) => (
+                  {FEATURES.filter((f) => f.category === cat).map((feature, _idx) => (
                     <tr key={feature.feature} style={{ borderBottom: "1px solid var(--color-light-gray)" }}>
                       <td className="px-5 py-3" style={{ fontFamily: "var(--font-body)", color: "var(--color-dark)" }}>
                         {feature.feature}

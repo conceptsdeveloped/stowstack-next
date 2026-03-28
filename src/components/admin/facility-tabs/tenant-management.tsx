@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Users,
   Search,
-  Filter,
   ChevronDown,
   ChevronRight,
   ChevronLeft,
@@ -18,14 +17,11 @@ import {
   CreditCard,
   RefreshCw,
   UserPlus,
-  Download,
   ArrowUpDown,
   X,
   CheckCircle2,
-  Clock,
   XCircle,
   Upload,
-  MoreHorizontal,
   Shield,
   Zap,
   Target,
@@ -157,7 +153,7 @@ interface Props {
 
 /* ─── main component ─── */
 
-export default function TenantManagement({ facilityId, adminKey }: Props) {
+export default function TenantManagement({ facilityId, adminKey: _adminKey }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,7 +174,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
     { facilityId, includeAnalytics: "true" }
   );
 
-  const tenants = data?.tenants || [];
+  const tenants = useMemo(() => data?.tenants || [], [data?.tenants]);
   const stats: TenantStats = useMemo(() => {
     if (!data?.stats) return { total: 0, active: 0, delinquent: 0, movedOut: 0, totalRevenue: 0, avgRate: 0, collectionRate: 0, autopayRate: 0 };
     const s = data.stats;
@@ -192,7 +188,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
       collectionRate: s.collection_rate,
       autopayRate: s.autopay_pct,
     };
-  }, [data?.stats]);
+  }, [data]);
 
   /* ─── filtering / sorting / pagination ─── */
 
@@ -553,7 +549,7 @@ function KPICard({ label, value, icon, color }: { label: string; value: string |
         <div className={`${color || "text-[var(--color-body-text)]"}`}>{icon}</div>
         <span className="text-xs text-[var(--color-mid-gray)]">{label}</span>
       </div>
-      <p className={`mt-2 text-xl font-bold ${color || "text-[var(--color-dark)]"}`}>{value}</p>
+      <p className={`mt-2 text-xl font-semibold ${color || "text-[var(--color-dark)]"}`}>{value}</p>
     </div>
   );
 }
@@ -671,7 +667,7 @@ function TenantRow({ tenant, onClick, onEscalate, actionLoading }: {
 
 /* ─── tenant detail view ─── */
 
-function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, actionLoading, refetch, facilityId }: {
+function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, actionLoading, refetch: _refetch, facilityId: _facilityId }: {
   tenant: Tenant;
   onBack: () => void;
   onRecordPayment: (id: string, amount: number, method: string) => void;
@@ -687,7 +683,7 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [moveOutReason, setMoveOutReason] = useState("");
 
-  const tenure = Math.round((Date.now() - new Date(tenant.move_in_date).getTime()) / (86400000 * 30));
+  const [tenure] = useState(() => Math.round((Date.now() - new Date(tenant.move_in_date).getTime()) / (86400000 * 30)));
   const prediction = tenant.churn_predictions;
   const escalations = tenant.delinquency_escalations || [];
   const upsells = tenant.upsell_opportunities || [];
@@ -702,7 +698,7 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
           <ChevronLeft className="h-4 w-4 text-[var(--color-body-text)]" />
         </button>
         <div className="flex-1">
-          <h2 className="text-lg font-bold text-[var(--color-dark)]">{tenant.name}</h2>
+          <h2 className="text-lg font-semibold text-[var(--color-dark)]">{tenant.name}</h2>
           <p className="text-xs text-[var(--color-mid-gray)]">Unit {tenant.unit_number}{tenant.unit_size ? ` • ${tenant.unit_size}` : ""}{tenant.unit_type ? ` • ${tenant.unit_type}` : ""}</p>
         </div>
         <TenantStatusBadge tenant={tenant} />
@@ -712,21 +708,21 @@ function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMoveOut, 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
           <p className="text-xs text-[var(--color-mid-gray)]">Monthly Rate</p>
-          <p className="mt-1 text-lg font-bold">${Number(tenant.monthly_rate).toLocaleString()}</p>
+          <p className="mt-1 text-lg font-semibold">${Number(tenant.monthly_rate).toLocaleString()}</p>
         </div>
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
           <p className="text-xs text-[var(--color-mid-gray)]">Balance Due</p>
-          <p className={`mt-1 text-lg font-bold ${(Number(tenant.balance) || 0) > 0 ? "text-red-400" : "text-emerald-400"}`}>
+          <p className={`mt-1 text-lg font-semibold ${(Number(tenant.balance) || 0) > 0 ? "text-red-400" : "text-emerald-400"}`}>
             ${Number(tenant.balance || 0).toLocaleString()}
           </p>
         </div>
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
           <p className="text-xs text-[var(--color-mid-gray)]">Tenure</p>
-          <p className="mt-1 text-lg font-bold">{tenure} mo</p>
+          <p className="mt-1 text-lg font-semibold">{tenure} mo</p>
         </div>
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
           <p className="text-xs text-[var(--color-mid-gray)]">AutoPay</p>
-          <p className={`mt-1 text-lg font-bold ${tenant.autopay_enabled ? "text-emerald-400" : "text-amber-400"}`}>
+          <p className={`mt-1 text-lg font-semibold ${tenant.autopay_enabled ? "text-emerald-400" : "text-amber-400"}`}>
             {tenant.autopay_enabled ? "On" : "Off"}
           </p>
         </div>
@@ -1088,7 +1084,7 @@ function AddTenantModal({ facilityId, onClose, onSuccess }: { facilityId: string
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div className="mx-4 w-full max-w-lg rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold">Add Tenant</h3>
+          <h3 className="text-lg font-semibold">Add Tenant</h3>
           <button onClick={onClose} className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
         </div>
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
@@ -1217,7 +1213,7 @@ function ImportCSVModal({ facilityId, onClose, onSuccess }: { facilityId: string
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div className="mx-4 w-full max-w-2xl rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold">Import Tenants from CSV</h3>
+          <h3 className="text-lg font-semibold">Import Tenants from CSV</h3>
           <button onClick={onClose} className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
         </div>
 
@@ -1367,7 +1363,7 @@ function ChurnDashboard({ facilityId, onBack }: { facilityId: string; onBack: ()
         <button onClick={onBack} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 hover:bg-[var(--color-light-gray)]">
           <ChevronLeft className="h-4 w-4 text-[var(--color-body-text)]" />
         </button>
-        <h2 className="flex-1 text-lg font-bold">Churn Risk Dashboard</h2>
+        <h2 className="flex-1 text-lg font-semibold">Churn Risk Dashboard</h2>
         <button
           onClick={runScoring}
           disabled={scoring}
@@ -1408,7 +1404,7 @@ function ChurnDashboard({ facilityId, onBack }: { facilityId: string; onBack: ()
                     } bg-[var(--color-light-gray)] hover:bg-[var(--color-light-gray)]`}
                   >
                     <div className={`mx-auto mb-1 h-2 w-12 rounded-full ${color}`} style={{ opacity: 0.3 + (pct / 100) * 0.7 }} />
-                    <p className="text-lg font-bold">{count}</p>
+                    <p className="text-lg font-semibold">{count}</p>
                     <p className="text-[10px] text-[var(--color-mid-gray)]">{label} ({Math.round(pct)}%)</p>
                   </button>
                 );
@@ -1542,7 +1538,7 @@ function RetentionDashboard({ facilityId, onBack }: { facilityId: string; onBack
         <button onClick={onBack} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 hover:bg-[var(--color-light-gray)]">
           <ChevronLeft className="h-4 w-4 text-[var(--color-body-text)]" />
         </button>
-        <h2 className="flex-1 text-lg font-bold">Retention Campaigns</h2>
+        <h2 className="flex-1 text-lg font-semibold">Retention Campaigns</h2>
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-xs font-medium text-white hover:bg-[var(--color-gold-hover)]"
@@ -1599,15 +1595,15 @@ function RetentionDashboard({ facilityId, onBack }: { facilityId: string; onBack
               </div>
               <div className="mt-3 grid grid-cols-3 gap-3">
                 <div className="rounded-lg bg-[var(--color-light-gray)] p-2 text-center">
-                  <p className="text-lg font-bold">{c.enrolled_count || 0}</p>
+                  <p className="text-lg font-semibold">{c.enrolled_count || 0}</p>
                   <p className="text-[10px] text-[var(--color-mid-gray)]">Enrolled</p>
                 </div>
                 <div className="rounded-lg bg-[var(--color-light-gray)] p-2 text-center">
-                  <p className="text-lg font-bold text-emerald-400">{c.retained_count || 0}</p>
+                  <p className="text-lg font-semibold text-emerald-400">{c.retained_count || 0}</p>
                   <p className="text-[10px] text-[var(--color-mid-gray)]">Retained</p>
                 </div>
                 <div className="rounded-lg bg-[var(--color-light-gray)] p-2 text-center">
-                  <p className="text-lg font-bold">
+                  <p className="text-lg font-semibold">
                     {(c.enrolled_count || 0) > 0 ? Math.round(((c.retained_count || 0) / c.enrolled_count!) * 100) : 0}%
                   </p>
                   <p className="text-[10px] text-[var(--color-mid-gray)]">Retention Rate</p>
@@ -1696,7 +1692,7 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div className="mx-4 w-full max-w-lg rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold">Create Retention Campaign</h3>
+          <h3 className="text-lg font-semibold">Create Retention Campaign</h3>
           <button onClick={onClose} className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
         </div>
 

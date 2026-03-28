@@ -10,7 +10,6 @@ import {
   Building2,
   ChevronLeft,
   CreditCard,
-  FileText,
   Flame,
   Inbox,
   Kanban,
@@ -129,7 +128,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
     <div className="flex min-h-screen items-center justify-center bg-white">
       <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8">
         <div className="mb-8 text-center">
-          <h1 className="mb-1 text-2xl font-bold text-[#111827]">
+          <h1 className="mb-1 text-2xl font-semibold text-[#111827]">
             <span className="text-[var(--color-dark)]">storage</span>
             <span className="text-[var(--color-gold)]">ads</span>
           </h1>
@@ -241,7 +240,7 @@ function Sidebar({
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-black/[0.08] px-4">
         <Link
           href="/"
-          className={`text-lg font-bold transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
+          className={`text-lg font-semibold transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
         >
           <span className="text-[var(--color-dark)]">storage</span>
           <span className="text-[var(--color-gold)]">ads</span>
@@ -355,7 +354,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     if (typeof window === "undefined") return null;
     return localStorage.getItem(STORAGE_KEY);
   });
-  const [checked, setChecked] = useState(() => typeof window !== "undefined");
+  const [checked] = useState(() => typeof window !== "undefined");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -363,7 +362,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const { user, isLoaded: clerkLoaded, isSignedIn } = useUser();
   const { isVA, canAccessAdmin } = useClerkRole();
 
-  const handleLogout = useCallback(() => {
+  const _handleLogout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setAdminKey(null);
   }, []);
@@ -386,7 +385,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="w-full max-w-sm rounded-2xl border border-black/[0.08] bg-[#F9FAFB] p-8 text-center">
           <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-red-400" />
-          <h2 className="mb-2 text-lg font-bold text-[#111827]">Access Denied</h2>
+          <h2 className="mb-2 text-lg font-semibold text-[#111827]">Access Denied</h2>
           <p className="mb-6 text-sm text-[#6B7280]">
             Your account ({user?.primaryEmailAddress?.emailAddress}) does not have admin access.
             Contact your administrator to request the appropriate role.

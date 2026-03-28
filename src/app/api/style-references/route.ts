@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { put } from "@vercel/blob";
@@ -230,7 +231,7 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
           image_url: blobUrl,
           title: title || (imageFile ? imageFile.name.replace(/\.[^.]+$/, "") : "Video Reference"),
           tags: finalTags,
-          analysis: analysis as any,
+          analysis: analysis as unknown as Prisma.InputJsonValue,
           active: true,
         },
       });
@@ -312,7 +313,7 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
             image_url: sourceUrl,
             title: title || new URL(sourceUrl).hostname,
             tags: finalTags,
-            analysis: analysis as any,
+            analysis: analysis as unknown as Prisma.InputJsonValue,
             active: true,
           },
         });
@@ -409,7 +410,7 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
         image_url: blob.url,
         title,
         tags: finalTags,
-        analysis: analysis as any,
+        analysis: analysis as unknown as Prisma.InputJsonValue,
         active: true,
       },
     });

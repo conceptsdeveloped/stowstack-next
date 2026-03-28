@@ -5,7 +5,6 @@ import {
   jsonResponse,
   errorResponse,
   requireAdminKey,
-  isAdminRequest,
   getOrigin,
 } from "@/lib/api-helpers";
 import { Resend } from "resend";

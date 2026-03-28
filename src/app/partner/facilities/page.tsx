@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import {
   Building2,
   ChevronRight,
-  ExternalLink,
   Loader2,
   MapPin,
   Plus,
@@ -152,7 +151,7 @@ export default function FacilitiesPage() {
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6">
           <div className="mb-6 flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-[var(--color-dark)]">{f.name}</h2>
+              <h2 className="text-xl font-semibold text-[var(--color-dark)]">{f.name}</h2>
               <p className="mt-1 flex items-center gap-1 text-sm text-[var(--color-mid-gray)]">
                 <MapPin className="h-3 w-3" />
                 {f.location}
@@ -170,7 +169,7 @@ export default function FacilitiesPage() {
               <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Units
               </p>
-              <p className="mt-1 text-lg font-bold text-[var(--color-dark)]">
+              <p className="mt-1 text-lg font-semibold text-[var(--color-dark)]">
                 {f.total_units || "N/A"}
               </p>
             </div>
@@ -178,7 +177,7 @@ export default function FacilitiesPage() {
               <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Occupancy
               </p>
-              <p className="mt-1 text-lg font-bold text-[var(--color-dark)]">
+              <p className="mt-1 text-lg font-semibold text-[var(--color-dark)]">
                 {OCCUPANCY_LABELS[f.occupancy_range] || f.occupancy_range || "N/A"}
               </p>
             </div>
@@ -186,7 +185,7 @@ export default function FacilitiesPage() {
               <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Rating
               </p>
-              <p className="mt-1 flex items-center gap-1 text-lg font-bold text-[var(--color-dark)]">
+              <p className="mt-1 flex items-center gap-1 text-lg font-semibold text-[var(--color-dark)]">
                 {f.google_rating ? (
                   <>
                     <Star className="h-4 w-4 text-amber-400" />
@@ -201,7 +200,7 @@ export default function FacilitiesPage() {
               <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
                 Live Pages
               </p>
-              <p className="mt-1 text-lg font-bold text-[var(--color-dark)]">
+              <p className="mt-1 text-lg font-semibold text-[var(--color-dark)]">
                 {f.live_pages}
               </p>
             </div>

@@ -74,7 +74,7 @@ const STATUSES = [
   "form_completed",
   "audit_generated",
   "call_scheduled",
-  "client_signed",
+  "_client_signed",
   "lost",
 ] as const;
 
@@ -86,7 +86,7 @@ const STATUS_LABELS: Record<string, string> = {
   form_sent: "Proposal Sent",
   form_completed: "Form Completed",
   call_scheduled: "Call Scheduled",
-  client_signed: "Signed",
+  _client_signed: "Signed",
   lost: "Lost",
   overdue: "Overdue",
 };
@@ -99,7 +99,7 @@ const STATUS_COLORS: Record<string, string> = {
   form_sent: "bg-amber-500/20 text-amber-400 border-amber-500/30",
   form_completed: "bg-purple-500/20 text-purple-400 border-purple-500/30",
   call_scheduled: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-  client_signed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  _client_signed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
   lost: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
@@ -118,7 +118,7 @@ const FILTER_CHIPS = [
   "form_sent",
   "form_completed",
   "call_scheduled",
-  "client_signed",
+  "_client_signed",
   "lost",
 ];
 
@@ -207,7 +207,7 @@ function StatCard({
           {label}
         </span>
       </div>
-      <div className="text-2xl font-bold text-[var(--color-dark)]">{value}</div>
+      <div className="text-2xl font-semibold text-[var(--color-dark)]">{value}</div>
       {subtitle && (
         <div className="text-xs text-[var(--color-mid-gray)] mt-1">{subtitle}</div>
       )}
@@ -529,13 +529,13 @@ export default function AdminPipelinePage() {
 
   // Compute overdue count from current page
   const overdueCount = useMemo(
-    () => leads.filter(isOverdue).length,
-    [leads]
+    () => (leadsData?.leads || []).filter(isOverdue).length,
+    [leadsData]
   );
 
   const activePipeline = useMemo(() => {
     if (!analytics?.funnel) return 0;
-    const { client_signed, lost, ...active } = analytics.funnel;
+    const { _client_signed, _lost, ...active } = analytics.funnel;
     return Object.values(active).reduce((a, b) => a + b, 0);
   }, [analytics]);
 
@@ -605,7 +605,7 @@ export default function AdminPipelinePage() {
       <div className="border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 backdrop-blur-sm sticky top-0 z-30">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">Lead Pipeline</h1>
+            <h1 className="text-xl font-semibold">Lead Pipeline</h1>
             <p className="text-xs text-[var(--color-mid-gray)] mt-0.5">
               Manage and track incoming leads
             </p>
@@ -670,7 +670,7 @@ export default function AdminPipelinePage() {
             <StatCard
               icon={CheckCircle2}
               label="Signed Clients"
-              value={analytics.funnel.client_signed || 0}
+              value={analytics.funnel._client_signed || 0}
             />
             <StatCard
               icon={FileText}
@@ -904,7 +904,7 @@ export default function AdminPipelinePage() {
                       {/* Score (hidden on mobile) */}
                       <div className="hidden sm:block w-12 text-center shrink-0">
                         <span
-                          className={`text-sm font-bold ${grade.color}`}
+                          className={`text-sm font-semibold ${grade.color}`}
                         >
                           {grade.grade}
                         </span>

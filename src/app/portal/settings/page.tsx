@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { usePortal } from "@/components/portal/portal-shell";
 import {
-  fmtCurrency,
   clearPortalSession,
 } from "@/lib/portal-helpers";
 

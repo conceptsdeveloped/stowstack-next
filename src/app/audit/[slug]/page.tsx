@@ -295,7 +295,7 @@ function ScoreRing({
         x={size / 2}
         y={size / 2 - 4}
         textAnchor="middle"
-        className="fill-[var(--text-primary)] font-bold"
+        className="fill-[var(--text-primary)] font-semibold"
         fontSize={size * 0.23}
         dominantBaseline="middle"
       >
@@ -336,11 +336,11 @@ function CategoryCard({ category }: { category: CategoryAudit }) {
               <span className={`${colors.text}`}>
                 {categoryIcon(category.slug)}
               </span>
-              <h3 className="text-lg font-bold text-[var(--text-primary)]">
+              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
                 {category.name}
               </h3>
               <span
-                className={`ml-auto text-xs font-bold px-2.5 py-1 rounded-full ${colors.bgFaint} ${colors.text}`}
+                className={`ml-auto text-xs font-semibold px-2.5 py-1 rounded-full ${colors.bgFaint} ${colors.text}`}
               >
                 {grade}
               </span>
@@ -388,11 +388,11 @@ function CategoryCard({ category }: { category: CategoryAudit }) {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <p className="text-xs font-bold text-red-400 uppercase tracking-wider">
+                <p className="text-xs font-semibold text-red-400 uppercase tracking-wider">
                   If You Do Nothing
                 </p>
                 {typeof category.inactionCost === "number" && category.inactionCost > 0 && (
-                  <span className="text-xs font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
                     ${category.inactionCost.toLocaleString()}/yr at risk
                   </span>
                 )}
@@ -419,7 +419,7 @@ function CategoryCard({ category }: { category: CategoryAudit }) {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <span
-                    className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${priorityBadge(action.priority)}`}
+                    className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${priorityBadge(action.priority)}`}
                   >
                     {action.priority}
                   </span>
@@ -484,7 +484,7 @@ export default async function SharedAuditPage({
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--bg-surface)] flex items-center justify-center">
             <AlertTriangle className="w-7 h-7 text-[var(--text-tertiary)]" />
           </div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
             Audit Not Found
           </h2>
           <p className="text-[var(--text-secondary)] text-sm mb-6">
@@ -512,7 +512,7 @@ export default async function SharedAuditPage({
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/10 flex items-center justify-center">
             <Clock className="w-7 h-7 text-amber-400" />
           </div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
             Audit Expired
           </h2>
           <p className="text-[var(--text-secondary)] text-sm mb-6">
@@ -557,7 +557,7 @@ export default async function SharedAuditPage({
             </span>
             <Link
               href="/diagnostic"
-              className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-200 hover:bg-amber-900 transition-colors"
+              className="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-amber-950 text-amber-200 hover:bg-amber-900 transition-colors"
             >
               Get your free audit &rarr;
             </Link>
@@ -593,7 +593,7 @@ export default async function SharedAuditPage({
               <p className="text-xs text-[var(--accent)] font-medium tracking-wide uppercase">
                 StorageAds Facility Diagnostic
               </p>
-              <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+              <h1 className="text-xl sm:text-2xl font-semibold text-[var(--text-primary)]">
                 {facilityName || facility.name}
               </h1>
             </div>
@@ -656,7 +656,7 @@ export default async function SharedAuditPage({
                   Overall Diagnostic Score
                 </p>
                 <span
-                  className={`text-lg font-black px-3 py-0.5 rounded-lg ${colors.bgFaint} ${colors.text}`}
+                  className={`text-lg font-semibold px-3 py-0.5 rounded-lg ${colors.bgFaint} ${colors.text}`}
                 >
                   {overallGrade}
                 </span>
@@ -689,7 +689,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Vacant Units
                 </p>
-                <p className="text-lg font-bold text-red-400">
+                <p className="text-lg font-semibold text-red-400">
                   {vacancyCost.vacantUnits}
                 </p>
               </div>
@@ -697,7 +697,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Avg Unit Rate
                 </p>
-                <p className="text-lg font-bold text-[var(--text-primary)]">
+                <p className="text-lg font-semibold text-[var(--text-primary)]">
                   ${vacancyCost.avgUnitRate}
                 </p>
               </div>
@@ -705,7 +705,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Monthly Loss
                 </p>
-                <p className="text-lg font-bold text-red-400">
+                <p className="text-lg font-semibold text-red-400">
                   ${vacancyCost.monthlyLoss.toLocaleString()}
                 </p>
               </div>
@@ -713,7 +713,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Annual Loss
                 </p>
-                <p className="text-xl font-bold text-red-500">
+                <p className="text-xl font-semibold text-red-500">
                   ${vacancyCost.annualLoss.toLocaleString()}
                 </p>
               </div>
@@ -727,7 +727,7 @@ export default async function SharedAuditPage({
             <div className="px-6 py-4 border-b border-[var(--border-subtle)]">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-[var(--accent)]" />
-                <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   Industry Benchmark Comparison
                 </h2>
               </div>
@@ -782,7 +782,7 @@ export default async function SharedAuditPage({
             <div className="px-6 py-4 border-b border-emerald-500/10">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   Revenue Optimization Opportunity
                 </h2>
               </div>
@@ -797,7 +797,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Current Monthly Rev
                 </p>
-                <p className="text-lg font-bold text-[var(--text-secondary)]">
+                <p className="text-lg font-semibold text-[var(--text-secondary)]">
                   ${revenueOptimization.currentEstimatedRevenue.toLocaleString()}
                 </p>
               </div>
@@ -805,7 +805,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Potential Monthly Rev
                 </p>
-                <p className="text-lg font-bold text-emerald-400">
+                <p className="text-lg font-semibold text-emerald-400">
                   ${revenueOptimization.potentialMonthlyRevenue.toLocaleString()}
                 </p>
               </div>
@@ -813,7 +813,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-emerald-400/80 uppercase tracking-wide mb-1">
                   Monthly Gap
                 </p>
-                <p className="text-lg font-bold text-emerald-400">
+                <p className="text-lg font-semibold text-emerald-400">
                   +${revenueOptimization.monthlyGap.toLocaleString()}
                 </p>
               </div>
@@ -821,7 +821,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-emerald-400/80 uppercase tracking-wide mb-1">
                   Annual Opportunity
                 </p>
-                <p className="text-xl font-bold text-emerald-400">
+                <p className="text-xl font-semibold text-emerald-400">
                   +${revenueOptimization.annualGap.toLocaleString()}
                 </p>
               </div>
@@ -846,10 +846,10 @@ export default async function SharedAuditPage({
                           <p className="text-sm font-medium text-[var(--text-primary)]">{opp.source}</p>
                           <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{opp.timeToImplement} to implement</p>
                         </div>
-                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full shrink-0 ${difficultyColors[opp.difficulty] || difficultyColors.moderate}`}>
+                        <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full shrink-0 ${difficultyColors[opp.difficulty] || difficultyColors.moderate}`}>
                           {opp.difficulty}
                         </span>
-                        <span className="text-sm font-bold text-emerald-400 shrink-0">
+                        <span className="text-sm font-semibold text-emerald-400 shrink-0">
                           +${opp.estimatedMonthlyGain.toLocaleString()}/mo
                         </span>
                       </div>
@@ -867,7 +867,7 @@ export default async function SharedAuditPage({
             <div className="px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
               <div className="flex items-center gap-2">
                 <Timer className="w-5 h-5 text-[var(--accent)]" />
-                <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   90-Day Projection
                 </h2>
               </div>
@@ -884,7 +884,7 @@ export default async function SharedAuditPage({
                     <TrendingUp className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                    <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
                       If You Act Now
                     </p>
                     <p className="text-xs text-emerald-300/60">Execute top recommendations</p>
@@ -896,7 +896,7 @@ export default async function SharedAuditPage({
                     <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                       Target Occupancy
                     </p>
-                    <p className="text-lg font-bold text-emerald-400">
+                    <p className="text-lg font-semibold text-emerald-400">
                       {ninetyDayProjection.ifYouAct.occupancyTarget}
                     </p>
                   </div>
@@ -904,7 +904,7 @@ export default async function SharedAuditPage({
                     <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                       Add&apos;l Move-Ins/Mo
                     </p>
-                    <p className="text-lg font-bold text-emerald-400">
+                    <p className="text-lg font-semibold text-emerald-400">
                       +{ninetyDayProjection.ifYouAct.additionalMoveIns}
                     </p>
                   </div>
@@ -914,7 +914,7 @@ export default async function SharedAuditPage({
                   <p className="text-[10px] text-emerald-400/80 uppercase tracking-wide mb-0.5">
                     Revenue Recaptured
                   </p>
-                  <p className="text-2xl font-bold text-emerald-400">
+                  <p className="text-2xl font-semibold text-emerald-400">
                     +${ninetyDayProjection.ifYouAct.revenueRecaptured.toLocaleString()}
                     <span className="text-sm font-medium text-emerald-400/60">/mo</span>
                   </p>
@@ -943,7 +943,7 @@ export default async function SharedAuditPage({
                     <TrendingDown className="w-4 h-4 text-red-400" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-red-400 uppercase tracking-wider">
+                    <p className="text-xs font-semibold text-red-400 uppercase tracking-wider">
                       If You Do Nothing
                     </p>
                     <p className="text-xs text-red-300/60">Continue current trajectory</p>
@@ -955,7 +955,7 @@ export default async function SharedAuditPage({
                     <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                       Projected Occupancy
                     </p>
-                    <p className="text-lg font-bold text-red-400">
+                    <p className="text-lg font-semibold text-red-400">
                       {ninetyDayProjection.ifYouDont.occupancyProjection}
                     </p>
                   </div>
@@ -963,7 +963,7 @@ export default async function SharedAuditPage({
                     <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                       Net Unit Loss
                     </p>
-                    <p className="text-lg font-bold text-red-400">
+                    <p className="text-lg font-semibold text-red-400">
                       -{ninetyDayProjection.ifYouDont.additionalMoveOuts}
                     </p>
                   </div>
@@ -973,7 +973,7 @@ export default async function SharedAuditPage({
                   <p className="text-[10px] text-red-400/80 uppercase tracking-wide mb-0.5">
                     Additional Revenue Lost
                   </p>
-                  <p className="text-2xl font-bold text-red-500">
+                  <p className="text-2xl font-semibold text-red-500">
                     -${ninetyDayProjection.ifYouDont.revenueLost.toLocaleString()}
                     <span className="text-sm font-medium text-red-400/60">/90 days</span>
                   </p>
@@ -1003,7 +1003,7 @@ export default async function SharedAuditPage({
                 <Flame className="w-5 h-5 text-red-400" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   The Cost of Waiting
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)] mt-0.5">
@@ -1017,7 +1017,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Monthly Revenue Bleed
                 </p>
-                <p className="text-xl font-bold text-red-400">
+                <p className="text-xl font-semibold text-red-400">
                   ${costOfInaction.monthlyBleed.toLocaleString()}
                 </p>
               </div>
@@ -1025,7 +1025,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Occupancy in 6 Months
                 </p>
-                <p className="text-xl font-bold text-orange-400 flex items-center justify-center gap-1">
+                <p className="text-xl font-semibold text-orange-400 flex items-center justify-center gap-1">
                   <ArrowDown className="w-4 h-4" />
                   {costOfInaction.projectedOccupancy6Months}
                 </p>
@@ -1034,7 +1034,7 @@ export default async function SharedAuditPage({
                 <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1">
                   Occupancy in 12 Months
                 </p>
-                <p className="text-xl font-bold text-red-500 flex items-center justify-center gap-1">
+                <p className="text-xl font-semibold text-red-500 flex items-center justify-center gap-1">
                   <ArrowDown className="w-4 h-4" />
                   {costOfInaction.projectedOccupancy12Months}
                 </p>
@@ -1063,7 +1063,7 @@ export default async function SharedAuditPage({
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 mb-8">
             <div className="flex items-center gap-2 mb-4">
               <DollarSign className="w-5 h-5 text-red-400" />
-              <h2 className="text-base font-bold text-[var(--text-primary)]">
+              <h2 className="text-base font-semibold text-[var(--text-primary)]">
                 Annual Cost of Inaction by Category
               </h2>
             </div>
@@ -1085,7 +1085,7 @@ export default async function SharedAuditPage({
                           className={`h-full ${catColors.bg} rounded-full flex items-center justify-end pr-2`}
                           style={{ width: `${Math.max(pct, 8)}%`, opacity: 0.7 }}
                         >
-                          <span className="text-[10px] font-bold text-[var(--color-light)] whitespace-nowrap">
+                          <span className="text-[10px] font-semibold text-[var(--color-light)] whitespace-nowrap">
                             ${(cat.inactionCost || 0).toLocaleString()}
                           </span>
                         </div>
@@ -1095,10 +1095,10 @@ export default async function SharedAuditPage({
                 })
               }
               <div className="flex items-center gap-3 pt-2 border-t border-[var(--border-medium)]">
-                <span className="text-xs font-bold text-[var(--text-primary)] w-40 shrink-0">
+                <span className="text-xs font-semibold text-[var(--text-primary)] w-40 shrink-0">
                   TOTAL AT RISK
                 </span>
-                <span className="text-base font-bold text-red-400">
+                <span className="text-base font-semibold text-red-400">
                   ${sortedCategories.reduce((sum, c) => sum + (c.inactionCost || 0), 0).toLocaleString()}/yr
                 </span>
               </div>
@@ -1129,7 +1129,7 @@ export default async function SharedAuditPage({
                 <Rocket className="w-5 h-5 text-[var(--color-light)]" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   What StorageAds Would Fix First
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]">
@@ -1143,7 +1143,7 @@ export default async function SharedAuditPage({
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-bold text-[var(--text-primary)]">Ad-Specific Landing Pages</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Ad-Specific Landing Pages</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Every ad campaign gets its own conversion-optimized landing page with real-time unit availability, pricing, and online rental — no more sending prospects to a generic website.
@@ -1152,7 +1152,7 @@ export default async function SharedAuditPage({
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-bold text-[var(--text-primary)]">Full-Funnel Lead Tracking</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Full-Funnel Lead Tracking</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Track every lead from first click to move-in. Know your exact cost-per-lead and cost-per-move-in by campaign, ad group, and keyword — no more guessing.
@@ -1161,7 +1161,7 @@ export default async function SharedAuditPage({
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Megaphone className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-bold text-[var(--text-primary)]">Automated Drip Campaigns</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Automated Drip Campaigns</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Automated follow-up sequences for abandoned reservations, no-shows, and past inquiries. No lead falls through the cracks — even when your team is busy.
@@ -1170,7 +1170,7 @@ export default async function SharedAuditPage({
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Globe className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-bold text-[var(--text-primary)]">GBP & Review Management</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">GBP & Review Management</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Automated Google Business Profile posting, AI-powered review responses, and review solicitation campaigns to boost your rating and local search visibility.
@@ -1179,7 +1179,7 @@ export default async function SharedAuditPage({
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <BarChart3 className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-bold text-[var(--text-primary)]">Performance Dashboard</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Performance Dashboard</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Real-time dashboard showing ad spend, leads, move-ins, revenue, and ROI across all channels. One login, every metric that matters.
@@ -1188,7 +1188,7 @@ export default async function SharedAuditPage({
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <PiggyBank className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-bold text-[var(--text-primary)]">PMS Integration</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">PMS Integration</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Direct integration with storEDGE, SiteLink, and other PMS platforms. Pulls live unit data, pushes leads, and validates move-ins automatically.
@@ -1242,7 +1242,7 @@ export default async function SharedAuditPage({
 /* ------------------------------------------------------------------ */
 
 function LegacyAuditPage({ data }: { data: AuditData }) {
-  const { audit, facilityName, createdAt, expiresAt, views } = data;
+  const { audit, facilityName, createdAt, expiresAt, views: _views } = data;
   const legacy = audit as unknown as {
     facility: { name: string; location?: string; totalUnits: number; occupancy: number; vacantUnits: number };
     vacancyCost: { monthlyLoss: number; annualLoss: number; vacantUnits: number; avgUnitRate: number };
@@ -1255,7 +1255,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
     competitiveInsights: string[];
     recommendations: { title: string; detail: string; priority: string }[];
   };
-  const expiresIn = expiresAt ? daysUntil(expiresAt) : null;
+  const _expiresIn = expiresAt ? daysUntil(expiresAt) : null;
 
   return (
     <div className="min-h-screen bg-[var(--bg-void)] text-[var(--text-primary)]">
@@ -1276,7 +1276,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="mb-10">
-          <h1 className="text-xl sm:text-2xl font-bold mb-2">
+          <h1 className="text-xl sm:text-2xl font-semibold mb-2">
             {facilityName || legacy.facility?.name}
           </h1>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--text-tertiary)]">
@@ -1290,7 +1290,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
         {legacy.marketOpportunity && (
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 mb-8 text-center">
             <p className="text-sm text-[var(--text-tertiary)] mb-2">Market Opportunity Score</p>
-            <p className="text-5xl font-bold text-[var(--accent)] mb-1">{legacy.marketOpportunity.score}</p>
+            <p className="text-5xl font-semibold text-[var(--accent)] mb-1">{legacy.marketOpportunity.score}</p>
             <p className="text-lg font-semibold text-[var(--text-secondary)]">{legacy.marketOpportunity.grade}</p>
           </div>
         )}
@@ -1302,19 +1302,19 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
               <div>
                 <p className="text-xs text-[var(--text-tertiary)]">Vacant</p>
-                <p className="text-lg font-bold text-red-400">{legacy.vacancyCost.vacantUnits}</p>
+                <p className="text-lg font-semibold text-red-400">{legacy.vacancyCost.vacantUnits}</p>
               </div>
               <div>
                 <p className="text-xs text-[var(--text-tertiary)]">Avg Rate</p>
-                <p className="text-lg font-bold">${legacy.vacancyCost.avgUnitRate}</p>
+                <p className="text-lg font-semibold">${legacy.vacancyCost.avgUnitRate}</p>
               </div>
               <div>
                 <p className="text-xs text-[var(--text-tertiary)]">Monthly Loss</p>
-                <p className="text-lg font-bold text-red-400">${legacy.vacancyCost.monthlyLoss.toLocaleString()}</p>
+                <p className="text-lg font-semibold text-red-400">${legacy.vacancyCost.monthlyLoss.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-xs text-[var(--text-tertiary)]">Annual Loss</p>
-                <p className="text-xl font-bold text-red-500">${legacy.vacancyCost.annualLoss.toLocaleString()}</p>
+                <p className="text-xl font-semibold text-red-500">${legacy.vacancyCost.annualLoss.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -1327,10 +1327,10 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
               <TrendingUp className="w-5 h-5 text-emerald-400" /> Projected Performance
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-sm">
-              <div><p className="text-[var(--text-tertiary)] text-xs">Spend</p><p className="font-bold">${legacy.projections.recommendedSpend.toLocaleString()}/mo</p></div>
-              <div><p className="text-[var(--text-tertiary)] text-xs">CPL</p><p className="font-bold">${legacy.projections.projectedCpl}</p></div>
-              <div><p className="text-[var(--text-tertiary)] text-xs">Leads/mo</p><p className="font-bold">{legacy.projections.projectedLeadsPerMonth}</p></div>
-              <div><p className="text-[var(--text-tertiary)] text-xs">ROAS</p><p className="font-bold text-emerald-400">{legacy.projections.projectedRoas}x</p></div>
+              <div><p className="text-[var(--text-tertiary)] text-xs">Spend</p><p className="font-semibold">${legacy.projections.recommendedSpend.toLocaleString()}/mo</p></div>
+              <div><p className="text-[var(--text-tertiary)] text-xs">CPL</p><p className="font-semibold">${legacy.projections.projectedCpl}</p></div>
+              <div><p className="text-[var(--text-tertiary)] text-xs">Leads/mo</p><p className="font-semibold">{legacy.projections.projectedLeadsPerMonth}</p></div>
+              <div><p className="text-[var(--text-tertiary)] text-xs">ROAS</p><p className="font-semibold text-emerald-400">{legacy.projections.projectedRoas}x</p></div>
             </div>
           </div>
         )}
@@ -1343,7 +1343,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
               {legacy.recommendations.map((rec, i) => (
                 <div key={i} className="bg-[var(--bg-primary)]/50 rounded-xl border border-[var(--border-subtle)] p-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${rec.priority === "high" ? "bg-red-500/15 text-red-400" : "bg-[var(--color-blue)]/15 text-[var(--color-blue)]"}`}>
+                    <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${rec.priority === "high" ? "bg-red-500/15 text-red-400" : "bg-[var(--color-blue)]/15 text-[var(--color-blue)]"}`}>
                       {rec.priority}
                     </span>
                     <h3 className="text-sm font-semibold">{rec.title}</h3>
@@ -1358,7 +1358,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
         {/* CTA */}
         <div className="rounded-2xl bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20 p-8 text-center">
           <Rocket className="w-8 h-8 text-[var(--accent)] mx-auto mb-3" />
-          <h2 className="text-xl font-bold mb-2">Ready to Fill Your Vacant Units?</h2>
+          <h2 className="text-xl font-semibold mb-2">Ready to Fill Your Vacant Units?</h2>
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--accent)] text-[var(--color-light)] font-medium hover:bg-[var(--accent-hover)] transition-colors"

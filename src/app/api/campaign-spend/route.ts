@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
     const metaRes = await fetch(metaUrl.toString());
 
     if (!metaRes.ok) {
-      const errData = await metaRes.json().catch(() => ({}));
+      const _errData = await metaRes.json().catch(() => ({}));
       return errorResponse(
         "Meta API request failed",
         502,

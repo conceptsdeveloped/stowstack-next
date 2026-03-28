@@ -67,11 +67,6 @@ interface Referral {
   referral_code: string;
 }
 
-interface ReferralData {
-  referral_code: string;
-  referrals: Referral[];
-  tiers: { name: string; threshold: number; rate: number }[];
-}
 
 const TABS = [
   { key: "overview", label: "Overview", icon: TrendingUp },
@@ -209,7 +204,7 @@ function OverviewTab() {
                 <Icon size={16} style={{ color: kpi.color }} />
                 <span className="text-xs font-medium" style={{ color: "var(--color-mid-gray)" }}>{kpi.label}</span>
               </div>
-              <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>{kpi.value}</p>
+              <p className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>{kpi.value}</p>
             </div>
           );
         })}
@@ -530,7 +525,7 @@ function ReferralsTab() {
         >
           <p className="text-xs font-medium mb-2" style={{ color: "var(--color-mid-gray)" }}>Your Referral Code</p>
           <div className="flex items-center gap-2">
-            <code className="text-lg font-mono font-bold" style={{ color: "var(--color-gold)" }}>
+            <code className="text-lg font-mono font-semibold" style={{ color: "var(--color-gold)" }}>
               {referralCode}
             </code>
             <CopyButton text={referralCode} />

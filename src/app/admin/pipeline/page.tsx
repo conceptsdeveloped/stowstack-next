@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import {
   Building2,
-  ChevronRight,
-  Clock,
   ExternalLink,
   FileText,
   Loader2,
@@ -117,22 +115,6 @@ const STAGES: Stage[] = [
     nextAction: "Begin onboarding",
   },
 ];
-
-const STAGE_MAP = new Map(STAGES.map((s) => [s.id, s]));
-
-function getStage(status: string): Stage {
-  return (
-    STAGE_MAP.get(status) || {
-      id: status,
-      label: status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-      color: "text-[var(--color-mid-gray)]",
-      bgColor: "bg-[var(--color-light-gray)]",
-      borderColor: "border-[var(--border-subtle)]",
-      icon: <Building2 className="h-4 w-4" />,
-      nextAction: "Review",
-    }
-  );
-}
 
 /* ─── helpers ─── */
 
@@ -306,7 +288,7 @@ export default function PipelinePage() {
     total: number;
   }>("/api/admin-leads", { limit: "200" });
   const [advancing, setAdvancing] = useState<string | null>(null);
-  const [view, setView] = useState<"board" | "list">("board");
+  const [_view, _setView] = useState<"board" | "list">("board");
 
   const facilities = data?.leads || [];
 
@@ -372,7 +354,7 @@ export default function PipelinePage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[var(--color-dark)]">
+          <h1 className="text-xl font-semibold tracking-tight text-[var(--color-dark)]">
             Facility Pipeline
           </h1>
           <p className="text-sm text-[var(--color-mid-gray)]">
@@ -405,7 +387,7 @@ export default function PipelinePage() {
             <Building2 className="h-4 w-4 text-[var(--color-gold)]" />
             <span className="text-xs text-[var(--color-mid-gray)]">Total Facilities</span>
           </div>
-          <p className="text-2xl font-bold text-[var(--color-dark)]">
+          <p className="text-2xl font-semibold text-[var(--color-dark)]">
             {loading ? "—" : totalFacilities}
           </p>
         </div>
@@ -414,7 +396,7 @@ export default function PipelinePage() {
             <TrendingUp className="h-4 w-4 text-amber-400" />
             <span className="text-xs text-[var(--color-mid-gray)]">Active Pipeline</span>
           </div>
-          <p className="text-2xl font-bold text-[var(--color-dark)]">
+          <p className="text-2xl font-semibold text-[var(--color-dark)]">
             {loading ? "—" : activePipeline}
           </p>
         </div>
@@ -423,7 +405,7 @@ export default function PipelinePage() {
             <BarChart3 className="h-4 w-4 text-cyan-400" />
             <span className="text-xs text-[var(--color-mid-gray)]">In Diagnostics</span>
           </div>
-          <p className="text-2xl font-bold text-[var(--color-dark)]">
+          <p className="text-2xl font-semibold text-[var(--color-dark)]">
             {loading ? "—" : diagnostics}
           </p>
         </div>
@@ -432,7 +414,7 @@ export default function PipelinePage() {
             <Target className="h-4 w-4 text-emerald-400" />
             <span className="text-xs text-[var(--color-mid-gray)]">Conversion Rate</span>
           </div>
-          <p className="text-2xl font-bold text-[var(--color-dark)]">
+          <p className="text-2xl font-semibold text-[var(--color-dark)]">
             {loading ? "—" : `${conversionRate}%`}
           </p>
           <p className="text-[10px] text-[var(--color-mid-gray)]">

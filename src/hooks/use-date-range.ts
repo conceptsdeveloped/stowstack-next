@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
-  DATE_PRESETS,
   DEFAULT_PRESET,
   getPreset,
   getComparisonRange,

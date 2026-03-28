@@ -12,7 +12,7 @@ interface PartnerSession {
 }
 
 export function usePartnerAuth() {
-  const [session, setSession] = useState<PartnerSession | null>(() => {
+  const [session, _setSession] = useState<PartnerSession | null>(() => {
     if (typeof window === "undefined") return null;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -25,7 +25,7 @@ export function usePartnerAuth() {
     }
     return null;
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const router = useRouter();
 
   const authFetch = useCallback(

@@ -279,6 +279,7 @@ export async function GET(request: NextRequest) {
       actual_collected: totalActualRevenue,
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic unit intel shape from aggregation
     const sqftAnalysis = unitIntel.map((u: any) => {
       const sqft = parseFloat(String(u.sqft || 0));
       const totalSqft = sqft * parseInt(String(u.total_count || 0));

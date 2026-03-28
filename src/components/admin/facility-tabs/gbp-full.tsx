@@ -25,7 +25,6 @@ import {
   Phone,
   Search,
   Map,
-  X,
 } from "lucide-react"
 import {
   LineChart,
@@ -147,7 +146,7 @@ const card = "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] round
 const textPrimary = "text-[var(--color-dark)]"
 const textSecondary = "text-[var(--color-body-text)]"
 const textTertiary = "text-[var(--color-mid-gray)]"
-const accent = "bg-[var(--color-gold)]"
+const _accent = "bg-[var(--color-gold)]"
 const inputCls =
   "w-full px-3 py-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light)] text-sm text-[var(--color-dark)] placeholder:text-[var(--color-mid-gray)] focus:outline-none focus:ring-1 focus:ring-[var(--color-gold)]"
 const btnPrimary =
@@ -825,7 +824,7 @@ export default function GBPFull({
           >
             <Icon size={13} /> {label}
             {badge > 0 && (
-              <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-500 text-white">
+              <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-500 text-white">
                 {badge}
               </span>
             )}
@@ -1169,7 +1168,7 @@ export default function GBPFull({
                     {stat.label}
                   </span>
                 </div>
-                <p className={`text-xl font-bold ${textPrimary}`}>
+                <p className={`text-xl font-semibold ${textPrimary}`}>
                   {stat.value}
                 </p>
               </div>
@@ -1453,7 +1452,7 @@ export default function GBPFull({
                     {stat.label}
                   </span>
                 </div>
-                <p className={`text-xl font-bold ${textPrimary}`}>
+                <p className={`text-xl font-semibold ${textPrimary}`}>
                   {stat.value}
                 </p>
               </div>
@@ -1758,7 +1757,7 @@ export default function GBPFull({
                         {stat.label}
                       </span>
                     </div>
-                    <p className={`text-xl font-bold ${textPrimary}`}>
+                    <p className={`text-xl font-semibold ${textPrimary}`}>
                       {((stat.value as number) || 0).toLocaleString()}
                     </p>
                   </div>
@@ -1774,7 +1773,7 @@ export default function GBPFull({
                       Total Impressions
                     </span>
                   </div>
-                  <p className={`text-2xl font-bold ${textPrimary}`}>
+                  <p className={`text-2xl font-semibold ${textPrimary}`}>
                     {(insightsSummary.total_impressions || 0).toLocaleString()}
                   </p>
                   <p className={`text-xs ${textTertiary} mt-0.5`}>
@@ -1788,7 +1787,7 @@ export default function GBPFull({
                       Total Actions
                     </span>
                   </div>
-                  <p className={`text-2xl font-bold ${textPrimary}`}>
+                  <p className={`text-2xl font-semibold ${textPrimary}`}>
                     {(insightsSummary.total_actions || 0).toLocaleString()}
                   </p>
                   <p className={`text-xs ${textTertiary} mt-0.5`}>
@@ -1814,7 +1813,7 @@ export default function GBPFull({
                         }}
                       />
                     </div>
-                    <span className={`text-sm font-bold ${textPrimary}`}>
+                    <span className={`text-sm font-semibold ${textPrimary}`}>
                       {(
                         (Number(insightsSummary.total_actions) /
                           Number(insightsSummary.total_impressions)) *
@@ -2245,7 +2244,7 @@ export default function GBPFull({
                     <p className={`text-sm font-medium ${textPrimary}`}>
                       Minimum Rating for Auto-Respond
                     </p>
-                    <span className={`text-sm font-bold ${textPrimary}`}>
+                    <span className={`text-sm font-semibold ${textPrimary}`}>
                       {reviewSettings.min_rating} \u2605
                     </span>
                   </div>

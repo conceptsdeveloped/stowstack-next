@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
       data: {
         slug,
         facility_name: facilityName,
-        audit_json: audit as any,
+        audit_json: audit as unknown as Prisma.InputJsonValue,
         views: 0,
         expires_at: expiresAt,
       },

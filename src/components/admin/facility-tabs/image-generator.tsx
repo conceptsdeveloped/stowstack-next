@@ -61,7 +61,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
   adminKey: string
 }) {
   const [templates, setTemplates] = useState<ImageTemplate[]>([])
-  const [configured, setConfigured] = useState(false)
+  const [_configured, setConfigured] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
   const [customNotes, setCustomNotes] = useState('')
@@ -310,6 +310,7 @@ export default function ImageGenerator({ facilityId, adminKey }: {
 
                 {job.status === 'succeeded' && job.imageUrl && (
                   <div className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={job.imageUrl} alt={job.templateName} className="w-full aspect-square object-cover" />
                     <span className="absolute top-2 right-2 text-[9px] px-1.5 py-0.5 rounded bg-black/50 text-white">
                       {ASPECT_LABELS[job.aspect] || job.aspect}

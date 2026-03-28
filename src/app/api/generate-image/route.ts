@@ -187,7 +187,7 @@ async function generateImage(
     throw new Error("FAL_KEY not configured. Add it to your environment variables. Get a key at fal.ai");
 
   const dims = ASPECT_RATIOS[aspect] || ASPECT_RATIOS["1:1"];
-  const aspectRatio = aspect === "16:9" ? "16:9"
+  const _aspectRatio = aspect === "16:9" ? "16:9"
     : aspect === "9:16" ? "9:16"
     : aspect === "4:5" ? "4:5"
     : "1:1";

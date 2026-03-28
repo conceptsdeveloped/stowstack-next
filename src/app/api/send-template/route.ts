@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -375,7 +376,7 @@ function logActivity(params: {
         lead_name: params.leadName || "",
         facility_name: params.facilityName || "",
         detail: (params.detail || "").slice(0, 500),
-        meta: (params.meta || {}) as any,
+        meta: (params.meta || {}) as unknown as Prisma.InputJsonValue,
       },
     })
     .catch(() => {});

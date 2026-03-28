@@ -63,7 +63,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
     return "light";
   });
-  const [mounted, setMounted] = useState(() => typeof window !== "undefined");
+  const [mounted, _setMounted] = useState(() => typeof window !== "undefined");
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {

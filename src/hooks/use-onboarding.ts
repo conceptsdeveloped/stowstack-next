@@ -34,7 +34,7 @@ export function useOnboarding() {
     }
     return DEFAULT_STATE;
   });
-  const [loaded, setLoaded] = useState(() => typeof window !== 'undefined');
+  const [loaded] = useState(() => typeof window !== 'undefined');
 
   // Persist to localStorage
   useEffect(() => {

@@ -4,7 +4,7 @@ import { useInView } from "./use-in-view";
 
 const CASE_STUDIES = [
   {
-    name: "Midway Self Storage — Cassopolis, MI",
+    name: "Midway Self Storage: Cassopolis, MI",
     context:
       "A 247-unit facility at 71% occupancy with no paid ads and a default storEDGE rental page. StorageAds launched a Meta campaign with 3 ad-specific landing pages targeting climate-controlled, vehicle storage, and first-month-free audiences.",
     stats: [
@@ -15,7 +15,7 @@ const CASE_STUDIES = [
     ],
   },
   {
-    name: "Lakeshore Storage — South Haven, MI",
+    name: "Lakeshore Storage: South Haven, MI",
     context:
       "A seasonal market with 60% winter occupancy. StorageAds ran targeted campaigns for boat/RV storage and temperature-sensitive items during the fall shoulder season.",
     stats: [
@@ -46,7 +46,7 @@ export default function Results() {
           }`}
         >
           <h2
-            className="font-bold"
+            className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
             Results from our own facilities.
@@ -64,7 +64,7 @@ export default function Results() {
               }`}
               style={{ transitionDelay: `${200 + i * 200}ms` }}
             >
-              <h3 className="text-lg font-bold text-[var(--color-dark)] mb-3">
+              <h3 className="text-lg font-semibold text-[var(--color-dark)] mb-3">
                 {study.name}
               </h3>
               <p
@@ -81,7 +81,7 @@ export default function Results() {
                 {study.stats.map((stat) => (
                   <div key={stat.label} className="text-center">
                     <p
-                      className="text-2xl font-black text-[var(--color-gold)]"
+                      className="text-2xl font-semibold text-[var(--color-gold)]"
                       style={{ fontFamily: "var(--font-mono-family)" }}
                     >
                       {stat.value}
@@ -111,13 +111,13 @@ export default function Results() {
             className="text-sm leading-relaxed"
             style={{ color: "var(--text-secondary)" }}
           >
-            <strong className="text-[var(--color-dark)]">Here is the unit economics.</strong> A
+            <strong className="text-[var(--color-dark)]">Here&apos;s the math.</strong> A
             single move-in at a typical facility is worth $100-150/mo in
-            recurring revenue. At a 12-month average tenant stay, that is
+            recurring revenue. At a 12-month average tenant stay, that&apos;s
             $1,200-1,800 in lifetime value per move-in. If StorageAds&apos;s
-            Growth tier produces 5-10 incremental move-ins per month, you are
+            Growth tier produces 5-10 incremental move-ins per month, you&apos;re
             generating $6,000-18,000 in annualized revenue from a $1,500/mo
-            investment. That is a 4-12x return before the system even starts
+            investment. That&apos;s a 4-12x return before the system even starts
             optimizing.
           </p>
           <p

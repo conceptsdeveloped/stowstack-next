@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
 
     const leads = facilities.map((f) =>
       facilityToLead(
-        f as any,
+        f as unknown as Record<string, unknown>,
         notesByFacility[f.id] || []
       )
     );
@@ -321,7 +321,7 @@ export async function PATCH(req: NextRequest) {
     });
 
     const record = facilityToLead(
-      updated as any,
+      updated as unknown as Record<string, unknown>,
       notes.map((n) => ({
         text: n.text || "",
         at: n.created_at?.toISOString() || "",

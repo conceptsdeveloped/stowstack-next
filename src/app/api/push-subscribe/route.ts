@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
-  getCorsHeaders,
   corsResponse,
   jsonResponse,
   errorResponse,

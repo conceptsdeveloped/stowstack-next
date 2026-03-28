@@ -13,7 +13,6 @@ import {
   X as XIcon,
   ImageIcon,
   Palette,
-  Link2,
   Loader2,
 } from "lucide-react"
 
@@ -23,6 +22,7 @@ interface LPSection {
   id: string
   section_type: string
   sort_order: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: Record<string, any>
 }
 
@@ -206,7 +206,7 @@ function AssetPickerModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.08]">
-          <h3 className="text-sm font-bold text-[#111827]">
+          <h3 className="text-sm font-semibold text-[#111827]">
             Select from Assets
           </h3>
           <button onClick={onClose} className="text-[#9CA3AF]">
@@ -234,6 +234,7 @@ function AssetPickerModal({
                 }}
                 className="rounded-lg overflow-hidden border-2 border-black/[0.08] hover:border-[#3B82F6] transition-colors aspect-square"
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={a.url}
                   alt={String(a.metadata?.alt || "")}
@@ -262,6 +263,7 @@ function SectionEditor({
   section: LPSection
   isFirst: boolean
   isLast: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdate: (config: Record<string, any>) => void
   onRemove: () => void
   onMove: (dir: "up" | "down") => void
@@ -319,7 +321,7 @@ function SectionEditor({
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex items-center gap-2">
-          <span className="w-6 h-6 rounded bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center text-xs font-bold">
+          <span className="w-6 h-6 rounded bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center text-xs font-semibold">
             {meta?.icon || "?"}
           </span>
           <span className="text-sm font-medium text-[#111827]">
@@ -1188,6 +1190,7 @@ export default function LandingPageBuilder({
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function updateSection(sectionId: string, config: Record<string, any>) {
     if (!editingPage) return
     setEditingPage({
@@ -1246,7 +1249,7 @@ export default function LandingPageBuilder({
         <div className="p-5">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-lg font-bold text-[#111827]">
+              <h3 className="text-lg font-semibold text-[#111827]">
                 Choose a Template
               </h3>
               <p className="text-sm text-[#9CA3AF]">
@@ -1316,7 +1319,7 @@ export default function LandingPageBuilder({
           <div className="p-5">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-lg font-bold text-[#111827]">
+                <h3 className="text-lg font-semibold text-[#111827]">
                   Landing Pages
                 </h3>
                 <p className="text-sm text-[#9CA3AF]">
@@ -1762,7 +1765,7 @@ export default function LandingPageBuilder({
                           onClick={() => addSection(type)}
                           className="p-3 rounded-lg border border-black/[0.08] text-left transition-colors hover:border-[#3B82F6]/50 hover:bg-black/[0.03]"
                         >
-                          <span className="w-6 h-6 rounded bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center text-xs font-bold">
+                          <span className="w-6 h-6 rounded bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center text-xs font-semibold">
                             {meta.icon}
                           </span>
                           <p className="text-xs font-medium text-[#111827] mt-1">

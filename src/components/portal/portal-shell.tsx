@@ -10,13 +10,11 @@ import {
   MessageSquare,
   BarChart3,
   Settings,
-  LogIn,
   Mail,
   Send,
   Loader2,
   AlertCircle,
   Menu,
-  X,
   ClipboardCheck,
   CreditCard,
   MapPin,
@@ -91,6 +89,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
       autoSubmitRef.current = false;
       attemptLogin(email, code.join(""));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email, code]);
 
   async function attemptLogin(loginEmail: string, loginCode: string) {
@@ -192,7 +191,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-gold)]/10">
             <Building2 className="h-7 w-7 text-[var(--color-gold)]" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--color-dark)]">Client Portal</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-dark)]">Client Portal</h1>
           <p className="mt-2 text-sm text-[var(--color-mid-gray)]">
             {step === "email"
               ? "Enter your email to receive a login code"
@@ -247,7 +246,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
                   onKeyDown={(e) => handleCodeKeyDown(i, e)}
                   onPaste={handleCodePaste}
                   autoFocus={i === 0}
-                  className="h-14 w-14 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-center text-2xl font-bold text-[var(--color-dark)] outline-none transition-all focus:border-[var(--color-gold)] focus:ring-2 focus:ring-[var(--color-gold)]/25"
+                  className="h-14 w-14 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-center text-2xl font-semibold text-[var(--color-dark)] outline-none transition-all focus:border-[var(--color-gold)] focus:ring-2 focus:ring-[var(--color-gold)]/25"
                 />
               ))}
             </div>
@@ -286,7 +285,7 @@ function Sidebar({ client, mobileOpen, onClose }: { client: ClientData; mobileOp
   const content = (
     <div className="flex h-full flex-col">
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] px-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-gold)]/10 text-sm font-bold text-[var(--color-gold)]">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-gold)]/10 text-sm font-semibold text-[var(--color-gold)]">
           {firstName(client.name).charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
@@ -379,7 +378,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!session) {
-      setLoading(false); // eslint-disable-line react-hooks/set-state-in-effect -- sync init
+      setLoading(false);
       return;
     }
     fetch("/api/client-data", {
@@ -391,6 +390,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
       .then((json) => setClient(json.client))
       .catch(() => { clearPortalSession(); setSession(null); setAuthError(true); })
       .finally(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogin = useCallback((clientData: ClientData) => {

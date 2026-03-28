@@ -67,7 +67,7 @@ export function SplitFlap({ messages, cols: colsProp, rows: rowsProp, holdTime =
 
   const cols = colsProp ?? 30;
   const rows = rowsProp ?? 3;
-  const totalCells = cols * rows;
+  const _totalCells = cols * rows;
 
   // Responsive sizing based on viewport and cols
   useEffect(() => {

@@ -202,7 +202,7 @@ export default function AuditsPage() {
   const [csvText, setCsvText] = useState("");
   const [diagnosticRows, setDiagnosticRows] = useState<DiagnosticRow[]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [selectedRow, setSelectedRow] = useState<number | null>(null);
+  const [_selectedRow, setSelectedRow] = useState<number | null>(null);
   const [genStatus, setGenStatus] = useState<Record<number, "idle" | "generating" | "done" | "error">>({});
   const [genResults, setGenResults] = useState<Record<number, { slug: string; auditUrl: string; overallScore: number; overallGrade: string }>>({});
   const [genErrors, setGenErrors] = useState<Record<number, string>>({});

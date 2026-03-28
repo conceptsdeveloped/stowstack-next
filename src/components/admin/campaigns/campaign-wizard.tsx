@@ -16,7 +16,6 @@ import {
 import { useCampaignForm } from '@/hooks/use-campaign-form';
 import { useFacility } from '@/lib/facility-context';
 import { adminFetch } from '@/hooks/use-admin-fetch';
-import { DatePicker } from '@/components/date/date-picker';
 import type { CampaignFormState } from '@/hooks/use-campaign-form';
 import type { CampaignPlatform, CampaignType } from '@/types/campaign';
 
@@ -567,7 +566,7 @@ export function CampaignWizard() {
     form,
     updateForm,
     currentStep,
-    totalSteps,
+    totalSteps: _totalSteps,
     setStep,
     nextStep,
     prevStep,
@@ -652,7 +651,7 @@ export function CampaignWizard() {
           const stepNum = i + 1;
           const isActive = stepNum === currentStep;
           const isComplete = stepNum < currentStep;
-          const Icon = step.icon;
+          const _Icon = step.icon;
 
           return (
             <button

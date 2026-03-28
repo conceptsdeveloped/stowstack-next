@@ -5,7 +5,6 @@ import { FileText, Plus, Download, Loader2 } from "lucide-react";
 import { useAdminFetch, adminFetch } from "@/hooks/use-admin-fetch";
 import { useFacility } from "@/lib/facility-context";
 import { FacilityBadge } from "@/components/admin/facility-badge";
-import { ExportButton } from "@/components/export/export-button";
 import { GenerateReportModal } from "@/components/export/generate-report-modal";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_CONFIG } from "@/types/reports";
 import type { Report, GenerateReportRequest } from "@/types/reports";

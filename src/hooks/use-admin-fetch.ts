@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
 interface UseAdminFetchResult<T> {
   data: T | null;
@@ -17,6 +17,7 @@ export function useAdminFetch<T = unknown>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const stableParams = useMemo(() => JSON.stringify(params), [params]);
 
   const fetchData = useCallback(() => {
     abortRef.current?.abort();
@@ -32,9 +33,10 @@ export function useAdminFetch<T = unknown>(
         : "";
 
     const url = new URL(path, window.location.origin);
-    if (params) {
-      Object.entries(params).forEach(([k, v]) => {
-        if (v) url.searchParams.set(k, v);
+    const parsedParams = stableParams ? JSON.parse(stableParams) as Record<string, string> : undefined;
+    if (parsedParams) {
+      Object.entries(parsedParams).forEach(([k, v]) => {
+        if (v) url.searchParams.set(k, v as string);
       });
     }
 
@@ -58,10 +60,10 @@ export function useAdminFetch<T = unknown>(
           setLoading(false);
         }
       });
-  }, [path, JSON.stringify(params)]);
+  }, [path, stableParams]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(); // eslint-disable-line react-hooks/set-state-in-effect -- fetch-on-mount pattern: setState is called asynchronously in response to fetch result
     return () => abortRef.current?.abort();
   }, [fetchData]);
 

@@ -1,18 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import crypto from "crypto";
 import { stripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
-
-async function hashPassword(password: string): Promise<string> {
-  const salt = crypto.randomBytes(16).toString("hex");
-  return new Promise((resolve, reject) => {
-    crypto.scrypt(password, salt, 64, (err, derived) => {
-      if (err) reject(err);
-      resolve(salt + ":" + derived.toString("hex"));
-    });
-  });
-}
 
 export async function POST(req: NextRequest) {
   const sig = req.headers.get("stripe-signature");

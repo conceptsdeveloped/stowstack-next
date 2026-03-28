@@ -255,7 +255,7 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
   }, {})
 
   const scoreColor = (s: number) => s >= 80 ? 'text-emerald-400' : s >= 60 ? 'text-amber-400' : 'text-red-400'
-  const scoreBg = (s: number) => s >= 80 ? 'bg-emerald-500/20' : s >= 60 ? 'bg-amber-500/20' : 'bg-red-500/20'
+  const _scoreBg = (s: number) => s >= 80 ? 'bg-emerald-500/20' : s >= 60 ? 'bg-amber-500/20' : 'bg-red-500/20'
 
   // PMS-based strategy
   const pmsStrategy = pmsData ? (() => {
@@ -333,27 +333,27 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
         <div className="border border-[var(--color-blue)]/20 rounded-xl p-4 space-y-3 bg-[var(--color-blue)]/5">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-blue)]">PMS Campaign Intelligence</p>
-            <span className={`text-xs font-bold ${pmsStrategy.strategyColor}`}>{pmsStrategy.strategyLabel}</span>
+            <span className={`text-xs font-semibold ${pmsStrategy.strategyColor}`}>{pmsStrategy.strategyLabel}</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
             <div>
-              <p className="text-lg font-bold text-[var(--color-dark)]">{pmsData.vacantUnits}</p>
+              <p className="text-lg font-semibold text-[var(--color-dark)]">{pmsData.vacantUnits}</p>
               <p className="text-xs text-[var(--color-mid-gray)]">Vacant Units</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-[var(--color-dark)]">{pmsStrategy.occ.toFixed(1)}%</p>
+              <p className="text-lg font-semibold text-[var(--color-dark)]">{pmsStrategy.occ.toFixed(1)}%</p>
               <p className="text-xs text-[var(--color-mid-gray)]">Occupancy</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-[var(--color-dark)]">${pmsStrategy.lowestPrice}</p>
+              <p className="text-lg font-semibold text-[var(--color-dark)]">${pmsStrategy.lowestPrice}</p>
               <p className="text-xs text-[var(--color-mid-gray)]">Starting Price</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-red-400">${pmsStrategy.monthlyRevenueGap.toLocaleString()}</p>
+              <p className="text-lg font-semibold text-red-400">${pmsStrategy.monthlyRevenueGap.toLocaleString()}</p>
               <p className="text-xs text-[var(--color-mid-gray)]">Monthly Revenue Gap</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-[var(--color-dark)]">${suggestedBudget}/day</p>
+              <p className="text-lg font-semibold text-[var(--color-dark)]">${suggestedBudget}/day</p>
               <p className="text-xs text-[var(--color-mid-gray)]">Suggested Budget</p>
             </div>
           </div>
@@ -374,7 +374,7 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
       {score && (
         <div className="border border-[var(--border-subtle)] rounded-xl p-5 bg-[var(--bg-elevated)]">
           <div className="flex items-center gap-4 mb-4">
-            <div className={`text-3xl font-bold ${scoreColor(score.overall)}`}>{score.overall}</div>
+            <div className={`text-3xl font-semibold ${scoreColor(score.overall)}`}>{score.overall}</div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-[var(--color-dark)]">Campaign Score</p>
               <p className="text-xs text-[var(--color-mid-gray)]">
@@ -390,7 +390,7 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">
             {Object.entries(score.breakdown).map(([key, val]) => (
               <div key={key} className="text-center">
-                <div className={`text-lg font-bold ${scoreColor(val)}`}>{val}</div>
+                <div className={`text-lg font-semibold ${scoreColor(val)}`}>{val}</div>
                 <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
               </div>
             ))}
@@ -429,19 +429,19 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="text-center p-2 rounded-lg bg-[var(--color-light-gray)]">
-              <p className="text-sm font-bold text-[var(--color-dark)]">{revenueProjection.monthlyLeads.toFixed(1)}</p>
+              <p className="text-sm font-semibold text-[var(--color-dark)]">{revenueProjection.monthlyLeads.toFixed(1)}</p>
               <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">Monthly Leads</p>
             </div>
             <div className="text-center p-2 rounded-lg bg-[var(--color-light-gray)]">
-              <p className="text-sm font-bold text-[var(--color-dark)]">{revenueProjection.monthlyMoveIns.toFixed(1)}</p>
+              <p className="text-sm font-semibold text-[var(--color-dark)]">{revenueProjection.monthlyMoveIns.toFixed(1)}</p>
               <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">Monthly Move-Ins</p>
             </div>
             <div className="text-center p-2 rounded-lg bg-[var(--color-light-gray)]">
-              <p className="text-sm font-bold text-emerald-400">${revenueProjection.monthlyRevenueImpact.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+              <p className="text-sm font-semibold text-emerald-400">${revenueProjection.monthlyRevenueImpact.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
               <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">Monthly Revenue</p>
             </div>
             <div className="text-center p-2 rounded-lg bg-[var(--color-light-gray)]">
-              <p className="text-sm font-bold text-[var(--color-gold)]">{revenueProjection.roas.toFixed(1)}x</p>
+              <p className="text-sm font-semibold text-[var(--color-gold)]">{revenueProjection.roas.toFixed(1)}x</p>
               <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">Annual ROAS</p>
             </div>
           </div>
@@ -623,19 +623,19 @@ export default function GoogleAdsLab({ facilityId, adminKey }: {
             return (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-lg bg-[var(--color-light-gray)]">
                 <div className="text-center">
-                  <p className="text-sm font-bold text-[var(--color-dark)]">${avgCPC.toFixed(2)}</p>
+                  <p className="text-sm font-semibold text-[var(--color-dark)]">${avgCPC.toFixed(2)}</p>
                   <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">Avg CPC</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-[var(--color-dark)]">{Math.round(estimatedClicksDay)}</p>
+                  <p className="text-sm font-semibold text-[var(--color-dark)]">{Math.round(estimatedClicksDay)}</p>
                   <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">Clicks/Day</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-[var(--color-dark)]">${Math.round(estimatedCostDay)}</p>
+                  <p className="text-sm font-semibold text-[var(--color-dark)]">${Math.round(estimatedCostDay)}</p>
                   <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">Est. Cost/Day</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-emerald-400">${estimatedCostMonth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                  <p className="text-sm font-semibold text-emerald-400">${estimatedCostMonth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                   <p className="text-[9px] uppercase text-[var(--color-mid-gray)]">Est. Cost/Mo</p>
                 </div>
               </div>

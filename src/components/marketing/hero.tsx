@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
   Play,
@@ -14,15 +14,11 @@ import {
   Eye,
   DollarSign,
   Sparkles,
-  ShieldCheck,
   Layers,
   Globe,
   Activity,
   ChevronDown,
   Smartphone,
-  Clock,
-  CheckCircle,
-  Users,
   ArrowUpRight,
   LineChart,
   PieChart,
@@ -30,9 +26,6 @@ import {
   Bell,
   Settings,
   LayoutDashboard,
-  Percent,
-  CalendarDays,
-  MapPin,
   Star,
 } from "lucide-react";
 import { useInView } from "./use-in-view";
@@ -157,11 +150,11 @@ const CAPABILITIES = [
 const TYPEWRITER_WORDS = ["Fill units.", "Prove ROAS.", "Kill bad spend.", "Track every move-in.", "Win your zip code."];
 
 const NOTIFICATION_FEED = [
-  { text: "New move-in — Climate Control 10x10", time: "2m", color: "var(--color-blue)", icon: "🎯" },
+  { text: "New move-in: Climate Control 10x10", time: "2m", color: "var(--color-blue)", icon: "🎯" },
   { text: "Conversion rate: 12.3% (+2.1%)", time: "15m", color: "var(--color-green)", icon: "📈" },
   { text: "Google CPC dropped to $1.82", time: "1h", color: "var(--color-gold)", icon: "💰" },
   { text: "A/B winner: First Month Free", time: "3h", color: "var(--color-green)", icon: "🏆" },
-  { text: "New reservation — 5x10 unit", time: "4h", color: "var(--color-blue)", icon: "📦" },
+  { text: "New reservation: 5x10 unit", time: "4h", color: "var(--color-blue)", icon: "📦" },
 ];
 
 const PIPELINE_STEPS = [
@@ -322,7 +315,7 @@ function StatItem({ stat, active, delay }: { stat: (typeof STATS)[0]; active: bo
         <Icon size={18} style={{ color: "var(--color-gold)" }} />
       </div>
       <div>
-        <div className="font-bold leading-none" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.5rem, 3vw, 2rem)", color: "var(--color-dark)" }}>
+        <div className="font-semibold leading-none" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.5rem, 3vw, 2rem)", color: "var(--color-dark)" }}>
           {stat.prefix}{stat.decimals > 0 ? count.toFixed(stat.decimals) : Math.round(count)}{stat.suffix}
         </div>
         <div className="text-xs mt-0.5" style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)" }}>{stat.label}</div>
@@ -405,7 +398,7 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
             {/* Sidebar */}
             <div className="hidden sm:flex flex-col items-center py-4 gap-2 flex-shrink-0" style={{ width: "52px", background: "var(--color-dark)" }}>
               <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-2" style={{ background: "var(--color-gold)" }}>
-                <span className="text-[10px] font-bold text-white" style={{ fontFamily: "var(--font-heading)" }}>SA</span>
+                <span className="text-[10px] font-semibold text-white" style={{ fontFamily: "var(--font-heading)" }}>SA</span>
               </div>
               {[LayoutDashboard, Megaphone, FileText, BarChart3, Settings].map((SideIcon, i) => (
                 <div key={i} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-500" style={{ background: i === 0 ? "rgba(181,139,63,0.2)" : "transparent", border: i === 0 ? "1px solid rgba(181,139,63,0.4)" : "1px solid transparent", transitionDelay: `${500 + i * 60}ms`, opacity: isVisible ? 1 : 0 }}>
@@ -456,7 +449,7 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                     <div key={i} className="rounded-xl p-2 sm:p-2.5 border transition-all duration-600" style={{ borderColor: "var(--border-subtle)", background: "var(--color-light)", transitionDelay: `${600 + i * 100}ms`, opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(10px)" }}>
                       <div className="text-[9px] sm:text-[10px]" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>{card.label}</div>
                       <div className="flex items-baseline gap-1 mt-0.5">
-                        <span className="text-sm sm:text-base font-bold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)", lineHeight: 1 }}>{card.value}</span>
+                        <span className="text-sm sm:text-base font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)", lineHeight: 1 }}>{card.value}</span>
                         <span className="text-[9px] font-semibold flex items-center gap-0.5" style={{ color: card.accent, fontFamily: "var(--font-heading)" }}>
                           <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d={card.up ? "M4 7V1M4 1L1.5 3.5M4 1L6.5 3.5" : "M4 1V7M4 7L1.5 4.5M4 7L6.5 4.5"} stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           {card.change}
@@ -518,9 +511,9 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                 {/* Campaign row */}
                 <div className="grid grid-cols-3 gap-2 transition-all duration-600" style={{ transitionDelay: "1000ms", opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(8px)" }}>
                   {[
-                    { name: "FB — Climate", movins: "14", bar: "82%", color: "var(--color-blue)" },
-                    { name: "Google — 10x10", movins: "11", bar: "65%", color: "var(--color-gold)" },
-                    { name: "IG — Free Mo.", movins: "9", bar: "52%", color: "var(--color-green)" },
+                    { name: "FB: Climate", movins: "14", bar: "82%", color: "var(--color-blue)" },
+                    { name: "Google: 10x10", movins: "11", bar: "65%", color: "var(--color-gold)" },
+                    { name: "IG: Free Mo.", movins: "9", bar: "52%", color: "var(--color-green)" },
                   ].map((c, i) => (
                     <div key={i} className="rounded-lg border p-1.5 sm:p-2" style={{ borderColor: "var(--border-subtle)", background: "var(--color-light)" }}>
                       <div className="text-[9px] sm:text-[10px] font-semibold truncate" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>{c.name}</div>
@@ -528,7 +521,7 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                         <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--border-subtle)" }}>
                           <div className="h-full rounded-full transition-all duration-1200" style={{ background: c.color, width: isVisible ? c.bar : "0%", transitionDelay: `${1300 + i * 150}ms` }} />
                         </div>
-                        <span className="text-[8px] sm:text-[9px] font-bold flex-shrink-0" style={{ color: c.color, fontFamily: "var(--font-heading)" }}>{c.movins} MI</span>
+                        <span className="text-[8px] sm:text-[9px] font-semibold flex-shrink-0" style={{ color: c.color, fontFamily: "var(--font-heading)" }}>{c.movins} MI</span>
                       </div>
                     </div>
                   ))}
@@ -640,7 +633,7 @@ function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
 
             {/* Stat badge */}
             <div
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold mb-2 transition-all duration-300"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold mb-2 transition-all duration-300"
               style={{
                 background: "rgba(181,139,63,0.08)",
                 color: "var(--color-gold)",
@@ -939,7 +932,7 @@ function ROITeaser({ isVisible }: { isVisible: boolean }) {
             <DollarSign size={16} style={{ color: "var(--color-gold)" }} />
           </div>
           <h3 className="text-sm font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
-            Real facility results — 90 day snapshot
+            Real facility results: 90 day snapshot
           </h3>
         </div>
 
@@ -962,7 +955,7 @@ function ROITeaser({ isVisible }: { isVisible: boolean }) {
               <div className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>
                 {item.label}
               </div>
-              <div className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "var(--font-heading)", color: item.color }}>
+              <div className="text-xl sm:text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)", color: item.color }}>
                 {item.value}
               </div>
               <div className="text-[10px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
@@ -986,7 +979,7 @@ function ROITeaser({ isVisible }: { isVisible: boolean }) {
               }}
             />
           </div>
-          <span className="text-sm font-bold" style={{ color: "var(--color-green)", fontFamily: "var(--font-heading)" }}>
+          <span className="text-sm font-semibold" style={{ color: "var(--color-green)", fontFamily: "var(--font-heading)" }}>
             35x
           </span>
         </div>
@@ -1009,7 +1002,7 @@ export default function Hero() {
   const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
-    <section id="hero" aria-label="StorageAds — full-funnel demand engine for self-storage" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
+    <section id="hero" aria-label="StorageAds: full-funnel demand engine for self-storage" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
       <HeroStyles />
       <DotGrid />
 
@@ -1021,7 +1014,7 @@ export default function Hero() {
           <div className="text-center lg:text-left max-w-xl mx-auto lg:mx-0">
             {/* Headline */}
             <h1
-              className={`font-black transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--font-heading)" }}
             >
               The marketing system that{" "}
@@ -1132,7 +1125,7 @@ export default function Hero() {
               Everything you need to fill units
             </h2>
             <p className="text-sm mt-1 mx-auto" style={{ color: "var(--text-secondary)", maxWidth: "480px" }}>
-              From ad creation to move-in attribution — one platform, full visibility.
+              From the first impression to the signed lease: every step tracked, every dollar accounted for.
             </p>
           </div>
           <FeatureHighlights isVisible={featVisible} />

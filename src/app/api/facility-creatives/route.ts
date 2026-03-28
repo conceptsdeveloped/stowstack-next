@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
@@ -409,7 +410,7 @@ async function getOrCreateBrief(
   const newBrief = await db.creative_briefs.create({
     data: {
       facility_id: facilityId,
-      brief_json: { facility: facility.name, location: facility.location, context } as any,
+      brief_json: { facility: facility.name, location: facility.location, context } as unknown as Prisma.InputJsonValue,
       platform_recommendation: platforms,
       status: "draft",
     },
@@ -455,11 +456,11 @@ async function insertVariations(
         platform,
         format,
         angle,
-        content_json: v as any,
+        content_json: v as unknown as Prisma.InputJsonValue,
         status: "draft",
         version: nextVersion,
         compliance_status: complianceStatus,
-        compliance_flags: complianceFlags as any,
+        compliance_flags: complianceFlags as unknown as Prisma.InputJsonValue,
       },
     });
     inserted.push(row);
@@ -563,11 +564,11 @@ export async function POST(req: NextRequest) {
               platform: "google_search",
               format: "text",
               angle: "rsa",
-              content_json: parsed.adGroup as any,
+              content_json: parsed.adGroup as unknown as Prisma.InputJsonValue,
               status: "draft",
               version: nextVersion,
               compliance_status: compliance.status,
-              compliance_flags: compliance.flags.length > 0 ? (compliance.flags as any) : null,
+              compliance_flags: compliance.flags.length > 0 ? (compliance.flags as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
             },
           });
           resultData.variations.push(row);
@@ -585,7 +586,7 @@ export async function POST(req: NextRequest) {
               platform: "landing_page",
               format: "sections",
               angle: "full_page",
-              content_json: parsed as any,
+              content_json: parsed as unknown as Prisma.InputJsonValue,
               status: "draft",
               version: nextVersion,
             },
@@ -607,11 +608,11 @@ export async function POST(req: NextRequest) {
               platform: "email_drip",
               format: "email",
               angle: "nurture_sequence",
-              content_json: parsed as any,
+              content_json: parsed as unknown as Prisma.InputJsonValue,
               status: "draft",
               version: nextVersion,
               compliance_status: compliance.status,
-              compliance_flags: compliance.flags.length > 0 ? (compliance.flags as any) : null,
+              compliance_flags: compliance.flags.length > 0 ? (compliance.flags as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
             },
           });
           resultData.variations.push(row);
@@ -697,11 +698,11 @@ export async function PATCH(req: NextRequest) {
               facility_id: variation.facility_id,
               variation_id: variationId,
               name: `Funnel: ${(variation.angle || 'ad')} sequence`,
-              steps: dripSteps as any,
+              steps: dripSteps as unknown as Prisma.InputJsonValue,
             },
             update: {
               name: `Funnel: ${(variation.angle || 'ad')} sequence`,
-              steps: dripSteps as any,
+              steps: dripSteps as unknown as Prisma.InputJsonValue,
             },
           });
         }

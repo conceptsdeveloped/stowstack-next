@@ -16,7 +16,7 @@ export function useTimezone() {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored || detectTimezone();
   });
-  const [loaded, setLoaded] = useState(() => typeof window !== 'undefined');
+  const [loaded] = useState(() => typeof window !== 'undefined');
 
   function setTimezone(tz: string) {
     setTimezoneState(tz);

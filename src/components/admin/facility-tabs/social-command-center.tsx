@@ -260,7 +260,7 @@ function MetricCard({
       <p className="text-[10px] uppercase tracking-wider text-[var(--color-mid-gray)]">
         {label}
       </p>
-      <p className={`text-lg font-bold ${accent || textPrimary}`}>{value}</p>
+      <p className={`text-lg font-semibold ${accent || textPrimary}`}>{value}</p>
     </div>
   )
 }
@@ -691,7 +691,7 @@ function ContentCalendar({
           >
             <ChevronLeft size={16} className={textTertiary} />
           </button>
-          <h3 className={`text-lg font-bold ${textPrimary}`}>
+          <h3 className={`text-lg font-semibold ${textPrimary}`}>
             {MONTHS[month]} {year}
           </h3>
           <button
@@ -781,7 +781,7 @@ function ContentCalendar({
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span
-                      className={`text-xs font-medium ${isToday(day) ? "text-[var(--color-gold)] font-bold" : textTertiary}`}
+                      className={`text-xs font-medium ${isToday(day) ? "text-[var(--color-gold)] font-semibold" : textTertiary}`}
                     >
                       {day}
                     </span>
@@ -974,7 +974,7 @@ function BatchGenerator({
               <Sparkles size={20} className="text-violet-400" />
             </div>
             <div>
-              <h3 className={`font-bold ${textPrimary}`}>
+              <h3 className={`font-semibold ${textPrimary}`}>
                 Generate Social Content
               </h3>
               <p className={`text-xs ${textTertiary}`}>
@@ -1265,7 +1265,7 @@ function PostComposer({
       >
         <div className="p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className={`font-bold ${textPrimary}`}>Create Post</h3>
+            <h3 className={`font-semibold ${textPrimary}`}>Create Post</h3>
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg hover:bg-[var(--color-light-gray)]"
@@ -1470,7 +1470,7 @@ export default function SocialCommandCenter({
 }) {
   const [posts, setPosts] = useState<SocialPost[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [_error, setError] = useState<string | null>(null)
   const [subView, setSubView] = useState<SubView>("calendar")
   const [showGenerator, setShowGenerator] = useState(false)
   const [showComposer, setShowComposer] = useState(false)
@@ -1546,7 +1546,7 @@ export default function SocialCommandCenter({
       <div className={cardCls + " p-4"}>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h2 className={`text-lg font-bold ${textPrimary}`}>
+            <h2 className={`text-lg font-semibold ${textPrimary}`}>
               Social Media Command Center
             </h2>
             <p className={`text-xs ${textTertiary} mt-0.5`}>
@@ -1769,7 +1769,7 @@ export default function SocialCommandCenter({
         <div className="space-y-4">
           {/* Platform breakdown */}
           <div className={cardCls + " p-4"}>
-            <h3 className={`text-sm font-bold mb-3 ${textPrimary}`}>
+            <h3 className={`text-sm font-semibold mb-3 ${textPrimary}`}>
               Posts by Platform
             </h3>
             <div className="space-y-3">
@@ -1815,7 +1815,7 @@ export default function SocialCommandCenter({
 
           {/* Content mix */}
           <div className={cardCls + " p-4"}>
-            <h3 className={`text-sm font-bold mb-3 ${textPrimary}`}>
+            <h3 className={`text-sm font-semibold mb-3 ${textPrimary}`}>
               Content Mix
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1831,7 +1831,7 @@ export default function SocialCommandCenter({
                     key={type}
                     className="rounded-lg p-3 text-center bg-[var(--color-light-gray)]"
                   >
-                    <p className={`text-lg font-bold ${textPrimary}`}>
+                    <p className={`text-lg font-semibold ${textPrimary}`}>
                       {count}
                     </p>
                     <p
@@ -1846,7 +1846,7 @@ export default function SocialCommandCenter({
 
           {/* Quick actions */}
           <div className={cardCls + " p-4"}>
-            <h3 className={`text-sm font-bold mb-3 ${textPrimary}`}>
+            <h3 className={`text-sm font-semibold mb-3 ${textPrimary}`}>
               Quick Actions
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">

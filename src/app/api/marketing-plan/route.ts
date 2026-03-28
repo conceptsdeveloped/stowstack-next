@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 
@@ -397,14 +398,14 @@ export async function POST(req: NextRequest) {
       data: {
         facility_id: facilityId,
         version: (maxVersion._max.version || 0) + 1,
-        plan_json: planJson as any,
-        spend_recommendation: spendRec as any,
-        assigned_playbooks: playbooks as any || [],
+        plan_json: planJson as unknown as Prisma.InputJsonValue,
+        spend_recommendation: spendRec as unknown as Prisma.InputJsonValue,
+        assigned_playbooks: (playbooks as string[]) || [],
         generated_from: {
           contextDocs: contextDocs.length,
           hasReviews: !!(reviews && Array.isArray(reviews) && reviews.length),
           occupancy: facility.occupancy_range,
-        } as any,
+        } as unknown as Prisma.InputJsonValue,
         status: "active",
       },
     });

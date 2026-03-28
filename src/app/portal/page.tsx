@@ -46,7 +46,7 @@ interface OnboardingData {
 /* ─── main page ─── */
 
 export default function PortalDashboard() {
-  const { session, client } = usePortal();
+  usePortal();
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-6">
@@ -84,7 +84,7 @@ function WelcomeBanner() {
 
   return (
     <div className="rounded-xl border border-[var(--border-subtle)] bg-gradient-to-br from-[var(--color-gold)]/[0.08] to-transparent p-5">
-      <h1 className="text-xl font-bold tracking-tight">
+      <h1 className="text-xl font-semibold tracking-tight">
         {greeting}, {firstName(client.name)}
       </h1>
       <p className="mt-1 text-sm text-[var(--color-body-text)]">
@@ -93,11 +93,11 @@ function WelcomeBanner() {
       {stats && (
         <div className="mt-4 flex gap-6">
           <div>
-            <p className="text-2xl font-bold">{fmt(stats.leads)}</p>
+            <p className="text-2xl font-semibold">{fmt(stats.leads)}</p>
             <p className="text-xs text-[var(--color-mid-gray)]">Total Leads (90d)</p>
           </div>
           <div>
-            <p className="text-2xl font-bold">{fmt(stats.moveIns)}</p>
+            <p className="text-2xl font-semibold">{fmt(stats.moveIns)}</p>
             <p className="text-xs text-[var(--color-mid-gray)]">Move-Ins (90d)</p>
           </div>
         </div>
@@ -185,7 +185,7 @@ function CampaignGoalProgress() {
       </div>
       <div className="mb-2 flex items-end justify-between">
         <div>
-          <span className="text-3xl font-bold">{moveIns}</span>
+          <span className="text-3xl font-semibold">{moveIns}</span>
           <span className="text-lg text-[var(--color-mid-gray)]"> / {client.monthlyGoal}</span>
         </div>
         <span className={`text-xs font-medium ${onTrack ? "text-green-400" : "text-amber-400"}`}>{pct}%</span>
@@ -332,7 +332,7 @@ function ContactCard() {
       </div>
       <div className="space-y-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-gold)]/10 text-sm font-bold text-[var(--color-gold)]">B</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-gold)]/10 text-sm font-semibold text-[var(--color-gold)]">B</div>
           <div>
             <p className="text-sm font-medium">Blake</p>
             <p className="text-xs text-[var(--color-mid-gray)]">Account Manager</p>

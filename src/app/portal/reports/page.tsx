@@ -23,7 +23,6 @@ import {
 import { usePortal } from "@/components/portal/portal-shell";
 import {
   fmtCurrency,
-  fmtPct,
   CardSkeleton,
   SectionSkeleton,
   ErrorState,
@@ -191,7 +190,7 @@ export default function ReportsPage() {
                   <Building2 className="h-4 w-4 text-[var(--color-gold)]" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Occupancy</span>
                 </div>
-                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.occupancy_pct.toFixed(1)}%</p>
+                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.occupancy_pct.toFixed(1)}%</p>
                 <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
                   {occ.occupied_units} / {occ.total_units} units
                 </p>
@@ -203,7 +202,7 @@ export default function ReportsPage() {
                   <Package className="h-4 w-4 text-[var(--color-gold)]" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Total Units</span>
                 </div>
-                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.total_units}</p>
+                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.total_units}</p>
               </div>
 
               {/* Occupied */}
@@ -212,7 +211,7 @@ export default function ReportsPage() {
                   <Users className="h-4 w-4 text-[var(--color-gold)]" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Occupied Units</span>
                 </div>
-                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.occupied_units}</p>
+                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.occupied_units}</p>
               </div>
 
               {/* Move-Ins MTD */}
@@ -221,7 +220,7 @@ export default function ReportsPage() {
                   <TrendingUp className="h-4 w-4 text-emerald-400" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Move-Ins (MTD)</span>
                 </div>
-                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.move_ins_mtd}</p>
+                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.move_ins_mtd}</p>
               </div>
 
               {/* Move-Outs MTD */}
@@ -230,7 +229,7 @@ export default function ReportsPage() {
                   <TrendingDown className="h-4 w-4 text-red-400" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Move-Outs (MTD)</span>
                 </div>
-                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.move_outs_mtd}</p>
+                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.move_outs_mtd}</p>
               </div>
 
               {/* Delinquency */}
@@ -239,7 +238,7 @@ export default function ReportsPage() {
                   <BarChart3 className="h-4 w-4 text-amber-400" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Delinquency</span>
                 </div>
-                <p className="text-xl font-bold text-[var(--color-dark)]">{occ.delinquency_pct.toFixed(1)}%</p>
+                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.delinquency_pct.toFixed(1)}%</p>
               </div>
             </div>
           </div>

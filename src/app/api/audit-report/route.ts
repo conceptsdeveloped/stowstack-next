@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -244,10 +245,10 @@ export async function GET(req: NextRequest) {
       where: { facility_id: leadId },
       create: {
         facility_id: leadId,
-        report_json: report as any,
+        report_json: report as unknown as Prisma.InputJsonValue,
       },
       update: {
-        report_json: report as any,
+        report_json: report as unknown as Prisma.InputJsonValue,
         created_at: new Date(),
       },
     });
@@ -288,10 +289,10 @@ export async function POST(req: NextRequest) {
       where: { facility_id: leadId },
       create: {
         facility_id: leadId,
-        report_json: report as any,
+        report_json: report as unknown as Prisma.InputJsonValue,
       },
       update: {
-        report_json: report as any,
+        report_json: report as unknown as Prisma.InputJsonValue,
         created_at: new Date(),
       },
     });

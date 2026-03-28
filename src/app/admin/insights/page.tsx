@@ -9,8 +9,6 @@ import {
   TrendingDown,
   Activity,
   UserPlus,
-  FileText,
-  Phone,
   Award,
   MessageSquare,
 } from "lucide-react";
@@ -247,7 +245,7 @@ export default function InsightsPage() {
                     {kpi.label}
                   </span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: "var(--color-dark)" }}>
+                <p className="text-2xl font-semibold" style={{ color: "var(--color-dark)" }}>
                   {kpi.value}
                 </p>
               </div>

@@ -147,7 +147,7 @@ function HeroSection({
           )}
 
           <h1
-            className={`text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.08] mb-6 ${
+            className={`text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.08] mb-6 ${
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
@@ -237,7 +237,7 @@ function FeaturesSection({
       <div className="max-w-5xl mx-auto px-5">
         {typeof config.headline === "string" && config.headline && (
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
               {config.headline}
             </h2>
             {typeof config.subheadline === "string" && config.subheadline && (
@@ -301,7 +301,7 @@ function UnitTypesSection({
       <div className="max-w-5xl mx-auto px-5">
         {typeof config.headline === "string" && config.headline && (
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
               {config.headline}
             </h2>
           </div>
@@ -320,7 +320,7 @@ function UnitTypesSection({
               )}
               {unit.price && (
                 <p
-                  className={`text-2xl font-bold mb-4 ${theme?.primaryColor ? "" : "text-blue-600"}`}
+                  className={`text-2xl font-semibold mb-4 ${theme?.primaryColor ? "" : "text-blue-600"}`}
                   style={
                     theme?.primaryColor
                       ? { color: theme.primaryColor }
@@ -371,7 +371,7 @@ function GallerySection({ config }: { config: SectionConfig }) {
       <div className="max-w-5xl mx-auto px-5">
         {typeof config.headline === "string" && config.headline && (
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
               {config.headline}
             </h2>
           </div>
@@ -416,7 +416,7 @@ function TestimonialsSection({
       <div className="max-w-5xl mx-auto px-5">
         {typeof config.headline === "string" && config.headline && (
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
               {config.headline}
             </h2>
           </div>
@@ -466,7 +466,7 @@ function FAQSection({ config }: { config: SectionConfig }) {
       <div className="max-w-3xl mx-auto px-5">
         {typeof config.headline === "string" && config.headline && (
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
               {config.headline}
             </h2>
           </div>
@@ -536,7 +536,7 @@ function CTASection({
     >
       <div className="max-w-4xl mx-auto px-5 text-center">
         <h2
-          className={`text-3xl md:text-4xl font-bold tracking-tight mb-5 ${isGradient ? "text-white" : "text-slate-900"}`}
+          className={`text-3xl md:text-4xl font-semibold tracking-tight mb-5 ${isGradient ? "text-white" : "text-slate-900"}`}
         >
           {(config.headline as string) || "Ready to Get Started?"}
         </h2>
@@ -621,7 +621,7 @@ function LocationMapSection({
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
             {typeof config.headline === "string" && config.headline && (
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight mb-4">
                 {config.headline}
               </h2>
             )}
@@ -735,7 +735,7 @@ function StorEdgeEmbedSection({
       <div className="max-w-4xl mx-auto px-5">
         {typeof config.headline === "string" && config.headline && (
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
               {config.headline}
             </h2>
             {typeof config.subheadline === "string" && config.subheadline && (
@@ -848,12 +848,12 @@ function LeadCaptureFormSection({
       if (typeof window !== "undefined") {
         const w = window as unknown as Record<string, unknown>;
         if (typeof w.fbq === "function")
-          (w.fbq as Function)("track", "Lead", {
+          (w.fbq as (...args: unknown[]) => void)("track", "Lead", {
             content_name: "lead_capture_form",
             content_category: "storage",
           });
         if (typeof w.gtag === "function")
-          (w.gtag as Function)("event", "generate_lead", {
+          (w.gtag as (...args: unknown[]) => void)("event", "generate_lead", {
             event_category: "engagement",
             event_label: "lead_capture_form",
           });
@@ -877,7 +877,7 @@ function LeadCaptureFormSection({
           >
             <Check size={32} style={{ color: pc }} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-2">
+          <h3 className="text-2xl font-semibold text-slate-900 mb-2">
             Got it — we will be in touch.
           </h3>
           <p className="text-slate-500">
@@ -893,7 +893,7 @@ function LeadCaptureFormSection({
     <section id="lead-form" className="py-16 md:py-24 bg-slate-50">
       <div className="max-w-lg mx-auto px-5">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">
             {(config.headline as string) || "Check Availability"}
           </h2>
           {typeof config.subheadline === "string" && config.subheadline && (
@@ -1135,7 +1135,7 @@ function ExitIntentPopup({
               >
                 <Check size={24} style={{ color: pc }} />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">
                 You are all set!
               </h3>
               <p className="text-sm text-slate-500">
@@ -1145,7 +1145,7 @@ function ExitIntentPopup({
             </>
           ) : (
             <>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">
                 Wait — don&apos;t lose your spot!
               </h3>
               <p className="text-sm text-slate-500 mb-5">
@@ -1208,7 +1208,7 @@ function LandingPageNav({
               className="h-6 object-contain"
             />
           )}
-          <span className="text-sm font-bold text-slate-900">
+          <span className="text-sm font-semibold text-slate-900">
             {facilityName || "Self Storage"}
           </span>
         </div>
@@ -1397,9 +1397,9 @@ export default function LandingPageRoute() {
     const capiEventId = crypto.randomUUID();
 
     if (typeof w.fbq === "function")
-      (w.fbq as Function)("track", "PageView", {}, { eventID: capiEventId });
+      (w.fbq as (...args: unknown[]) => void)("track", "PageView", {}, { eventID: capiEventId });
     if (typeof w.gtag === "function")
-      (w.gtag as Function)("event", "page_view", {
+      (w.gtag as (...args: unknown[]) => void)("event", "page_view", {
         page_title: page.title,
         page_location: window.location.href,
       });
@@ -1485,7 +1485,7 @@ export default function LandingPageRoute() {
   if (error || !page) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white px-5">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">
+        <h1 className="text-2xl font-semibold text-slate-900 mb-2">
           Page Not Found
         </h1>
         <p className="text-slate-500 mb-6">

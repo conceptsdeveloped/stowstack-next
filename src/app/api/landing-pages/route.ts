@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { facilityId, name, title, slug, templateType, cloneFrom } = body;
+    const { facilityId, name, title, slug, templateType: _templateType, cloneFrom } = body;
     const pageName = name || title;
 
     // For clone-only requests, generate name/slug automatically

@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey) {
       const auditJson = record.audit_json as Record<string, unknown> | null;
-      const overallScore = (auditJson as any)?.overallScore ?? "N/A";
+      const overallScore = auditJson?.overallScore ?? "N/A";
       const facilityName = record.facility_name || "Unknown Facility";
 
       if (currentViews === 0) {

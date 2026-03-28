@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const [facility, snapshot, units, specials, intel] = await Promise.all([
+    const [facility, snapshot, units, specials, _intel] = await Promise.all([
       db.facilities.findUnique({ where: { id: facilityId } }),
       db.facility_pms_snapshots.findFirst({
         where: { facility_id: facilityId },

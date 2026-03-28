@@ -176,10 +176,6 @@ const CTA_OPTIONS = ["Learn More", "Get Quote", "Book Now", "Contact Us", "Sign 
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 
-function copyText(text: string) {
-  navigator.clipboard.writeText(text);
-}
-
 /* ── Shared Variation Actions ────────────────────────────────── */
 
 function VariationActions({
@@ -250,34 +246,6 @@ function VariationActions({
   );
 }
 
-/* ── CopyField: inline text with clipboard copy ──────────────── */
-
-function CopyField({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false);
-
-  function handleCopy() {
-    copyText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <div className="group flex items-start gap-2">
-      <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-mid-gray)] w-20 shrink-0 pt-0.5">
-        {label}
-      </span>
-      <span className="text-sm text-[var(--color-dark)] flex-1 leading-relaxed">
-        {value}
-      </span>
-      <button
-        onClick={handleCopy}
-        className="opacity-0 group-hover:opacity-100 shrink-0 p-1 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-all"
-      >
-        {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-      </button>
-    </div>
-  );
-}
 
 /* ── Meta Ad Variation Card ──────────────────────────────────── */
 
@@ -913,7 +881,7 @@ function LandingPageCard({
                 {heroConfig.badgeText}
               </span>
             )}
-            <h3 className="text-lg font-bold leading-tight mb-2">
+            <h3 className="text-lg font-semibold leading-tight mb-2">
               {heroConfig.headline}
             </h3>
             <p className="text-sm text-white/60 leading-relaxed">
@@ -1287,7 +1255,7 @@ export default function CreativeStudio({
   const [showRegenInput, setShowRegenInput] = useState(false);
   const [filterPlatform, setFilterPlatform] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [_deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1331,7 +1299,7 @@ export default function CreativeStudio({
         setShowRegenInput(false);
         setRegenFeedback("");
         setGenPlatform(null);
-      } catch (err) {
+      } catch (_err) {
         setError("Creative generation failed. Please try again.");
         setGenPlatform(null);
       } finally {
@@ -1359,7 +1327,7 @@ export default function CreativeStudio({
         body: JSON.stringify({ variationId }),
       });
       setVariations((prev) => prev.filter((v) => v.id !== variationId));
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to delete variation. Please try again.");
     } finally {
       setDeleting(null);

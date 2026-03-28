@@ -181,13 +181,13 @@ export async function GET(request: NextRequest) {
 
         try {
           // Dispatch based on channel
-          if (step.channel === 'sms' && step.customMessage) {
+          if (step.channel === 'sms') {
             // SMS: replace variables and send via Twilio
             const phone = drip.contact_phone;
             const smsBody = (step.customMessage || '')
               .replace(/\[Facility\]/g, drip.facility_name || '')
               .replace(/\[Name\]/g, drip.contact_name || '');
-            if (phone && phone.match(/^\+?\d/)) {
+            if (phone && phone.match(/^\+?\d/) && smsBody) {
               await sendSms(phone, smsBody, drip.facility_id);
             }
           } else if (step.customMessage) {

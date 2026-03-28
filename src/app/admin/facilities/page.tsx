@@ -575,7 +575,7 @@ function VerticalTabSidebar({
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-dark)]">
               Tools
             </span>
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-gold)]/15 px-1 text-[10px] font-bold text-[var(--color-gold)]">
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-gold)]/15 px-1 text-[10px] font-semibold text-[var(--color-gold)]">
               {TOTAL_TOOLS}
             </span>
           </div>
@@ -638,7 +638,7 @@ function FacilityDetail({
   onClose: () => void;
   onUpdate: () => void;
 }) {
-  const [adminKey, setAdminKey] = useState(() => {
+  const [adminKey] = useState(() => {
     if (typeof window === "undefined") return "";
     return localStorage.getItem("storageads_admin_key") || "";
   });
@@ -710,7 +710,7 @@ function FacilityDetail({
           >
             <Menu className="h-3.5 w-3.5" />
             <span>Tools</span>
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-gold)]/20 px-1 text-[10px] font-bold">
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-gold)]/20 px-1 text-[10px] font-semibold">
               {TOTAL_TOOLS}
             </span>
           </button>

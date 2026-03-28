@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
   if (!facilityId) return errorResponse("facilityId required", 400, origin);
 
   try {
-    const [facilityRows, snapshotRows, unitRows, intelRows, tenantRateRows, revenueHistoryRows, agingRows, specialRows] =
+    const [facilityRows, snapshotRows, unitRows, intelRows, tenantRateRows, _revenueHistoryRows, agingRows, specialRows] =
       await Promise.all([
         db.$queryRawUnsafe<Record<string, unknown>[]>(
           "SELECT * FROM facilities WHERE id = $1",

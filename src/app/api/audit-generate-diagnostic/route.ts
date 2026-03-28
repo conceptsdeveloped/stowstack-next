@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -981,7 +982,7 @@ export async function POST(req: NextRequest) {
       data: {
         slug,
         facility_name: diagnostic.facilityName,
-        audit_json: fullAudit as any,
+        audit_json: fullAudit as unknown as Prisma.InputJsonValue,
         views: 0,
         expires_at: expiresAt,
       },
@@ -993,7 +994,7 @@ export async function POST(req: NextRequest) {
         await db.audits.create({
           data: {
             facility_id: facilityId,
-            audit_json: fullAudit as any,
+            audit_json: fullAudit as unknown as Prisma.InputJsonValue,
             overall_score: overallScore,
             grade: letterGrade(overallScore),
           },

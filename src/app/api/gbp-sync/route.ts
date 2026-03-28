@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -381,7 +382,7 @@ export async function PATCH(req: NextRequest) {
 
     const updated = await db.gbp_connections.update({
       where: { facility_id: facilityId },
-      data: { sync_config: syncConfig as any, updated_at: new Date() },
+      data: { sync_config: syncConfig as unknown as Prisma.InputJsonValue, updated_at: new Date() },
     });
     return jsonResponse({ connection: updated }, 200, origin);
   } catch (err: unknown) {

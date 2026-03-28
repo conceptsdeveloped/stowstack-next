@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -318,7 +319,7 @@ export async function PATCH(req: NextRequest) {
     await db.client_onboarding.update({
       where: { id: row.id },
       data: {
-        steps: steps as any,
+        steps: steps as unknown as Prisma.InputJsonValue,
         completed_at: completedAt,
         updated_at: new Date(),
       },

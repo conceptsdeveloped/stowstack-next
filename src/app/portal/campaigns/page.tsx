@@ -7,7 +7,6 @@ import {
   Footprints,
   Target,
   TrendingUp,
-  Loader2,
   BarChart3,
   Award,
   Lightbulb,
@@ -17,7 +16,6 @@ import {
   type AttributionData,
   fmtCurrency,
   fmt,
-  fmtPct,
   dateRangeParams,
   CardSkeleton,
   SectionSkeleton,
@@ -159,7 +157,7 @@ export default function CampaignsPage() {
                   <Icon className="h-4 w-4 text-[var(--color-gold)]" />
                   <span className="text-xs text-[var(--color-mid-gray)]">{kpi.label}</span>
                 </div>
-                <p className="text-xl font-bold text-[var(--color-dark)]">{kpi.value}</p>
+                <p className="text-xl font-semibold text-[var(--color-dark)]">{kpi.value}</p>
               </div>
             );
           })}

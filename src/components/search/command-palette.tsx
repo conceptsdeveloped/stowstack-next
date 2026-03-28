@@ -4,13 +4,6 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Search,
-  Megaphone,
-  FileText,
-  BarChart3,
-  Building2,
-  Settings,
-  Plus,
-  Users,
   ArrowRight,
 } from 'lucide-react';
 import { SEARCH_TYPE_COLORS } from '@/types/search';

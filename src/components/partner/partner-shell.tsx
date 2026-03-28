@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Building2,
   ChevronLeft,
-  Code2,
   DollarSign,
   Key,
   LayoutDashboard,
@@ -142,7 +141,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-gold)]">
             <Lock className="h-6 w-6 text-[var(--color-light)]" />
           </div>
-          <h1 className="mb-1 text-2xl font-bold text-[var(--color-dark)]">
+          <h1 className="mb-1 text-2xl font-semibold text-[var(--color-dark)]">
             {step === "request" ? "Reset Password" : "Set New Password"}
           </h1>
           <p className="text-sm text-[var(--color-mid-gray)]">
@@ -314,7 +313,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-gold)]">
             <Building2 className="h-6 w-6 text-[var(--color-light)]" />
           </div>
-          <h1 className="mb-1 text-2xl font-bold text-[var(--color-dark)]">Partner Portal</h1>
+          <h1 className="mb-1 text-2xl font-semibold text-[var(--color-dark)]">Partner Portal</h1>
           <p className="text-sm text-[var(--color-mid-gray)]">Sign in to your management dashboard</p>
         </div>
 
@@ -575,7 +574,7 @@ export function PartnerShell({ children }: { children: React.ReactNode }) {
     }
     return null;
   });
-  const [checked, setChecked] = useState(() => typeof window !== "undefined");
+  const [checked, _setChecked] = useState(() => typeof window !== "undefined");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();

@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -684,7 +685,7 @@ export async function POST(req: NextRequest) {
           status: "published",
           external_id: result.externalId,
           external_url: result.externalUrl,
-          response_payload: result.response as any,
+          response_payload: result.response as unknown as Prisma.InputJsonValue,
         },
       });
 

@@ -12,7 +12,6 @@ import {
   Globe,
   Copy,
   Check,
-  ChevronDown,
 } from "lucide-react";
 
 /* ── Types ───────────────────────────────────────────────────── */
@@ -104,6 +103,7 @@ function AdMockup({
     return (
       <div className="w-[270px] h-[480px] bg-black rounded-2xl overflow-hidden relative shadow-2xl flex-shrink-0">
         {image ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={image}
             alt=""
@@ -121,7 +121,7 @@ function AdMockup({
         </div>
         {/* Status bar area */}
         <div className="absolute top-6 left-3 flex items-center gap-2">
-          <div className="w-7 h-7 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[9px] font-bold">
+          <div className="w-7 h-7 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[9px] font-semibold">
             SS
           </div>
           <div>
@@ -133,7 +133,7 @@ function AdMockup({
         </div>
         {/* Content area */}
         <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-          <p className="text-white text-sm font-bold leading-tight">
+          <p className="text-white text-sm font-semibold leading-tight">
             {headline}
           </p>
           <p className="text-white/80 text-[11px] leading-relaxed line-clamp-3">
@@ -141,7 +141,7 @@ function AdMockup({
           </p>
           {/* Swipe-up CTA */}
           <div className="flex justify-center pt-2">
-            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-bold text-black">
+            <div className="bg-white rounded-full px-5 py-1.5 text-[10px] font-semibold text-black">
               {cta}
             </div>
           </div>
@@ -155,7 +155,7 @@ function AdMockup({
       <div className="w-[320px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
         {/* Account header */}
         <div className="flex items-center gap-2 p-3">
-          <div className="w-8 h-8 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+          <div className="w-8 h-8 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[10px] font-semibold">
             SS
           </div>
           <div className="flex-1 min-w-0">
@@ -169,6 +169,7 @@ function AdMockup({
         {/* Image with text overlay */}
         <div className="w-full aspect-square bg-[var(--color-light-gray)] relative">
           {image ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
@@ -176,7 +177,7 @@ function AdMockup({
             </div>
           )}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12">
-            <p className="text-white text-base font-bold">{headline}</p>
+            <p className="text-white text-base font-semibold">{headline}</p>
           </div>
         </div>
         {/* Like/comment/share icons */}
@@ -213,7 +214,7 @@ function AdMockup({
       <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
         {/* Profile header */}
         <div className="flex items-center gap-2 p-3">
-          <div className="w-10 h-10 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-xs font-bold">
+          <div className="w-10 h-10 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-xs font-semibold">
             SS
           </div>
           <div className="flex-1">
@@ -233,6 +234,7 @@ function AdMockup({
         {/* Image */}
         <div className="w-full aspect-[1.91/1] bg-[var(--color-light-gray)] relative">
           {image ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
@@ -269,19 +271,20 @@ function AdMockup({
         {/* Banner image */}
         <div className="w-full h-[150px] bg-[var(--color-light-gray)] relative">
           {image ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={image} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[var(--color-light)]">
               <ImageIcon size={24} className="text-[var(--color-mid-gray)]" />
             </div>
           )}
-          <div className="absolute top-1 left-1 bg-yellow-400 text-black text-[8px] font-bold px-1 rounded">
+          <div className="absolute top-1 left-1 bg-yellow-400 text-black text-[8px] font-semibold px-1 rounded">
             Ad
           </div>
         </div>
         {/* Headline, description, CTA button, display URL */}
         <div className="p-3 space-y-1.5">
-          <p className="text-sm font-bold leading-tight text-[var(--color-dark)]">
+          <p className="text-sm font-semibold leading-tight text-[var(--color-dark)]">
             {headline}
           </p>
           <p className="text-[11px] text-[var(--color-mid-gray)] line-clamp-2">
@@ -520,6 +523,7 @@ export default function AdMockupPreview({
                       : "ring-1 ring-[var(--border-subtle)] hover:ring-[var(--border-medium)]"
                   }`}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={img.url}
                     alt=""

@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -328,8 +329,8 @@ export async function POST(req: NextRequest) {
         await db.places_data.create({
           data: {
             facility_id: facilityId,
-            photos: placesData.photos as any,
-            reviews: placesData.reviews as any,
+            photos: placesData.photos as unknown as Prisma.InputJsonValue,
+            reviews: placesData.reviews as unknown as Prisma.InputJsonValue,
           },
         });
       } catch {
@@ -366,7 +367,7 @@ export async function POST(req: NextRequest) {
     const auditRow = await db.audits.create({
       data: {
         facility_id: facilityId,
-        audit_json: auditJson as any,
+        audit_json: auditJson as unknown as Prisma.InputJsonValue,
         overall_score:
           typeof auditJson.overall_score === "number"
             ? auditJson.overall_score
