@@ -77,7 +77,7 @@ export default function ChangelogPage() {
           Changelog
         </h1>
         <p className="text-base mb-10" style={{ fontFamily: "var(--font-body)", color: "var(--color-body-text)" }}>
-          What's new in StorageAds. Features, improvements, and fixes.
+          What&apos;s new in StorageAds. Features, improvements, and fixes.
         </p>
 
         <div className="space-y-8">

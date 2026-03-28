@@ -272,7 +272,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             {query.length >= 2 && flatResults.length === 0 && (
               <div className="px-4 py-8 text-center">
                 <p className="text-sm" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-mid-gray)' }}>
-                  No results for "{query}"
+                  No results for &quot;{query}&quot;
                 </p>
               </div>
             )}

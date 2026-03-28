@@ -46,7 +46,7 @@ function WelcomeView({ onStart, onSkip }: { onStart: () => void; onSkip: () => v
           className="text-base mb-6"
           style={{ fontFamily: "var(--font-body)", color: "var(--color-body-text)" }}
         >
-          Blake set up your account. Let's make sure everything is connected for{" "}
+          Blake set up your account. Let&apos;s make sure everything is connected for{" "}
           <strong style={{ color: "var(--color-dark)" }}>{facilityName}</strong>.
         </p>
 
@@ -83,7 +83,7 @@ function WelcomeView({ onStart, onSkip }: { onStart: () => void; onSkip: () => v
             backgroundColor: "var(--color-gold)",
           }}
         >
-          Let's get started
+          Let&apos;s get started
           <ArrowRight className="h-4 w-4" />
         </button>
 

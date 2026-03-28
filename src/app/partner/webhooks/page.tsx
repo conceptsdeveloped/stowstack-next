@@ -87,7 +87,7 @@ export default function WebhooksPage() {
   }, [session, authFetch]);
 
   useEffect(() => {
-    fetchWebhooks();
+    fetchWebhooks(); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch on mount
   }, [fetchWebhooks]);
 
   const createWebhook = async (e: React.FormEvent) => {

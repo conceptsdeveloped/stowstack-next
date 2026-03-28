@@ -31,10 +31,9 @@ export function CancelSubscriptionFlow({
   const [reason, setReason] = useState('');
   const [otherReason, setOtherReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
+  const [error, setError] = useState('');
 
   if (!open) return null;
-
-  const [error, setError] = useState('');
 
   const handleConfirm = async () => {
     setError('');
@@ -69,10 +68,10 @@ export function CancelSubscriptionFlow({
               className="text-lg font-medium mb-2"
               style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-dark)' }}
             >
-              We're sorry to see you go
+              We&apos;re sorry to see you go
             </h3>
             <p className="text-sm mb-4" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-mid-gray)' }}>
-              Can you tell us why you're cancelling?
+              Can you tell us why you&apos;re cancelling?
             </p>
             <div className="space-y-2 mb-5">
               {CANCEL_REASONS.map((r) => (
@@ -131,7 +130,7 @@ export function CancelSubscriptionFlow({
               className="text-lg font-medium mb-2"
               style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-dark)' }}
             >
-              Here's what you'll lose
+              Here&apos;s what you&apos;ll lose
             </h3>
             <div className="space-y-2 mb-4">
               {[
@@ -153,7 +152,7 @@ export function CancelSubscriptionFlow({
                 style={{ backgroundColor: 'var(--color-gold-light)' }}
               >
                 <p className="text-sm" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-dark)' }}>
-                  You've attributed <strong style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-gold)' }}>{moveInsThisMonth} move-ins</strong> this month through StorageAds.
+                  You&apos;ve attributed <strong style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-gold)' }}>{moveInsThisMonth} move-ins</strong> this month through StorageAds.
                 </p>
               </div>
             )}

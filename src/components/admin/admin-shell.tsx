@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -351,22 +351,17 @@ function Sidebar({
 }
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const [adminKey, setAdminKey] = useState<string | null>(null);
-  const [checked, setChecked] = useState(false);
+  const [adminKey, setAdminKey] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(STORAGE_KEY);
+  });
+  const [checked, setChecked] = useState(() => typeof window !== "undefined");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Clerk auth state
   const { user, isLoaded: clerkLoaded, isSignedIn } = useUser();
   const { isVA, canAccessAdmin } = useClerkRole();
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      setAdminKey(stored);
-    }
-    setChecked(true);
-  }, []);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);

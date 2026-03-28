@@ -16,7 +16,7 @@ export function PermissionDenied() {
           className="text-xl font-medium mb-2"
           style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-dark)' }}
         >
-          You don't have access to this page
+          You don&apos;t have access to this page
         </h2>
         <p
           className="text-sm mb-6"

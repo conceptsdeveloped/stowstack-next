@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const VALID_EVENT_TYPES = ["click", "scroll", "section_view", "form_focus", "cta_hover", "page_load"];
 
@@ -8,8 +10,33 @@ export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
+function insertRow(
+  landingPageId: string,
+  facilityId: string,
+  sessionId: string,
+  eventType: string,
+  elementId: string | null,
+  elementText: string | null,
+  sectionIndex: number | null,
+  xPct: number | null,
+  yPct: number | null,
+  scrollDepth: number | null,
+  viewportWidth: number | null,
+  viewportHeight: number | null,
+  timeOnPage: number,
+  utmSource: string | null,
+) {
+  return Prisma.sql`(${landingPageId}, ${facilityId}, ${sessionId}, ${eventType}, ${elementId}, ${elementText}, ${sectionIndex}, ${xPct}, ${yPct}, ${scrollDepth}, ${viewportWidth}, ${viewportHeight}, ${timeOnPage}, ${utmSource})`;
+}
+
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rl = await checkRateLimit(`page_interactions:${ip}`, 30, 60);
+  if (!rl.allowed) {
+    return errorResponse("Too many requests", 429, origin);
+  }
 
   try {
     const body = await req.json();
@@ -20,33 +47,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Accept heartbeat summary format: { scrollDepth, timeOnPage }
-    // Convert to events[] batch for unified processing
     const scrollDepth = body.scrollDepth;
     const timeOnPage = body.timeOnPage;
 
     if ((!Array.isArray(events) || events.length === 0) && (scrollDepth !== undefined || timeOnPage !== undefined)) {
-      // Heartbeat format — convert to a single scroll event
-      const heartbeatEvent = {
-        event_type: "scroll",
-        scroll_depth: scrollDepth ?? 0,
-        time_on_page: timeOnPage ?? 0,
-        viewport_width: body.viewportWidth ?? null,
-        viewport_height: body.viewportHeight ?? null,
-      };
-
-      const values = [`($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`];
-      const params = [
-        landingPageId, facilityId, sessionId || "anonymous",
-        heartbeatEvent.event_type, null, null, null, null, null,
-        heartbeatEvent.scroll_depth, heartbeatEvent.viewport_width, heartbeatEvent.viewport_height,
-        heartbeatEvent.time_on_page, body.utmSource || null,
-      ];
-
-      await db.$executeRawUnsafe(
-        `INSERT INTO page_interactions (landing_page_id, facility_id, session_id, event_type, element_id, element_text, section_index, x_pct, y_pct, scroll_depth, viewport_width, viewport_height, time_on_page, utm_source)
-         VALUES ${values.join(", ")}`,
-        ...params
-      );
+      await db.$executeRaw`
+        INSERT INTO page_interactions (landing_page_id, facility_id, session_id, event_type, element_id, element_text, section_index, x_pct, y_pct, scroll_depth, viewport_width, viewport_height, time_on_page, utm_source)
+        VALUES (${landingPageId}, ${facilityId}, ${sessionId || "anonymous"}, ${"scroll"}, ${null}, ${null}, ${null}, ${null}, ${null}, ${scrollDepth ?? 0}, ${body.viewportWidth ?? null}, ${body.viewportHeight ?? null}, ${timeOnPage ?? 0}, ${body.utmSource || null})
+      `;
 
       return jsonResponse({ success: true, recorded: 1, format: "heartbeat" }, 200, origin);
     }
@@ -57,17 +65,11 @@ export async function POST(req: NextRequest) {
 
     const batch = events.slice(0, 50);
 
-    const values: string[] = [];
-    const params: unknown[] = [];
-    let paramIdx = 1;
-
+    const rows: Prisma.Sql[] = [];
     for (const evt of batch) {
       if (!VALID_EVENT_TYPES.includes(evt.event_type)) continue;
 
-      values.push(
-        `($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`
-      );
-      params.push(
+      rows.push(insertRow(
         landingPageId,
         facilityId,
         sessionId,
@@ -81,19 +83,18 @@ export async function POST(req: NextRequest) {
         evt.viewport_width ?? null,
         evt.viewport_height ?? null,
         evt.time_on_page ?? 0,
-        utmSource || null
-      );
+        utmSource || null,
+      ));
     }
 
-    if (values.length > 0) {
-      await db.$executeRawUnsafe(
-        `INSERT INTO page_interactions (landing_page_id, facility_id, session_id, event_type, element_id, element_text, section_index, x_pct, y_pct, scroll_depth, viewport_width, viewport_height, time_on_page, utm_source)
-         VALUES ${values.join(", ")}`,
-        ...params
-      );
+    if (rows.length > 0) {
+      await db.$executeRaw`
+        INSERT INTO page_interactions (landing_page_id, facility_id, session_id, event_type, element_id, element_text, section_index, x_pct, y_pct, scroll_depth, viewport_width, viewport_height, time_on_page, utm_source)
+        VALUES ${Prisma.join(rows)}
+      `;
     }
 
-    return jsonResponse({ success: true, recorded: values.length }, 200, origin);
+    return jsonResponse({ success: true, recorded: rows.length }, 200, origin);
   } catch {
     return errorResponse("Internal server error", 500, origin);
   }

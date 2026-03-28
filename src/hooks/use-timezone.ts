@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { detectTimezone } from '@/lib/timezone';
 
 /**
@@ -11,15 +11,12 @@ import { detectTimezone } from '@/lib/timezone';
 const STORAGE_KEY = 'storageads_timezone';
 
 export function useTimezone() {
-  const [timezone, setTimezoneState] = useState<string>('America/New_York');
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
+  const [timezone, setTimezoneState] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'America/New_York';
     const stored = localStorage.getItem(STORAGE_KEY);
-    const tz = stored || detectTimezone();
-    setTimezoneState(tz);
-    setLoaded(true);
-  }, []);
+    return stored || detectTimezone();
+  });
+  const [loaded, setLoaded] = useState(() => typeof window !== 'undefined');
 
   function setTimezone(tz: string) {
     setTimezoneState(tz);

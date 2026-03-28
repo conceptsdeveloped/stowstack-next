@@ -85,7 +85,7 @@ export default function RevenuePage() {
   }, [session, authFetch]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch on mount
   }, [fetchData]);
 
   if (authLoading || loading) {

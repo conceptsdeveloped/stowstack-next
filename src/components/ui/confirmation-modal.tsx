@@ -41,6 +41,7 @@ export function ConfirmationModal({
 }: ConfirmationModalProps) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmError, setConfirmError] = useState('');
 
   if (!open) return null;
 
@@ -50,8 +51,6 @@ export function ConfirmationModal({
 
   const defaultConfirmLabel =
     tier === 1 ? 'Confirm' : tier === 2 ? 'Delete' : `Delete permanently`;
-
-  const [confirmError, setConfirmError] = useState('');
 
   const handleConfirm = async () => {
     if (!canConfirm) return;
@@ -76,9 +75,15 @@ export function ConfirmationModal({
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 px-4">
+      <div
+        className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 px-4"
+        onKeyDown={(e) => { if (e.key === 'Escape') handleClose(); }}
+      >
         <div
           className="rounded-xl p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirmation-modal-title"
           style={{ backgroundColor: 'var(--color-light)', border: '1px solid var(--color-light-gray)' }}
         >
           <div className="flex items-start justify-between mb-3">
@@ -87,13 +92,14 @@ export function ConfirmationModal({
                 <AlertTriangle className="h-5 w-5 shrink-0" style={{ color: 'var(--color-red)' }} />
               )}
               <h3
+                id="confirmation-modal-title"
                 className="text-lg font-medium"
                 style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-dark)' }}
               >
                 {title}
               </h3>
             </div>
-            <button type="button" onClick={handleClose} style={{ color: 'var(--color-mid-gray)' }}>
+            <button type="button" onClick={handleClose} aria-label="Close" style={{ color: 'var(--color-mid-gray)' }}>
               <X className="h-5 w-5" />
             </button>
           </div>

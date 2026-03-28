@@ -4,6 +4,7 @@ import { promisify } from "util";
 import { db } from "@/lib/db";
 import { getSession, createSession } from "@/lib/session-auth";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, isAdminRequest } from "@/lib/api-helpers";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const scryptAsync = promisify(crypto.scrypt);
 const SCRYPT_KEYLEN = 64;
@@ -65,6 +66,12 @@ export async function POST(req: NextRequest) {
       const { email, password, orgSlug } = body;
       if (!email || !password || !orgSlug) {
         return errorResponse("Email, password, and organization are required", 400, origin);
+      }
+
+      const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+      const rl = await checkRateLimit(`org_login:${ip}:${email?.toLowerCase() || "unknown"}`, 5, 60);
+      if (!rl.allowed) {
+        return errorResponse("Too many requests", 429, origin);
       }
 
       const orgs = await db.organizations.findMany({

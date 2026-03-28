@@ -290,7 +290,7 @@ function TabContent({
   adminKey: string;
   onUpdate: () => void;
 }) {
-  const commonProps = { facilityId: facility.id, adminKey };
+  const commonProps = { facilityId: facility.id, adminKey, facilityName: facility.name };
 
   return (
     <Suspense fallback={<TabLoadingFallback />}>
@@ -638,12 +638,11 @@ function FacilityDetail({
   onClose: () => void;
   onUpdate: () => void;
 }) {
-  const [adminKey, setAdminKey] = useState("");
+  const [adminKey, setAdminKey] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("storageads_admin_key") || "";
+  });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  useEffect(() => {
-    setAdminKey(localStorage.getItem("storageads_admin_key") || "");
-  }, []);
 
   // Lock body scroll when mobile drawer is open
   useEffect(() => {

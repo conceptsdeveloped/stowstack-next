@@ -6,6 +6,7 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -13,6 +14,12 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rl = await checkRateLimit(`audit_load:${ip}`, 20, 60);
+  if (!rl.allowed) {
+    return errorResponse("Too many requests", 429, origin);
+  }
 
   const url = new URL(req.url);
   const slug = url.searchParams.get("slug");

@@ -95,7 +95,7 @@ export default function HelpPage() {
           Help Center
         </h1>
         <p className="text-base mb-10" style={{ fontFamily: "var(--font-body)", color: "var(--color-body-text)" }}>
-          Answers to common questions. Can't find what you need? Reach out directly.
+          Answers to common questions. Can&apos;t find what you need? Reach out directly.
         </p>
 
         {/* Contact options */}

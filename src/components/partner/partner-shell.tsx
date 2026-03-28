@@ -562,26 +562,23 @@ function PartnerHeader({
 }
 
 export function PartnerShell({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<PartnerSession | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
+  const [session, setSession] = useState<PartnerSession | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as PartnerSession;
-        if (parsed.token) {
-          setSession(parsed);
-        }
+        if (parsed.token) return parsed;
       }
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     }
-    setChecked(true);
-  }, []);
+    return null;
+  });
+  const [checked, setChecked] = useState(() => typeof window !== "undefined");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);

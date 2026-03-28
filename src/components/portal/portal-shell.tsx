@@ -371,23 +371,21 @@ function PortalHeader({ client, onToggle, onLogout }: { client: ClientData; onTo
 /* ─── main shell ─── */
 
 export function PortalShell({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<PortalSession | null>(null);
+  const [session, setSession] = useState<PortalSession | null>(() => getPortalSession());
   const [client, setClient] = useState<ClientData | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const existing = getPortalSession();
-    if (!existing) {
-      setLoading(false);
+    if (!session) {
+      setLoading(false); // eslint-disable-line react-hooks/set-state-in-effect -- sync init
       return;
     }
-    setSession(existing);
     fetch("/api/client-data", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: existing.email, accessCode: existing.accessCode }),
+      body: JSON.stringify({ email: session.email, accessCode: session.accessCode }),
     })
       .then((r) => { if (!r.ok) throw new Error("auth"); return r.json(); })
       .then((json) => setClient(json.client))

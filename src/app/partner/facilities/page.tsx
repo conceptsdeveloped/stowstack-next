@@ -82,7 +82,7 @@ export default function FacilitiesPage() {
   }, [session, authFetch]);
 
   useEffect(() => {
-    fetchFacilities();
+    fetchFacilities(); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch on mount
   }, [fetchFacilities]);
 
   const addFacility = async (e: React.FormEvent) => {

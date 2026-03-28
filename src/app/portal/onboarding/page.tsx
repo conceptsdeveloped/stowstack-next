@@ -181,11 +181,13 @@ function TextInput({
   onChange,
   placeholder,
   maxLength,
+  ariaLabel,
 }: {
   value: string;
   onChange: (val: string) => void;
   placeholder?: string;
   maxLength?: number;
+  ariaLabel?: string;
 }) {
   return (
     <input
@@ -194,6 +196,7 @@ function TextInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       maxLength={maxLength}
+      aria-label={ariaLabel || placeholder}
       className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
     />
   );
@@ -204,11 +207,13 @@ function TextArea({
   onChange,
   placeholder,
   rows = 3,
+  ariaLabel,
 }: {
   value: string;
   onChange: (val: string) => void;
   placeholder?: string;
   rows?: number;
+  ariaLabel?: string;
 }) {
   return (
     <textarea
@@ -216,6 +221,7 @@ function TextArea({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
+      aria-label={ariaLabel || placeholder}
       className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25 resize-none"
     />
   );
@@ -227,12 +233,14 @@ function NumberInput({
   min,
   max,
   placeholder,
+  ariaLabel,
 }: {
   value: number;
   onChange: (val: number) => void;
   min?: number;
   max?: number;
   placeholder?: string;
+  ariaLabel?: string;
 }) {
   return (
     <input
@@ -242,6 +250,7 @@ function NumberInput({
       min={min}
       max={max}
       placeholder={placeholder}
+      aria-label={ariaLabel || placeholder}
       className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
     />
   );
@@ -251,15 +260,18 @@ function SelectInput({
   value,
   onChange,
   options,
+  ariaLabel,
 }: {
   value: string;
   onChange: (val: string) => void;
   options: { value: string; label: string }[];
+  ariaLabel?: string;
 }) {
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      aria-label={ariaLabel}
       className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
     >
       <option value="">Select...</option>
@@ -315,7 +327,7 @@ export default function OnboardingPage() {
       window.location.href = "/portal";
       return;
     }
-    setSession(s);
+    setSession(s); // eslint-disable-line react-hooks/set-state-in-effect -- sync session init
     setLoading(false);
   }, []);
 

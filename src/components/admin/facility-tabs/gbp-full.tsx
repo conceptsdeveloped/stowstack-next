@@ -301,13 +301,13 @@ export default function GBPFull({
   }, [facilityId, adminKey, insightsRange])
 
   useEffect(() => {
-    loadAll()
+    loadAll() // eslint-disable-line react-hooks/set-state-in-effect -- async fetch on mount
   }, [loadAll])
 
   // Load review settings when settings tab is shown
   useEffect(() => {
     if (section !== "settings") return
-    setSettingsLoading(true)
+    setSettingsLoading(true) // eslint-disable-line react-hooks/set-state-in-effect -- async fetch
     fetch(`/api/gbp-review-settings?facilityId=${facilityId}`, {
       headers: { "X-Admin-Key": adminKey },
     })

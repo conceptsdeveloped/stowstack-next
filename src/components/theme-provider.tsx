@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 
 type Theme = "light" | "dark";
 
@@ -53,18 +53,17 @@ function applyDarkOverrides(isDark: boolean) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "light";
     const stored = localStorage.getItem("stowstack-theme") as Theme | null;
     if (stored === "dark" || stored === "light") {
-      setTheme(stored);
       document.documentElement.setAttribute("data-theme", stored);
       applyDarkOverrides(stored === "dark");
+      return stored;
     }
-    setMounted(true);
-  }, []);
+    return "light";
+  });
+  const [mounted, setMounted] = useState(() => typeof window !== "undefined");
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {

@@ -639,6 +639,7 @@ export default function AuditToolPage() {
                         placeholder="Your work email"
                         value={captureEmail}
                         onChange={(e) => setCaptureEmail(e.target.value)}
+                        aria-label="Your email address"
                         className="flex-1 px-4 py-3 rounded-xl border text-sm"
                         style={{
                           borderColor: "var(--border-subtle)",

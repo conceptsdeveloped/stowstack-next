@@ -80,7 +80,7 @@ function useTypewriter(words: string[], active: boolean, typingSpeed = 80, pause
     } else if (isDeleting && charIdx > 0) {
       timeout = setTimeout(() => setCharIdx((c) => c - 1), typingSpeed / 2);
     } else if (isDeleting && charIdx === 0) {
-      setIsDeleting(false);
+      setIsDeleting(false); // eslint-disable-line react-hooks/set-state-in-effect -- state machine transition
       setWordIdx((i) => (i + 1) % words.length);
     }
     setDisplay(word.slice(0, charIdx));

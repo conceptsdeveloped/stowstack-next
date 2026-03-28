@@ -37,7 +37,7 @@ export function parseTimingToDelay(timing: string): { delayDays?: number; delayH
 export function funnelConfigToDripSteps(
   postConversion: { channel: 'sms' | 'email'; message: string; timing: string }[]
 ): DripStep[] {
-  return postConversion.map((step, i) => {
+  return postConversion.map((step) => {
     const delay = parseTimingToDelay(step.timing);
     return {
       ...delay,

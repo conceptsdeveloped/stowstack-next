@@ -82,6 +82,7 @@ export default function ActivityPage() {
   useEffect(() => {
     if (rawData) {
       if (offset === 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setAllEntries(data);
       } else {
         setAllEntries((prev) => [...prev, ...data]);
@@ -92,6 +93,7 @@ export default function ActivityPage() {
   }, [rawData, data, offset]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOffset(0);
     setAllEntries([]);
     setHasMore(true);

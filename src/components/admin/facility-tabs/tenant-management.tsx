@@ -237,7 +237,7 @@ export default function TenantManagement({ facilityId, adminKey }: Props) {
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   // Reset page on filter change
-  useEffect(() => { setPage(1); }, [statusFilter, searchQuery, sortField, sortDir]);
+  useEffect(() => { setPage(1); }, [statusFilter, searchQuery, sortField, sortDir]); // eslint-disable-line react-hooks/set-state-in-effect -- derived state reset
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) setSortDir(d => d === "asc" ? "desc" : "asc");

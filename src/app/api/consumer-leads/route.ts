@@ -135,6 +135,10 @@ export async function PATCH(request: NextRequest) {
         return errorResponse("note is required", 400, origin);
       }
 
+      if (note.length > 5000) {
+        return errorResponse("Note too long (max 5000 characters)", 400, origin);
+      }
+
       const existing = await db.$queryRawUnsafe<Record<string, unknown>[]>(
         `SELECT id, lead_notes FROM partial_leads WHERE id = $1`,
         leadId

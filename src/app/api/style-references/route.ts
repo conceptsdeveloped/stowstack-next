@@ -111,8 +111,6 @@ export async function POST(req: NextRequest) {
         videoContentType = "video/mp4";
       }
 
-      console.log(`[video-analysis] Uploading ${(videoBuffer.length / 1024 / 1024).toFixed(1)}MB video (${videoContentType}) to Gemini...`);
-
       // Upload to Gemini File API
       const uploadRes = await fetch(
         `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${geminiKey}`,
@@ -128,8 +126,6 @@ export async function POST(req: NextRequest) {
       );
 
       const uploadText = await uploadRes.text();
-      console.log(`[video-analysis] Gemini upload response (${uploadRes.status}):`, uploadText.slice(0, 300));
-
       if (!uploadRes.ok) {
         throw new Error(`Gemini file upload failed: ${uploadRes.status} ${uploadText.slice(0, 200)}`);
       }
@@ -156,10 +152,8 @@ export async function POST(req: NextRequest) {
         try {
           statusData = JSON.parse(statusText);
         } catch {
-          console.error(`[video-analysis] Poll response not JSON:`, statusText.slice(0, 200));
           throw new Error(`Gemini poll failed: ${statusText.slice(0, 200)}`);
         }
-        console.log(`[video-analysis] Poll ${i + 1}: state=${statusData.state}`);
         if (statusData.state === "ACTIVE") break;
         if (statusData.state === "FAILED") throw new Error("Gemini file processing failed");
         await new Promise((r) => setTimeout(r, 2000));

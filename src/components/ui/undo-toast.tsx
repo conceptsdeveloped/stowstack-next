@@ -26,7 +26,7 @@ export function UndoToast({
 
   useEffect(() => {
     if (remaining <= 0) {
-      setVisible(false);
+      setVisible(false); // eslint-disable-line react-hooks/set-state-in-effect -- timer completion
       onCommit();
       return;
     }

@@ -58,7 +58,7 @@ export default function TeamPage() {
   }, [session, authFetch]);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch on mount
   }, [fetchUsers]);
 
   const invite = async (e: React.FormEvent) => {

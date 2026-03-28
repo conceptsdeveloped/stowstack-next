@@ -139,7 +139,7 @@ export default function CalculatorPage() {
             ROI Calculator
           </h1>
           <p className="text-base max-w-xl mx-auto" style={{ fontFamily: "var(--font-body)", color: "var(--color-body-text)" }}>
-            See what StorageAds could deliver for your facility. Enter your numbers — we'll show you the math.
+            See what StorageAds could deliver for your facility. Enter your numbers — we&apos;ll show you the math.
           </p>
         </div>
 

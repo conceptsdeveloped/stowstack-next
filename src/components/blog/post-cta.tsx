@@ -23,7 +23,7 @@ export function PostCta() {
         className="text-sm mb-5 max-w-md mx-auto"
         style={{ fontFamily: 'var(--font-body)', color: 'var(--color-body-text)' }}
       >
-        Get a free marketing diagnostic for your facility. We'll show you exactly where move-ins are leaking and what it costs.
+        Get a free marketing diagnostic for your facility. We&apos;ll show you exactly where move-ins are leaking and what it costs.
       </p>
       <Link
         href="/audit-tool"

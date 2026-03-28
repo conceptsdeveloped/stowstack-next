@@ -16,23 +16,6 @@ export function FacilitySelector({ collapsed }: FacilitySelectorProps) {
   const ref = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // Don't render if single facility
-  if (!isMultiFacility) return null;
-
-  const currentName =
-    current === 'all' ? 'All Facilities' : current.name;
-  const currentLocation =
-    current === 'all' ? `${facilities.length} facilities` : current.location;
-
-  // Filter facilities by search
-  const filtered = facilities.filter(
-    (f) =>
-      f.name.toLowerCase().includes(search.toLowerCase()) ||
-      f.location.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const showSearch = facilities.length >= 5;
-
   // Close on click outside
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -48,6 +31,7 @@ export function FacilitySelector({ collapsed }: FacilitySelectorProps) {
   }, [open]);
 
   // Focus search when opening
+  const showSearch = facilities.length >= 5;
   useEffect(() => {
     if (open && showSearch) {
       setTimeout(() => searchRef.current?.focus(), 50);
@@ -72,6 +56,21 @@ export function FacilitySelector({ collapsed }: FacilitySelectorProps) {
       setSearch('');
     },
     [setFacility]
+  );
+
+  // Don't render if single facility
+  if (!isMultiFacility) return null;
+
+  const currentName =
+    current === 'all' ? 'All Facilities' : current.name;
+  const currentLocation =
+    current === 'all' ? `${facilities.length} facilities` : current.location;
+
+  // Filter facilities by search
+  const filtered = facilities.filter(
+    (f) =>
+      f.name.toLowerCase().includes(search.toLowerCase()) ||
+      f.location.toLowerCase().includes(search.toLowerCase())
   );
 
   if (collapsed) {

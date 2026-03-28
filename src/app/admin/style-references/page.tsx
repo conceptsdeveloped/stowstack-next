@@ -76,8 +76,6 @@ export default function StyleReferencesPage() {
   async function uploadSingle(file: File) {
     const isVideo = file.type.startsWith('video/')
     const isLarge = file.size > 4 * 1024 * 1024
-    console.log('[uploadSingle]', file.name, 'type:', file.type, 'size:', (file.size / 1024 / 1024).toFixed(1) + 'MB', 'isVideo:', isVideo, 'isLarge:', isLarge)
-
     if (isVideo || isLarge) {
       // Step 1: Upload to blob via streaming proxy
       const uploadRes = await new Promise<Response>((resolve, reject) => {
@@ -89,7 +87,6 @@ export default function StyleReferencesPage() {
         xhr.responseType = 'text'
         xhr.timeout = 300000 // 5 minutes
         xhr.onload = () => {
-          console.log('[upload-proxy] XHR status:', xhr.status, 'response length:', xhr.responseText?.length, 'response:', xhr.responseText?.slice(0, 200))
           resolve(new Response(xhr.responseText || '', { status: xhr.status }))
         }
         xhr.onerror = () => reject(new Error('Network error during upload'))

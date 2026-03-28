@@ -69,9 +69,13 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center p-4"
       style={{ background: "rgba(20, 20, 19, 0.6)", backdropFilter: "blur(4px)" }}
+      onKeyDown={(e) => { if (e.key === "Escape") dismiss(); }}
     >
       <div
         className="relative w-full max-w-md rounded-2xl p-8 shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="exit-intent-popup-title"
         style={{ background: "var(--color-light)", border: "1px solid var(--color-light-gray)" }}
       >
         <button
@@ -89,7 +93,7 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
               Check your inbox
             </p>
             <p className="mt-2 text-sm" style={{ color: "var(--color-body-text)" }}>
-              We'll send your full audit results shortly.
+              We&apos;ll send your full audit results shortly.
             </p>
           </div>
         ) : (
@@ -101,6 +105,7 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
               Before you go
             </p>
             <h3
+              id="exit-intent-popup-title"
               className="text-xl font-semibold mb-3"
               style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}
             >
@@ -121,6 +126,7 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@facility.com"
                 required
+                aria-label="Your email address"
                 className="flex-1 rounded-lg border px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--color-gold)]"
                 style={{
                   borderColor: "var(--color-light-gray)",

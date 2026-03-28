@@ -11,7 +11,7 @@ import type { Role, PermissionAction } from '@/types/permissions';
  * for admin-key authenticated users (Blake/Angelo).
  */
 export function usePermissions() {
-  const { role: clerkRole, isAdmin: clerkIsAdmin, canAccessAdmin } = useClerkRole();
+  const { role: clerkRole, canAccessAdmin } = useClerkRole();
 
   // Map Clerk roles to permission roles
   // Admin key users (no Clerk session) get owner-level access

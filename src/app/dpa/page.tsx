@@ -12,8 +12,8 @@ export default function DpaPage() {
       <section>
         <h2>1. Scope and Purpose</h2>
         <p>
-          This Data Processing Agreement ("DPA") applies to the processing of personal data
-          by StorageAds ("Processor") on behalf of the self-storage facility operator ("Controller")
+          This Data Processing Agreement (&quot;DPA&quot;) applies to the processing of personal data
+          by StorageAds (&quot;Processor&quot;) on behalf of the self-storage facility operator (&quot;Controller&quot;)
           in connection with StorageAds marketing and attribution services.
         </p>
         <p>

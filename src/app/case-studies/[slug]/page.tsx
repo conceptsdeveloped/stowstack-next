@@ -119,7 +119,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
               className="text-lg italic mb-3"
               style={{ fontFamily: "var(--font-body)", color: "var(--color-dark)", lineHeight: 1.7 }}
             >
-              "{study.quote.text}"
+              &quot;{study.quote.text}&quot;
             </p>
             <footer>
               <p className="text-sm font-medium" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>

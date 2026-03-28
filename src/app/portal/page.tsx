@@ -124,7 +124,7 @@ function OnboardingProgress() {
       .finally(() => setLoading(false));
   }, [session.accessCode, session.email]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch
 
   if (loading) return <SectionSkeleton />;
   if (error) return <ErrorState message="Failed to load onboarding status" onRetry={loadData} />;
@@ -216,7 +216,7 @@ function CampaignAlerts() {
       .finally(() => setLoading(false));
   }, [session.accessCode, session.email]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch
 
   if (loading) return <SectionSkeleton />;
   if (error) return <ErrorState message="Failed to load alerts" onRetry={loadData} />;
@@ -273,7 +273,7 @@ function RecentActivity() {
       .finally(() => setLoading(false));
   }, [session.accessCode, session.email]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch
 
   if (loading) return <SectionSkeleton />;
   if (error) return <ErrorState message="Failed to load activity" onRetry={loadData} />;

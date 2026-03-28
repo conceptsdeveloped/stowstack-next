@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const STORAGE_KEY = "storageads_partner_session";
@@ -12,24 +12,21 @@ interface PartnerSession {
 }
 
 export function usePartnerAuth() {
-  const [session, setSession] = useState<PartnerSession | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
+  const [session, setSession] = useState<PartnerSession | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as PartnerSession;
-        if (parsed.token) {
-          setSession(parsed);
-        }
+        if (parsed.token) return parsed;
       }
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     }
-    setLoading(false);
-  }, []);
+    return null;
+  });
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const authFetch = useCallback(
     async (url: string, options: RequestInit = {}) => {

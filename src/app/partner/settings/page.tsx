@@ -72,7 +72,7 @@ export default function SettingsPage() {
   }, [session, authFetch]);
 
   useEffect(() => {
-    fetchOrg();
+    fetchOrg(); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch on mount
   }, [fetchOrg]);
 
   const saveOrg = async (e: React.FormEvent) => {

@@ -24,21 +24,17 @@ const DEFAULT_STATE: OnboardingState = {
  * Persists to localStorage for now — server-side tracking via /api/onboarding-checklist when available.
  */
 export function useOnboarding() {
-  const [state, setState] = useState<OnboardingState>(DEFAULT_STATE);
-  const [loaded, setLoaded] = useState(false);
-
-  // Load from localStorage
-  useEffect(() => {
+  const [state, setState] = useState<OnboardingState>(() => {
+    if (typeof window === 'undefined') return DEFAULT_STATE;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setState(JSON.parse(stored));
-      }
+      if (stored) return JSON.parse(stored);
     } catch {
       // use defaults
     }
-    setLoaded(true);
-  }, []);
+    return DEFAULT_STATE;
+  });
+  const [loaded, setLoaded] = useState(() => typeof window !== 'undefined');
 
   // Persist to localStorage
   useEffect(() => {

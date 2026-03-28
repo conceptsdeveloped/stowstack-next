@@ -8,12 +8,10 @@ import { WifiOff, Wifi } from 'lucide-react';
  * Also shows a brief "Back online" confirmation when connection is restored.
  */
 export function OfflineBanner() {
-  const [online, setOnline] = useState(true);
+  const [online, setOnline] = useState(() => typeof window === 'undefined' ? true : navigator.onLine);
   const [showRestored, setShowRestored] = useState(false);
 
   useEffect(() => {
-    setOnline(navigator.onLine);
-
     function handleOnline() {
       setOnline(true);
       setShowRestored(true);
@@ -60,7 +58,7 @@ export function OfflineBanner() {
       }}
     >
       <WifiOff className="h-4 w-4" />
-      You're offline. Some features may not be available.
+      You&apos;re offline. Some features may not be available.
     </div>
   );
 }

@@ -715,9 +715,10 @@ function StepIndicator({ current, onStep }: { current: StudioStep; onStep: (s: S
 
 /* ── Main Component ── */
 
-export default function AdStudio({ facilityId, adminKey }: {
+export default function AdStudio({ facilityId, adminKey, facilityName }: {
   facilityId: string
   adminKey: string
+  facilityName?: string
 }) {
   // Step state
   const [step, setStep] = useState<StudioStep>('copy')
@@ -854,7 +855,7 @@ export default function AdStudio({ facilityId, adminKey }: {
 
   const activeTemplateObj = templates.find(t => t.id === selectedTemplate)
   const selectedCopy = (selectedVariation?.content_json || {}) as Record<string, string>
-  const facilityName = 'Storage Facility' // TODO: pass from parent
+  const resolvedFacilityName = facilityName || 'Storage Facility'
 
   if (loading) {
     return (
@@ -1176,7 +1177,7 @@ export default function AdStudio({ facilityId, adminKey }: {
                   format={activeFormat}
                   image={selectedImage}
                   copy={selectedCopy}
-                  facilityName={facilityName}
+                  facilityName={resolvedFacilityName}
                 />
               </div>
               <button
@@ -1276,7 +1277,7 @@ export default function AdStudio({ facilityId, adminKey }: {
               <FunnelTest
                 copy={selectedCopy}
                 image={selectedImage}
-                facilityName={facilityName}
+                facilityName={resolvedFacilityName}
                 variationId={selectedVariation?.id || null}
                 adminKey={adminKey}
                 savedConfig={selectedVariation?.funnel_config || null}

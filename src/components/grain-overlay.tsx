@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 
 export default function GrainOverlay() {
-  const [enabled, setEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setEnabled(!mq.matches);
     function onChange(e: MediaQueryListEvent) {
       setEnabled(!e.matches);
     }

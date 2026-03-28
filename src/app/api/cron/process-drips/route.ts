@@ -99,6 +99,7 @@ interface DripRow {
   history: Record<string, unknown>[] | null;
   contact_name: string | null;
   contact_email: string | null;
+  contact_phone: string | null;
   facility_name: string | null;
   pipeline_status: string | null;
   biggest_issue: string | null;
@@ -122,7 +123,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const drips = await db.$queryRaw<DripRow[]>`
-      SELECT ds.*, f.contact_name, f.contact_email, f.name AS facility_name,
+      SELECT ds.*, f.contact_name, f.contact_email, f.contact_phone, f.name AS facility_name,
              f.pipeline_status, f.biggest_issue, f.occupancy_range, f.total_units
       FROM drip_sequences ds
       JOIN facilities f ON ds.facility_id = f.id
@@ -182,7 +183,7 @@ export async function GET(request: NextRequest) {
           // Dispatch based on channel
           if (step.channel === 'sms' && step.customMessage) {
             // SMS: replace variables and send via Twilio
-            const phone = drip.contact_email; // TODO: use actual phone field when available
+            const phone = drip.contact_phone;
             const smsBody = (step.customMessage || '')
               .replace(/\[Facility\]/g, drip.facility_name || '')
               .replace(/\[Name\]/g, drip.contact_name || '');

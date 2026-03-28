@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -23,69 +24,58 @@ export async function GET(req: NextRequest) {
   const limit = params.get("limit");
 
   try {
-    const whereParts: string[] = ["1=1"];
-    const queryParams: unknown[] = [];
-    let idx = 1;
+    const conditions: Prisma.Sql[] = [Prisma.sql`1=1`];
 
     if (accessCode && email) {
       const clients = await db.$queryRaw<Array<{ id: string }>>`
         SELECT id FROM clients WHERE access_code = ${accessCode} AND LOWER(email) = LOWER(${email.trim()})
       `;
       if (!clients.length) return errorResponse("Unauthorized", 401, origin);
-      queryParams.push(clients[0].id);
-      whereParts.push(`client_id = $${idx++}`);
+      conditions.push(Prisma.sql`client_id = ${clients[0].id}::uuid`);
     } else if (clientId) {
       if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
-      queryParams.push(clientId);
-      whereParts.push(`client_id = $${idx++}`);
+      conditions.push(Prisma.sql`client_id = ${clientId}::uuid`);
     } else if (!isAdminRequest(req)) {
       return errorResponse("Unauthorized", 401, origin);
     }
 
     if (severity) {
-      queryParams.push(severity);
-      whereParts.push(`severity = $${idx++}`);
+      conditions.push(Prisma.sql`severity = ${severity}`);
     }
 
     if (acknowledged !== null && acknowledged !== undefined) {
-      queryParams.push(acknowledged === "true");
-      whereParts.push(`acknowledged = $${idx++}`);
+      conditions.push(Prisma.sql`acknowledged = ${acknowledged === "true"}`);
     }
 
     const maxRows = Math.min(parseInt(limit || "50") || 50, 200);
-    queryParams.push(maxRows);
+    const whereClause = Prisma.join(conditions, " AND ");
 
-    const whereClause = whereParts.join(" AND ");
+    const alerts = await db.$queryRaw<unknown[]>`
+      SELECT ah.*, c.facility_name, f.name AS fac_name
+      FROM alert_history ah
+      LEFT JOIN clients c ON ah.client_id = c.id
+      LEFT JOIN facilities f ON ah.facility_id = f.id
+      WHERE ${whereClause}
+      ORDER BY ah.created_at DESC
+      LIMIT ${maxRows}
+    `;
 
-    const alerts = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT ah.*, c.facility_name, f.name AS fac_name
-       FROM alert_history ah
-       LEFT JOIN clients c ON ah.client_id = c.id
-       LEFT JOIN facilities f ON ah.facility_id = f.id
-       WHERE ${whereClause}
-       ORDER BY ah.created_at DESC
-       LIMIT $${idx}`,
-      ...queryParams,
-    );
-
-    const summary = await db.$queryRawUnsafe<
+    const summary = await db.$queryRaw<
       Array<{ severity: string; count: number }>
-    >(
-      `SELECT severity, COUNT(*)::int AS count
-       FROM alert_history
-       WHERE ${whereClause}
-       GROUP BY severity`,
-      ...queryParams.slice(0, -1),
-    );
+    >`
+      SELECT severity, COUNT(*)::int AS count
+      FROM alert_history
+      WHERE ${whereClause}
+      GROUP BY severity
+    `;
 
-    const unacknowledged = await db.$queryRawUnsafe<
+    const unacknowledged = await db.$queryRaw<
       Array<{ count: number }>
-    >(
-      `SELECT COUNT(*)::int AS count
-       FROM alert_history
-       WHERE ${whereClause} AND acknowledged = false`,
-      ...queryParams.slice(0, -1),
-    );
+    >`
+      SELECT COUNT(*)::int AS count
+      FROM alert_history
+      WHERE ${whereClause} AND acknowledged = false
+    `;
 
     return jsonResponse(
       {

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -17,6 +18,12 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rl = await checkRateLimit(`lead_capture:${ip}`, 10, 60);
+  if (!rl.allowed) {
+    return errorResponse("Too many requests", 429, origin);
+  }
 
   try {
     const body = await req.json();
@@ -36,40 +43,52 @@ export async function POST(req: NextRequest) {
       referrer,
     } = body;
 
-    if (!name || !email || !phone) {
+    if (!name || typeof name !== "string" || !email || typeof email !== "string" || !phone || typeof phone !== "string") {
       return errorResponse("Name, email, and phone are required", 400, origin);
     }
 
-    await db.$executeRawUnsafe(
-      `INSERT INTO partial_leads
-        (session_id, landing_page_id, facility_id, name, email, phone, unit_size,
-         utm_source, utm_medium, utm_campaign, utm_content, referrer,
-         fields_completed, total_fields, recovery_status, lead_score, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 5, 5, 'converted', 80, NOW())
-       ON CONFLICT (session_id) DO UPDATE SET
-         name = EXCLUDED.name,
-         email = EXCLUDED.email,
-         phone = EXCLUDED.phone,
-         unit_size = EXCLUDED.unit_size,
-         fields_completed = 5,
-         recovery_status = 'converted',
-         converted = true,
-         converted_at = NOW(),
-         lead_score = 80,
-         updated_at = NOW()`,
-      sessionId || `lead-${Date.now()}`,
-      landingPageId || null,
-      facilityId || null,
-      name.trim(),
-      email.trim().toLowerCase(),
-      phone.trim(),
-      unitSize || null,
-      utmSource || null,
-      utmMedium || null,
-      utmCampaign || null,
-      utmContent || null,
-      referrer || null
-    );
+    if (name.length > 200 || email.length > 254 || phone.length > 30) {
+      return errorResponse("Field length exceeded", 400, origin);
+    }
+
+    if (!email.includes("@")) {
+      return errorResponse("Invalid email", 400, origin);
+    }
+
+    const sid = sessionId || `lead-${Date.now()}`;
+    await db.partial_leads.upsert({
+      where: { session_id: sid },
+      create: {
+        session_id: sid,
+        landing_page_id: landingPageId || null,
+        facility_id: facilityId || null,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        unit_size: unitSize || null,
+        utm_source: utmSource || null,
+        utm_medium: utmMedium || null,
+        utm_campaign: utmCampaign || null,
+        utm_content: utmContent || null,
+        referrer: referrer || null,
+        fields_completed: 5,
+        total_fields: 5,
+        recovery_status: "converted",
+        lead_score: 80,
+      },
+      update: {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        unit_size: unitSize || null,
+        fields_completed: 5,
+        recovery_status: "converted",
+        converted: true,
+        converted_at: new Date(),
+        lead_score: 80,
+        updated_at: new Date(),
+      },
+    });
 
     if (facilityId) {
       db.activity_log

@@ -50,7 +50,7 @@ export default function ApiKeysPage() {
   }, [session, authFetch]);
 
   useEffect(() => {
-    fetchKeys();
+    fetchKeys(); // eslint-disable-line react-hooks/set-state-in-effect -- async fetch on mount
   }, [fetchKeys]);
 
   const createKey = async (e: React.FormEvent) => {
