@@ -10,7 +10,7 @@ So I started building the tracking system I wished existed.
 
 Not a generic marketing platform. Not something designed for e-commerce and retrofitted for storage. A system built specifically for the way storage operators think about their business — in move-ins, occupancy, and revenue.
 
-I tested it on my own facility first. Two Paws Storage became the proving ground. Every dollar of ad spend, tracked to the phone call, the walk-in, the move-in. For the first time, I could see exactly which campaigns were making money and which were wasting it.
+I tested it across my own facilities first. Every dollar of ad spend, tracked to the phone call, the walk-in, the move-in. For the first time, I could see exactly which campaigns were making money and which were wasting it.
 
 The results changed how I run marketing entirely. I cut spend that looked good on paper but wasn't converting. I doubled down on what actually worked. My cost per move-in dropped. My confidence in every marketing dollar went up.
 

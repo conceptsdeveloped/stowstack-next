@@ -169,9 +169,16 @@ export default function QuickCalculator() {
                     style={{ color: "var(--text-tertiary)" }}
                   >
                     ${projectedRecovery.toLocaleString()}/mo recovered · {roi}x
-                    ROI on Growth plan
+                    revenue multiple on Growth plan
                   </p>
                 </div>
+
+                <p
+                  className="text-[10px] text-center leading-relaxed"
+                  style={{ color: "var(--text-tertiary)" }}
+                >
+                  Assumes ${avgRate}/mo avg unit rate · $999/mo Growth plan · $1,500/mo ad spend · ~20% vacancy recovery rate
+                </p>
 
                 <a
                   href="#cta"

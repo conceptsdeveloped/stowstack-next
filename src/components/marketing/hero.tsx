@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
-  Play,
+
   BarChart3,
   Megaphone,
   FileText,
@@ -803,15 +803,15 @@ const BECAUSE_MESSAGES = [
   "A SIGN ON A CHAINLINK FENCE IS NOT AN ACQUISITION STRATEGY",
   "WE'RE ON PAGE 2 OF GOOGLE IS NOT A MARKETING PLAN",
   "YOUR COMPETITOR FILLED 40 UNITS LAST MONTH AND YOU HAVE NO IDEA HOW",
-  "THE LAST AGENCY SHOWED YOU CLICKS YOU ASKED ABOUT MOVE-INS THEY CHANGED THE SUBJECT",
+  "YOU ASKED YOUR AGENCY WHICH ADS DROVE MOVE-INS AND THEY CHANGED THE SUBJECT",
   "YOU'RE PAYING $200 PER MOVE-IN AND CALLING IT BRAND AWARENESS",
-  "YOUR MANAGER JUST ASKED WHAT ROAS MEANS AND NOBODY IN THE ROOM KNEW",
+  "YOUR AGENCY SENDS YOU A REPORT EVERY MONTH AND YOU DON'T UNDERSTAND A SINGLE LINE ON IT",
   "DRONE FOOTAGE OF YOUR ROOF HAS 200 VIEWS AND ZERO RESERVATIONS",
   "YOU JUST PAID GOOGLE $6 SO SOMEONE COULD CLICK YOUR AD TO PAY THEIR BILL",
   "EXTRA SPACE IS RUNNING 14 CAMPAIGNS IN YOUR ZIP CODE AND YOU'RE RUNNING VIBES",
   "YOUR BEST AD GOT 3 LIKES AND TWO WERE EMPLOYEES",
   "YOU'VE BEEN ABOUT TO LAUNCH A CAMPAIGN SINCE Q2 OF LAST YEAR",
-  "YOUR SPAREFOOT LISTING IS DOING MORE WORK THAN YOUR ENTIRE MARKETING BUDGET",
+  "YOUR GOOGLE BUSINESS LISTING IS DOING MORE WORK THAN YOUR ENTIRE MARKETING BUDGET",
   "THE MARKETING MEETING WAS YOU AND YOUR MANAGER STARING AT GOOGLE REVIEWS",
 ];
 
@@ -1038,7 +1038,7 @@ export default function Hero() {
               className={`mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ color: "var(--text-secondary)", lineHeight: 1.55, transitionDelay: "350ms", maxWidth: "460px" }}
             >
-              Ad-specific landing pages with embedded rental flow. Full-funnel attribution from ad click to signed lease. You&apos;ll know exactly what each move-in cost.
+              Every move-in traced to the ad that produced it. Custom landing pages with embedded rental flow — from first click to signed lease.
             </p>
 
             {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
@@ -1053,8 +1053,7 @@ export default function Hero() {
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
               </a>
               <a href={CALCOM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-all hover:border-[var(--color-gold)]/30 hover:shadow-sm" style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}>
-                <Play size={14} style={{ color: "var(--color-gold)" }} />
-                See How It Works
+                Book a Call
               </a>
             </div>
 

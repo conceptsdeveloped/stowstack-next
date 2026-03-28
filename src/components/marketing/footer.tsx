@@ -36,7 +36,7 @@ export default function Footer() {
               className="text-sm"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Marketing that tells you which ads fill units.
+              Prove which ads produce move-ins.
             </p>
             <p
               className="text-xs mt-4 italic"

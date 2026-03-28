@@ -101,7 +101,7 @@ export default function DemandEngineVisual() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Six systems. One engine.{" "}
+            One engine. Six capabilities.{" "}
             <span style={{ color: "var(--color-gold)" }}>Every move-in attributed.</span>
           </h2>
           <p

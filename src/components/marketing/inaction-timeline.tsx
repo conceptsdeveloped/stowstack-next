@@ -30,8 +30,8 @@ const MONTHS = [
   },
   {
     month: 4,
-    title: "Summer moving season starts",
-    detail: "Your competitors fill up. You don't.",
+    title: "2 more move-outs, summer starts",
+    detail: "Now 8 vacant. Your competitors fill up. You don\u2019t.",
     loss: 1200,
     cumulative: 3150,
     severity: "bg-red-500/80",
@@ -46,8 +46,8 @@ const MONTHS = [
   },
   {
     month: 6,
-    title: "Occupancy below 80%",
-    detail: "Revenue spiral: cutting rates to attract tenants",
+    title: "10 vacant — occupancy below 80%",
+    detail: "Rate cuts attract short-term tenants who churn. Revenue spiral.",
     loss: 1500,
     cumulative: 5850,
     severity: "bg-red-600",
@@ -204,7 +204,7 @@ export default function InactionTimeline() {
               className="text-sm mt-1"
               style={{ color: "var(--text-secondary)" }}
             >
-              Based on $41 cost-per-move-in at 8 move-ins/mo (Growth plan)
+              Based on 8 move-ins/mo at $900 avg lifetime value per tenant
             </p>
           </div>
         </div>

@@ -53,8 +53,8 @@ export default function ProblemStatement() {
             }}
           >
             National occupancy is at 77%. Google CPCs are up 45%. Up to 90% of
-            lead conversions go unattributed. And fewer than 5% of independent
-            operators run Meta ads: CPCs are 75-95% cheaper than Google.
+            lead conversions go unattributed. Fewer than 5% of independent
+            operators run Meta ads — yet Meta CPCs are 75–95% cheaper than Google.
           </p>
           <p
             className="mt-4 font-medium"

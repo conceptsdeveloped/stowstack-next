@@ -115,10 +115,10 @@ export default function AboutPage() {
           />
 
           <p>
-            I tested it on my own facility first. Two Paws Storage became the
-            proving ground. Every dollar of ad spend, tracked to the phone call,
-            the walk-in, the move-in. For the first time, I could see exactly
-            which campaigns were making money and which were wasting it.
+            I tested it across my own facilities first. Every dollar of ad
+            spend, tracked to the phone call, the walk-in, the move-in. For
+            the first time, I could see exactly which campaigns were making
+            money and which were wasting it.
           </p>
 
           <p>
@@ -152,7 +152,7 @@ export default function AboutPage() {
 
           <p>
             I still operate. I still spend my own money on ads. Every feature we
-            build gets tested on my facility before it reaches yours. If it
+            build gets tested on my own facilities before it reaches yours. If it
             doesn&apos;t work for me, it doesn&apos;t ship.
           </p>
 
@@ -188,7 +188,7 @@ export default function AboutPage() {
               className="text-sm"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Operator, Two Paws Storage
+              Storage operator &amp; founder
             </p>
           </div>
         </div>

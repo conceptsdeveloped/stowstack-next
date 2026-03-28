@@ -1,7 +1,7 @@
 ---
 title: "You're Spending $300+ Per Move-In and Don't Even Know It"
 slug: hidden-marketing-costs-per-movein
-date: 2026-03-25
+date: 2026-04-01
 pillar: operator-math
 description: "Most operators think their marketing is cheap because they're not adding it all up. Here's what a storEDGE listing, Google Business Profile, and a basic website actually cost per move-in."
 author: "Blake"

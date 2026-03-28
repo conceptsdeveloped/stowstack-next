@@ -49,7 +49,7 @@ export default function Results() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Results from our own facilities.
+            We tested it on our own facilities first. Here&apos;s what happened.
           </h2>
         </div>
 

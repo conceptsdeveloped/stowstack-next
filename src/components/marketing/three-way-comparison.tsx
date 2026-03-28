@@ -126,7 +126,7 @@ export default function ThreeWayComparison() {
               <X size={12} className="text-orange-500" />
             </div>
             <span
-              className="text-xs font-semibold text-orange-400 uppercase"
+              className="text-xs font-semibold text-orange-800 uppercase"
               style={{ letterSpacing: "var(--tracking-wide)" }}
             >
               Ad Agency
@@ -183,12 +183,12 @@ export default function ThreeWayComparison() {
 
               <div className="bg-orange-500/[0.05] border border-orange-500/10 rounded-xl px-4 py-3">
                 <span
-                  className="md:hidden text-[10px] font-semibold text-orange-400 uppercase"
+                  className="md:hidden text-[10px] font-semibold text-orange-800 uppercase"
                   style={{ letterSpacing: "var(--tracking-wide)" }}
                 >
                   Agency
                 </span>
-                <p className="text-sm text-orange-300/80">{row.agency}</p>
+                <p className="text-sm text-orange-800">{row.agency}</p>
               </div>
 
               <div className="bg-[var(--color-gold)]/[0.08] border border-[var(--color-gold)]/20 rounded-xl px-4 py-3">

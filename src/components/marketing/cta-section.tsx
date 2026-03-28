@@ -299,7 +299,7 @@ export default function CTASection() {
                 </button>
 
                 <div className="flex flex-wrap gap-4 justify-center pt-2">
-                  {["Response within 24 hours.", "Built and run by a storage operator.", "No contracts required."].map(
+                  {["Response within 24 hours.", "Free — no credit card required.", "Takes 2 minutes."].map(
                     (text) => (
                       <p
                         key={text}

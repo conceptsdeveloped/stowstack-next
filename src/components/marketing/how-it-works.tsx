@@ -13,9 +13,9 @@ const STEPS = [
     title: "Every ad gets its own landing page.",
     body: "Not your homepage. Not a generic rental page. A dedicated URL built for that specific campaign, with its own headline, its own offer, and its own tracking.",
     examples: [
-      "storageads.com/climate-pawpaw-a: for the climate-controlled search ad",
-      "storageads.com/10x10-offer-b: for the first-month-free Facebook ad",
-      "storageads.com/finish-your-rental-c: for the retargeting campaign",
+      "[your-facility].storageads.com/climate-pawpaw: for the climate-controlled search ad",
+      "[your-facility].storageads.com/10x10-offer: for the first-month-free Facebook ad",
+      "[your-facility].storageads.com/finish-your-rental: for the retargeting campaign",
     ],
     kicker:
       "Different intent. Different pages. Different offers. That's how conversion rate goes up.",
