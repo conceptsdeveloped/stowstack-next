@@ -36,15 +36,17 @@ export async function GET(req: NextRequest) {
   const id = url.searchParams.get("id");
 
   if (id) {
-    const page = await db.landing_pages.findUnique({ where: { id } });
-    if (!page) return errorResponse("Page not found", 404, origin);
-
-    const sections = await db.landing_page_sections.findMany({
-      where: { landing_page_id: page.id },
-      orderBy: { sort_order: "asc" },
+    const page = await db.landing_pages.findFirst({
+      where: {
+        id,
+        ...(session ? { facilities: { organization_id: session.organization.id } } : {}),
+      },
+      include: { landing_page_sections: { orderBy: { sort_order: "asc" } } },
     });
+    if (!page) return errorResponse("Not found", 404, origin);
 
-    return jsonResponse({ page: { ...page, sections } }, 200, origin);
+    const { landing_page_sections: sections, ...pageData } = page;
+    return jsonResponse({ page: { ...pageData, sections } }, 200, origin);
   }
 
   const where: Record<string, unknown> = {};

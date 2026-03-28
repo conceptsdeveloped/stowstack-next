@@ -15,11 +15,14 @@ import {
   LogOut,
   Mail,
   Menu,
+  Newspaper,
   Settings,
   Users,
   Webhook,
 } from "lucide-react";
 import { haptic } from "@/lib/haptics";
+import { NotificationBell } from "./notification-bell";
+import { TwoFactorLogin } from "./two-factor-setup";
 
 const STORAGE_KEY = "storageads_partner_session";
 
@@ -43,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "API Keys", href: "/partner/api-keys", icon: Key },
   { label: "Webhooks", href: "/partner/webhooks", icon: Webhook },
   { label: "Audit Log", href: "/partner/audit-log", icon: ListChecks },
+  { label: "Changelog", href: "/partner/changelog", icon: Newspaper },
   { label: "Settings", href: "/partner/settings", icon: Settings },
 ];
 
@@ -258,6 +262,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showReset, setShowReset] = useState(false);
+  const [twoFAToken, setTwoFAToken] = useState<string | null>(null);
 
   // Check URL for reset token on mount
   useEffect(() => {
@@ -268,6 +273,26 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
 
   if (showReset) {
     return <ResetPasswordForm onBack={() => setShowReset(false)} />;
+  }
+
+  if (twoFAToken) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)]">
+        <div className="w-full max-w-sm rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-8">
+          <TwoFactorLogin
+            tempToken={twoFAToken}
+            onSuccess={(sessionData) => {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+              onAuthenticated(sessionData as PartnerSession);
+            }}
+            onCancel={() => {
+              setTwoFAToken(null);
+              setError("");
+            }}
+          />
+        </div>
+      </div>
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -293,6 +318,12 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
 
       if (!res.ok || data.error) {
         setError(data.error || "Invalid credentials");
+        setLoading(false);
+        return;
+      }
+
+      if (data.requires2FA && data.tempToken) {
+        setTwoFAToken(data.tempToken);
         setLoading(false);
         return;
       }
@@ -550,6 +581,7 @@ function PartnerHeader({
         <span className="hidden rounded-full bg-[var(--color-light-gray)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-body-text)] sm:inline">
           {session.organization.plan}
         </span>
+        <NotificationBell />
         <button
           type="button"
           onClick={onLogout}

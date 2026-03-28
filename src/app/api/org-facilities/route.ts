@@ -22,7 +22,9 @@ export async function GET(req: NextRequest) {
     if (!isAdmin && !session) return errorResponse("Unauthorized", 401, origin);
 
     const url = new URL(req.url);
-    const orgId = url.searchParams.get("orgId") || session?.user.organization_id;
+    const orgId = isAdmin
+      ? (url.searchParams.get("orgId") || session?.user.organization_id)
+      : session?.user.organization_id;
     if (!orgId) return errorResponse("Organization ID required", 400, origin);
 
     const facilities = await db.$queryRawUnsafe<Array<Record<string, unknown>>>(
@@ -70,7 +72,9 @@ export async function POST(req: NextRequest) {
 
     const orgUser = session?.user || null;
     const url = new URL(req.url);
-    const orgId = url.searchParams.get("orgId") || orgUser?.organization_id;
+    const orgId = isAdmin
+      ? (url.searchParams.get("orgId") || orgUser?.organization_id)
+      : orgUser?.organization_id;
     if (!orgId) return errorResponse("Organization ID required", 400, origin);
 
     if (!isAdmin && orgUser?.role !== "org_admin") {
@@ -80,6 +84,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { facilityId } = body;
     if (!facilityId) return errorResponse("Facility ID required", 400, origin);
+
+    const existing = await db.facilities.findUnique({ where: { id: facilityId }, select: { organization_id: true } });
+    if (existing?.organization_id && existing.organization_id !== orgId) {
+      return errorResponse("Facility belongs to another organization", 403, origin);
+    }
 
     const org = await db.organizations.findUnique({
       where: { id: orgId },
@@ -112,7 +121,9 @@ export async function PATCH(req: NextRequest) {
 
     const orgUser = session?.user || null;
     const url = new URL(req.url);
-    const orgId = url.searchParams.get("orgId") || orgUser?.organization_id;
+    const orgId = isAdmin
+      ? (url.searchParams.get("orgId") || orgUser?.organization_id)
+      : orgUser?.organization_id;
     if (!orgId) return errorResponse("Organization ID required", 400, origin);
 
     if (!isAdmin && orgUser?.role !== "org_admin") {

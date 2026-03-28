@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getSession, createSession } from "@/lib/session-auth";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, isAdminRequest } from "@/lib/api-helpers";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { logAudit } from "@/lib/audit";
 
 const scryptAsync = promisify(crypto.scrypt);
 const SCRYPT_KEYLEN = 64;
@@ -114,7 +115,20 @@ export async function POST(req: NextRequest) {
         });
       }
 
+      // Check if 2FA is enabled — return temp token instead of session
+      if (user.totp_enabled) {
+        const payload = JSON.stringify({ userId: user.id, exp: Date.now() + 5 * 60 * 1000 });
+        const sig = crypto.createHmac("sha256", process.env.ADMIN_SECRET || "").update(payload).digest("hex");
+        const tempToken = Buffer.from(payload).toString("base64") + "." + sig;
+        return jsonResponse({ requires2FA: true, tempToken }, 200, origin);
+      }
+
       const token = await createSession(user.id, req);
+
+      logAudit(req, {
+        user: { id: user.id, organization_id: org.id, email: user.email, name: user.name, role: user.role, status: "active", is_superadmin: false },
+        organization: { id: org.id, name: org.name, slug: org.slug, logoUrl: null, primaryColor: null, accentColor: null, whiteLabel: false, plan: org.plan || "starter", facilityLimit: 0, settings: null, status: "active", subscriptionStatus: null, trialEndsAt: null, hasStripe: false },
+      }, { action: "login", resourceType: "session", metadata: { email: user.email } });
 
       return jsonResponse(
         {
@@ -199,6 +213,11 @@ export async function POST(req: NextRequest) {
 
       const token = await createSession(userId, req);
 
+      logAudit(req, {
+        user: { id: userId, organization_id: org.id, email: email.toLowerCase(), name: contactName, role: "org_admin", status: "active", is_superadmin: false },
+        organization: { id: org.id, name: org.name, slug: org.slug, logoUrl: null, primaryColor: null, accentColor: null, whiteLabel: false, plan: org.plan || selectedPlan, facilityLimit: facilityLimits[selectedPlan], settings: null, status: "active", subscriptionStatus: null, trialEndsAt: null, hasStripe: false },
+      }, { action: "signup", resourceType: "organization", resourceId: org.id, metadata: { email: email.toLowerCase(), plan: selectedPlan } });
+
       return jsonResponse(
         {
           token,
@@ -253,6 +272,8 @@ export async function PATCH(req: NextRequest) {
       where: { id: session.organization.id },
       data: updateData,
     });
+
+    logAudit(req, session, { action: "settings.update", resourceType: "organization", resourceId: org.id, metadata: { fields: Object.keys(updateData) } });
 
     return jsonResponse({ organization: org }, 200, origin);
   } catch (err) {

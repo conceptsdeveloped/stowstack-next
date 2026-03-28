@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePartnerAuth } from "@/components/partner/use-partner-auth";
+import { OnboardingChecklist } from "@/components/partner/onboarding-checklist";
 
 interface OrgFacility {
   id: string;
@@ -115,6 +116,9 @@ export default function PartnerOverviewPage() {
 
   return (
     <div className="space-y-6">
+      {/* Onboarding Checklist */}
+      <OnboardingChecklist />
+
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {kpis.map((kpi) => {

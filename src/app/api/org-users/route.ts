@@ -157,6 +157,12 @@ export async function DELETE(req: NextRequest) {
       return errorResponse("Cannot remove yourself", 400, origin);
     }
 
+    // Verify the user belongs to the session's org
+    const targetUser = await db.org_users.findFirst({
+      where: { id, organization_id: session.organization.id },
+    });
+    if (!targetUser) return errorResponse("User not found", 404, origin);
+
     await db.org_users.delete({
       where: { id },
     });

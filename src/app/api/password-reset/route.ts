@@ -9,6 +9,7 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { logAudit } from "@/lib/audit";
 
 const scryptAsync = promisify(crypto.scrypt);
 const SCRYPT_KEYLEN = 64;
@@ -154,6 +155,8 @@ export async function POST(req: NextRequest) {
         UPDATE org_users SET password_hash = ${passwordHash}, reset_token = NULL, reset_token_expires_at = NULL
         WHERE id = ${users[0].id}::uuid
       `;
+
+      logAudit(req, null, { action: "password.reset", resourceType: "user", resourceId: users[0].id, metadata: { method: "token" } });
 
       return jsonResponse({ success: true }, 200, origin);
     }
