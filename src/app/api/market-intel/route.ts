@@ -7,6 +7,12 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { scrapeWebsite } from "@/lib/scrape-website";
+import { scrapeSparefoot, scrapeSelfStorage } from "@/lib/aggregator-scrape";
+
+export const maxDuration = 60;
+
+const STALENESS_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 function haversineDistance(
   lat1: number,
@@ -29,6 +35,20 @@ function extractZip(address: string | null): string | null {
   if (!address) return null;
   const match = address.match(/\b(\d{5})(?:-\d{4})?\b/);
   return match ? match[1] : null;
+}
+
+function extractCityState(
+  address: string | null
+): { city: string; state: string } | null {
+  if (!address) return null;
+  const match = address.match(/([A-Za-z\s]+),\s*([A-Z]{2})\b/);
+  if (match) {
+    return {
+      city: match[1].trim().toLowerCase().replace(/\s+/g, "-"),
+      state: match[2].toLowerCase(),
+    };
+  }
+  return null;
 }
 
 async function searchPlaces(
@@ -134,12 +154,41 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { facilityId } = body || {};
+    const { facilityId, force } = body || {};
     if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+    // Staleness check — return cached data if < 30 days old
+    if (!force) {
+      try {
+        const existing = await db.$queryRawUnsafe<Record<string, unknown>[]>(
+          "SELECT * FROM facility_market_intel WHERE facility_id = $1::uuid",
+          facilityId
+        );
+        if (existing.length > 0) {
+          const lastScanned = existing[0].last_scanned;
+          if (
+            lastScanned &&
+            Date.now() - new Date(lastScanned as string).getTime() < STALENESS_MS
+          ) {
+            return jsonResponse(
+              { intel: existing[0], cached: true },
+              200,
+              origin
+            );
+          }
+        }
+      } catch {
+        /* staleness check failed, proceed with fresh scan */
+      }
+    }
 
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     if (!apiKey)
-      return errorResponse("GOOGLE_PLACES_API_KEY not configured", 500, origin);
+      return errorResponse(
+        "GOOGLE_PLACES_API_KEY not configured",
+        500,
+        origin
+      );
 
     const facilityRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
       "SELECT * FROM facilities WHERE id = $1",
@@ -163,12 +212,35 @@ export async function POST(request: NextRequest) {
       { query: "senior living", category: "senior_living" },
     ];
 
-    const [competitorResults, ...demandResults] = await Promise.all([
+    // Multiple search queries for better competitor coverage
+    const [
+      storageResults1,
+      storageResults2,
+      storageResults3,
+      ...demandResults
+    ] = await Promise.all([
       searchPlaces(`self storage near ${address}`, apiKey, 10),
+      searchPlaces(`storage units near ${address}`, apiKey, 5),
+      searchPlaces(`mini storage near ${address}`, apiKey, 5),
       ...demandCategories.map((cat) =>
         searchPlaces(`${cat.query} near ${address}`, apiKey, 5)
       ),
     ]);
+
+    // Deduplicate competitor results by name
+    const seenNames = new Set<string>();
+    const allCompetitorResults = [
+      ...storageResults1,
+      ...storageResults2,
+      ...storageResults3,
+    ].filter((p) => {
+      const name = (
+        (p.displayName as Record<string, string>)?.text || ""
+      ).toLowerCase();
+      if (!name || seenNames.has(name)) return false;
+      seenNames.add(name);
+      return true;
+    });
 
     const demographics = await fetchCensusDemographics(zip);
 
@@ -191,7 +263,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const competitors = competitorResults
+    const competitors = allCompetitorResults
       .filter((p) => {
         const pName = (
           (p.displayName as Record<string, string>)?.text || ""
@@ -213,19 +285,112 @@ export async function POST(request: NextRequest) {
         return {
           name:
             (p.displayName as Record<string, string>)?.text || "Unknown",
-          address: p.formattedAddress || "",
-          rating: p.rating || null,
-          reviewCount: p.userRatingCount || 0,
+          address: (p.formattedAddress as string) || "",
+          rating: (p.rating as number) || null,
+          reviewCount: (p.userRatingCount as number) || 0,
           distance_miles,
-          mapsUrl: p.googleMapsUri || null,
-          website: p.websiteUri || null,
+          mapsUrl: (p.googleMapsUri as string) || null,
+          website: (p.websiteUri as string) || null,
           source: "google_places",
+          units: [] as Array<{
+            size: string;
+            price: string | null;
+            type: string | null;
+          }>,
+          promotions: [] as Array<{ text: string }>,
         };
       })
       .filter((c) => c.distance_miles === null || c.distance_miles <= 15)
       .sort(
         (a, b) => (a.distance_miles ?? 99) - (b.distance_miles ?? 99)
       );
+
+    // Enrich top 5 competitors that have websites with scraped pricing data
+    const competitorsWithWebsites = competitors
+      .filter((c) => c.website)
+      .slice(0, 5);
+
+    if (competitorsWithWebsites.length > 0) {
+      try {
+        const scrapeResults = await Promise.all(
+          competitorsWithWebsites.map((c) =>
+            scrapeWebsite(c.website!).catch(() => null)
+          )
+        );
+        for (let i = 0; i < competitorsWithWebsites.length; i++) {
+          const scrape = scrapeResults[i];
+          if (!scrape) continue;
+          const comp = competitorsWithWebsites[i];
+          if (scrape.units?.length) {
+            comp.units = scrape.units.map((u) => ({
+              size: u.size,
+              price: u.price,
+              type: u.type,
+            }));
+          }
+          if (scrape.promotions?.length) {
+            comp.promotions = scrape.promotions.map((p) => ({
+              text: p.text,
+            }));
+          }
+        }
+      } catch {
+        /* competitor scraping failed, not critical */
+      }
+    }
+
+    // Aggregator scraping for supplementary pricing data
+    const cityState = extractCityState(address);
+    if (cityState) {
+      try {
+        const [sparefootResults, selfStorageResults] = await Promise.all([
+          scrapeSparefoot(cityState.city, cityState.state).catch(() => []),
+          scrapeSelfStorage(cityState.city, cityState.state).catch(() => []),
+        ]);
+
+        const allAggregatorResults = [
+          ...sparefootResults,
+          ...selfStorageResults,
+        ];
+
+        for (const agg of allAggregatorResults) {
+          if (!agg.name) continue;
+          const aggNameLower = agg.name.toLowerCase();
+
+          // Try to match with an existing competitor
+          const match = competitors.find((c) => {
+            const cNameLower = c.name.toLowerCase();
+            return (
+              cNameLower.includes(aggNameLower) ||
+              aggNameLower.includes(cNameLower)
+            );
+          });
+
+          if (match) {
+            // Merge pricing into existing competitor if it has none
+            if (agg.units.length && !match.units.length) {
+              match.units = agg.units;
+            }
+          } else {
+            // Add as new competitor from aggregator
+            competitors.push({
+              name: agg.name,
+              address: agg.address || "",
+              rating: null,
+              reviewCount: 0,
+              distance_miles: null,
+              mapsUrl: null,
+              website: null,
+              source: agg.source,
+              units: agg.units,
+              promotions: [],
+            });
+          }
+        }
+      } catch {
+        /* aggregator scraping failed, not critical */
+      }
+    }
 
     const demand_drivers: Record<string, unknown>[] = [];
     demandCategories.forEach((cat, i) => {

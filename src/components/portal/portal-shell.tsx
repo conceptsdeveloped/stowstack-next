@@ -27,6 +27,8 @@ import {
   clearPortalSession,
   firstName,
 } from "@/lib/portal-helpers";
+import { PortalBottomTabs } from "./portal-bottom-tabs";
+import { haptic } from "@/lib/haptics";
 
 /* ─── context ─── */
 
@@ -327,7 +329,7 @@ function Sidebar({ client, mobileOpen, onClose }: { client: ClientData; mobileOp
       {mobileOpen && (
         <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden" onClick={onClose} />
       )}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-[var(--border-subtle)] bg-[var(--color-light)] transition-transform duration-200 md:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`safe-left fixed inset-y-0 left-0 z-50 w-64 border-r border-[var(--border-subtle)] bg-[var(--color-light)] transition-transform duration-200 md:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {content}
       </aside>
       <aside className="hidden w-64 shrink-0 border-r border-[var(--border-subtle)] bg-[var(--color-light)] md:block">
@@ -352,7 +354,7 @@ function PortalHeader({ client, onToggle, onLogout }: { client: ClientData; onTo
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 px-4 backdrop-blur-xl md:px-6">
+    <header className="safe-top sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 px-4 backdrop-blur-xl md:px-6">
       <button type="button" onClick={onToggle} className="rounded-lg p-2 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] md:hidden">
         <Menu className="h-5 w-5" />
       </button>
@@ -441,9 +443,10 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen overflow-hidden bg-[var(--color-light)]">
         <Sidebar client={client} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
         <div className="flex flex-1 flex-col overflow-hidden">
-          <PortalHeader client={client} onToggle={() => setMobileOpen((v) => !v)} onLogout={handleLogout} />
-          <main className="flex-1 overflow-y-auto">{children}</main>
+          <PortalHeader client={client} onToggle={() => { haptic("light"); setMobileOpen((v) => !v); }} onLogout={handleLogout} />
+          <main className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</main>
         </div>
+        <PortalBottomTabs />
       </div>
     </PortalCtx.Provider>
   );

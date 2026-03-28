@@ -55,6 +55,7 @@ export const viewport: Viewport = {
   themeColor: "#faf9f5",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 const jsonLd = {
@@ -129,6 +130,17 @@ export default function RootLayout({
           <link rel="dns-prefetch" href="https://maps.googleapis.com" />
           <link rel="dns-prefetch" href="https://places.googleapis.com" />
           <link rel="manifest" href="/manifest.json" />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js');
+                  });
+                }
+              `,
+            }}
+          />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

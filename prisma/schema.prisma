@@ -1066,22 +1066,33 @@ model moveout_remarketing {
 }
 
 model org_users {
-  id                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organization_id        String        @db.Uuid
-  email                  String
-  name                   String
-  role                   String        @default("viewer")
-  password_hash          String?
-  invite_token           String?       @db.VarChar(64)
-  invite_expires_at      DateTime?     @db.Timestamptz(6)
-  last_login_at          DateTime?     @db.Timestamptz(6)
-  status                 String?       @default("invited")
-  created_at             DateTime?     @default(now()) @db.Timestamptz(6)
-  reset_token            String?       @db.VarChar(64)
-  reset_token_expires_at DateTime?     @db.Timestamptz(6)
-  is_superadmin          Boolean?      @default(false)
-  organizations          organizations @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  sessions               sessions[]
+  id                       String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization_id          String         @db.Uuid
+  email                    String
+  name                     String
+  role                     String         @default("viewer")
+  password_hash            String?
+  invite_token             String?        @db.VarChar(64)
+  invite_expires_at        DateTime?      @db.Timestamptz(6)
+  last_login_at            DateTime?      @db.Timestamptz(6)
+  status                   String?        @default("invited")
+  created_at               DateTime?      @default(now()) @db.Timestamptz(6)
+  reset_token              String?        @db.VarChar(64)
+  reset_token_expires_at   DateTime?      @db.Timestamptz(6)
+  is_superadmin            Boolean?       @default(false)
+  email_verified           Boolean?       @default(false)
+  email_verify_token       String?        @db.VarChar(64)
+  email_verify_expires_at  DateTime?      @db.Timestamptz(6)
+  avatar_url               String?
+  totp_secret              String?
+  totp_enabled             Boolean?       @default(false)
+  totp_backup_codes        String[]       @default([])
+  email_preferences        Json?          @default("{\"payment_failed\":true,\"trial_ending\":true,\"ab_test_winner\":true,\"campaign_alert\":true,\"weekly_report\":true,\"team_changes\":true,\"product_updates\":false}")
+  last_changelog_viewed_at DateTime?      @db.Timestamptz(6)
+  organizations            organizations  @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sessions                 sessions[]
+  notifications            notifications[]
+  audit_log                audit_log[]
 
   @@unique([organization_id, email])
   @@index([email], map: "idx_org_users_email")
@@ -1089,41 +1100,49 @@ model org_users {
   @@index([organization_id], map: "idx_org_users_org")
   @@index([reset_token], map: "idx_org_users_reset")
   @@index([status], map: "idx_org_users_status")
+  @@index([email_verify_token], map: "idx_org_users_verify_token")
 }
 
 model organizations {
-  id                     String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                   String
-  slug                   String                @unique @db.VarChar(60)
-  logo_url               String?
-  primary_color          String?               @default("#16a34a") @db.VarChar(7)
-  accent_color           String?               @default("#4f46e5") @db.VarChar(7)
-  custom_domain          String?
-  contact_email          String?
-  contact_phone          String?
-  billing_email          String?
-  plan                   String?               @default("starter")
-  facility_limit         Int?                  @default(10)
-  white_label            Boolean?              @default(false)
-  status                 String?               @default("active")
-  rev_share_enabled      Boolean?              @default(true)
-  rev_share_pct          Decimal?              @db.Decimal(5, 2)
-  rev_share_tier         String?               @default("auto")
-  lifetime_earnings      Decimal?              @default(0) @db.Decimal(12, 2)
-  payout_method          String?               @default("bank_transfer")
-  payout_email           String?
-  settings               Json?                 @default("{}")
-  created_at             DateTime?             @default(now()) @db.Timestamptz(6)
-  updated_at             DateTime?             @default(now()) @db.Timestamptz(6)
-  stripe_customer_id     String?
-  stripe_subscription_id String?
-  subscription_status    String?               @default("incomplete")
-  api_keys               api_keys[]
-  facilities             facilities[]
-  org_users              org_users[]
-  rev_share_payouts      rev_share_payouts[]
-  rev_share_referrals    rev_share_referrals[]
-  webhooks               webhooks[]
+  id                      String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                    String
+  slug                    String                @unique @db.VarChar(60)
+  logo_url                String?
+  primary_color           String?               @default("#16a34a") @db.VarChar(7)
+  accent_color            String?               @default("#4f46e5") @db.VarChar(7)
+  custom_domain           String?
+  contact_email           String?
+  contact_phone           String?
+  billing_email           String?
+  plan                    String?               @default("starter")
+  facility_limit          Int?                  @default(10)
+  white_label             Boolean?              @default(false)
+  status                  String?               @default("active")
+  rev_share_enabled       Boolean?              @default(true)
+  rev_share_pct           Decimal?              @db.Decimal(5, 2)
+  rev_share_tier          String?               @default("auto")
+  lifetime_earnings       Decimal?              @default(0) @db.Decimal(12, 2)
+  payout_method           String?               @default("bank_transfer")
+  payout_email            String?
+  settings                Json?                 @default("{}")
+  created_at              DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime?             @default(now()) @db.Timestamptz(6)
+  stripe_customer_id      String?
+  stripe_subscription_id  String?
+  subscription_status     String?               @default("incomplete")
+  trial_ends_at           DateTime?             @db.Timestamptz(6)
+  signup_source           String?
+  onboarding_completed_at DateTime?             @db.Timestamptz(6)
+  onboarding_steps        Json?                 @default("{}")
+  scheduled_deletion_at   DateTime?             @db.Timestamptz(6)
+  api_keys                api_keys[]
+  facilities              facilities[]
+  org_users               org_users[]
+  rev_share_payouts       rev_share_payouts[]
+  rev_share_referrals     rev_share_referrals[]
+  webhooks                webhooks[]
+  notifications           notifications[]
+  audit_log               audit_log[]
 
   @@index([custom_domain], map: "idx_organizations_custom_domain")
   @@index([slug], map: "idx_organizations_slug")
@@ -1678,4 +1697,51 @@ model style_references {
 
   @@index([facility_id], map: "idx_style_references_facility")
   @@index([active], map: "idx_style_references_active")
+}
+
+model notifications {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization_id String         @db.Uuid
+  user_id         String?        @db.Uuid
+  type            String
+  title           String
+  body            String?
+  link            String?
+  read_at         DateTime?      @db.Timestamptz(6)
+  created_at      DateTime?      @default(now()) @db.Timestamptz(6)
+  organizations   organizations  @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  org_users       org_users?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id, read_at, created_at(sort: Desc)], map: "idx_notifications_user")
+  @@index([organization_id, created_at(sort: Desc)], map: "idx_notifications_org")
+}
+
+model audit_log {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization_id String?        @db.Uuid
+  user_id         String?        @db.Uuid
+  action          String
+  resource_type   String?
+  resource_id     String?        @db.Uuid
+  metadata        Json?
+  ip_address      String?
+  user_agent      String?
+  created_at      DateTime?      @default(now()) @db.Timestamptz(6)
+  organizations   organizations? @relation(fields: [organization_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  org_users       org_users?     @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  @@index([organization_id, created_at(sort: Desc)], map: "idx_audit_log_org")
+  @@index([user_id, created_at(sort: Desc)], map: "idx_audit_log_user")
+  @@index([action], map: "idx_audit_log_action")
+}
+
+model changelog_entries {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String
+  body         String
+  category     String?   @default("improvement")
+  published_at DateTime? @default(now()) @db.Timestamptz(6)
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([published_at(sort: Desc)], map: "idx_changelog_published")
 }

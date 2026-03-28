@@ -36,6 +36,7 @@ export interface SessionOrg {
   settings: unknown;
   status: string;
   subscriptionStatus: string | null;
+  trialEndsAt: string | null;
   hasStripe: boolean;
 }
 
@@ -108,6 +109,7 @@ async function lookupSession(token: string): Promise<Session | null> {
       org_settings: unknown;
       org_status: string;
       subscription_status: string | null;
+      trial_ends_at: Date | null;
       stripe_customer_id: string | null;
     }>
   >`
@@ -116,7 +118,7 @@ async function lookupSession(token: string): Promise<Session | null> {
            o.id as org_id, o.name as org_name, o.slug as org_slug, o.logo_url,
            o.primary_color, o.accent_color, o.white_label, o.plan, o.facility_limit,
            o.settings as org_settings, o.status as org_status,
-           o.subscription_status, o.stripe_customer_id
+           o.subscription_status, o.trial_ends_at, o.stripe_customer_id
     FROM sessions s
     JOIN org_users ou ON ou.id = s.user_id
     JOIN organizations o ON o.id = ou.organization_id
@@ -166,6 +168,7 @@ async function lookupLegacyToken(token: string): Promise<Session | null> {
         org_settings: unknown;
         org_status: string;
         subscription_status: string | null;
+        trial_ends_at: Date | null;
         stripe_customer_id: string | null;
       }>
     >`
@@ -173,7 +176,7 @@ async function lookupLegacyToken(token: string): Promise<Session | null> {
              o.id as org_id, o.name as org_name, o.slug as org_slug, o.logo_url,
              o.primary_color, o.accent_color, o.white_label, o.plan, o.facility_limit,
              o.settings as org_settings, o.status as org_status,
-             o.subscription_status, o.stripe_customer_id
+             o.subscription_status, o.trial_ends_at, o.stripe_customer_id
       FROM org_users ou JOIN organizations o ON o.id = ou.organization_id
       WHERE ou.organization_id = ${orgId} AND ou.email = ${email}
         AND ou.status = 'active' AND o.status = 'active'
@@ -206,6 +209,7 @@ function formatSessionResult(row: {
   org_settings: unknown;
   org_status: string;
   subscription_status: string | null;
+  trial_ends_at: Date | null;
   stripe_customer_id: string | null;
 }): Session {
   return {
@@ -231,6 +235,7 @@ function formatSessionResult(row: {
       settings: row.org_settings,
       status: row.org_status,
       subscriptionStatus: row.subscription_status,
+      trialEndsAt: row.trial_ends_at?.toISOString() || null,
       hasStripe: !!row.stripe_customer_id,
     },
   };

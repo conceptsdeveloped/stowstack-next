@@ -158,25 +158,51 @@ function pageScore(href: string): number {
   return 1;
 }
 
+function isSafeUrl(urlStr: string): boolean {
+  try {
+    const u = new URL(urlStr);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+    const h = u.hostname;
+    if (
+      h === "localhost" ||
+      h === "127.0.0.1" ||
+      h === "0.0.0.0" ||
+      h.startsWith("10.") ||
+      h.startsWith("192.168.") ||
+      h.startsWith("172.") ||
+      h === "169.254.169.254" ||
+      h.endsWith(".internal") ||
+      h.endsWith(".local")
+    )
+      return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function fetchWithRetry(
   url: string,
-  options: RequestInit,
+  headers: Record<string, string>,
+  timeoutMs = 10000,
   retries = 1,
 ): Promise<Response> {
-  try {
-    const res = await fetch(url, options);
-    if (!res.ok && retries > 0) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers,
+        redirect: "follow",
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      if (res.ok || attempt === retries) return res;
       await new Promise((r) => setTimeout(r, 2000));
-      return fetchWithRetry(url, options, retries - 1);
-    }
-    return res;
-  } catch (err) {
-    if (retries > 0) {
+    } catch (err) {
+      if (attempt === retries) throw err;
       await new Promise((r) => setTimeout(r, 2000));
-      return fetchWithRetry(url, options, retries - 1);
     }
-    throw err;
   }
+  // Unreachable, but satisfies TypeScript
+  throw new Error("fetchWithRetry exhausted");
 }
 
 /* ── Unit/Pricing Extraction ── */
@@ -314,16 +340,14 @@ async function scrapePage(
   };
 
   try {
+    if (!isSafeUrl(pageUrl)) return result;
+
     const response = await fetchWithRetry(pageUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-      redirect: "follow",
-      signal: AbortSignal.timeout(10000),
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
     });
 
     if (!response.ok) return result;
@@ -631,6 +655,10 @@ export async function scrapeWebsite(
 ): Promise<ScrapeResult> {
   const force = options?.force ?? false;
   const facilityId = options?.facilityId;
+
+  if (!isSafeUrl(url)) {
+    throw new Error("URL not allowed");
+  }
 
   // Check cache
   if (!force) {
