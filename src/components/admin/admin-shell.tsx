@@ -29,6 +29,7 @@ import { AdminProvider, STORAGE_KEY } from "@/lib/admin-context";
 import { AdminHeader } from "./admin-header";
 import { useClerkRole } from "@/hooks/use-clerk-role";
 import { VA_RESTRICTED_PATHS } from "@/lib/clerk-roles";
+import { haptic } from "@/lib/haptics";
 
 interface NavItem {
   label: string;
@@ -411,7 +412,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           isVA={isVA}
         />
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
-          <AdminHeader onToggleSidebar={() => setMobileOpen((v) => !v)} />
+          <AdminHeader onToggleSidebar={() => { haptic("light"); setMobileOpen((v) => !v); }} />
           <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-6">
             {children}
           </main>

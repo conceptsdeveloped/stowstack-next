@@ -19,8 +19,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts";
+import { ResponsiveChart } from "@/components/ui/responsive-chart";
+import { ChartTooltip } from "@/components/ui/chart-tooltip";
 
 interface AnalyticsResponse {
   totalLeads: number;
@@ -329,31 +330,26 @@ export default function InsightsPage() {
           <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--color-dark)" }}>
             Weekly Lead Velocity
           </h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analytics.velocity}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
-                <XAxis
-                  dataKey="week"
-                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
-                  axisLine={{ stroke: "var(--border-subtle)" }}
-                />
-                <YAxis
-                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
-                  axisLine={{ stroke: "var(--border-subtle)" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "var(--color-light-gray)",
-                    border: "1px solid var(--border-medium)",
-                    borderRadius: "8px",
-                    color: "var(--color-dark)",
-                  }}
-                />
-                <Bar dataKey="count" fill="var(--color-gold)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <ResponsiveChart mobileHeight={220} desktopHeight={256}>
+            <BarChart data={analytics.velocity}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
+              <XAxis
+                dataKey="week"
+                tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
+                axisLine={{ stroke: "var(--border-subtle)" }}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
+                axisLine={{ stroke: "var(--border-subtle)" }}
+                width={40}
+              />
+              <Tooltip
+                content={<ChartTooltip formatter={(v) => `${v} leads`} />}
+              />
+              <Bar dataKey="count" fill="var(--color-gold)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveChart>
         </div>
       )}
 

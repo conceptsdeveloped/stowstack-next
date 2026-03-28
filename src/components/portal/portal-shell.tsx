@@ -97,6 +97,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
   async function attemptLogin(loginEmail: string, loginCode: string) {
     setLoading(true);
     setError("");
+    haptic("medium");
     try {
       const res = await fetch("/api/client-data", {
         method: "POST",
@@ -105,12 +106,15 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
       });
       const json = await res.json();
       if (!res.ok) {
+        haptic("error");
         setError(json.error || "Invalid or expired code. Request a new one.");
         return;
       }
+      haptic("success");
       savePortalSession(loginEmail.trim(), loginCode);
       onSuccess(json.client);
     } catch {
+      haptic("error");
       setError("Network error. Please check your connection.");
     } finally {
       setLoading(false);

@@ -30,6 +30,8 @@ import {
   SectionSkeleton,
   ErrorState,
 } from "@/lib/portal-helpers";
+import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
+import { PullIndicator } from "@/components/ui/pull-indicator";
 
 /* ─── types ─── */
 
@@ -47,15 +49,26 @@ interface OnboardingData {
 
 export default function PortalDashboard() {
   usePortal();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const { containerRef, pullDistance, refreshing } = usePullToRefresh({
+    onRefresh: async () => {
+      setRefreshKey((k) => k + 1);
+    },
+  });
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-24 pt-6">
+    <div
+      ref={containerRef as React.RefObject<HTMLDivElement>}
+      className="mx-auto max-w-3xl px-4 pb-24 pt-6 h-full overflow-y-auto"
+    >
+      <PullIndicator pullDistance={pullDistance} refreshing={refreshing} threshold={80} />
       <div className="space-y-8">
-        <WelcomeBanner />
-        <OnboardingProgress />
-        <CampaignGoalProgress />
-        <CampaignAlerts />
-        <RecentActivity />
+        <WelcomeBanner key={`welcome-${refreshKey}`} />
+        <OnboardingProgress key={`onboarding-${refreshKey}`} />
+        <CampaignGoalProgress key={`goal-${refreshKey}`} />
+        <CampaignAlerts key={`alerts-${refreshKey}`} />
+        <RecentActivity key={`activity-${refreshKey}`} />
         <ContactCard />
       </div>
     </div>

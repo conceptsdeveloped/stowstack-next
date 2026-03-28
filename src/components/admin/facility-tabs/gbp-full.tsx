@@ -33,8 +33,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts"
+import { ResponsiveChart } from "@/components/ui/responsive-chart"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -1836,7 +1836,7 @@ export default function GBPFull({
                   >
                     Impressions Over Time
                   </h4>
-                  <ResponsiveContainer width="100%" height={240}>
+                  <ResponsiveChart mobileHeight={200} desktopHeight={240}>
                     <LineChart
                       data={insights.map((i) => ({
                         period: i.period_start,
@@ -1857,11 +1857,13 @@ export default function GBPFull({
                         tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
                         axisLine={{ stroke: "var(--border-subtle)" }}
                         tickLine={false}
+                        interval="preserveStartEnd"
                       />
                       <YAxis
                         tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
                         axisLine={{ stroke: "var(--border-subtle)" }}
                         tickLine={false}
+                        width={40}
                       />
                       <Tooltip
                         contentStyle={{
@@ -1889,7 +1891,7 @@ export default function GBPFull({
                         name="Actions"
                       />
                     </LineChart>
-                  </ResponsiveContainer>
+                  </ResponsiveChart>
                 </div>
               )}
 

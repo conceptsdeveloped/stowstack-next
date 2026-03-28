@@ -17,9 +17,9 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
+import { ResponsiveChart } from "@/components/ui/responsive-chart";
 import { usePortal } from "@/components/portal/portal-shell";
 import {
   fmtCurrency,
@@ -134,18 +134,19 @@ export default function ReportsPage() {
             <Activity className="h-4 w-4 text-[var(--color-gold)]" />
             <h3 className="text-sm font-semibold text-[var(--color-dark)]">Occupancy Trend</h3>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveChart mobileHeight={200} desktopHeight={240}>
             <LineChart data={trend} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }}
                 tickFormatter={(d: string) => d.slice(5)}
+                interval="preserveStartEnd"
               />
               <YAxis
                 domain={[0, 100]}
                 tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }}
                 tickFormatter={(v: number) => `${v}%`}
-                width={45}
+                width={40}
               />
               <Tooltip
                 formatter={(v) => [`${Number(v).toFixed(1)}%`, "Occupancy"]}
@@ -168,7 +169,7 @@ export default function ReportsPage() {
                 activeDot={{ r: 4, fill: "var(--color-gold)" }}
               />
             </LineChart>
-          </ResponsiveContainer>
+          </ResponsiveChart>
         </div>
       )}
 

@@ -420,7 +420,7 @@ export default function Nav() {
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
-        className="fixed top-0 right-0 bottom-0 lg:hidden"
+        className="safe-right fixed top-0 right-0 bottom-0 lg:hidden"
         style={{
           zIndex: "var(--z-overlay)",
           width: "min(88vw, 380px)",

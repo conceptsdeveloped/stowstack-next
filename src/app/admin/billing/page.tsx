@@ -25,8 +25,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts";
+import { ResponsiveChart } from "@/components/ui/responsive-chart";
 
 interface RevenueData {
   mrr: number;
@@ -216,20 +216,18 @@ function OverviewTab() {
           style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
         >
           <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--color-dark)" }}>Revenue Trend</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.trend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
-                <XAxis dataKey="month" tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }} axisLine={{ stroke: "var(--border-subtle)" }} />
-                <YAxis tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }} axisLine={{ stroke: "var(--border-subtle)" }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "var(--color-light-gray)", border: "1px solid var(--border-medium)", borderRadius: "8px", color: "var(--color-dark)" }}
-                  formatter={(value) => [`$${Number(value).toLocaleString()}`, "Revenue"]}
-                />
-                <Area type="monotone" dataKey="revenue" stroke="var(--color-gold)" fill="rgba(181,139,63,0.1)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <ResponsiveChart mobileHeight={220} desktopHeight={256}>
+            <AreaChart data={data.trend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
+              <XAxis dataKey="month" tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }} axisLine={{ stroke: "var(--border-subtle)" }} interval="preserveStartEnd" />
+              <YAxis tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }} axisLine={{ stroke: "var(--border-subtle)" }} width={40} />
+              <Tooltip
+                contentStyle={{ backgroundColor: "var(--color-light-gray)", border: "1px solid var(--border-medium)", borderRadius: "8px", color: "var(--color-dark)" }}
+                formatter={(value) => [`$${Number(value).toLocaleString()}`, "Revenue"]}
+              />
+              <Area type="monotone" dataKey="revenue" stroke="var(--color-gold)" fill="rgba(181,139,63,0.1)" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveChart>
         </div>
       )}
 

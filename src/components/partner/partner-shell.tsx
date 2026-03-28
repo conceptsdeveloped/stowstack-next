@@ -10,6 +10,7 @@ import {
   Key,
   LayoutDashboard,
   Loader2,
+  ListChecks,
   Lock,
   LogOut,
   Mail,
@@ -18,6 +19,7 @@ import {
   Users,
   Webhook,
 } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 
 const STORAGE_KEY = "storageads_partner_session";
 
@@ -40,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Revenue", href: "/partner/revenue", icon: DollarSign },
   { label: "API Keys", href: "/partner/api-keys", icon: Key },
   { label: "Webhooks", href: "/partner/webhooks", icon: Webhook },
+  { label: "Audit Log", href: "/partner/audit-log", icon: ListChecks },
   { label: "Settings", href: "/partner/settings", icon: Settings },
 ];
 
@@ -609,7 +612,7 @@ export function PartnerShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-col overflow-hidden">
         <PartnerHeader
           session={session}
-          onToggleSidebar={() => setMobileOpen((v) => !v)}
+          onToggleSidebar={() => { haptic("light"); setMobileOpen((v) => !v); }}
           onLogout={handleLogout}
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>

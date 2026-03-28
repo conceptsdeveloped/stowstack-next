@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Cell,
+  Tooltip, Cell,
 } from "recharts";
+import { ResponsiveChart } from "@/components/ui/responsive-chart";
 
 const FACILITY = {
   name: "Lakeview Self Storage",
@@ -224,7 +225,7 @@ export default function DemoDashboardClient() {
             <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>
               Starting at {FACILITY.startingOccupancy}% → currently {visibleData[visibleData.length - 1].occupancy}%
             </p>
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveChart mobileHeight={180} desktopHeight={220}>
               <AreaChart data={[{ month: "Sep (Start)", occupancy: FACILITY.startingOccupancy }, ...visibleData]} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                 <defs>
                   <linearGradient id="occGrad" x1="0" y1="0" x2="0" y2="1">
@@ -238,7 +239,7 @@ export default function DemoDashboardClient() {
                 <Tooltip formatter={(v) => [`${v}%`, "Occupancy"]} contentStyle={{ borderRadius: "8px", background: "var(--color-light-gray)", border: "1px solid var(--border-medium)", fontSize: "12px", color: "var(--color-dark)" }} />
                 <Area type="monotone" dataKey="occupancy" stroke="var(--color-gold)" strokeWidth={2.5} fill="url(#occGrad)" dot={{ r: 4, fill: "var(--color-gold)", strokeWidth: 2, stroke: "var(--color-light)" }} />
               </AreaChart>
-            </ResponsiveContainer>
+            </ResponsiveChart>
           </div>
 
           {/* CPL */}
@@ -250,11 +251,11 @@ export default function DemoDashboardClient() {
               </span>
             </div>
             <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>CPL decreases as Pixel data matures and audiences sharpen</p>
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveChart mobileHeight={180} desktopHeight={220}>
               <BarChart data={visibleData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} width={40} />
                 <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, "CPL"]} contentStyle={{ borderRadius: "8px", background: "var(--color-light-gray)", border: "1px solid var(--border-medium)", fontSize: "12px", color: "var(--color-dark)" }} />
                 <Bar dataKey="cpl" radius={[6, 6, 0, 0]} maxBarSize={40}>
                   {visibleData.map((_, i) => (
@@ -262,7 +263,7 @@ export default function DemoDashboardClient() {
                   ))}
                 </Bar>
               </BarChart>
-            </ResponsiveContainer>
+            </ResponsiveChart>
           </div>
         </div>
 
@@ -275,16 +276,16 @@ export default function DemoDashboardClient() {
             </span>
           </div>
           <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>Lead volume and move-in conversions by month</p>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveChart mobileHeight={180} desktopHeight={220}>
             <BarChart data={visibleData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+              <YAxis tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} width={40} />
               <Tooltip contentStyle={{ borderRadius: "8px", background: "var(--color-light-gray)", border: "1px solid var(--border-medium)", fontSize: "12px", color: "var(--color-dark)" }} />
               <Bar dataKey="leads" name="Leads" fill="var(--color-mid-gray)" radius={[4, 4, 0, 0]} maxBarSize={28} />
               <Bar dataKey="moveIns" name="Move-Ins" fill="var(--color-gold)" radius={[4, 4, 0, 0]} maxBarSize={28} />
             </BarChart>
-          </ResponsiveContainer>
+          </ResponsiveChart>
         </div>
 
         {/* Campaign Intelligence */}

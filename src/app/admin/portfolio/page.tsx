@@ -19,11 +19,11 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { ResponsiveChart } from "@/components/ui/responsive-chart";
 import { useAdminFetch } from "@/hooks/use-admin-fetch";
 
 /* ---------- types ---------- */
@@ -465,7 +465,7 @@ export default function PortfolioPage() {
           {loading ? (
             <SkeletonChart />
           ) : monthlyData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={288}>
+            <ResponsiveChart mobileHeight={220} desktopHeight={288}>
               <AreaChart data={monthlyData}>
                 <defs>
                   <linearGradient id="gradLeads" x1="0" y1="0" x2="0" y2="1">
@@ -489,14 +489,16 @@ export default function PortfolioPage() {
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
+                  interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
+                  width={40}
                 />
                 <Tooltip
                   content={<ChartTooltip />}
@@ -520,7 +522,7 @@ export default function PortfolioPage() {
                   strokeWidth={2}
                 />
               </AreaChart>
-            </ResponsiveContainer>
+            </ResponsiveChart>
           ) : (
             <div className="flex h-72 items-center justify-center">
               <p className="text-sm text-[var(--color-mid-gray)]">
@@ -538,7 +540,7 @@ export default function PortfolioPage() {
           {loading ? (
             <SkeletonChart />
           ) : monthlyData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={288}>
+            <ResponsiveChart mobileHeight={220} desktopHeight={288}>
               <BarChart data={monthlyData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -546,14 +548,16 @@ export default function PortfolioPage() {
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
+                  interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fill: "var(--color-mid-gray)", fontSize: 12 }}
+                  tick={{ fill: "var(--color-mid-gray)", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
+                  width={40}
                   tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
@@ -567,7 +571,7 @@ export default function PortfolioPage() {
                   maxBarSize={48}
                 />
               </BarChart>
-            </ResponsiveContainer>
+            </ResponsiveChart>
           ) : (
             <div className="flex h-72 items-center justify-center">
               <p className="text-sm text-[var(--color-mid-gray)]">
