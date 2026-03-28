@@ -67,6 +67,8 @@ export default function PortalDashboard() {
 function WelcomeBanner() {
   const { session, client } = usePortal();
   const [stats, setStats] = useState<{ leads: number; moveIns: number } | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(false);
 
   useEffect(() => {
     const end = new Date().toISOString().split("T")[0];
@@ -76,7 +78,8 @@ function WelcomeBanner() {
       .then((data) => {
         if (data?.totals) setStats({ leads: data.totals.leads, moveIns: data.totals.move_ins });
       })
-      .catch(() => {});
+      .catch(() => setStatsError(true))
+      .finally(() => setStatsLoading(false));
   }, [session.accessCode]);
 
   const hour = new Date().getHours();
@@ -90,7 +93,14 @@ function WelcomeBanner() {
       <p className="mt-1 text-sm text-[var(--color-body-text)]">
         Here is what is happening at {client.facilityName}
       </p>
-      {stats && (
+      {statsLoading ? (
+        <div className="mt-4 flex gap-6">
+          <div><div className="h-8 w-16 animate-pulse rounded bg-[var(--color-light-gray)]" /><p className="mt-1 text-xs text-[var(--color-mid-gray)]">Total Leads (90d)</p></div>
+          <div><div className="h-8 w-16 animate-pulse rounded bg-[var(--color-light-gray)]" /><p className="mt-1 text-xs text-[var(--color-mid-gray)]">Move-Ins (90d)</p></div>
+        </div>
+      ) : statsError ? (
+        <p className="mt-4 text-xs text-[var(--color-mid-gray)]">Unable to load stats right now</p>
+      ) : stats ? (
         <div className="mt-4 flex gap-6">
           <div>
             <p className="text-2xl font-semibold">{fmt(stats.leads)}</p>
@@ -101,7 +111,7 @@ function WelcomeBanner() {
             <p className="text-xs text-[var(--color-mid-gray)]">Move-Ins (90d)</p>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -161,18 +171,23 @@ function OnboardingProgress() {
 function CampaignGoalProgress() {
   const { session, client } = usePortal();
   const [moveIns, setMoveIns] = useState<number | null>(null);
+  const [goalLoading, setGoalLoading] = useState(!!client.monthlyGoal);
 
   useEffect(() => {
+    if (!client.monthlyGoal) return;
     const now = new Date();
     const start = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
     const end = now.toISOString().split("T")[0];
     fetch(`/api/attribution?accessCode=${session.accessCode}&startDate=${start}&endDate=${end}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (data?.totals) setMoveIns(data.totals.move_ins); })
-      .catch(() => {});
-  }, [session.accessCode]);
+      .then((data) => { if (data?.totals) setMoveIns(data.totals.move_ins ?? 0); })
+      .catch(() => setMoveIns(0))
+      .finally(() => setGoalLoading(false));
+  }, [session.accessCode, client.monthlyGoal]);
 
-  if (!client.monthlyGoal || moveIns === null) return null;
+  if (!client.monthlyGoal) return null;
+  if (goalLoading) return <SectionSkeleton />;
+  if (moveIns === null) return null;
 
   const pct = Math.min(100, Math.round((moveIns / client.monthlyGoal) * 100));
   const onTrack = pct >= 50;
@@ -220,7 +235,18 @@ function CampaignAlerts() {
 
   if (loading) return <SectionSkeleton />;
   if (error) return <ErrorState message="Failed to load alerts" onRetry={loadData} />;
-  if (alerts.length === 0) return null;
+  if (alerts.length === 0) return (
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        <Bell className="h-4 w-4 text-[var(--color-gold)]" />
+        <h2 className="text-sm font-semibold">Campaign Alerts</h2>
+      </div>
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
+        <CheckCircle2 className="mx-auto h-6 w-6 text-[var(--color-green)]" />
+        <p className="mt-2 text-sm text-[var(--color-mid-gray)]">No active alerts — everything looks good</p>
+      </div>
+    </div>
+  );
 
   const severityConfig = {
     critical: { bg: "bg-red-500/[0.06]", border: "border-red-500/20", text: "text-red-400", icon: <ShieldAlert className="h-4 w-4" /> },
@@ -277,7 +303,17 @@ function RecentActivity() {
 
   if (loading) return <SectionSkeleton />;
   if (error) return <ErrorState message="Failed to load activity" onRetry={loadData} />;
-  if (items.length === 0) return null;
+  if (items.length === 0) return (
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        <Activity className="h-4 w-4 text-[var(--color-gold)]" />
+        <h2 className="text-sm font-semibold">Recent Activity</h2>
+      </div>
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
+        <p className="text-sm text-[var(--color-mid-gray)]">No recent activity yet</p>
+      </div>
+    </div>
+  );
 
   const typeIcons: Record<string, React.ReactNode> = {
     lead_created: <Users className="h-3.5 w-3.5" />,

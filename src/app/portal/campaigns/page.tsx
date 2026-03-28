@@ -170,6 +170,11 @@ export default function CampaignsPage() {
       ) : null}
 
       {/* Campaign Insights */}
+      {!loading && !insights && data?.hasData && (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
+          <p className="text-sm text-[var(--color-mid-gray)]">No campaign insights available yet</p>
+        </div>
+      )}
       {!loading && insights && (
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--color-dark)]">
