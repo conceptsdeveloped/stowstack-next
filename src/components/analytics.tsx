@@ -9,13 +9,21 @@ import { usePathname, useSearchParams } from 'next/navigation';
  * All IDs are loaded from NEXT_PUBLIC_* env vars — if unset, that platform is skipped.
  */
 
+type FbqFunction = {
+  (...args: unknown[]): void;
+  callMethod?: (...args: unknown[]) => void;
+  queue: unknown[][];
+  push: FbqFunction;
+  loaded: boolean;
+  version: string;
+};
+
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   interface Window {
-    fbq?: any;
-    _fbq?: any;
-    dataLayer?: any[];
-    gtag?: (...args: any[]) => void;
+    fbq?: FbqFunction;
+    _fbq?: FbqFunction;
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -55,8 +63,11 @@ function loadMetaPixel() {
   const first = document.getElementsByTagName('script')[0];
   first?.parentNode?.insertBefore(s, first);
 
-  window.fbq('init', META_PIXEL_ID);
-  window.fbq('track', 'PageView');
+  // Use local `n` ref — window.fbq is typed as possibly undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (n as any)('init', META_PIXEL_ID);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (n as any)('track', 'PageView');
 }
 
 function loadGtag() {

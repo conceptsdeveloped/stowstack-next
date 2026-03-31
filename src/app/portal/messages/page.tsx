@@ -66,6 +66,7 @@ export default function MessagesPage() {
           code: session.accessCode,
           email: session.email,
           text: trimmed,
+          from: "client",
         }),
       });
       if (!res.ok) throw new Error("Send failed");

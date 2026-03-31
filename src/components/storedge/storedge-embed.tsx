@@ -80,7 +80,9 @@ export function StorEdgeEmbed({
 
   // Set timeout — use ref to avoid stale closure over `state`
   const stateRef = useRef(state);
-  stateRef.current = state;
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   useEffect(() => {
     if (state !== 'loading') return;

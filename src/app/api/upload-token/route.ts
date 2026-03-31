@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
+import { requireAdminKey } from "@/lib/api-helpers";
 
 export const maxDuration = 120;
 export const runtime = "nodejs";
@@ -9,11 +10,8 @@ export const fetchCache = "default-no-store";
 export const dynamic = "force-dynamic";
 
 export async function PUT(req: NextRequest) {
-  const adminSecret = process.env.ADMIN_SECRET;
-  const adminKey = req.headers.get("x-admin-key");
-  if (adminSecret && adminKey !== adminSecret) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = requireAdminKey(req);
+  if (authError) return authError;
 
   const filename = req.headers.get("x-filename") || `upload-${Date.now()}`;
   const contentType = req.headers.get("content-type") || "application/octet-stream";

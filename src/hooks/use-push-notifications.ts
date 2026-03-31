@@ -16,15 +16,17 @@ interface UsePushOptions {
 }
 
 export function usePushNotifications(options: UsePushOptions = {}) {
-  const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [supported] = useState(() =>
+    typeof window !== "undefined"
+      ? "serviceWorker" in navigator && "PushManager" in window
+      : false
+  );
+  const [permission, setPermission] = useState<NotificationPermission>(() =>
+    typeof window !== "undefined" && "Notification" in window
+      ? Notification.permission
+      : "default"
+  );
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
-  const [supported, setSupported] = useState(false);
-
-  useEffect(() => {
-    const ok = "serviceWorker" in navigator && "PushManager" in window;
-    setSupported(ok);
-    if (ok) setPermission(Notification.permission);
-  }, []);
 
   useEffect(() => {
     if (!supported || Notification.permission !== "granted") return;

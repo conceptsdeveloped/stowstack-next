@@ -120,6 +120,7 @@ export function OnboardingChecklist() {
 
   useEffect(() => {
     if (!dismissed) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchOnboarding();
     }
   }, [fetchOnboarding, dismissed]);

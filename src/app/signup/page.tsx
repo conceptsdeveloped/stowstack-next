@@ -95,7 +95,10 @@ export default function SignupPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedPlan, setSelectedPlan] = useState<Plan>("launch");
+  const [selectedPlan, setSelectedPlan] = useState<Plan>(() => {
+    const p = searchParams.get("plan");
+    return p === "launch" || p === "growth" || p === "portfolio" ? p : "launch";
+  });
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
@@ -105,18 +108,6 @@ export default function SignupPage() {
   const [facilityCount, setFacilityCount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-
-  useEffect(() => {
-    const planParam = searchParams.get("plan");
-    if (
-      planParam &&
-      (planParam === "launch" ||
-        planParam === "growth" ||
-        planParam === "portfolio")
-    ) {
-      setSelectedPlan(planParam);
-    }
-  }, [searchParams]);
 
   const passwordStrength = getPasswordStrength(password);
 

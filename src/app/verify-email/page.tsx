@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 
 type VerifyState = "idle" | "loading" | "success" | "error";
@@ -15,37 +15,36 @@ function VerifyEmailContent() {
   const [resendState, setResendState] = useState<"idle" | "loading" | "sent" | "error">("idle");
   const [resendError, setResendError] = useState("");
 
-  const verifyToken = useCallback(async (verifyToken: string) => {
-    setState("loading");
-    setErrorMessage("");
+  useEffect(() => {
+    if (!token) return;
 
-    try {
-      const res = await fetch("/api/verify-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "verify", token: verifyToken }),
+    let cancelled = false;
+
+    fetch("/api/verify-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "verify", token }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (cancelled) return;
+        if (!res.ok) {
+          setState("error");
+          setErrorMessage(data.error || "Verification failed");
+        } else {
+          setState("success");
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setState("error");
+        setErrorMessage("Something went wrong. Please try again.");
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setState("error");
-        setErrorMessage(data.error || "Verification failed");
-        return;
-      }
-
-      setState("success");
-    } catch {
-      setState("error");
-      setErrorMessage("Something went wrong. Please try again.");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (token) {
-      verifyToken(token);
-    }
-  }, [token, verifyToken]);
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   const handleResend = async () => {
     setResendState("loading");
