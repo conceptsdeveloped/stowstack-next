@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
-import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 
 function hashIp(ip: string | null): string | null {
   if (!ip) return null;
@@ -59,14 +59,12 @@ export async function OPTIONS(req: NextRequest) {
 // Admin GET: list partial leads with filtering
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
+  const authError = requireAdminKey(req);
+  if (authError) return authError;
+
   const url = new URL(req.url);
   const summary = url.searchParams.get("summary");
   const status = url.searchParams.get("status");
-  const adminKey = req.headers.get("x-admin-key");
-
-  if (!adminKey || adminKey !== process.env.ADMIN_SECRET) {
-    return errorResponse("Unauthorized", 401, origin);
-  }
 
   try {
     if (summary === "true") {
@@ -103,10 +101,8 @@ export async function GET(req: NextRequest) {
 // Admin PATCH: update partial lead status
 export async function PATCH(req: NextRequest) {
   const origin = getOrigin(req);
-  const adminKey = req.headers.get("x-admin-key");
-  if (!adminKey || adminKey !== process.env.ADMIN_SECRET) {
-    return errorResponse("Unauthorized", 401, origin);
-  }
+  const authError = requireAdminKey(req);
+  if (authError) return authError;
 
   try {
     const url = new URL(req.url);

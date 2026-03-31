@@ -116,6 +116,13 @@ function buildCAPIEvent(
     if (data.user_agent) {
       userData.client_user_agent = data.user_agent;
     }
+    // fbc and fbp are passed through as-is (not hashed)
+    if (data.user_data.fbc) {
+      userData.fbc = data.user_data.fbc;
+    }
+    if (data.user_data.fbp) {
+      userData.fbp = data.user_data.fbp;
+    }
     event.user_data = userData;
   }
 
@@ -146,7 +153,7 @@ async function sendToMetaCAPI(
   pixelId: string,
   accessToken: string
 ) {
-  const url = `https://graph.facebook.com/v19.0/${pixelId}/events`;
+  const url = `https://graph.facebook.com/v21.0/${pixelId}/events`;
   const payload = {
     data: [event],
     access_token: accessToken,
@@ -258,8 +265,9 @@ export async function POST(req: NextRequest) {
       origin
     );
   } catch (err: unknown) {
+    console.error("Meta CAPI error:", err instanceof Error ? err.message : err);
     return errorResponse(
-      err instanceof Error ? err.message : "Failed to send event to Meta",
+      "Failed to send event to Meta",
       500,
       origin
     );

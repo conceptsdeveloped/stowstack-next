@@ -11,14 +11,14 @@ export default function GlobalError({
 }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-light)] px-6 text-center">
-      <p className="text-sm font-medium uppercase tracking-widest text-red-500">
+      <p className="text-sm font-medium uppercase tracking-widest" style={{ color: "var(--color-red)" }}>
         Error
       </p>
       <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--color-dark)] sm:text-5xl">
         Something went wrong
       </h1>
       <p className="mt-4 max-w-md text-base text-[var(--color-body-text)]">
-        {error.message || "An unexpected error occurred. Please try again."}
+        An unexpected error occurred. Please try again.
       </p>
       <div className="mt-8 flex items-center gap-4">
         <button

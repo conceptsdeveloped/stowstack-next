@@ -18,8 +18,8 @@ interface UseTrackingParamsReturn {
 
 /**
  * Hook to capture and persist tracking parameters.
- * First-touch attribution within the session — never overwrites.
- * Fires a visit tracking event on first capture.
+ * Last-touch attribution — new URL params always overwrite stored values.
+ * Fires a visit tracking event on first mount for paid/landing-page traffic.
  */
 export function useTrackingParams(
   landingPageId?: string,

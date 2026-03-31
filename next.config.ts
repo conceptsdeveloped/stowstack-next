@@ -14,6 +14,19 @@ const securityHeaders = [
     key: "Strict-Transport-Security",
     value: "max-age=31536000; includeSubDomains",
   },
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://connect.facebook.net https://www.googletagmanager.com https://www.googleadservices.com https://www.google-analytics.com https://cal.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "img-src 'self' data: blob: https: http:",
+      "font-src 'self' https://fonts.gstatic.com",
+      "connect-src 'self' https://graph.facebook.com https://www.google-analytics.com https://www.googleadservices.com https://api.resend.com https://*.clerk.com https://*.upstash.io https://*.sentry.io https://*.ingest.sentry.io https://cal.com wss:",
+      "frame-src 'self' https://*.storedge.com https://cal.com https://js.stripe.com https://hooks.stripe.com https://*.clerk.com",
+      "worker-src 'self' blob:",
+    ].join("; "),
+  },
 ];
 
 const nextConfig: NextConfig = {

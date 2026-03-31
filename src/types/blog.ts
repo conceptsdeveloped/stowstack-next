@@ -1,6 +1,6 @@
 // Blog post types for the StorageAds content engine
 
-export type BlogPillar = 'operator_math' | 'whats_working' | 'operators_edge' | 'industry_takes';
+export type BlogPillar = 'operator-math' | 'whats-working' | 'operators-edge' | 'industry-takes';
 export type CalloutType = 'tip' | 'info' | 'success' | 'warning';
 
 export interface BlogPost {
@@ -29,10 +29,10 @@ export interface TocItem {
 }
 
 export const PILLAR_CONFIG: Record<BlogPillar, { label: string; color: string; bg: string }> = {
-  operator_math: { label: 'Operator Math', color: 'var(--color-gold)', bg: 'var(--color-gold-light)' },
-  whats_working: { label: "What's Working", color: 'var(--color-green)', bg: 'rgba(120,140,93,0.15)' },
-  operators_edge: { label: "The Operator's Edge", color: 'var(--color-blue)', bg: 'rgba(106,155,204,0.15)' },
-  industry_takes: { label: 'Industry Takes', color: 'var(--color-dark)', bg: 'var(--color-light-gray)' },
+  'operator-math': { label: 'Operator Math', color: 'var(--color-gold)', bg: 'var(--color-gold-light)' },
+  'whats-working': { label: "What's Working", color: 'var(--color-green)', bg: 'rgba(120,140,93,0.15)' },
+  'operators-edge': { label: "The Operator's Edge", color: 'var(--color-blue)', bg: 'rgba(106,155,204,0.15)' },
+  'industry-takes': { label: 'Industry Takes', color: 'var(--color-dark)', bg: 'var(--color-light-gray)' },
 };
 
 export const CALLOUT_CONFIG: Record<CalloutType, { color: string; bg: string; border: string }> = {

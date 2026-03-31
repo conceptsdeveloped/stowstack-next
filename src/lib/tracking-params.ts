@@ -40,14 +40,19 @@ function detectBrowser(): string {
   return 'Other';
 }
 
-/** Parse tracking params from URL search params */
+/** Parse tracking params from URL search params (URL-decoded) */
 export function parseTrackingParams(searchParams: URLSearchParams): TrackingParams {
   const params: TrackingParams = {};
 
   for (const key of TRACKED_KEYS) {
     const val = searchParams.get(key);
     if (val) {
-      params[key] = val;
+      // URLSearchParams.get() already decodes, but handle double-encoding
+      try {
+        params[key] = decodeURIComponent(val);
+      } catch {
+        params[key] = val;
+      }
     }
   }
 
@@ -149,11 +154,25 @@ export function readFbp(): string | undefined {
   return match?.[1] || undefined;
 }
 
-/** Read _fbc cookie value (or construct from stored fbclid) */
+/** Read _fbc cookie value, or construct from stored fbclid if cookie absent */
 export function readFbc(): string | undefined {
   if (typeof document === 'undefined') return undefined;
   const match = document.cookie.match(/_fbc=([^;]+)/);
-  return match?.[1] || undefined;
+  if (match?.[1]) return match[1];
+
+  // Fallback: construct from stored fbclid
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const params = JSON.parse(stored) as TrackingParams;
+        if (params.fbclid) return constructFbc(params.fbclid);
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return undefined;
 }
 
 /** Build a URL with tracking params appended as query parameters */

@@ -78,13 +78,16 @@ export function StorEdgeEmbed({
     setRetryCount((c) => c + 1);
   }, []);
 
-  // Set timeout
+  // Set timeout — use ref to avoid stale closure over `state`
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
   useEffect(() => {
     if (state !== 'loading') return;
 
     const timeout = isMobile() ? MOBILE_TIMEOUT : DESKTOP_TIMEOUT;
     timeoutRef.current = setTimeout(() => {
-      if (state === 'loading') {
+      if (stateRef.current === 'loading') {
         setState('error');
         setErrorInfo({
           code: 'timeout',

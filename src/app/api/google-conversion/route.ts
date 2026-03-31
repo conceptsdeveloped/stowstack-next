@@ -215,10 +215,9 @@ export async function POST(req: NextRequest) {
       origin
     );
   } catch (err: unknown) {
+    console.error("Google conversion error:", err instanceof Error ? err.message : err);
     return errorResponse(
-      err instanceof Error
-        ? err.message
-        : "Failed to send conversion to Google",
+      "Failed to send conversion to Google",
       500,
       origin
     );

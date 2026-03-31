@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Poppins, Lora } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
+import Analytics from "@/components/analytics";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -153,6 +155,9 @@ export default function RootLayout({
           >
             Skip to content
           </a>
+          <Suspense fallback={null}>
+            <Analytics />
+          </Suspense>
           <ScrollProgress />
           <GrainOverlay />
           {children}
