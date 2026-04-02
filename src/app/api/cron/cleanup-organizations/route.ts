@@ -33,10 +33,10 @@ export async function GET(request: NextRequest) {
 
     for (const org of orgs) {
       try {
-        // Cancel Stripe subscription if active
+        // Cancel Stripe subscription if active — must succeed before we delete data
         if (org.stripe_subscription_id && process.env.STRIPE_SECRET_KEY) {
           try {
-            await fetch(
+            const stripeRes = await fetch(
               `https://api.stripe.com/v1/subscriptions/${org.stripe_subscription_id}`,
               {
                 method: "DELETE",
@@ -45,8 +45,17 @@ export async function GET(request: NextRequest) {
                 },
               },
             );
+            if (!stripeRes.ok) {
+              const body = await stripeRes.text().catch(() => "");
+              // 404 means already cancelled/deleted — safe to proceed
+              if (stripeRes.status !== 404) {
+                console.error(`[cleanup-orgs] Stripe cancel returned ${stripeRes.status} for ${org.id}: ${body}`);
+                continue; // Skip this org, retry next cron run
+              }
+            }
           } catch (err) {
             console.error(`[cleanup-orgs] Stripe cancel failed for ${org.id}:`, err);
+            continue; // Skip this org, retry next cron run
           }
         }
 

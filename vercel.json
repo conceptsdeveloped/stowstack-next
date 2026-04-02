@@ -13,7 +13,7 @@
     { "path": "/api/cron/process-nurture", "schedule": "0 6 * * *" },
     { "path": "/api/cron/process-recovery", "schedule": "0 7 * * *" },
     { "path": "/api/cron/check-campaign-alerts", "schedule": "0 8 * * *" },
-    { "path": "/api/cron/cleanup-organizations", "schedule": "0 4 * * *" }
+    { "path": "/api/cron/cleanup-organizations", "schedule": "30 3 * * *" }
   ],
   "headers": [
     {

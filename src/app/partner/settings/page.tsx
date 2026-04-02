@@ -124,6 +124,7 @@ export default function SettingsPage() {
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   // Org form
   const [orgName, setOrgName] = useState("");
@@ -489,19 +490,30 @@ export default function SettingsPage() {
                     {getInitials(profileName || session?.user.name || "U")}
                   </div>
                 )}
-                <label className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Camera className="h-5 w-5 text-white" />
+                <label className={`absolute inset-0 flex items-center justify-center rounded-full transition-opacity ${
+                  avatarUploading
+                    ? "bg-black/40 opacity-100"
+                    : "cursor-pointer bg-black/40 opacity-0 group-hover:opacity-100"
+                }`}>
+                  {avatarUploading ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-white" />
+                  ) : (
+                    <Camera className="h-5 w-5 text-white" />
+                  )}
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     className="hidden"
+                    disabled={avatarUploading}
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
-                      if (!file) return;
+                      if (!file || avatarUploading) return;
                       if (file.size > 2 * 1024 * 1024) {
                         setProfileError("Image must be under 2 MB");
                         return;
                       }
+                      setAvatarUploading(true);
+                      setProfileError(null);
                       try {
                         const res = await authFetch("/api/partner/avatar", {
                           method: "PUT",
@@ -520,6 +532,7 @@ export default function SettingsPage() {
                       } catch {
                         setProfileError("Failed to upload avatar");
                       }
+                      setAvatarUploading(false);
                       e.target.value = "";
                     }}
                   />
