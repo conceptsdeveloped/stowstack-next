@@ -78,7 +78,7 @@ function Skeleton() {
       </div>
       <div className="mb-5 h-2 w-full animate-pulse rounded-full bg-[var(--color-light-gray)]" />
       <div className="space-y-3">
-        {Array.from({ length: 5 }).map((_, i) => (
+        {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="flex items-center gap-3">
             <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-[var(--color-light-gray)]" />
             <div className="flex-1 space-y-1.5">

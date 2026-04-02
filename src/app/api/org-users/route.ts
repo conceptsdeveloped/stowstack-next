@@ -145,7 +145,7 @@ async function sendInviteEmail(
     body: JSON.stringify({
       from: "StorageAds <noreply@storageads.com>",
       to: [email],
-      subject: `You've been invited to ${safeOrgName} on StorageAds`,
+      subject: `You've been invited to ${orgName} on StorageAds`,
       html: `
         <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
           <h2 style="color: #141413; font-size: 20px; margin-bottom: 16px;">You're invited!</h2>

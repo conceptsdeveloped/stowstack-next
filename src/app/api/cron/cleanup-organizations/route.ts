@@ -96,9 +96,9 @@ export async function GET(request: NextRequest) {
           from: "StorageAds <noreply@storageads.com>",
           to: process.env.ADMIN_EMAIL || "blake@storageads.com",
           subject: `[CRON FAILURE] cleanup-organizations`,
-          html: `<p>The <strong>cleanup-organizations</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
+          html: `<p>The <strong>cleanup-organizations</strong> cron job failed:</p><pre>${message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre><p>Time: ${new Date().toISOString()}</p>`,
         }),
-      }).catch(() => {});
+      }).catch((err) => console.error("[email] Cron failure notification failed:", err));
     }
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
