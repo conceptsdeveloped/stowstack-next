@@ -56,7 +56,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { email, name, role } = body;
+    const { name, role } = body;
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
 
     if (!email || !role) {
       return errorResponse("Email and role are required", 400, origin);
