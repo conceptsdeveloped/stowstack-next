@@ -45,9 +45,9 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ success: true }, 200, origin); // Silent rate limit
     }
 
-    // Generate a 6-digit cryptographically secure code
+    // Generate a 4-digit cryptographically secure code
     const { randomInt } = await import("crypto");
-    const code = String(randomInt(100000, 999999));
+    const code = String(randomInt(1000, 9999));
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Invalidate any existing unused codes for this email
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
                 </div>
                 <div style="padding: 24px; border: 1px solid #e8e6dc; border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
                   <p style="color: #6a6560; font-size: 15px;">Hi ${client.name || "there"},</p>
-                  <p style="color: #6a6560; font-size: 15px;">Here's your 6-digit login code:</p>
+                  <p style="color: #6a6560; font-size: 15px;">Here's your 4-digit login code:</p>
                   <div style="background: #faf9f5; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; border: 1px solid rgba(181,139,63,0.2);">
                     <div style="font-size: 36px; font-weight: bold; letter-spacing: 12px; color: #B58B3F; font-family: monospace;">
                       ${code}
