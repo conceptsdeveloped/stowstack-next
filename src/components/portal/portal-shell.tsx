@@ -63,7 +63,7 @@ const NAV_ITEMS = [
 
 function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState(["", "", "", ""]);
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
@@ -77,7 +77,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
     const params = new URLSearchParams(window.location.search);
     const urlCode = params.get("code");
     const urlEmail = params.get("email");
-    if (urlEmail && urlCode && /^\d{4}$/.test(urlCode)) {
+    if (urlEmail && urlCode && /^\d{6}$/.test(urlCode)) {
       setEmail(urlEmail);
       setCode(urlCode.split(""));
       setStep("code");
@@ -146,8 +146,8 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
     const newCode = [...code];
     newCode[index] = digit;
     setCode(newCode);
-    if (digit && index < 3) codeRefs.current[index + 1]?.focus();
-    if (digit && index === 3 && newCode.every((d) => d)) {
+    if (digit && index < 5) codeRefs.current[index + 1]?.focus();
+    if (digit && index === 5 && newCode.every((d) => d)) {
       attemptLogin(email, newCode.join(""));
     }
   }
@@ -160,10 +160,10 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
 
   function handleCodePaste(e: React.ClipboardEvent) {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
-    if (pasted.length === 4) {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (pasted.length === 6) {
       setCode(pasted.split(""));
-      codeRefs.current[3]?.focus();
+      codeRefs.current[5]?.focus();
       attemptLogin(email, pasted);
     }
   }
@@ -178,7 +178,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
         body: JSON.stringify({ email: email.trim() }),
       });
       setResent(true);
-      setCode(["", "", "", ""]);
+      setCode(["", "", "", "", "", ""]);
       setTimeout(() => {
         setResent(false);
         codeRefs.current[0]?.focus();
@@ -240,7 +240,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
         ) : (
           <div className="space-y-4">
             <div className="flex justify-center gap-3">
-              {[0, 1, 2, 3].map((i) => (
+              {[0, 1, 2, 3, 4, 5].map((i) => (
                 <input
                   key={i}
                   ref={(el) => { codeRefs.current[i] = el; }}
@@ -252,7 +252,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
                   onKeyDown={(e) => handleCodeKeyDown(i, e)}
                   onPaste={handleCodePaste}
                   autoFocus={i === 0}
-                  className="h-14 w-14 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-center text-2xl font-semibold text-[var(--color-dark)] outline-none transition-all focus:border-[var(--color-gold)] focus:ring-2 focus:ring-[var(--color-gold)]/25"
+                  className="h-12 w-11 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-center text-xl font-semibold text-[var(--color-dark)] outline-none transition-all focus:border-[var(--color-gold)] focus:ring-2 focus:ring-[var(--color-gold)]/25"
                 />
               ))}
             </div>
