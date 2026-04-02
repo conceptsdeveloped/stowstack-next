@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
       FROM clients c
       JOIN facilities f ON c.facility_id = f.id
       LEFT JOIN organizations o ON f.organization_id = o.id
-      WHERE c.id = ${clientId}
+      WHERE c.id = ${clientId}::uuid
     `;
 
     if (!client.length) {

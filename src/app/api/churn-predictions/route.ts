@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
 
       const rows = await db.$queryRaw<Record<string, unknown>[]>`
         INSERT INTO retention_campaigns (facility_id, name, trigger_risk_level, sequence_steps)
-         VALUES (${facility_id || null}::uuid, ${name}, ${trigger_risk_level || "high"}, ${JSON.stringify(sequence_steps)})
+         VALUES (${facility_id || null}::uuid, ${name}, ${trigger_risk_level || "high"}, ${JSON.stringify(sequence_steps)}::jsonb)
          RETURNING *
       `;
       return jsonResponse({ campaign: rows[0] }, 200, origin);
@@ -353,7 +353,7 @@ export async function POST(request: NextRequest) {
 
       await db.$executeRaw`
         INSERT INTO churn_predictions (tenant_id, facility_id, risk_score, risk_level, predicted_vacate, factors, recommended_actions, last_scored_at)
-         VALUES (${tenant.id}::uuid, ${tenant.facility_id}::uuid, ${result.score}, ${result.riskLevel}, ${result.predictedVacate}, ${JSON.stringify(result.factors)}, ${JSON.stringify(result.actions)}, NOW())
+         VALUES (${tenant.id}::uuid, ${tenant.facility_id}::uuid, ${result.score}, ${result.riskLevel}, ${result.predictedVacate}, ${JSON.stringify(result.factors)}::jsonb, ${JSON.stringify(result.actions)}::jsonb, NOW())
          ON CONFLICT (tenant_id) DO UPDATE SET
            risk_score = EXCLUDED.risk_score, risk_level = EXCLUDED.risk_level,
            predicted_vacate = EXCLUDED.predicted_vacate, factors = EXCLUDED.factors,
@@ -448,7 +448,7 @@ export async function PATCH(request: NextRequest) {
         setParts.push(Prisma.sql`trigger_risk_level = ${trigger_risk_level}`);
       }
       if (sequence_steps) {
-        setParts.push(Prisma.sql`sequence_steps = ${JSON.stringify(sequence_steps)}`);
+        setParts.push(Prisma.sql`sequence_steps = ${JSON.stringify(sequence_steps)}::jsonb`);
       }
       const setClause = Prisma.join(setParts, ", ");
       const rows = await db.$queryRaw<Record<string, unknown>[]>`

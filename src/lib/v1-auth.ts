@@ -84,7 +84,7 @@ export async function requireApiAuth(
     const duration = Date.now() - start;
     db.$executeRaw`
       INSERT INTO api_usage_log (api_key_id, organization_id, method, path, status_code, duration_ms)
-      VALUES (${row.id}, ${row.organization_id}, ${method}, ${path}, 200, ${duration})
+      VALUES (${row.id}::uuid, ${row.organization_id}::uuid, ${method}, ${path}, 200, ${duration})
     `.catch((err) => console.error("[api_usage] Fire-and-forget failed:", err));
   }, 0);
 

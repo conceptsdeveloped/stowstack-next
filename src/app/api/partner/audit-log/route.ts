@@ -66,17 +66,17 @@ export async function GET(req: NextRequest) {
                ou.name as user_name, ou.email as user_email
         FROM audit_log al
         LEFT JOIN org_users ou ON ou.id = al.user_id
-        WHERE al.organization_id = ${orgId}
+        WHERE al.organization_id = ${orgId}::uuid
           AND al.action = ${actionFilter}
-          AND al.user_id = ${userIdFilter}
+          AND al.user_id = ${userIdFilter}::uuid
         ORDER BY al.created_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
       countResult = await db.$queryRaw<CountRow[]>`
         SELECT COUNT(*) as count FROM audit_log
-        WHERE organization_id = ${orgId}
+        WHERE organization_id = ${orgId}::uuid
           AND action = ${actionFilter}
-          AND user_id = ${userIdFilter}
+          AND user_id = ${userIdFilter}::uuid
       `;
     } else if (actionFilter) {
       entries = await db.$queryRaw<AuditRow[]>`
@@ -86,14 +86,14 @@ export async function GET(req: NextRequest) {
                ou.name as user_name, ou.email as user_email
         FROM audit_log al
         LEFT JOIN org_users ou ON ou.id = al.user_id
-        WHERE al.organization_id = ${orgId}
+        WHERE al.organization_id = ${orgId}::uuid
           AND al.action = ${actionFilter}
         ORDER BY al.created_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
       countResult = await db.$queryRaw<CountRow[]>`
         SELECT COUNT(*) as count FROM audit_log
-        WHERE organization_id = ${orgId}
+        WHERE organization_id = ${orgId}::uuid
           AND action = ${actionFilter}
       `;
     } else if (userIdFilter) {
@@ -104,15 +104,15 @@ export async function GET(req: NextRequest) {
                ou.name as user_name, ou.email as user_email
         FROM audit_log al
         LEFT JOIN org_users ou ON ou.id = al.user_id
-        WHERE al.organization_id = ${orgId}
-          AND al.user_id = ${userIdFilter}
+        WHERE al.organization_id = ${orgId}::uuid
+          AND al.user_id = ${userIdFilter}::uuid
         ORDER BY al.created_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
       countResult = await db.$queryRaw<CountRow[]>`
         SELECT COUNT(*) as count FROM audit_log
-        WHERE organization_id = ${orgId}
-          AND user_id = ${userIdFilter}
+        WHERE organization_id = ${orgId}::uuid
+          AND user_id = ${userIdFilter}::uuid
       `;
     } else {
       entries = await db.$queryRaw<AuditRow[]>`
@@ -122,13 +122,13 @@ export async function GET(req: NextRequest) {
                ou.name as user_name, ou.email as user_email
         FROM audit_log al
         LEFT JOIN org_users ou ON ou.id = al.user_id
-        WHERE al.organization_id = ${orgId}
+        WHERE al.organization_id = ${orgId}::uuid
         ORDER BY al.created_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
       countResult = await db.$queryRaw<CountRow[]>`
         SELECT COUNT(*) as count FROM audit_log
-        WHERE organization_id = ${orgId}
+        WHERE organization_id = ${orgId}::uuid
       `;
     }
 

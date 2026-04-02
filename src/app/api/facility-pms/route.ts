@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
 
       const row = await db.$queryRaw<Array<Record<string, unknown>>>`
         INSERT INTO facility_pms_snapshots (facility_id, snapshot_date, total_units, occupied_units, occupancy_pct, total_sqft, occupied_sqft, gross_potential, actual_revenue, delinquency_pct, move_ins_mtd, move_outs_mtd, notes)
-        VALUES (${facility_id}, COALESCE(${snapshot_date || null}, CURRENT_DATE), ${total_units || null}, ${occupied_units || null}, ${occupancy_pct || null}, ${total_sqft || null}, ${occupied_sqft || null}, ${gross_potential || null}, ${actual_revenue || null}, ${delinquency_pct || null}, ${move_ins_mtd || 0}, ${move_outs_mtd || 0}, ${notes || null})
+        VALUES (${facility_id}::uuid, COALESCE(${snapshot_date || null}, CURRENT_DATE), ${total_units || null}, ${occupied_units || null}, ${occupancy_pct || null}, ${total_sqft || null}, ${occupied_sqft || null}, ${gross_potential || null}, ${actual_revenue || null}, ${delinquency_pct || null}, ${move_ins_mtd || 0}, ${move_outs_mtd || 0}, ${notes || null})
         ON CONFLICT (facility_id, snapshot_date) DO UPDATE SET
           total_units = EXCLUDED.total_units,
           occupied_units = EXCLUDED.occupied_units,

@@ -202,5 +202,5 @@ export async function destroySession(token: string): Promise<void> {
 }
 
 export async function destroyAllSessions(userId: string): Promise<void> {
-  await db.$executeRaw`DELETE FROM sessions WHERE user_id = ${userId}`;
+  await db.$executeRaw`DELETE FROM sessions WHERE user_id = ${userId}::uuid`;
 }

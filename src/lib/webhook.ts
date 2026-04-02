@@ -11,7 +11,7 @@ export async function dispatchWebhook(
       { id: string; url: string; secret: string }[]
     >`
       SELECT id, url, secret FROM webhooks
-      WHERE organization_id = ${organizationId}
+      WHERE organization_id = ${organizationId}::uuid
         AND ${event} = ANY(events)
         AND active = TRUE
     `;
@@ -89,7 +89,7 @@ async function deliverWebhook(
     INSERT INTO webhook_deliveries (webhook_id, event, payload, status, response_body, duration_ms, error)
     VALUES (${hook.id}::uuid, ${event}, ${JSON.stringify(payload)}::jsonb, ${status}, ${responseBody}, ${durationMs}, ${error})
   `
-    .catch(() => {});
+    .catch((err) => console.error("[webhook] Fire-and-forget failed:", err));
 }
 
 async function incrementFailure(

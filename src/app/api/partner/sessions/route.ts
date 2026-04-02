@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
     const rows = await db.$queryRaw<SessionRow[]>`
       SELECT id, ip_address, user_agent, created_at, last_active_at, token_hash
       FROM sessions
-      WHERE user_id = ${session.user.id} AND expires_at > NOW()
+      WHERE user_id = ${session.user.id}::uuid AND expires_at > NOW()
       ORDER BY last_active_at DESC NULLS LAST
     `;
 
@@ -126,7 +126,7 @@ export async function DELETE(req: NextRequest) {
       }
       await db.$executeRaw`
         DELETE FROM sessions
-        WHERE user_id = ${session.user.id}
+        WHERE user_id = ${session.user.id}::uuid
           AND token_hash != ${currentHash}
       `;
       return jsonResponse({ success: true }, 200, origin);
