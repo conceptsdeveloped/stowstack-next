@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -94,6 +96,8 @@ interface FacilityInfo {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-review-solicitation");
+  if (limited) return limited;
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -106,12 +110,16 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const MAX_EXECUTION_TIME_MS = 45_000; // 45s (leave 15s buffer for 60s limit)
+  const startTime = Date.now();
+
   const results = {
     checked: 0,
     sent: 0,
     skipped_no_email: 0,
     skipped_already_sent: 0,
     failed: 0,
+    timedOut: false,
   };
 
   try {
@@ -124,6 +132,7 @@ export async function GET(request: NextRequest) {
         AND created_at <= NOW() - INTERVAL '7 days'
         AND facility_id IS NOT NULL
       ORDER BY created_at DESC
+      LIMIT 50
     `;
 
     results.checked = moveIns.length;
@@ -132,6 +141,11 @@ export async function GET(request: NextRequest) {
     const facilityCache = new Map<string, FacilityInfo | null>();
 
     for (const moveIn of moveIns) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(`[CRON:review-solicitation] Time limit reached. Checked: ${results.checked}, Sent: ${results.sent}. Remaining will be picked up next run.`);
+        results.timedOut = true;
+        break;
+      }
       const facilityId = moveIn.facility_id;
 
       // Check if we already sent a solicitation for this move-in
@@ -269,6 +283,8 @@ export async function GET(request: NextRequest) {
         results.failed++;
       }
     }
+
+    console.log(`[CRON:review-solicitation] Complete. Checked: ${results.checked}, Sent: ${results.sent}, Failed: ${results.failed}`);
 
     return NextResponse.json({ ok: true, ...results });
   } catch (err: unknown) {

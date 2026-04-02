@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-aggregate-page-stats");
+  if (limited) return limited;
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const MAX_EXECUTION_TIME_MS = 45_000; // 45s (leave 15s buffer for 60s limit)
+  const startTime = Date.now();
 
   const results = {
     aggregated: 0,
     pruned: 0,
     errors: [] as string[],
+    timedOut: false,
   };
 
   try {
@@ -23,9 +31,15 @@ export async function GET(request: NextRequest) {
     const pages = await db.$queryRaw<{ landing_page_id: string }[]>`
       SELECT DISTINCT landing_page_id FROM page_interactions
       WHERE created_at >= ${dateStr}::date AND created_at < ${dateStr}::date + INTERVAL '1 day'
+      LIMIT 100
     `;
 
     for (const page of pages) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(`[CRON:aggregate-page-stats] Time limit reached. Aggregated: ${results.aggregated}. Remaining will be picked up next run.`);
+        results.timedOut = true;
+        break;
+      }
       try {
         const lpId = page.landing_page_id;
 
@@ -149,10 +163,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const pruned = await db.$executeRaw`
-      DELETE FROM page_interactions WHERE created_at < NOW() - INTERVAL '30 days'
-    `;
-    results.pruned = pruned;
+    if (!results.timedOut) {
+      const pruned = await db.$executeRaw`
+        DELETE FROM page_interactions WHERE created_at < NOW() - INTERVAL '30 days'
+      `;
+      results.pruned = pruned;
+    }
+
+    console.log(`[CRON:aggregate-page-stats] Complete. Aggregated: ${results.aggregated}, Pruned: ${results.pruned}, Errors: ${results.errors.length}`);
 
     return NextResponse.json({ success: true, ...results });
   } catch (err: unknown) {

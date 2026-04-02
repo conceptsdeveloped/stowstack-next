@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -123,23 +125,55 @@ function generateAlerts(
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-check-campaign-alerts");
+  if (limited) return limited;
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const BATCH_SIZE = 20;
+  const MAX_EXECUTION_TIME_MS = 45_000; // 45s (leave 15s buffer for 60s limit)
+  const startTime = Date.now();
 
   const results = {
     checked: 0,
     alertsCreated: 0,
     emailsSent: 0,
     errors: [] as string[],
+    timedOut: false,
   };
 
   try {
-    const clients = await db.$queryRaw<Record<string, unknown>[]>`
-      SELECT c.*, f.name AS fac_name, f.id AS fac_id
-      FROM clients c
-      JOIN facilities f ON c.facility_id = f.id
-    `;
+    let cursor: string | undefined = undefined;
+
+    while (true) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(`[CRON:check-campaign-alerts] Time limit reached. Checked: ${results.checked}. Remaining will be picked up next run.`);
+        results.timedOut = true;
+        break;
+      }
+
+      let clients: Record<string, unknown>[];
+      if (cursor) {
+        clients = await db.$queryRaw<Record<string, unknown>[]>`
+            SELECT c.*, f.name AS fac_name, f.id AS fac_id
+            FROM clients c
+            JOIN facilities f ON c.facility_id = f.id
+            WHERE c.id > ${cursor}::uuid
+            ORDER BY c.id ASC
+            LIMIT ${BATCH_SIZE}
+          `;
+      } else {
+        clients = await db.$queryRaw<Record<string, unknown>[]>`
+            SELECT c.*, f.name AS fac_name, f.id AS fac_id
+            FROM clients c
+            JOIN facilities f ON c.facility_id = f.id
+            ORDER BY c.id ASC
+            LIMIT ${BATCH_SIZE}
+          `;
+      }
+
+      if (clients.length === 0) break;
 
     for (const client of clients) {
       try {
@@ -193,7 +227,7 @@ export async function GET(request: NextRequest) {
   <a href="https://storageads.com/admin" style="display:inline-block;padding:10px 20px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:6px;font-size:13px;margin-top:12px;">View in Dashboard</a>
 </div>`,
                 }),
-              }).catch(() => {});
+              }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
 
               results.emailsSent++;
             }
@@ -206,6 +240,15 @@ export async function GET(request: NextRequest) {
           `${client.email}: ${message}`
         );
       }
+    }
+
+      cursor = clients[clients.length - 1].id as string;
+      if (clients.length < BATCH_SIZE) break;
+    }
+
+    console.log(`[CRON:check-campaign-alerts] Complete. Checked: ${results.checked}, Alerts: ${results.alertsCreated}, Emails: ${results.emailsSent}, Errors: ${results.errors.length}`);
+    if (results.errors.length > 0) {
+      console.error(`[CRON:check-campaign-alerts] Failures:`, JSON.stringify(results.errors));
     }
 
     return NextResponse.json({ success: true, ...results });

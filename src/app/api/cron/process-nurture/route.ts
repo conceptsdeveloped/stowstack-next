@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { Resend } from "resend";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -141,9 +143,14 @@ interface NurtureStep {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-process-nurture");
+  if (limited) return limited;
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const MAX_EXECUTION_TIME_MS = 45_000; // 45s (leave 15s buffer for 60s limit)
+  const startTime = Date.now();
 
   try {
     const dueEnrollments = await db.$queryRaw<EnrollmentRow[]>`
@@ -160,9 +167,15 @@ export async function GET(request: NextRequest) {
     let sent = 0,
       failed = 0,
       completed = 0,
-      skipped = 0;
+      skipped = 0,
+      timedOut = false;
 
     for (const enrollment of dueEnrollments) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(`[CRON:process-nurture] Time limit reached. Sent: ${sent}. Remaining will be picked up next run.`);
+        timedOut = true;
+        break;
+      }
       try {
         const steps: NurtureStep[] =
           typeof enrollment.seq_steps === "string"
@@ -303,10 +316,12 @@ export async function GET(request: NextRequest) {
           "failed",
           null,
           message
-        ).catch(() => {});
+        ).catch((err) => console.error("[nurture_log] Fire-and-forget failed:", err));
         failed++;
       }
     }
+
+    console.log(`[CRON:process-nurture] Complete. Processed: ${dueEnrollments.length}, Sent: ${sent}, Failed: ${failed}, Completed: ${completed}, Skipped: ${skipped}`);
 
     return NextResponse.json({
       processed: dueEnrollments.length,
@@ -314,6 +329,7 @@ export async function GET(request: NextRequest) {
       failed,
       completed,
       skipped,
+      timedOut,
       timestamp: new Date().toISOString(),
     });
   } catch (err: unknown) {

@@ -1,36 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "cron-weekly-digest");
+  if (limited) return limited;
   if (!verifyCronSecret(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const BATCH_SIZE = 20;
+  const MAX_EXECUTION_TIME_MS = 45_000; // 45s (leave 15s buffer for 60s limit)
+  const startTime = Date.now();
+
   try {
-    // Find all active clients
-    const clients = await db.clients.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        facility_id: true,
-        facility_name: true,
-      },
-    });
-
-    if (!clients.length) {
-      return NextResponse.json({ success: true, message: "No clients", sent: 0 });
-    }
-
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     let sent = 0;
+    let processed = 0;
+    let timedOut = false;
+    let cursor: string | undefined = undefined;
+
+    while (true) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(`[CRON:weekly-digest] Time limit reached. Processed: ${processed}, Sent: ${sent}. Remaining will be picked up next run.`);
+        timedOut = true;
+        break;
+      }
+
+      const findArgs: Parameters<typeof db.clients.findMany>[0] = {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          facility_id: true,
+          facility_name: true,
+        },
+        take: BATCH_SIZE,
+        orderBy: { id: "asc" as const },
+      };
+      if (cursor) {
+        findArgs.skip = 1;
+        findArgs.cursor = { id: cursor };
+      }
+      const clients = await db.clients.findMany(findArgs);
+
+      if (!clients.length) break;
 
     for (const client of clients) {
       try {
+        processed++;
         // Pull week's KPIs
         const [spendData, leadCount, callCount] = await Promise.all([
           db.campaign_spend.aggregate({
@@ -118,7 +141,13 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, sent, total: clients.length });
+      cursor = clients[clients.length - 1].id;
+      if (clients.length < BATCH_SIZE) break;
+    }
+
+    console.log(`[CRON:weekly-digest] Complete. Processed: ${processed}, Sent: ${sent}${timedOut ? " (timed out)" : ""}`);
+
+    return NextResponse.json({ success: true, sent, processed, timedOut });
   } catch (err) {
     console.error("Weekly digest error:", err);
     return NextResponse.json({ error: "Digest failed" }, { status: 500 });

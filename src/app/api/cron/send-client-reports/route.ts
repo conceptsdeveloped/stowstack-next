@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 120;
 
@@ -149,15 +151,22 @@ function renderReportHTML(
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-send-client-reports");
+  if (limited) return limited;
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const BATCH_SIZE = 20;
+  const MAX_EXECUTION_TIME_MS = 90_000; // 90s (leave 30s buffer for 120s Vercel limit)
+  const startTime = Date.now();
 
   const results = {
     processed: 0,
     sent: 0,
     skipped: 0,
     errors: [] as string[],
+    timedOut: false,
   };
 
   try {
@@ -165,12 +174,37 @@ export async function GET(request: NextRequest) {
     const dayOfMonth = now.getDate();
     const isFirstWeek = dayOfMonth <= 7;
 
-    const clients = await db.$queryRaw<Record<string, unknown>[]>`
-      SELECT c.*, f.id AS fac_id, f.name AS fac_name
-      FROM clients c
-      JOIN facilities f ON c.facility_id = f.id
-      WHERE c.report_enabled = true
-    `;
+    let cursor: string | undefined = undefined;
+
+    while (true) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(`[CRON:send-client-reports] Time limit reached. Processed: ${results.processed}, Sent: ${results.sent}. Remaining will be picked up next run.`);
+        results.timedOut = true;
+        break;
+      }
+
+      let clients: Record<string, unknown>[];
+      if (cursor) {
+        clients = await db.$queryRaw<Record<string, unknown>[]>`
+            SELECT c.*, f.id AS fac_id, f.name AS fac_name
+            FROM clients c
+            JOIN facilities f ON c.facility_id = f.id
+            WHERE c.report_enabled = true AND c.id > ${cursor}::uuid
+            ORDER BY c.id ASC
+            LIMIT ${BATCH_SIZE}
+          `;
+      } else {
+        clients = await db.$queryRaw<Record<string, unknown>[]>`
+            SELECT c.*, f.id AS fac_id, f.name AS fac_name
+            FROM clients c
+            JOIN facilities f ON c.facility_id = f.id
+            WHERE c.report_enabled = true
+            ORDER BY c.id ASC
+            LIMIT ${BATCH_SIZE}
+          `;
+      }
+
+      if (clients.length === 0) break;
 
     for (const client of clients) {
       try {
@@ -364,21 +398,25 @@ export async function GET(request: NextRequest) {
         // Check if this is a preview-only request (admin previewing before send)
         const isPreview = client.report_preview_mode === true;
 
-        const reportRow = await db.$queryRaw<{ id: string }[]>`
-          INSERT INTO client_reports (client_id, facility_id, report_type, period_start, period_end, report_html, report_data, status)
-          VALUES (${client.id}::uuid, ${client.fac_id}::uuid, ${isWeekly ? "weekly" : "monthly"}, ${periodStartStr}::date, ${periodEndStr}::date, '', ${JSON.stringify(reportData)}::jsonb, ${isPreview ? "preview" : "generated"})
-          RETURNING id
-        `;
-        const reportId = reportRow[0].id;
+        const { reportId, html } = await db.$transaction(async (tx) => {
+          const reportRow = await tx.$queryRaw<{ id: string }[]>`
+            INSERT INTO client_reports (client_id, facility_id, report_type, period_start, period_end, report_html, report_data, status)
+            VALUES (${client.id}::uuid, ${client.fac_id}::uuid, ${isWeekly ? "weekly" : "monthly"}, ${periodStartStr}::date, ${periodEndStr}::date, '', ${JSON.stringify(reportData)}::jsonb, ${isPreview ? "preview" : "generated"})
+            RETURNING id
+          `;
+          const id = reportRow[0].id;
 
-        const html = renderReportHTML(
-          reportData,
-          client.name as string,
-          (client.fac_name as string) || (client.facility_name as string),
-          reportId
-        );
+          const renderedHtml = renderReportHTML(
+            reportData,
+            client.name as string,
+            (client.fac_name as string) || (client.facility_name as string),
+            id
+          );
 
-        await db.$executeRaw`UPDATE client_reports SET report_html = ${html} WHERE id = ${reportId}::uuid`;
+          await tx.$executeRaw`UPDATE client_reports SET report_html = ${renderedHtml} WHERE id = ${id}::uuid`;
+
+          return { reportId: id, html: renderedHtml };
+        });
 
         // Preview mode: generate but don't send — admin reviews first
         if (isPreview) {
@@ -445,12 +483,22 @@ export async function GET(request: NextRequest) {
         db.$executeRaw`
           INSERT INTO activity_log (type, facility_id, facility_name, detail)
           VALUES ('report_sent', ${client.fac_id}::uuid, ${client.fac_name}, ${`${isWeekly ? "Weekly" : "Monthly"} report sent to ${client.email}`})
-        `.catch(() => {});
+        `.catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Unknown error";
         results.errors.push(`${client.email}: ${message}`);
       }
+    }
+
+      // Set cursor for next batch
+      cursor = clients[clients.length - 1].id as string;
+      if (clients.length < BATCH_SIZE) break;
+    }
+
+    console.log(`[CRON:send-client-reports] Complete. Processed: ${results.processed}, Sent: ${results.sent}, Skipped: ${results.skipped}, Failed: ${results.errors.length}`);
+    if (results.errors.length > 0) {
+      console.error(`[CRON:send-client-reports] Failures:`, JSON.stringify(results.errors));
     }
 
     return NextResponse.json({ success: true, ...results });

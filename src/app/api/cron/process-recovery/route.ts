@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { SEQUENCES } from "@/lib/drip-sequences";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -18,7 +20,7 @@ function logActivity(params: {
   db.$executeRaw`
     INSERT INTO activity_log (type, facility_id, lead_name, facility_name, detail, meta)
     VALUES (${params.type}, ${params.facilityId}::uuid, ${params.leadName}, ${params.facilityName}, ${params.detail.slice(0, 500)}, ${JSON.stringify(params.meta)}::jsonb)
-  `.catch(() => {});
+  `.catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 }
 
 function esc(str: string | null): string {
@@ -199,13 +201,18 @@ async function sendHotLeadAlert(partialLead: Record<string, unknown>) {
       subject: `Hot abandoned lead: ${partialLead.email} (Score: ${partialLead.lead_score})`,
       html,
     }),
-  }).catch(() => {});
+  }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-process-recovery");
+  if (limited) return limited;
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const MAX_EXECUTION_TIME_MS = 45_000; // 45s (leave 15s buffer for 60s limit)
+  const startTime = Date.now();
 
   const now = new Date();
   const results = {
@@ -214,6 +221,7 @@ export async function GET(request: NextRequest) {
     exhausted: 0,
     alerts: 0,
     errors: [] as { id?: string; email?: string; error: string }[],
+    timedOut: false,
   };
 
   try {
@@ -230,6 +238,11 @@ export async function GET(request: NextRequest) {
     `;
 
     for (const lead of dueLeads) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(`[CRON:process-recovery] Time limit reached. Processed: ${results.processed}, Sent: ${results.sent}. Remaining will be picked up next run.`);
+        results.timedOut = true;
+        break;
+      }
       try {
         results.processed++;
 
@@ -316,26 +329,34 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Send hot lead alerts
-    const hotLeads = await db.$queryRaw<Record<string, unknown>[]>`
-      SELECT pl.*, lp.title AS page_title, lp.slug AS page_slug
-      FROM partial_leads pl
-      LEFT JOIN landing_pages lp ON pl.landing_page_id = lp.id
-      WHERE pl.lead_score >= 60
-        AND pl.email IS NOT NULL
-        AND pl.converted = FALSE
-        AND pl.recovery_sent_count = 0
-        AND pl.recovery_status = 'pending'
-        AND pl.created_at >= NOW() - INTERVAL '1 hour'
-    `;
+    // Send hot lead alerts (skip if timed out)
+    if (!results.timedOut) {
+      const hotLeads = await db.$queryRaw<Record<string, unknown>[]>`
+        SELECT pl.*, lp.title AS page_title, lp.slug AS page_slug
+        FROM partial_leads pl
+        LEFT JOIN landing_pages lp ON pl.landing_page_id = lp.id
+        WHERE pl.lead_score >= 60
+          AND pl.email IS NOT NULL
+          AND pl.converted = FALSE
+          AND pl.recovery_sent_count = 0
+          AND pl.recovery_status = 'pending'
+          AND pl.created_at >= NOW() - INTERVAL '1 hour'
+        LIMIT 20
+      `;
 
-    for (const hotLead of hotLeads) {
-      try {
-        await sendHotLeadAlert(hotLead);
-        results.alerts++;
-      } catch {
-        // Alert failed — continue
+      for (const hotLead of hotLeads) {
+        try {
+          await sendHotLeadAlert(hotLead);
+          results.alerts++;
+        } catch {
+          // Alert failed — continue
+        }
       }
+    }
+
+    console.log(`[CRON:process-recovery] Complete. Processed: ${results.processed}, Sent: ${results.sent}, Exhausted: ${results.exhausted}, Alerts: ${results.alerts}, Errors: ${results.errors.length}`);
+    if (results.errors.length > 0) {
+      console.error(`[CRON:process-recovery] Failures:`, JSON.stringify(results.errors));
     }
 
     return NextResponse.json({ success: true, ...results });

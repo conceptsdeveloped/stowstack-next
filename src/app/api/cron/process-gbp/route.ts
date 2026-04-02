@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 120;
 
@@ -315,9 +317,15 @@ async function publishReply(
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-process-gbp");
+  if (limited) return limited;
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const BATCH_SIZE = 20;
+  const MAX_EXECUTION_TIME_MS = 90_000; // 90s (leave 30s buffer for 120s limit)
+  const startTime = Date.now();
 
   const results = {
     posts_published: 0,
@@ -325,18 +333,26 @@ export async function GET(request: NextRequest) {
     reviews_synced: 0,
     responses_generated: 0,
     responses_published: 0,
+    timedOut: false,
   };
 
+  function isTimeBudgetExceeded(): boolean {
+    return Date.now() - startTime > MAX_EXECUTION_TIME_MS;
+  }
+
   try {
-    // 1. Publish scheduled posts
+    // 1. Publish scheduled posts (batched)
     const duePosts = await db.$queryRaw<Record<string, unknown>[]>`
       SELECT p.*, c.access_token, c.refresh_token, c.token_expires_at, c.location_id, c.id as conn_id
       FROM gbp_posts p
       JOIN gbp_connections c ON p.gbp_connection_id = c.id
       WHERE p.status = 'scheduled' AND p.scheduled_at <= NOW() AND c.status = 'connected'
+      ORDER BY p.scheduled_at ASC
+      LIMIT ${BATCH_SIZE}
     `;
 
     for (const post of duePosts) {
+      if (isTimeBudgetExceeded()) { results.timedOut = true; break; }
       try {
         const externalId = await publishPost(post, {
           id: post.conn_id as string,
@@ -359,107 +375,129 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 2. Sync reviews for all connected facilities
-    const connections = await db.$queryRaw<GbpConnection[]>`
-      SELECT * FROM gbp_connections WHERE status = 'connected'
-    `;
+    // 2. Sync reviews for all connected facilities (batched)
+    if (!results.timedOut) {
+      const connections = await db.$queryRaw<GbpConnection[]>`
+        SELECT * FROM gbp_connections WHERE status = 'connected'
+        ORDER BY id ASC
+        LIMIT ${BATCH_SIZE}
+      `;
 
-    for (const conn of connections) {
-      const { synced, newReviews } = await syncReviewsForConnection(conn);
-      results.reviews_synced += synced;
+      for (const conn of connections) {
+        if (isTimeBudgetExceeded()) { results.timedOut = true; break; }
 
-      // Send email notifications for new reviews
-      if (newReviews.length > 0) {
-        const facilityRows = await db.$queryRaw<
-          { name: string; contact_email: string | null }[]
-        >`SELECT name, contact_email FROM facilities WHERE id = ${conn.facility_id}::uuid`;
-        const facility = facilityRows[0];
-        if (facility) {
-          for (const nr of newReviews) {
-            await sendNewReviewNotification(
-              facility.name,
-              facility.contact_email,
-              nr
-            );
-          }
-        }
-      }
-
-      const config = conn.sync_config || {};
-
-      // 3. Auto-generate and optionally auto-publish responses
-      if (config.auto_respond) {
-        const pendingReviews = await db.$queryRaw<
-          {
-            id: string;
-            rating: number;
-            author_name: string;
-            external_review_id: string;
-            facility_name: string;
-          }[]
-        >`
-          SELECT r.*, f.name as facility_name FROM gbp_reviews r
-          JOIN facilities f ON r.facility_id = f.id
-          WHERE r.gbp_connection_id = ${conn.id}::uuid AND r.response_status = 'pending'
-        `;
-
-        for (const review of pendingReviews) {
-          const draft = generateTemplateResponse(
-            review,
-            review.facility_name
-          );
-          await db.$executeRaw`
-            UPDATE gbp_reviews SET ai_draft = ${draft}, response_status = 'ai_drafted' WHERE id = ${review.id}::uuid
-          `;
-          results.responses_generated++;
-
-          const published = await publishReply(review, draft, conn);
-          if (published) {
-            await db.$executeRaw`
-              UPDATE gbp_reviews SET response_text = ${draft}, response_status = 'published', responded_at = NOW() WHERE id = ${review.id}::uuid
-            `;
-            results.responses_published++;
-          }
-        }
-      }
-
-      // 4. Auto-sync hours if enabled
-      if (config.sync_hours) {
         try {
-          const token = await getValidToken(conn);
-          if (token) {
-            const rows = await db.$queryRaw<{ hours: unknown }[]>`
-              SELECT hours FROM facilities WHERE id = ${conn.facility_id}::uuid
+          const { synced, newReviews } = await syncReviewsForConnection(conn);
+          results.reviews_synced += synced;
+
+          // Send email notifications for new reviews
+          if (newReviews.length > 0) {
+            const facilityRows = await db.$queryRaw<
+              { name: string; contact_email: string | null }[]
+            >`SELECT name, contact_email FROM facilities WHERE id = ${conn.facility_id}::uuid`;
+            const facility = facilityRows[0];
+            if (facility) {
+              for (const nr of newReviews) {
+                await sendNewReviewNotification(
+                  facility.name,
+                  facility.contact_email,
+                  nr
+                );
+              }
+            }
+          }
+
+          const config = conn.sync_config || {};
+
+          // 3. Auto-generate and optionally auto-publish responses
+          if (config.auto_respond) {
+            const pendingReviews = await db.$queryRaw<
+              {
+                id: string;
+                rating: number;
+                author_name: string;
+                external_review_id: string;
+                facility_name: string;
+              }[]
+            >`
+              SELECT r.*, f.name as facility_name FROM gbp_reviews r
+              JOIN facilities f ON r.facility_id = f.id
+              WHERE r.gbp_connection_id = ${conn.id}::uuid AND r.response_status = 'pending'
+              ORDER BY r.id ASC
+              LIMIT ${BATCH_SIZE}
             `;
-            if (rows[0]?.hours) {
-              await fetch(
-                `https://mybusinessbusinessinformation.googleapis.com/v1/${conn.location_id}?updateMask=regularHours`,
-                {
-                  method: "PATCH",
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    regularHours: rows[0].hours,
-                  }),
-                }
+
+            for (const review of pendingReviews) {
+              if (isTimeBudgetExceeded()) { results.timedOut = true; break; }
+              const draft = generateTemplateResponse(
+                review,
+                review.facility_name
               );
+              await db.$executeRaw`
+                UPDATE gbp_reviews SET ai_draft = ${draft}, response_status = 'ai_drafted' WHERE id = ${review.id}::uuid
+              `;
+              results.responses_generated++;
+
+              const published = await publishReply(review, draft, conn);
+              if (published) {
+                await db.$executeRaw`
+                  UPDATE gbp_reviews SET response_text = ${draft}, response_status = 'published', responded_at = NOW() WHERE id = ${review.id}::uuid
+                `;
+                results.responses_published++;
+              }
+            }
+          }
+
+          // 4. Auto-sync hours if enabled
+          if (!results.timedOut && config.sync_hours) {
+            try {
+              const token = await getValidToken(conn);
+              if (token) {
+                const rows = await db.$queryRaw<{ hours: unknown }[]>`
+                  SELECT hours FROM facilities WHERE id = ${conn.facility_id}::uuid
+                `;
+                if (rows[0]?.hours) {
+                  await fetch(
+                    `https://mybusinessbusinessinformation.googleapis.com/v1/${conn.location_id}?updateMask=regularHours`,
+                    {
+                      method: "PATCH",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        regularHours: rows[0].hours,
+                      }),
+                    }
+                  );
+                }
+              }
+            } catch {
+              // Hours sync failed — continue
             }
           }
         } catch {
-          // Hours sync failed — continue
+          // Connection processing failed — continue to next
         }
       }
     }
 
-    // 5. Refresh tokens expiring within 30 minutes
-    const expiring = await db.$queryRaw<GbpConnection[]>`
-      SELECT * FROM gbp_connections WHERE status = 'connected' AND token_expires_at <= NOW() + INTERVAL '30 minutes'
-    `;
-    for (const conn of expiring) {
-      await getValidToken(conn);
+    // 5. Refresh tokens expiring within 30 minutes (batched)
+    if (!results.timedOut) {
+      const expiring = await db.$queryRaw<GbpConnection[]>`
+        SELECT * FROM gbp_connections WHERE status = 'connected' AND token_expires_at <= NOW() + INTERVAL '30 minutes'
+        LIMIT ${BATCH_SIZE}
+      `;
+      for (const conn of expiring) {
+        if (isTimeBudgetExceeded()) { results.timedOut = true; break; }
+        await getValidToken(conn);
+      }
     }
+
+    if (results.timedOut) {
+      console.warn(`[CRON:process-gbp] Time limit reached. Remaining work will be picked up next run.`);
+    }
+    console.log(`[CRON:process-gbp] Complete. Posts: ${results.posts_published}/${results.posts_published + results.posts_failed}, Reviews: ${results.reviews_synced}, Responses: ${results.responses_published}`);
 
     return NextResponse.json({ ok: true, ...results });
   } catch (err: unknown) {

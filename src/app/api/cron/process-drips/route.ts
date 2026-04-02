@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { SEQUENCES, type DripStep } from "@/lib/drip-sequences";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -18,7 +20,7 @@ function logActivity(params: {
   db.$executeRaw`
     INSERT INTO activity_log (type, facility_id, lead_name, facility_name, detail, meta)
     VALUES (${params.type}, ${params.facilityId}::uuid, ${params.leadName}, ${params.facilityName}, ${params.detail.slice(0, 500)}, ${JSON.stringify(params.meta)}::jsonb)
-  `.catch(() => {});
+  `.catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 }
 
 function getBaseUrl() {
@@ -108,9 +110,15 @@ interface DripRow {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-process-drips");
+  if (limited) return limited;
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const BATCH_SIZE = 20;
+  const MAX_EXECUTION_TIME_MS = 45_000; // 45s (leave 15s buffer for 60s limit)
+  const startTime = Date.now();
 
   const now = new Date();
   const results = {
@@ -119,16 +127,43 @@ export async function GET(request: NextRequest) {
     cancelled: 0,
     completed: 0,
     errors: [] as { facilityId?: string; id?: string; error: string }[],
+    timedOut: false,
   };
 
   try {
-    const drips = await db.$queryRaw<DripRow[]>`
-      SELECT ds.*, f.contact_name, f.contact_email, f.contact_phone, f.name AS facility_name,
-             f.pipeline_status, f.biggest_issue, f.occupancy_range, f.total_units
-      FROM drip_sequences ds
-      JOIN facilities f ON ds.facility_id = f.id
-      WHERE ds.status = 'active'
-    `;
+    let cursor: string | undefined = undefined;
+
+    while (true) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(`[CRON:process-drips] Time limit reached. Processed: ${results.processed}, Sent: ${results.sent}. Remaining will be picked up next run.`);
+        results.timedOut = true;
+        break;
+      }
+
+      let drips: DripRow[];
+      if (cursor) {
+        drips = await db.$queryRaw<DripRow[]>`
+            SELECT ds.*, f.contact_name, f.contact_email, f.contact_phone, f.name AS facility_name,
+                   f.pipeline_status, f.biggest_issue, f.occupancy_range, f.total_units
+            FROM drip_sequences ds
+            JOIN facilities f ON ds.facility_id = f.id
+            WHERE ds.status = 'active' AND ds.id > ${cursor}::uuid
+            ORDER BY ds.id ASC
+            LIMIT ${BATCH_SIZE}
+          `;
+      } else {
+        drips = await db.$queryRaw<DripRow[]>`
+            SELECT ds.*, f.contact_name, f.contact_email, f.contact_phone, f.name AS facility_name,
+                   f.pipeline_status, f.biggest_issue, f.occupancy_range, f.total_units
+            FROM drip_sequences ds
+            JOIN facilities f ON ds.facility_id = f.id
+            WHERE ds.status = 'active'
+            ORDER BY ds.id ASC
+            LIMIT ${BATCH_SIZE}
+          `;
+      }
+
+      if (drips.length === 0) break;
 
     for (const drip of drips) {
       try {
@@ -182,18 +217,15 @@ export async function GET(request: NextRequest) {
         try {
           // Dispatch based on channel
           if (step.channel === 'sms') {
-            // SMS: replace variables and send via Twilio
             const phone = drip.contact_phone;
-            const smsBody = (step.customMessage || '')
-              .replace(/\[Facility\]/g, drip.facility_name || '')
-              .replace(/\[Name\]/g, drip.contact_name || '');
-            if (phone && phone.match(/^\+?\d/) && smsBody) {
-              await sendSms(phone, smsBody, drip.facility_id);
+            if (phone && phone.match(/^\+?\d/)) {
+              const smsBody = (step.customMessage || step.label || '')
+                .replace(/\[Facility\]/g, drip.facility_name || '')
+                .replace(/\[Name\]/g, drip.contact_name || '');
+              if (smsBody) {
+                await sendSms(phone, smsBody, drip.facility_id);
+              }
             }
-          } else if (step.customMessage) {
-            // Custom email from funnel config — use send-template with custom body
-            // For now, falls through to template email with the funnel templateId
-            await sendTemplateEmail(step.templateId, lead);
           } else {
             await sendTemplateEmail(step.templateId, lead);
           }
@@ -257,6 +289,15 @@ export async function GET(request: NextRequest) {
           dripErr instanceof Error ? dripErr.message : "Unknown error";
         results.errors.push({ id: drip.id, error: message });
       }
+    }
+
+      cursor = drips[drips.length - 1].id;
+      if (drips.length < BATCH_SIZE) break;
+    }
+
+    console.log(`[CRON:process-drips] Complete. Processed: ${results.processed}, Sent: ${results.sent}, Cancelled: ${results.cancelled}, Completed: ${results.completed}, Errors: ${results.errors.length}`);
+    if (results.errors.length > 0) {
+      console.error(`[CRON:process-drips] Failures:`, JSON.stringify(results.errors));
     }
 
     return NextResponse.json({ success: true, ...results });
