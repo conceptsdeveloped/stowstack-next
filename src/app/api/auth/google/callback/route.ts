@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 15;
 
@@ -22,6 +24,9 @@ function redirectError(platform: string, message: string): NextResponse {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.PUBLIC_WRITE, "auth-google-callback");
+  if (limited) return limited;
+
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");

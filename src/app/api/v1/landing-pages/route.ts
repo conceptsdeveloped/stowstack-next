@@ -8,12 +8,16 @@ import {
   isErrorResponse,
   requireScope,
 } from "@/lib/v1-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS() {
   return v1CorsResponse();
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-landing-pages");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;

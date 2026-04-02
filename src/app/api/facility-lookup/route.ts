@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 async function findPlaceId(facilityName: string, location: string, apiKey: string): Promise<string | null> {
   const searchQuery = encodeURIComponent(`${facilityName} ${location}`);
@@ -61,6 +63,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXTERNAL_API_HOURLY, "facility-lookup");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;

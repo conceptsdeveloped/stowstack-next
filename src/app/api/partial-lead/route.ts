@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function hashIp(ip: string | null): string | null {
   if (!ip) return null;
@@ -58,6 +60,8 @@ export async function OPTIONS(req: NextRequest) {
 
 // Admin GET: list partial leads with filtering
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partial-lead");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authError = requireAdminKey(req);
   if (authError) return authError;
@@ -100,6 +104,8 @@ export async function GET(req: NextRequest) {
 
 // Admin PATCH: update partial lead status
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partial-lead");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authError = requireAdminKey(req);
   if (authError) return authError;
@@ -144,6 +150,8 @@ export async function PATCH(req: NextRequest) {
 
 // Public POST: capture partial lead data
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partial-lead");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   try {

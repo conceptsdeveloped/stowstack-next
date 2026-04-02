@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHmac } from "crypto";
 import { db } from "@/lib/db";
 import { corsResponse } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 /**
  * Meta Data Deletion Callback
@@ -24,6 +26,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-meta-data-deletion");
+  if (limited) return limited;
   try {
     const appSecret = process.env.META_APP_SECRET;
     if (!appSecret) {

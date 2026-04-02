@@ -1,12 +1,17 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidEmail } from "@/lib/validation";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_WRITE, "consumer-lead");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   try {
@@ -22,6 +27,9 @@ export async function POST(req: NextRequest) {
     }
     if (!email && !phone) {
       return errorResponse("Email or phone is required", 400, origin);
+    }
+    if (email && !isValidEmail(email)) {
+      return errorResponse("Invalid email format", 400, origin);
     }
 
     // Try to update existing partial lead
@@ -81,7 +89,7 @@ export async function POST(req: NextRequest) {
           detail: `New consumer lead from landing page`,
           meta: { sessionId, source: fbclid ? "meta" : gclid ? "google" : "direct" },
         },
-      }).catch(() => {});
+      }).catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
     }
 
     return jsonResponse({ success: true, id: lead.id, status: "created" }, 200, origin);

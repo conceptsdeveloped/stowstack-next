@@ -323,6 +323,15 @@ export async function GET(request: NextRequest) {
 
     console.log(`[CRON:process-nurture] Complete. Processed: ${dueEnrollments.length}, Sent: ${sent}, Failed: ${failed}, Completed: ${completed}, Skipped: ${skipped}`);
 
+    // Log cron completion
+    db.activity_log.create({
+      data: {
+        type: "cron_completed",
+        detail: `[process-nurture] Processed: ${dueEnrollments.length}, Sent: ${sent}, Failed: ${failed}, Completed: ${completed}, Skipped: ${skipped}`,
+        meta: { processed: dueEnrollments.length, sent, failed, completed, skipped, timedOut },
+      },
+    }).catch((err) => console.error("[activity_log] Cron log failed:", err));
+
     return NextResponse.json({
       processed: dueEnrollments.length,
       sent,
@@ -334,6 +343,25 @@ export async function GET(request: NextRequest) {
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error(`[CRON:process-nurture] Fatal error:`, err);
+
+    // Notify admin of cron failure
+    if (process.env.RESEND_API_KEY) {
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "StorageAds <noreply@storageads.com>",
+          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+          subject: `[CRON FAILURE] process-nurture`,
+          html: `<p>The <strong>process-nurture</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
+        }),
+      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+    }
+
+    return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }
 }

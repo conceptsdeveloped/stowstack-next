@@ -2,12 +2,16 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, isAdminRequest } from "@/lib/api-helpers";
 import { getSession } from "@/lib/session-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "landing-pages");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const url = new URL(req.url);
 
@@ -69,6 +73,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "landing-pages");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -154,6 +160,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "landing-pages");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -237,6 +245,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "landing-pages");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 

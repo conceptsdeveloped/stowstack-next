@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -7,6 +8,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const VALID_STATUSES = [
   "new",
@@ -22,6 +25,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "consumer-leads");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;
@@ -34,12 +39,9 @@ export async function GET(request: NextRequest) {
 
   try {
     if (summary === "true") {
-      const facilityFilter = facilityId ? "AND facility_id = $1" : "";
-      const params = facilityId ? [facilityId] : [];
-
-      const statsRows = params.length > 0
-        ? await db.$queryRawUnsafe<Record<string, unknown>[]>(
-            `SELECT
+      const statsRows = facilityId
+        ? await db.$queryRaw<Record<string, unknown>[]>`
+            SELECT
               COUNT(*) FILTER (WHERE lead_status = 'new') AS new_count,
               COUNT(*) FILTER (WHERE lead_status = 'contacted') AS contacted_count,
               COUNT(*) FILTER (WHERE lead_status = 'toured') AS toured_count,
@@ -51,11 +53,9 @@ export async function GET(request: NextRequest) {
               ROUND(AVG(EXTRACT(EPOCH FROM (status_updated_at - created_at)) / 86400)::NUMERIC, 1)
                 FILTER (WHERE lead_status = 'moved_in') AS avg_days_to_move_in
             FROM partial_leads
-            WHERE lead_status != 'partial' ${facilityFilter}`,
-            ...params
-          )
-        : await db.$queryRawUnsafe<Record<string, unknown>[]>(
-            `SELECT
+            WHERE lead_status != 'partial' AND facility_id = ${facilityId}`
+        : await db.$queryRaw<Record<string, unknown>[]>`
+            SELECT
               COUNT(*) FILTER (WHERE lead_status = 'new') AS new_count,
               COUNT(*) FILTER (WHERE lead_status = 'contacted') AS contacted_count,
               COUNT(*) FILTER (WHERE lead_status = 'toured') AS toured_count,
@@ -67,13 +67,30 @@ export async function GET(request: NextRequest) {
               ROUND(AVG(EXTRACT(EPOCH FROM (status_updated_at - created_at)) / 86400)::NUMERIC, 1)
                 FILTER (WHERE lead_status = 'moved_in') AS avg_days_to_move_in
             FROM partial_leads
-            WHERE lead_status != 'partial'`
-          );
+            WHERE lead_status != 'partial'`;
 
       return jsonResponse({ stats: statsRows[0] || null }, 200, origin);
     }
 
-    let sql = `
+    const conditions: Prisma.Sql[] = [Prisma.sql`pl.lead_status != 'partial'`];
+
+    if (facilityId) {
+      conditions.push(Prisma.sql`pl.facility_id = ${facilityId}`);
+    }
+
+    if (status && VALID_STATUSES.includes(status)) {
+      conditions.push(Prisma.sql`pl.lead_status = ${status}`);
+    }
+
+    if (days) {
+      const daysNum = parseInt(days) || 30;
+      conditions.push(Prisma.sql`pl.created_at >= NOW() - INTERVAL '1 day' * ${daysNum}`);
+    }
+
+    const limitNum = parseInt(rawLimit || "") || 100;
+    const whereClause = Prisma.join(conditions, " AND ");
+
+    const leads = await db.$queryRaw<Record<string, unknown>[]>`
       SELECT pl.id, pl.email, pl.phone, pl.name, pl.unit_size,
              pl.lead_status, pl.monthly_revenue, pl.move_in_date, pl.lead_notes,
              pl.utm_source, pl.utm_medium, pl.utm_campaign, pl.utm_content,
@@ -83,34 +100,10 @@ export async function GET(request: NextRequest) {
              lp.title AS page_title, lp.slug AS page_slug
       FROM partial_leads pl
       LEFT JOIN landing_pages lp ON pl.landing_page_id = lp.id
-      WHERE pl.lead_status != 'partial'
+      WHERE ${whereClause}
+      ORDER BY pl.created_at DESC
+      LIMIT ${limitNum}
     `;
-    const params: unknown[] = [];
-    let paramIdx = 1;
-
-    if (facilityId) {
-      sql += ` AND pl.facility_id = $${paramIdx++}`;
-      params.push(facilityId);
-    }
-
-    if (status && VALID_STATUSES.includes(status)) {
-      sql += ` AND pl.lead_status = $${paramIdx++}`;
-      params.push(status);
-    }
-
-    if (days) {
-      sql += ` AND pl.created_at >= NOW() - INTERVAL '1 day' * $${paramIdx++}`;
-      params.push(parseInt(days) || 30);
-    }
-
-    sql += ` ORDER BY pl.created_at DESC`;
-    sql += ` LIMIT $${paramIdx++}`;
-    params.push(parseInt(rawLimit || "") || 100);
-
-    const leads = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      sql,
-      ...params
-    );
 
     return jsonResponse({ leads }, 200, origin);
   } catch {
@@ -119,6 +112,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "consumer-leads");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;
@@ -139,21 +134,16 @@ export async function PATCH(request: NextRequest) {
         return errorResponse("Note too long (max 5000 characters)", 400, origin);
       }
 
-      const existing = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        `SELECT id, lead_notes FROM partial_leads WHERE id = $1`,
-        leadId
-      );
+      const existing = await db.$queryRaw<Record<string, unknown>[]>`
+        SELECT id, lead_notes FROM partial_leads WHERE id = ${leadId}`;
       if (existing.length === 0) return errorResponse("Lead not found", 404, origin);
 
       const currentNotes = (existing[0].lead_notes as string) || "";
       const separator = currentNotes ? "\n" : "";
       const updatedNotes = currentNotes + separator + note.trim();
 
-      await db.$queryRawUnsafe(
-        `UPDATE partial_leads SET lead_notes = $2, updated_at = NOW() WHERE id = $1`,
-        leadId,
-        updatedNotes
-      );
+      await db.$executeRaw`
+        UPDATE partial_leads SET lead_notes = ${updatedNotes}, updated_at = NOW() WHERE id = ${leadId}`;
 
       return jsonResponse({ success: true }, 200, origin);
     }
@@ -166,40 +156,35 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const sets: string[] = [];
-    const params: unknown[] = [leadId];
-    let paramIdx = 2;
+    const setParts: Prisma.Sql[] = [];
 
     if (status) {
-      sets.push(`lead_status = $${paramIdx++}`);
-      params.push(status);
-      sets.push("status_updated_at = NOW()");
+      setParts.push(Prisma.sql`lead_status = ${status}`);
+      setParts.push(Prisma.sql`status_updated_at = NOW()`);
     }
 
     if (monthlyRevenue !== undefined) {
-      sets.push(`monthly_revenue = $${paramIdx++}`);
-      params.push(monthlyRevenue);
+      setParts.push(Prisma.sql`monthly_revenue = ${monthlyRevenue}`);
     }
 
     if (moveInDate !== undefined) {
-      sets.push(`move_in_date = $${paramIdx++}`);
-      params.push(moveInDate || null);
+      setParts.push(Prisma.sql`move_in_date = ${moveInDate || null}`);
     }
 
     if (notes !== undefined) {
-      sets.push(`lead_notes = $${paramIdx++}`);
-      params.push(notes);
+      setParts.push(Prisma.sql`lead_notes = ${notes}`);
     }
 
-    if (sets.length === 0)
+    if (setParts.length === 0)
       return errorResponse("No fields to update", 400, origin);
 
-    sets.push("updated_at = NOW()");
+    setParts.push(Prisma.sql`updated_at = NOW()`);
 
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `UPDATE partial_leads SET ${sets.join(", ")} WHERE id = $1 RETURNING id, lead_status, email, name, facility_id, monthly_revenue`,
-      ...params
-    );
+    const setClause = Prisma.join(setParts, ", ");
+
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`
+      UPDATE partial_leads SET ${setClause} WHERE id = ${leadId}
+      RETURNING id, lead_status, email, name, facility_id, monthly_revenue`;
 
     if (rows.length === 0)
       return errorResponse("Lead not found", 404, origin);
@@ -208,18 +193,15 @@ export async function PATCH(request: NextRequest) {
 
     if (status) {
       try {
-        await db.$executeRawUnsafe(
-          `INSERT INTO activity_log (type, facility_id, lead_name, detail, meta)
-           VALUES ('consumer_lead_status_change', $1, $2, $3, $4)`,
-          result.facility_id,
-          result.name || result.email || "Unknown",
-          `Consumer lead status changed to ${status}${monthlyRevenue ? ` ($${monthlyRevenue}/mo)` : ""}`,
-          JSON.stringify({
-            lead_id: result.id,
-            new_status: status,
-            monthly_revenue: monthlyRevenue,
-          })
-        );
+        const detail = `Consumer lead status changed to ${status}${monthlyRevenue ? ` ($${monthlyRevenue}/mo)` : ""}`;
+        const meta = JSON.stringify({
+          lead_id: result.id,
+          new_status: status,
+          monthly_revenue: monthlyRevenue,
+        });
+        await db.$executeRaw`
+          INSERT INTO activity_log (type, facility_id, lead_name, detail, meta)
+          VALUES ('consumer_lead_status_change', ${result.facility_id}, ${(result.name as string) || (result.email as string) || "Unknown"}, ${detail}, ${meta})`;
       } catch {
         // fire-and-forget
       }

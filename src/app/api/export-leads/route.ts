@@ -7,6 +7,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function escapeCsv(val: unknown): string {
   if (val == null) return "";
@@ -25,6 +27,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "export-leads");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;

@@ -147,9 +147,37 @@ export async function GET(req: NextRequest) {
 
     console.log(`[CRON:weekly-digest] Complete. Processed: ${processed}, Sent: ${sent}${timedOut ? " (timed out)" : ""}`);
 
+    // Log cron completion
+    db.activity_log.create({
+      data: {
+        type: "cron_completed",
+        detail: `[weekly-digest] Processed: ${processed}, Sent: ${sent}, TimedOut: ${timedOut}`,
+        meta: { processed, sent, timedOut },
+      },
+    }).catch((err) => console.error("[activity_log] Cron log failed:", err));
+
     return NextResponse.json({ success: true, sent, processed, timedOut });
-  } catch (err) {
-    console.error("Weekly digest error:", err);
-    return NextResponse.json({ error: "Digest failed" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error(`[CRON:weekly-digest] Fatal error:`, err);
+
+    // Notify admin of cron failure
+    if (process.env.RESEND_API_KEY) {
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "StorageAds <noreply@storageads.com>",
+          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+          subject: `[CRON FAILURE] weekly-digest`,
+          html: `<p>The <strong>weekly-digest</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
+        }),
+      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+    }
+
+    return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }
 }

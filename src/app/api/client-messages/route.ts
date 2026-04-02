@@ -6,6 +6,8 @@ import {
   getOrigin,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 interface RedisClient {
   get(key: string): Promise<unknown>;
@@ -52,6 +54,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "client-messages");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
@@ -85,6 +89,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "client-messages");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   let body: Record<string, unknown>;

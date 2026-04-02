@@ -7,6 +7,8 @@ import {
   getOrigin,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function serializeBigInts(obj: unknown): unknown {
   if (obj === null || obj === undefined) return obj;
@@ -184,6 +186,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
+  if (limited) return limited;
   const origin = getOrigin(request);
   if (!isAdminRequest(request))
     return errorResponse("Unauthorized", 401, origin);
@@ -280,6 +284,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
+  if (limited) return limited;
   const origin = getOrigin(request);
   if (!isAdminRequest(request))
     return errorResponse("Unauthorized", 401, origin);
@@ -416,6 +422,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
+  if (limited) return limited;
   const origin = getOrigin(request);
   if (!isAdminRequest(request))
     return errorResponse("Unauthorized", 401, origin);
@@ -524,6 +532,8 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
+  if (limited) return limited;
   const origin = getOrigin(request);
   if (!isAdminRequest(request))
     return errorResponse("Unauthorized", 401, origin);

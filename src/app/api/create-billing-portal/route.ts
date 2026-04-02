@@ -1,13 +1,19 @@
 import { NextRequest } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { getSession } from "@/lib/session-auth";
-import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, verifyCsrfOrigin } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.BILLING, "create-billing-portal");
+  if (limited) return limited;
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);

@@ -4,12 +4,16 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_READ, "places-photo");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const ref = req.nextUrl.searchParams.get("ref");
   const maxwidth = req.nextUrl.searchParams.get("maxwidth");

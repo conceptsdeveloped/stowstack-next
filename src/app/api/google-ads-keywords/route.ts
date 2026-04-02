@@ -7,6 +7,8 @@ import {
   corsResponse,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const SYSTEM_PROMPT = `You are a Google Ads keyword strategist specializing in self-storage facilities. You generate keyword ideas organized by search intent and ad group theme.
 
@@ -44,6 +46,10 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "google-ads-keywords");
+  if (limited) return limited;
+
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
 

@@ -7,6 +7,8 @@ import {
   corsResponse,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 interface GbpConnection {
   id: string;
@@ -312,6 +314,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "gbp-reviews");
+  if (limited) return limited;
+
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
 

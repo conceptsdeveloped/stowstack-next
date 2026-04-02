@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { db } from '@/lib/db';
 import { corsResponse, getOrigin, getCorsHeaders } from '@/lib/api-helpers';
 
@@ -12,6 +14,8 @@ export async function OPTIONS(req: NextRequest) {
  * for full-funnel attribution.
  */
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_READ, "tracking-event");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   try {

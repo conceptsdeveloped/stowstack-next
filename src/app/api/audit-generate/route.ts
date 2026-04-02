@@ -8,6 +8,8 @@ import {
   corsResponse,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -289,6 +291,10 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "audit-generate");
+  if (limited) return limited;
+
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
 
@@ -396,7 +402,7 @@ export async function POST(req: NextRequest) {
           detail: `Auto-generated audit for ${facility.name} — Score: ${auditJson.overall_score}`,
         },
       })
-      .catch(() => {});
+      .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 
     // Step 5: Email notification for review
     const resendKey = process.env.RESEND_API_KEY;
@@ -439,7 +445,7 @@ export async function POST(req: NextRequest) {
               <p style="margin-top: 16px; font-size: 12px; color: #999;">After review, approve the audit to share it with the lead and send the Calendly link.</p>
             </div>`,
         }),
-      }).catch(() => {});
+      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
     }
 
     return jsonResponse(

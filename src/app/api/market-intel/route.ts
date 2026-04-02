@@ -9,6 +9,8 @@ import {
 } from "@/lib/api-helpers";
 import { scrapeWebsite } from "@/lib/scrape-website";
 import { scrapeSparefoot, scrapeSelfStorage } from "@/lib/aggregator-scrape";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -127,6 +129,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;
@@ -148,6 +152,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;
@@ -448,6 +454,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;

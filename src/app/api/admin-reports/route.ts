@@ -8,6 +8,8 @@ import {
   requireAdminKey,
   getCorsHeaders,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import type { ReportType, ExportFormat } from "@/types/reports";
 import { generatePdfReport } from "@/lib/pdf-report";
 
@@ -20,6 +22,8 @@ export async function OPTIONS(req: NextRequest) {
  * List generated reports, optionally filtered by facility.
  */
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-reports");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authError = requireAdminKey(req);
   if (authError) return authError;
@@ -127,6 +131,8 @@ export async function GET(req: NextRequest) {
  * Returns CSV data or stores for later download.
  */
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-reports");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authError = requireAdminKey(req);
   if (authError) return authError;
@@ -401,6 +407,8 @@ export async function POST(req: NextRequest) {
  * - reject: delete the report row
  */
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-reports");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authError = requireAdminKey(req);
   if (authError) return authError;
@@ -491,7 +499,7 @@ export async function PATCH(req: NextRequest) {
     db.$executeRaw`
       INSERT INTO activity_log (type, facility_id, facility_name, detail)
       VALUES ('report_sent', ${report.facility_id}::uuid, ${facilityName}, ${`${isWeekly ? "Weekly" : "Monthly"} report approved and sent to ${clientEmail}`})
-    `.catch(() => {});
+    `.catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 
     return jsonResponse({
       success: true,

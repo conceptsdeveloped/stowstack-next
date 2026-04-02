@@ -9,6 +9,8 @@ import {
   isErrorResponse,
   requireScope,
 } from "@/lib/v1-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const VALID_EVENTS = [
   "lead.created",
@@ -24,6 +26,8 @@ export async function OPTIONS() {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-webhooks");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -62,6 +66,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-webhooks");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -122,7 +128,7 @@ export async function POST(request: NextRequest) {
       db.$executeRaw`
         INSERT INTO webhook_deliveries (webhook_id, event, payload, status, response_body, duration_ms)
         VALUES (${webhook.id}::uuid, 'webhook.test', ${JSON.stringify(testPayload)}::jsonb, ${resp.status}, ${responseBody}, ${durationMs})
-      `.catch(() => {});
+      `.catch((err) => console.error("[webhook_delivery] Fire-and-forget failed:", err));
 
       return v1Json({
         success: resp.status >= 200 && resp.status < 300,
@@ -177,6 +183,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-webhooks");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -241,6 +249,8 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-webhooks");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;

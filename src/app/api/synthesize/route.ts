@@ -7,6 +7,8 @@ import {
   isAdminRequest,
 } from "@/lib/api-helpers";
 import { synthesizeManual, synthesizeStyleReference, synthesizeCampaignResult } from "@/lib/synthesis";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 120;
 
@@ -16,6 +18,10 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "synthesize");
+  if (limited) return limited;
+
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {

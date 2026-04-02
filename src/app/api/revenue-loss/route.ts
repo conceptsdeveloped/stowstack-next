@@ -7,6 +7,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const OCCUPANCY_MID: Record<string, number> = {
   "below-60": 50,
@@ -42,6 +44,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "revenue-loss");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;
@@ -52,47 +56,25 @@ export async function GET(request: NextRequest) {
   try {
     const [facilityRows, snapshotRows, unitRows, intelRows, tenantRateRows, _revenueHistoryRows, agingRows, specialRows] =
       await Promise.all([
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          "SELECT * FROM facilities WHERE id = $1",
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          "SELECT * FROM facility_pms_snapshots WHERE facility_id = $1 ORDER BY snapshot_date DESC LIMIT 3",
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT *, (total_count - occupied_count) as vacant_count,
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facilities WHERE id = ${facilityId}`,
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_snapshots WHERE facility_id = ${facilityId} ORDER BY snapshot_date DESC LIMIT 3`,
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT *, (total_count - occupied_count) as vacant_count,
             (total_count * COALESCE(street_rate, 0)) as gross_potential,
             ((total_count - occupied_count) * COALESCE(street_rate, 0)) as vacant_lost_monthly
-          FROM facility_pms_units WHERE facility_id = $1 ORDER BY sqft ASC NULLS LAST`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          "SELECT * FROM facility_market_intel WHERE facility_id = $1",
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          "SELECT * FROM facility_pms_tenant_rates WHERE facility_id = $1 ORDER BY rate_variance ASC",
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT * FROM facility_pms_revenue_history WHERE facility_id = $1
+          FROM facility_pms_units WHERE facility_id = ${facilityId} ORDER BY sqft ASC NULLS LAST`,
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_market_intel WHERE facility_id = ${facilityId}`,
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_tenant_rates WHERE facility_id = ${facilityId} ORDER BY rate_variance ASC`,
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT * FROM facility_pms_revenue_history WHERE facility_id = ${facilityId}
            ORDER BY year DESC, CASE month
              WHEN 'January' THEN 1 WHEN 'February' THEN 2 WHEN 'March' THEN 3
              WHEN 'April' THEN 4 WHEN 'May' THEN 5 WHEN 'June' THEN 6
              WHEN 'July' THEN 7 WHEN 'August' THEN 8 WHEN 'September' THEN 9
              WHEN 'October' THEN 10 WHEN 'November' THEN 11 WHEN 'December' THEN 12
            END DESC LIMIT 12`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          "SELECT * FROM facility_pms_aging WHERE facility_id = $1 ORDER BY total DESC",
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          "SELECT * FROM facility_pms_specials WHERE facility_id = $1 AND active = true",
-          facilityId
-        ),
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_aging WHERE facility_id = ${facilityId} ORDER BY total DESC`,
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_specials WHERE facility_id = ${facilityId} AND active = true`,
       ]);
 
     const facilityRow = facilityRows[0];

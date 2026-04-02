@@ -9,12 +9,16 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "checkout-success");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const sessionId = req.nextUrl.searchParams.get("session_id");
 

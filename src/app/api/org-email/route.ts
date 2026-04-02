@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function buildEmail(
   org: { primary_color: string | null; white_label: boolean | null; name: string; logo_url: string | null },
@@ -40,6 +42,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "org-email");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;

@@ -2,12 +2,17 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.SIGNUP_HOURLY, "partner-signup");
+  if (limited) return limited;
+
   const origin = getOrigin(req);
 
   try {
@@ -115,7 +120,7 @@ export async function POST(req: NextRequest) {
             </div>
           `,
         }),
-      }).catch(() => {});
+      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
     }
 
     return jsonResponse(

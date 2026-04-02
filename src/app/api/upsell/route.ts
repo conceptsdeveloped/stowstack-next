@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -7,6 +8,8 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 interface TenantForUpsell {
   id: string;
@@ -119,6 +122,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "upsell");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -127,39 +132,34 @@ export async function GET(req: NextRequest) {
     const type = req.nextUrl.searchParams.get("type");
     const status = req.nextUrl.searchParams.get("status");
 
-    const whereParts: string[] = ["1=1"];
-    const params: unknown[] = [];
-    let idx = 1;
+    const whereParts: Prisma.Sql[] = [Prisma.sql`1=1`];
 
     if (facilityId) {
-      params.push(facilityId);
-      whereParts.push(`uo.facility_id = $${idx++}::uuid`);
+      whereParts.push(Prisma.sql`uo.facility_id = ${facilityId}::uuid`);
     }
     if (type) {
-      params.push(type);
-      whereParts.push(`uo.type = $${idx++}`);
+      whereParts.push(Prisma.sql`uo.type = ${type}`);
     }
     if (status) {
-      params.push(status);
-      whereParts.push(`uo.status = $${idx++}`);
+      whereParts.push(Prisma.sql`uo.status = ${status}`);
     }
 
-    const whereClause = whereParts.join(" AND ");
+    const whereClause = Prisma.join(whereParts, " AND ");
 
-    const opportunities = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT uo.*, t.name as tenant_name, t.email as tenant_email, t.phone as tenant_phone,
+    const opportunities = await db.$queryRaw<unknown[]>`SELECT uo.*, t.name as tenant_name, t.email as tenant_email, t.phone as tenant_phone,
               t.unit_number, t.unit_size, t.monthly_rate,
               f.name as facility_name, f.location as facility_location
        FROM upsell_opportunities uo
        JOIN tenants t ON t.id = uo.tenant_id
        JOIN facilities f ON f.id = uo.facility_id
        WHERE ${whereClause}
-       ORDER BY uo.monthly_uplift DESC, uo.confidence DESC`,
-      ...params,
-    );
+       ORDER BY uo.monthly_uplift DESC, uo.confidence DESC`;
 
-    const stats = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT
+    const statsWhereClause = facilityId
+      ? Prisma.sql`WHERE facility_id = ${facilityId}::uuid`
+      : Prisma.empty;
+
+    const stats = await db.$queryRaw<unknown[]>`SELECT
          COUNT(*) as total_opportunities,
          COUNT(*) FILTER (WHERE status = 'identified') as pending_count,
          COUNT(*) FILTER (WHERE status = 'sent') as sent_count,
@@ -170,9 +170,7 @@ export async function GET(req: NextRequest) {
          COUNT(DISTINCT type) as type_count,
          ROUND(COUNT(*) FILTER (WHERE status = 'accepted')::NUMERIC / NULLIF(COUNT(*) FILTER (WHERE status IN ('accepted','declined')), 0) * 100, 1) as acceptance_rate
        FROM upsell_opportunities
-       ${facilityId ? "WHERE facility_id = $1::uuid" : ""}`,
-      ...(facilityId ? [facilityId] : []),
-    );
+       ${statsWhereClause}`;
 
     return jsonResponse(
       { opportunities, stats: (stats as unknown[])[0] },
@@ -189,6 +187,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "upsell");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -248,6 +248,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "upsell");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -284,14 +286,10 @@ export async function PATCH(req: NextRequest) {
         return jsonResponse({ updated: ids.length }, 200, origin);
       }
       if (action === "batch_status" && status) {
-        const sets = ["status = $2", "updated_at = NOW()"];
+        const setClauses: Prisma.Sql[] = [Prisma.sql`status = ${status}`, Prisma.sql`updated_at = NOW()`];
         if (["accepted", "declined"].includes(status))
-          sets.push("responded_at = NOW()");
-        await db.$queryRawUnsafe(
-          `UPDATE upsell_opportunities SET ${sets.join(", ")} WHERE id = ANY($1::uuid[])`,
-          ids,
-          status,
-        );
+          setClauses.push(Prisma.sql`responded_at = NOW()`);
+        await db.$executeRaw`UPDATE upsell_opportunities SET ${Prisma.join(setClauses)} WHERE id = ANY(${ids}::uuid[])`;
         return jsonResponse({ updated: ids.length }, 200, origin);
       }
       return errorResponse("Unknown batch action", 400, origin);

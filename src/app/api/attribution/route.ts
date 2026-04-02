@@ -8,12 +8,16 @@ import {
   isAdminRequest,
 } from "@/lib/api-helpers";
 import { Prisma } from "@prisma/client";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "attribution");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const isAdmin = isAdminRequest(req);
 

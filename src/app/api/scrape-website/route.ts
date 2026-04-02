@@ -8,6 +8,8 @@ import {
   isAdminRequest,
 } from "@/lib/api-helpers";
 import { scrapeWebsite } from "@/lib/scrape-website";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -16,6 +18,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "scrape-website");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -69,7 +73,7 @@ export async function POST(req: NextRequest) {
                 scrapedFrom: img.page || targetUrl.href,
               },
             },
-          }).catch(() => {});
+          }).catch((err) => console.error("[asset_save] Fire-and-forget failed:", err));
         }
       } catch {
         /* asset save failed, not critical */

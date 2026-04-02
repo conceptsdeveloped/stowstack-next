@@ -6,6 +6,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const SYSTEM_PROMPT = `You are an expert Meta (Facebook/Instagram) ad copywriter specializing in self-storage facilities. You write high-converting ad copy for independent storage operators targeting local customers.
 
@@ -47,6 +49,9 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "generate-copy");
+  if (limited) return limited;
 
   const authError = requireAdminKey(req);
   if (authError) return authError;

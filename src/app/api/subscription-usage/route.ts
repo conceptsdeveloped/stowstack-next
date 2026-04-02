@@ -7,6 +7,8 @@ import {
   corsResponse,
 } from "@/lib/api-helpers";
 import { getSession } from "@/lib/session-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const PLAN_LIMITS: Record<
   string,
@@ -42,6 +44,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "subscription-usage");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   try {

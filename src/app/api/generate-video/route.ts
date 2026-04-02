@@ -9,6 +9,8 @@ import {
   isAdminRequest,
 } from "@/lib/api-helpers";
 import { getStyleDirectives } from "@/lib/style-references";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 120;
 

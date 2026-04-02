@@ -9,6 +9,8 @@ import {
   isAdminRequest,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const ONBOARDING_STEPS = [
   {
@@ -112,6 +114,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "onboarding-checklist");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const isAdmin = isAdminRequest(req);
 
@@ -245,6 +249,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "onboarding-checklist");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -337,7 +343,7 @@ export async function PATCH(req: NextRequest) {
                 <p style="color: #999; font-size: 12px; margin-top: 24px;">StorageAds by StorageAds.com</p>
               </div>`,
           }),
-        }).catch(() => {});
+        }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
       }
     }
 
@@ -349,7 +355,7 @@ export async function PATCH(req: NextRequest) {
           detail: `${completed !== false ? "Completed" : "Unchecked"}: ${validStep.label} for client ${clientId}`,
         },
       })
-      .catch(() => {});
+      .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 
     const checklist = steps.checklist;
     const result = buildStepsResult(checklist, true);

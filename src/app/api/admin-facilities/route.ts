@@ -7,12 +7,16 @@ import {
   corsResponse,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-facilities");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -127,6 +131,8 @@ const EDITABLE_FIELDS = [
 type EditableField = (typeof EDITABLE_FIELDS)[number];
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-facilities");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;

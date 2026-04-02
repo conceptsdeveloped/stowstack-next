@@ -8,6 +8,8 @@ import {
   isAdminRequest,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const PLAN_PRICES: Record<string, number> = {
   launch: 499,
@@ -134,6 +136,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.BILLING, "client-invoices");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -245,7 +249,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           from: "StorageAds Billing <billing@storageads.com>",
           to: row.email,
-          cc: "blake@storageads.com",
+          cc: process.env.ADMIN_EMAIL || "blake@storageads.com",
           subject: `Invoice ${invoiceNumber} — ${row.fac_name || row.facility_name} — ${period}`,
           html,
         }),
@@ -262,7 +266,7 @@ export async function POST(req: NextRequest) {
           detail: `Invoice ${invoiceNumber} for $${total.toLocaleString()} sent to ${row.email}`,
         },
       })
-      .catch(() => {});
+      .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 
     return jsonResponse(
       { success: true, invoiceNumber, total, sentTo: row.email },
@@ -275,6 +279,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "client-invoices");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const isAdmin = isAdminRequest(req);
 

@@ -6,7 +6,10 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
+  verifyCsrfOrigin,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -33,6 +36,8 @@ const VALID_KEYS: ReadonlySet<string> = new Set([
 ]);
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partner-notifications-preferences");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);
@@ -53,6 +58,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partner-notifications-preferences");
+  if (limited) return limited;
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);

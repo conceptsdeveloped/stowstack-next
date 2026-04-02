@@ -9,12 +9,17 @@ import {
   requireScope,
 } from "@/lib/v1-auth";
 import { dispatchWebhook } from "@/lib/webhook";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidUuid } from "@/lib/validation";
 
 export async function OPTIONS() {
   return v1CorsResponse();
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-facilities");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -28,6 +33,7 @@ export async function GET(request: NextRequest) {
 
   try {
     if (id) {
+      if (!isValidUuid(id)) return v1Error("Invalid id format", 400);
       const rows = await db.$queryRaw<Record<string, unknown>[]>`
         SELECT id, name, location, contact_name, contact_email, contact_phone,
                status, occupancy_range, total_units, created_at, updated_at
@@ -81,6 +87,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-facilities");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -114,7 +122,7 @@ export async function POST(request: NextRequest) {
     dispatchWebhook(orgId, "facility.updated", {
       action: "created",
       facility: rows[0],
-    }).catch(() => {});
+    }).catch((err) => console.error("[webhook] Fire-and-forget failed:", err));
 
     return v1Json({ facility: rows[0] });
   } catch {
@@ -123,6 +131,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-facilities");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -134,6 +144,7 @@ export async function PATCH(request: NextRequest) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
   if (!id) return v1Error("id query param is required");
+  if (!isValidUuid(id)) return v1Error("Invalid id format", 400);
 
   const body = await request.json().catch(() => null);
   if (!body) return v1Error("No valid fields to update");
@@ -176,7 +187,7 @@ export async function PATCH(request: NextRequest) {
     dispatchWebhook(orgId, "facility.updated", {
       action: "updated",
       facility: rows[0],
-    }).catch(() => {});
+    }).catch((err) => console.error("[webhook] Fire-and-forget failed:", err));
 
     return v1Json({ facility: rows[0] });
   } catch {

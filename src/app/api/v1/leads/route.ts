@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   v1CorsResponse,
@@ -10,12 +11,17 @@ import {
   requireScope,
 } from "@/lib/v1-auth";
 import { dispatchWebhook } from "@/lib/webhook";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS() {
   return v1CorsResponse();
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-leads");
+  if (limited) return limited;
+
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -48,46 +54,37 @@ export async function GET(request: NextRequest) {
     const status = url.searchParams.get("status");
     const since = url.searchParams.get("since");
 
-    let where = "WHERE f.organization_id = $1::uuid";
-    const params: unknown[] = [orgId];
-    let paramIdx = 2;
+    const conditions: Prisma.Sql[] = [Prisma.sql`f.organization_id = ${orgId}::uuid`];
 
     if (facilityId) {
-      where += ` AND pl.facility_id = $${paramIdx++}::uuid`;
-      params.push(facilityId);
+      conditions.push(Prisma.sql`pl.facility_id = ${facilityId}::uuid`);
     }
     if (status) {
-      where += ` AND pl.lead_status = $${paramIdx++}`;
-      params.push(status);
+      conditions.push(Prisma.sql`pl.lead_status = ${status}`);
     }
     if (since) {
-      where += ` AND pl.created_at >= $${paramIdx++}::timestamptz`;
-      params.push(since);
+      conditions.push(Prisma.sql`pl.created_at >= ${since}::timestamptz`);
     }
 
-    const selectCols = `pl.id, pl.facility_id, pl.name, pl.email, pl.phone, pl.unit_size,
-                        pl.lead_status, pl.utm_source, pl.utm_medium, pl.utm_campaign,
-                        pl.move_in_date, pl.created_at, pl.converted_at`;
+    const whereClause = Prisma.join(conditions, " AND ");
 
     const [leads, countRows] = await Promise.all([
-      db.$queryRawUnsafe<Record<string, unknown>[]>(
-        `SELECT ${selectCols}
-         FROM partial_leads pl
-         JOIN facilities f ON f.id = pl.facility_id
-         ${where}
-         ORDER BY pl.created_at DESC
-         LIMIT $${paramIdx++} OFFSET $${paramIdx}`,
-        ...params,
-        limit,
-        offset
-      ),
-      db.$queryRawUnsafe<{ total: number }[]>(
-        `SELECT COUNT(*)::int AS total
-         FROM partial_leads pl
-         JOIN facilities f ON f.id = pl.facility_id
-         ${where}`,
-        ...params
-      ),
+      db.$queryRaw<Record<string, unknown>[]>`
+        SELECT pl.id, pl.facility_id, pl.name, pl.email, pl.phone, pl.unit_size,
+               pl.lead_status, pl.utm_source, pl.utm_medium, pl.utm_campaign,
+               pl.move_in_date, pl.created_at, pl.converted_at
+        FROM partial_leads pl
+        JOIN facilities f ON f.id = pl.facility_id
+        WHERE ${whereClause}
+        ORDER BY pl.created_at DESC
+        LIMIT ${limit} OFFSET ${offset}
+      `,
+      db.$queryRaw<{ total: number }[]>`
+        SELECT COUNT(*)::int AS total
+        FROM partial_leads pl
+        JOIN facilities f ON f.id = pl.facility_id
+        WHERE ${whereClause}
+      `,
     ]);
 
     const total = countRows[0]?.total || 0;
@@ -103,6 +100,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-leads");
+  if (limited) return limited;
+
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
                 utm_source, utm_medium, utm_campaign, created_at
     `;
 
-    dispatchWebhook(orgId, "lead.created", { lead: rows[0] }).catch(() => {});
+    dispatchWebhook(orgId, "lead.created", { lead: rows[0] }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
 
     return v1Json({ lead: rows[0] });
   } catch {
@@ -157,6 +157,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-leads");
+  if (limited) return limited;
+
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -181,41 +184,36 @@ export async function PATCH(request: NextRequest) {
     unitSize: "unit_size",
   };
 
-  const sets: string[] = [];
-  const params: unknown[] = [];
-  let paramIdx = 1;
+  const setParts: Prisma.Sql[] = [];
 
   for (const [bodyKey, dbCol] of Object.entries(fieldMap)) {
     if (body[bodyKey] !== undefined) {
-      sets.push(`${dbCol} = $${paramIdx++}`);
-      params.push(body[bodyKey]);
+      setParts.push(Prisma.sql`${Prisma.raw(dbCol)} = ${body[bodyKey]}`);
     }
   }
 
-  if (!sets.length) return v1Error("No valid fields to update");
+  if (!setParts.length) return v1Error("No valid fields to update");
 
   if (body.leadStatus) {
-    sets.push("status_updated_at = NOW()");
+    setParts.push(Prisma.sql`status_updated_at = NOW()`);
   }
 
-  params.push(id, orgId);
+  const setClause = Prisma.join(setParts, ", ");
 
   try {
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `UPDATE partial_leads SET ${sets.join(", ")}
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`
+      UPDATE partial_leads SET ${setClause}
        FROM facilities f
-       WHERE partial_leads.id = $${paramIdx++}::uuid
+       WHERE partial_leads.id = ${id}::uuid
          AND partial_leads.facility_id = f.id
-         AND f.organization_id = $${paramIdx}::uuid
+         AND f.organization_id = ${orgId}::uuid
        RETURNING partial_leads.id, partial_leads.facility_id, partial_leads.name,
                  partial_leads.email, partial_leads.phone, partial_leads.unit_size,
                  partial_leads.lead_status, partial_leads.move_in_date,
-                 partial_leads.created_at, partial_leads.lead_notes`,
-      ...params
-    );
+                 partial_leads.created_at, partial_leads.lead_notes`;
     if (!rows.length) return v1Error("Lead not found", 404);
 
-    dispatchWebhook(orgId, "lead.updated", { lead: rows[0] }).catch(() => {});
+    dispatchWebhook(orgId, "lead.updated", { lead: rows[0] }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
 
     return v1Json({ lead: rows[0] });
   } catch {

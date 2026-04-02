@@ -7,6 +7,10 @@ import {
   corsResponse,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+
+import { getValidGoogleToken } from "@/lib/platform-auth";
 
 interface GbpConnection {
   id: string;
@@ -16,58 +20,14 @@ interface GbpConnection {
   token_expires_at: Date | null;
 }
 
-async function refreshAccessToken(
-  connection: GbpConnection
-): Promise<string | null> {
-  if (!connection.refresh_token) return null;
-  try {
-    const res = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: process.env.GOOGLE_GBP_CLIENT_ID || "",
-        client_secret: process.env.GOOGLE_GBP_CLIENT_SECRET || "",
-        refresh_token: connection.refresh_token,
-        grant_type: "refresh_token",
-      }),
-    });
-    const data = await res.json();
-    if (data.access_token) {
-      const expiresAt = new Date(
-        Date.now() + (data.expires_in || 3600) * 1000
-      );
-      await db.gbp_connections.update({
-        where: { id: connection.id },
-        data: {
-          access_token: data.access_token,
-          token_expires_at: expiresAt,
-          status: "connected",
-          updated_at: new Date(),
-        },
-      });
-      return data.access_token;
-    }
-  } catch {
-    // Token refresh failed
-  }
-  await db.gbp_connections.update({
-    where: { id: connection.id },
-    data: { status: "expired", updated_at: new Date() },
-  });
-  return null;
-}
-
 async function getValidToken(
   connection: GbpConnection
 ): Promise<string | null> {
-  if (
-    connection.access_token &&
-    connection.token_expires_at &&
-    new Date(connection.token_expires_at) > new Date()
-  ) {
-    return connection.access_token;
-  }
-  return refreshAccessToken(connection);
+  return getValidGoogleToken(connection, {
+    clientId: process.env.GOOGLE_GBP_CLIENT_ID || "",
+    clientSecret: process.env.GOOGLE_GBP_CLIENT_SECRET || "",
+    table: "gbp_connections",
+  });
 }
 
 interface GbpPost {
@@ -278,6 +238,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "gbp-posts");
+  if (limited) return limited;
+
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
 

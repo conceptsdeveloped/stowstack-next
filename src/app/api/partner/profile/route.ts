@@ -7,19 +7,26 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
+  verifyCsrfOrigin,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partner-profile");
+  if (limited) return limited;
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);
 
   try {
-    const body = (await req.json()) as { name?: string; email?: string };
+    const body = (await req.json()) as { name?: string; email?: string; avatar_url?: string | null };
     const updates: Record<string, unknown> = {};
 
     if (body.name !== undefined) {
@@ -28,6 +35,18 @@ export async function PATCH(req: NextRequest) {
         return errorResponse("Name must be between 1 and 100 characters", 400, origin);
       }
       updates.name = name;
+    }
+
+    if (body.avatar_url !== undefined) {
+      if (body.avatar_url === null) {
+        updates.avatar_url = null;
+      } else {
+        const url = String(body.avatar_url).trim();
+        if (url.length > 2048) {
+          return errorResponse("Avatar URL too long", 400, origin);
+        }
+        updates.avatar_url = url;
+      }
     }
 
     let emailChanged = false;

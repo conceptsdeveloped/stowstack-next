@@ -6,6 +6,8 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function hashSHA256(value: string): string | undefined {
   if (!value) return undefined;
@@ -171,6 +173,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-google-conversion");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   try {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
 import { db } from '@/lib/db';
 import type { StorEdgeWebhookPayload } from '@/types/storedge';
+import { applyRateLimit } from '@/lib/with-rate-limit';
+import { RATE_LIMIT_TIERS } from '@/lib/rate-limit-tiers';
 
 const WEBHOOK_SECRET = process.env.STOREDGE_WEBHOOK_SECRET;
 
@@ -43,6 +45,8 @@ function verifySignature(rawBody: string, signature: string | null): boolean {
  * - move_in.cancelled: move-in was reversed
  */
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-storedge");
+  if (limited) return limited;
   try {
     const rawBody = await req.text();
 

@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { promisify } from "util";
 import { db } from "@/lib/db";
 import { getSession, createSession } from "@/lib/session-auth";
-import { jsonResponse, errorResponse, getOrigin, corsResponse, isAdminRequest } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, isAdminRequest, verifyCsrfOrigin } from "@/lib/api-helpers";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 
@@ -57,6 +57,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
 
   try {
@@ -248,6 +250,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);

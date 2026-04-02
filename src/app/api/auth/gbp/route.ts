@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 /**
  * GET /api/auth/gbp
@@ -7,6 +9,9 @@ import { isAdminRequest } from "@/lib/api-helpers";
  * Redirects the admin to Google's consent screen.
  */
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_WRITE, "auth-gbp");
+  if (limited) return limited;
+
   if (!isAdminRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

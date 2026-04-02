@@ -7,6 +7,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 interface LeadInput {
   totalUnits: string | null;
@@ -125,6 +127,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "lead-score");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;
@@ -133,28 +137,22 @@ export async function GET(request: NextRequest) {
 
   try {
     if (leadId) {
-      const facilityRows = await db.$queryRawUnsafe<
+      const facilityRows = await db.$queryRaw<
         Record<string, unknown>[]
-      >("SELECT * FROM facilities WHERE id = $1", leadId);
+      >`SELECT * FROM facilities WHERE id = ${leadId}`;
       if (facilityRows.length === 0)
         return errorResponse("Lead not found", 404, origin);
       const facility = facilityRows[0];
 
-      const noteCountRows = await db.$queryRawUnsafe<
+      const noteCountRows = await db.$queryRaw<
         Record<string, unknown>[]
-      >(
-        "SELECT COUNT(*) as count FROM lead_notes WHERE facility_id = $1",
-        leadId
-      );
+      >`SELECT COUNT(*) as count FROM lead_notes WHERE facility_id = ${leadId}`;
 
       let hasOnboarding = false;
       if (facility.access_code) {
-        const onbRows = await db.$queryRawUnsafe<
+        const onbRows = await db.$queryRaw<
           Record<string, unknown>[]
-        >(
-          "SELECT steps FROM client_onboarding WHERE access_code = $1",
-          facility.access_code
-        );
+        >`SELECT steps FROM client_onboarding WHERE access_code = ${facility.access_code}`;
         if (onbRows.length > 0 && onbRows[0].steps) {
           hasOnboarding = Object.values(
             onbRows[0].steps as Record<
@@ -186,26 +184,24 @@ export async function GET(request: NextRequest) {
     }
 
     // All lead scores
-    const facilities = await db.$queryRawUnsafe<
+    const facilities = await db.$queryRaw<
       Record<string, unknown>[]
-    >("SELECT * FROM facilities");
+    >`SELECT * FROM facilities`;
     if (facilities.length === 0)
       return jsonResponse({ scores: {} }, 200, origin);
 
-    const noteCounts = await db.$queryRawUnsafe<
+    const noteCounts = await db.$queryRaw<
       Record<string, unknown>[]
-    >(
-      "SELECT facility_id, COUNT(*) as count FROM lead_notes GROUP BY facility_id"
-    );
+    >`SELECT facility_id, COUNT(*) as count FROM lead_notes GROUP BY facility_id`;
     const noteCountMap: Record<string, number> = {};
     for (const n of noteCounts)
       noteCountMap[String(n.facility_id)] = parseInt(
         String(n.count)
       );
 
-    const onboardingRows = await db.$queryRawUnsafe<
+    const onboardingRows = await db.$queryRaw<
       Record<string, unknown>[]
-    >("SELECT access_code, steps FROM client_onboarding");
+    >`SELECT access_code, steps FROM client_onboarding`;
     const onboardingMap: Record<string, boolean> = {};
     for (const o of onboardingRows) {
       if (o.steps) {

@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
         where: { id: record.id },
         data: { views: { increment: 1 } },
       })
-      .catch(() => {});
+      .catch((err) => console.error("[audit_view] Fire-and-forget failed:", err));
 
     // View-based notification emails
     const resendKey = process.env.RESEND_API_KEY;
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
           },
           body: JSON.stringify({
             from: "StorageAds <notifications@storageads.com>",
-            to: ["blake@storageads.com"],
+            to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
             subject: `Audit Opened: ${facilityName} (Score: ${overallScore}/100)`,
             html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
                 </table>
               </div>`,
           }),
-        }).catch(() => {});
+        }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
       } else if (currentViews + 1 >= 3 && currentViews < 3) {
         // Just hit 3 views — hot lead signal (only fire once when crossing threshold)
         fetch("https://api.resend.com/emails", {
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
           },
           body: JSON.stringify({
             from: "StorageAds <notifications@storageads.com>",
-            to: ["blake@storageads.com"],
+            to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
             subject: `Hot Lead: ${facilityName} — ${currentViews + 1} audit views`,
             html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
                 <p style="margin-top: 16px; color: #333;">Consider reaching out — they're engaged with the report.</p>
               </div>`,
           }),
-        }).catch(() => {});
+        }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
       }
     }
 

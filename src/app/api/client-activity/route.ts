@@ -7,6 +7,8 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const CLIENT_VISIBLE_TYPES = [
   "lead_created",
@@ -37,7 +39,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const origin = getOrigin(req);
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_READ, "client-activity");
+  if (limited) return limited;  const origin = getOrigin(req);
 
   try {
     const url = new URL(req.url);

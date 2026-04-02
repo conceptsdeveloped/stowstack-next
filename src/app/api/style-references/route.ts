@@ -11,6 +11,8 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 120;
 
@@ -54,6 +56,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "style-references");
+  if (limited) return limited;
+
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -224,7 +230,7 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
       fetch(
         `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${geminiKey}`,
         { method: "DELETE" },
-      ).catch(() => {});
+      ).catch((err) => console.error("[gemini_cleanup] Fire-and-forget failed:", err));
 
       const ref = await db.style_references.create({
         data: {
@@ -237,7 +243,7 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
       });
 
       // Auto-synthesize into CREATIVE.md (non-blocking)
-      synthesizeStyleReference(ref.analysis as Record<string, unknown>, ref.title || undefined).catch(() => {});
+      synthesizeStyleReference(ref.analysis as Record<string, unknown>, ref.title || undefined).catch((err) => console.error("[style_synthesize] Fire-and-forget failed:", err));
 
       return jsonResponse({ reference: ref }, 200, origin);
     }
@@ -319,7 +325,7 @@ Return ONLY valid JSON. No markdown fences, no explanation.`,
         });
 
         // Auto-synthesize into CREATIVE.md (non-blocking)
-      synthesizeStyleReference(ref.analysis as Record<string, unknown>, ref.title || undefined).catch(() => {});
+      synthesizeStyleReference(ref.analysis as Record<string, unknown>, ref.title || undefined).catch((err) => console.error("[style_synthesize] Fire-and-forget failed:", err));
 
       return jsonResponse({ reference: ref }, 200, origin);
       }

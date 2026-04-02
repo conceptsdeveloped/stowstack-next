@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-stripe-webhook");
+  if (limited) return limited;
   const sig = req.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -75,44 +79,46 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   const slugExists = await db.organizations.findFirst({ where: { slug } });
   if (slugExists) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
 
-  // Create org
-  const org = await db.organizations.create({
-    data: {
-      name: companyName,
-      slug,
-      plan: plan || "launch",
-      facility_limit: parseInt(facilityCount || "1"),
-      subscription_status: "active",
-      stripe_customer_id: customerId,
-      status: "active",
-    },
-  });
-
   // Generate cryptographically secure invite token instead of plaintext password
   const { randomBytes } = await import("crypto");
   const inviteToken = randomBytes(32).toString("hex");
 
-  // Create admin user with invite token (not a human-readable password)
-  await db.org_users.create({
-    data: {
-      organization_id: org.id,
-      email: email,
-      name: companyName,
-      role: "org_admin",
-      status: "active",
-      invite_token: inviteToken,
-      password_hash: "", // Set via password-reset flow, not a temp password
-    },
-  });
+  // Create org + admin user + activity log in a single transaction
+  const org = await db.$transaction(async (tx) => {
+    const newOrg = await tx.organizations.create({
+      data: {
+        name: companyName,
+        slug,
+        plan: plan || "launch",
+        facility_limit: parseInt(facilityCount || "1"),
+        subscription_status: "active",
+        stripe_customer_id: customerId,
+        status: "active",
+      },
+    });
 
-  // Log activity
-  await db.activity_log.create({
-    data: {
-      type: "org_created",
-      lead_name: companyName,
-      detail: `New ${plan} subscription for ${companyName}`,
-      meta: { plan, email, facilityCount },
-    },
+    await tx.org_users.create({
+      data: {
+        organization_id: newOrg.id,
+        email: email,
+        name: companyName,
+        role: "org_admin",
+        status: "active",
+        invite_token: inviteToken,
+        password_hash: "", // Set via password-reset flow, not a temp password
+      },
+    });
+
+    await tx.activity_log.create({
+      data: {
+        type: "org_created",
+        lead_name: companyName,
+        detail: `New ${plan} subscription for ${companyName}`,
+        meta: { plan, email, facilityCount },
+      },
+    });
+
+    return newOrg;
   });
 
   // Set signupComplete flag on Stripe customer — NO secrets in metadata
@@ -158,18 +164,19 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   });
   if (!org) return;
 
-  await db.organizations.update({
-    where: { id: org.id },
-    data: { subscription_status: "canceled" },
-  });
-
-  await db.activity_log.create({
-    data: {
-      type: "subscription_canceled",
-      detail: `${org.name} subscription canceled`,
-      meta: { orgId: org.id },
-    },
-  });
+  await db.$transaction([
+    db.organizations.update({
+      where: { id: org.id },
+      data: { subscription_status: "canceled" },
+    }),
+    db.activity_log.create({
+      data: {
+        type: "subscription_canceled",
+        detail: `${org.name} subscription canceled`,
+        meta: { orgId: org.id },
+      },
+    }),
+  ]);
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {

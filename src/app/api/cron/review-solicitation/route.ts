@@ -286,12 +286,37 @@ export async function GET(request: NextRequest) {
 
     console.log(`[CRON:review-solicitation] Complete. Checked: ${results.checked}, Sent: ${results.sent}, Failed: ${results.failed}`);
 
+    // Log cron completion
+    db.activity_log.create({
+      data: {
+        type: "cron_completed",
+        detail: `[review-solicitation] Checked: ${results.checked}, Sent: ${results.sent}, Failed: ${results.failed}`,
+        meta: JSON.parse(JSON.stringify(results)),
+      },
+    }).catch((err) => console.error("[activity_log] Cron log failed:", err));
+
     return NextResponse.json({ ok: true, ...results });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json(
-      { error: message, results },
-      { status: 500 }
-    );
+    console.error(`[CRON:review-solicitation] Fatal error:`, err);
+
+    // Notify admin of cron failure
+    if (process.env.RESEND_API_KEY) {
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "StorageAds <noreply@storageads.com>",
+          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+          subject: `[CRON FAILURE] review-solicitation`,
+          html: `<p>The <strong>review-solicitation</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
+        }),
+      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+    }
+
+    return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }
 }

@@ -10,12 +10,16 @@ import {
   requireOrgFacility,
 } from "@/lib/v1-auth";
 import { dispatchWebhook } from "@/lib/webhook";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS() {
   return v1CorsResponse();
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-facility-units");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -41,6 +45,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-facility-units");
+  if (limited) return limited;
   const auth = await requireApiAuth(request);
   if (isErrorResponse(auth)) return auth;
   const { apiKey } = auth;
@@ -87,7 +93,7 @@ export async function POST(request: NextRequest) {
     dispatchWebhook(orgId, "unit.updated", {
       facilityId,
       units: saved,
-    }).catch(() => {});
+    }).catch((err) => console.error("[webhook] Fire-and-forget failed:", err));
 
     return v1Json({ units: saved });
   } catch {

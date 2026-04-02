@@ -6,6 +6,8 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 /**
  * Maps form responses (question-answer pairs) to DiagnosticInput format
@@ -165,6 +167,9 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_WRITE, "diagnostic-intake");
+  if (limited) return limited;
+
   const origin = getOrigin(req);
 
   try {
@@ -262,7 +267,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           from: "StorageAds <notifications@storageads.com>",
-          to: ["blake@storageads.com"],
+          to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
           subject: `New Diagnostic Submission: ${facilityName}`,
           html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -280,7 +285,7 @@ export async function POST(req: NextRequest) {
               </p>
             </div>`,
         }),
-      }).catch(() => {});
+      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
     }
 
     // Log activity
@@ -293,7 +298,7 @@ export async function POST(req: NextRequest) {
           detail: `Diagnostic form submitted by ${contactName || contactEmail}`,
         },
       })
-      .catch(() => {});
+      .catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
 
     // Auto-trigger audit generation (fire-and-forget)
     const adminSecret = process.env.ADMIN_SECRET;

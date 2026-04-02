@@ -7,6 +7,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const SEASONAL_INDEX: Record<number, number> = {
   1: 0.85,
@@ -44,6 +46,10 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const origin = getOrigin(request);
+
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.EXPENSIVE_API, "occupancy-forecast");
+  if (limited) return limited;
+
   const denied = requireAdminKey(request);
   if (denied) return denied;
 
@@ -51,30 +57,27 @@ export async function GET(request: NextRequest) {
   if (!facilityId) return errorResponse("Missing facilityId", 400, origin);
 
   try {
-    const facilityRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      "SELECT * FROM facilities WHERE id = $1",
-      facilityId
-    );
+    const facilityRows = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT * FROM facilities WHERE id = ${facilityId}::uuid
+    `;
     if (facilityRows.length === 0)
       return errorResponse("Facility not found", 404, origin);
     const fac = facilityRows[0];
 
-    const campaigns = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `SELECT cc.* FROM client_campaigns cc
+    const campaigns = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT cc.* FROM client_campaigns cc
        JOIN clients c ON cc.client_id = c.id
-       WHERE c.facility_id = $1
-       ORDER BY cc.month ASC`,
-      facilityId
-    );
+       WHERE c.facility_id = ${facilityId}::uuid
+       ORDER BY cc.month ASC
+    `;
 
     let snapshots: Record<string, unknown>[] = [];
     try {
-      snapshots = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        `SELECT * FROM facility_pms_snapshots
-         WHERE facility_id = $1
-         ORDER BY snapshot_date ASC`,
-        facilityId
-      );
+      snapshots = await db.$queryRaw<Record<string, unknown>[]>`
+        SELECT * FROM facility_pms_snapshots
+         WHERE facility_id = ${facilityId}::uuid
+         ORDER BY snapshot_date ASC
+      `;
     } catch {
       snapshots = [];
     }

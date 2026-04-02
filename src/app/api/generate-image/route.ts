@@ -11,6 +11,8 @@ import {
 } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
 import { getStyleDirectives } from "@/lib/style-references";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -253,6 +255,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "generate-image");
+  if (limited) return limited;
+
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {

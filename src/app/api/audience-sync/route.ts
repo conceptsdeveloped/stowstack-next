@@ -8,6 +8,8 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function sha256(value: string): string {
   return createHash("sha256").update(value.trim().toLowerCase()).digest("hex");
@@ -35,6 +37,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "audience-sync");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -52,6 +56,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "audience-sync");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -196,7 +202,7 @@ export async function POST(req: NextRequest) {
             detail: `Custom audience "${audienceName}" created with ${tenants.length} records`,
           },
         })
-        .catch(() => {});
+        .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 
       return jsonResponse(
         {

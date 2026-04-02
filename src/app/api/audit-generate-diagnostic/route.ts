@@ -8,6 +8,8 @@ import {
   corsResponse,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -863,6 +865,10 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "audit-generate-diagnostic");
+  if (limited) return limited;
+
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
 
@@ -1101,7 +1107,7 @@ export async function POST(req: NextRequest) {
           subject: `Your StorageAds Facility Diagnostic is Ready — ${diagnostic.facilityName}`,
           html: operatorHtml,
         }),
-      }).catch(() => {});
+      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
 
       // Send notification to Blake
       fetch("https://api.resend.com/emails", {
@@ -1112,7 +1118,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           from: "StorageAds <notifications@storageads.com>",
-          to: ["blake@storageads.com"],
+          to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
           subject: `Audit Generated: ${diagnostic.facilityName} (Score: ${overallScore}/100)`,
           html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -1128,7 +1134,7 @@ export async function POST(req: NextRequest) {
               </p>
             </div>`,
         }),
-      }).catch(() => {});
+      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
     }
 
     return jsonResponse(

@@ -1,12 +1,17 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "page-interaction-stats");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -21,71 +26,67 @@ export async function GET(req: NextRequest) {
       return errorResponse("Missing landingPageId", 400, origin);
     }
 
-    const statsParams: unknown[] = [landingPageId];
-    let statsQuery = `SELECT * FROM page_interaction_stats WHERE landing_page_id = $1`;
-    let paramIdx = 2;
-
+    const conditions: Prisma.Sql[] = [
+      Prisma.sql`landing_page_id = ${landingPageId}`,
+    ];
     if (startDate) {
-      statsQuery += ` AND period_date >= $${paramIdx++}`;
-      statsParams.push(startDate);
+      conditions.push(Prisma.sql`period_date >= ${startDate}`);
     }
     if (endDate) {
-      statsQuery += ` AND period_date <= $${paramIdx++}`;
-      statsParams.push(endDate);
+      conditions.push(Prisma.sql`period_date <= ${endDate}`);
     }
-    statsQuery += ` ORDER BY period_date DESC LIMIT 90`;
+    const whereClause = Prisma.join(conditions, " AND ");
 
-    const stats = await db.$queryRawUnsafe(statsQuery, ...statsParams);
+    const stats = await db.$queryRaw`
+      SELECT * FROM page_interaction_stats
+      WHERE ${whereClause}
+      ORDER BY period_date DESC LIMIT 90
+    `;
 
     const today = new Date().toISOString().slice(0, 10);
-    const todayRaw = await db.$queryRawUnsafe<
+    const todayRaw = await db.$queryRaw<
       Array<{ sessions: number; avg_scroll: number; avg_time: number; total_clicks: number }>
-    >(
-      `SELECT
+    >`
+      SELECT
          COUNT(DISTINCT session_id)::int AS sessions,
          AVG(CASE WHEN scroll_depth IS NOT NULL THEN scroll_depth END)::int AS avg_scroll,
          AVG(CASE WHEN time_on_page > 0 THEN time_on_page END)::int AS avg_time,
          COUNT(*) FILTER (WHERE event_type = 'click')::int AS total_clicks
        FROM page_interactions
-       WHERE landing_page_id = $1 AND created_at >= $2`,
-      landingPageId,
-      today
-    );
+       WHERE landing_page_id = ${landingPageId} AND created_at >= ${today}
+    `;
 
-    const clicks = await db.$queryRawUnsafe(
-      `SELECT x_pct, y_pct, COUNT(*)::int AS count
+    const clicks = await db.$queryRaw`
+      SELECT x_pct, y_pct, COUNT(*)::int AS count
        FROM page_interactions
-       WHERE landing_page_id = $1 AND event_type = 'click'
+       WHERE landing_page_id = ${landingPageId} AND event_type = 'click'
        AND x_pct IS NOT NULL AND y_pct IS NOT NULL
        AND created_at >= NOW() - INTERVAL '7 days'
        GROUP BY ROUND(x_pct / 5) * 5, ROUND(y_pct / 5) * 5, x_pct, y_pct
        ORDER BY count DESC
-       LIMIT 200`,
-      landingPageId
-    );
+       LIMIT 200
+    `;
 
-    const ctaClicks = await db.$queryRawUnsafe(
-      `SELECT element_id, element_text, COUNT(*)::int AS clicks
+    const ctaClicks = await db.$queryRaw`
+      SELECT element_id, element_text, COUNT(*)::int AS clicks
        FROM page_interactions
-       WHERE landing_page_id = $1 AND event_type = 'click'
+       WHERE landing_page_id = ${landingPageId} AND event_type = 'click'
        AND element_id IS NOT NULL
        AND created_at >= NOW() - INTERVAL '30 days'
        GROUP BY element_id, element_text
        ORDER BY clicks DESC
-       LIMIT 20`,
-      landingPageId
-    );
+       LIMIT 20
+    `;
 
-    const sectionViews = await db.$queryRawUnsafe(
-      `SELECT section_index, COUNT(DISTINCT session_id)::int AS unique_views
+    const sectionViews = await db.$queryRaw`
+      SELECT section_index, COUNT(DISTINCT session_id)::int AS unique_views
        FROM page_interactions
-       WHERE landing_page_id = $1 AND event_type = 'section_view'
+       WHERE landing_page_id = ${landingPageId} AND event_type = 'section_view'
        AND section_index IS NOT NULL
        AND created_at >= NOW() - INTERVAL '30 days'
        GROUP BY section_index
-       ORDER BY section_index`,
-      landingPageId
-    );
+       ORDER BY section_index
+    `;
 
     return jsonResponse(
       {

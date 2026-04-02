@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidEmail, sanitizeString } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.PUBLIC_WRITE, "audit-form");
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const {
-      name,
-      email,
       phone,
-      facilityName,
-      location,
       totalUnits,
       occupancyRange,
       runningAds,
@@ -17,9 +19,21 @@ export async function POST(request: NextRequest) {
       howHeard,
     } = body;
 
+    const name = sanitizeString(body.name, 200);
+    const email = typeof body.email === "string" ? body.email.trim() : "";
+    const facilityName = sanitizeString(body.facilityName, 200);
+    const location = sanitizeString(body.location, 500);
+
     if (!name || !email || !facilityName || !location) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidEmail(email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
         { status: 400 }
       );
     }
@@ -53,7 +67,7 @@ export async function POST(request: NextRequest) {
           },
           body: JSON.stringify({
             from: "StorageAds <noreply@storageads.com>",
-            to: ["blake@storageads.com"],
+            to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
             subject: `New Audit Request: ${facilityName} (${location})`,
             html: `
               <h2>New Facility Audit Request</h2>

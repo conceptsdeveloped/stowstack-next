@@ -8,6 +8,8 @@ import {
   requireAdminKey,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 /* ── Auth helper: admin key OR client bearer token ── */
 async function authorizeRequest(
@@ -41,6 +43,8 @@ async function authorizeRequest(
    GET — Fetch all PMS data for a facility
 ══════════════════════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "pms-data");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const facilityId = req.nextUrl.searchParams.get("facilityId");
 
@@ -149,6 +153,8 @@ export async function GET(req: NextRequest) {
    POST — Import PMS data (admin only)
 ══════════════════════════════════════════════════════════ */
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "pms-data");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const adminErr = requireAdminKey(req);
   if (adminErr) return adminErr;

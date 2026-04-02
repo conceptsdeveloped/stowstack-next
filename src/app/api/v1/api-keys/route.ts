@@ -10,6 +10,8 @@ import {
   requireApiAuth,
   isErrorResponse,
 } from "@/lib/v1-auth";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const VALID_SCOPES = [
   "facilities:read",
@@ -30,6 +32,8 @@ export async function OPTIONS() {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-api-keys");
+  if (limited) return limited;
   const admin = isAdminRequest(request);
   let organizationId: string | null = null;
 
@@ -57,6 +61,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-api-keys");
+  if (limited) return limited;
   if (!isAdminRequest(request)) {
     return v1Error("Unauthorized", 401);
   }
@@ -101,6 +107,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "v1-api-keys");
+  if (limited) return limited;
   if (!isAdminRequest(request)) {
     return v1Error("Unauthorized", 401);
   }

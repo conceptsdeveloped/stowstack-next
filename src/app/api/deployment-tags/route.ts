@@ -7,6 +7,8 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const VALID_ENVS = ["production", "staging", "preview"];
 
@@ -15,6 +17,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "deployment-tags");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -36,6 +40,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "deployment-tags");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -72,6 +78,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "deployment-tags");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 

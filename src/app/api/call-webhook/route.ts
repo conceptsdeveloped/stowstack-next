@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import twilio from "twilio";
 import { db } from "@/lib/db";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const { VoiceResponse } = twilio.twiml;
 
@@ -28,6 +30,8 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-call-webhook");
+  if (limited) return limited;
   const url = new URL(req.url);
   const event = url.searchParams.get("event");
   const body = await parseFormBody(req);
@@ -87,7 +91,7 @@ export async function POST(req: NextRequest) {
     INSERT INTO call_logs (tracking_number_id, facility_id, twilio_call_sid, caller_number, caller_city, caller_state, campaign_source, status, started_at)
     VALUES (${trackingNum.id}::uuid, ${trackingNum.facility_id}::uuid, ${CallSid}, ${From || null}, ${FromCity || null}, ${FromState || null}, ${campaignSource}, 'ringing', NOW())
     ON CONFLICT (twilio_call_sid) DO NOTHING
-  `.catch(() => {});
+  `.catch((err) => console.error("[call_log] Fire-and-forget failed:", err));
 
   // Generate TwiML to forward the call with recording
   const twiml = new VoiceResponse();

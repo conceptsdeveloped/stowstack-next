@@ -7,6 +7,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function serializeBigInts(obj: unknown): unknown {
   if (obj === null || obj === undefined) return obj;
@@ -27,6 +29,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "revenue-intelligence");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;
@@ -37,8 +41,8 @@ export async function GET(request: NextRequest) {
   try {
     const [units, snapshots, tenantRates, revenueHistoryRaw, agingRows] =
       await Promise.all([
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT *,
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT *,
             (total_count * COALESCE(street_rate, 0)) as gross_potential,
             (occupied_count * COALESCE(actual_avg_rate, street_rate, 0)) as actual_revenue,
             ((total_count - occupied_count) * COALESCE(street_rate, 0)) as lost_revenue,
@@ -49,25 +53,19 @@ export async function GET(request: NextRequest) {
               THEN ROUND((occupied_count * COALESCE(actual_avg_rate, street_rate, 0)) / (total_count * street_rate) * 100, 1)
               ELSE NULL END as economic_occupancy
           FROM facility_pms_units
-          WHERE facility_id = $1::uuid
+          WHERE facility_id = ${facilityId}::uuid
           ORDER BY sqft ASC NULLS LAST, street_rate ASC`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT * FROM facility_pms_snapshots
-           WHERE facility_id = $1::uuid
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT * FROM facility_pms_snapshots
+           WHERE facility_id = ${facilityId}::uuid
            ORDER BY snapshot_date DESC LIMIT 1`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT * FROM facility_pms_tenant_rates
-           WHERE facility_id = $1::uuid
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT * FROM facility_pms_tenant_rates
+           WHERE facility_id = ${facilityId}::uuid
            ORDER BY rate_variance ASC`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT * FROM facility_pms_revenue_history
-           WHERE facility_id = $1::uuid
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT * FROM facility_pms_revenue_history
+           WHERE facility_id = ${facilityId}::uuid
            ORDER BY year DESC,
              CASE month
                WHEN 'January' THEN 1 WHEN 'February' THEN 2 WHEN 'March' THEN 3
@@ -76,10 +74,8 @@ export async function GET(request: NextRequest) {
                WHEN 'October' THEN 10 WHEN 'November' THEN 11 WHEN 'December' THEN 12
              END DESC
            LIMIT 24`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT
             COUNT(*) as delinquent_count,
             SUM(bucket_0_30) as total_0_30,
             SUM(bucket_31_60) as total_31_60,
@@ -89,10 +85,8 @@ export async function GET(request: NextRequest) {
             SUM(total) as total_outstanding,
             COUNT(CASE WHEN move_out_date IS NOT NULL THEN 1 END) as moved_out_count
           FROM facility_pms_aging
-          WHERE facility_id = $1::uuid
-            AND snapshot_date = (SELECT MAX(snapshot_date) FROM facility_pms_aging WHERE facility_id = $1::uuid)`,
-          facilityId
-        ),
+          WHERE facility_id = ${facilityId}::uuid
+            AND snapshot_date = (SELECT MAX(snapshot_date) FROM facility_pms_aging WHERE facility_id = ${facilityId}::uuid)`,
       ]);
 
     const snapshot = snapshots[0] || null;

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { isValidEmail, sanitizeString } from "@/lib/validation";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -28,8 +29,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
-      name,
-      email,
       phone,
       unitSize,
       timeline,
@@ -43,15 +42,18 @@ export async function POST(req: NextRequest) {
       referrer,
     } = body;
 
-    if (!name || typeof name !== "string" || !email || typeof email !== "string" || !phone || typeof phone !== "string") {
+    const name = sanitizeString(body.name, 200);
+    const email = typeof body.email === "string" ? body.email.trim() : "";
+
+    if (!name || !email || !phone || typeof phone !== "string") {
       return errorResponse("Name, email, and phone are required", 400, origin);
     }
 
-    if (name.length > 200 || email.length > 254 || phone.length > 30) {
+    if (email.length > 254 || phone.length > 30) {
       return errorResponse("Field length exceeded", 400, origin);
     }
 
-    if (!email.includes("@")) {
+    if (!isValidEmail(email)) {
       return errorResponse("Invalid email", 400, origin);
     }
 
@@ -100,7 +102,7 @@ export async function POST(req: NextRequest) {
             detail: `Lead from landing page: ${email.trim()}`,
           },
         })
-        .catch(() => {});
+        .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
     }
 
     const apiKey = process.env.RESEND_API_KEY;
@@ -147,7 +149,7 @@ export async function POST(req: NextRequest) {
           subject: `New Lead: ${name.trim()} — ${facilityName}`,
           html: notificationHtml,
         }),
-      }).catch(() => {});
+      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
     }
 
     return jsonResponse({ success: true }, 200, origin);

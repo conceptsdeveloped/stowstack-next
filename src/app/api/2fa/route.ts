@@ -3,7 +3,9 @@ import crypto from "crypto";
 import { TOTP } from "otpauth";
 import { db } from "@/lib/db";
 import { getSession, createSession } from "@/lib/session-auth";
-import { corsResponse, jsonResponse, errorResponse, getOrigin } from "@/lib/api-helpers";
+import { corsResponse, jsonResponse, errorResponse, getOrigin, verifyCsrfOrigin } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const ISSUER = "StorageAds";
 const TOTP_DIGITS = 6;
@@ -124,6 +126,10 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "2fa");
+  if (limited) return limited;
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
 
   try {

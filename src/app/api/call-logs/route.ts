@@ -7,12 +7,16 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "call-logs");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req))
     return errorResponse("Unauthorized", 401, origin);
@@ -138,6 +142,8 @@ export async function GET(req: NextRequest) {
 const VALID_OUTCOMES = ["qualified", "existing_tenant", "spam", "wrong_number", "unknown"];
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "call-logs");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req))
     return errorResponse("Unauthorized", 401, origin);
@@ -173,7 +179,7 @@ export async function PATCH(req: NextRequest) {
             detail: `Move-in attributed from phone call${callLog.campaign_source ? ` (${callLog.campaign_source})` : ""}`,
             meta: { source: "phone_call", call_log_id: id, campaign: callLog.campaign_source },
           },
-        }).catch(() => {});
+        }).catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
       }
     }
 

@@ -501,12 +501,37 @@ export async function GET(request: NextRequest) {
       console.error(`[CRON:send-client-reports] Failures:`, JSON.stringify(results.errors));
     }
 
+    // Log cron completion
+    db.activity_log.create({
+      data: {
+        type: "cron_completed",
+        detail: `[send-client-reports] Processed: ${results.processed}, Sent: ${results.sent}, Skipped: ${results.skipped}, Errors: ${results.errors.length}`,
+        meta: JSON.parse(JSON.stringify(results)),
+      },
+    }).catch((err) => console.error("[activity_log] Cron log failed:", err));
+
     return NextResponse.json({ success: true, ...results });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json(
-      { error: message, ...results },
-      { status: 500 }
-    );
+    console.error(`[CRON:send-client-reports] Fatal error:`, err);
+
+    // Notify admin of cron failure
+    if (process.env.RESEND_API_KEY) {
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "StorageAds <noreply@storageads.com>",
+          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+          subject: `[CRON FAILURE] send-client-reports`,
+          html: `<p>The <strong>send-client-reports</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
+        }),
+      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+    }
+
+    return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }
 }

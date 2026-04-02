@@ -7,6 +7,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function money(val: number | null | undefined): string {
   if (val == null) return "$0";
@@ -18,6 +20,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "occupancy-intelligence");
+  if (limited) return limited;
   const origin = getOrigin(request);
   const denied = requireAdminKey(request);
   if (denied) return denied;
@@ -28,8 +32,8 @@ export async function GET(request: NextRequest) {
   try {
     const [unitsRaw, snapshotsRaw, tenantRates, agingRows, revenueHistory, rentRoll] =
       await Promise.all([
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT *,
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT *,
             CASE WHEN total_count > 0
               THEN ROUND((occupied_count::numeric / total_count * 100), 1)
               ELSE 0 END as physical_occ_pct,
@@ -46,36 +50,28 @@ export async function GET(request: NextRequest) {
               THEN ROUND(((total_count - occupied_count)::numeric / total_count * COALESCE(street_rate, 0))::numeric, 2)
               ELSE 0 END as vacancy_cost_per_unit_type
           FROM facility_pms_units
-          WHERE facility_id = $1::uuid
+          WHERE facility_id = ${facilityId}::uuid
           ORDER BY sqft ASC NULLS LAST, street_rate ASC`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT * FROM facility_pms_snapshots
-           WHERE facility_id = $1::uuid
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT * FROM facility_pms_snapshots
+           WHERE facility_id = ${facilityId}::uuid
            ORDER BY snapshot_date DESC
            LIMIT 90`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT unit, unit_type, size_label, tenant_name,
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT unit, unit_type, size_label, tenant_name,
             standard_rate, actual_rate, paid_rate, rate_variance,
             discount, discount_desc, days_as_tenant,
             ecri_flag, ecri_suggested, ecri_revenue_lift, moved_in
           FROM facility_pms_tenant_rates
-          WHERE facility_id = $1::uuid
+          WHERE facility_id = ${facilityId}::uuid
           ORDER BY rate_variance ASC`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT * FROM facility_pms_aging
-           WHERE facility_id = $1::uuid
-             AND snapshot_date = (SELECT MAX(snapshot_date) FROM facility_pms_aging WHERE facility_id = $1::uuid)`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT * FROM facility_pms_revenue_history
-           WHERE facility_id = $1::uuid
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT * FROM facility_pms_aging
+           WHERE facility_id = ${facilityId}::uuid
+             AND snapshot_date = (SELECT MAX(snapshot_date) FROM facility_pms_aging WHERE facility_id = ${facilityId}::uuid)`,
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT * FROM facility_pms_revenue_history
+           WHERE facility_id = ${facilityId}::uuid
            ORDER BY year ASC,
              CASE month
                WHEN 'January' THEN 1 WHEN 'February' THEN 2 WHEN 'March' THEN 3
@@ -83,16 +79,12 @@ export async function GET(request: NextRequest) {
                WHEN 'July' THEN 7 WHEN 'August' THEN 8 WHEN 'September' THEN 9
                WHEN 'October' THEN 10 WHEN 'November' THEN 11 WHEN 'December' THEN 12
              END ASC`,
-          facilityId
-        ),
-        db.$queryRawUnsafe<Record<string, unknown>[]>(
-          `SELECT unit, size_label, tenant_name, rent_rate, total_due, days_past_due, paid_thru
+        db.$queryRaw<Record<string, unknown>[]>`
+          SELECT unit, size_label, tenant_name, rent_rate, total_due, days_past_due, paid_thru
            FROM facility_pms_rent_roll
-           WHERE facility_id = $1::uuid
-             AND snapshot_date = (SELECT MAX(snapshot_date) FROM facility_pms_rent_roll WHERE facility_id = $1::uuid)
+           WHERE facility_id = ${facilityId}::uuid
+             AND snapshot_date = (SELECT MAX(snapshot_date) FROM facility_pms_rent_roll WHERE facility_id = ${facilityId}::uuid)
            ORDER BY days_past_due DESC`,
-          facilityId
-        ),
       ]);
 
     const units = unitsRaw;

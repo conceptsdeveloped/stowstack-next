@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -7,12 +8,16 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "moveout-remarketing");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -20,35 +25,34 @@ export async function GET(req: NextRequest) {
     const facilityId = req.nextUrl.searchParams.get("facilityId");
     const status = req.nextUrl.searchParams.get("status");
 
-    const whereParts: string[] = ["1=1"];
-    const params: unknown[] = [];
-    let idx = 1;
+    const whereParts: Prisma.Sql[] = [Prisma.sql`1=1`];
 
     if (facilityId) {
-      params.push(facilityId);
-      whereParts.push(`mr.facility_id = $${idx++}::uuid`);
+      whereParts.push(Prisma.sql`mr.facility_id = ${facilityId}::uuid`);
     }
     if (status) {
-      params.push(status);
-      whereParts.push(`mr.sequence_status = $${idx++}`);
+      whereParts.push(Prisma.sql`mr.sequence_status = ${status}`);
     }
 
-    const whereClause = whereParts.join(" AND ");
+    const whereClause = Prisma.join(whereParts, " AND ");
 
-    const sequences = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT mr.*, t.name as tenant_name, t.email as tenant_email, t.phone as tenant_phone,
+    const sequences = await db.$queryRaw<unknown[]>`
+      SELECT mr.*, t.name as tenant_name, t.email as tenant_email, t.phone as tenant_phone,
               t.unit_number, t.unit_size, t.monthly_rate, t.move_out_reason as tenant_move_out_reason,
               f.name as facility_name, f.location as facility_location
        FROM moveout_remarketing mr
        JOIN tenants t ON t.id = mr.tenant_id
        JOIN facilities f ON f.id = mr.facility_id
        WHERE ${whereClause}
-       ORDER BY mr.moved_out_date DESC`,
-      ...params,
-    );
+       ORDER BY mr.moved_out_date DESC
+    `;
 
-    const stats = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT
+    const facilityFilter = facilityId
+      ? Prisma.sql`WHERE facility_id = ${facilityId}::uuid`
+      : Prisma.empty;
+
+    const stats = await db.$queryRaw<unknown[]>`
+      SELECT
          COUNT(*) as total_sequences,
          COUNT(*) FILTER (WHERE sequence_status = 'active') as active_sequences,
          COUNT(*) FILTER (WHERE sequence_status = 'completed') as completed_sequences,
@@ -59,21 +63,19 @@ export async function GET(req: NextRequest) {
          COUNT(DISTINCT move_out_reason) as reason_count,
          AVG(current_step)::NUMERIC(3,1) as avg_steps_completed
        FROM moveout_remarketing
-       ${facilityId ? "WHERE facility_id = $1::uuid" : ""}`,
-      ...(facilityId ? [facilityId] : []),
-    );
+       ${facilityFilter}
+    `;
 
-    const reasonBreakdown = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT move_out_reason as reason,
+    const reasonBreakdown = await db.$queryRaw<unknown[]>`
+      SELECT move_out_reason as reason,
               COUNT(*) as count,
               COUNT(*) FILTER (WHERE converted = true) as converted,
               ROUND(COUNT(*) FILTER (WHERE converted = true)::NUMERIC / NULLIF(COUNT(*), 0) * 100, 1) as conv_rate
        FROM moveout_remarketing
-       ${facilityId ? "WHERE facility_id = $1::uuid" : ""}
+       ${facilityFilter}
        GROUP BY move_out_reason
-       ORDER BY count DESC`,
-      ...(facilityId ? [facilityId] : []),
-    );
+       ORDER BY count DESC
+    `;
 
     return jsonResponse(
       {
@@ -90,6 +92,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "moveout-remarketing");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -194,6 +198,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "moveout-remarketing");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 

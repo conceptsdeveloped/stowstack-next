@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { db } from "@/lib/db";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const WEBHOOK_SECRET = process.env.CALCOM_WEBHOOK_SECRET;
 
@@ -39,6 +41,8 @@ function verifySignature(rawBody: string, signature: string | null): boolean {
  * - BOOKING_RESCHEDULED: rescheduled
  */
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-calcom");
+  if (limited) return limited;
   try {
     const rawBody = await req.text();
 

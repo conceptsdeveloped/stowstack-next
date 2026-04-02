@@ -8,6 +8,8 @@ import {
   getOrigin,
 } from "@/lib/api-helpers";
 import { Resend } from "resend";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -19,6 +21,8 @@ export async function OPTIONS(req: NextRequest) {
 
 // GET: Admin - list deletion requests
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "data-deletion");
+  if (limited) return limited;
   const authError = requireAdminKey(req);
   if (authError) return authError;
 
@@ -36,6 +40,8 @@ export async function GET(req: NextRequest) {
 
 // POST: Public - submit a deletion request; Admin - execute deletion
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "data-deletion");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   try {
@@ -132,7 +138,7 @@ async function handleNewRequest(
     try {
       await resend.emails.send({
         from: "StorageAds System <noreply@storageads.com>",
-        to: "blake@storageads.com",
+        to: process.env.ADMIN_EMAIL || "blake@storageads.com",
         subject: `Data Deletion Request: ${sanitizedEmail}`,
         html: buildAdminNotificationEmail(
           sanitizedEmail,

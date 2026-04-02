@@ -10,6 +10,8 @@ import {
   corsResponse,
 } from "@/lib/api-helpers";
 import { logAudit } from "@/lib/audit";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const scryptAsync = promisify(crypto.scrypt);
 const SCRYPT_KEYLEN = 64;
@@ -25,6 +27,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_WRITE, "password-reset");
+  if (limited) return limited;
   const origin = getOrigin(req);
 
   try {

@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -7,12 +8,16 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "social-posts");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -28,34 +33,29 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    let sql = `SELECT * FROM social_posts WHERE facility_id = $1`;
-    const params: unknown[] = [facilityId];
-    let idx = 2;
+    const conditions: Prisma.Sql[] = [Prisma.sql`facility_id = ${facilityId}::uuid`];
 
     if (status) {
-      sql += ` AND status = $${idx++}`;
-      params.push(status);
+      conditions.push(Prisma.sql`status = ${status}`);
     }
     if (platform) {
-      sql += ` AND platform = $${idx++}`;
-      params.push(platform);
+      conditions.push(Prisma.sql`platform = ${platform}`);
     }
     if (month) {
-      sql += ` AND (
-        (scheduled_at >= $${idx}::date AND scheduled_at < ($${idx}::date + interval '1 month'))
-        OR (published_at >= $${idx}::date AND published_at < ($${idx}::date + interval '1 month'))
-        OR (created_at >= $${idx}::date AND created_at < ($${idx}::date + interval '1 month'))
-      )`;
-      params.push(`${month}-01`);
-      idx++;
+      const monthDate = `${month}-01`;
+      conditions.push(Prisma.sql`(
+        (scheduled_at >= ${monthDate}::date AND scheduled_at < (${monthDate}::date + interval '1 month'))
+        OR (published_at >= ${monthDate}::date AND published_at < (${monthDate}::date + interval '1 month'))
+        OR (created_at >= ${monthDate}::date AND created_at < (${monthDate}::date + interval '1 month'))
+      )`);
     }
 
-    sql += ` ORDER BY COALESCE(scheduled_at, created_at) ASC`;
+    const whereClause = Prisma.join(conditions, " AND ");
 
-    const posts = await db.$queryRawUnsafe<Array<Record<string, unknown>>>(
-      sql,
-      ...params
-    );
+    const posts = await db.$queryRaw<Array<Record<string, unknown>>>`
+      SELECT * FROM social_posts WHERE ${whereClause}
+      ORDER BY COALESCE(scheduled_at, created_at) ASC
+    `;
     return jsonResponse({ posts }, 200, origin);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
@@ -64,6 +64,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "social-posts");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -132,6 +134,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "social-posts");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -159,52 +163,42 @@ export async function PATCH(req: NextRequest) {
     return errorResponse("id required", 400, origin);
   }
 
-  const sets: string[] = [];
-  const params: unknown[] = [];
-  let idx = 1;
+  const sets: Prisma.Sql[] = [];
 
   if (content !== undefined) {
-    sets.push(`content = $${idx++}`);
-    params.push(content);
+    sets.push(Prisma.sql`content = ${content}`);
   }
   if (hashtags !== undefined) {
-    sets.push(`hashtags = $${idx++}`);
-    params.push(hashtags);
+    sets.push(Prisma.sql`hashtags = ${hashtags}`);
   }
   if (mediaUrls !== undefined) {
-    sets.push(`media_urls = $${idx++}`);
-    params.push(mediaUrls);
+    sets.push(Prisma.sql`media_urls = ${mediaUrls}`);
   }
   if (ctaUrl !== undefined) {
-    sets.push(`cta_url = $${idx++}`);
-    params.push(ctaUrl);
+    sets.push(Prisma.sql`cta_url = ${ctaUrl}`);
   }
   if (status !== undefined) {
-    sets.push(`status = $${idx++}`);
-    params.push(status);
+    sets.push(Prisma.sql`status = ${status}`);
   }
   if (scheduledAt !== undefined) {
-    sets.push(`scheduled_at = $${idx++}`);
-    params.push(scheduledAt);
+    sets.push(Prisma.sql`scheduled_at = ${scheduledAt}`);
   }
   if (postType !== undefined) {
-    sets.push(`post_type = $${idx++}`);
-    params.push(postType);
+    sets.push(Prisma.sql`post_type = ${postType}`);
   }
 
-  sets.push("updated_at = NOW()");
-
-  if (sets.length <= 1) {
+  if (sets.length === 0) {
     return errorResponse("Nothing to update", 400, origin);
   }
 
-  params.push(id);
+  sets.push(Prisma.sql`updated_at = NOW()`);
+
+  const setClause = Prisma.join(sets, ", ");
 
   try {
-    const rows = await db.$queryRawUnsafe<Array<Record<string, unknown>>>(
-      `UPDATE social_posts SET ${sets.join(", ")} WHERE id = $${idx} RETURNING *`,
-      ...params
-    );
+    const rows = await db.$queryRaw<Array<Record<string, unknown>>>`
+      UPDATE social_posts SET ${setClause} WHERE id = ${id}::uuid RETURNING *
+    `;
 
     if (rows.length === 0) {
       return errorResponse("Post not found", 404, origin);
@@ -217,6 +211,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "social-posts");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;

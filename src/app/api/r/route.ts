@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { db } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.PUBLIC_READ, "r-redirect");
+  if (limited) return limited;
   const url = new URL(request.url);
   const c = url.searchParams.get("c");
 

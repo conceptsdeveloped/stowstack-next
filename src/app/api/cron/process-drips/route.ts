@@ -215,21 +215,7 @@ export async function GET(request: NextRequest) {
         };
 
         try {
-          // Dispatch based on channel
-          if (step.channel === 'sms') {
-            const phone = drip.contact_phone;
-            if (phone && phone.match(/^\+?\d/)) {
-              const smsBody = (step.customMessage || step.label || '')
-                .replace(/\[Facility\]/g, drip.facility_name || '')
-                .replace(/\[Name\]/g, drip.contact_name || '');
-              if (smsBody) {
-                await sendSms(phone, smsBody, drip.facility_id);
-              }
-            }
-          } else {
-            await sendTemplateEmail(step.templateId, lead);
-          }
-
+          // Advance step BEFORE sending to prevent double-sends on crash/retry
           const history = [
             ...(drip.history || []),
             {
@@ -260,6 +246,22 @@ export async function GET(request: NextRequest) {
               next_send_at = ${newNextSendAt.toISOString()}::timestamptz,
               history = ${JSON.stringify(history)}::jsonb WHERE id = ${drip.id}::uuid
             `;
+          }
+
+          // Send AFTER advancing step — if send fails, step is already advanced
+          // (better to skip one email than send duplicates)
+          if (step.channel === 'sms') {
+            const phone = drip.contact_phone;
+            if (phone && phone.match(/^\+?\d/)) {
+              const smsBody = (step.customMessage || step.label || '')
+                .replace(/\[Facility\]/g, drip.facility_name || '')
+                .replace(/\[Name\]/g, drip.contact_name || '');
+              if (smsBody) {
+                await sendSms(phone, smsBody, drip.facility_id);
+              }
+            }
+          } else {
+            await sendTemplateEmail(step.templateId, lead);
           }
 
           logActivity({
@@ -300,12 +302,37 @@ export async function GET(request: NextRequest) {
       console.error(`[CRON:process-drips] Failures:`, JSON.stringify(results.errors));
     }
 
+    // Log cron completion
+    db.activity_log.create({
+      data: {
+        type: "cron_completed",
+        detail: `[process-drips] Processed: ${results.processed}, Sent: ${results.sent}, Cancelled: ${results.cancelled}, Completed: ${results.completed}, Errors: ${results.errors.length}`,
+        meta: JSON.parse(JSON.stringify(results)),
+      },
+    }).catch((err) => console.error("[activity_log] Cron log failed:", err));
+
     return NextResponse.json({ success: true, ...results });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json(
-      { error: "Cron processing failed", message },
-      { status: 500 }
-    );
+    console.error(`[CRON:process-drips] Fatal error:`, err);
+
+    // Notify admin of cron failure
+    if (process.env.RESEND_API_KEY) {
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "StorageAds <noreply@storageads.com>",
+          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+          subject: `[CRON FAILURE] process-drips`,
+          html: `<p>The <strong>process-drips</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
+        }),
+      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+    }
+
+    return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }
 }

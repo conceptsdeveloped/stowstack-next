@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -7,6 +8,8 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 // Convert BigInt values to numbers in raw query results
 function serializeBigInts(obj: unknown): unknown {
@@ -45,6 +48,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "tenants");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -103,26 +108,22 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const whereParts: string[] = ["1=1"];
-    const params: unknown[] = [];
-    let idx = 1;
+    const whereParts: Prisma.Sql[] = [Prisma.sql`1=1`];
 
     if (facilityId) {
-      params.push(facilityId);
-      whereParts.push(`t.facility_id = $${idx++}::uuid`);
+      whereParts.push(Prisma.sql`t.facility_id = ${facilityId}::uuid`);
     }
     if (status) {
-      params.push(status);
-      whereParts.push(`t.status = $${idx++}`);
+      whereParts.push(Prisma.sql`t.status = ${status}`);
     }
     if (delinquent === "true") {
-      whereParts.push("t.days_delinquent > 0");
+      whereParts.push(Prisma.sql`t.days_delinquent > 0`);
     }
 
-    const whereClause = whereParts.join(" AND ");
+    const whereClause = Prisma.join(whereParts, " AND ");
 
-    const tenants = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT t.*, f.name as facility_name, f.location as facility_location,
+    const tenants = await db.$queryRaw<unknown[]>`
+      SELECT t.*, f.name as facility_name, f.location as facility_location,
          cp.risk_score, cp.risk_level, cp.retention_status,
          COALESCE(uo.upsell_count, 0) as upsell_count,
          COALESCE(uo.upsell_potential, 0) as upsell_potential,
@@ -140,12 +141,15 @@ export async function GET(req: NextRequest) {
          ORDER BY stage_entered_at DESC LIMIT 1
        ) de ON true
        WHERE ${whereClause}
-       ORDER BY t.days_delinquent DESC, t.name ASC`,
-      ...params,
-    );
+       ORDER BY t.days_delinquent DESC, t.name ASC
+    `;
 
-    const stats = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT
+    const facilityFilter = facilityId
+      ? Prisma.sql`WHERE t.facility_id = ${facilityId}::uuid`
+      : Prisma.empty;
+
+    const stats = await db.$queryRaw<unknown[]>`
+      SELECT
          COUNT(*) as total_tenants,
          COUNT(*) FILTER (WHERE t.status = 'active') as active_tenants,
          COUNT(*) FILTER (WHERE t.status = 'delinquent') as delinquent_tenants,
@@ -159,28 +163,33 @@ export async function GET(req: NextRequest) {
          COALESCE(SUM(t.monthly_rate) FILTER (WHERE cp.risk_level IN ('high','critical')), 0) as at_risk_revenue
        FROM tenants t
        LEFT JOIN churn_predictions cp ON cp.tenant_id = t.id
-       ${facilityId ? "WHERE t.facility_id = $1::uuid" : ""}`,
-      ...(facilityId ? [facilityId] : []),
-    );
+       ${facilityFilter}
+    `;
 
-    const upsellStats = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT COALESCE(SUM(monthly_uplift), 0) as total_upsell_potential,
+    const upsellFacilityFilter = facilityId
+      ? Prisma.sql`AND facility_id = ${facilityId}::uuid`
+      : Prisma.empty;
+
+    const upsellStats = await db.$queryRaw<unknown[]>`
+      SELECT COALESCE(SUM(monthly_uplift), 0) as total_upsell_potential,
               COUNT(*) as total_upsell_opps
        FROM upsell_opportunities
        WHERE status = 'identified'
-       ${facilityId ? "AND facility_id = $1::uuid" : ""}`,
-      ...(facilityId ? [facilityId] : []),
-    );
+       ${upsellFacilityFilter}
+    `;
 
-    const recentPayments = await db.$queryRawUnsafe<unknown[]>(
-      `SELECT tp.*, t.name as tenant_name, t.unit_number
+    const paymentsFacilityFilter = facilityId
+      ? Prisma.sql`WHERE tp.facility_id = ${facilityId}::uuid`
+      : Prisma.empty;
+
+    const recentPayments = await db.$queryRaw<unknown[]>`
+      SELECT tp.*, t.name as tenant_name, t.unit_number
        FROM tenant_payments tp
        JOIN tenants t ON t.id = tp.tenant_id
-       ${facilityId ? "WHERE tp.facility_id = $1::uuid" : ""}
+       ${paymentsFacilityFilter}
        ORDER BY tp.payment_date DESC
-       LIMIT 20`,
-      ...(facilityId ? [facilityId] : []),
-    );
+       LIMIT 20
+    `;
 
     const result: Record<string, unknown> = {
       tenants,
@@ -192,39 +201,40 @@ export async function GET(req: NextRequest) {
     };
 
     if (includeAnalytics === "true") {
-      const monthlyCollections = await db.$queryRawUnsafe<unknown[]>(
-        `SELECT date_trunc('month', payment_date)::date as month,
+      const analyticsFacilityFilter = facilityId
+        ? Prisma.sql`AND facility_id = ${facilityId}::uuid`
+        : Prisma.empty;
+
+      const monthlyCollections = await db.$queryRaw<unknown[]>`
+        SELECT date_trunc('month', payment_date)::date as month,
                 SUM(amount) FILTER (WHERE status = 'paid') as collected,
                 SUM(amount) FILTER (WHERE status IN ('pending','failed','late')) as outstanding,
                 COUNT(*) as payment_count
          FROM tenant_payments
          WHERE payment_date >= NOW() - INTERVAL '6 months'
-         ${facilityId ? "AND facility_id = $1::uuid" : ""}
+         ${analyticsFacilityFilter}
          GROUP BY date_trunc('month', payment_date)
-         ORDER BY month`,
-        ...(facilityId ? [facilityId] : []),
-      );
+         ORDER BY month
+      `;
 
-      const methodBreakdown = await db.$queryRawUnsafe<unknown[]>(
-        `SELECT method, COUNT(*) as count, SUM(amount) as total
+      const methodBreakdown = await db.$queryRaw<unknown[]>`
+        SELECT method, COUNT(*) as count, SUM(amount) as total
          FROM tenant_payments
          WHERE payment_date >= NOW() - INTERVAL '6 months'
-         ${facilityId ? "AND facility_id = $1::uuid" : ""}
+         ${analyticsFacilityFilter}
          GROUP BY method
-         ORDER BY total DESC`,
-        ...(facilityId ? [facilityId] : []),
-      );
+         ORDER BY total DESC
+      `;
 
-      const collectionRate = await db.$queryRawUnsafe<unknown[]>(
-        `SELECT
+      const collectionRate = await db.$queryRaw<unknown[]>`
+        SELECT
            COUNT(*) FILTER (WHERE status = 'paid') as paid_count,
            COUNT(*) as total_count,
            ROUND(COUNT(*) FILTER (WHERE status = 'paid')::NUMERIC / NULLIF(COUNT(*), 0) * 100, 1) as rate
          FROM tenant_payments
          WHERE payment_date >= NOW() - INTERVAL '30 days'
-         ${facilityId ? "AND facility_id = $1::uuid" : ""}`,
-        ...(facilityId ? [facilityId] : []),
-      );
+         ${analyticsFacilityFilter}
+      `;
 
       result.analytics = {
         monthlyCollections,
@@ -244,6 +254,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "tenants");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
@@ -253,18 +265,21 @@ export async function POST(req: NextRequest) {
 
     if (action === "auto_escalate") {
       const { facilityId } = body;
-      const delinquent = await db.$queryRawUnsafe<
+      const escalateFacilityFilter = facilityId
+        ? Prisma.sql`AND t.facility_id = ${facilityId}::uuid`
+        : Prisma.empty;
+
+      const delinquent = await db.$queryRaw<
         Array<{
           id: string;
           facility_id: string;
           days_delinquent: number;
           status: string;
         }>
-      >(
-        `SELECT t.* FROM tenants t WHERE t.days_delinquent > 0 AND t.status IN ('active','delinquent')
-         ${facilityId ? "AND t.facility_id = $1::uuid" : ""}`,
-        ...(facilityId ? [facilityId] : []),
-      );
+      >`
+        SELECT t.* FROM tenants t WHERE t.days_delinquent > 0 AND t.status IN ('active','delinquent')
+         ${escalateFacilityFilter}
+      `;
 
       let escalated = 0;
       for (const t of delinquent) {
@@ -430,6 +445,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "tenants");
+  if (limited) return limited;
   const origin = getOrigin(req);
   if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 

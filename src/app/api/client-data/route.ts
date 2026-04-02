@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (client) {
-          resetRateLimit(`portal_verify:${sanitizedEmail}`).catch(() => {});
+          resetRateLimit(`portal_verify:${sanitizedEmail}`).catch((err) => console.error("[rate_limit] Fire-and-forget failed:", err));
           return clientResponse(client);
         }
       }
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       return errorResponse("Invalid credentials", 401, origin);
     }
 
-    resetRateLimit(`portal_verify:${sanitizedEmail}`).catch(() => {});
+    resetRateLimit(`portal_verify:${sanitizedEmail}`).catch((err) => console.error("[rate_limit] Fire-and-forget failed:", err));
     return clientResponse(client);
   } catch {
     return errorResponse("Internal error", 500, origin);

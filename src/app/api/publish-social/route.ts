@@ -7,6 +7,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const META_GRAPH = "https://graph.facebook.com/v21.0";
 
@@ -25,6 +27,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "publish-social");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -87,7 +91,7 @@ export async function POST(req: NextRequest) {
 
     await db
       .$executeRaw`UPDATE social_posts SET status = 'failed', error_message = ${message}, updated_at = NOW() WHERE id = ${postId}`
-      .catch(() => {});
+      .catch((err) => console.error("[social_post] Fire-and-forget failed:", err));
 
     return errorResponse(message, 500, origin);
   }

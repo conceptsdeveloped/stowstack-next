@@ -8,6 +8,8 @@ import {
   corsResponse,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -33,6 +35,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "audit-approve");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -215,7 +219,7 @@ export async function POST(req: NextRequest) {
               </p>
             </div>`,
         }),
-      }).catch(() => {});
+      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
     }
 
     // Update facility pipeline
@@ -234,7 +238,7 @@ export async function POST(req: NextRequest) {
           detail: `Audit approved and sent to ${facility.contact_email}`,
         },
       })
-      .catch(() => {});
+      .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 
     // Enroll in post-audit drip sequence (day 1, 3, 7 follow-ups)
     const existingDrip = await db.drip_sequences.findUnique({

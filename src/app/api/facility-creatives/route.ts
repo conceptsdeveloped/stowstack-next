@@ -6,6 +6,8 @@ import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey }
 import { getCreativeContext } from "@/lib/creative";
 import { validateCompliance } from "@/lib/compliance";
 import { funnelConfigToDripSteps } from "@/lib/drip-sequences";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -15,23 +17,21 @@ export const maxDuration = 60;
 
 async function buildFacilityContext(facilityId: string) {
   const [facilities, onboardingRows, pmsUnits, pmsSnapshots, pmsSpecials] = await Promise.all([
-    db.$queryRawUnsafe<Array<Record<string, unknown>>>(
-      `SELECT f.*, pd.photos, pd.reviews
+    db.$queryRaw<Array<Record<string, unknown>>>`
+      SELECT f.*, pd.photos, pd.reviews
        FROM facilities f
        LEFT JOIN LATERAL (
          SELECT photos, reviews FROM places_data
          WHERE facility_id = f.id ORDER BY fetched_at DESC LIMIT 1
        ) pd ON true
-       WHERE f.id = $1::uuid`,
-      facilityId
-    ),
-    db.$queryRawUnsafe<Array<{ steps: Record<string, unknown> }>>(
-      `SELECT co.steps FROM client_onboarding co
+       WHERE f.id = ${facilityId}::uuid
+    `,
+    db.$queryRaw<Array<{ steps: Record<string, unknown> }>>`
+      SELECT co.steps FROM client_onboarding co
        JOIN clients c ON c.id = co.client_id
-       WHERE c.facility_id = $1::uuid
-       ORDER BY co.updated_at DESC LIMIT 1`,
-      facilityId
-    ),
+       WHERE c.facility_id = ${facilityId}::uuid
+       ORDER BY co.updated_at DESC LIMIT 1
+    `,
     db.facility_pms_units
       .findMany({
         where: { facility_id: facilityId },
@@ -477,6 +477,9 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "facility-creatives");
+  if (limited) return limited;
+
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -503,6 +506,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "facility-creatives");
+  if (limited) return limited;
+
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -647,6 +653,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "facility-creatives");
+  if (limited) return limited;
+
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;
@@ -794,14 +803,7 @@ export async function PATCH(req: NextRequest) {
       const sequence = (dripContent.sequence as Array<Record<string, unknown>>) || [];
       if (sequence.length === 0) return errorResponse("No email sequence in variation", 400, origin);
 
-      await db.$executeRawUnsafe(
-        `INSERT INTO drip_sequence_templates (facility_id, variation_id, name, steps)
-         VALUES ($1, $2, $3, $4)
-         ON CONFLICT (facility_id, variation_id) DO UPDATE SET steps = $4, updated_at = NOW()`,
-        variation.facility_id,
-        variation.id,
-        "AI-Generated Drip",
-        JSON.stringify(
+      const stepsJson = JSON.stringify(
           sequence.map((e, i) => ({
             step: i,
             delayDays: e.delayDays,
@@ -812,8 +814,12 @@ export async function PATCH(req: NextRequest) {
             ctaUrl: e.ctaUrl,
             label: e.label,
           }))
-        )
-      );
+        );
+      await db.$executeRaw`
+        INSERT INTO drip_sequence_templates (facility_id, variation_id, name, steps)
+         VALUES (${variation.facility_id}, ${variation.id}, ${"AI-Generated Drip"}, ${stepsJson}::jsonb)
+         ON CONFLICT (facility_id, variation_id) DO UPDATE SET steps = ${stepsJson}::jsonb, updated_at = NOW()
+      `;
 
       await db.ad_variations.update({
         where: { id: variation.id },
@@ -831,6 +837,9 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "facility-creatives");
+  if (limited) return limited;
+
   const origin = getOrigin(req);
   const authErr = requireAdminKey(req);
   if (authErr) return authErr;

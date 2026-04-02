@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -7,6 +8,8 @@ import {
   getOrigin,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 const CHI_SQUARE_95_THRESHOLD = 3.841;
 
@@ -82,39 +85,28 @@ async function aggregateResults(test: Record<string, unknown>) {
     (test.metrics as Record<string, unknown>)?.primary ||
     "reservation_completed";
 
-  const visitorRows = await db.$queryRawUnsafe<
+  const visitorRows = await db.$queryRaw<
     Record<string, unknown>[]
-  >(
-    `SELECT variant_id, COUNT(DISTINCT visitor_id) AS visitors
+  >`SELECT variant_id, COUNT(DISTINCT visitor_id) AS visitors
      FROM ab_test_events
-     WHERE test_id = $1
-     GROUP BY variant_id`,
-    test.id
-  );
+     WHERE test_id = ${test.id}
+     GROUP BY variant_id`;
 
-  const conversionRows = await db.$queryRawUnsafe<
+  const conversionRows = await db.$queryRaw<
     Record<string, unknown>[]
-  >(
-    `SELECT variant_id, COUNT(DISTINCT visitor_id) AS conversions
+  >`SELECT variant_id, COUNT(DISTINCT visitor_id) AS conversions
      FROM ab_test_events
-     WHERE test_id = $1 AND event_name = $2
-     GROUP BY variant_id`,
-    test.id,
-    primaryMetric
-  );
+     WHERE test_id = ${test.id} AND event_name = ${primaryMetric}
+     GROUP BY variant_id`;
 
   const secondaryMetrics =
     ((test.metrics as Record<string, unknown>)?.secondary as string[]) || [];
   let secondaryRows: Record<string, unknown>[] = [];
   if (secondaryMetrics.length > 0) {
-    secondaryRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `SELECT variant_id, event_name, COUNT(DISTINCT visitor_id) AS count
+    secondaryRows = await db.$queryRaw<Record<string, unknown>[]>`SELECT variant_id, event_name, COUNT(DISTINCT visitor_id) AS count
        FROM ab_test_events
-       WHERE test_id = $1 AND event_name = ANY($2)
-       GROUP BY variant_id, event_name`,
-      test.id,
-      secondaryMetrics
-    );
+       WHERE test_id = ${test.id} AND event_name = ANY(${secondaryMetrics})
+       GROUP BY variant_id, event_name`;
   }
 
   const visitorMap: Record<string, number> = {};
@@ -216,6 +208,8 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "ab-tests");
+  if (limited) return limited;
   const origin = getOrigin(request);
   if (!isAdminRequest(request))
     return errorResponse("Unauthorized", 401, origin);
@@ -226,10 +220,7 @@ export async function GET(request: NextRequest) {
 
   try {
     if (testId) {
-      const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        "SELECT * FROM ab_tests WHERE id = $1",
-        testId
-      );
+      const rows = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM ab_tests WHERE id = ${testId}`;
       if (rows.length === 0)
         return errorResponse("Test not found", 404, origin);
 
@@ -242,10 +233,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (facilityId) {
-      const tests = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        "SELECT * FROM ab_tests WHERE facility_id = $1 ORDER BY created_at DESC",
-        facilityId
-      );
+      const tests = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM ab_tests WHERE facility_id = ${facilityId} ORDER BY created_at DESC`;
       return jsonResponse({ tests }, 200, origin);
     }
 
@@ -260,6 +248,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "ab-tests");
+  if (limited) return limited;
   const origin = getOrigin(request);
 
   try {
@@ -276,16 +266,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const dupeCheck = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        `SELECT id FROM ab_test_events
-         WHERE test_id = $1 AND variant_id = $2 AND visitor_id = $3
-           AND event_name = $4 AND created_at > NOW() - INTERVAL '5 seconds'
-         LIMIT 1`,
-        testId,
-        variantId,
-        visitorId,
-        eventName
-      );
+      const dupeCheck = await db.$queryRaw<Record<string, unknown>[]>`SELECT id FROM ab_test_events
+         WHERE test_id = ${testId} AND variant_id = ${variantId} AND visitor_id = ${visitorId}
+           AND event_name = ${eventName} AND created_at > NOW() - INTERVAL '5 seconds'
+         LIMIT 1`;
 
       if (dupeCheck.length > 0) {
         return jsonResponse(
@@ -295,15 +279,8 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      await db.$executeRawUnsafe(
-        `INSERT INTO ab_test_events (test_id, variant_id, visitor_id, event_name, metadata)
-         VALUES ($1, $2, $3, $4, $5)`,
-        testId,
-        variantId,
-        visitorId,
-        eventName,
-        metadata ? JSON.stringify(metadata) : null
-      );
+      await db.$executeRaw`INSERT INTO ab_test_events (test_id, variant_id, visitor_id, event_name, metadata)
+         VALUES (${testId}, ${variantId}, ${visitorId}, ${eventName}, ${metadata ? JSON.stringify(metadata) : null})`;
 
       return jsonResponse({ tracked: true }, 200, origin);
     }
@@ -361,17 +338,9 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `INSERT INTO ab_tests (facility_id, name, description, status, variants, metrics, landing_page_ids, start_date)
-       VALUES ($1, $2, $3, 'active', $4, $5, $6, NOW())
-       RETURNING *`,
-      facilityId,
-      name,
-      description || null,
-      JSON.stringify(variantsWithIds),
-      JSON.stringify(metrics),
-      landingPageIds || null
-    );
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`INSERT INTO ab_tests (facility_id, name, description, status, variants, metrics, landing_page_ids, start_date)
+       VALUES (${facilityId}, ${name}, ${description || null}, 'active', ${JSON.stringify(variantsWithIds)}, ${JSON.stringify(metrics)}, ${landingPageIds || null}, NOW())
+       RETURNING *`;
 
     return jsonResponse({ test: rows[0] }, 201, origin);
   } catch {
@@ -380,6 +349,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "ab-tests");
+  if (limited) return limited;
   const origin = getOrigin(request);
   if (!isAdminRequest(request))
     return errorResponse("Unauthorized", 401, origin);
@@ -396,9 +367,7 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { status, name, winnerVariantId } = body || {};
 
-    const sets: string[] = [];
-    const params: unknown[] = [];
-    let paramIdx = 1;
+    const setClauses: Prisma.Sql[] = [];
 
     if (status !== undefined) {
       if (!["active", "paused", "completed"].includes(status)) {
@@ -408,31 +377,24 @@ export async function PATCH(request: NextRequest) {
           origin
         );
       }
-      sets.push(`status = $${paramIdx++}`);
-      params.push(status);
+      setClauses.push(Prisma.sql`status = ${status}`);
       if (status === "completed") {
-        sets.push("end_date = NOW()");
+        setClauses.push(Prisma.sql`end_date = NOW()`);
       }
     }
 
     if (name !== undefined) {
-      sets.push(`name = $${paramIdx++}`);
-      params.push(name);
+      setClauses.push(Prisma.sql`name = ${name}`);
     }
 
     if (winnerVariantId !== undefined) {
-      sets.push(`winner_variant_id = $${paramIdx++}`);
-      params.push(winnerVariantId);
+      setClauses.push(Prisma.sql`winner_variant_id = ${winnerVariantId}`);
     }
 
-    if (sets.length === 0)
+    if (setClauses.length === 0)
       return errorResponse("No fields to update", 400, origin);
 
-    params.push(testId);
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `UPDATE ab_tests SET ${sets.join(", ")} WHERE id = $${paramIdx} RETURNING *`,
-      ...params
-    );
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`UPDATE ab_tests SET ${Prisma.join(setClauses)} WHERE id = ${testId} RETURNING *`;
 
     if (rows.length === 0)
       return errorResponse("Test not found", 404, origin);
@@ -444,6 +406,8 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "ab-tests");
+  if (limited) return limited;
   const origin = getOrigin(request);
   if (!isAdminRequest(request))
     return errorResponse("Unauthorized", 401, origin);
@@ -457,10 +421,7 @@ export async function DELETE(request: NextRequest) {
     );
 
   try {
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      "DELETE FROM ab_tests WHERE id = $1 RETURNING id",
-      testId
-    );
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`DELETE FROM ab_tests WHERE id = ${testId} RETURNING id`;
     if (rows.length === 0)
       return errorResponse("Test not found", 404, origin);
 

@@ -6,6 +6,8 @@ import {
   corsResponse,
   getCorsHeaders,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
@@ -94,6 +96,9 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "diagnostic-analyze");
+  if (limited) return limited;
 
   const body = await req.json().catch(() => null);
   if (!body?.formData) {

@@ -2,13 +2,17 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session-auth";
-import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, verifyCsrfOrigin } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "org-users");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);
@@ -39,6 +43,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "org-users");
+  if (limited) return limited;
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);
@@ -81,6 +89,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Send invite email (fire-and-forget)
+    sendInviteEmail(
+      email,
+      inviteToken,
+      session.organization.name,
+      session.organization.slug,
+      session.user.name,
+    ).catch((err) => console.error("Failed to send invite email:", err));
+
     return jsonResponse({
       user: {
         id: user.id,
@@ -97,7 +114,53 @@ export async function POST(req: NextRequest) {
   }
 }
 
+async function sendInviteEmail(
+  email: string,
+  token: string,
+  orgName: string,
+  orgSlug: string,
+  inviterName: string,
+): Promise<void> {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) {
+    console.warn("RESEND_API_KEY not set, skipping invite email");
+    return;
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
+  const acceptUrl = `${baseUrl}/partner/accept-invite?token=${token}&org=${orgSlug}`;
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "StorageAds <noreply@storageads.com>",
+      to: [email],
+      subject: `You've been invited to ${orgName} on StorageAds`,
+      html: `
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
+          <h2 style="color: #141413; font-size: 20px; margin-bottom: 16px;">You're invited!</h2>
+          <p style="color: #6a6560; font-size: 14px; line-height: 1.6;">
+            ${inviterName} has invited you to join <strong>${orgName}</strong> on StorageAds.
+          </p>
+          <a href="${acceptUrl}" style="display: inline-block; margin: 24px 0; padding: 12px 24px; background: #B58B3F; color: #141413; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+            Accept Invitation
+          </a>
+          <p style="color: #b0aea5; font-size: 12px;">This invitation expires in 7 days.</p>
+        </div>
+      `,
+    }),
+  });
+}
+
 export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "org-users");
+  if (limited) return limited;
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);
@@ -140,6 +203,10 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "org-users");
+  if (limited) return limited;
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);
