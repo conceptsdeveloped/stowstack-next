@@ -545,21 +545,28 @@ export default function SettingsPage() {
                 {profile?.avatar_url ? (
                   <button
                     type="button"
+                    disabled={avatarUploading}
                     onClick={async () => {
+                      if (avatarUploading) return;
+                      setAvatarUploading(true);
+                      setProfileError(null);
                       try {
                         const res = await authFetch("/api/partner/avatar", { method: "DELETE" });
                         if (res.ok) {
                           setProfile((prev) =>
                             prev ? { ...prev, avatar_url: null } : prev
                           );
+                        } else {
+                          setProfileError("Failed to remove avatar");
                         }
                       } catch {
                         setProfileError("Failed to remove avatar");
                       }
+                      setAvatarUploading(false);
                     }}
-                    className="text-xs text-[var(--color-red)] hover:underline"
+                    className="text-xs text-[var(--color-red)] hover:underline disabled:opacity-50"
                   >
-                    Remove avatar
+                    {avatarUploading ? "Removing..." : "Remove avatar"}
                   </button>
                 ) : (
                   <p className="text-xs text-[var(--color-mid-gray)]">
