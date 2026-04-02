@@ -72,7 +72,7 @@ export async function requireApiAuth(
     }
   }
 
-  db.$executeRaw`UPDATE api_keys SET last_used_at = NOW() WHERE id = ${row.id}`.catch(
+  db.$executeRaw`UPDATE api_keys SET last_used_at = NOW() WHERE id = ${row.id}::uuid`.catch(
     () => {}
   );
 
@@ -85,7 +85,7 @@ export async function requireApiAuth(
     db.$executeRaw`
       INSERT INTO api_usage_log (api_key_id, organization_id, method, path, status_code, duration_ms)
       VALUES (${row.id}, ${row.organization_id}, ${method}, ${path}, 200, ${duration})
-    `.catch(() => {});
+    `.catch((err) => console.error("[api_usage] Fire-and-forget failed:", err));
   }, 0);
 
   return { apiKey: row };

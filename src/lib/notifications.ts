@@ -35,7 +35,7 @@ export async function getUnreadCount(userId: string, orgId: string): Promise<num
 export async function markAsRead(notificationId: string, userId: string): Promise<void> {
   await db.$executeRaw`
     UPDATE notifications SET read_at = NOW()
-    WHERE id = ${notificationId}
+    WHERE id = ${notificationId}::uuid
       AND (user_id = ${userId} OR user_id IS NULL)
       AND read_at IS NULL
   `;

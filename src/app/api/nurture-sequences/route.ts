@@ -244,7 +244,7 @@ export async function POST(req: NextRequest) {
 
       const seqRows = await db.$queryRaw<
         Array<{ id: string; steps: unknown }>
-      >`SELECT * FROM nurture_sequences WHERE id = ${sequenceId}`;
+      >`SELECT * FROM nurture_sequences WHERE id = ${sequenceId}::uuid`;
       const seq = seqRows[0];
       if (!seq) {
         return errorResponse("Sequence not found", 404, origin);
@@ -314,12 +314,12 @@ export async function PATCH(req: NextRequest) {
   try {
     if (patchAction === "pause") {
       await db.$executeRaw`
-        UPDATE nurture_enrollments SET status = 'paused', next_send_at = NULL WHERE id = ${enrollmentId}
+        UPDATE nurture_enrollments SET status = 'paused', next_send_at = NULL WHERE id = ${enrollmentId}::uuid
       `;
     } else if (patchAction === "resume") {
       const enrollmentRows = await db.$queryRaw<
         Array<{ id: string; sequence_id: string; current_step: number }>
-      >`SELECT * FROM nurture_enrollments WHERE id = ${enrollmentId}`;
+      >`SELECT * FROM nurture_enrollments WHERE id = ${enrollmentId}::uuid`;
       const enrollment = enrollmentRows[0];
       if (!enrollment) {
         return errorResponse("Enrollment not found", 404, origin);
@@ -327,7 +327,7 @@ export async function PATCH(req: NextRequest) {
 
       const seqRows = await db.$queryRaw<
         Array<{ id: string; steps: unknown }>
-      >`SELECT * FROM nurture_sequences WHERE id = ${enrollment.sequence_id}`;
+      >`SELECT * FROM nurture_sequences WHERE id = ${enrollment.sequence_id}::uuid`;
       const seq = seqRows[0];
       const steps =
         typeof seq.steps === "string" ? JSON.parse(seq.steps) : seq.steps;
@@ -339,12 +339,12 @@ export async function PATCH(req: NextRequest) {
         : null;
 
       await db.$executeRaw`
-        UPDATE nurture_enrollments SET status = 'active', next_send_at = ${nextSendAt}::timestamptz WHERE id = ${enrollmentId}
+        UPDATE nurture_enrollments SET status = 'active', next_send_at = ${nextSendAt}::timestamptz WHERE id = ${enrollmentId}::uuid
       `;
     } else if (patchAction === "skip") {
       const enrollmentRows = await db.$queryRaw<
         Array<{ id: string; sequence_id: string; current_step: number }>
-      >`SELECT * FROM nurture_enrollments WHERE id = ${enrollmentId}`;
+      >`SELECT * FROM nurture_enrollments WHERE id = ${enrollmentId}::uuid`;
       const enrollment = enrollmentRows[0];
       if (!enrollment) {
         return errorResponse("Enrollment not found", 404, origin);
@@ -352,7 +352,7 @@ export async function PATCH(req: NextRequest) {
 
       const seqRows = await db.$queryRaw<
         Array<{ id: string; steps: unknown }>
-      >`SELECT * FROM nurture_sequences WHERE id = ${enrollment.sequence_id}`;
+      >`SELECT * FROM nurture_sequences WHERE id = ${enrollment.sequence_id}::uuid`;
       const seq = seqRows[0];
       const steps =
         typeof seq.steps === "string" ? JSON.parse(seq.steps) : seq.steps;
@@ -360,7 +360,7 @@ export async function PATCH(req: NextRequest) {
 
       if (nextStepIdx >= (steps as unknown[]).length) {
         await db.$executeRaw`
-          UPDATE nurture_enrollments SET status = 'completed', completed_at = NOW(), current_step = ${nextStepIdx}, next_send_at = NULL WHERE id = ${enrollmentId}
+          UPDATE nurture_enrollments SET status = 'completed', completed_at = NOW(), current_step = ${nextStepIdx}, next_send_at = NULL WHERE id = ${enrollmentId}::uuid
         `;
       } else {
         const nextStep = (steps as Array<{ delay_minutes?: number }>)[
@@ -370,16 +370,16 @@ export async function PATCH(req: NextRequest) {
           Date.now() + (nextStep.delay_minutes || 60) * 60 * 1000
         ).toISOString();
         await db.$executeRaw`
-          UPDATE nurture_enrollments SET current_step = ${nextStepIdx}, next_send_at = ${nextSendAt}::timestamptz WHERE id = ${enrollmentId}
+          UPDATE nurture_enrollments SET current_step = ${nextStepIdx}, next_send_at = ${nextSendAt}::timestamptz WHERE id = ${enrollmentId}::uuid
         `;
       }
     } else if (patchAction === "convert") {
       await db.$executeRaw`
-        UPDATE nurture_enrollments SET status = 'converted', exit_reason = 'manual_convert', completed_at = NOW(), next_send_at = NULL WHERE id = ${enrollmentId}
+        UPDATE nurture_enrollments SET status = 'converted', exit_reason = 'manual_convert', completed_at = NOW(), next_send_at = NULL WHERE id = ${enrollmentId}::uuid
       `;
     } else if (patchAction === "unsubscribe") {
       await db.$executeRaw`
-        UPDATE nurture_enrollments SET status = 'unsubscribed', exit_reason = 'manual_unsubscribe', completed_at = NOW(), next_send_at = NULL WHERE id = ${enrollmentId}
+        UPDATE nurture_enrollments SET status = 'unsubscribed', exit_reason = 'manual_unsubscribe', completed_at = NOW(), next_send_at = NULL WHERE id = ${enrollmentId}::uuid
       `;
     } else if (patchAction === "update_sequence") {
       const {
@@ -411,7 +411,7 @@ export async function PATCH(req: NextRequest) {
       const setFragment = Prisma.join(setClauses, ", ");
 
       await db.$executeRaw`
-        UPDATE nurture_sequences SET ${setFragment} WHERE id = ${targetId}
+        UPDATE nurture_sequences SET ${setFragment} WHERE id = ${targetId}::uuid
       `;
     }
 
@@ -437,9 +437,9 @@ export async function DELETE(req: NextRequest) {
 
   try {
     if (type === "enrollment") {
-      await db.$executeRaw`DELETE FROM nurture_enrollments WHERE id = ${id}`;
+      await db.$executeRaw`DELETE FROM nurture_enrollments WHERE id = ${id}::uuid`;
     } else {
-      await db.$executeRaw`DELETE FROM nurture_sequences WHERE id = ${id}`;
+      await db.$executeRaw`DELETE FROM nurture_sequences WHERE id = ${id}::uuid`;
     }
 
     return jsonResponse({ deleted: true }, 200, origin);

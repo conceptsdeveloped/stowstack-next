@@ -71,11 +71,14 @@ export async function getSession(req: NextRequest): Promise<Session | null> {
   const auth = req.headers.get("authorization");
   if (auth?.startsWith("Bearer ss_")) {
     const token = auth.slice(7);
+    // Reject empty or too-short tokens to avoid unnecessary DB queries
+    if (token.length < 10) return null;
     return lookupSession(token);
   }
 
   const orgToken = req.headers.get("x-org-token");
   if (orgToken?.startsWith("ss_")) {
+    if (orgToken.length < 10) return null;
     return lookupSession(orgToken);
   }
 
@@ -127,15 +130,16 @@ async function lookupSession(token: string): Promise<Session | null> {
   if (!rows.length) return null;
   const row = rows[0];
 
-  // Fire-and-forget update
-  db.$executeRaw`UPDATE sessions SET last_active_at = NOW() WHERE id = ${row.session_id}`.catch(
-    () => {}
+  // Fire-and-forget: update session activity timestamp
+  db.$executeRaw`UPDATE sessions SET last_active_at = NOW() WHERE id = ${row.session_id}::uuid`.catch(
+    (err) => console.error("[session] last_active_at update failed:", err instanceof Error ? err.message : err)
   );
 
   Sentry.setUser({ id: row.id, email: row.email });
   Sentry.setTag("org_id", row.organization_id);
   Sentry.setTag("org_slug", row.org_slug);
   Sentry.setTag("user_role", row.role);
+  Sentry.addBreadcrumb({ category: "auth", message: "Session validated", level: "info", data: { userId: row.id, orgId: row.organization_id } });
 
   return formatSessionResult(row);
 }

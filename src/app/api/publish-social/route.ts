@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const postRows = await db.$queryRaw<Array<SocialPost>>`
-      SELECT * FROM social_posts WHERE id = ${postId}
+      SELECT * FROM social_posts WHERE id = ${postId}::uuid
     `;
     const post = postRows[0];
 
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
 
     await db.$executeRaw`
-      UPDATE social_posts SET status = 'publishing', updated_at = NOW() WHERE id = ${postId}
+      UPDATE social_posts SET status = 'publishing', updated_at = NOW() WHERE id = ${postId}::uuid
     `;
 
     let result: {
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
         external_post_id = ${result.externalId},
         external_url = ${result.externalUrl},
         updated_at = NOW()
-      WHERE id = ${postId}
+      WHERE id = ${postId}::uuid
     `;
 
     return jsonResponse({ success: true, ...result }, 200, origin);
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
 
     await db
-      .$executeRaw`UPDATE social_posts SET status = 'failed', error_message = ${message}, updated_at = NOW() WHERE id = ${postId}`
+      .$executeRaw`UPDATE social_posts SET status = 'failed', error_message = ${message}, updated_at = NOW() WHERE id = ${postId}::uuid`
       .catch((err) => console.error("[social_post] Fire-and-forget failed:", err));
 
     return errorResponse(message, 500, origin);

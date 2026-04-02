@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       Array<{ data: unknown }>
     >`SELECT co.steps as data FROM client_onboarding co
       JOIN clients c ON c.id = co.client_id
-      WHERE c.facility_id = ${facilityId}
+      WHERE c.facility_id = ${facilityId}::uuid
       LIMIT 1`;
     const onboarding = onboardingRows[0] || null;
 

@@ -561,7 +561,7 @@ export async function GET(req: NextRequest) {
       SELECT pl.*, av.content_json, av.angle, av.platform as ad_platform
       FROM publish_log pl
       LEFT JOIN ad_variations av ON av.id = pl.variation_id
-      WHERE pl.facility_id = ${facilityId}
+      WHERE pl.facility_id = ${facilityId}::uuid
       ORDER BY pl.created_at DESC
     `;
     return jsonResponse({ logs }, 200, origin);

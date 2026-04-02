@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
           UPDATE facility_pms_specials SET
             name = ${name}, description = ${description || null}, applies_to = ${applies_to || []}, discount_type = ${discount_type || "fixed"},
             discount_value = ${discount_value || null}, min_lease_months = ${min_lease_months || 1}, start_date = ${start_date || null}, end_date = ${end_date || null}, active = ${active !== false}
-          WHERE id = ${id} RETURNING *`;
+          WHERE id = ${id}::uuid RETURNING *`;
       } else {
         row = await db.$queryRaw<Array<Record<string, unknown>>>`
           INSERT INTO facility_pms_specials (facility_id, name, description, applies_to, discount_type, discount_value, min_lease_months, start_date, end_date, active)

@@ -136,7 +136,7 @@ export async function DELETE(req: NextRequest) {
       // Prevent revoking own session
       if (currentHash) {
         const target = await db.$queryRaw<{ token_hash: string }[]>`
-          SELECT token_hash FROM sessions WHERE id = ${body.sessionId} AND user_id = ${session.user.id}
+          SELECT token_hash FROM sessions WHERE id = ${body.sessionId}::uuid AND user_id = ${session.user.id}::uuid
         `;
         if (target.length > 0 && target[0].token_hash === currentHash) {
           return errorResponse("Cannot revoke current session", 400, origin);
@@ -145,7 +145,7 @@ export async function DELETE(req: NextRequest) {
 
       await db.$executeRaw`
         DELETE FROM sessions
-        WHERE id = ${body.sessionId} AND user_id = ${session.user.id}
+        WHERE id = ${body.sessionId}::uuid AND user_id = ${session.user.id}::uuid
       `;
       return jsonResponse({ success: true }, 200, origin);
     }
