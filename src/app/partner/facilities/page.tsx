@@ -363,8 +363,15 @@ export default function FacilitiesPage() {
           <Building2 className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
           <p className="text-sm text-[var(--color-body-text)]">No facilities yet</p>
           <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-            Add your first facility to get started
+            Add your first storage facility to get started
           </p>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-gold-hover)]"
+          >
+            <Plus className="h-4 w-4" />
+            Add Facility
+          </button>
         </div>
       ) : (
         <div className="space-y-2">

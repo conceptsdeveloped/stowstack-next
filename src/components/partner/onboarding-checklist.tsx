@@ -33,6 +33,7 @@ interface OnboardingData {
 const CTA_LABELS: Record<string, string> = {
   profile: "Edit Profile",
   facility: "Add Facility",
+  pms: "Upload PMS Data",
   landing_page: "Create Page",
   ad_account: "Connect Account",
   campaign: "Launch Campaign",

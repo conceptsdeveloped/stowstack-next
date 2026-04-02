@@ -7,6 +7,8 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { applyRateLimit } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -31,6 +33,8 @@ interface OnboardingStep {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partner-onboarding");
+  if (limited) return limited;
   const origin = getOrigin(req);
   const session = await getSession(req);
   if (!session) return errorResponse("Unauthorized", 401, origin);
@@ -39,7 +43,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // Fetch all data in parallel
-    const [orgRows, facilityCount, landingPageCount, connectionCount, publishCount] =
+    const [orgRows, facilityCount, pmsCount, landingPageCount, connectionCount, publishCount] =
       await Promise.all([
         db.$queryRaw<OrgRow[]>`
           SELECT logo_url, contact_email, onboarding_completed_at
@@ -50,6 +54,12 @@ export async function GET(req: NextRequest) {
           SELECT COUNT(*)::bigint as count
           FROM facilities
           WHERE organization_id = ${orgId}::uuid
+        `,
+        db.$queryRaw<CountRow[]>`
+          SELECT COUNT(*)::bigint as count
+          FROM facilities
+          WHERE organization_id = ${orgId}::uuid
+            AND pms_uploaded = true
         `,
         db.$queryRaw<CountRow[]>`
           SELECT COUNT(*)::bigint as count
@@ -77,9 +87,10 @@ export async function GET(req: NextRequest) {
 
     const step1Complete = org.logo_url !== null && org.contact_email !== null;
     const step2Complete = Number(facilityCount[0]?.count ?? 0) > 0;
-    const step3Complete = Number(landingPageCount[0]?.count ?? 0) > 0;
-    const step4Complete = Number(connectionCount[0]?.count ?? 0) > 0;
-    const step5Complete = Number(publishCount[0]?.count ?? 0) > 0;
+    const step3Complete = Number(pmsCount[0]?.count ?? 0) > 0;
+    const step4Complete = Number(landingPageCount[0]?.count ?? 0) > 0;
+    const step5Complete = Number(connectionCount[0]?.count ?? 0) > 0;
+    const step6Complete = Number(publishCount[0]?.count ?? 0) > 0;
 
     const steps: OnboardingStep[] = [
       {
@@ -99,11 +110,19 @@ export async function GET(req: NextRequest) {
         link: "/partner/facilities",
       },
       {
+        key: "pms",
+        title: "Connect your PMS",
+        description:
+          "Upload your PMS data to unlock occupancy insights and revenue intelligence.",
+        completed: step3Complete,
+        link: "/partner/facilities",
+      },
+      {
         key: "landing_page",
         title: "Build a landing page",
         description:
           "Create a high-converting landing page for one of your facilities.",
-        completed: step3Complete,
+        completed: step4Complete,
         link: "/partner/facilities",
       },
       {
@@ -111,7 +130,7 @@ export async function GET(req: NextRequest) {
         title: "Connect ad accounts",
         description:
           "Link your Meta or Google ad accounts to start running campaigns.",
-        completed: step4Complete,
+        completed: step5Complete,
         link: "/partner/facilities",
       },
       {
@@ -119,7 +138,7 @@ export async function GET(req: NextRequest) {
         title: "Launch a campaign",
         description:
           "Publish your first ad campaign and start generating leads.",
-        completed: step5Complete,
+        completed: step6Complete,
         link: "/partner/facilities",
       },
     ];
