@@ -50,7 +50,13 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        // Delete facilities (no cascade in schema) and their dependent data
+        // Nullify partial_leads FK (no cascade on this relation)
+        await db.$executeRaw`
+          UPDATE partial_leads SET facility_id = NULL
+          WHERE facility_id IN (SELECT id FROM facilities WHERE organization_id = ${org.id}::uuid)
+        `;
+
+        // Delete facilities (no cascade from organizations, but child tables cascade from facilities)
         await db.$executeRaw`
           DELETE FROM facilities WHERE organization_id = ${org.id}::uuid
         `;

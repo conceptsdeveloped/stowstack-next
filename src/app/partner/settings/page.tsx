@@ -32,6 +32,7 @@ interface OrgDetails {
   billing_email: string;
   plan: string;
   subscription_status: string;
+  status: string;
   has_stripe: boolean;
   facility_limit: number;
   white_label: boolean;
@@ -998,7 +999,7 @@ export default function SettingsPage() {
               </h3>
             </div>
             <div className="p-5">
-              {session?.organization.status === "pending_deletion" ? (
+              {org?.status === "pending_deletion" ? (
                 <>
                   <div className="mb-4 flex items-start gap-2 rounded-lg bg-amber-500/10 px-4 py-3">
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
@@ -1011,7 +1012,7 @@ export default function SettingsPage() {
                       </p>
                     </div>
                   </div>
-                  {session.user.role === "org_admin" && (
+                  {session?.user.role === "org_admin" && (
                     <button
                       onClick={async () => {
                         try {
