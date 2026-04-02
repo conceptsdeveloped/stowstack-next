@@ -89,14 +89,14 @@ async function aggregateResults(test: Record<string, unknown>) {
     Record<string, unknown>[]
   >`SELECT variant_id, COUNT(DISTINCT visitor_id) AS visitors
      FROM ab_test_events
-     WHERE test_id = ${test.id}
+     WHERE test_id = ${test.id}::uuid
      GROUP BY variant_id`;
 
   const conversionRows = await db.$queryRaw<
     Record<string, unknown>[]
   >`SELECT variant_id, COUNT(DISTINCT visitor_id) AS conversions
      FROM ab_test_events
-     WHERE test_id = ${test.id} AND event_name = ${primaryMetric}
+     WHERE test_id = ${test.id}::uuid AND event_name = ${primaryMetric}
      GROUP BY variant_id`;
 
   const secondaryMetrics =
@@ -105,7 +105,7 @@ async function aggregateResults(test: Record<string, unknown>) {
   if (secondaryMetrics.length > 0) {
     secondaryRows = await db.$queryRaw<Record<string, unknown>[]>`SELECT variant_id, event_name, COUNT(DISTINCT visitor_id) AS count
        FROM ab_test_events
-       WHERE test_id = ${test.id} AND event_name = ANY(${secondaryMetrics}::text[])
+       WHERE test_id = ${test.id}::uuid AND event_name = ANY(${secondaryMetrics}::text[])
        GROUP BY variant_id, event_name`;
   }
 
@@ -220,7 +220,7 @@ export async function GET(request: NextRequest) {
 
   try {
     if (testId) {
-      const rows = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM ab_tests WHERE id = ${testId}`;
+      const rows = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM ab_tests WHERE id = ${testId}::uuid`;
       if (rows.length === 0)
         return errorResponse("Test not found", 404, origin);
 
@@ -233,7 +233,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (facilityId) {
-      const tests = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM ab_tests WHERE facility_id = ${facilityId} ORDER BY created_at DESC`;
+      const tests = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM ab_tests WHERE facility_id = ${facilityId}::uuid ORDER BY created_at DESC`;
       return jsonResponse({ tests }, 200, origin);
     }
 
@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
       }
 
       const dupeCheck = await db.$queryRaw<Record<string, unknown>[]>`SELECT id FROM ab_test_events
-         WHERE test_id = ${testId} AND variant_id = ${variantId} AND visitor_id = ${visitorId}
+         WHERE test_id = ${testId}::uuid AND variant_id = ${variantId} AND visitor_id = ${visitorId}
            AND event_name = ${eventName} AND created_at > NOW() - INTERVAL '5 seconds'
          LIMIT 1`;
 
@@ -280,7 +280,7 @@ export async function POST(request: NextRequest) {
       }
 
       await db.$executeRaw`INSERT INTO ab_test_events (test_id, variant_id, visitor_id, event_name, metadata)
-         VALUES (${testId}, ${variantId}, ${visitorId}, ${eventName}, ${metadata ? JSON.stringify(metadata) : null}::jsonb)`;
+         VALUES (${testId}::uuid, ${variantId}, ${visitorId}, ${eventName}, ${metadata ? JSON.stringify(metadata) : null}::jsonb)`;
 
       return jsonResponse({ tracked: true }, 200, origin);
     }
@@ -339,7 +339,7 @@ export async function POST(request: NextRequest) {
     );
 
     const rows = await db.$queryRaw<Record<string, unknown>[]>`INSERT INTO ab_tests (facility_id, name, description, status, variants, metrics, landing_page_ids, start_date)
-       VALUES (${facilityId}, ${name}, ${description || null}, 'active', ${JSON.stringify(variantsWithIds)}::jsonb, ${JSON.stringify(metrics)}::jsonb, ${landingPageIds || null}, NOW())
+       VALUES (${facilityId}::uuid, ${name}, ${description || null}, 'active', ${JSON.stringify(variantsWithIds)}::jsonb, ${JSON.stringify(metrics)}::jsonb, ${landingPageIds || null}, NOW())
        RETURNING *`;
 
     return jsonResponse({ test: rows[0] }, 201, origin);
@@ -394,7 +394,7 @@ export async function PATCH(request: NextRequest) {
     if (setClauses.length === 0)
       return errorResponse("No fields to update", 400, origin);
 
-    const rows = await db.$queryRaw<Record<string, unknown>[]>`UPDATE ab_tests SET ${Prisma.join(setClauses)} WHERE id = ${testId} RETURNING *`;
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`UPDATE ab_tests SET ${Prisma.join(setClauses)} WHERE id = ${testId}::uuid RETURNING *`;
 
     if (rows.length === 0)
       return errorResponse("Test not found", 404, origin);
@@ -421,7 +421,7 @@ export async function DELETE(request: NextRequest) {
     );
 
   try {
-    const rows = await db.$queryRaw<Record<string, unknown>[]>`DELETE FROM ab_tests WHERE id = ${testId} RETURNING id`;
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`DELETE FROM ab_tests WHERE id = ${testId}::uuid RETURNING id`;
     if (rows.length === 0)
       return errorResponse("Test not found", 404, origin);
 

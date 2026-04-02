@@ -222,8 +222,8 @@ export async function GET(request: NextRequest) {
         if (isWeekly) {
           periodStart.setDate(periodStart.getDate() - 6);
         } else {
-          periodStart.setMonth(periodStart.getMonth() - 1);
           periodStart.setDate(1);
+          periodStart.setMonth(periodStart.getMonth() - 1);
         }
 
         const periodStartStr = periodStart.toISOString().slice(0, 10);

@@ -139,14 +139,14 @@ export async function GET(request: NextRequest) {
     if (leadId) {
       const facilityRows = await db.$queryRaw<
         Record<string, unknown>[]
-      >`SELECT * FROM facilities WHERE id = ${leadId}`;
+      >`SELECT * FROM facilities WHERE id = ${leadId}::uuid`;
       if (facilityRows.length === 0)
         return errorResponse("Lead not found", 404, origin);
       const facility = facilityRows[0];
 
       const noteCountRows = await db.$queryRaw<
         Record<string, unknown>[]
-      >`SELECT COUNT(*) as count FROM lead_notes WHERE facility_id = ${leadId}`;
+      >`SELECT COUNT(*) as count FROM lead_notes WHERE facility_id = ${leadId}::uuid`;
 
       let hasOnboarding = false;
       if (facility.access_code) {

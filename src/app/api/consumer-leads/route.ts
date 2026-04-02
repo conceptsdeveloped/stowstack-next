@@ -135,7 +135,7 @@ export async function PATCH(request: NextRequest) {
       }
 
       const existing = await db.$queryRaw<Record<string, unknown>[]>`
-        SELECT id, lead_notes FROM partial_leads WHERE id = ${leadId}`;
+        SELECT id, lead_notes FROM partial_leads WHERE id = ${leadId}::uuid`;
       if (existing.length === 0) return errorResponse("Lead not found", 404, origin);
 
       const currentNotes = (existing[0].lead_notes as string) || "";
@@ -143,7 +143,7 @@ export async function PATCH(request: NextRequest) {
       const updatedNotes = currentNotes + separator + note.trim();
 
       await db.$executeRaw`
-        UPDATE partial_leads SET lead_notes = ${updatedNotes}, updated_at = NOW() WHERE id = ${leadId}`;
+        UPDATE partial_leads SET lead_notes = ${updatedNotes}, updated_at = NOW() WHERE id = ${leadId}::uuid`;
 
       return jsonResponse({ success: true }, 200, origin);
     }
@@ -183,7 +183,7 @@ export async function PATCH(request: NextRequest) {
     const setClause = Prisma.join(setParts, ", ");
 
     const rows = await db.$queryRaw<Record<string, unknown>[]>`
-      UPDATE partial_leads SET ${setClause} WHERE id = ${leadId}
+      UPDATE partial_leads SET ${setClause} WHERE id = ${leadId}::uuid
       RETURNING id, lead_status, email, name, facility_id, monthly_revenue`;
 
     if (rows.length === 0)
@@ -201,7 +201,7 @@ export async function PATCH(request: NextRequest) {
         });
         await db.$executeRaw`
           INSERT INTO activity_log (type, facility_id, lead_name, detail, meta)
-          VALUES ('consumer_lead_status_change', ${result.facility_id}, ${(result.name as string) || (result.email as string) || "Unknown"}, ${detail}, ${meta})`;
+          VALUES ('consumer_lead_status_change', ${result.facility_id}::uuid, ${(result.name as string) || (result.email as string) || "Unknown"}, ${detail}, ${meta}::jsonb)`;
       } catch {
         // fire-and-forget
       }

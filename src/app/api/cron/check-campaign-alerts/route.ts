@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
 
           await db.$executeRaw`
             INSERT INTO alert_history (client_id, facility_id, alert_type, severity, title, detail, metric, threshold)
-            VALUES (${client.id}::uuid, ${client.fac_id}::uuid, ${alert.type}, ${alert.severity}, ${alert.title}, ${alert.detail}, ${alert.metric}, ${alert.threshold || null})
+            VALUES (${client.id}::uuid, ${client.fac_id}::uuid, ${alert.type}, ${alert.severity}, ${alert.title}, ${alert.detail}, ${alert.metric}, ${alert.threshold ?? null})
           `;
           results.alertsCreated++;
 

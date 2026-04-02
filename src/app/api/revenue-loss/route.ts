@@ -9,6 +9,13 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import {
+  querySnapshots,
+  queryUnitsWithVacancy,
+  queryTenantRates,
+  queryRevenueHistoryDesc,
+  queryAgingAll,
+} from "@/lib/facility-pms-queries";
 
 const OCCUPANCY_MID: Record<string, number> = {
   "below-60": 50,
@@ -56,25 +63,14 @@ export async function GET(request: NextRequest) {
   try {
     const [facilityRows, snapshotRows, unitRows, intelRows, tenantRateRows, _revenueHistoryRows, agingRows, specialRows] =
       await Promise.all([
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facilities WHERE id = ${facilityId}`,
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_snapshots WHERE facility_id = ${facilityId} ORDER BY snapshot_date DESC LIMIT 3`,
-        db.$queryRaw<Record<string, unknown>[]>`
-          SELECT *, (total_count - occupied_count) as vacant_count,
-            (total_count * COALESCE(street_rate, 0)) as gross_potential,
-            ((total_count - occupied_count) * COALESCE(street_rate, 0)) as vacant_lost_monthly
-          FROM facility_pms_units WHERE facility_id = ${facilityId} ORDER BY sqft ASC NULLS LAST`,
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_market_intel WHERE facility_id = ${facilityId}`,
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_tenant_rates WHERE facility_id = ${facilityId} ORDER BY rate_variance ASC`,
-        db.$queryRaw<Record<string, unknown>[]>`
-          SELECT * FROM facility_pms_revenue_history WHERE facility_id = ${facilityId}
-           ORDER BY year DESC, CASE month
-             WHEN 'January' THEN 1 WHEN 'February' THEN 2 WHEN 'March' THEN 3
-             WHEN 'April' THEN 4 WHEN 'May' THEN 5 WHEN 'June' THEN 6
-             WHEN 'July' THEN 7 WHEN 'August' THEN 8 WHEN 'September' THEN 9
-             WHEN 'October' THEN 10 WHEN 'November' THEN 11 WHEN 'December' THEN 12
-           END DESC LIMIT 12`,
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_aging WHERE facility_id = ${facilityId} ORDER BY total DESC`,
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_specials WHERE facility_id = ${facilityId} AND active = true`,
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facilities WHERE id = ${facilityId}::uuid`,
+        querySnapshots(facilityId, 3),
+        queryUnitsWithVacancy(facilityId),
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_market_intel WHERE facility_id = ${facilityId}::uuid`,
+        queryTenantRates(facilityId),
+        queryRevenueHistoryDesc(facilityId, 12),
+        queryAgingAll(facilityId),
+        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_specials WHERE facility_id = ${facilityId}::uuid AND active = true`,
       ]);
 
     const facilityRow = facilityRows[0];

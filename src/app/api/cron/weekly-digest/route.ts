@@ -6,6 +6,15 @@ import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
 
+function esc(str: string | null | undefined): string {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "cron-weekly-digest");
   if (limited) return limited;
@@ -88,7 +97,10 @@ export async function GET(req: NextRequest) {
 
           if (!process.env.RESEND_API_KEY) continue;
 
-          await fetch("https://api.resend.com/emails", {
+          const facilityDisplay = esc(client.facility_name) || "Your Facility";
+          const nameDisplay = esc(client.name) || "there";
+
+          const emailRes = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -97,15 +109,15 @@ export async function GET(req: NextRequest) {
             body: JSON.stringify({
               from: "StorageAds <reports@storageads.com>",
               to: client.email,
-              subject: `Weekly Update: ${client.facility_name || "Your Facility"}`,
+              subject: `Weekly Update: ${facilityDisplay}`,
               html: `
                 <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto; color: #141413;">
                   <div style="background: linear-gradient(135deg, #B58B3F, #9E7A36); padding: 20px 24px; border-radius: 12px 12px 0 0;">
                     <h1 style="color: #faf9f5; margin: 0; font-size: 18px;">Weekly Performance Update</h1>
-                    <p style="color: rgba(250,249,245,0.8); margin: 6px 0 0; font-size: 13px;">${client.facility_name || "Your Facility"}</p>
+                    <p style="color: rgba(250,249,245,0.8); margin: 6px 0 0; font-size: 13px;">${facilityDisplay}</p>
                   </div>
                   <div style="padding: 24px; border: 1px solid #e8e6dc; border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
-                    <p style="color: #6a6560; font-size: 14px; margin: 0 0 16px;">Hi ${client.name || "there"}, here's your week at a glance:</p>
+                    <p style="color: #6a6560; font-size: 14px; margin: 0 0 16px;">Hi ${nameDisplay}, here's your week at a glance:</p>
                     <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
                       <tr>
                         <td style="padding: 12px; background: #faf9f5; border-radius: 8px 0 0 0; text-align: center; border-right: 1px solid #e8e6dc;">
@@ -135,7 +147,9 @@ export async function GET(req: NextRequest) {
               `,
             }),
           });
-          sent++;
+          if (emailRes.ok) {
+            sent++;
+          }
         } catch (err) {
           console.error(`[CRON:weekly-digest] Failed for client ${client.email}:`, err instanceof Error ? err.message : err);
         }

@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     }
 
     const conditions: Prisma.Sql[] = [
-      Prisma.sql`landing_page_id = ${landingPageId}`,
+      Prisma.sql`landing_page_id = ${landingPageId}::uuid`,
     ];
     if (startDate) {
       conditions.push(Prisma.sql`period_date >= ${startDate}`);
@@ -53,13 +53,13 @@ export async function GET(req: NextRequest) {
          AVG(CASE WHEN time_on_page > 0 THEN time_on_page END)::int AS avg_time,
          COUNT(*) FILTER (WHERE event_type = 'click')::int AS total_clicks
        FROM page_interactions
-       WHERE landing_page_id = ${landingPageId} AND created_at >= ${today}
+       WHERE landing_page_id = ${landingPageId}::uuid AND created_at >= ${today}
     `;
 
     const clicks = await db.$queryRaw`
       SELECT x_pct, y_pct, COUNT(*)::int AS count
        FROM page_interactions
-       WHERE landing_page_id = ${landingPageId} AND event_type = 'click'
+       WHERE landing_page_id = ${landingPageId}::uuid AND event_type = 'click'
        AND x_pct IS NOT NULL AND y_pct IS NOT NULL
        AND created_at >= NOW() - INTERVAL '7 days'
        GROUP BY ROUND(x_pct / 5) * 5, ROUND(y_pct / 5) * 5, x_pct, y_pct
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
     const ctaClicks = await db.$queryRaw`
       SELECT element_id, element_text, COUNT(*)::int AS clicks
        FROM page_interactions
-       WHERE landing_page_id = ${landingPageId} AND event_type = 'click'
+       WHERE landing_page_id = ${landingPageId}::uuid AND event_type = 'click'
        AND element_id IS NOT NULL
        AND created_at >= NOW() - INTERVAL '30 days'
        GROUP BY element_id, element_text
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
     const sectionViews = await db.$queryRaw`
       SELECT section_index, COUNT(DISTINCT session_id)::int AS unique_views
        FROM page_interactions
-       WHERE landing_page_id = ${landingPageId} AND event_type = 'section_view'
+       WHERE landing_page_id = ${landingPageId}::uuid AND event_type = 'section_view'
        AND section_index IS NOT NULL
        AND created_at >= NOW() - INTERVAL '30 days'
        GROUP BY section_index
