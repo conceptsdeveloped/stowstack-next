@@ -179,19 +179,40 @@ export default function SettingsPage() {
 
   const fetchProfile = useCallback(async () => {
     if (!session) return;
-    // Use session data as profile baseline
+    // Set baseline from session immediately
+    setProfileName(session.user.name);
+    setProfileEmail(session.user.email);
+    try {
+      const res = await authFetch("/api/partner/profile");
+      if (res.ok) {
+        const data = await res.json();
+        const u = data.user || data;
+        setProfile({
+          id: u.id || session.user.id,
+          name: u.name || session.user.name,
+          email: u.email || session.user.email,
+          email_verified: u.email_verified ?? true,
+          avatar_url: u.avatar_url ?? null,
+          role: u.role || session.user.role,
+          totp_enabled: u.totp_enabled ?? false,
+        });
+        if (u.name) setProfileName(u.name);
+        if (u.email) setProfileEmail(u.email);
+        return;
+      }
+    } catch {
+      // Fall through to session baseline
+    }
     setProfile({
       id: session.user.id,
       name: session.user.name,
       email: session.user.email,
-      email_verified: true, // Will be overridden if we get actual data
+      email_verified: true,
       avatar_url: null,
       role: session.user.role,
       totp_enabled: false,
     });
-    setProfileName(session.user.name);
-    setProfileEmail(session.user.email);
-  }, [session]);
+  }, [session, authFetch]);
 
   const fetchNotificationPrefs = useCallback(async () => {
     if (!session) return;
@@ -1030,7 +1051,7 @@ export default function SettingsPage() {
                           setDeleteError("Connection error");
                         }
                       }}
-                      className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-gold-hover)]"
+                      className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)]"
                     >
                       Cancel Deletion
                     </button>

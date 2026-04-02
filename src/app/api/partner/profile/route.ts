@@ -16,6 +16,35 @@ export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
+export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partner-profile");
+  if (limited) return limited;
+  const origin = getOrigin(req);
+  const session = await getSession(req);
+  if (!session) return errorResponse("Unauthorized", 401, origin);
+
+  try {
+    const user = await db.org_users.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        email_verified: true,
+        avatar_url: true,
+        role: true,
+        totp_enabled: true,
+      },
+    });
+
+    if (!user) return errorResponse("User not found", 404, origin);
+    return jsonResponse({ user }, 200, origin);
+  } catch (err) {
+    console.error("Profile GET error:", err);
+    return errorResponse("Failed to fetch profile", 500, origin);
+  }
+}
+
 export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partner-profile");
   if (limited) return limited;

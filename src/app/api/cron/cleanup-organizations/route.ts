@@ -50,20 +50,23 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        // Nullify partial_leads FK (no cascade on this relation)
-        await db.$executeRaw`
-          UPDATE partial_leads SET facility_id = NULL
-          WHERE facility_id IN (SELECT id FROM facilities WHERE organization_id = ${org.id}::uuid)
-        `;
+        // Run all deletes in a transaction to avoid partial cleanup
+        await db.$transaction(async (tx) => {
+          // Nullify partial_leads FK (no cascade on this relation)
+          await tx.$executeRaw`
+            UPDATE partial_leads SET facility_id = NULL
+            WHERE facility_id IN (SELECT id FROM facilities WHERE organization_id = ${org.id}::uuid)
+          `;
 
-        // Delete facilities (no cascade from organizations, but child tables cascade from facilities)
-        await db.$executeRaw`
-          DELETE FROM facilities WHERE organization_id = ${org.id}::uuid
-        `;
+          // Delete facilities (no cascade from organizations, but child tables cascade from facilities)
+          await tx.$executeRaw`
+            DELETE FROM facilities WHERE organization_id = ${org.id}::uuid
+          `;
 
-        // Delete the organization (cascades to org_users, sessions, api_keys,
-        // notifications, audit_log, webhooks, rev_share_payouts, rev_share_referrals)
-        await db.organizations.delete({ where: { id: org.id } });
+          // Delete the organization (cascades to org_users, sessions, api_keys,
+          // notifications, audit_log, webhooks, rev_share_payouts, rev_share_referrals)
+          await tx.organizations.delete({ where: { id: org.id } });
+        });
 
         deleted++;
       } catch (err) {

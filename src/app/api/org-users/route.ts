@@ -134,7 +134,7 @@ async function sendInviteEmail(
   const safeOrgName = escapeHtml(orgName);
   const safeInviterName = escapeHtml(inviterName);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
-  const acceptUrl = `${baseUrl}/partner?invite=${encodeURIComponent(token)}&org=${encodeURIComponent(orgSlug)}`;
+  const acceptUrl = `${baseUrl}/partner?invite=${encodeURIComponent(token)}&org=${encodeURIComponent(orgSlug)}&email=${encodeURIComponent(email)}`;
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",

@@ -264,11 +264,15 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (session: PartnerSess
   const [showReset, setShowReset] = useState(false);
   const [twoFAToken, setTwoFAToken] = useState<string | null>(null);
 
-  // Check URL for reset token on mount
+  // Check URL for reset token or invite params on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("reset")) setShowReset(true);
+    const inviteOrg = params.get("org");
+    if (inviteOrg) setOrgSlug(inviteOrg);
+    const inviteEmail = params.get("email");
+    if (inviteEmail) setEmail(inviteEmail);
   }, []);
 
   if (showReset) {
