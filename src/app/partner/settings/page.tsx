@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   Bell,
   Building2,
+  Camera,
   CheckCircle2,
   CreditCard,
   Eye,
@@ -453,16 +454,83 @@ export default function SettingsPage() {
           <form onSubmit={saveProfile} className="p-5 space-y-5">
             {/* Avatar area */}
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-gold)]/10 text-lg font-semibold text-[var(--color-gold)]">
-                {getInitials(profileName || session?.user.name || "U")}
+              <div className="relative group">
+                {profile?.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.avatar_url}
+                    alt=""
+                    className="h-16 w-16 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-gold)]/10 text-lg font-semibold text-[var(--color-gold)]">
+                    {getInitials(profileName || session?.user.name || "U")}
+                  </div>
+                )}
+                <label className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  <Camera className="h-5 w-5 text-white" />
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 2 * 1024 * 1024) {
+                        setProfileError("Image must be under 2 MB");
+                        return;
+                      }
+                      try {
+                        const res = await authFetch("/api/partner/avatar", {
+                          method: "PUT",
+                          headers: { "Content-Type": file.type },
+                          body: file,
+                        });
+                        if (res.ok) {
+                          const data = await res.json();
+                          setProfile((prev) =>
+                            prev ? { ...prev, avatar_url: data.avatar_url } : prev
+                          );
+                        } else {
+                          const data = await res.json();
+                          setProfileError(data.error || "Upload failed");
+                        }
+                      } catch {
+                        setProfileError("Failed to upload avatar");
+                      }
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
               </div>
               <div>
                 <p className="text-sm font-medium text-[var(--color-dark)]">
                   {profileName || session?.user.name}
                 </p>
-                <p className="text-xs text-[var(--color-mid-gray)]">
-                  Avatar upload coming soon
-                </p>
+                {profile?.avatar_url ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const res = await authFetch("/api/partner/avatar", { method: "DELETE" });
+                        if (res.ok) {
+                          setProfile((prev) =>
+                            prev ? { ...prev, avatar_url: null } : prev
+                          );
+                        }
+                      } catch {
+                        setProfileError("Failed to remove avatar");
+                      }
+                    }}
+                    className="text-xs text-[var(--color-red)] hover:underline"
+                  >
+                    Remove avatar
+                  </button>
+                ) : (
+                  <p className="text-xs text-[var(--color-mid-gray)]">
+                    Hover to upload avatar
+                  </p>
+                )}
               </div>
             </div>
 
@@ -930,33 +998,73 @@ export default function SettingsPage() {
               </h3>
             </div>
             <div className="p-5">
-              <div className="mb-4 flex items-start gap-2 rounded-lg bg-[var(--color-red)]/5 px-4 py-3">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-red)]" />
-                <div>
-                  <p className="text-sm font-medium text-[var(--color-red)]">
-                    This action cannot be easily undone
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--color-body-text)]">
-                    Deleting your organization will schedule it for permanent
-                    removal in 30 days. All facilities, campaigns, and data will
-                    be permanently deleted. Contact support within 30 days to
-                    cancel the deletion.
-                  </p>
-                </div>
-              </div>
-
-              {session?.user.role !== "org_admin" ? (
-                <p className="text-sm text-[var(--color-mid-gray)]">
-                  Only organization admins can delete the organization.
-                </p>
+              {session?.organization.status === "pending_deletion" ? (
+                <>
+                  <div className="mb-4 flex items-start gap-2 rounded-lg bg-amber-500/10 px-4 py-3">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-600">
+                        Organization is scheduled for deletion
+                      </p>
+                      <p className="mt-1 text-xs text-[var(--color-body-text)]">
+                        Your organization and all associated data will be permanently deleted after the 30-day grace period. You can cancel this now to restore your organization.
+                      </p>
+                    </div>
+                  </div>
+                  {session.user.role === "org_admin" && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await authFetch("/api/partner/organization", {
+                            method: "PATCH",
+                            body: JSON.stringify({ action: "cancel_deletion" }),
+                          });
+                          if (res.ok) {
+                            window.location.reload();
+                          } else {
+                            const data = await res.json();
+                            setDeleteError(data.error || "Failed to cancel deletion");
+                          }
+                        } catch {
+                          setDeleteError("Connection error");
+                        }
+                      }}
+                      className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-gold-hover)]"
+                    >
+                      Cancel Deletion
+                    </button>
+                  )}
+                </>
               ) : (
-                <button
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="flex items-center gap-1.5 rounded-lg bg-[var(--color-red)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-red)]/90"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete Organization
-                </button>
+                <>
+                  <div className="mb-4 flex items-start gap-2 rounded-lg bg-[var(--color-red)]/5 px-4 py-3">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-red)]" />
+                    <div>
+                      <p className="text-sm font-medium text-[var(--color-red)]">
+                        This action cannot be easily undone
+                      </p>
+                      <p className="mt-1 text-xs text-[var(--color-body-text)]">
+                        Deleting your organization will schedule it for permanent
+                        removal in 30 days. All facilities, campaigns, and data will
+                        be permanently deleted.
+                      </p>
+                    </div>
+                  </div>
+
+                  {session?.user.role !== "org_admin" ? (
+                    <p className="text-sm text-[var(--color-mid-gray)]">
+                      Only organization admins can delete the organization.
+                    </p>
+                  ) : (
+                    <button
+                      onClick={() => setShowDeleteDialog(true)}
+                      className="flex items-center gap-1.5 rounded-lg bg-[var(--color-red)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-red)]/90"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete Organization
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>

@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { db } from "./db";
 
 const SESSION_DURATION_DAYS = 30;
@@ -74,11 +75,8 @@ export async function getSession(req: NextRequest): Promise<Session | null> {
   }
 
   const orgToken = req.headers.get("x-org-token");
-  if (orgToken) {
-    if (orgToken.startsWith("ss_")) {
-      return lookupSession(orgToken);
-    }
-    return lookupLegacyToken(orgToken);
+  if (orgToken?.startsWith("ss_")) {
+    return lookupSession(orgToken);
   }
 
   return null;
@@ -123,7 +121,7 @@ async function lookupSession(token: string): Promise<Session | null> {
     JOIN org_users ou ON ou.id = s.user_id
     JOIN organizations o ON o.id = ou.organization_id
     WHERE s.token_hash = ${tokenHash} AND s.expires_at > NOW()
-      AND ou.status = 'active' AND o.status = 'active'
+      AND ou.status = 'active' AND o.status IN ('active', 'pending_deletion')
   `;
 
   if (!rows.length) return null;
@@ -134,59 +132,12 @@ async function lookupSession(token: string): Promise<Session | null> {
     () => {}
   );
 
+  Sentry.setUser({ id: row.id, email: row.email });
+  Sentry.setTag("org_id", row.organization_id);
+  Sentry.setTag("org_slug", row.org_slug);
+  Sentry.setTag("user_role", row.role);
+
   return formatSessionResult(row);
-}
-
-async function lookupLegacyToken(token: string): Promise<Session | null> {
-  // Hard deadline: reject all legacy base64 tokens after June 24, 2026
-  const LEGACY_TOKEN_DEADLINE = new Date("2026-06-24T00:00:00Z");
-  if (new Date() > LEGACY_TOKEN_DEADLINE) return null;
-
-  try {
-    const decoded = Buffer.from(token, "base64").toString();
-    const [orgId, email] = decoded.split(":");
-    if (!orgId || !email) return null;
-
-    const rows = await db.$queryRaw<
-      Array<{
-        id: string;
-        organization_id: string;
-        email: string;
-        name: string;
-        role: string;
-        status: string;
-        is_superadmin: boolean;
-        org_id: string;
-        org_name: string;
-        org_slug: string;
-        logo_url: string | null;
-        primary_color: string | null;
-        accent_color: string | null;
-        white_label: boolean;
-        plan: string;
-        facility_limit: number;
-        org_settings: unknown;
-        org_status: string;
-        subscription_status: string | null;
-        trial_ends_at: Date | null;
-        stripe_customer_id: string | null;
-      }>
-    >`
-      SELECT ou.id, ou.organization_id, ou.email, ou.name, ou.role, ou.status, ou.is_superadmin,
-             o.id as org_id, o.name as org_name, o.slug as org_slug, o.logo_url,
-             o.primary_color, o.accent_color, o.white_label, o.plan, o.facility_limit,
-             o.settings as org_settings, o.status as org_status,
-             o.subscription_status, o.trial_ends_at, o.stripe_customer_id
-      FROM org_users ou JOIN organizations o ON o.id = ou.organization_id
-      WHERE ou.organization_id = ${orgId} AND ou.email = ${email}
-        AND ou.status = 'active' AND o.status = 'active'
-    `;
-
-    if (!rows.length) return null;
-    return formatSessionResult(rows[0]);
-  } catch {
-    return null;
-  }
 }
 
 function formatSessionResult(row: {

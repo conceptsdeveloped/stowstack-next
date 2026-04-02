@@ -94,9 +94,8 @@ export default function TeamPage() {
   const removeUser = async (userId: string) => {
     if (!session || userId === session.user.id) return;
     try {
-      await authFetch("/api/org-users", {
+      await authFetch(`/api/org-users?id=${userId}`, {
         method: "DELETE",
-        body: JSON.stringify({ userId }),
       });
       fetchUsers();
     } catch {

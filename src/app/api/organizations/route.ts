@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
       }
 
       const orgs = await db.organizations.findMany({
-        where: { slug: orgSlug, status: "active" },
+        where: { slug: orgSlug, status: { in: ["active", "pending_deletion"] } },
       });
       if (!orgs.length) {
         return errorResponse("Invalid credentials", 401, origin);
@@ -146,6 +146,7 @@ export async function POST(req: NextRequest) {
             name: org.name,
             slug: org.slug,
             plan: org.plan,
+            status: org.status,
           },
         },
         200,
@@ -234,6 +235,7 @@ export async function POST(req: NextRequest) {
             name: org.name,
             slug: org.slug,
             plan: org.plan,
+            status: org.status,
           },
           tempPassword,
         },

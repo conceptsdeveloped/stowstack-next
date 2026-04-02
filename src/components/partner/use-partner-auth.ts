@@ -8,7 +8,7 @@ const STORAGE_KEY = "storageads_partner_session";
 interface PartnerSession {
   token: string;
   user: { id: string; email: string; name: string; role: string };
-  organization: { id: string; name: string; slug: string; plan: string };
+  organization: { id: string; name: string; slug: string; plan: string; status?: string };
 }
 
 export function usePartnerAuth() {

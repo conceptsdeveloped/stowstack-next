@@ -15,6 +15,50 @@ export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
+export async function PATCH(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partner-organization");
+  if (limited) return limited;
+  const csrfErr = verifyCsrfOrigin(req);
+  if (csrfErr) return csrfErr;
+  const origin = getOrigin(req);
+  const session = await getSession(req);
+  if (!session) return errorResponse("Unauthorized", 401, origin);
+
+  if (session.user.role !== "org_admin") {
+    return errorResponse("Only organization admins can manage the organization", 403, origin);
+  }
+
+  try {
+    const body = (await req.json()) as { action?: string };
+
+    if (body.action === "cancel_deletion") {
+      const org = await db.organizations.findUnique({
+        where: { id: session.user.organization_id },
+        select: { status: true, scheduled_deletion_at: true },
+      });
+
+      if (!org || org.status !== "pending_deletion") {
+        return errorResponse("Organization is not scheduled for deletion", 400, origin);
+      }
+
+      await db.organizations.update({
+        where: { id: session.user.organization_id },
+        data: {
+          status: "active",
+          scheduled_deletion_at: null,
+        },
+      });
+
+      return jsonResponse({ message: "Deletion cancelled. Organization is active again." }, 200, origin);
+    }
+
+    return errorResponse("Unknown action", 400, origin);
+  } catch (err) {
+    console.error("Organization PATCH error:", err);
+    return errorResponse("Failed to update organization", 500, origin);
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partner-organization");
   if (limited) return limited;
