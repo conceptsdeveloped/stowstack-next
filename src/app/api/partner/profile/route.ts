@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest) {
   if (!session) return errorResponse("Unauthorized", 401, origin);
 
   try {
-    const body = (await req.json()) as { name?: string; email?: string; avatar_url?: string | null };
+    const body = (await req.json()) as { name?: string; email?: string };
     const updates: Record<string, unknown> = {};
 
     if (body.name !== undefined) {
@@ -35,18 +35,6 @@ export async function PATCH(req: NextRequest) {
         return errorResponse("Name must be between 1 and 100 characters", 400, origin);
       }
       updates.name = name;
-    }
-
-    if (body.avatar_url !== undefined) {
-      if (body.avatar_url === null) {
-        updates.avatar_url = null;
-      } else {
-        const url = String(body.avatar_url).trim();
-        if (url.length > 2048) {
-          return errorResponse("Avatar URL too long", 400, origin);
-        }
-        updates.avatar_url = url;
-      }
     }
 
     let emailChanged = false;

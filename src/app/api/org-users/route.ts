@@ -114,6 +114,10 @@ export async function POST(req: NextRequest) {
   }
 }
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 async function sendInviteEmail(
   email: string,
   token: string,
@@ -127,8 +131,10 @@ async function sendInviteEmail(
     return;
   }
 
+  const safeOrgName = escapeHtml(orgName);
+  const safeInviterName = escapeHtml(inviterName);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
-  const acceptUrl = `${baseUrl}/partner/accept-invite?token=${token}&org=${orgSlug}`;
+  const acceptUrl = `${baseUrl}/partner?invite=${encodeURIComponent(token)}&org=${encodeURIComponent(orgSlug)}`;
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -139,12 +145,12 @@ async function sendInviteEmail(
     body: JSON.stringify({
       from: "StorageAds <noreply@storageads.com>",
       to: [email],
-      subject: `You've been invited to ${orgName} on StorageAds`,
+      subject: `You've been invited to ${safeOrgName} on StorageAds`,
       html: `
         <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
           <h2 style="color: #141413; font-size: 20px; margin-bottom: 16px;">You're invited!</h2>
           <p style="color: #6a6560; font-size: 14px; line-height: 1.6;">
-            ${inviterName} has invited you to join <strong>${orgName}</strong> on StorageAds.
+            ${safeInviterName} has invited you to join <strong>${safeOrgName}</strong> on StorageAds.
           </p>
           <a href="${acceptUrl}" style="display: inline-block; margin: 24px 0; padding: 12px 24px; background: #B58B3F; color: #141413; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
             Accept Invitation

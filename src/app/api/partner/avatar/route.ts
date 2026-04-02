@@ -33,12 +33,16 @@ export async function PUT(req: NextRequest) {
     return errorResponse("Only JPEG, PNG, and WebP images are allowed", 400, origin);
   }
 
-  const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
-  if (contentLength > MAX_SIZE) {
-    return errorResponse("Image must be under 2 MB", 400, origin);
-  }
-
   try {
+    // Read body and enforce actual size limit (Content-Length is spoofable)
+    const body = await req.arrayBuffer();
+    if (body.byteLength === 0) {
+      return errorResponse("Empty file", 400, origin);
+    }
+    if (body.byteLength > MAX_SIZE) {
+      return errorResponse("Image must be under 2 MB", 400, origin);
+    }
+
     // Delete old avatar if it exists on Vercel Blob
     const user = await db.org_users.findUnique({
       where: { id: session.user.id },
@@ -51,7 +55,7 @@ export async function PUT(req: NextRequest) {
     const ext = contentType.split("/")[1] || "jpg";
     const blob = await put(
       `avatars/${session.user.id}-${Date.now()}.${ext}`,
-      req.body!,
+      Buffer.from(body),
       { access: "public", contentType },
     );
 
