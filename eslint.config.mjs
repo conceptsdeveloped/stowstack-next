@@ -16,6 +16,13 @@ const eslintConfig = defineConfig([
           destructuredArrayIgnorePattern: "^_",
         },
       ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.property.name=/queryRawUnsafe|executeRawUnsafe/]",
+          message: "$queryRawUnsafe and $executeRawUnsafe are banned. Use $queryRaw/$executeRaw with tagged templates or Prisma.sql instead.",
+        },
+      ],
     },
   },
   // Override default ignores of eslint-config-next.

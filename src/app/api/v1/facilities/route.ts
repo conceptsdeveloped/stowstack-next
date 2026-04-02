@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   v1CorsResponse,
@@ -149,7 +150,7 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json().catch(() => null);
   if (!body) return v1Error("No valid fields to update");
 
-  const bodyMap: Record<string, string> = {
+  const ALLOWED_COLUMNS: Record<string, string> = {
     name: "name",
     location: "location",
     contactName: "contact_name",
@@ -159,29 +160,26 @@ export async function PATCH(request: NextRequest) {
     occupancyRange: "occupancy_range",
   };
 
-  const sets: string[] = [];
-  const params: unknown[] = [];
-  let paramIdx = 1;
+  const setClauses: Prisma.Sql[] = [];
 
-  for (const [bodyKey, dbCol] of Object.entries(bodyMap)) {
+  for (const [bodyKey, dbCol] of Object.entries(ALLOWED_COLUMNS)) {
     if (body[bodyKey] !== undefined) {
-      sets.push(`${dbCol} = $${paramIdx++}`);
-      params.push(body[bodyKey]);
+      setClauses.push(Prisma.sql`${Prisma.raw(dbCol)} = ${body[bodyKey]}`);
     }
   }
 
-  if (!sets.length) return v1Error("No valid fields to update");
+  if (!setClauses.length) return v1Error("No valid fields to update");
 
-  sets.push("updated_at = NOW()");
-  params.push(id, orgId);
+  setClauses.push(Prisma.sql`updated_at = NOW()`);
+
+  const setFragment = Prisma.join(setClauses, ", ");
 
   try {
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `UPDATE facilities SET ${sets.join(", ")}
-       WHERE id = $${paramIdx++}::uuid AND organization_id = $${paramIdx}::uuid
-       RETURNING id, name, location, contact_name, contact_email, contact_phone, status, occupancy_range, total_units, created_at, updated_at`,
-      ...params
-    );
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`
+      UPDATE facilities SET ${setFragment}
+       WHERE id = ${id}::uuid AND organization_id = ${orgId}::uuid
+       RETURNING id, name, location, contact_name, contact_email, contact_phone, status, occupancy_range, total_units, created_at, updated_at
+    `;
     if (!rows.length) return v1Error("Facility not found", 404);
 
     dispatchWebhook(orgId, "facility.updated", {

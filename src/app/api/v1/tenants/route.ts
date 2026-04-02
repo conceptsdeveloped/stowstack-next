@@ -186,7 +186,7 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json().catch(() => null);
   if (!body) return v1Error("No valid fields to update");
 
-  const fieldMap: Record<string, string> = {
+  const ALLOWED_COLUMNS: Record<string, string> = {
     name: "name",
     email: "email",
     phone: "phone",
@@ -204,32 +204,29 @@ export async function PATCH(request: NextRequest) {
     moveOutReason: "move_out_reason",
   };
 
-  const sets: string[] = [];
-  const params: unknown[] = [];
-  let paramIdx = 1;
+  const setClauses: Prisma.Sql[] = [];
 
-  for (const [bodyKey, dbCol] of Object.entries(fieldMap)) {
+  for (const [bodyKey, dbCol] of Object.entries(ALLOWED_COLUMNS)) {
     if (body[bodyKey] !== undefined) {
-      sets.push(`${dbCol} = $${paramIdx++}`);
-      params.push(body[bodyKey]);
+      setClauses.push(Prisma.sql`${Prisma.raw(dbCol)} = ${body[bodyKey]}`);
     }
   }
 
-  if (!sets.length) return v1Error("No valid fields to update");
-  sets.push("updated_at = NOW()");
-  params.push(id, orgId);
+  if (!setClauses.length) return v1Error("No valid fields to update");
+  setClauses.push(Prisma.sql`updated_at = NOW()`);
+
+  const setFragment = Prisma.join(setClauses, ", ");
 
   try {
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `UPDATE tenants SET ${sets.join(", ")}
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`
+      UPDATE tenants SET ${setFragment}
        FROM facilities f
-       WHERE tenants.id = $${paramIdx++}::uuid
+       WHERE tenants.id = ${id}::uuid
          AND tenants.facility_id = f.id
-         AND f.organization_id = $${paramIdx}::uuid
+         AND f.organization_id = ${orgId}::uuid
        RETURNING tenants.id, tenants.facility_id, tenants.name, tenants.email,
-                 tenants.unit_number, tenants.unit_size, tenants.status, tenants.updated_at`,
-      ...params
-    );
+                 tenants.unit_number, tenants.unit_size, tenants.status, tenants.updated_at
+    `;
     if (!rows.length) return v1Error("Tenant not found", 404);
     return v1Json({ tenant: rows[0] });
   } catch {

@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { Prisma } from "@prisma/client";
 import { db } from "./db";
 
 let vapidConfigured = false;
@@ -43,21 +44,20 @@ export async function sendPushToAll(
 ): Promise<void> {
   if (!ensureVapid()) return;
 
-  let whereClause = "WHERE active = true";
-  const params: unknown[] = [];
+  const conditions: Prisma.Sql[] = [Prisma.sql`active = true`];
 
   if (filter.userType) {
-    params.push(filter.userType);
-    whereClause += ` AND user_type = $${params.length}`;
+    conditions.push(Prisma.sql`user_type = ${filter.userType}`);
   }
   if (filter.userId) {
-    params.push(filter.userId);
-    whereClause += ` AND user_id = $${params.length}`;
+    conditions.push(Prisma.sql`user_id = ${filter.userId}`);
   }
 
-  const subs = await db.$queryRawUnsafe<
+  const whereClause = Prisma.join(conditions, " AND ");
+
+  const subs = await db.$queryRaw<
     { id: string; endpoint: string; p256dh: string; auth: string }[]
-  >(`SELECT id, endpoint, p256dh, auth FROM push_subscriptions ${whereClause}`, ...params);
+  >`SELECT id, endpoint, p256dh, auth FROM push_subscriptions WHERE ${whereClause}`;
 
   if (!subs.length) return;
 
@@ -88,10 +88,7 @@ export async function sendPushToAll(
 
   if (staleIds.length) {
     await db
-      .$executeRawUnsafe(
-        `UPDATE push_subscriptions SET active = false WHERE id = ANY($1::uuid[])`,
-        staleIds
-      )
-      .catch(() => {});
+      .$executeRaw`UPDATE push_subscriptions SET active = false WHERE id = ANY(${staleIds}::uuid[])`
+      .catch((err) => console.error("[push] Fire-and-forget failed:", err));
   }
 }

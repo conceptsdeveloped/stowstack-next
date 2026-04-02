@@ -297,26 +297,19 @@ export async function PATCH(req: NextRequest) {
 
     if (!id) return errorResponse("id or ids required", 400, origin);
 
-    const sets: string[] = ["updated_at = NOW()"];
-    const params: unknown[] = [id];
-    let pIdx = 2;
+    const setClauses: Prisma.Sql[] = [Prisma.sql`updated_at = NOW()`];
 
     if (status) {
-      params.push(status);
-      sets.push(`status = $${pIdx++}`);
-      if (status === "sent") sets.push("sent_at = NOW()");
+      setClauses.push(Prisma.sql`status = ${status}`);
+      if (status === "sent") setClauses.push(Prisma.sql`sent_at = NOW()`);
       if (["accepted", "declined"].includes(status))
-        sets.push("responded_at = NOW()");
+        setClauses.push(Prisma.sql`responded_at = NOW()`);
     }
     if (outreach_method) {
-      params.push(outreach_method);
-      sets.push(`outreach_method = $${pIdx++}`);
+      setClauses.push(Prisma.sql`outreach_method = ${outreach_method}`);
     }
 
-    const rows = await db.$queryRawUnsafe<unknown[]>(
-      `UPDATE upsell_opportunities SET ${sets.join(", ")} WHERE id = $1::uuid RETURNING *`,
-      ...params,
-    );
+    const rows = await db.$queryRaw<unknown[]>`UPDATE upsell_opportunities SET ${Prisma.join(setClauses)} WHERE id = ${id}::uuid RETURNING *`;
 
     const opp = (rows as Array<{
       tenant_id: string;

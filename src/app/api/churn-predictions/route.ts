@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -198,27 +199,31 @@ export async function GET(request: NextRequest) {
 
   try {
     if (resource === "campaigns") {
-      const campaigns = facilityId
-        ? await db.$queryRawUnsafe<Record<string, unknown>[]>(
-            `SELECT rc.*, f.name as facility_name,
-              (SELECT COUNT(*) FROM churn_predictions cp WHERE cp.retention_campaign_id = rc.id) as current_enrolled
-            FROM retention_campaigns rc
-            LEFT JOIN facilities f ON f.id = rc.facility_id
-            WHERE rc.facility_id = $1::uuid
-            ORDER BY rc.created_at DESC`,
-            facilityId
-          )
-        : await db.$queryRawUnsafe<Record<string, unknown>[]>(
-            `SELECT rc.*, f.name as facility_name,
-              (SELECT COUNT(*) FROM churn_predictions cp WHERE cp.retention_campaign_id = rc.id) as current_enrolled
-            FROM retention_campaigns rc
-            LEFT JOIN facilities f ON f.id = rc.facility_id
-            ORDER BY rc.created_at DESC`
-          );
+      const campaignFacilityFilter = facilityId
+        ? Prisma.sql`WHERE rc.facility_id = ${facilityId}::uuid`
+        : Prisma.empty;
+
+      const campaigns = await db.$queryRaw<Record<string, unknown>[]>`
+        SELECT rc.*, f.name as facility_name,
+          (SELECT COUNT(*) FROM churn_predictions cp WHERE cp.retention_campaign_id = rc.id) as current_enrolled
+        FROM retention_campaigns rc
+        LEFT JOIN facilities f ON f.id = rc.facility_id
+        ${campaignFacilityFilter}
+        ORDER BY rc.created_at DESC
+      `;
       return jsonResponse(serializeBigInts({ campaigns }), 200, origin);
     }
 
-    let sql = `
+    const predictionFilters: Prisma.Sql[] = [Prisma.sql`t.status = 'active'`];
+    if (facilityId) {
+      predictionFilters.push(Prisma.sql`cp.facility_id = ${facilityId}`);
+    }
+    if (riskLevel) {
+      predictionFilters.push(Prisma.sql`cp.risk_level = ${riskLevel}`);
+    }
+    const predictionWhere = Prisma.join(predictionFilters, " AND ");
+
+    const predictions = await db.$queryRaw<Record<string, unknown>[]>`
       SELECT cp.*, t.name as tenant_name, t.email as tenant_email, t.phone as tenant_phone,
              t.unit_number, t.unit_size, t.unit_type, t.monthly_rate, t.move_in_date,
              t.days_delinquent, t.autopay_enabled, t.has_insurance, t.balance,
@@ -228,28 +233,15 @@ export async function GET(request: NextRequest) {
       JOIN tenants t ON t.id = cp.tenant_id
       JOIN facilities f ON f.id = cp.facility_id
       LEFT JOIN retention_campaigns rc ON rc.id = cp.retention_campaign_id
-      WHERE t.status = 'active'
+      WHERE ${predictionWhere}
+      ORDER BY cp.risk_score DESC
     `;
-    const params: unknown[] = [];
-    if (facilityId) {
-      params.push(facilityId);
-      sql += ` AND cp.facility_id = $${params.length}`;
-    }
-    if (riskLevel) {
-      params.push(riskLevel);
-      sql += ` AND cp.risk_level = $${params.length}`;
-    }
-    sql += ` ORDER BY cp.risk_score DESC`;
 
-    const predictions =
-      params.length > 0
-        ? await db.$queryRawUnsafe<Record<string, unknown>[]>(
-            sql,
-            ...params
-          )
-        : await db.$queryRawUnsafe<Record<string, unknown>[]>(sql);
+    const statsFacilityFilter = facilityId
+      ? Prisma.sql`AND cp.facility_id = ${facilityId}::uuid`
+      : Prisma.empty;
 
-    let statsSql = `
+    const statsRows = await db.$queryRaw<Record<string, unknown>[]>`
       SELECT
         COUNT(*) as total_scored,
         COUNT(*) FILTER (WHERE risk_level = 'critical') as critical_count,
@@ -264,15 +256,8 @@ export async function GET(request: NextRequest) {
       FROM churn_predictions cp
       JOIN tenants t ON t.id = cp.tenant_id
       WHERE t.status = 'active'
+      ${statsFacilityFilter}
     `;
-    if (facilityId) statsSql += ` AND cp.facility_id = $1::uuid`;
-
-    const statsRows = facilityId
-      ? await db.$queryRawUnsafe<Record<string, unknown>[]>(
-          statsSql,
-          facilityId
-        )
-      : await db.$queryRawUnsafe<Record<string, unknown>[]>(statsSql);
     const stats = statsRows[0] || null;
 
     return jsonResponse(serializeBigInts({ predictions, stats }), 200, origin);
@@ -299,15 +284,11 @@ export async function POST(request: NextRequest) {
       if (!name || !sequence_steps)
         return errorResponse("name and sequence_steps required", 400, origin);
 
-      const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        `INSERT INTO retention_campaigns (facility_id, name, trigger_risk_level, sequence_steps)
-         VALUES ($1, $2, $3, $4)
-         RETURNING *`,
-        facility_id || null,
-        name,
-        trigger_risk_level || "high",
-        JSON.stringify(sequence_steps)
-      );
+      const rows = await db.$queryRaw<Record<string, unknown>[]>`
+        INSERT INTO retention_campaigns (facility_id, name, trigger_risk_level, sequence_steps)
+         VALUES (${facility_id || null}, ${name}, ${trigger_risk_level || "high"}, ${JSON.stringify(sequence_steps)})
+         RETURNING *
+      `;
       return jsonResponse({ campaign: rows[0] }, 200, origin);
     }
 
@@ -316,12 +297,9 @@ export async function POST(request: NextRequest) {
       if (!campaign_id)
         return errorResponse("campaign_id required", 400, origin);
 
-      const campaignRows = await db.$queryRawUnsafe<
+      const campaignRows = await db.$queryRaw<
         Record<string, unknown>[]
-      >(
-        "SELECT * FROM retention_campaigns WHERE id = $1",
-        campaign_id
-      );
+      >`SELECT * FROM retention_campaigns WHERE id = ${campaign_id}`;
       if (campaignRows.length === 0)
         return errorResponse("Campaign not found", 404, origin);
       const campaign = campaignRows[0];
@@ -334,77 +312,53 @@ export async function POST(request: NextRequest) {
             ? ["high", "critical"]
             : ["critical"];
 
-      const enrolledRows = campaign.facility_id
-        ? await db.$queryRawUnsafe<Record<string, unknown>[]>(
-            `UPDATE churn_predictions SET
-              retention_campaign_id = $1,
-              retention_status = 'enrolled'
-            WHERE retention_status = 'none'
-              AND risk_level = ANY($2::text[])
-              AND facility_id = $3
-            RETURNING id`,
-            campaign_id,
-            riskLevels,
-            campaign.facility_id
-          )
-        : await db.$queryRawUnsafe<Record<string, unknown>[]>(
-            `UPDATE churn_predictions SET
-              retention_campaign_id = $1,
-              retention_status = 'enrolled'
-            WHERE retention_status = 'none'
-              AND risk_level = ANY($2::text[])
-            RETURNING id`,
-            campaign_id,
-            riskLevels
-          );
+      const enrollFacilityFilter = campaign.facility_id
+        ? Prisma.sql`AND facility_id = ${campaign.facility_id}`
+        : Prisma.empty;
 
-      await db.$executeRawUnsafe(
-        "UPDATE retention_campaigns SET enrolled_count = enrolled_count + $2 WHERE id = $1",
-        campaign_id,
-        enrolledRows.length
-      );
+      const enrolledRows = await db.$queryRaw<Record<string, unknown>[]>`
+        UPDATE churn_predictions SET
+          retention_campaign_id = ${campaign_id},
+          retention_status = 'enrolled'
+        WHERE retention_status = 'none'
+          AND risk_level = ANY(${riskLevels}::text[])
+          ${enrollFacilityFilter}
+        RETURNING id
+      `;
+
+      await db.$executeRaw`
+        UPDATE retention_campaigns SET enrolled_count = enrolled_count + ${enrolledRows.length} WHERE id = ${campaign_id}
+      `;
 
       return jsonResponse({ enrolled: enrolledRows.length }, 200, origin);
     }
 
     // Run churn scoring
     const { facilityId } = body;
-    let tenants: Record<string, unknown>[];
-    if (facilityId) {
-      tenants = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        "SELECT * FROM tenants WHERE status = 'active' AND facility_id = $1::uuid",
-        facilityId
-      );
-    } else {
-      tenants = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        "SELECT * FROM tenants WHERE status = 'active'"
-      );
-    }
+    const scoringFacilityFilter = facilityId
+      ? Prisma.sql`AND facility_id = ${facilityId}::uuid`
+      : Prisma.empty;
+
+    const tenants = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT * FROM tenants WHERE status = 'active' ${scoringFacilityFilter}
+    `;
 
     let scored = 0;
     for (const tenant of tenants) {
-      const payments = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        "SELECT * FROM tenant_payments WHERE tenant_id = $1 ORDER BY payment_date DESC LIMIT 12",
-        tenant.id
-      );
+      const payments = await db.$queryRaw<Record<string, unknown>[]>`
+        SELECT * FROM tenant_payments WHERE tenant_id = ${tenant.id} ORDER BY payment_date DESC LIMIT 12
+      `;
 
       const result = computeChurnScore(tenant, payments);
 
-      await db.$executeRawUnsafe(
-        `INSERT INTO churn_predictions (tenant_id, facility_id, risk_score, risk_level, predicted_vacate, factors, recommended_actions, last_scored_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      await db.$executeRaw`
+        INSERT INTO churn_predictions (tenant_id, facility_id, risk_score, risk_level, predicted_vacate, factors, recommended_actions, last_scored_at)
+         VALUES (${tenant.id}, ${tenant.facility_id}, ${result.score}, ${result.riskLevel}, ${result.predictedVacate}, ${JSON.stringify(result.factors)}, ${JSON.stringify(result.actions)}, NOW())
          ON CONFLICT (tenant_id) DO UPDATE SET
            risk_score = EXCLUDED.risk_score, risk_level = EXCLUDED.risk_level,
            predicted_vacate = EXCLUDED.predicted_vacate, factors = EXCLUDED.factors,
-           recommended_actions = EXCLUDED.recommended_actions, last_scored_at = NOW()`,
-        tenant.id,
-        tenant.facility_id,
-        result.score,
-        result.riskLevel,
-        result.predictedVacate,
-        JSON.stringify(result.factors),
-        JSON.stringify(result.actions)
-      );
+           recommended_actions = EXCLUDED.recommended_actions, last_scored_at = NOW()
+      `;
 
       scored++;
     }
@@ -440,44 +394,34 @@ export async function PATCH(request: NextRequest) {
 
     if (Array.isArray(ids) && ids.length > 0) {
       if (action === "batch_enroll" && campaign_id) {
-        await db.$executeRawUnsafe(
-          `UPDATE churn_predictions SET retention_campaign_id = $2, retention_status = 'enrolled'
-           WHERE id = ANY($1::uuid[])`,
-          ids,
-          campaign_id
-        );
-        await db.$executeRawUnsafe(
-          "UPDATE retention_campaigns SET enrolled_count = enrolled_count + $2 WHERE id = $1",
-          campaign_id,
-          ids.length
-        );
+        await db.$executeRaw`
+          UPDATE churn_predictions SET retention_campaign_id = ${campaign_id}, retention_status = 'enrolled'
+           WHERE id = ANY(${ids}::uuid[])
+        `;
+        await db.$executeRaw`
+          UPDATE retention_campaigns SET enrolled_count = enrolled_count + ${ids.length} WHERE id = ${campaign_id}
+        `;
         return jsonResponse({ updated: ids.length }, 200, origin);
       }
       if (action === "batch_status" && retention_status) {
-        await db.$executeRawUnsafe(
-          "UPDATE churn_predictions SET retention_status = $2 WHERE id = ANY($1::uuid[])",
-          ids,
-          retention_status
-        );
+        await db.$executeRaw`
+          UPDATE churn_predictions SET retention_status = ${retention_status} WHERE id = ANY(${ids}::uuid[])
+        `;
         if (retention_status === "retained") {
-          const withCampaign = await db.$queryRawUnsafe<
+          const withCampaign = await db.$queryRaw<
             Record<string, unknown>[]
-          >(
-            "SELECT DISTINCT retention_campaign_id FROM churn_predictions WHERE id = ANY($1::uuid[]) AND retention_campaign_id IS NOT NULL",
-            ids
-          );
+          >`
+            SELECT DISTINCT retention_campaign_id FROM churn_predictions WHERE id = ANY(${ids}::uuid[]) AND retention_campaign_id IS NOT NULL
+          `;
           for (const r of withCampaign) {
-            const cntRows = await db.$queryRawUnsafe<
+            const cntRows = await db.$queryRaw<
               Record<string, unknown>[]
-            >(
-              "SELECT COUNT(*) as c FROM churn_predictions WHERE retention_campaign_id = $1 AND retention_status = 'retained'",
-              r.retention_campaign_id
-            );
-            await db.$executeRawUnsafe(
-              "UPDATE retention_campaigns SET retained_count = $2 WHERE id = $1",
-              r.retention_campaign_id,
-              Number(cntRows[0]?.c || 0)
-            );
+            >`
+              SELECT COUNT(*) as c FROM churn_predictions WHERE retention_campaign_id = ${r.retention_campaign_id} AND retention_status = 'retained'
+            `;
+            await db.$executeRaw`
+              UPDATE retention_campaigns SET retained_count = ${Number(cntRows[0]?.c || 0)} WHERE id = ${r.retention_campaign_id}
+            `;
           }
         }
         return jsonResponse({ updated: ids.length }, 200, origin);
@@ -488,41 +432,34 @@ export async function PATCH(request: NextRequest) {
     if (!id) return errorResponse("id or ids required", 400, origin);
 
     if (action === "toggle_campaign") {
-      const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        "UPDATE retention_campaigns SET active = NOT active, updated_at = NOW() WHERE id = $1 RETURNING *",
-        id
-      );
+      const rows = await db.$queryRaw<Record<string, unknown>[]>`
+        UPDATE retention_campaigns SET active = NOT active, updated_at = NOW() WHERE id = ${id} RETURNING *
+      `;
       return jsonResponse({ campaign: rows[0] }, 200, origin);
     }
 
     if (action === "update_campaign") {
       const { name, trigger_risk_level, sequence_steps } = body;
-      const sets = ["updated_at = NOW()"];
-      const params: unknown[] = [id];
+      const setParts: Prisma.Sql[] = [Prisma.sql`updated_at = NOW()`];
       if (name) {
-        params.push(name);
-        sets.push(`name = $${params.length}`);
+        setParts.push(Prisma.sql`name = ${name}`);
       }
       if (trigger_risk_level) {
-        params.push(trigger_risk_level);
-        sets.push(`trigger_risk_level = $${params.length}`);
+        setParts.push(Prisma.sql`trigger_risk_level = ${trigger_risk_level}`);
       }
       if (sequence_steps) {
-        params.push(JSON.stringify(sequence_steps));
-        sets.push(`sequence_steps = $${params.length}`);
+        setParts.push(Prisma.sql`sequence_steps = ${JSON.stringify(sequence_steps)}`);
       }
-      const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-        `UPDATE retention_campaigns SET ${sets.join(", ")} WHERE id = $1 RETURNING *`,
-        ...params
-      );
+      const setClause = Prisma.join(setParts, ", ");
+      const rows = await db.$queryRaw<Record<string, unknown>[]>`
+        UPDATE retention_campaigns SET ${setClause} WHERE id = ${id} RETURNING *
+      `;
       return jsonResponse({ campaign: rows[0] }, 200, origin);
     }
 
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      "UPDATE churn_predictions SET retention_status = $2 WHERE id = $1 RETURNING *",
-      id,
-      retention_status
-    );
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`
+      UPDATE churn_predictions SET retention_status = ${retention_status} WHERE id = ${id} RETURNING *
+    `;
     return jsonResponse({ prediction: rows[0] }, 200, origin);
   } catch (err) {
     const message =
@@ -542,14 +479,12 @@ export async function DELETE(request: NextRequest) {
   if (!id) return errorResponse("id required", 400, origin);
 
   try {
-    await db.$executeRawUnsafe(
-      "UPDATE churn_predictions SET retention_campaign_id = NULL WHERE retention_campaign_id = $1",
-      id
-    );
-    await db.$executeRawUnsafe(
-      "DELETE FROM retention_campaigns WHERE id = $1",
-      id
-    );
+    await db.$executeRaw`
+      UPDATE churn_predictions SET retention_campaign_id = NULL WHERE retention_campaign_id = ${id}
+    `;
+    await db.$executeRaw`
+      DELETE FROM retention_campaigns WHERE id = ${id}
+    `;
     return jsonResponse({ ok: true }, 200, origin);
   } catch (err) {
     const message =

@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   v1CorsResponse,
@@ -199,24 +200,21 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json().catch(() => null);
   if (!body) return v1Error("No valid fields to update");
 
-  const fieldMap: Record<string, string> = {
+  const ALLOWED_COLUMNS: Record<string, string> = {
     url: "url",
     events: "events",
     active: "active",
   };
 
-  const sets: string[] = [];
-  const params: unknown[] = [];
-  let paramIdx = 1;
+  const setClauses: Prisma.Sql[] = [];
 
-  for (const [bodyKey, dbCol] of Object.entries(fieldMap)) {
+  for (const [bodyKey, dbCol] of Object.entries(ALLOWED_COLUMNS)) {
     if (body[bodyKey] !== undefined) {
-      sets.push(`${dbCol} = $${paramIdx++}`);
-      params.push(body[bodyKey]);
+      setClauses.push(Prisma.sql`${Prisma.raw(dbCol)} = ${body[bodyKey]}`);
     }
   }
 
-  if (!sets.length) return v1Error("No valid fields to update");
+  if (!setClauses.length) return v1Error("No valid fields to update");
 
   if (body.events) {
     const invalid = body.events.filter(
@@ -228,19 +226,19 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (body.active === true) {
-    sets.push("failure_count = 0");
+    setClauses.push(Prisma.sql`failure_count = 0`);
   }
 
-  sets.push("updated_at = NOW()");
-  params.push(id, orgId);
+  setClauses.push(Prisma.sql`updated_at = NOW()`);
+
+  const setFragment = Prisma.join(setClauses, ", ");
 
   try {
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `UPDATE webhooks SET ${sets.join(", ")}
-       WHERE id = $${paramIdx++}::uuid AND organization_id = $${paramIdx}::uuid
-       RETURNING id, url, events, active, failure_count, last_triggered_at, created_at, updated_at`,
-      ...params
-    );
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`
+      UPDATE webhooks SET ${setFragment}
+       WHERE id = ${id}::uuid AND organization_id = ${orgId}::uuid
+       RETURNING id, url, events, active, failure_count, last_triggered_at, created_at, updated_at
+    `;
     if (!rows.length) return v1Error("Webhook not found", 404);
     return v1Json({ webhook: rows[0] });
   } catch {

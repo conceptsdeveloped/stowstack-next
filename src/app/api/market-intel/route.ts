@@ -139,10 +139,7 @@ export async function GET(request: NextRequest) {
   if (!facilityId) return errorResponse("facilityId required", 400, origin);
 
   try {
-    const rows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      "SELECT * FROM facility_market_intel WHERE facility_id = $1::uuid",
-      facilityId
-    );
+    const rows = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_market_intel WHERE facility_id = ${facilityId}::uuid`;
     return jsonResponse({ intel: rows[0] || null }, 200, origin);
   } catch (err) {
     const message =
@@ -166,10 +163,7 @@ export async function POST(request: NextRequest) {
     // Staleness check — return cached data if < 30 days old
     if (!force) {
       try {
-        const existing = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-          "SELECT * FROM facility_market_intel WHERE facility_id = $1::uuid",
-          facilityId
-        );
+        const existing = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_market_intel WHERE facility_id = ${facilityId}::uuid`;
         if (existing.length > 0) {
           const lastScanned = existing[0].last_scanned;
           if (
@@ -196,10 +190,7 @@ export async function POST(request: NextRequest) {
         origin
       );
 
-    const facilityRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      "SELECT * FROM facilities WHERE id = $1",
-      facilityId
-    );
+    const facilityRows = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facilities WHERE id = ${facilityId}`;
     if (facilityRows.length === 0)
       return errorResponse("Facility not found", 404, origin);
     const facility = facilityRows[0];
@@ -429,21 +420,18 @@ export async function POST(request: NextRequest) {
         ((b.distance_miles as number) ?? 99)
     );
 
-    const intelRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `INSERT INTO facility_market_intel (facility_id, last_scanned, competitors, demand_drivers, demographics)
-       VALUES ($1, NOW(), $2, $3, $4)
+    const competitorsJson = JSON.stringify(competitors);
+    const demandDriversJson = JSON.stringify(demand_drivers);
+    const demographicsJson = JSON.stringify(demographics || {});
+    const intelRows = await db.$queryRaw<Record<string, unknown>[]>`INSERT INTO facility_market_intel (facility_id, last_scanned, competitors, demand_drivers, demographics)
+       VALUES (${facilityId}, NOW(), ${competitorsJson}, ${demandDriversJson}, ${demographicsJson})
        ON CONFLICT (facility_id) DO UPDATE SET
          last_scanned = NOW(),
-         competitors = $2,
-         demand_drivers = $3,
-         demographics = $4,
+         competitors = ${competitorsJson},
+         demand_drivers = ${demandDriversJson},
+         demographics = ${demographicsJson},
          updated_at = NOW()
-       RETURNING *`,
-      facilityId,
-      JSON.stringify(competitors),
-      JSON.stringify(demand_drivers),
-      JSON.stringify(demographics || {})
-    );
+       RETURNING *`;
 
     return jsonResponse({ intel: intelRows[0] }, 200, origin);
   } catch (err) {
@@ -465,18 +453,15 @@ export async function PATCH(request: NextRequest) {
     const { facilityId, manual_notes, operator_overrides } = body || {};
     if (!facilityId) return errorResponse("facilityId required", 400, origin);
 
-    const intelRows = await db.$queryRawUnsafe<Record<string, unknown>[]>(
-      `INSERT INTO facility_market_intel (facility_id, manual_notes, operator_overrides)
-       VALUES ($1, $2, $3)
+    const manualNotesVal = manual_notes ?? null;
+    const operatorOverridesVal = operator_overrides ? JSON.stringify(operator_overrides) : null;
+    const intelRows = await db.$queryRaw<Record<string, unknown>[]>`INSERT INTO facility_market_intel (facility_id, manual_notes, operator_overrides)
+       VALUES (${facilityId}, ${manualNotesVal}, ${operatorOverridesVal})
        ON CONFLICT (facility_id) DO UPDATE SET
-         manual_notes = COALESCE($2, facility_market_intel.manual_notes),
-         operator_overrides = COALESCE($3, facility_market_intel.operator_overrides),
+         manual_notes = COALESCE(${manualNotesVal}, facility_market_intel.manual_notes),
+         operator_overrides = COALESCE(${operatorOverridesVal}, facility_market_intel.operator_overrides),
          updated_at = NOW()
-       RETURNING *`,
-      facilityId,
-      manual_notes ?? null,
-      operator_overrides ? JSON.stringify(operator_overrides) : null
-    );
+       RETURNING *`;
 
     return jsonResponse({ intel: intelRows[0] }, 200, origin);
   } catch (err) {

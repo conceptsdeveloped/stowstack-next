@@ -32,8 +32,8 @@ export async function GET(req: NextRequest) {
       : session?.user.organization_id;
     if (!orgId) return errorResponse("Organization ID required", 400, origin);
 
-    const facilities = await db.$queryRawUnsafe<Array<Record<string, unknown>>>(
-      `SELECT f.*,
+    const facilities = await db.$queryRaw<Array<Record<string, unknown>>>`
+      SELECT f.*,
         (SELECT json_agg(json_build_object(
           'month', cc.month, 'spend', cc.spend, 'leads', cc.leads, 'cpl', cc.cpl,
           'moveIns', cc.move_ins, 'roas', cc.roas, 'occupancyDelta', cc.occupancy_delta
@@ -43,10 +43,9 @@ export async function GET(req: NextRequest) {
         (SELECT COUNT(*) FROM landing_pages lp WHERE lp.facility_id = f.id AND lp.status = 'published') as live_pages,
         (SELECT COUNT(*) FROM ad_variations av WHERE av.facility_id = f.id AND av.status = 'published') as live_ads
        FROM facilities f
-       WHERE f.organization_id = $1
-       ORDER BY f.name`,
-      orgId
-    );
+       WHERE f.organization_id = ${orgId}
+       ORDER BY f.name
+    `;
 
     const totals = (facilities as Array<Record<string, unknown>>).reduce(
       (acc: { spend: number; leads: number; moveIns: number }, f) => {

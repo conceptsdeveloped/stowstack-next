@@ -198,8 +198,9 @@ export async function POST(req: NextRequest) {
 
     const nextRecoveryAt = email ? new Date(Date.now() + 60 * 60 * 1000).toISOString() : null;
 
-    const result = await db.$queryRawUnsafe<Array<{ id: string; lead_score: number }>>(
-      `INSERT INTO partial_leads (
+    const emailVal = email || null;
+    const result = await db.$queryRaw<Array<{ id: string; lead_score: number }>>`
+      INSERT INTO partial_leads (
         session_id, landing_page_id, facility_id,
         email, phone, name, unit_size,
         fields_completed, total_fields,
@@ -210,9 +211,15 @@ export async function POST(req: NextRequest) {
         lead_score, next_recovery_at,
         recovery_status, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-        $13, $14, $15, $16, $22, $23, $17, $18, $19, $20, $21,
-        CASE WHEN $4 IS NOT NULL THEN 'pending' ELSE 'no_email' END,
+        ${sessionId}, ${landingPageId || null}, ${facilityId || null},
+        ${emailVal}, ${phone || null}, ${name || null}, ${unitSize || null},
+        ${fieldsCompleted || 0}, ${totalFields || 0},
+        ${scrollDepth || 0}, ${timeOnPage || 0}, ${!!exitIntent},
+        ${utmSource || null}, ${utmMedium || null}, ${utmCampaign || null}, ${utmContent || null},
+        ${fbclid || null}, ${gclid || null},
+        ${referrer || null}, ${userAgent || null}, ${ipHash},
+        ${score}, ${nextRecoveryAt},
+        CASE WHEN ${emailVal} IS NOT NULL THEN 'pending' ELSE 'no_email' END,
         NOW()
       )
       ON CONFLICT (session_id) DO UPDATE SET
@@ -238,31 +245,8 @@ export async function POST(req: NextRequest) {
           ELSE partial_leads.recovery_status
         END,
         updated_at = NOW()
-      RETURNING id, lead_score`,
-      sessionId,
-      landingPageId || null,
-      facilityId || null,
-      email || null,
-      phone || null,
-      name || null,
-      unitSize || null,
-      fieldsCompleted || 0,
-      totalFields || 0,
-      scrollDepth || 0,
-      timeOnPage || 0,
-      !!exitIntent,
-      utmSource || null,
-      utmMedium || null,
-      utmCampaign || null,
-      utmContent || null,
-      referrer || null,
-      userAgent || null,
-      ipHash,
-      score,
-      nextRecoveryAt,
-      fbclid || null,
-      gclid || null
-    );
+      RETURNING id, lead_score
+    `;
 
     const row = result[0];
     return jsonResponse({ success: true, id: row?.id, score: row?.lead_score }, 200, origin);

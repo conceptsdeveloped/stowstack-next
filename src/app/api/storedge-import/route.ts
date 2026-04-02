@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";

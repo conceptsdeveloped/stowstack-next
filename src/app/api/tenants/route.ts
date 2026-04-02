@@ -628,23 +628,21 @@ export async function PATCH(req: NextRequest) {
       "days_delinquent",
       "status",
     ];
-    const sets: string[] = [];
-    const params: unknown[] = [id];
-    let pIdx = 2;
+    const setParts: Prisma.Sql[] = [];
     for (const [k, v] of Object.entries(updates)) {
       if (allowed.includes(k)) {
-        params.push(v);
-        sets.push(`${k} = $${pIdx++}`);
+        setParts.push(Prisma.sql`${Prisma.raw(k)} = ${v}`);
       }
     }
-    if (sets.length === 0)
+    if (setParts.length === 0)
       return errorResponse("No valid fields to update", 400, origin);
-    sets.push("updated_at = NOW()");
+    setParts.push(Prisma.sql`updated_at = NOW()`);
 
-    const rows = await db.$queryRawUnsafe<unknown[]>(
-      `UPDATE tenants SET ${sets.join(", ")} WHERE id = $1::uuid RETURNING *`,
-      ...params,
-    );
+    const setClause = Prisma.join(setParts, ", ");
+
+    const rows = await db.$queryRaw<unknown[]>`
+      UPDATE tenants SET ${setClause} WHERE id = ${id}::uuid RETURNING *
+    `;
 
     return jsonResponse(
       { tenant: (rows as unknown[])[0] || null },

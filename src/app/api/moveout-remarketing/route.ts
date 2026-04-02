@@ -118,35 +118,26 @@ export async function POST(req: NextRequest) {
         move_out_reason: string | null;
       }>;
 
+      const reasonFilter = move_out_reason_filter && move_out_reason_filter !== "all"
+        ? Prisma.sql`AND t.move_out_reason = ${move_out_reason_filter}`
+        : Prisma.empty;
+
       if (facilityId !== "all") {
-        tenants = await db.$queryRawUnsafe<typeof tenants>(
-          `SELECT t.* FROM tenants t
+        tenants = await db.$queryRaw<typeof tenants>`
+          SELECT t.* FROM tenants t
            LEFT JOIN moveout_remarketing mr ON mr.tenant_id = t.id
-           WHERE t.facility_id = $1::uuid AND t.status = 'moved_out' AND mr.id IS NULL
-           AND t.moved_out_date >= NOW() - ($2 || ' days')::INTERVAL
-           ${move_out_reason_filter && move_out_reason_filter !== "all" ? `AND t.move_out_reason = $3` : ""}`,
-          ...[
-            facilityId,
-            maxDays.toString(),
-            ...(move_out_reason_filter && move_out_reason_filter !== "all"
-              ? [move_out_reason_filter]
-              : []),
-          ],
-        );
+           WHERE t.facility_id = ${facilityId}::uuid AND t.status = 'moved_out' AND mr.id IS NULL
+           AND t.moved_out_date >= NOW() - (${maxDays.toString()} || ' days')::INTERVAL
+           ${reasonFilter}
+        `;
       } else {
-        tenants = await db.$queryRawUnsafe<typeof tenants>(
-          `SELECT t.* FROM tenants t
+        tenants = await db.$queryRaw<typeof tenants>`
+          SELECT t.* FROM tenants t
            LEFT JOIN moveout_remarketing mr ON mr.tenant_id = t.id
            WHERE t.status = 'moved_out' AND mr.id IS NULL
-           AND t.moved_out_date >= NOW() - ($1 || ' days')::INTERVAL
-           ${move_out_reason_filter && move_out_reason_filter !== "all" ? `AND t.move_out_reason = $2` : ""}`,
-          ...[
-            maxDays.toString(),
-            ...(move_out_reason_filter && move_out_reason_filter !== "all"
-              ? [move_out_reason_filter]
-              : []),
-          ],
-        );
+           AND t.moved_out_date >= NOW() - (${maxDays.toString()} || ' days')::INTERVAL
+           ${reasonFilter}
+        `;
       }
 
       let enrolled = 0;
@@ -297,27 +288,23 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { sequence_status, offer_type, offer_value } = updates;
-    const sets: string[] = ["updated_at = NOW()"];
-    const params: unknown[] = [id];
-    let pIdx = 2;
+    const setParts: Prisma.Sql[] = [Prisma.sql`updated_at = NOW()`];
 
     if (sequence_status) {
-      params.push(sequence_status);
-      sets.push(`sequence_status = $${pIdx++}`);
+      setParts.push(Prisma.sql`sequence_status = ${sequence_status}`);
     }
     if (offer_type) {
-      params.push(offer_type);
-      sets.push(`offer_type = $${pIdx++}`);
+      setParts.push(Prisma.sql`offer_type = ${offer_type}`);
     }
     if (offer_value !== undefined) {
-      params.push(offer_value);
-      sets.push(`offer_value = $${pIdx++}`);
+      setParts.push(Prisma.sql`offer_value = ${offer_value}`);
     }
 
-    const rows = await db.$queryRawUnsafe<unknown[]>(
-      `UPDATE moveout_remarketing SET ${sets.join(", ")} WHERE id = $1::uuid RETURNING *`,
-      ...params,
-    );
+    const setClause = Prisma.join(setParts, ", ");
+
+    const rows = await db.$queryRaw<unknown[]>`
+      UPDATE moveout_remarketing SET ${setClause} WHERE id = ${id}::uuid RETURNING *
+    `;
 
     return jsonResponse(
       { sequence: (rows as unknown[])[0] || null },

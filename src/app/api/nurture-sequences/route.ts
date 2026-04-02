@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -394,29 +395,24 @@ export async function PATCH(req: NextRequest) {
       };
       const targetId = sequenceId || enrollmentId;
 
-      const sets: string[] = [];
-      const params: unknown[] = [];
-      let idx = 1;
+      const setClauses: Prisma.Sql[] = [];
 
       if (name) {
-        sets.push(`name = $${idx++}`);
-        params.push(name);
+        setClauses.push(Prisma.sql`name = ${name}`);
       }
       if (steps) {
-        sets.push(`steps = $${idx++}::jsonb`);
-        params.push(JSON.stringify(steps));
+        setClauses.push(Prisma.sql`steps = ${JSON.stringify(steps)}::jsonb`);
       }
       if (seqStatus) {
-        sets.push(`status = $${idx++}`);
-        params.push(seqStatus);
+        setClauses.push(Prisma.sql`status = ${seqStatus}`);
       }
-      sets.push("updated_at = NOW()");
-      params.push(targetId);
+      setClauses.push(Prisma.sql`updated_at = NOW()`);
 
-      await db.$executeRawUnsafe(
-        `UPDATE nurture_sequences SET ${sets.join(", ")} WHERE id = $${idx}`,
-        ...params
-      );
+      const setFragment = Prisma.join(setClauses, ", ");
+
+      await db.$executeRaw`
+        UPDATE nurture_sequences SET ${setFragment} WHERE id = ${targetId}
+      `;
     }
 
     return jsonResponse({ success: true }, 200, origin);

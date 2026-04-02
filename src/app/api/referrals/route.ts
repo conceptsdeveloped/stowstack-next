@@ -35,13 +35,13 @@ export async function GET(req: NextRequest) {
     const action = url.searchParams.get("action");
 
     if (!action) {
-      const codes = await db.$queryRawUnsafe<Array<Record<string, unknown>>>(
-        `SELECT rc.*,
+      const codes = await db.$queryRaw<Array<Record<string, unknown>>>`
+        SELECT rc.*,
           (SELECT COUNT(*) FROM referrals r WHERE r.referral_code_id = rc.id) as referral_count,
           (SELECT COUNT(*) FROM referrals r WHERE r.referral_code_id = rc.id AND r.status = 'active') as active_count
         FROM referral_codes rc
-        ORDER BY rc.total_earned DESC, rc.created_at DESC`
-      );
+        ORDER BY rc.total_earned DESC, rc.created_at DESC
+      `;
       return jsonResponse({ codes }, 200, origin);
     }
 
@@ -66,14 +66,14 @@ export async function GET(req: NextRequest) {
     }
 
     if (action === "leaderboard") {
-      const leaders = await db.$queryRawUnsafe<Array<Record<string, unknown>>>(
-        `SELECT rc.id, rc.code, rc.referrer_name, rc.referral_count, rc.total_earned, rc.credit_balance,
+      const leaders = await db.$queryRaw<Array<Record<string, unknown>>>`
+        SELECT rc.id, rc.code, rc.referrer_name, rc.referral_count, rc.total_earned, rc.credit_balance,
           (SELECT COUNT(*) FROM referrals r WHERE r.referral_code_id = rc.id AND r.status = 'active') as active_referrals
         FROM referral_codes rc
         WHERE rc.status = 'active' AND rc.referral_count > 0
         ORDER BY rc.referral_count DESC, rc.total_earned DESC
-        LIMIT 20`
-      );
+        LIMIT 20
+      `;
       return jsonResponse({ leaders }, 200, origin);
     }
 
