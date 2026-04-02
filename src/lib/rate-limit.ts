@@ -38,15 +38,22 @@ export async function checkRateLimit(
   const redisKey = `rl:${key}`;
 
   try {
-    const current = await r.incr(redisKey);
+    // Atomic incr + expire using pipeline to prevent race condition
+    // where TTL could be lost or extended between separate commands
+    const pipeline = r.pipeline();
+    pipeline.incr(redisKey);
+    pipeline.ttl(redisKey);
+    const results = await pipeline.exec<[number, number]>();
+    const current = results[0];
+    let ttl = results[1];
 
-    // Set TTL on first increment
-    if (current === 1) {
+    // Set TTL on first increment (ttl === -1 means no expiry set)
+    if (ttl === -1) {
       await r.expire(redisKey, windowSeconds);
+      ttl = windowSeconds;
     }
 
-    const ttl = await r.ttl(redisKey);
-    const resetAt = Date.now() + ttl * 1000;
+    const resetAt = Date.now() + Math.max(ttl, 0) * 1000;
 
     if (current > maxAttempts) {
       return { allowed: false, remaining: 0, resetAt };

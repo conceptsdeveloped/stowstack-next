@@ -253,6 +253,7 @@ export async function DELETE(req: NextRequest) {
     const body = await req.json();
     const { type, id } = body || {};
     if (!id) return errorResponse("id required", 400, origin);
+    if (!isValidUuid(id)) return errorResponse("Invalid id format", 400, origin);
 
     if (type === "unit") {
       await db.facility_pms_units.delete({ where: { id } });

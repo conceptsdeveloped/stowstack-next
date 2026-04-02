@@ -77,7 +77,7 @@ export default function DpaPage() {
         <p>
           StorageAds will assist the Controller in fulfilling data subject requests including
           access, rectification, erasure, restriction, and portability. Data deletion requests
-          can be submitted through the StorageAds dashboard or via email to privacy@storageads.com.
+          can be submitted through the StorageAds dashboard or via email to blake@storageads.com.
         </p>
       </section>
 
@@ -103,7 +103,7 @@ export default function DpaPage() {
         <h2>9. Contact</h2>
         <p>
           For questions about this DPA or to exercise data rights, contact:
-          privacy@storageads.com
+          blake@storageads.com
         </p>
       </section>
     </LegalLayout>

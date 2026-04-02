@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import * as Sentry from "@sentry/nextjs";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
@@ -354,6 +355,7 @@ export async function POST(req: NextRequest) {
     void scrapeData;
 
     const client = new Anthropic({ apiKey });
+    Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 8192,

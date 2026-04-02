@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import * as Sentry from "@sentry/nextjs";
 import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
 import {
@@ -135,6 +136,7 @@ async function enhancePrompt(
   const client = new Anthropic({ apiKey: anthropicKey });
 
   try {
+    Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 300,

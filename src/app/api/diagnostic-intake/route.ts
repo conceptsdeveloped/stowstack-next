@@ -8,6 +8,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidEmail, escapeHtml } from "@/lib/validation";
 
 /**
  * Maps form responses (question-answer pairs) to DiagnosticInput format
@@ -191,6 +192,13 @@ export async function POST(req: NextRequest) {
         origin
       );
     }
+    if (!isValidEmail(contactEmail)) {
+      return errorResponse(
+        "Invalid email format",
+        400,
+        origin
+      );
+    }
 
     // Parse occupancy from responses if available
     const occupancyRaw =
@@ -268,24 +276,26 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           from: "StorageAds <notifications@storageads.com>",
           to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-          subject: `New Diagnostic Submission: ${facilityName}`,
+          subject: `New Diagnostic Submission: ${escapeHtml(facilityName)}`,
           html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <h2 style="margin: 0 0 12px; color: #1a1a1a;">New Diagnostic Form Submission</h2>
               <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Facility</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${facilityName}</strong></td></tr>
-                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Address</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${facilityAddress || "N/A"}</td></tr>
-                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Contact</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${contactName || "N/A"} (${contactEmail})</td></tr>
-                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Occupancy</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${occupancyRaw || "N/A"}</td></tr>
-                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Units</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${totalUnitsRaw || "N/A"}</td></tr>
-                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Issue</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${biggestIssueRaw || "N/A"}</td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Facility</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${escapeHtml(facilityName)}</strong></td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Address</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(facilityAddress || "N/A")}</td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Contact</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(contactName || "N/A")} (${escapeHtml(contactEmail)})</td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Occupancy</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(occupancyRaw || "N/A")}</td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Units</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(totalUnitsRaw || "N/A")}</td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Issue</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(biggestIssueRaw || "N/A")}</td></tr>
               </table>
               <p style="margin-top: 20px;">
                 <a href="https://storageads.com/admin/audits" style="display: inline-block; padding: 12px 24px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Generate Audit</a>
               </p>
             </div>`,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[diagnostic-intake] Notification email failed:", err instanceof Error ? err.message : err);
+      });
     }
 
     // Log activity
@@ -298,7 +308,9 @@ export async function POST(req: NextRequest) {
           detail: `Diagnostic form submitted by ${contactName || contactEmail}`,
         },
       })
-      .catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      .catch((err) => {
+        console.error("[diagnostic-intake] Activity log write failed:", err instanceof Error ? err.message : err);
+      });
 
     // Auto-trigger audit generation (fire-and-forget)
     const adminSecret = process.env.ADMIN_SECRET;

@@ -49,7 +49,7 @@ export async function PUT(req: NextRequest) {
       select: { avatar_url: true },
     });
     if (user?.avatar_url?.includes(".vercel-storage.com")) {
-      del(user.avatar_url).catch(() => {});
+      del(user.avatar_url).catch((err) => console.error("[blob] Avatar delete failed:", err));
     }
 
     const ext = contentType.split("/")[1] || "jpg";
@@ -87,7 +87,7 @@ export async function DELETE(req: NextRequest) {
     });
 
     if (user?.avatar_url?.includes(".vercel-storage.com")) {
-      del(user.avatar_url).catch(() => {});
+      del(user.avatar_url).catch((err) => console.error("[blob] Avatar delete failed:", err));
     }
 
     await db.org_users.update({

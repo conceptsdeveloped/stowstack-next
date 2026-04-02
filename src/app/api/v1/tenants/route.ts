@@ -12,6 +12,7 @@ import {
 } from "@/lib/v1-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidUuid } from "@/lib/validation";
 
 export async function OPTIONS() {
   return v1CorsResponse();
@@ -31,6 +32,9 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
   const facilityId = url.searchParams.get("facilityId");
+
+  if (id && !isValidUuid(id)) return v1Error("Invalid id format", 400);
+  if (facilityId && !isValidUuid(facilityId)) return v1Error("Invalid facilityId format", 400);
 
   try {
     if (id) {
@@ -122,6 +126,7 @@ export async function POST(request: NextRequest) {
   if (!fId || !Array.isArray(tenantList) || !tenantList.length) {
     return v1Error("facilityId and tenants[] are required");
   }
+  if (!isValidUuid(fId)) return v1Error("Invalid facilityId format", 400);
 
   const facility = await requireOrgFacility(fId, orgId);
   if (facility instanceof Response) return facility;
@@ -182,6 +187,7 @@ export async function PATCH(request: NextRequest) {
 
   const id = new URL(request.url).searchParams.get("id");
   if (!id) return v1Error("id query param is required");
+  if (!isValidUuid(id)) return v1Error("Invalid id format", 400);
 
   const body = await request.json().catch(() => null);
   if (!body) return v1Error("No valid fields to update");

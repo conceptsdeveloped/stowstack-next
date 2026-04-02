@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { db } from "@/lib/db";
+import { isValidUuid } from "@/lib/validation";
 
 const PIXEL = Buffer.from(
   "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
@@ -24,11 +25,11 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
   const id = req.nextUrl.searchParams.get("id");
 
-  if (id) {
+  if (id && isValidUuid(id)) {
     db.$executeRaw`
       UPDATE client_reports SET opened_at = COALESCE(opened_at, NOW()), status = 'opened'
       WHERE id = ${id}::uuid AND opened_at IS NULL
-    `.catch((err) => console.error("[report_open] Fire-and-forget failed:", err));
+    `.catch((err) => console.error("[report-open] DB update failed:", err instanceof Error ? err.message : err));
   }
 
   return pixelResponse();
@@ -37,16 +38,17 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_WRITE, "report-open");
   if (limited) return limited;
+
   try {
     const { id } = await req.json();
-    if (id) {
+    if (id && isValidUuid(id)) {
       db.$executeRaw`
         UPDATE client_reports SET opened_at = COALESCE(opened_at, NOW()), status = 'opened'
         WHERE id = ${id}::uuid AND opened_at IS NULL
-      `.catch((err) => console.error("[report_open] Fire-and-forget failed:", err));
+      `.catch((err) => console.error("[report-open] DB update failed:", err instanceof Error ? err.message : err));
     }
   } catch {
-    /* ignore parse errors */
+    /* ignore JSON parse errors — tracking pixels shouldn't fail */
   }
 
   return pixelResponse();

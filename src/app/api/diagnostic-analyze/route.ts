@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import * as Sentry from "@sentry/nextjs";
 import {
   errorResponse,
   getOrigin,
@@ -97,7 +98,7 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
 
-  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "diagnostic-analyze");
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API_HOURLY, "diagnostic-analyze");
   if (limited) return limited;
 
   const body = await req.json().catch(() => null);
@@ -125,6 +126,7 @@ FORM RESPONSES:
 ${formData}`;
 
   try {
+    Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
     const stream = client.messages.stream({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 16384,

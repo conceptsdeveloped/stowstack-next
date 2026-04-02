@@ -15,7 +15,9 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "portal-gbp");
-  if (limited) return limited;  const origin = getOrigin(req);
+  if (limited) return limited;
+
+  const origin = getOrigin(req);
 
   try {
     const url = new URL(req.url);

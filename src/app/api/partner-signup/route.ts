@@ -1,9 +1,20 @@
 import { NextRequest } from "next/server";
 import crypto from "crypto";
+import { promisify } from "util";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidEmail, sanitizeString, escapeHtml } from "@/lib/validation";
+
+const scryptAsync = promisify(crypto.scrypt);
+const SCRYPT_KEYLEN = 64;
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = crypto.randomBytes(16);
+  const hash = (await scryptAsync(password, salt, SCRYPT_KEYLEN)) as Buffer;
+  return `scrypt:${salt.toString("hex")}:${hash.toString("hex")}`;
+}
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -17,10 +28,17 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { companyName, contactName, email, phone, facilityCount, plan } = body;
+    const companyName = sanitizeString(body.companyName, 200);
+    const contactName = sanitizeString(body.contactName, 200);
+    const email = sanitizeString(body.email, 254);
+    const phone = sanitizeString(body.phone, 30);
+    const { facilityCount, plan } = body;
 
     if (!companyName || !email || !contactName) {
       return errorResponse("Company name, contact name, and email are required", 400, origin);
+    }
+    if (!isValidEmail(email)) {
+      return errorResponse("Invalid email format", 400, origin);
     }
 
     const baseSlug = companyName
@@ -61,10 +79,7 @@ export async function POST(req: NextRequest) {
 
     const userId = crypto.randomUUID();
     const tempPassword = crypto.randomBytes(6).toString("hex");
-    const passwordHash = crypto
-      .createHash("sha256")
-      .update(tempPassword + userId)
-      .digest("hex");
+    const passwordHash = await hashPassword(tempPassword);
 
     await db.org_users.create({
       data: {
@@ -98,7 +113,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           from: "StorageAds Partners <partners@storageads.com>",
           to: email,
-          subject: `Welcome to StorageAds — ${companyName} Partner Account`,
+          subject: `Welcome to StorageAds — ${escapeHtml(companyName)} Partner Account`,
           html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 24px; border-radius: 12px 12px 0 0;">
@@ -106,12 +121,12 @@ export async function POST(req: NextRequest) {
                 <p style="color: var(--color-dark); margin: 8px 0 0; font-size: 14px;">Partner Portal Access</p>
               </div>
               <div style="padding: 24px; border: 1px solid #e2e8f0; border-top: 0; border-radius: 0 0 12px 12px;">
-                <p style="color: #334155; font-size: 15px;">Hi ${contactName},</p>
-                <p style="color: #334155; font-size: 15px;">Your partner account for <strong>${companyName}</strong> is ready.</p>
+                <p style="color: #334155; font-size: 15px;">Hi ${escapeHtml(contactName)},</p>
+                <p style="color: #334155; font-size: 15px;">Your partner account for <strong>${escapeHtml(companyName)}</strong> is ready.</p>
                 <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin: 16px 0;">
                   <p style="margin: 0 0 8px; font-size: 13px; color: #64748b;">Your login credentials:</p>
-                  <p style="margin: 0 0 4px; font-size: 14px;"><strong>Organization:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${slug}</code></p>
-                  <p style="margin: 0 0 4px; font-size: 14px;"><strong>Email:</strong> ${email}</p>
+                  <p style="margin: 0 0 4px; font-size: 14px;"><strong>Organization:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${escapeHtml(slug)}</code></p>
+                  <p style="margin: 0 0 4px; font-size: 14px;"><strong>Email:</strong> ${escapeHtml(email)}</p>
                   <p style="margin: 0; font-size: 14px;"><strong>Temporary Password:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${tempPassword}</code></p>
                 </div>
                 <p style="color: #334155; font-size: 14px;">Sign in at <strong>storageads.com/partner</strong> to get started.</p>
@@ -120,7 +135,9 @@ export async function POST(req: NextRequest) {
             </div>
           `,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[partner-signup] Welcome email failed:", err instanceof Error ? err.message : err);
+      });
     }
 
     return jsonResponse(
@@ -139,7 +156,6 @@ export async function POST(req: NextRequest) {
           name: contactName,
           role: "org_admin",
         },
-        tempPassword,
       },
       200,
       origin

@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { corsResponse, getOrigin } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
-import { isValidEmail, sanitizeString } from "@/lib/validation";
+import { isValidEmail, sanitizeString, escapeHtml } from "@/lib/validation";
+
+export async function OPTIONS(request: NextRequest) {
+  return corsResponse(getOrigin(request));
+}
 
 export async function POST(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.PUBLIC_WRITE, "audit-form");
@@ -68,19 +73,19 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             from: "StorageAds <noreply@storageads.com>",
             to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-            subject: `New Audit Request: ${facilityName} (${location})`,
+            subject: `New Audit Request: ${escapeHtml(facilityName)} (${escapeHtml(location)})`,
             html: `
               <h2>New Facility Audit Request</h2>
-              <p><strong>Name:</strong> ${name}</p>
-              <p><strong>Email:</strong> ${email}</p>
-              <p><strong>Phone:</strong> ${phone || "N/A"}</p>
-              <p><strong>Facility:</strong> ${facilityName}</p>
-              <p><strong>Location:</strong> ${location}</p>
-              <p><strong>Units:</strong> ${totalUnits || "N/A"}</p>
-              <p><strong>Occupancy:</strong> ${occupancyRange || "N/A"}</p>
-              <p><strong>Running Ads:</strong> ${runningAds || "N/A"}</p>
-              <p><strong>Biggest Challenge:</strong> ${biggestChallenge || "N/A"}</p>
-              <p><strong>How Heard:</strong> ${howHeard || "N/A"}</p>
+              <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+              <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+              <p><strong>Phone:</strong> ${escapeHtml(phone || "N/A")}</p>
+              <p><strong>Facility:</strong> ${escapeHtml(facilityName)}</p>
+              <p><strong>Location:</strong> ${escapeHtml(location)}</p>
+              <p><strong>Units:</strong> ${escapeHtml(String(totalUnits || "N/A"))}</p>
+              <p><strong>Occupancy:</strong> ${escapeHtml(occupancyRange || "N/A")}</p>
+              <p><strong>Running Ads:</strong> ${escapeHtml(runningAds || "N/A")}</p>
+              <p><strong>Biggest Challenge:</strong> ${escapeHtml(biggestChallenge || "N/A")}</p>
+              <p><strong>How Heard:</strong> ${escapeHtml(howHeard || "N/A")}</p>
             `,
           }),
         });

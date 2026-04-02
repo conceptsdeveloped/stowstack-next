@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
+import * as Sentry from "@sentry/nextjs";
 
 const DOC_PATHS: Record<string, string> = {
   creative: path.resolve(process.cwd(), "CREATIVE.md"),
@@ -72,6 +73,7 @@ export async function synthesize(
         : "the marketing strategy doctrine governing channel allocation, audience segmentation, pricing psychology, competitive positioning, conversion benchmarks, and campaign intelligence";
 
     try {
+      Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
       const message = await client.messages.create({
         model: "claude-opus-4-20250514",
         max_tokens: 8000,
@@ -132,6 +134,7 @@ Return ONLY the complete updated document. No explanation, no markdown fences wr
       }
 
       // Generate a change summary
+      Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
       const summaryMessage = await client.messages.create({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 200,

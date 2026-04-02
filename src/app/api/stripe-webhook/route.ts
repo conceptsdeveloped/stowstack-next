@@ -136,10 +136,6 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
-  const org = await db.organizations.findFirst({
-    where: { stripe_customer_id: customerId },
-  });
-  if (!org) return;
 
   const newPlan = subscription.metadata?.plan;
   const status = subscription.status === "active" ? "active" :
@@ -151,45 +147,44 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   };
   if (newPlan) updateData.plan = newPlan;
 
-  await db.organizations.update({
-    where: { id: org.id },
+  // Atomic find-and-update — no race window between read and write
+  await db.organizations.updateMany({
+    where: { stripe_customer_id: customerId },
     data: updateData,
   });
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
-  const org = await db.organizations.findFirst({
-    where: { stripe_customer_id: customerId },
-  });
-  if (!org) return;
 
-  await db.$transaction([
-    db.organizations.update({
+  // Use interactive transaction to eliminate read-then-write race
+  await db.$transaction(async (tx) => {
+    const org = await tx.organizations.findFirst({
+      where: { stripe_customer_id: customerId },
+    });
+    if (!org) return;
+
+    await tx.organizations.update({
       where: { id: org.id },
       data: { subscription_status: "canceled" },
-    }),
-    db.activity_log.create({
+    });
+    await tx.activity_log.create({
       data: {
         type: "subscription_canceled",
         detail: `${org.name} subscription canceled`,
         meta: { orgId: org.id },
       },
-    }),
-  ]);
+    });
+  });
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
   if (!customerId) return;
 
-  const org = await db.organizations.findFirst({
+  // Atomic — no read-then-write race
+  await db.organizations.updateMany({
     where: { stripe_customer_id: customerId },
-  });
-  if (!org) return;
-
-  await db.organizations.update({
-    where: { id: org.id },
     data: { subscription_status: "past_due" },
   });
 }
@@ -198,13 +193,9 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
   if (!customerId) return;
 
-  const org = await db.organizations.findFirst({
-    where: { stripe_customer_id: customerId },
-  });
-  if (!org || org.subscription_status !== "past_due") return;
-
-  await db.organizations.update({
-    where: { id: org.id },
+  // Only upgrade from past_due — atomic, no race
+  await db.organizations.updateMany({
+    where: { stripe_customer_id: customerId, subscription_status: "past_due" },
     data: { subscription_status: "active" },
   });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { auth } from "@clerk/nextjs/server";
+import * as Sentry from "@sentry/nextjs";
 
 const ALLOWED_ORIGINS = [
   "https://storageads.com",
@@ -10,16 +11,30 @@ const ALLOWED_ORIGINS = [
 ];
 
 export function getCorsHeaders(origin: string | null): Record<string, string> {
-  const allowed =
-    origin && ALLOWED_ORIGINS.includes(origin)
-      ? origin
-      : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowed,
+  const isAllowed = origin && ALLOWED_ORIGINS.includes(origin);
+  const headers: Record<string, string> = {
     "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
-      "Content-Type, Authorization, X-Admin-Key, X-Org-Token",
+      "Content-Type, Authorization, X-Org-Token",
   };
+  // Only set Allow-Origin for recognized origins — omit for unknown to block cross-origin access
+  if (isAllowed) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
+}
+
+/**
+ * Verify that the request Origin matches an allowed origin.
+ * Returns null if valid, or an error response if the origin is unrecognized.
+ * Skip for requests with no Origin header (server-to-server, cron, webhook).
+ */
+export function verifyCsrfOrigin(req: NextRequest): NextResponse | null {
+  const origin = req.headers.get("origin");
+  // No origin header = non-browser request (cron, webhook, server-to-server) — allow
+  if (!origin) return null;
+  if (ALLOWED_ORIGINS.includes(origin)) return null;
+  return errorResponse("Forbidden: invalid origin", 403, origin);
 }
 
 export function corsResponse(origin: string | null) {
@@ -51,12 +66,13 @@ export function errorResponse(
   );
 }
 
-function safeCompare(a: string, b: string): boolean {
+export function safeCompare(a: string, b: string): boolean {
   if (!a || !b) return false;
-  const bufA = Buffer.from(String(a));
-  const bufB = Buffer.from(String(b));
-  if (bufA.length !== bufB.length) return false;
-  return crypto.timingSafeEqual(bufA, bufB);
+  // Hash both values to normalize length before comparison,
+  // preventing timing leaks from the length check
+  const hashA = crypto.createHash("sha256").update(String(a)).digest();
+  const hashB = crypto.createHash("sha256").update(String(b)).digest();
+  return crypto.timingSafeEqual(hashA, hashB);
 }
 
 export function isAdminRequest(req: NextRequest): boolean {
@@ -70,6 +86,7 @@ export function requireAdminKey(req: NextRequest): NextResponse | null {
   if (!isAdminRequest(req)) {
     return errorResponse("Unauthorized", 401, req.headers.get("origin"));
   }
+  Sentry.addBreadcrumb({ category: "auth", message: "Admin key authenticated", level: "info" });
   return null;
 }
 
@@ -87,7 +104,10 @@ export async function requireAdminAuth(
   req: NextRequest
 ): Promise<NextResponse | null> {
   // First check admin key — fast path, no async needed
-  if (isAdminRequest(req)) return null;
+  if (isAdminRequest(req)) {
+    Sentry.setTag("auth_method", "admin_key");
+    return null;
+  }
 
   // Fall back to Clerk session check
   try {
@@ -102,6 +122,9 @@ export async function requireAdminAuth(
     const role = metadataRole ?? pubMetadata?.role;
 
     if (role === "admin" || role === "virtual_assistant") {
+      Sentry.setUser({ id: userId });
+      Sentry.setTag("auth_method", "clerk");
+      Sentry.setTag("user_role", String(role));
       return null;
     }
 

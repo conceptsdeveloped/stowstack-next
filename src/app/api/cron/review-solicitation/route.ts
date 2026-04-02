@@ -314,7 +314,9 @@ export async function GET(request: NextRequest) {
           subject: `[CRON FAILURE] review-solicitation`,
           html: `<p>The <strong>review-solicitation</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[cron:review-solicitation] Alert email failed:", err instanceof Error ? err.message : err);
+      });
     }
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });

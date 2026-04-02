@@ -282,6 +282,14 @@ export async function GET(request: NextRequest) {
           const message =
             emailErr instanceof Error ? emailErr.message : "Unknown error";
           console.error(`[CRON:process-drips] Send failed for ${drip.id}:`, message);
+          logActivity({
+            type: "drip_send_failed",
+            facilityId: drip.facility_id,
+            leadName: drip.contact_name || "",
+            facilityName: drip.facility_name || "",
+            detail: `Drip send failed: "${step.label}" — ${message}`,
+            meta: { sequenceId: drip.sequence_id, step: drip.current_step, error: message },
+          });
           // Mark the history entry as failed so it can be retried manually
           db.$executeRaw`
             UPDATE drip_sequences

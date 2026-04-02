@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import * as Sentry from "@sentry/nextjs";
 import {
   jsonResponse,
   errorResponse,
@@ -64,6 +65,7 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API_HOURLY, "analyze-map");
   if (limited) return limited;
+
   const origin = getOrigin(req);
 
   const body = await req.json().catch(() => null);
@@ -99,6 +101,7 @@ export async function POST(req: NextRequest) {
 Be thorough — identify ALL units visible on the map, even small or partially visible ones. The accuracy of a physical audit depends on this extraction.`;
 
   try {
+    Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
     const message = await client.messages.create({
       model: "claude-sonnet-4-5-20250514",
       max_tokens: 8192,

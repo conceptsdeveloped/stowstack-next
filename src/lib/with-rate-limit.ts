@@ -17,10 +17,10 @@ export async function applyRateLimit(
   prefix: string,
   keyOverride?: string
 ): Promise<NextResponse | null> {
-  const key =
-    keyOverride ??
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "anonymous";
+  // Vercel sets x-forwarded-for with the real client IP as the first entry.
+  // Do NOT trust x-real-ip — it's non-standard and trivially spoofable.
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const key = keyOverride ?? ip ?? "unknown-ip";
 
   const rl = await checkRateLimit(
     `${prefix}:${key}`,

@@ -3,18 +3,20 @@ import {
   corsResponse,
   jsonResponse,
   errorResponse,
+  getOrigin,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
-export async function OPTIONS(request: NextRequest) {
-  return corsResponse(request.headers.get("origin"));
+export async function OPTIONS(req: NextRequest) {
+  return corsResponse(getOrigin(req));
 }
 
-export async function GET(request: NextRequest) {
-  const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.PUBLIC_WRITE, "push-vapid-key");
+export async function GET(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_READ, "push-vapid-key");
   if (limited) return limited;
-  const origin = request.headers.get("origin");
+
+  const origin = getOrigin(req);
 
   const publicKey = process.env.VAPID_PUBLIC_KEY;
   if (!publicKey) {

@@ -8,6 +8,7 @@ import {
   requireAdminKey,
 } from "@/lib/api-helpers";
 import Anthropic from "@anthropic-ai/sdk";
+import * as Sentry from "@sentry/nextjs";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -112,6 +113,7 @@ Return JSON with this exact format:
 { "content": "the post text", "hashtags": ["hashtag1", "hashtag2"], "suggestedImage": "brief description of an ideal photo to pair with this post" }`;
 
     const client = new Anthropic({ apiKey });
+    Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 1024,

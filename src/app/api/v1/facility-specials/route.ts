@@ -12,6 +12,7 @@ import {
 import { dispatchWebhook } from "@/lib/webhook";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidUuid } from "@/lib/validation";
 
 export async function OPTIONS() {
   return v1CorsResponse();
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest) {
   if (scopeErr) return scopeErr;
 
   const facilityId = new URL(request.url).searchParams.get("facilityId");
+  if (facilityId && !isValidUuid(facilityId)) return v1Error("Invalid facilityId format", 400);
   const facility = await requireOrgFacility(facilityId, orgId);
   if (facility instanceof Response) return facility;
 
@@ -57,6 +59,7 @@ export async function POST(request: NextRequest) {
   if (scopeErr) return scopeErr;
 
   const facilityId = new URL(request.url).searchParams.get("facilityId");
+  if (facilityId && !isValidUuid(facilityId)) return v1Error("Invalid facilityId format", 400);
   const facility = await requireOrgFacility(facilityId, orgId);
   if (facility instanceof Response) return facility;
 

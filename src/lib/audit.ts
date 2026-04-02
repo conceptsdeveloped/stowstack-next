@@ -24,5 +24,5 @@ export function logAudit(
   db.$executeRaw`
     INSERT INTO audit_log (organization_id, user_id, action, resource_type, resource_id, metadata, ip_address, user_agent)
     VALUES (${orgId}, ${userId}, ${params.action}, ${params.resourceType || null}, ${params.resourceId || null}, ${meta}::jsonb, ${ip}, ${ua})
-  `.catch(() => {});
+  `.catch((err) => console.error("[audit_log] Fire-and-forget failed:", err));
 }

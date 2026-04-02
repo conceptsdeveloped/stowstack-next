@@ -21,6 +21,16 @@ export async function POST(req: NextRequest) {
       return errorResponse("Missing required fields: plan, email, companyName", 400, origin);
     }
 
+    // Validate inputs
+    const validPlans = ["launch", "growth", "portfolio", "enterprise"];
+    if (!validPlans.includes(plan)) {
+      return errorResponse("Invalid plan", 400, origin);
+    }
+    const count = parseInt(facilityCount) || 1;
+    if (count < 1 || count > 999) {
+      return errorResponse("Invalid facility count", 400, origin);
+    }
+
     // Look up or create Stripe customer
     const existingCustomers = await stripe.customers.list({ email, limit: 1 });
     let customerId: string;
@@ -31,7 +41,7 @@ export async function POST(req: NextRequest) {
       const newCustomer = await stripe.customers.create({
         email,
         name: companyName,
-        metadata: { plan, facilityCount: String(facilityCount || 1) },
+        metadata: { plan, facilityCount: String(count) },
       });
       customerId = newCustomer.id;
     }
@@ -55,7 +65,7 @@ export async function POST(req: NextRequest) {
       line_items: [
         {
           price: priceId,
-          quantity: facilityCount || 1,
+          quantity: count,
         },
       ],
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com"}/api/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
@@ -63,14 +73,14 @@ export async function POST(req: NextRequest) {
       metadata: {
         plan,
         companyName,
-        facilityCount: String(facilityCount || 1),
+        facilityCount: String(count),
         billingType: billingType || "monthly",
       },
       subscription_data: {
         metadata: {
           plan,
           companyName,
-          facilityCount: String(facilityCount || 1),
+          facilityCount: String(count),
         },
       },
     };

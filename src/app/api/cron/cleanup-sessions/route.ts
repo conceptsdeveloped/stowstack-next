@@ -42,8 +42,14 @@ export async function GET(request: NextRequest) {
           subject: `[CRON FAILURE] cleanup-sessions`,
           html: `<p>The <strong>cleanup-sessions</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[cron:cleanup-sessions] Alert email failed:", err instanceof Error ? err.message : err);
+      });
     }
+
+    // Retry: Vercel cron will re-invoke on next schedule.
+    // Items not processed in this run will be picked up by the cursor-based pagination.
+    console.warn(`[CRON:cleanup-sessions] Will retry remaining items on next scheduled run.`);
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }

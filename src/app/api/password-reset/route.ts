@@ -12,6 +12,7 @@ import {
 import { logAudit } from "@/lib/audit";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidEmail } from "@/lib/validation";
 
 const scryptAsync = promisify(crypto.scrypt);
 const SCRYPT_KEYLEN = 64;
@@ -39,6 +40,9 @@ export async function POST(req: NextRequest) {
       const { email, orgSlug } = body;
       if (!email || !orgSlug) {
         return errorResponse("Email and organization required", 400, origin);
+      }
+      if (!isValidEmail(email)) {
+        return errorResponse("Invalid email format", 400, origin);
       }
 
       const users = await db.$queryRaw<
@@ -144,23 +148,30 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const users = await db.$queryRaw<Array<{ id: string }>>`
-        SELECT id FROM org_users WHERE reset_token = ${token} AND reset_token_expires_at > NOW()
+      // Atomically consume the token to prevent replay/race conditions.
+      // UPDATE ... RETURNING only succeeds if the token is still valid.
+      const consumed = await db.$queryRaw<Array<{ id: string }>>`
+        UPDATE org_users
+        SET reset_token = NULL, reset_token_expires_at = NULL
+        WHERE reset_token = ${token} AND reset_token_expires_at > NOW()
+        RETURNING id
       `;
-      if (!users.length) {
+      if (!consumed.length) {
         return errorResponse("Invalid or expired reset link", 400, origin);
       }
 
+      const userId = consumed[0].id;
+
       // Destroy all existing sessions before changing password
-      await destroyAllSessions(users[0].id);
+      await destroyAllSessions(userId);
 
       const passwordHash = await hashPassword(newPassword);
       await db.$executeRaw`
-        UPDATE org_users SET password_hash = ${passwordHash}, reset_token = NULL, reset_token_expires_at = NULL
-        WHERE id = ${users[0].id}::uuid
+        UPDATE org_users SET password_hash = ${passwordHash}
+        WHERE id = ${userId}::uuid
       `;
 
-      logAudit(req, null, { action: "password.reset", resourceType: "user", resourceId: users[0].id, metadata: { method: "token" } });
+      logAudit(req, null, { action: "password.reset", resourceType: "user", resourceId: userId, metadata: { method: "token" } });
 
       return jsonResponse({ success: true }, 200, origin);
     }

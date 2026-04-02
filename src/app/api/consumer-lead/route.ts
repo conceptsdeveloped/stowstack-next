@@ -3,7 +3,13 @@ import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
-import { isValidEmail } from "@/lib/validation";
+import { isValidEmail, sanitizeString } from "@/lib/validation";
+
+/** Clamp optional string fields from untrusted input */
+function clean(val: unknown, max: number): string | null {
+  const s = sanitizeString(val, max);
+  return s || null;
+}
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -22,15 +28,25 @@ export async function POST(req: NextRequest) {
       utm_source, utm_medium, utm_campaign, utm_content, utm_term: _utm_term,
     } = body;
 
-    if (!sessionId) {
-      return errorResponse("Session ID is required", 400, origin);
+    if (!sessionId || typeof sessionId !== "string" || sessionId.length > 200) {
+      return errorResponse("Valid session ID is required", 400, origin);
     }
     if (!email && !phone) {
       return errorResponse("Email or phone is required", 400, origin);
     }
-    if (email && !isValidEmail(email)) {
+    if (email && !isValidEmail(String(email).trim())) {
       return errorResponse("Invalid email format", 400, origin);
     }
+
+    // Sanitize all string inputs before storage
+    const cleanEmail = clean(email, 254);
+    const cleanPhone = clean(phone, 30);
+    const cleanName = clean(name, 200);
+    const cleanUnitSize = clean(unitSize, 50);
+    const cleanUtmSource = clean(utm_source, 200);
+    const cleanUtmMedium = clean(utm_medium, 200);
+    const cleanUtmCampaign = clean(utm_campaign, 200);
+    const cleanUtmContent = clean(utm_content, 200);
 
     // Try to update existing partial lead
     const existingPartial = await db.partial_leads.findFirst({
@@ -41,18 +57,18 @@ export async function POST(req: NextRequest) {
       const updated = await db.partial_leads.update({
         where: { id: existingPartial.id },
         data: {
-          email: email || existingPartial.email,
-          phone: phone || existingPartial.phone,
-          name: name || existingPartial.name,
-          unit_size: unitSize || existingPartial.unit_size,
+          email: cleanEmail || existingPartial.email,
+          phone: cleanPhone || existingPartial.phone,
+          name: cleanName || existingPartial.name,
+          unit_size: cleanUnitSize || existingPartial.unit_size,
           converted: true,
           lead_status: "new",
           fbclid: fbclid || existingPartial.fbclid,
           gclid: gclid || existingPartial.gclid,
-          utm_source: utm_source || existingPartial.utm_source,
-          utm_medium: utm_medium || existingPartial.utm_medium,
-          utm_campaign: utm_campaign || existingPartial.utm_campaign,
-          utm_content: utm_content || existingPartial.utm_content,
+          utm_source: cleanUtmSource || existingPartial.utm_source,
+          utm_medium: cleanUtmMedium || existingPartial.utm_medium,
+          utm_campaign: cleanUtmCampaign || existingPartial.utm_campaign,
+          utm_content: cleanUtmContent || existingPartial.utm_content,
         },
       });
       return jsonResponse({ success: true, id: updated.id, status: "updated" }, 200, origin);
@@ -64,18 +80,18 @@ export async function POST(req: NextRequest) {
         session_id: sessionId,
         facility_id: facilityId || null,
         landing_page_id: landingPageId || null,
-        email: email || null,
-        phone: phone || null,
-        name: name || null,
-        unit_size: unitSize || null,
+        email: cleanEmail,
+        phone: cleanPhone,
+        name: cleanName,
+        unit_size: cleanUnitSize,
         converted: true,
         lead_status: "new",
         fbclid: fbclid || null,
         gclid: gclid || null,
-        utm_source: utm_source || null,
-        utm_medium: utm_medium || null,
-        utm_campaign: utm_campaign || null,
-        utm_content: utm_content || null,
+        utm_source: cleanUtmSource,
+        utm_medium: cleanUtmMedium,
+        utm_campaign: cleanUtmCampaign,
+        utm_content: cleanUtmContent,
       },
     });
 

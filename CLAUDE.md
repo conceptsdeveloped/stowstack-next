@@ -142,3 +142,50 @@ Occupancy intelligence and market intelligence features should scrape ALL availa
 
 - **Blake** — Founder, product direction, sales, owns marketing site + admin UX decisions
 - **Angelo** — Co-founder, built facility overview tools, ad platform integrations, video/image generation. Actively contributing code daily.
+
+## Remediation Tasks
+
+The `tasks/` directory contains numbered `.md` files (01-23). Each is a self-contained surgical remediation spec.
+
+### Execution Rules
+
+1. **One file per session.** When told "run task 05", work ONLY on `tasks/05-*.md`. Nothing else exists.
+2. **Read the entire file first.** Understand all steps, dependencies, and verification before writing code.
+3. **Follow steps in order.** Do not skip, combine, or reorder steps.
+4. **Search before assuming.** When a task says to find files matching a pattern, run the grep/find. Do not rely on memory — 453 files and 172 API routes.
+5. **Do not improvise.** No unrelated refactors, no "while I'm here" fixes, no added features.
+6. **Verification is not optional.** Run every verification command listed. Show output. Fix failures before declaring done.
+7. **Commit exactly as specified.** Use the commit message format at the bottom of each task file. Do not combine commits across tasks.
+8. **Stop and report when done.** State: which task, how many files modified, any verification outputs needing attention. Do NOT start the next task.
+9. **If ambiguous, ask.** If a path doesn't exist or a pattern returns nothing, stop and ask rather than improvising.
+
+### How to Start a Task
+
+When told "run task 05" or "do 05":
+
+1. Read `tasks/05-*.md` completely
+2. Confirm: "Read task 05. [X] steps identified. Starting Step 1."
+3. Execute each step sequentially
+4. Run all verification commands
+5. Show verification output
+6. Commit with the specified message
+7. Stop and report
+
+### Task Dependencies
+
+- Task 07 (relations) before Task 14 (nullable FKs)
+- Task 06 (cron batching) before Task 16 (cron notifications)
+- Task 11 (error logging) before Task 12 (Sentry enrichment)
+- All other tasks are independent
+
+### Build Verification
+
+After every task, the build must pass:
+
+```bash
+npx prisma validate
+npx tsc --noEmit
+npm run build
+```
+
+Fix build breaks within the current task scope before committing.

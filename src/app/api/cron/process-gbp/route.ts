@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { getValidGoogleToken } from "@/lib/platform-auth";
 
 export const maxDuration = 120;
 
@@ -22,44 +23,11 @@ async function getValidToken(connection: {
   refresh_token: string | null;
   token_expires_at: Date | null;
 }): Promise<string | null> {
-  if (
-    connection.access_token &&
-    connection.token_expires_at &&
-    new Date(connection.token_expires_at) > new Date()
-  ) {
-    return connection.access_token;
-  }
-  if (!connection.refresh_token) return null;
-  try {
-    const res = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: process.env.GOOGLE_GBP_CLIENT_ID || "",
-        client_secret: process.env.GOOGLE_GBP_CLIENT_SECRET || "",
-        refresh_token: connection.refresh_token,
-        grant_type: "refresh_token",
-      }),
-    });
-    const data = await res.json();
-    if (data.access_token) {
-      const expiresAt = new Date(
-        Date.now() + (data.expires_in || 3600) * 1000
-      ).toISOString();
-      await db.$executeRaw`
-        UPDATE gbp_connections SET access_token = ${data.access_token},
-        token_expires_at = ${expiresAt}::timestamptz, status = 'connected', updated_at = NOW()
-        WHERE id = ${connection.id}::uuid
-      `;
-      return data.access_token;
-    }
-  } catch {
-    // Token refresh failed
-  }
-  await db.$executeRaw`
-    UPDATE gbp_connections SET status = 'expired', updated_at = NOW() WHERE id = ${connection.id}::uuid
-  `;
-  return null;
+  return getValidGoogleToken(connection, {
+    clientId: process.env.GOOGLE_GBP_CLIENT_ID || "",
+    clientSecret: process.env.GOOGLE_GBP_CLIENT_SECRET || "",
+    table: "gbp_connections",
+  });
 }
 
 async function publishPost(
@@ -528,7 +496,9 @@ export async function GET(request: NextRequest) {
           subject: `[CRON FAILURE] process-gbp`,
           html: `<p>The <strong>process-gbp</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[cron:process-gbp] Alert email failed:", err instanceof Error ? err.message : err);
+      });
     }
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });

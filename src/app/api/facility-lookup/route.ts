@@ -65,8 +65,8 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXTERNAL_API_HOURLY, "facility-lookup");
   if (limited) return limited;
-  const origin = getOrigin(req);
 
+  const origin = getOrigin(req);
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) {
     return errorResponse("Server configuration error: missing Google API key", 500, origin);

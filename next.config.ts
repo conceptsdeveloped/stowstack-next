@@ -18,7 +18,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://connect.facebook.net https://www.googletagmanager.com https://www.googleadservices.com https://www.google-analytics.com https://cal.com https://*.clerk.accounts.dev https://js.stripe.com https://*.sentry.io",
+      "script-src 'self' 'unsafe-inline' https://connect.facebook.net https://www.googletagmanager.com https://www.googleadservices.com https://www.google-analytics.com https://cal.com https://*.clerk.accounts.dev https://js.stripe.com https://*.sentry.io",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https: http:",
       "font-src 'self' https://fonts.gstatic.com",

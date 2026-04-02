@@ -13,6 +13,7 @@ import {
 import { dispatchWebhook } from "@/lib/webhook";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidUuid } from "@/lib/validation";
 
 export async function OPTIONS() {
   return v1CorsResponse();
@@ -32,6 +33,8 @@ export async function GET(request: NextRequest) {
 
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
+
+  if (id && !isValidUuid(id)) return v1Error("Invalid id format", 400);
 
   try {
     if (id) {
@@ -56,6 +59,7 @@ export async function GET(request: NextRequest) {
 
     const conditions: Prisma.Sql[] = [Prisma.sql`f.organization_id = ${orgId}::uuid`];
 
+    if (facilityId && !isValidUuid(facilityId)) return v1Error("Invalid facilityId format", 400);
     if (facilityId) {
       conditions.push(Prisma.sql`pl.facility_id = ${facilityId}::uuid`);
     }
@@ -125,6 +129,7 @@ export async function POST(request: NextRequest) {
   } = body || {};
 
   if (!facilityId) return v1Error("facilityId is required");
+  if (!isValidUuid(facilityId)) return v1Error("Invalid facilityId format", 400);
   if (!name && !email && !phone) {
     return v1Error("At least one of name, email, or phone is required");
   }
@@ -148,7 +153,8 @@ export async function POST(request: NextRequest) {
                 utm_source, utm_medium, utm_campaign, created_at
     `;
 
-    dispatchWebhook(orgId, "lead.created", { lead: rows[0] }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+    dispatchWebhook(orgId, "lead.created", { lead: rows[0] })
+      .catch((err) => console.error("[webhook:lead.created]", err instanceof Error ? err.message : err));
 
     return v1Json({ lead: rows[0] });
   } catch {
@@ -170,6 +176,7 @@ export async function PATCH(request: NextRequest) {
 
   const id = new URL(request.url).searchParams.get("id");
   if (!id) return v1Error("id query param is required");
+  if (!isValidUuid(id)) return v1Error("Invalid id format", 400);
 
   const body = await request.json().catch(() => null);
   if (!body) return v1Error("No valid fields to update");
@@ -213,7 +220,8 @@ export async function PATCH(request: NextRequest) {
                  partial_leads.created_at, partial_leads.lead_notes`;
     if (!rows.length) return v1Error("Lead not found", 404);
 
-    dispatchWebhook(orgId, "lead.updated", { lead: rows[0] }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+    dispatchWebhook(orgId, "lead.updated", { lead: rows[0] })
+      .catch((err) => console.error("[webhook:lead.updated]", err instanceof Error ? err.message : err));
 
     return v1Json({ lead: rows[0] });
   } catch {

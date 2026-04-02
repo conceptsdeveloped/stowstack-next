@@ -22,12 +22,17 @@ export async function GET(req: NextRequest) {
     return errorResponse("ref (photo_reference) is required", 400, origin);
   }
 
+  // Validate photo_reference format: Google Places refs are alphanumeric + slashes/dashes/underscores, typically 100+ chars
+  if (!/^[A-Za-z0-9_\-/+=]+$/.test(ref) || ref.length < 20 || ref.length > 2000) {
+    return errorResponse("Invalid photo reference", 400, origin);
+  }
+
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) {
     return errorResponse("Server configuration error", 500, origin);
   }
 
-  const width = parseInt(maxwidth || "800", 10) || 800;
+  const width = Math.min(Math.max(parseInt(maxwidth || "800", 10) || 800, 100), 2400);
   const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${width}&photo_reference=${ref}&key=${apiKey}`;
 
   try {

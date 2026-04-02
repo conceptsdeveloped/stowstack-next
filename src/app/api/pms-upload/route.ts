@@ -8,7 +8,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
-import { isValidEmail, sanitizeString } from "@/lib/validation";
+import { isValidEmail, sanitizeString, escapeHtml } from "@/lib/validation";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -37,6 +37,12 @@ export async function POST(req: NextRequest) {
     }
     if (!isValidEmail(email)) {
       return errorResponse("Invalid email format", 400, origin);
+    }
+
+    // Reject oversized payloads (10MB max for report data)
+    const reportSize = JSON.stringify(reportData).length;
+    if (reportSize > 10_000_000) {
+      return errorResponse("Report data too large (10MB max)", 413, origin);
     }
 
     // Look up facility by email to get facility_id (required for pms_reports)
@@ -76,13 +82,13 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           from: "StorageAds <notifications@storageads.com>",
           to: [process.env.ADMIN_EMAIL || "blake@storageads.com", "anna@storageads.com"],
-          subject: `PMS Report Uploaded: ${facilityName}`,
+          subject: `PMS Report Uploaded: ${escapeHtml(facilityName)}`,
           html: `<div style="font-family: sans-serif; padding: 20px;">
             <h2>New PMS Report Upload</h2>
-            <p><strong>Facility:</strong> ${facilityName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Report Type:</strong> ${reportType || "Not specified"}</p>
-            <p><strong>File:</strong> ${fileName || "report.csv"}</p>
+            <p><strong>Facility:</strong> ${escapeHtml(facilityName)}</p>
+            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+            <p><strong>Report Type:</strong> ${escapeHtml(reportType || "Not specified")}</p>
+            <p><strong>File:</strong> ${escapeHtml(fileName || "report.csv")}</p>
             <p style="color: #666; font-size: 13px;">Uploaded: ${new Date().toISOString()}</p>
           </div>`,
         }),

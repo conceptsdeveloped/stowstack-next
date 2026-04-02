@@ -3,6 +3,7 @@ import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { db } from '@/lib/db';
 import { corsResponse, getOrigin, getCorsHeaders } from '@/lib/api-helpers';
+import { isValidUuid } from '@/lib/validation';
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -14,18 +15,25 @@ export async function OPTIONS(req: NextRequest) {
  * for full-funnel attribution.
  */
 export async function POST(req: NextRequest) {
-  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_READ, "tracking-event");
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.PUBLIC_WRITE, "tracking-event");
   if (limited) return limited;
+
   const origin = getOrigin(req);
 
   try {
     const event = await req.json();
 
-    const facilityId = event.facilityId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(event.facilityId)
+    // Reject oversized payloads
+    const rawSize = JSON.stringify(event).length;
+    if (rawSize > 100_000) {
+      return NextResponse.json({ ok: true }, { status: 200, headers: getCorsHeaders(origin) });
+    }
+
+    const facilityId = event.facilityId && isValidUuid(event.facilityId)
       ? event.facilityId
       : null;
 
-    const eventMeta = JSON.parse(JSON.stringify({
+    const eventMeta = {
       event_type: event.type,
       tracking_params: event.trackingParams || {},
       unit_type: event.unitType || null,
@@ -35,7 +43,7 @@ export async function POST(req: NextRequest) {
       tenant_name: event.tenantName || null,
       move_in_date: event.moveInDate || null,
       timestamp: event.timestamp || new Date().toISOString(),
-    }));
+    };
 
     await db.activity_log.create({
       data: {

@@ -78,7 +78,7 @@ export default function CookiePolicyPage() {
       <section>
         <h2>5. Contact</h2>
         <p>
-          Questions about our cookie practices? Email privacy@storageads.com.
+          Questions about our cookie practices? Email blake@storageads.com.
         </p>
       </section>
     </LegalLayout>

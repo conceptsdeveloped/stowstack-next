@@ -8,6 +8,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isValidEmail } from "@/lib/validation";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -22,7 +23,10 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
     if (!email) return errorResponse("Email required", 400, origin);
 
-    const sanitizedEmail = email.trim().toLowerCase();
+    const sanitizedEmail = String(email).trim().toLowerCase();
+    if (!isValidEmail(sanitizedEmail)) {
+      return errorResponse("Invalid email format", 400, origin);
+    }
 
     const client = await db.clients.findFirst({
       where: { email: { equals: sanitizedEmail, mode: "insensitive" } },

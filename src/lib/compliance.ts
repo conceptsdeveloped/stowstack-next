@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
+import * as Sentry from "@sentry/nextjs";
 
 let _cachedCompliance: string | null = null;
 
@@ -75,6 +76,7 @@ export async function validateCompliance(
   const contentStr = JSON.stringify(content, null, 2);
 
   try {
+    Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 500,
