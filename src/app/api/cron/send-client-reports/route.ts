@@ -206,7 +206,7 @@ export async function GET(request: NextRequest) {
 
       if (clients.length === 0) break;
 
-    for (const client of clients) {
+      for (const client of clients) {
       try {
         results.processed++;
 
@@ -488,8 +488,8 @@ export async function GET(request: NextRequest) {
         const message =
           err instanceof Error ? err.message : "Unknown error";
         results.errors.push(`${client.email}: ${message}`);
+        }
       }
-    }
 
       // Set cursor for next batch
       cursor = clients[clients.length - 1].id as string;
@@ -529,7 +529,9 @@ export async function GET(request: NextRequest) {
           subject: `[CRON FAILURE] send-client-reports`,
           html: `<p>The <strong>send-client-reports</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[cron:send-client-reports] Alert email failed:", err instanceof Error ? err.message : err);
+      });
     }
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });

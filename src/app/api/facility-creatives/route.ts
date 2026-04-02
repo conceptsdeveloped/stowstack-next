@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import * as Sentry from "@sentry/nextjs";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
@@ -354,6 +355,7 @@ function parseJsonResponse(raw: string) {
 
 async function generateWithClaude(systemPrompt: string, userMessage: string, apiKey: string) {
   const client = new Anthropic({ apiKey });
+  Sentry.addBreadcrumb({ category: "external_api", message: "Calling Anthropic API", level: "info" });
   const message = await client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 4096,
@@ -817,7 +819,7 @@ export async function PATCH(req: NextRequest) {
         );
       await db.$executeRaw`
         INSERT INTO drip_sequence_templates (facility_id, variation_id, name, steps)
-         VALUES (${variation.facility_id}, ${variation.id}, ${"AI-Generated Drip"}, ${stepsJson}::jsonb)
+         VALUES (${variation.facility_id}::uuid, ${variation.id}::uuid, ${"AI-Generated Drip"}, ${stepsJson}::jsonb)
          ON CONFLICT (facility_id, variation_id) DO UPDATE SET steps = ${stepsJson}::jsonb, updated_at = NOW()
       `;
 

@@ -175,7 +175,7 @@ export async function GET(request: NextRequest) {
 
       if (clients.length === 0) break;
 
-    for (const client of clients) {
+      for (const client of clients) {
       try {
         results.checked++;
 
@@ -239,8 +239,8 @@ export async function GET(request: NextRequest) {
         results.errors.push(
           `${client.email}: ${message}`
         );
+        }
       }
-    }
 
       cursor = clients[clients.length - 1].id as string;
       if (clients.length < BATCH_SIZE) break;
@@ -279,7 +279,9 @@ export async function GET(request: NextRequest) {
           subject: `[CRON FAILURE] check-campaign-alerts`,
           html: `<p>The <strong>check-campaign-alerts</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[cron:check-campaign-alerts] Alert email failed:", err instanceof Error ? err.message : err);
+      });
     }
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });

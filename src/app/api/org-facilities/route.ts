@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
         (SELECT COUNT(*) FROM landing_pages lp WHERE lp.facility_id = f.id AND lp.status = 'published') as live_pages,
         (SELECT COUNT(*) FROM ad_variations av WHERE av.facility_id = f.id AND av.status = 'published') as live_ads
        FROM facilities f
-       WHERE f.organization_id = ${orgId}
+       WHERE f.organization_id = ${orgId}::uuid
        ORDER BY f.name
     `;
 

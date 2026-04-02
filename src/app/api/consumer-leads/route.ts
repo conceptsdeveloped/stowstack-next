@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
               ROUND(AVG(EXTRACT(EPOCH FROM (status_updated_at - created_at)) / 86400)::NUMERIC, 1)
                 FILTER (WHERE lead_status = 'moved_in') AS avg_days_to_move_in
             FROM partial_leads
-            WHERE lead_status != 'partial' AND facility_id = ${facilityId}`
+            WHERE lead_status != 'partial' AND facility_id = ${facilityId}::uuid`
         : await db.$queryRaw<Record<string, unknown>[]>`
             SELECT
               COUNT(*) FILTER (WHERE lead_status = 'new') AS new_count,
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     const conditions: Prisma.Sql[] = [Prisma.sql`pl.lead_status != 'partial'`];
 
     if (facilityId) {
-      conditions.push(Prisma.sql`pl.facility_id = ${facilityId}`);
+      conditions.push(Prisma.sql`pl.facility_id = ${facilityId}::uuid`);
     }
 
     if (status && VALID_STATUSES.includes(status)) {

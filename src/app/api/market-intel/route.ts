@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
         origin
       );
 
-    const facilityRows = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facilities WHERE id = ${facilityId}`;
+    const facilityRows = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facilities WHERE id = ${facilityId}::uuid`;
     if (facilityRows.length === 0)
       return errorResponse("Facility not found", 404, origin);
     const facility = facilityRows[0];
@@ -424,12 +424,12 @@ export async function POST(request: NextRequest) {
     const demandDriversJson = JSON.stringify(demand_drivers);
     const demographicsJson = JSON.stringify(demographics || {});
     const intelRows = await db.$queryRaw<Record<string, unknown>[]>`INSERT INTO facility_market_intel (facility_id, last_scanned, competitors, demand_drivers, demographics)
-       VALUES (${facilityId}, NOW(), ${competitorsJson}, ${demandDriversJson}, ${demographicsJson})
+       VALUES (${facilityId}, NOW(), ${competitorsJson}::jsonb, ${demandDriversJson}::jsonb, ${demographicsJson}::jsonb)
        ON CONFLICT (facility_id) DO UPDATE SET
          last_scanned = NOW(),
-         competitors = ${competitorsJson},
-         demand_drivers = ${demandDriversJson},
-         demographics = ${demographicsJson},
+         competitors = ${competitorsJson}::jsonb,
+         demand_drivers = ${demandDriversJson}::jsonb,
+         demographics = ${demographicsJson}::jsonb,
          updated_at = NOW()
        RETURNING *`;
 
@@ -456,10 +456,10 @@ export async function PATCH(request: NextRequest) {
     const manualNotesVal = manual_notes ?? null;
     const operatorOverridesVal = operator_overrides ? JSON.stringify(operator_overrides) : null;
     const intelRows = await db.$queryRaw<Record<string, unknown>[]>`INSERT INTO facility_market_intel (facility_id, manual_notes, operator_overrides)
-       VALUES (${facilityId}, ${manualNotesVal}, ${operatorOverridesVal})
+       VALUES (${facilityId}, ${manualNotesVal}, ${operatorOverridesVal}::jsonb)
        ON CONFLICT (facility_id) DO UPDATE SET
          manual_notes = COALESCE(${manualNotesVal}, facility_market_intel.manual_notes),
-         operator_overrides = COALESCE(${operatorOverridesVal}, facility_market_intel.operator_overrides),
+         operator_overrides = COALESCE(${operatorOverridesVal}::jsonb, facility_market_intel.operator_overrides),
          updated_at = NOW()
        RETURNING *`;
 

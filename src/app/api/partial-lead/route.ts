@@ -211,7 +211,7 @@ export async function POST(req: NextRequest) {
         lead_score, next_recovery_at,
         recovery_status, updated_at
       ) VALUES (
-        ${sessionId}, ${landingPageId || null}, ${facilityId || null},
+        ${sessionId}, ${landingPageId || null}::uuid, ${facilityId || null}::uuid,
         ${emailVal}, ${phone || null}, ${name || null}, ${unitSize || null},
         ${fieldsCompleted || 0}, ${totalFields || 0},
         ${scrollDepth || 0}, ${timeOnPage || 0}, ${!!exitIntent},

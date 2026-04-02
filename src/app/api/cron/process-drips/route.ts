@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
                    f.pipeline_status, f.biggest_issue, f.occupancy_range, f.total_units
             FROM drip_sequences ds
             JOIN facilities f ON ds.facility_id = f.id
-            WHERE ds.status = 'active' AND ds.id > ${cursor}::uuid
+            WHERE ds.status = 'active' AND ds.next_send_at <= NOW() AND ds.id > ${cursor}::uuid
             ORDER BY ds.id ASC
             LIMIT ${BATCH_SIZE}
           `;
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
                    f.pipeline_status, f.biggest_issue, f.occupancy_range, f.total_units
             FROM drip_sequences ds
             JOIN facilities f ON ds.facility_id = f.id
-            WHERE ds.status = 'active'
+            WHERE ds.status = 'active' AND ds.next_send_at <= NOW()
             ORDER BY ds.id ASC
             LIMIT ${BATCH_SIZE}
           `;
@@ -165,7 +165,7 @@ export async function GET(request: NextRequest) {
 
       if (drips.length === 0) break;
 
-    for (const drip of drips) {
+      for (const drip of drips) {
       try {
         results.processed++;
 
@@ -281,6 +281,17 @@ export async function GET(request: NextRequest) {
         } catch (emailErr: unknown) {
           const message =
             emailErr instanceof Error ? emailErr.message : "Unknown error";
+          console.error(`[CRON:process-drips] Send failed for ${drip.id}:`, message);
+          // Mark the history entry as failed so it can be retried manually
+          db.$executeRaw`
+            UPDATE drip_sequences
+            SET history = jsonb_set(
+              COALESCE(history, '[]'::jsonb),
+              ARRAY[(jsonb_array_length(COALESCE(history, '[]'::jsonb)) - 1)::text],
+              (COALESCE(history, '[]'::jsonb)->(jsonb_array_length(COALESCE(history, '[]'::jsonb)) - 1)) || ${JSON.stringify({ sendFailed: true, error: message })}::jsonb
+            )
+            WHERE id = ${drip.id}::uuid
+          `.catch((err) => console.error("[drip_history] Failed to mark send failure:", err));
           results.errors.push({
             facilityId: drip.facility_id,
             error: message,
@@ -290,8 +301,8 @@ export async function GET(request: NextRequest) {
         const message =
           dripErr instanceof Error ? dripErr.message : "Unknown error";
         results.errors.push({ id: drip.id, error: message });
+        }
       }
-    }
 
       cursor = drips[drips.length - 1].id;
       if (drips.length < BATCH_SIZE) break;
@@ -330,8 +341,14 @@ export async function GET(request: NextRequest) {
           subject: `[CRON FAILURE] process-drips`,
           html: `<p>The <strong>process-drips</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[cron:process-drips] Alert email failed:", err instanceof Error ? err.message : err);
+      });
     }
+
+    // Retry: Vercel cron will re-invoke on next schedule.
+    // Items not processed in this run will be picked up by the cursor-based pagination.
+    console.warn(`[CRON:process-drips] Will retry remaining items on next scheduled run.`);
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }

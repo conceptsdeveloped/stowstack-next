@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       for (const u of units) {
         await db.$executeRaw`
           INSERT INTO facility_pms_units (facility_id, unit_type, size_label, width_ft, depth_ft, sqft, floor, features, total_count, occupied_count, street_rate, actual_avg_rate, web_rate, push_rate, ecri_eligible)
-          VALUES (${facility_id}, ${u.unit_type}, ${u.size_label}, ${u.width_ft}, ${u.depth_ft}, ${u.sqft}, ${u.floor || ""}, ${u.features || []}, ${u.total_count}, ${u.occupied_count}, ${u.street_rate}, ${u.actual_avg_rate}, ${null}, ${null}, ${0})
+          VALUES (${facility_id}::uuid, ${u.unit_type}, ${u.size_label}, ${u.width_ft}, ${u.depth_ft}, ${u.sqft}, ${u.floor || ""}, ${u.features || []}, ${u.total_count}, ${u.occupied_count}, ${u.street_rate}, ${u.actual_avg_rate}, ${null}, ${null}, ${0})
           ON CONFLICT (facility_id, unit_type) DO UPDATE SET
             size_label = EXCLUDED.size_label, width_ft = EXCLUDED.width_ft, depth_ft = EXCLUDED.depth_ft,
             sqft = EXCLUDED.sqft, floor = EXCLUDED.floor, features = EXCLUDED.features,
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
       const snapshot = await db.$queryRaw<Array<Record<string, unknown>>>`
         INSERT INTO facility_pms_snapshots (facility_id, snapshot_date, total_units, occupied_units, occupancy_pct, total_sqft, occupied_sqft, gross_potential, actual_revenue, notes)
-        VALUES (${facility_id}, CURRENT_DATE, ${totals.total_units}, ${totals.occupied}, ${totals.occupancy_pct}, ${totals.total_sqft}, ${totals.occupied_sqft}, ${totals.scheduled_rent}, ${totals.actual_rent}, ${"Imported from storEDGE Consolidated Occupancy"})
+        VALUES (${facility_id}::uuid, CURRENT_DATE, ${totals.total_units}, ${totals.occupied}, ${totals.occupancy_pct}, ${totals.total_sqft}, ${totals.occupied_sqft}, ${totals.scheduled_rent}, ${totals.actual_rent}, ${"Imported from storEDGE Consolidated Occupancy"})
         ON CONFLICT (facility_id, snapshot_date) DO UPDATE SET
           total_units = EXCLUDED.total_units, occupied_units = EXCLUDED.occupied_units,
           occupancy_pct = EXCLUDED.occupancy_pct, total_sqft = EXCLUDED.total_sqft,
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
       result = { units_saved: unitsSaved, snapshot: snapshot[0] };
     } else if (report_type === "rent_roll") {
       await db.$executeRaw`
-        DELETE FROM facility_pms_rent_roll WHERE facility_id = ${facility_id} AND snapshot_date = CURRENT_DATE
+        DELETE FROM facility_pms_rent_roll WHERE facility_id = ${facility_id}::uuid AND snapshot_date = CURRENT_DATE
       `;
 
       let count = 0;
@@ -80,14 +80,14 @@ export async function POST(req: NextRequest) {
         const tenantName = [r.first_name, r.last_name].filter(Boolean).join(" ");
         await db.$executeRaw`
           INSERT INTO facility_pms_rent_roll (facility_id, snapshot_date, unit, size_label, tenant_name, account, rental_start, paid_thru, rent_rate, insurance_premium, total_due, days_past_due)
-          VALUES (${facility_id}, CURRENT_DATE, ${r.unit}, ${r.size}, ${tenantName}, ${r.account}, ${parseDate(r.rental_start)}, ${parseDate(r.paid_thru)}, ${r.rent_rate || null}, ${r.insurance_premium || null}, ${r.total_due || 0}, ${r.days_past_due || 0})
+          VALUES (${facility_id}::uuid, CURRENT_DATE, ${r.unit}, ${r.size}, ${tenantName}, ${r.account}, ${parseDate(r.rental_start)}::date, ${parseDate(r.paid_thru)}::date, ${r.rent_rate || null}, ${r.insurance_premium || null}, ${r.total_due || 0}, ${r.days_past_due || 0})
         `;
         count++;
       }
       result = { tenants_imported: count };
     } else if (report_type === "rent_rates_by_tenant") {
       await db.$executeRaw`
-        DELETE FROM facility_pms_tenant_rates WHERE facility_id = ${facility_id} AND snapshot_date = CURRENT_DATE
+        DELETE FROM facility_pms_tenant_rates WHERE facility_id = ${facility_id}::uuid AND snapshot_date = CURRENT_DATE
       `;
 
       const today = new Date();
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
         const sizeLabel = `${r.unit_w}x${r.unit_l}`;
         await db.$executeRaw`
           INSERT INTO facility_pms_tenant_rates (facility_id, snapshot_date, unit, size_label, unit_type, access_type, tenant_name, moved_in, standard_rate, actual_rate, paid_rate, rate_variance, discount, discount_desc, days_as_tenant, ecri_flag, ecri_suggested, ecri_revenue_lift)
-          VALUES (${facility_id}, CURRENT_DATE, ${r.unit}, ${sizeLabel}, ${r.unit_type}, ${r.access_type}, ${r.tenant_name}, ${parseDate(r.moved_in)}, ${r.standard_rate}, ${r.actual_rate}, ${r.paid_rate}, ${r.rate_variance}, ${r.discount}, ${r.discount_description}, ${daysAsTenant}, ${ecriFlag}, ${ecriSuggested}, ${ecriLift})
+          VALUES (${facility_id}::uuid, CURRENT_DATE, ${r.unit}, ${sizeLabel}, ${r.unit_type}, ${r.access_type}, ${r.tenant_name}, ${parseDate(r.moved_in)}::date, ${r.standard_rate}, ${r.actual_rate}, ${r.paid_rate}, ${r.rate_variance}, ${r.discount}, ${r.discount_description}, ${daysAsTenant}, ${ecriFlag}, ${ecriSuggested}, ${ecriLift})
         `;
         tenantCount++;
       }
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
         const roundedAvgRate = Math.round(avgRate * 100) / 100;
         const res = await db.$executeRaw`
           UPDATE facility_pms_units SET actual_avg_rate = ${roundedAvgRate}, ecri_eligible = ${info.ecriCount}, last_updated = NOW()
-          WHERE facility_id = ${facility_id} AND unit_type = ${unitType}
+          WHERE facility_id = ${facility_id}::uuid AND unit_type = ${unitType}
         `;
         if (typeof res === "number" && res > 0) updated++;
       }
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
       const { rows: agingRows, totals } = data;
 
       await db.$executeRaw`
-        DELETE FROM facility_pms_aging WHERE facility_id = ${facility_id} AND snapshot_date = CURRENT_DATE
+        DELETE FROM facility_pms_aging WHERE facility_id = ${facility_id}::uuid AND snapshot_date = CURRENT_DATE
       `;
 
       let count = 0;
@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
         const tenantName = [r.first_name, r.last_name].filter(Boolean).join(" ");
         await db.$executeRaw`
           INSERT INTO facility_pms_aging (facility_id, snapshot_date, unit, tenant_name, bucket_0_30, bucket_31_60, bucket_61_90, bucket_91_120, bucket_120_plus, total, move_out_date)
-          VALUES (${facility_id}, CURRENT_DATE, ${r.unit}, ${tenantName}, ${r.bucket_0_30}, ${r.bucket_31_60}, ${r.bucket_61_90}, ${r.bucket_91_120}, ${r.bucket_120_plus}, ${r.total}, ${parseDate(r.move_out) || null})
+          VALUES (${facility_id}::uuid, CURRENT_DATE, ${r.unit}, ${tenantName}, ${r.bucket_0_30}, ${r.bucket_31_60}, ${r.bucket_61_90}, ${r.bucket_91_120}, ${r.bucket_120_plus}, ${r.total}, (${parseDate(r.move_out) || null})::date)
         `;
         count++;
       }
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
       if (totals.total > 0) {
         await db.$executeRaw`
           UPDATE facility_pms_snapshots SET delinquency_pct = ${null}, updated_at = NOW()
-          WHERE facility_id = ${facility_id} AND snapshot_date = CURRENT_DATE
+          WHERE facility_id = ${facility_id}::uuid AND snapshot_date = CURRENT_DATE
         `;
       }
 
@@ -174,7 +174,7 @@ export async function POST(req: NextRequest) {
       for (const r of data) {
         await db.$executeRaw`
           INSERT INTO facility_pms_revenue_history (facility_id, year, month, quarter, revenue, monthly_tax, move_ins, move_outs)
-          VALUES (${facility_id}, ${r.year}, ${r.month}, ${r.quarter}, ${r.revenue}, ${r.monthly_tax}, ${r.move_ins}, ${r.move_outs})
+          VALUES (${facility_id}::uuid, ${r.year}, ${r.month}, ${r.quarter}, ${r.revenue}, ${r.monthly_tax}, ${r.move_ins}, ${r.move_outs})
           ON CONFLICT (facility_id, year, month) DO UPDATE SET
             quarter = EXCLUDED.quarter, revenue = EXCLUDED.revenue, monthly_tax = EXCLUDED.monthly_tax,
             move_ins = EXCLUDED.move_ins, move_outs = EXCLUDED.move_outs
@@ -186,21 +186,21 @@ export async function POST(req: NextRequest) {
       if (latest) {
         await db.$executeRaw`
           UPDATE facility_pms_snapshots SET move_ins_mtd = ${latest.move_ins}, move_outs_mtd = ${latest.move_outs}, updated_at = NOW()
-          WHERE facility_id = ${facility_id} AND snapshot_date = CURRENT_DATE
+          WHERE facility_id = ${facility_id}::uuid AND snapshot_date = CURRENT_DATE
         `;
       }
 
       result = { months_imported: count };
     } else if (report_type === "length_of_stay") {
       await db.$executeRaw`
-        DELETE FROM facility_pms_length_of_stay WHERE facility_id = ${facility_id}
+        DELETE FROM facility_pms_length_of_stay WHERE facility_id = ${facility_id}::uuid
       `;
 
       let count = 0;
       for (const r of data) {
         await db.$executeRaw`
           INSERT INTO facility_pms_length_of_stay (facility_id, tenant_name, latest_unit, move_in, move_out, days_in_unit, lead_source, lead_category)
-          VALUES (${facility_id}, ${r.tenant_name}, ${r.latest_unit}, ${parseDate(r.move_in)}, ${parseDate(r.move_out) || null}, ${r.days_in_unit}, ${r.lead_source}, ${r.lead_category})
+          VALUES (${facility_id}::uuid, ${r.tenant_name}, ${r.latest_unit}, ${parseDate(r.move_in)}::date, (${parseDate(r.move_out) || null})::date, ${r.days_in_unit}, ${r.lead_source}, ${r.lead_category})
         `;
         count++;
       }
@@ -215,7 +215,7 @@ export async function POST(req: NextRequest) {
 
       await db.$executeRaw`
         UPDATE facility_pms_snapshots SET notes = COALESCE(notes, '') || E'\nKPI: ' || ${kpiSummary}, updated_at = NOW()
-        WHERE facility_id = ${facility_id} AND snapshot_date = CURRENT_DATE
+        WHERE facility_id = ${facility_id}::uuid AND snapshot_date = CURRENT_DATE
       `;
       result = { employees: data.length };
     } else {

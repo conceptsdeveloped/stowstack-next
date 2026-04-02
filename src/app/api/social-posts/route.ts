@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
         facility_id, platform, post_type, content, hashtags, media_urls,
         cta_url, status, scheduled_at, ai_generated, batch_id, suggested_image
       ) VALUES (
-        ${facilityId}, ${platform}, ${postType || "tip"}, ${content},
+        ${facilityId}::uuid, ${platform}, ${postType || "tip"}, ${content},
         ${hashtags || []}, ${mediaUrls || []},
         ${ctaUrl || null}, ${postStatus}, ${scheduledAt ? new Date(scheduledAt) : null}::timestamptz,
         ${aiGenerated || false}, ${batchId || null}, ${suggestedImage || null}
@@ -224,7 +224,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    await db.$executeRaw`DELETE FROM social_posts WHERE id = ${id}`;
+    await db.$executeRaw`DELETE FROM social_posts WHERE id = ${id}::uuid`;
     return jsonResponse({ deleted: true }, 200, origin);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

@@ -51,95 +51,95 @@ export async function GET(req: NextRequest) {
 
       if (!clients.length) break;
 
-    for (const client of clients) {
-      try {
-        processed++;
-        // Pull week's KPIs
-        const [spendData, leadCount, callCount] = await Promise.all([
-          db.campaign_spend.aggregate({
-            where: {
-              facility_id: client.facility_id,
-              date: { gte: weekAgo, lte: now },
+      for (const client of clients) {
+        try {
+          processed++;
+          // Pull week's KPIs
+          const [spendData, leadCount, callCount] = await Promise.all([
+            db.campaign_spend.aggregate({
+              where: {
+                facility_id: client.facility_id,
+                date: { gte: weekAgo, lte: now },
+              },
+              _sum: { spend: true },
+            }),
+            db.partial_leads.count({
+              where: {
+                facility_id: client.facility_id,
+                created_at: { gte: weekAgo },
+              },
+            }),
+            db.call_logs.count({
+              where: {
+                facility_id: client.facility_id,
+                started_at: { gte: weekAgo },
+                status: "completed",
+                duration: { gte: 30 },
+              },
+            }),
+          ]);
+
+          const totalSpend = Number(spendData._sum?.spend || 0);
+
+          // Skip if no activity this week
+          if (totalSpend === 0 && leadCount === 0 && callCount === 0) continue;
+
+          const portalUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
+
+          if (!process.env.RESEND_API_KEY) continue;
+
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+              "Content-Type": "application/json",
             },
-            _sum: { spend: true },
-          }),
-          db.partial_leads.count({
-            where: {
-              facility_id: client.facility_id,
-              created_at: { gte: weekAgo },
-            },
-          }),
-          db.call_logs.count({
-            where: {
-              facility_id: client.facility_id,
-              started_at: { gte: weekAgo },
-              status: "completed",
-              duration: { gte: 30 },
-            },
-          }),
-        ]);
-
-        const totalSpend = Number(spendData._sum?.spend || 0);
-
-        // Skip if no activity this week
-        if (totalSpend === 0 && leadCount === 0 && callCount === 0) continue;
-
-        const portalUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
-
-        if (!process.env.RESEND_API_KEY) continue;
-
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "StorageAds <reports@storageads.com>",
-            to: client.email,
-            subject: `Weekly Update: ${client.facility_name || "Your Facility"}`,
-            html: `
-              <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto; color: #141413;">
-                <div style="background: linear-gradient(135deg, #B58B3F, #9E7A36); padding: 20px 24px; border-radius: 12px 12px 0 0;">
-                  <h1 style="color: #faf9f5; margin: 0; font-size: 18px;">Weekly Performance Update</h1>
-                  <p style="color: rgba(250,249,245,0.8); margin: 6px 0 0; font-size: 13px;">${client.facility_name || "Your Facility"}</p>
-                </div>
-                <div style="padding: 24px; border: 1px solid #e8e6dc; border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
-                  <p style="color: #6a6560; font-size: 14px; margin: 0 0 16px;">Hi ${client.name || "there"}, here's your week at a glance:</p>
-                  <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
-                    <tr>
-                      <td style="padding: 12px; background: #faf9f5; border-radius: 8px 0 0 0; text-align: center; border-right: 1px solid #e8e6dc;">
-                        <div style="font-size: 22px; font-weight: bold; color: #B58B3F;">$${totalSpend.toFixed(0)}</div>
-                        <div style="font-size: 11px; color: #6a6560; margin-top: 4px;">Ad Spend</div>
-                      </td>
-                      <td style="padding: 12px; background: #faf9f5; text-align: center; border-right: 1px solid #e8e6dc;">
-                        <div style="font-size: 22px; font-weight: bold; color: #B58B3F;">${leadCount}</div>
-                        <div style="font-size: 11px; color: #6a6560; margin-top: 4px;">New Leads</div>
-                      </td>
-                      <td style="padding: 12px; background: #faf9f5; border-radius: 0 8px 0 0; text-align: center;">
-                        <div style="font-size: 22px; font-weight: bold; color: #B58B3F;">${callCount}</div>
-                        <div style="font-size: 11px; color: #6a6560; margin-top: 4px;">Qualified Calls</div>
-                      </td>
-                    </tr>
-                  </table>
-                  <div style="text-align: center; margin: 20px 0;">
-                    <a href="${portalUrl}/portal" style="display: inline-block; background: #B58B3F; color: #faf9f5; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;">
-                      View Full Dashboard
-                    </a>
+            body: JSON.stringify({
+              from: "StorageAds <reports@storageads.com>",
+              to: client.email,
+              subject: `Weekly Update: ${client.facility_name || "Your Facility"}`,
+              html: `
+                <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto; color: #141413;">
+                  <div style="background: linear-gradient(135deg, #B58B3F, #9E7A36); padding: 20px 24px; border-radius: 12px 12px 0 0;">
+                    <h1 style="color: #faf9f5; margin: 0; font-size: 18px;">Weekly Performance Update</h1>
+                    <p style="color: rgba(250,249,245,0.8); margin: 6px 0 0; font-size: 13px;">${client.facility_name || "Your Facility"}</p>
                   </div>
-                  <p style="color: #b0aea5; font-size: 11px; text-align: center; margin-top: 16px;">
-                    Sent weekly by StorageAds. Questions? Reply to this email.
-                  </p>
+                  <div style="padding: 24px; border: 1px solid #e8e6dc; border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
+                    <p style="color: #6a6560; font-size: 14px; margin: 0 0 16px;">Hi ${client.name || "there"}, here's your week at a glance:</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+                      <tr>
+                        <td style="padding: 12px; background: #faf9f5; border-radius: 8px 0 0 0; text-align: center; border-right: 1px solid #e8e6dc;">
+                          <div style="font-size: 22px; font-weight: bold; color: #B58B3F;">$${totalSpend.toFixed(0)}</div>
+                          <div style="font-size: 11px; color: #6a6560; margin-top: 4px;">Ad Spend</div>
+                        </td>
+                        <td style="padding: 12px; background: #faf9f5; text-align: center; border-right: 1px solid #e8e6dc;">
+                          <div style="font-size: 22px; font-weight: bold; color: #B58B3F;">${leadCount}</div>
+                          <div style="font-size: 11px; color: #6a6560; margin-top: 4px;">New Leads</div>
+                        </td>
+                        <td style="padding: 12px; background: #faf9f5; border-radius: 0 8px 0 0; text-align: center;">
+                          <div style="font-size: 22px; font-weight: bold; color: #B58B3F;">${callCount}</div>
+                          <div style="font-size: 11px; color: #6a6560; margin-top: 4px;">Qualified Calls</div>
+                        </td>
+                      </tr>
+                    </table>
+                    <div style="text-align: center; margin: 20px 0;">
+                      <a href="${portalUrl}/portal" style="display: inline-block; background: #B58B3F; color: #faf9f5; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                        View Full Dashboard
+                      </a>
+                    </div>
+                    <p style="color: #b0aea5; font-size: 11px; text-align: center; margin-top: 16px;">
+                      Sent weekly by StorageAds. Questions? Reply to this email.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            `,
-          }),
-        });
-        sent++;
-      } catch {
-        // Skip failed client, continue
+              `,
+            }),
+          });
+          sent++;
+        } catch (err) {
+          console.error(`[CRON:weekly-digest] Failed for client ${client.email}:`, err instanceof Error ? err.message : err);
+        }
       }
-    }
 
       cursor = clients[clients.length - 1].id;
       if (clients.length < BATCH_SIZE) break;
@@ -175,7 +175,9 @@ export async function GET(req: NextRequest) {
           subject: `[CRON FAILURE] weekly-digest`,
           html: `<p>The <strong>weekly-digest</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
         }),
-      }).catch((err) => { console.error("[fire-and-forget error]", err instanceof Error ? err.message : err); });
+      }).catch((err) => {
+        console.error("[cron:weekly-digest] Alert email failed:", err instanceof Error ? err.message : err);
+      });
     }
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
