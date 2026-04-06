@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { promisify } from "util";
 import { db } from "@/lib/db";
+import { createSession } from "@/lib/session-auth";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const token = Buffer.from(`${org.id}:${email.toLowerCase()}`).toString("base64");
+    const token = await createSession(userId, req);
 
     if (process.env.RESEND_API_KEY) {
       fetch("https://api.resend.com/emails", {

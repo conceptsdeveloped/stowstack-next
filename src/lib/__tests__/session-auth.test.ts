@@ -88,23 +88,10 @@ describe("getSession", () => {
     expect(session!.organization.hasStripe).toBe(false);
   });
 
-  it("falls back to legacy token for x-org-token without ss_ prefix", async () => {
-    // Legacy token is base64("orgId:email")
-    const legacyToken = Buffer.from("org-1:test@example.com").toString(
-      "base64"
-    );
+  it("returns null for x-org-token without ss_ prefix", async () => {
     const req = createMockRequest("/api/test", {
-      headers: { "x-org-token": legacyToken },
+      headers: { "x-org-token": "not-a-valid-token" },
     });
-    const session = await getSession(req);
-    expect(session).not.toBeNull();
-  });
-
-  it("returns null for malformed legacy token", async () => {
-    const req = createMockRequest("/api/test", {
-      headers: { "x-org-token": "not-valid-base64-!!!" },
-    });
-    mockDb.$queryRaw.mockResolvedValue([]);
     const session = await getSession(req);
     expect(session).toBeNull();
   });
