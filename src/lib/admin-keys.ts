@@ -53,7 +53,9 @@ export async function validateAdminKey(
       where: { id: record.id },
       data: { last_used_at: new Date() },
     })
-    .catch(() => {});
+    .catch((err) =>
+      console.error("[admin-keys] last_used_at update failed:", err instanceof Error ? err.message : err)
+    );
 
   return {
     valid: true,
