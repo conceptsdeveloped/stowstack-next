@@ -8,7 +8,7 @@ import {
   SECTION_TYPE_META,
   INPUT_CLS,
 } from "./lp-builder-types"
-import { SectionEditor } from "./lp-section-editor"
+import { SectionEditor } from "./lp-section-editor/index"
 import { AssetPickerModal } from "./lp-asset-picker-modal"
 
 export function PageEditor({
