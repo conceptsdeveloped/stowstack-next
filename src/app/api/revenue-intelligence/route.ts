@@ -14,7 +14,7 @@ import {
   queryTenantRates,
   queryRevenueHistoryDesc,
   queryAgingSummary,
-} from "@/lib/facility-pms-queries";
+} from "@/lib/queries/facility-analytics";
 
 function serializeBigInts(obj: unknown): unknown {
   if (obj === null || obj === undefined) return obj;

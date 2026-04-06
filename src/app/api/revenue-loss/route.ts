@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { db } from "@/lib/db";
 import {
   jsonResponse,
   errorResponse,
@@ -10,12 +9,15 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import {
+  queryFacility,
+  queryMarketIntel,
+  queryActiveSpecials,
   querySnapshots,
   queryUnitsWithVacancy,
   queryTenantRates,
   queryRevenueHistoryDesc,
   queryAgingAll,
-} from "@/lib/facility-pms-queries";
+} from "@/lib/queries/facility-analytics";
 
 const OCCUPANCY_MID: Record<string, number> = {
   "below-60": 50,
@@ -63,14 +65,14 @@ export async function GET(request: NextRequest) {
   try {
     const [facilityRows, snapshotRows, unitRows, intelRows, tenantRateRows, _revenueHistoryRows, agingRows, specialRows] =
       await Promise.all([
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facilities WHERE id = ${facilityId}::uuid`,
+        queryFacility(facilityId),
         querySnapshots(facilityId, 3),
         queryUnitsWithVacancy(facilityId),
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_market_intel WHERE facility_id = ${facilityId}::uuid`,
+        queryMarketIntel(facilityId),
         queryTenantRates(facilityId),
         queryRevenueHistoryDesc(facilityId, 12),
         queryAgingAll(facilityId),
-        db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_pms_specials WHERE facility_id = ${facilityId}::uuid AND active = true`,
+        queryActiveSpecials(facilityId),
       ]);
 
     const facilityRow = facilityRows[0];

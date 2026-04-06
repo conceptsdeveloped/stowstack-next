@@ -15,8 +15,7 @@ import {
   queryAgingLatest,
   queryRevenueHistoryAsc,
   queryRentRollLatest,
-} from "@/lib/facility-pms-queries";
-// db import removed -- queries now in facility-pms-queries module
+} from "@/lib/queries/facility-analytics";
 
 function money(val: number | null | undefined): string {
   if (val == null) return "$0";
