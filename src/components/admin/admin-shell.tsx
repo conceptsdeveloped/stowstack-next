@@ -23,6 +23,7 @@ import {
   Target,
   Users,
   Zap,
+  FileUp,
 } from "lucide-react";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { AdminProvider, STORAGE_KEY } from "@/lib/admin-context";
@@ -58,6 +59,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Facility Pipeline", href: "/admin/pipeline", icon: Target },
       { label: "Portfolio", href: "/admin/portfolio", icon: Building2 },
       { label: "Facility Manager", href: "/admin/facilities", icon: Layout },
+      { label: "PMS Queue", href: "/admin/pms-queue", icon: FileUp },
     ],
   },
   {

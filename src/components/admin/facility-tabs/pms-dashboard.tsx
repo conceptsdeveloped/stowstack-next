@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   FileSpreadsheet,
   RefreshCw,
+  Inbox,
 } from "lucide-react";
 import { useAdminFetch } from "@/hooks/use-admin-fetch";
 import type { PmsData } from "./pms-dashboard-types";
@@ -19,6 +20,7 @@ import { AgingTab } from "./pms-aging-tab";
 import { RevenueTab } from "./pms-revenue-tab";
 import { LengthOfStayTab } from "./pms-length-of-stay-tab";
 import { UploadTab } from "./pms-upload-tab";
+import { PmsQueueTab } from "./pms-queue-tab";
 
 /* ── Sub-tab types and config ── */
 
@@ -28,7 +30,8 @@ type SubTab =
   | "aging"
   | "revenue"
   | "length_of_stay"
-  | "upload";
+  | "upload"
+  | "queue";
 
 const SUB_TABS: { key: SubTab; label: string; icon: typeof Building2 }[] = [
   { key: "overview", label: "Occupancy Overview", icon: Building2 },
@@ -37,6 +40,7 @@ const SUB_TABS: { key: SubTab; label: string; icon: typeof Building2 }[] = [
   { key: "revenue", label: "Revenue", icon: DollarSign },
   { key: "length_of_stay", label: "Length of Stay", icon: Clock },
   { key: "upload", label: "Upload", icon: Upload },
+  { key: "queue", label: "Client Uploads", icon: Inbox },
 ];
 
 /* ── Main component ── */
@@ -120,6 +124,9 @@ export default function PmsDashboard({ facilityId }: Props) {
       {activeTab === "length_of_stay" && <LengthOfStayTab data={data} />}
       {activeTab === "upload" && (
         <UploadTab facilityId={facilityId} onImported={refetch} />
+      )}
+      {activeTab === "queue" && (
+        <PmsQueueTab facilityId={facilityId} onImported={refetch} />
       )}
     </div>
   );

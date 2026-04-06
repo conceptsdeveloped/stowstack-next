@@ -13,54 +13,12 @@ import {
 import { useAdminFetch, adminFetch } from "@/hooks/use-admin-fetch";
 import type { PmsData } from "./pms-dashboard-types";
 import { fmtDate, parseCSVLine } from "./pms-dashboard-types";
-
-/* ── constants ── */
-
-type UploadType = "rent_roll" | "aging" | "revenue";
-
-const UPLOAD_TYPES: { key: UploadType; label: string; desc: string }[] = [
-  {
-    key: "rent_roll",
-    label: "Rent Roll",
-    desc: "unit, size_label, tenant_name, account, rental_start, paid_thru, rent_rate, insurance_premium, total_due, days_past_due",
-  },
-  {
-    key: "aging",
-    label: "Aging Receivables",
-    desc: "unit, tenant_name, bucket_0_30, bucket_31_60, bucket_61_90, bucket_91_120, bucket_120_plus, total",
-  },
-  {
-    key: "revenue",
-    label: "Revenue History",
-    desc: "year, month, revenue, monthly_tax, move_ins, move_outs",
-  },
-];
-
-const EXPECTED_COLUMNS: Record<UploadType, string[]> = {
-  rent_roll: [
-    "unit",
-    "size_label",
-    "tenant_name",
-    "account",
-    "rental_start",
-    "paid_thru",
-    "rent_rate",
-    "insurance_premium",
-    "total_due",
-    "days_past_due",
-  ],
-  aging: [
-    "unit",
-    "tenant_name",
-    "bucket_0_30",
-    "bucket_31_60",
-    "bucket_61_90",
-    "bucket_91_120",
-    "bucket_120_plus",
-    "total",
-  ],
-  revenue: ["year", "month", "revenue", "monthly_tax", "move_ins", "move_outs"],
-};
+import {
+  type UploadType,
+  UPLOAD_TYPES,
+  EXPECTED_COLUMNS,
+  autoMapColumns,
+} from "@/lib/pms-column-mapper";
 
 /* ── main upload component ── */
 
@@ -102,18 +60,7 @@ export function UploadTab({
 
         // Auto-map columns
         const expected = EXPECTED_COLUMNS[uploadType];
-        const autoMap: Record<string, string> = {};
-        for (const exp of expected) {
-          const normalized = exp.toLowerCase().replace(/[_\s]/g, "");
-          const match = headers.find((h) => {
-            const hn = h.toLowerCase().replace(/[_\s]/g, "");
-            return hn === normalized || hn.includes(normalized) || normalized.includes(hn);
-          });
-          if (match) {
-            autoMap[exp] = match;
-          }
-        }
-        setColumnMap(autoMap);
+        setColumnMap(autoMapColumns(headers, expected));
 
         // Parse rows (limit preview to 200)
         const dataRows: Record<string, string>[] = [];

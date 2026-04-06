@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Megaphone, MessageSquare, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Megaphone, MessageSquare, BarChart3, Settings, Upload } from "lucide-react";
 
 const TABS = [
   { label: "Home",      href: "/portal",           icon: LayoutDashboard },
   { label: "Campaigns", href: "/portal/campaigns",  icon: Megaphone },
   { label: "Reports",   href: "/portal/reports",    icon: BarChart3 },
+  { label: "Upload",    href: "/portal/upload",     icon: Upload },
   { label: "Messages",  href: "/portal/messages",   icon: MessageSquare },
   { label: "Settings",  href: "/portal/settings",   icon: Settings },
 ];
