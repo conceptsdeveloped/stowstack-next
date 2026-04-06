@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import {
   validateCsrf,
   requiresCsrf,
@@ -51,6 +52,10 @@ function isCsrfExempt(req: NextRequest): boolean {
 }
 
 export default function middleware(request: NextRequest) {
+  // Sentry route context for all requests
+  Sentry.setTag("route", request.nextUrl.pathname);
+  Sentry.setTag("method", request.method);
+
   // CSRF validation for state-changing API requests
   if (
     request.nextUrl.pathname.startsWith("/api/") &&
