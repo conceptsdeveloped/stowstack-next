@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Target,
   BarChart3,
+  Trash2,
 } from "lucide-react";
 import { useAdminFetch, adminFetch } from "@/hooks/use-admin-fetch";
 
@@ -146,12 +147,16 @@ function StageColumn({
   stage,
   facilities,
   onAdvance,
+  onDelete,
   advancing,
+  deleting,
 }: {
   stage: Stage;
   facilities: Facility[];
   onAdvance: (id: string, currentStage: string) => void;
+  onDelete: (id: string, name: string) => void;
   advancing: string | null;
+  deleting: string | null;
 }) {
   return (
     <div className="min-w-[300px] flex-1">
@@ -266,6 +271,20 @@ function StageColumn({
                   <ExternalLink className="h-3 w-3" />
                 </a>
               )}
+              {/* Delete */}
+              <button
+                type="button"
+                onClick={() => onDelete(f.id, f.facilityName || f.name || "this lead")}
+                disabled={deleting === f.id}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] text-[var(--color-mid-gray)] hover:border-[var(--color-red)]/30 hover:bg-[var(--color-red)]/5 hover:text-[var(--color-red)] transition-colors disabled:opacity-50"
+                title="Delete lead"
+              >
+                {deleting === f.id ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3 w-3" />
+                )}
+              </button>
             </div>
           </div>
         ))}
@@ -288,6 +307,7 @@ export default function PipelinePage() {
     total: number;
   }>("/api/admin-leads", { limit: "200" });
   const [advancing, setAdvancing] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [_view, _setView] = useState<"board" | "list">("board");
 
   const facilities = data?.leads || [];
@@ -346,6 +366,23 @@ export default function PipelinePage() {
       console.error("Failed to advance:", err);
     } finally {
       setAdvancing(null);
+    }
+  }
+
+  async function handleDelete(id: string, name: string) {
+    if (!confirm(`Delete "${name}" from the pipeline? This can be undone in the database.`)) return;
+
+    setDeleting(id);
+    try {
+      await adminFetch("/api/admin-leads", {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+      });
+      refetch();
+    } catch (err) {
+      console.error("Failed to delete:", err);
+    } finally {
+      setDeleting(null);
     }
   }
 
@@ -455,7 +492,9 @@ export default function PipelinePage() {
                 stage={stage}
                 facilities={stageGroups.get(stage.id) || []}
                 onAdvance={handleAdvance}
+                onDelete={handleDelete}
                 advancing={advancing}
+                deleting={deleting}
               />
             ))}
           </div>

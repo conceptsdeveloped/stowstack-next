@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
     const statusFilter = url.searchParams.get("status") || "";
     const offset = (page - 1) * limit;
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { deleted_at: null };
 
     if (search) {
       where.OR = [
@@ -340,5 +340,50 @@ export async function PATCH(req: NextRequest) {
   } catch (err) {
     console.error("Admin lead update error:", err);
     return errorResponse("Failed to update lead", 500, origin);
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-leads");
+  if (limited) return limited;
+  const origin = getOrigin(req);
+  const authErr = await requireAdminKey(req);
+  if (authErr) return authErr;
+
+  try {
+    const body = await req.json();
+    const { id } = body || {};
+    if (!id) return errorResponse("Missing lead ID", 400, origin);
+
+    const facility = await db.facilities.findUnique({
+      where: { id },
+      select: { id: true, name: true, contact_name: true, deleted_at: true },
+    });
+    if (!facility) return errorResponse("Lead not found", 404, origin);
+    if (facility.deleted_at) return errorResponse("Lead already deleted", 400, origin);
+
+    await db.facilities.update({
+      where: { id },
+      data: { deleted_at: new Date(), deleted_by: "admin" },
+    });
+
+    // Fire-and-forget activity log
+    db.activity_log
+      .create({
+        data: {
+          type: "lead_deleted",
+          facility_id: id,
+          lead_name: facility.contact_name || "",
+          facility_name: facility.name || "",
+          detail: `Lead "${facility.name || "Unknown"}" removed from pipeline`,
+          meta: {},
+        },
+      })
+      .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
+
+    return jsonResponse({ success: true }, 200, origin);
+  } catch (err) {
+    console.error("Admin lead delete error:", err);
+    return errorResponse("Failed to delete lead", 500, origin);
   }
 }
