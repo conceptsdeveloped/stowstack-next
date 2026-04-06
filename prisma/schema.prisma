@@ -312,7 +312,7 @@ model client_onboarding {
   access_code  String    @db.VarChar(16)
   steps        Json      @default("{}")
   completed_at DateTime? @db.Timestamptz(6)
-  updated_at   DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
   created_at   DateTime  @default(now()) @db.Timestamptz(6)
   clients      clients   @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -385,7 +385,7 @@ model commit_enrichments {
   technical_summary String?
   committed_at      DateTime? @db.Timestamptz(6)
   created_at        DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
   @@index([commit_hash], map: "idx_commit_enrichments_hash")
 }
@@ -465,7 +465,7 @@ model dev_handoffs {
   commit_hash String?
   status      String    @default("active")
   created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
   @@index([status], map: "idx_dev_handoffs_status")
 }
@@ -477,7 +477,7 @@ model drip_sequence_templates {
   name          String
   steps         Json
   created_at    DateTime       @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime       @default(now()) @updatedAt @db.Timestamptz(6)
   facilities    facilities     @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   ad_variations ad_variations? @relation(fields: [variation_id], references: [id], onUpdate: NoAction)
 
@@ -531,7 +531,7 @@ model facilities {
   access_code                  String?                        @unique @db.VarChar(16)
   form_notes                   String?
   lead_score                   Int?
-  updated_at                   DateTime?                      @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime                       @updatedAt @default(now()) @db.Timestamptz(6)
   organization_id              String?                        @db.Uuid
   baseline_occupancy           Float?
   baseline_date                DateTime?                      @db.Date
@@ -624,7 +624,7 @@ model facility_market_intel {
   manual_notes       String?
   operator_overrides Json?      @default("{}")
   created_at         DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   facilities         facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([facility_id], map: "idx_market_intel_facility")
@@ -732,7 +732,7 @@ model facility_pms_snapshots {
   move_outs_mtd   Int?       @default(0)
   notes           String?
   created_at      DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   facilities      facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([facility_id, snapshot_date])
@@ -864,7 +864,7 @@ model gbp_connections {
   last_sync_at      DateTime?       @db.Timestamptz(6)
   sync_config       Json?           @default("{\"auto_post\": false, \"sync_hours\": true, \"sync_photos\": true, \"auto_respond\": false}")
   created_at        DateTime        @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime        @updatedAt @default(now()) @db.Timestamptz(6)
   facilities        facilities      @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   gbp_posts         gbp_posts[]
   gbp_questions     gbp_questions[]
@@ -995,7 +995,7 @@ model ideas {
   status      String?   @default("new")
   votes       Int?      @default(0)
   created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
   @@index([category], map: "idx_ideas_category")
   @@index([status], map: "idx_ideas_status")
@@ -1083,7 +1083,7 @@ model moveout_remarketing {
   offer_type                                         String?
   offer_value                                        Decimal?   @default(0) @db.Decimal(10, 2)
   created_at                                         DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at                                         DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at                                         DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   facilities                                         facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tenants_moveout_remarketing_new_tenant_idTotenants tenants?   @relation("moveout_remarketing_new_tenant_idTotenants", fields: [new_tenant_id], references: [id], onUpdate: NoAction)
   tenants_moveout_remarketing_tenant_idTotenants     tenants    @relation("moveout_remarketing_tenant_idTotenants", fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -1153,7 +1153,7 @@ model organizations {
   payout_email            String?
   settings                Json?                 @default("{}")
   created_at              DateTime              @default(now()) @db.Timestamptz(6)
-  updated_at              DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime              @updatedAt @default(now()) @db.Timestamptz(6)
   stripe_customer_id      String?               @unique
   stripe_subscription_id  String?
   subscription_status     String?               @default("incomplete")
@@ -1206,7 +1206,7 @@ model partial_leads {
   converted_at        DateTime?      @db.Timestamptz(6)
   lead_score          Int?           @default(0)
   created_at          DateTime       @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime       @updatedAt @default(now()) @db.Timestamptz(6)
   lead_status         String?        @default("partial")
   monthly_revenue     Decimal?       @db.Decimal(10, 2)
   move_in_date        DateTime?      @db.Date
@@ -1244,7 +1244,7 @@ model platform_connections {
   id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   facility_id      String        @db.Uuid
   created_at       DateTime      @default(now()) @db.Timestamptz(6)
-  updated_at       DateTime?     @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime      @updatedAt @default(now()) @db.Timestamptz(6)
   platform         String
   status           String?       @default("disconnected")
   access_token     String?
@@ -1365,7 +1365,7 @@ model referrals {
   activated_at      DateTime?          @db.Timestamptz(6)
   notes             String?
   created_at        DateTime           @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?          @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime           @updatedAt @default(now()) @db.Timestamptz(6)
   referral_credits  referral_credits[]
   referral_codes    referral_codes     @relation(fields: [referral_code_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -1384,7 +1384,7 @@ model retention_campaigns {
   enrolled_count     Int?       @default(0)
   retained_count     Int?       @default(0)
   created_at         DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   facilities         facilities          @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   churn_predictions  churn_predictions[]
 
@@ -1517,7 +1517,7 @@ model tenants {
   move_out_reason                                                String?
   metadata                                                       Json?                     @default("{}")
   created_at                                                     DateTime                  @default(now()) @db.Timestamptz(6)
-  updated_at                                                     DateTime?                 @default(now()) @db.Timestamptz(6)
+  updated_at                                                     DateTime                  @updatedAt @default(now()) @db.Timestamptz(6)
   churn_predictions                                              churn_predictions?
   delinquency_escalations                                        delinquency_escalations[]
   moveout_remarketing_moveout_remarketing_new_tenant_idTotenants moveout_remarketing[]     @relation("moveout_remarketing_new_tenant_idTotenants")
@@ -1549,7 +1549,7 @@ model upsell_opportunities {
   sent_at         DateTime?  @db.Timestamptz(6)
   responded_at    DateTime?  @db.Timestamptz(6)
   created_at      DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   facilities      facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tenants         tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -1608,7 +1608,7 @@ model webhooks {
   last_triggered_at  DateTime?            @db.Timestamptz(6)
   last_status        Int?
   created_at         DateTime             @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime             @updatedAt @default(now()) @db.Timestamptz(6)
   webhook_deliveries webhook_deliveries[]
   organizations      organizations        @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -1635,7 +1635,7 @@ model social_posts {
   batch_id         String?     @db.Uuid
   suggested_image  String?
   created_at       DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at       DateTime?   @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime    @updatedAt @default(now()) @db.Timestamptz(6)
   facilities       facilities  @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([facility_id], map: "idx_social_posts_facility")
@@ -1651,7 +1651,7 @@ model nurture_sequences {
   steps                Json
   status               String                 @default("active")
   created_at           DateTime               @default(now()) @db.Timestamptz(6)
-  updated_at           DateTime?              @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime               @updatedAt @default(now()) @db.Timestamptz(6)
   facilities           facilities             @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   nurture_enrollments  nurture_enrollments[]
 
@@ -1675,7 +1675,7 @@ model nurture_enrollments {
   exit_reason       String?
   metadata          Json?
   created_at        DateTime            @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime            @updatedAt @default(now()) @db.Timestamptz(6)
   nurture_sequences nurture_sequences   @relation(fields: [sequence_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   facilities        facilities          @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   partial_leads     partial_leads?      @relation(fields: [lead_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -1720,7 +1720,7 @@ model audience_syncs {
   status               String                @default("pending")
   last_synced_at       DateTime?             @db.Timestamptz(6)
   created_at           DateTime              @default(now()) @db.Timestamptz(6)
-  updated_at           DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime              @updatedAt @default(now()) @db.Timestamptz(6)
   facilities           facilities            @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   platform_connections platform_connections? @relation(fields: [connection_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
