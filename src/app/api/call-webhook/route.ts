@@ -40,16 +40,18 @@ export async function POST(req: NextRequest) {
   if (event === "status") {
     const { CallSid, CallDuration, CallStatus } = body;
     if (CallSid) {
-      await db.$executeRaw`
-        UPDATE call_logs SET status = ${CallStatus || "completed"}, duration = ${parseInt(CallDuration) || 0}, ended_at = NOW()
-        WHERE twilio_call_sid = ${CallSid}
-      `;
-      await db.$executeRaw`
-        UPDATE call_tracking_numbers SET
-          call_count = (SELECT COUNT(*) FROM call_logs WHERE tracking_number_id = call_tracking_numbers.id AND status = 'completed'),
-          total_duration = (SELECT COALESCE(SUM(duration), 0) FROM call_logs WHERE tracking_number_id = call_tracking_numbers.id AND status = 'completed')
-        WHERE id = (SELECT tracking_number_id FROM call_logs WHERE twilio_call_sid = ${CallSid})
-      `;
+      await db.$transaction(async (tx) => {
+        await tx.$executeRaw`
+          UPDATE call_logs SET status = ${CallStatus || "completed"}, duration = ${parseInt(CallDuration) || 0}, ended_at = NOW()
+          WHERE twilio_call_sid = ${CallSid}
+        `;
+        await tx.$executeRaw`
+          UPDATE call_tracking_numbers SET
+            call_count = (SELECT COUNT(*) FROM call_logs WHERE tracking_number_id = call_tracking_numbers.id AND status = 'completed'),
+            total_duration = (SELECT COALESCE(SUM(duration), 0) FROM call_logs WHERE tracking_number_id = call_tracking_numbers.id AND status = 'completed')
+          WHERE id = (SELECT tracking_number_id FROM call_logs WHERE twilio_call_sid = ${CallSid})
+        `;
+      });
     }
     return new NextResponse(null, { status: 200 });
   }

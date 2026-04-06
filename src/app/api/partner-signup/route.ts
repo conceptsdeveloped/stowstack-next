@@ -66,40 +66,44 @@ export async function POST(req: NextRequest) {
     const selectedPlan = validPlans.includes(plan) ? plan : "starter";
     const facilityLimits: Record<string, number> = { starter: 10, growth: 50, enterprise: 999 };
 
-    const org = await db.organizations.create({
-      data: {
-        name: companyName,
-        slug,
-        contact_email: email.toLowerCase(),
-        contact_phone: phone || null,
-        plan: selectedPlan,
-        facility_limit: facilityLimits[selectedPlan],
-        status: "active",
-      },
-    });
-
     const userId = crypto.randomUUID();
     const tempPassword = crypto.randomBytes(6).toString("hex");
     const passwordHash = await hashPassword(tempPassword);
 
-    await db.org_users.create({
-      data: {
-        id: userId,
-        organization_id: org.id,
-        email: email.toLowerCase(),
-        name: contactName,
-        role: "org_admin",
-        password_hash: passwordHash,
-        status: "active",
-      },
-    });
+    const org = await db.$transaction(async (tx) => {
+      const org = await tx.organizations.create({
+        data: {
+          name: companyName,
+          slug,
+          contact_email: email.toLowerCase(),
+          contact_phone: phone || null,
+          plan: selectedPlan,
+          facility_limit: facilityLimits[selectedPlan],
+          status: "active",
+        },
+      });
 
-    await db.activity_log.create({
-      data: {
-        type: "partner_signup",
-        detail: `${companyName} signed up as a partner (${selectedPlan} plan)`,
-        meta: { orgId: org.id, email, plan: selectedPlan, facilityCount },
-      },
+      await tx.org_users.create({
+        data: {
+          id: userId,
+          organization_id: org.id,
+          email: email.toLowerCase(),
+          name: contactName,
+          role: "org_admin",
+          password_hash: passwordHash,
+          status: "active",
+        },
+      });
+
+      await tx.activity_log.create({
+        data: {
+          type: "partner_signup",
+          detail: `${companyName} signed up as a partner (${selectedPlan} plan)`,
+          meta: { orgId: org.id, email, plan: selectedPlan, facilityCount },
+        },
+      });
+
+      return org;
     });
 
     const token = await createSession(userId, req);

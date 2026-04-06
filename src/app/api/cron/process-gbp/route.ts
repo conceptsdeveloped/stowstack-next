@@ -215,38 +215,41 @@ async function syncReviewsForConnection(
     FIVE: 5,
   };
 
-  for (const review of reviews) {
-    const externalId = review.name || review.reviewId;
-    const existing = await db.$queryRaw<{ id: string }[]>`
-      SELECT id FROM gbp_reviews WHERE external_review_id = ${externalId}
-    `;
-    if (existing.length === 0) {
-      const authorName = review.reviewer?.displayName || "Anonymous";
-      const rating = review.starRating ? ratingMap[review.starRating] || 5 : 5;
-      const reviewText = review.comment || "";
-
-      await db.$executeRaw`
-        INSERT INTO gbp_reviews (facility_id, gbp_connection_id, external_review_id, author_name, rating, review_text, review_time, response_text, response_status, synced_at)
-        VALUES (${connection.facility_id}::uuid, ${connection.id}::uuid, ${externalId},
-                ${authorName},
-                ${rating},
-                ${reviewText}, ${review.createTime || new Date().toISOString()}::timestamptz,
-                ${review.reviewReply?.comment || null},
-                ${review.reviewReply ? "published" : "pending"}, NOW())
+  await db.$transaction(async (tx) => {
+    for (const review of reviews) {
+      const externalId = review.name || review.reviewId;
+      const existing = await tx.$queryRaw<{ id: string }[]>`
+        SELECT id FROM gbp_reviews WHERE external_review_id = ${externalId}
       `;
-      synced++;
-      newReviews.push({
-        facilityId: connection.facility_id,
-        authorName,
-        rating,
-        reviewText,
-      });
-    }
-  }
+      if (existing.length === 0) {
+        const authorName = review.reviewer?.displayName || "Anonymous";
+        const rating = review.starRating ? ratingMap[review.starRating] || 5 : 5;
+        const reviewText = review.comment || "";
 
-  await db.$executeRaw`
-    UPDATE gbp_connections SET last_sync_at = NOW(), updated_at = NOW() WHERE id = ${connection.id}::uuid
-  `;
+        await tx.$executeRaw`
+          INSERT INTO gbp_reviews (facility_id, gbp_connection_id, external_review_id, author_name, rating, review_text, review_time, response_text, response_status, synced_at)
+          VALUES (${connection.facility_id}::uuid, ${connection.id}::uuid, ${externalId},
+                  ${authorName},
+                  ${rating},
+                  ${reviewText}, ${review.createTime || new Date().toISOString()}::timestamptz,
+                  ${review.reviewReply?.comment || null},
+                  ${review.reviewReply ? "published" : "pending"}, NOW())
+        `;
+        synced++;
+        newReviews.push({
+          facilityId: connection.facility_id,
+          authorName,
+          rating,
+          reviewText,
+        });
+      }
+    }
+
+    await tx.$executeRaw`
+      UPDATE gbp_connections SET last_sync_at = NOW(), updated_at = NOW() WHERE id = ${connection.id}::uuid
+    `;
+  });
+
   return { synced, newReviews };
 }
 

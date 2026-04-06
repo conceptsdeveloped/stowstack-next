@@ -723,23 +723,25 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (status === "approved" && variation.facility_id) {
-      const pending = await db.ad_variations.count({
-        where: {
-          facility_id: variation.facility_id,
-          status: { notIn: ["approved", "published", "rejected"] },
-        },
+      await db.$transaction(async (tx) => {
+        const pending = await tx.ad_variations.count({
+          where: {
+            facility_id: variation.facility_id,
+            status: { notIn: ["approved", "published", "rejected"] },
+          },
+        });
+        if (pending === 0) {
+          await tx.facilities.update({
+            where: { id: variation.facility_id! },
+            data: { status: "approved" },
+          });
+        } else {
+          await tx.facilities.update({
+            where: { id: variation.facility_id! },
+            data: { status: "review" },
+          });
+        }
       });
-      if (pending === 0) {
-        await db.facilities.update({
-          where: { id: variation.facility_id },
-          data: { status: "approved" },
-        });
-      } else {
-        await db.facilities.update({
-          where: { id: variation.facility_id },
-          data: { status: "review" },
-        });
-      }
     }
 
     if (deploy === "landing_page" && variation.platform === "landing_page") {
@@ -763,38 +765,42 @@ export async function PATCH(req: NextRequest) {
         slug = `${baseSlug}-${attempt}`;
       }
 
-      const page = await db.landing_pages.create({
-        data: {
-          facility_id: variation.facility_id!,
-          slug,
-          title: (lpContent.meta_title as string) || `${fac.name} - Self Storage`,
-          meta_title: (lpContent.meta_title as string) || null,
-          meta_description: (lpContent.meta_description as string) || null,
-          variation_ids: [variation.id],
-          storedge_widget_url: fac.website || null,
-        },
-      });
-
-      const sections = (lpContent.sections as Array<Record<string, unknown>>) || [];
-      for (let i = 0; i < sections.length; i++) {
-        const s = sections[i];
-        await db.landing_page_sections.create({
+      const txResult = await db.$transaction(async (tx) => {
+        const page = await tx.landing_pages.create({
           data: {
-            landing_page_id: page.id,
-            sort_order: (s.sort_order as number) ?? i,
-            section_type: s.section_type as string,
-            config: (s.config as object) || {},
+            facility_id: variation.facility_id!,
+            slug,
+            title: (lpContent.meta_title as string) || `${fac.name} - Self Storage`,
+            meta_title: (lpContent.meta_title as string) || null,
+            meta_description: (lpContent.meta_description as string) || null,
+            variation_ids: [variation.id],
+            storedge_widget_url: fac.website || null,
           },
         });
-      }
 
-      await db.ad_variations.update({
-        where: { id: variation.id },
-        data: { status: "published" },
+        const sections = (lpContent.sections as Array<Record<string, unknown>>) || [];
+        for (let i = 0; i < sections.length; i++) {
+          const s = sections[i];
+          await tx.landing_page_sections.create({
+            data: {
+              landing_page_id: page.id,
+              sort_order: (s.sort_order as number) ?? i,
+              section_type: s.section_type as string,
+              config: (s.config as object) || {},
+            },
+          });
+        }
+
+        await tx.ad_variations.update({
+          where: { id: variation.id },
+          data: { status: "published" },
+        });
+
+        return page;
       });
-      variation.status = "published";
 
-      resultData.landingPage = { id: page.id, slug: page.slug, url: `/lp/${slug}` };
+      variation.status = "published";
+      resultData.landingPage = { id: txResult.id, slug: txResult.slug, url: `/lp/${slug}` };
     }
 
     if (deploy === "email_drip" && variation.platform === "email_drip") {
@@ -805,30 +811,32 @@ export async function PATCH(req: NextRequest) {
       const sequence = (dripContent.sequence as Array<Record<string, unknown>>) || [];
       if (sequence.length === 0) return errorResponse("No email sequence in variation", 400, origin);
 
-      const stepsJson = JSON.stringify(
-          sequence.map((e, i) => ({
-            step: i,
-            delayDays: e.delayDays,
-            subject: e.subject,
-            preheader: e.preheader,
-            body: e.body,
-            ctaText: e.ctaText,
-            ctaUrl: e.ctaUrl,
-            label: e.label,
-          }))
-        );
-      await db.$executeRaw`
-        INSERT INTO drip_sequence_templates (facility_id, variation_id, name, steps)
-         VALUES (${variation.facility_id}::uuid, ${variation.id}::uuid, ${"AI-Generated Drip"}, ${stepsJson}::jsonb)
-         ON CONFLICT (facility_id, variation_id) DO UPDATE SET steps = ${stepsJson}::jsonb, updated_at = NOW()
-      `;
+      await db.$transaction(async (tx) => {
+        const stepsJson = JSON.stringify(
+            sequence.map((e, i) => ({
+              step: i,
+              delayDays: e.delayDays,
+              subject: e.subject,
+              preheader: e.preheader,
+              body: e.body,
+              ctaText: e.ctaText,
+              ctaUrl: e.ctaUrl,
+              label: e.label,
+            }))
+          );
+        await tx.$executeRaw`
+          INSERT INTO drip_sequence_templates (facility_id, variation_id, name, steps)
+           VALUES (${variation.facility_id}::uuid, ${variation.id}::uuid, ${"AI-Generated Drip"}, ${stepsJson}::jsonb)
+           ON CONFLICT (facility_id, variation_id) DO UPDATE SET steps = ${stepsJson}::jsonb, updated_at = NOW()
+        `;
 
-      await db.ad_variations.update({
-        where: { id: variation.id },
-        data: { status: "published" },
+        await tx.ad_variations.update({
+          where: { id: variation.id },
+          data: { status: "published" },
+        });
       });
-      variation.status = "published";
 
+      variation.status = "published";
       resultData.dripActivated = true;
     }
 

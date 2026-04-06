@@ -127,50 +127,53 @@ export async function POST(req: NextRequest) {
     // Calculate trial end date (14 days from now)
     const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
-    // Create organization
-    const org = await db.organizations.create({
-      data: {
-        name: companyName.trim(),
-        slug,
-        plan: selectedPlan,
-        facility_limit: FACILITY_LIMITS[selectedPlan],
-        status: "active",
-        subscription_status: "trialing",
-        trial_ends_at: trialEndsAt,
-        signup_source: "self_serve",
-        contact_email: email.toLowerCase(),
-      },
-    });
-
-    // Create org user
+    // Create organization, user, and settings atomically
     const userId = crypto.randomUUID();
     const emailVerifyToken = crypto.randomBytes(32).toString("hex");
     const emailVerifyExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    await db.org_users.create({
-      data: {
-        id: userId,
-        organization_id: org.id,
-        email: email.toLowerCase(),
-        name: contactName.trim(),
-        role: "org_admin",
-        status: "active",
-        password_hash: passwordHash,
-        email_verified: false,
-        email_verify_token: emailVerifyToken,
-        email_verify_expires_at: emailVerifyExpiresAt,
-      },
-    });
-
-    // Store facility count in org settings if provided
-    if (facilityCount && facilityCount > 0) {
-      await db.organizations.update({
-        where: { id: org.id },
+    const { org } = await db.$transaction(async (tx) => {
+      const org = await tx.organizations.create({
         data: {
-          settings: { facilityCount },
+          name: companyName.trim(),
+          slug,
+          plan: selectedPlan,
+          facility_limit: FACILITY_LIMITS[selectedPlan],
+          status: "active",
+          subscription_status: "trialing",
+          trial_ends_at: trialEndsAt,
+          signup_source: "self_serve",
+          contact_email: email.toLowerCase(),
         },
       });
-    }
+
+      await tx.org_users.create({
+        data: {
+          id: userId,
+          organization_id: org.id,
+          email: email.toLowerCase(),
+          name: contactName.trim(),
+          role: "org_admin",
+          status: "active",
+          password_hash: passwordHash,
+          email_verified: false,
+          email_verify_token: emailVerifyToken,
+          email_verify_expires_at: emailVerifyExpiresAt,
+        },
+      });
+
+      // Store facility count in org settings if provided
+      if (facilityCount && facilityCount > 0) {
+        await tx.organizations.update({
+          where: { id: org.id },
+          data: {
+            settings: { facilityCount },
+          },
+        });
+      }
+
+      return { org };
+    });
 
     // Create session
     const token = await createSession(userId, req);

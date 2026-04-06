@@ -26,13 +26,14 @@ function resolveMergeTags(
 }
 
 async function advanceStep(
+  tx: Parameters<Parameters<typeof db.$transaction>[0]>[0],
   enrollmentId: string,
   steps: { delay_minutes?: number }[],
   currentStepIdx: number
 ) {
   const nextIdx = currentStepIdx + 1;
   if (nextIdx >= steps.length) {
-    await db.$executeRaw`
+    await tx.$executeRaw`
       UPDATE nurture_enrollments SET status = 'completed', completed_at = NOW(),
       current_step = ${nextIdx}, next_send_at = NULL WHERE id = ${enrollmentId}::uuid
     `;
@@ -40,7 +41,7 @@ async function advanceStep(
     const nextStep = steps[nextIdx];
     const delayMs = (nextStep.delay_minutes || 60) * 60 * 1000;
     const nextSendAt = new Date(Date.now() + delayMs).toISOString();
-    await db.$executeRaw`
+    await tx.$executeRaw`
       UPDATE nurture_enrollments SET current_step = ${nextIdx},
       next_send_at = ${nextSendAt}::timestamptz WHERE id = ${enrollmentId}::uuid
     `;
@@ -48,6 +49,7 @@ async function advanceStep(
 }
 
 async function logMessage(
+  tx: Parameters<Parameters<typeof db.$transaction>[0]>[0],
   enrollmentId: string,
   stepNumber: number,
   channel: string,
@@ -58,7 +60,7 @@ async function logMessage(
   externalId: string | null,
   errorMessage: string | null
 ) {
-  await db.$executeRaw`
+  await tx.$executeRaw`
     INSERT INTO nurture_messages (enrollment_id, step_number, channel, to_address, subject, body, status, external_id, sent_at, error_message)
     VALUES (${enrollmentId}::uuid, ${stepNumber}, ${channel}, ${toAddress}, ${subject}, ${body}, ${status}, ${externalId}, ${status === "sent" ? new Date().toISOString() : null}::timestamptz, ${errorMessage})
   `;
@@ -254,19 +256,22 @@ export async function GET(request: NextRequest) {
             : enrollment.contact_email;
 
         if (!toAddress) {
-          await logMessage(
-            enrollment.id,
-            currentStepIdx,
-            step.channel,
-            "unknown",
-            resolvedSubject,
-            resolvedBody,
-            "failed",
-            null,
-            "No contact info for this channel"
-          );
+          await db.$transaction(async (tx) => {
+            await logMessage(
+              tx,
+              enrollment.id,
+              currentStepIdx,
+              step.channel,
+              "unknown",
+              resolvedSubject,
+              resolvedBody,
+              "failed",
+              null,
+              "No contact info for this channel"
+            );
+            await advanceStep(tx, enrollment.id, steps, currentStepIdx);
+          });
           failed++;
-          await advanceStep(enrollment.id, steps, currentStepIdx);
           continue;
         }
 
@@ -289,24 +294,27 @@ export async function GET(request: NextRequest) {
           externalId = emailResult?.id || null;
         }
 
-        await logMessage(
-          enrollment.id,
-          currentStepIdx,
-          step.channel,
-          toAddress,
-          resolvedSubject,
-          resolvedBody,
-          "sent",
-          externalId,
-          null
-        );
+        await db.$transaction(async (tx) => {
+          await logMessage(
+            tx,
+            enrollment.id,
+            currentStepIdx,
+            step.channel,
+            toAddress,
+            resolvedSubject,
+            resolvedBody,
+            "sent",
+            externalId,
+            null
+          );
+          await advanceStep(tx, enrollment.id, steps, currentStepIdx);
+        });
         sent++;
-
-        await advanceStep(enrollment.id, steps, currentStepIdx);
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Unknown error";
-        await logMessage(
+        logMessage(
+          db as Parameters<Parameters<typeof db.$transaction>[0]>[0],
           enrollment.id,
           enrollment.current_step,
           "unknown",

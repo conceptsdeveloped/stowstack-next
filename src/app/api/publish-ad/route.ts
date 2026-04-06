@@ -685,19 +685,21 @@ export async function POST(req: NextRequest) {
         throw new Error(`Unsupported platform: ${connection.platform}`);
       }
 
-      await db.publish_log.update({
-        where: { id: logEntry.id },
-        data: {
-          status: "published",
-          external_id: result.externalId,
-          external_url: result.externalUrl,
-          response_payload: result.response as unknown as Prisma.InputJsonValue,
-        },
-      });
+      await db.$transaction(async (tx) => {
+        await tx.publish_log.update({
+          where: { id: logEntry.id },
+          data: {
+            status: "published",
+            external_id: result.externalId,
+            external_url: result.externalUrl,
+            response_payload: result.response as unknown as Prisma.InputJsonValue,
+          },
+        });
 
-      await db.ad_variations.update({
-        where: { id: variationId },
-        data: { status: "published" },
+        await tx.ad_variations.update({
+          where: { id: variationId },
+          data: { status: "published" },
+        });
       });
 
       return jsonResponse(

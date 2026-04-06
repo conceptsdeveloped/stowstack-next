@@ -141,21 +141,25 @@ export async function POST(req: NextRequest) {
         return errorResponse("This person has already been referred", 409, origin);
       }
 
-      const row = await db.referrals.create({
-        data: {
-          referral_code_id,
-          referred_name,
-          referred_email,
-          referred_phone: referred_phone || null,
-          facility_name: facility_name || null,
-          facility_location: facility_location || null,
-          notes: notes || null,
-        },
-      });
+      const row = await db.$transaction(async (tx) => {
+        const referral = await tx.referrals.create({
+          data: {
+            referral_code_id,
+            referred_name,
+            referred_email,
+            referred_phone: referred_phone || null,
+            facility_name: facility_name || null,
+            facility_location: facility_location || null,
+            notes: notes || null,
+          },
+        });
 
-      await db.referral_codes.update({
-        where: { id: referral_code_id },
-        data: { referral_count: { increment: 1 } },
+        await tx.referral_codes.update({
+          where: { id: referral_code_id },
+          data: { referral_count: { increment: 1 } },
+        });
+
+        return referral;
       });
 
       return jsonResponse({ referral: row }, 201, origin);
@@ -192,83 +196,85 @@ export async function PATCH(req: NextRequest) {
       if (status === "signed_up" && !ref.signed_up_at) updateData.signed_up_at = new Date();
       if (status === "active" && !ref.activated_at) updateData.activated_at = new Date();
 
-      await db.referrals.update({
-        where: { id: referral_id },
-        data: updateData,
-      });
+      await db.$transaction(async (tx) => {
+        await tx.referrals.update({
+          where: { id: referral_id },
+          data: updateData,
+        });
 
-      if ((status === "signed_up" || status === "active") && !ref.credit_issued) {
-        const creditAmount = CREDIT_TIERS[status] || 0;
-        if (creditAmount > 0) {
-          const codeRow = await db.referral_codes.findUnique({
-            where: { id: ref.referral_code_id },
-          });
-          if (codeRow) {
-            const newBalance = parseFloat(String(codeRow.credit_balance)) + creditAmount;
-            const newTotal = parseFloat(String(codeRow.total_earned)) + creditAmount;
-
-            await db.referral_codes.update({
+        if ((status === "signed_up" || status === "active") && !ref.credit_issued) {
+          const creditAmount = CREDIT_TIERS[status] || 0;
+          if (creditAmount > 0) {
+            const codeRow = await tx.referral_codes.findUnique({
               where: { id: ref.referral_code_id },
-              data: { credit_balance: newBalance, total_earned: newTotal },
             });
+            if (codeRow) {
+              const newBalance = parseFloat(String(codeRow.credit_balance)) + creditAmount;
+              const newTotal = parseFloat(String(codeRow.total_earned)) + creditAmount;
 
-            await db.referral_credits.create({
-              data: {
-                referral_code_id: ref.referral_code_id,
-                referral_id,
-                type: "earned",
-                amount: creditAmount,
-                description: `Referral ${status === "signed_up" ? "signup" : "activation"} credit for ${ref.referred_name}`,
-                balance_after: newBalance,
-              },
-            });
-
-            await db.referrals.update({
-              where: { id: referral_id },
-              data: {
-                credit_amount: { increment: creditAmount },
-                credit_issued: true,
-                credit_issued_at: new Date(),
-              },
-            });
-
-            const totalActive = await db.referrals.count({
-              where: { referral_code_id: ref.referral_code_id, status: "active" },
-            });
-
-            let bonus = 0;
-            let bonusLabel = "";
-            if (totalActive === 3) { bonus = CREDIT_TIERS.bonus_3; bonusLabel = "3-referral milestone bonus"; }
-            if (totalActive === 5) { bonus = CREDIT_TIERS.bonus_5; bonusLabel = "5-referral milestone bonus"; }
-            if (totalActive === 10) { bonus = CREDIT_TIERS.bonus_10; bonusLabel = "10-referral milestone bonus"; }
-            if (totalActive === 25) { bonus = CREDIT_TIERS.bonus_25; bonusLabel = "25-referral milestone bonus"; }
-
-            if (bonus > 0) {
-              const updatedCode = await db.referral_codes.findUnique({
+              await tx.referral_codes.update({
                 where: { id: ref.referral_code_id },
-                select: { credit_balance: true, total_earned: true },
+                data: { credit_balance: newBalance, total_earned: newTotal },
               });
-              if (updatedCode) {
-                const bonusBalance = parseFloat(String(updatedCode.credit_balance)) + bonus;
-                const bonusTotal = parseFloat(String(updatedCode.total_earned)) + bonus;
-                await db.referral_codes.update({
+
+              await tx.referral_credits.create({
+                data: {
+                  referral_code_id: ref.referral_code_id,
+                  referral_id,
+                  type: "earned",
+                  amount: creditAmount,
+                  description: `Referral ${status === "signed_up" ? "signup" : "activation"} credit for ${ref.referred_name}`,
+                  balance_after: newBalance,
+                },
+              });
+
+              await tx.referrals.update({
+                where: { id: referral_id },
+                data: {
+                  credit_amount: { increment: creditAmount },
+                  credit_issued: true,
+                  credit_issued_at: new Date(),
+                },
+              });
+
+              const totalActive = await tx.referrals.count({
+                where: { referral_code_id: ref.referral_code_id, status: "active" },
+              });
+
+              let bonus = 0;
+              let bonusLabel = "";
+              if (totalActive === 3) { bonus = CREDIT_TIERS.bonus_3; bonusLabel = "3-referral milestone bonus"; }
+              if (totalActive === 5) { bonus = CREDIT_TIERS.bonus_5; bonusLabel = "5-referral milestone bonus"; }
+              if (totalActive === 10) { bonus = CREDIT_TIERS.bonus_10; bonusLabel = "10-referral milestone bonus"; }
+              if (totalActive === 25) { bonus = CREDIT_TIERS.bonus_25; bonusLabel = "25-referral milestone bonus"; }
+
+              if (bonus > 0) {
+                const updatedCode = await tx.referral_codes.findUnique({
                   where: { id: ref.referral_code_id },
-                  data: { credit_balance: bonusBalance, total_earned: bonusTotal },
+                  select: { credit_balance: true, total_earned: true },
                 });
-                await db.referral_credits.create({
-                  data: {
-                    referral_code_id: ref.referral_code_id,
-                    type: "bonus",
-                    amount: bonus,
-                    description: bonusLabel,
-                    balance_after: bonusBalance,
-                  },
-                });
+                if (updatedCode) {
+                  const bonusBalance = parseFloat(String(updatedCode.credit_balance)) + bonus;
+                  const bonusTotal = parseFloat(String(updatedCode.total_earned)) + bonus;
+                  await tx.referral_codes.update({
+                    where: { id: ref.referral_code_id },
+                    data: { credit_balance: bonusBalance, total_earned: bonusTotal },
+                  });
+                  await tx.referral_credits.create({
+                    data: {
+                      referral_code_id: ref.referral_code_id,
+                      type: "bonus",
+                      amount: bonus,
+                      description: bonusLabel,
+                      balance_after: bonusBalance,
+                    },
+                  });
+                }
               }
             }
           }
         }
-      }
+      });
 
       return jsonResponse({ success: true }, 200, origin);
     }
@@ -284,18 +290,20 @@ export async function PATCH(req: NextRequest) {
       }
 
       const newBalance = parseFloat(String(codeRow.credit_balance)) - amount;
-      await db.referral_codes.update({
-        where: { id: code_id },
-        data: { credit_balance: newBalance },
-      });
-      await db.referral_credits.create({
-        data: {
-          referral_code_id: code_id,
-          type: "redeemed",
-          amount: -amount,
-          description: description || "Credit redemption",
-          balance_after: newBalance,
-        },
+      await db.$transaction(async (tx) => {
+        await tx.referral_codes.update({
+          where: { id: code_id },
+          data: { credit_balance: newBalance },
+        });
+        await tx.referral_credits.create({
+          data: {
+            referral_code_id: code_id,
+            type: "redeemed",
+            amount: -amount,
+            description: description || "Credit redemption",
+            balance_after: newBalance,
+          },
+        });
       });
 
       return jsonResponse({ success: true, new_balance: newBalance }, 200, origin);

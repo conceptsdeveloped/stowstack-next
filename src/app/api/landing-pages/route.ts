@@ -94,24 +94,28 @@ export async function POST(req: NextRequest) {
       const existing = await db.landing_pages.findFirst({ where: { slug: cloneSlug } });
       if (existing) return errorResponse("Slug already exists", 400, origin);
 
-      const clonedPage = await db.landing_pages.create({
-        data: { facility_id: cloneFacility, title: cloneName, slug: cloneSlug, status: "draft" },
-      });
-
-      const sourceSections = await db.landing_page_sections.findMany({
-        where: { landing_page_id: cloneFrom },
-        orderBy: { sort_order: "asc" },
-      });
-      for (const section of sourceSections) {
-        await db.landing_page_sections.create({
-          data: {
-            landing_page_id: clonedPage.id,
-            section_type: section.section_type,
-            sort_order: section.sort_order,
-            config: section.config as object,
-          },
+      const clonedPage = await db.$transaction(async (tx) => {
+        const newPage = await tx.landing_pages.create({
+          data: { facility_id: cloneFacility, title: cloneName, slug: cloneSlug, status: "draft" },
         });
-      }
+
+        const sourceSections = await tx.landing_page_sections.findMany({
+          where: { landing_page_id: cloneFrom },
+          orderBy: { sort_order: "asc" },
+        });
+        for (const section of sourceSections) {
+          await tx.landing_page_sections.create({
+            data: {
+              landing_page_id: newPage.id,
+              section_type: section.section_type,
+              sort_order: section.sort_order,
+              config: section.config as object,
+            },
+          });
+        }
+
+        return newPage;
+      });
 
       return jsonResponse({ page: clonedPage }, 200, origin);
     }
@@ -124,33 +128,37 @@ export async function POST(req: NextRequest) {
     const existing = await db.landing_pages.findFirst({ where: { slug } });
     if (existing) return errorResponse("Slug already exists", 400, origin);
 
-    const page = await db.landing_pages.create({
-      data: {
-        facility_id: facilityId,
-        title: pageName,
-        slug,
-        status: "draft",
-      },
-    });
-
-    // Clone sections from another page if requested
-    if (cloneFrom) {
-      const sourceSections = await db.landing_page_sections.findMany({
-        where: { landing_page_id: cloneFrom },
-        orderBy: { sort_order: "asc" },
+    const page = await db.$transaction(async (tx) => {
+      const newPage = await tx.landing_pages.create({
+        data: {
+          facility_id: facilityId,
+          title: pageName,
+          slug,
+          status: "draft",
+        },
       });
 
-      for (const section of sourceSections) {
-        await db.landing_page_sections.create({
-          data: {
-            landing_page_id: page.id,
-            section_type: section.section_type,
-            sort_order: section.sort_order,
-            config: section.config as object,
-          },
+      // Clone sections from another page if requested
+      if (cloneFrom) {
+        const sourceSections = await tx.landing_page_sections.findMany({
+          where: { landing_page_id: cloneFrom },
+          orderBy: { sort_order: "asc" },
         });
+
+        for (const section of sourceSections) {
+          await tx.landing_page_sections.create({
+            data: {
+              landing_page_id: newPage.id,
+              section_type: section.section_type,
+              sort_order: section.sort_order,
+              config: section.config as object,
+            },
+          });
+        }
       }
-    }
+
+      return newPage;
+    });
 
     return jsonResponse({ page }, 200, origin);
   } catch (err) {
@@ -180,21 +188,6 @@ export async function PATCH(req: NextRequest) {
     // Handle sections replacement (accept both snake_case and camelCase)
     const sections = updates.sections;
     if (sections) {
-      await db.landing_page_sections.deleteMany({
-        where: { landing_page_id: id },
-      });
-
-      for (const section of sections) {
-        await db.landing_page_sections.create({
-          data: {
-            landing_page_id: id,
-            section_type: section.section_type || section.sectionType,
-            sort_order: section.sort_order ?? section.sortOrder ?? 0,
-            config: section.config,
-          },
-        });
-      }
-
       delete updates.sections;
     }
 
@@ -226,15 +219,36 @@ export async function PATCH(req: NextRequest) {
       if (updates[key] !== undefined) pageUpdates[key] = updates[key];
     }
 
-    if (Object.keys(pageUpdates).length > 0) {
-      await db.landing_pages.update({ where: { id }, data: pageUpdates });
-    }
+    const { updated, updatedSections } = await db.$transaction(async (tx) => {
+      if (sections) {
+        await tx.landing_page_sections.deleteMany({
+          where: { landing_page_id: id },
+        });
 
-    // Fetch updated page
-    const updated = await db.landing_pages.findUnique({ where: { id } });
-    const updatedSections = await db.landing_page_sections.findMany({
-      where: { landing_page_id: id },
-      orderBy: { sort_order: "asc" },
+        for (const section of sections) {
+          await tx.landing_page_sections.create({
+            data: {
+              landing_page_id: id,
+              section_type: section.section_type || section.sectionType,
+              sort_order: section.sort_order ?? section.sortOrder ?? 0,
+              config: section.config,
+            },
+          });
+        }
+      }
+
+      if (Object.keys(pageUpdates).length > 0) {
+        await tx.landing_pages.update({ where: { id }, data: pageUpdates });
+      }
+
+      // Fetch updated page
+      const updated = await tx.landing_pages.findUnique({ where: { id } });
+      const updatedSections = await tx.landing_page_sections.findMany({
+        where: { landing_page_id: id },
+        orderBy: { sort_order: "asc" },
+      });
+
+      return { updated, updatedSections };
     });
 
     return jsonResponse({ page: { ...updated, sections: updatedSections } }, 200, origin);
@@ -255,8 +269,10 @@ export async function DELETE(req: NextRequest) {
     const id = url.searchParams.get("id");
     if (!id) return errorResponse("Missing page ID", 400, origin);
 
-    await db.landing_page_sections.deleteMany({ where: { landing_page_id: id } });
-    await db.landing_pages.delete({ where: { id } });
+    await db.$transaction(async (tx) => {
+      await tx.landing_page_sections.deleteMany({ where: { landing_page_id: id } });
+      await tx.landing_pages.delete({ where: { id } });
+    });
 
     return jsonResponse({ success: true }, 200, origin);
   } catch (err) {

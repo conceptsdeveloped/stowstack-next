@@ -281,57 +281,60 @@ export async function POST(req: NextRequest) {
          ${escalateFacilityFilter}
       `;
 
-      let escalated = 0;
-      for (const t of delinquent) {
-        const current = await db.delinquency_escalations.findFirst({
-          where: { tenant_id: t.id },
-          orderBy: { stage_entered_at: "desc" },
-          select: { stage: true },
-        });
-
-        const currentIdx = current
-          ? ESCALATION_STAGES.indexOf(current.stage)
-          : -1;
-
-        let targetStage: string | null = null;
-        for (let i = ESCALATION_STAGES.length - 1; i >= 0; i--) {
-          if (
-            t.days_delinquent >= ESCALATION_THRESHOLDS[ESCALATION_STAGES[i]]
-          ) {
-            targetStage = ESCALATION_STAGES[i];
-            break;
-          }
-        }
-
-        if (
-          targetStage &&
-          ESCALATION_STAGES.indexOf(targetStage) > currentIdx
-        ) {
-          const nextIdx = ESCALATION_STAGES.indexOf(targetStage) + 1;
-          const nextStageAt =
-            nextIdx < ESCALATION_STAGES.length
-              ? new Date(Date.now() + 7 * 86400000)
-              : null;
-
-          await db.delinquency_escalations.create({
-            data: {
-              tenant_id: t.id,
-              facility_id: t.facility_id,
-              stage: targetStage,
-              next_stage_at: nextStageAt,
-              automated: true,
-            },
+      const escalated = await db.$transaction(async (tx) => {
+        let count = 0;
+        for (const t of delinquent) {
+          const current = await tx.delinquency_escalations.findFirst({
+            where: { tenant_id: t.id },
+            orderBy: { stage_entered_at: "desc" },
+            select: { stage: true },
           });
 
-          if (t.status !== "delinquent") {
-            await db.tenants.update({
-              where: { id: t.id },
-              data: { status: "delinquent", updated_at: new Date() },
-            });
+          const currentIdx = current
+            ? ESCALATION_STAGES.indexOf(current.stage)
+            : -1;
+
+          let targetStage: string | null = null;
+          for (let i = ESCALATION_STAGES.length - 1; i >= 0; i--) {
+            if (
+              t.days_delinquent >= ESCALATION_THRESHOLDS[ESCALATION_STAGES[i]]
+            ) {
+              targetStage = ESCALATION_STAGES[i];
+              break;
+            }
           }
-          escalated++;
+
+          if (
+            targetStage &&
+            ESCALATION_STAGES.indexOf(targetStage) > currentIdx
+          ) {
+            const nextIdx = ESCALATION_STAGES.indexOf(targetStage) + 1;
+            const nextStageAt =
+              nextIdx < ESCALATION_STAGES.length
+                ? new Date(Date.now() + 7 * 86400000)
+                : null;
+
+            await tx.delinquency_escalations.create({
+              data: {
+                tenant_id: t.id,
+                facility_id: t.facility_id,
+                stage: targetStage,
+                next_stage_at: nextStageAt,
+                automated: true,
+              },
+            });
+
+            if (t.status !== "delinquent") {
+              await tx.tenants.update({
+                where: { id: t.id },
+                data: { status: "delinquent", updated_at: new Date() },
+              });
+            }
+            count++;
+          }
         }
-      }
+        return count;
+      }, { maxWait: 10000, timeout: 30000 });
 
       return jsonResponse(
         { escalated, message: `Escalated ${escalated} tenants` },
@@ -464,20 +467,22 @@ export async function PATCH(req: NextRequest) {
       }
       if (action === "batch_move_out") {
         const today = new Date().toISOString().slice(0, 10);
-        await db.$executeRaw`
-          UPDATE tenants SET status = 'moved_out', moved_out_date = ${today}::date, move_out_reason = 'voluntary', updated_at = NOW()
-          WHERE id = ANY(${ids}::uuid[])
-        `;
-        for (const tid of ids) {
-          const t = await db.tenants.findUnique({ where: { id: tid } });
-          if (t) {
-            await db.$executeRaw`
-              INSERT INTO moveout_remarketing (tenant_id, facility_id, moved_out_date, move_out_reason, sequence_status, next_send_at)
-              VALUES (${tid}::uuid, ${t.facility_id}::uuid, ${t.moved_out_date || today}::date, ${t.move_out_reason || "voluntary"}, 'active', NOW() + INTERVAL '3 days')
-              ON CONFLICT (tenant_id) DO NOTHING
-            `;
+        await db.$transaction(async (tx) => {
+          await tx.$executeRaw`
+            UPDATE tenants SET status = 'moved_out', moved_out_date = ${today}::date, move_out_reason = 'voluntary', updated_at = NOW()
+            WHERE id = ANY(${ids}::uuid[])
+          `;
+          for (const tid of ids) {
+            const t = await tx.tenants.findUnique({ where: { id: tid } });
+            if (t) {
+              await tx.$executeRaw`
+                INSERT INTO moveout_remarketing (tenant_id, facility_id, moved_out_date, move_out_reason, sequence_status, next_send_at)
+                VALUES (${tid}::uuid, ${t.facility_id}::uuid, ${t.moved_out_date || today}::date, ${t.move_out_reason || "voluntary"}, 'active', NOW() + INTERVAL '3 days')
+                ON CONFLICT (tenant_id) DO NOTHING
+              `;
+            }
           }
-        }
+        }, { maxWait: 10000, timeout: 30000 });
         return jsonResponse({ updated: ids.length }, 200, origin);
       }
       if (action === "batch_autopay_invite") {
@@ -509,20 +514,24 @@ export async function PATCH(req: NextRequest) {
             )
           : 0;
 
-      const rows = await db.$queryRaw<unknown[]>`
-        INSERT INTO tenant_payments (tenant_id, facility_id, amount, payment_date, due_date, method, status, days_late)
-        SELECT ${id}::uuid, facility_id, ${amount}, ${payment_date}::date, ${due_date}::date, ${method || "manual"}, ${daysLate > 0 ? "late" : "paid"}, ${daysLate}
-        FROM tenants WHERE id = ${id}::uuid
-        RETURNING *
-      `;
+      const rows = await db.$transaction(async (tx) => {
+        const inserted = await tx.$queryRaw<unknown[]>`
+          INSERT INTO tenant_payments (tenant_id, facility_id, amount, payment_date, due_date, method, status, days_late)
+          SELECT ${id}::uuid, facility_id, ${amount}, ${payment_date}::date, ${due_date}::date, ${method || "manual"}, ${daysLate > 0 ? "late" : "paid"}, ${daysLate}
+          FROM tenants WHERE id = ${id}::uuid
+          RETURNING *
+        `;
 
-      await db.$executeRaw`
-        UPDATE tenants SET balance = GREATEST(0, balance - ${amount}), last_payment_date = ${payment_date}::date,
-          days_delinquent = CASE WHEN balance - ${amount} <= 0 THEN 0 ELSE days_delinquent END,
-          status = CASE WHEN balance - ${amount} <= 0 THEN 'active' ELSE status END,
-          updated_at = NOW()
-        WHERE id = ${id}::uuid
-      `;
+        await tx.$executeRaw`
+          UPDATE tenants SET balance = GREATEST(0, balance - ${amount}), last_payment_date = ${payment_date}::date,
+            days_delinquent = CASE WHEN balance - ${amount} <= 0 THEN 0 ELSE days_delinquent END,
+            status = CASE WHEN balance - ${amount} <= 0 THEN 'active' ELSE status END,
+            updated_at = NOW()
+          WHERE id = ${id}::uuid
+        `;
+
+        return inserted;
+      });
 
       return jsonResponse(
         { payment: (rows as unknown[])[0] || null },
@@ -537,21 +546,25 @@ export async function PATCH(req: NextRequest) {
         moved_out_date || new Date().toISOString().slice(0, 10);
       const reason = move_out_reason || "voluntary";
 
-      const rows = await db.$queryRaw<
-        Array<{ id: string; facility_id: string; moved_out_date: Date; move_out_reason: string }>
-      >`
-        UPDATE tenants SET status = 'moved_out', moved_out_date = ${moveDate}::date, move_out_reason = ${reason}, updated_at = NOW()
-        WHERE id = ${id}::uuid RETURNING *
-      `;
-
-      if (rows.length) {
-        const tenant = rows[0];
-        await db.$executeRaw`
-          INSERT INTO moveout_remarketing (tenant_id, facility_id, moved_out_date, move_out_reason, sequence_status, next_send_at)
-          VALUES (${id}::uuid, ${tenant.facility_id}::uuid, ${tenant.moved_out_date}::date, ${tenant.move_out_reason}, 'active', NOW() + INTERVAL '3 days')
-          ON CONFLICT (tenant_id) DO NOTHING
+      const rows = await db.$transaction(async (tx) => {
+        const updated = await tx.$queryRaw<
+          Array<{ id: string; facility_id: string; moved_out_date: Date; move_out_reason: string }>
+        >`
+          UPDATE tenants SET status = 'moved_out', moved_out_date = ${moveDate}::date, move_out_reason = ${reason}, updated_at = NOW()
+          WHERE id = ${id}::uuid RETURNING *
         `;
-      }
+
+        if (updated.length) {
+          const tenant = updated[0];
+          await tx.$executeRaw`
+            INSERT INTO moveout_remarketing (tenant_id, facility_id, moved_out_date, move_out_reason, sequence_status, next_send_at)
+            VALUES (${id}::uuid, ${tenant.facility_id}::uuid, ${tenant.moved_out_date}::date, ${tenant.move_out_reason}, 'active', NOW() + INTERVAL '3 days')
+            ON CONFLICT (tenant_id) DO NOTHING
+          `;
+        }
+
+        return updated;
+      });
 
       return jsonResponse(
         { tenant: (rows as unknown[])[0] || null },

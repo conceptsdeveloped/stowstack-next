@@ -311,39 +311,6 @@ export async function POST(req: NextRequest) {
     // Step 1: Google Places research
     const placesData = await fetchPlacesData(facility.name, facility.location);
 
-    // Save places data if found
-    if (placesData) {
-      await db.facilities.update({
-        where: { id: facilityId },
-        data: {
-          place_id: placesData.placeId || undefined,
-          google_address: placesData.address || undefined,
-          google_phone: placesData.phone || undefined,
-          google_rating: placesData.rating || undefined,
-          review_count: placesData.reviewCount || undefined,
-          website: placesData.website || undefined,
-          google_maps_url: placesData.mapsUrl || undefined,
-          hours: placesData.hours
-            ? JSON.parse(JSON.stringify(placesData.hours))
-            : undefined,
-          updated_at: new Date(),
-        },
-      });
-
-      // Save places data snapshot
-      try {
-        await db.places_data.create({
-          data: {
-            facility_id: facilityId,
-            photos: placesData.photos as unknown as Prisma.InputJsonValue,
-            reviews: placesData.reviews as unknown as Prisma.InputJsonValue,
-          },
-        });
-      } catch {
-        // Ignore duplicate insert errors
-      }
-    }
-
     // Step 2: Fetch competitors
     const competitors = await fetchCompetitors(facility.location);
 
@@ -369,27 +336,65 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Step 4: Save audit
-    const auditRow = await db.audits.create({
-      data: {
-        facility_id: facilityId,
-        audit_json: auditJson as unknown as Prisma.InputJsonValue,
-        overall_score:
-          typeof auditJson.overall_score === "number"
-            ? auditJson.overall_score
-            : 0,
-        grade: typeof auditJson.grade === "string" ? auditJson.grade : "C",
-      },
-    });
+    // Step 4: Save places data, audit, and update pipeline status in a transaction
+    const auditRow = await db.$transaction(async (tx) => {
+      // Save places data if found
+      if (placesData) {
+        await tx.facilities.update({
+          where: { id: facilityId },
+          data: {
+            place_id: placesData.placeId || undefined,
+            google_address: placesData.address || undefined,
+            google_phone: placesData.phone || undefined,
+            google_rating: placesData.rating || undefined,
+            review_count: placesData.reviewCount || undefined,
+            website: placesData.website || undefined,
+            google_maps_url: placesData.mapsUrl || undefined,
+            hours: placesData.hours
+              ? JSON.parse(JSON.stringify(placesData.hours))
+              : undefined,
+            updated_at: new Date(),
+          },
+        });
 
-    // Update facility pipeline status
-    await db.facilities.update({
-      where: { id: facilityId },
-      data: {
-        status: "scraped",
-        pipeline_status: "audit_generated",
-        updated_at: new Date(),
-      },
+        // Save places data snapshot
+        try {
+          await tx.places_data.create({
+            data: {
+              facility_id: facilityId,
+              photos: placesData.photos as unknown as Prisma.InputJsonValue,
+              reviews: placesData.reviews as unknown as Prisma.InputJsonValue,
+            },
+          });
+        } catch {
+          // Ignore duplicate insert errors
+        }
+      }
+
+      // Save audit
+      const audit = await tx.audits.create({
+        data: {
+          facility_id: facilityId,
+          audit_json: auditJson as unknown as Prisma.InputJsonValue,
+          overall_score:
+            typeof auditJson.overall_score === "number"
+              ? auditJson.overall_score
+              : 0,
+          grade: typeof auditJson.grade === "string" ? auditJson.grade : "C",
+        },
+      });
+
+      // Update facility pipeline status
+      await tx.facilities.update({
+        where: { id: facilityId },
+        data: {
+          status: "scraped",
+          pipeline_status: "audit_generated",
+          updated_at: new Date(),
+        },
+      });
+
+      return audit;
     });
 
     // Log activity (fire-and-forget)

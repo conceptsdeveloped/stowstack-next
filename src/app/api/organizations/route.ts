@@ -184,34 +184,38 @@ export async function POST(req: NextRequest) {
       const selectedPlan = validPlans.includes(plan) ? plan : "starter";
       const facilityLimits: Record<string, number> = { starter: 10, growth: 50, enterprise: 999 };
 
-      const org = await db.organizations.create({
-        data: {
-          name: companyName,
-          slug,
-          contact_email: email.toLowerCase(),
-          contact_phone: phone || null,
-          plan: selectedPlan,
-          facility_limit: facilityLimits[selectedPlan],
-          status: "active",
-        },
-      });
-
       const userId = crypto.randomUUID();
       const tempPassword = crypto.randomBytes(6).toString("hex");
       const salt = crypto.randomBytes(16);
       const hash = (await scryptAsync(tempPassword, salt, SCRYPT_KEYLEN)) as Buffer;
       const passwordHash = `scrypt:${salt.toString("hex")}:${hash.toString("hex")}`;
 
-      await db.org_users.create({
-        data: {
-          id: userId,
-          organization_id: org.id,
-          email: email.toLowerCase(),
-          name: contactName,
-          role: "org_admin",
-          password_hash: passwordHash,
-          status: "active",
-        },
+      const { org, user } = await db.$transaction(async (tx) => {
+        const org = await tx.organizations.create({
+          data: {
+            name: companyName,
+            slug,
+            contact_email: email.toLowerCase(),
+            contact_phone: phone || null,
+            plan: selectedPlan,
+            facility_limit: facilityLimits[selectedPlan],
+            status: "active",
+          },
+        });
+
+        const user = await tx.org_users.create({
+          data: {
+            id: userId,
+            organization_id: org.id,
+            email: email.toLowerCase(),
+            name: contactName,
+            role: "org_admin",
+            password_hash: passwordHash,
+            status: "active",
+          },
+        });
+
+        return { org, user };
       });
 
       const token = await createSession(userId, req);

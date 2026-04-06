@@ -218,88 +218,93 @@ async function handleExecuteDeletion(
   }
 
   const email = request.email;
-  const deleted: Record<string, number> = {};
 
-  // Delete client portal data
-  const clients = await db.clients.findMany({ where: { email } });
-  if (clients.length > 0) {
-    const clientIds = clients.map((c) => c.id);
-    const onboardingDel = await db.client_onboarding.deleteMany({
-      where: { client_id: { in: clientIds } },
-    });
-    deleted.client_onboarding = onboardingDel.count;
-    const campaignDel = await db.client_campaigns.deleteMany({
-      where: { client_id: { in: clientIds } },
-    });
-    deleted.client_campaigns = campaignDel.count;
-    const clientDel = await db.clients.deleteMany({ where: { email } });
-    deleted.clients = clientDel.count;
-  }
+  const { deleted, updated } = await db.$transaction(async (tx) => {
+    const txDeleted: Record<string, number> = {};
 
-  // Delete tenant data
-  const tenants = await db.tenants.findMany({ where: { email } });
-  if (tenants.length > 0) {
-    const tenantIds = tenants.map((t) => t.id);
-    const commDel = await db.tenant_communications.deleteMany({
-      where: { tenant_id: { in: tenantIds } },
-    });
-    deleted.tenant_communications = commDel.count;
-    const payDel = await db.tenant_payments.deleteMany({
-      where: { tenant_id: { in: tenantIds } },
-    });
-    deleted.tenant_payments = payDel.count;
-    const churnDel = await db.churn_predictions.deleteMany({
-      where: { tenant_id: { in: tenantIds } },
-    });
-    deleted.churn_predictions = churnDel.count;
-    const escalDel = await db.delinquency_escalations.deleteMany({
-      where: { tenant_id: { in: tenantIds } },
-    });
-    deleted.delinquency_escalations = escalDel.count;
-    const upsellDel = await db.upsell_opportunities.deleteMany({
-      where: { tenant_id: { in: tenantIds } },
-    });
-    deleted.upsell_opportunities = upsellDel.count;
-    const tenantDel = await db.tenants.deleteMany({ where: { email } });
-    deleted.tenants = tenantDel.count;
-  }
+    // Delete client portal data
+    const clients = await tx.clients.findMany({ where: { email } });
+    if (clients.length > 0) {
+      const clientIds = clients.map((c) => c.id);
+      const onboardingDel = await tx.client_onboarding.deleteMany({
+        where: { client_id: { in: clientIds } },
+      });
+      txDeleted.client_onboarding = onboardingDel.count;
+      const campaignDel = await tx.client_campaigns.deleteMany({
+        where: { client_id: { in: clientIds } },
+      });
+      txDeleted.client_campaigns = campaignDel.count;
+      const clientDel = await tx.clients.deleteMany({ where: { email } });
+      txDeleted.clients = clientDel.count;
+    }
 
-  // Delete partial leads
-  const partialDel = await db.partial_leads.deleteMany({
-    where: { email },
-  });
-  deleted.partial_leads = partialDel.count;
+    // Delete tenant data
+    const tenants = await tx.tenants.findMany({ where: { email } });
+    if (tenants.length > 0) {
+      const tenantIds = tenants.map((t) => t.id);
+      const commDel = await tx.tenant_communications.deleteMany({
+        where: { tenant_id: { in: tenantIds } },
+      });
+      txDeleted.tenant_communications = commDel.count;
+      const payDel = await tx.tenant_payments.deleteMany({
+        where: { tenant_id: { in: tenantIds } },
+      });
+      txDeleted.tenant_payments = payDel.count;
+      const churnDel = await tx.churn_predictions.deleteMany({
+        where: { tenant_id: { in: tenantIds } },
+      });
+      txDeleted.churn_predictions = churnDel.count;
+      const escalDel = await tx.delinquency_escalations.deleteMany({
+        where: { tenant_id: { in: tenantIds } },
+      });
+      txDeleted.delinquency_escalations = escalDel.count;
+      const upsellDel = await tx.upsell_opportunities.deleteMany({
+        where: { tenant_id: { in: tenantIds } },
+      });
+      txDeleted.upsell_opportunities = upsellDel.count;
+      const tenantDel = await tx.tenants.deleteMany({ where: { email } });
+      txDeleted.tenants = tenantDel.count;
+    }
 
-  // Delete call logs by caller number (if phone matches)
-  // Note: call logs use phone numbers, not emails — we skip these unless
-  // we can match by other means. Financial records are retained per policy.
-
-  // Delete org user data and their sessions (partner accounts)
-  const orgUsers = await db.org_users.findMany({ where: { email } });
-  if (orgUsers.length > 0) {
-    const orgUserIds = orgUsers.map((u) => u.id);
-    const sessionDel = await db.sessions.deleteMany({
-      where: { user_id: { in: orgUserIds } },
+    // Delete partial leads
+    const partialDel = await tx.partial_leads.deleteMany({
+      where: { email },
     });
-    deleted.sessions = sessionDel.count;
-    const orgUserDel = await db.org_users.deleteMany({ where: { email } });
-    deleted.org_users = orgUserDel.count;
-  }
+    txDeleted.partial_leads = partialDel.count;
 
-  // Delete FB deletion requests for this user
-  // (These are Meta-specific, clean them up too)
+    // Delete call logs by caller number (if phone matches)
+    // Note: call logs use phone numbers, not emails — we skip these unless
+    // we can match by other means. Financial records are retained per policy.
 
-  // Mark the request as completed
-  const updated = await db.data_deletion_requests.update({
-    where: { id },
-    data: {
-      status: "completed",
-      completed_at: new Date(),
-      completed_by: "admin",
-      data_deleted: deleted,
-      admin_notes: admin_notes || request.admin_notes,
-    },
-  });
+    // Delete org user data and their sessions (partner accounts)
+    const orgUsers = await tx.org_users.findMany({ where: { email } });
+    if (orgUsers.length > 0) {
+      const orgUserIds = orgUsers.map((u) => u.id);
+      const sessionDel = await tx.sessions.deleteMany({
+        where: { user_id: { in: orgUserIds } },
+      });
+      txDeleted.sessions = sessionDel.count;
+      const orgUserDel = await tx.org_users.deleteMany({ where: { email } });
+      txDeleted.org_users = orgUserDel.count;
+    }
+
+    // Delete FB deletion requests for this user
+    // (These are Meta-specific, clean them up too)
+
+    // Mark the request as completed
+    const txUpdated = await tx.data_deletion_requests.update({
+      where: { id },
+      data: {
+        status: "completed",
+        completed_at: new Date(),
+        completed_by: "admin",
+        data_deleted: txDeleted,
+        admin_notes: admin_notes || request.admin_notes,
+      },
+    });
+
+    return { deleted: txDeleted, updated: txUpdated };
+  }, { maxWait: 10000, timeout: 30000 });
 
   // Send completion email to user
   if (resend) {

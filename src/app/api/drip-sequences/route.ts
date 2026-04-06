@@ -176,11 +176,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (existing) {
-      await db.drip_sequences.delete({ where: { facility_id: leadId } });
-    }
+    const drip = await db.$transaction(async (tx) => {
+      if (existing) {
+        await tx.drip_sequences.delete({ where: { facility_id: leadId } });
+      }
 
-    const drip = await enrollLead(leadId, sequenceId);
+      const sequence = SEQUENCES[sequenceId];
+      if (!sequence) throw new Error(`Unknown sequence: ${sequenceId}`);
+
+      const now = new Date();
+      const firstStep = sequence.steps[0];
+      const delayMs = (firstStep.delayDays || 0) * 24 * 60 * 60 * 1000;
+      const nextSendAt = new Date(now.getTime() + delayMs);
+
+      const rows = await tx.$queryRaw<Array<Record<string, unknown>>>`
+        INSERT INTO drip_sequences (facility_id, sequence_id, current_step, status, enrolled_at, next_send_at, history)
+        VALUES (${leadId}, ${sequenceId}, 0, 'active', ${now}::timestamptz, ${nextSendAt}::timestamptz, '[]'::jsonb)
+        ON CONFLICT (facility_id) DO NOTHING
+        RETURNING *
+      `;
+
+      return rows[0] || null;
+    });
     return jsonResponse({ success: true, drip }, 200, origin);
   } catch {
     return errorResponse("Failed to enroll lead", 500, origin);
