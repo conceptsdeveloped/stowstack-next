@@ -9,6 +9,40 @@ import {
   setCsrfCookie,
 } from "@/lib/csrf";
 
+// --- Security headers (Task 17) ---
+
+const cspDirectives = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://js.stripe.com https://connect.facebook.net https://cdnjs.cloudflare.com https://*.clerk.accounts.dev",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: blob: https://*.stripe.com https://*.googleapis.com https://*.gstatic.com https://img.clerk.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "connect-src 'self' https://api.stripe.com https://*.sentry.io https://*.upstash.io https://*.clerk.com https://*.clerk.accounts.dev https://*.facebook.com",
+  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const securityHeaders: Record<string, string> = {
+  "Content-Security-Policy-Report-Only": cspDirectives,
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+};
+
+/** Apply security headers to an existing response. */
+function applySecurityHeaders(response: NextResponse): NextResponse {
+  for (const [key, value] of Object.entries(securityHeaders)) {
+    response.headers.set(key, value);
+  }
+  return response;
+}
+
 const isPublicRoute = createRouteMatcher([
   "/",
   "/pricing",
@@ -51,7 +85,7 @@ function isCsrfExempt(req: NextRequest): boolean {
   return false;
 }
 
-export default function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   // Sentry route context for all requests
   Sentry.setTag("route", request.nextUrl.pathname);
   Sentry.setTag("method", request.method);
@@ -63,26 +97,32 @@ export default function middleware(request: NextRequest) {
     !isCsrfExempt(request)
   ) {
     if (!validateCsrf(request)) {
-      return NextResponse.json(
-        { error: "Invalid or missing CSRF token" },
-        { status: 403 }
+      return applySecurityHeaders(
+        NextResponse.json(
+          { error: "Invalid or missing CSRF token" },
+          { status: 403 }
+        )
       );
     }
   }
 
   // Skip Clerk entirely for API routes — they handle their own auth
   if (request.nextUrl.pathname.startsWith("/api/")) {
-    return NextResponse.next();
+    return applySecurityHeaders(NextResponse.next());
   }
 
   // Only use Clerk middleware if we have production keys
   // Dev/test keys cause "dev-browser-missing" errors on Vercel
   if (hasClerkKeys && isClerkProdKeys) {
-    return clerkMiddleware(async (auth, req) => {
+    const clerkResponse = await clerkMiddleware(async (auth, req) => {
       if (!isPublicRoute(req)) {
         await auth.protect();
       }
     })(request, {} as never);
+    if (clerkResponse) {
+      return applySecurityHeaders(clerkResponse as NextResponse);
+    }
+    return applySecurityHeaders(NextResponse.next());
   }
 
   // Ensure CSRF cookie exists on every response
@@ -90,7 +130,7 @@ export default function middleware(request: NextRequest) {
   if (!request.cookies.get("__csrf_token")) {
     setCsrfCookie(response, generateCsrfToken());
   }
-  return response;
+  return applySecurityHeaders(response);
 }
 
 export const config = {
