@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 
 const CSRF_COOKIE_NAME = "__csrf_token";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const CSRF_TOKEN_LENGTH = 32;
 
 export function generateCsrfToken(): string {
-  return crypto.randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
+  const bytes = new Uint8Array(CSRF_TOKEN_LENGTH);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export function setCsrfCookie(
@@ -30,14 +31,13 @@ export function validateCsrf(req: NextRequest): boolean {
   if (!cookieToken || !headerToken) return false;
   if (cookieToken.length !== CSRF_TOKEN_LENGTH * 2) return false;
 
-  try {
-    return crypto.timingSafeEqual(
-      Buffer.from(cookieToken),
-      Buffer.from(headerToken)
-    );
-  } catch {
-    return false;
+  if (cookieToken.length !== headerToken.length) return false;
+  // Constant-time comparison to prevent timing attacks
+  let mismatch = 0;
+  for (let i = 0; i < cookieToken.length; i++) {
+    mismatch |= cookieToken.charCodeAt(i) ^ headerToken.charCodeAt(i);
   }
+  return mismatch === 0;
 }
 
 const STATE_CHANGING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
