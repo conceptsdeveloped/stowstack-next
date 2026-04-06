@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Check,
   ChevronRight,
-  Loader2,
   PartyPopper,
   Sparkles,
   Star,

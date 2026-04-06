@@ -73,7 +73,7 @@ export default function JobList({
                     <div className="flex items-center gap-2">
                       <Loader2 size={13} className="animate-spin text-[var(--color-gold)]" />
                       <p className="text-xs text-[var(--color-mid-gray)]">
-                        AI is generating your video... ({Math.round((Date.now() - job.startedAt) / 1000)}s)
+                        AI is generating your video...
                       </p>
                     </div>
                     {/* Progress indicator */}
@@ -98,7 +98,7 @@ export default function JobList({
                     <div className="flex flex-wrap gap-2">
                       <a
                         href={job.videoUrl}
-                        download={`video-${job.templateId}-${Date.now()}.mp4`}
+                        download={`video-${job.templateId}-${job.taskId}.mp4`}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-gold)] text-[var(--color-light)] text-xs font-medium rounded-lg hover:bg-[var(--color-gold-hover)] transition-colors"
                       >
                         <Download size={12} /> Download Raw

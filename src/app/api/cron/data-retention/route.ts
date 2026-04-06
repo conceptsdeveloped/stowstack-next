@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
@@ -45,16 +46,18 @@ export async function GET(request: NextRequest) {
       // PostgreSQL does not support LIMIT directly in DELETE statements.
       let deletedInBatch = 0;
 
+      const table = Prisma.raw(`"${policy.table}"`);
+      const dateCol = Prisma.raw(`"${policy.dateField}"`);
+
       do {
-        deletedInBatch = await db.$executeRawUnsafe(
-          `DELETE FROM "${policy.table}"
-           WHERE id IN (
-             SELECT id FROM "${policy.table}"
-             WHERE "${policy.dateField}" < $1
-             LIMIT ${BATCH_SIZE}
-           )`,
-          cutoffDate
-        );
+        deletedInBatch = await db.$executeRaw`
+          DELETE FROM ${table}
+          WHERE id IN (
+            SELECT id FROM ${table}
+            WHERE ${dateCol} < ${cutoffDate}
+            LIMIT ${BATCH_SIZE}
+          )
+        `;
         tableDeleted += deletedInBatch;
       } while (deletedInBatch >= BATCH_SIZE);
 
