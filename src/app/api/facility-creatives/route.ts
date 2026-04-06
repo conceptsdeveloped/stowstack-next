@@ -483,7 +483,7 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   const url = new URL(req.url);
@@ -512,7 +512,7 @@ export async function POST(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {
@@ -659,7 +659,7 @@ export async function PATCH(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {
@@ -851,7 +851,7 @@ export async function DELETE(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {

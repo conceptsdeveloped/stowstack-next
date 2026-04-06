@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
   const all = url.searchParams.get("all");
 
   // Admin path: requires admin key
-  const isAdmin = !requireAdminKey(req);
+  const isAdmin = !(await requireAdminKey(req));
 
   // Client path: verify portal auth
   const clientCode = !isAdmin
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
   const csrfErr = verifyCsrfOrigin(req);
   if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   const redis = await loadRedis();
@@ -207,7 +207,7 @@ export async function PATCH(req: NextRequest) {
   const csrfErr = verifyCsrfOrigin(req);
   if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   const redis = await loadRedis();

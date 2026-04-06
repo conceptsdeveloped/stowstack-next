@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "push-subscribe");
   if (limited) return limited;
   const origin = request.headers.get("origin");
-  const denied = requireAdminKey(request);
+  const denied = await requireAdminKey(request);
   if (denied) return denied;
 
   const body = await request.json().catch(() => null);
@@ -53,7 +53,7 @@ export async function DELETE(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "push-subscribe");
   if (limited) return limited;
   const origin = request.headers.get("origin");
-  const denied = requireAdminKey(request);
+  const denied = await requireAdminKey(request);
   if (denied) return denied;
 
   const body = await request.json().catch(() => null);

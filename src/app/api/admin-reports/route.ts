@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-reports");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authError = requireAdminKey(req);
+  const authError = await requireAdminKey(req);
   if (authError) return authError;
 
   const url = new URL(req.url);
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-reports");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authError = requireAdminKey(req);
+  const authError = await requireAdminKey(req);
   if (authError) return authError;
 
   try {
@@ -410,7 +410,7 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-reports");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authError = requireAdminKey(req);
+  const authError = await requireAdminKey(req);
   if (authError) return authError;
 
   try {

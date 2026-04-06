@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partial-lead");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authError = requireAdminKey(req);
+  const authError = await requireAdminKey(req);
   if (authError) return authError;
 
   const url = new URL(req.url);
@@ -107,7 +107,7 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "partial-lead");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authError = requireAdminKey(req);
+  const authError = await requireAdminKey(req);
   if (authError) return authError;
 
   try {

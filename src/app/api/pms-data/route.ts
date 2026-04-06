@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "pms-data");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const adminErr = requireAdminKey(req);
+  const adminErr = await requireAdminKey(req);
   if (adminErr) return adminErr;
 
   let body: Record<string, unknown>;

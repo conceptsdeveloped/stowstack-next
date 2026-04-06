@@ -295,7 +295,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "audit-generate");
   if (limited) return limited;
 
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {

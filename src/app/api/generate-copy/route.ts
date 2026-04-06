@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "generate-copy");
   if (limited) return limited;
 
-  const authError = requireAdminKey(req);
+  const authError = await requireAdminKey(req);
   if (authError) return authError;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

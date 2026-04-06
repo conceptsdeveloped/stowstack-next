@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "google-ads-keywords");
   if (limited) return limited;
 
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

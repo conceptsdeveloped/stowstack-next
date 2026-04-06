@@ -151,7 +151,7 @@ export async function OPTIONS(req: NextRequest) {
 /* ─── GET: Fetch changelog entries with optional filters ─── */
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {
@@ -270,7 +270,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "commit-notes");
   if (limited) return limited;
 
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {
@@ -337,7 +337,7 @@ export async function POST(req: NextRequest) {
 /* ─── PATCH: Update an existing enrichment (re-generates summaries) ─── */
 export async function PATCH(req: NextRequest) {
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {

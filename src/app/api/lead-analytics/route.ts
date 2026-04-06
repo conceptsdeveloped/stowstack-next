@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "lead-analytics");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {

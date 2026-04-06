@@ -23,7 +23,7 @@ export async function OPTIONS(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "data-deletion");
   if (limited) return limited;
-  const authError = requireAdminKey(req);
+  const authError = await requireAdminKey(req);
   if (authError) return authError;
 
   const origin = getOrigin(req);
@@ -50,14 +50,14 @@ export async function POST(req: NextRequest) {
 
     // Admin action: execute a deletion request
     if (action === "execute") {
-      const authError = requireAdminKey(req);
+      const authError = await requireAdminKey(req);
       if (authError) return authError;
       return handleExecuteDeletion(body, origin);
     }
 
     // Admin action: acknowledge a request
     if (action === "acknowledge") {
-      const authError = requireAdminKey(req);
+      const authError = await requireAdminKey(req);
       if (authError) return authError;
       return handleAcknowledge(body, origin);
     }

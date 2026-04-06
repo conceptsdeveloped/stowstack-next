@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "commit-reviews");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "commit-reviews");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {
@@ -93,7 +93,7 @@ export async function DELETE(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "commit-reviews");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   try {

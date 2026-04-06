@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Admin: list all
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   const audits = await db.shared_audits.findMany({
@@ -41,7 +41,7 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "shared-audits");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = requireAdminKey(req);
+  const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
   let body: Record<string, unknown>;

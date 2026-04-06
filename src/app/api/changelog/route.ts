@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "changelog");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const denied = requireAdminKey(req);
+  const denied = await requireAdminKey(req);
   if (denied) return denied;
 
   try {

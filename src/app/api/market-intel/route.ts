@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
   if (limited) return limited;
   const origin = getOrigin(request);
-  const denied = requireAdminKey(request);
+  const denied = await requireAdminKey(request);
   if (denied) return denied;
 
   const facilityId = request.nextUrl.searchParams.get("facilityId");
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
   if (limited) return limited;
   const origin = getOrigin(request);
-  const denied = requireAdminKey(request);
+  const denied = await requireAdminKey(request);
   if (denied) return denied;
 
   try {
@@ -445,7 +445,7 @@ export async function PATCH(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
   if (limited) return limited;
   const origin = getOrigin(request);
-  const denied = requireAdminKey(request);
+  const denied = await requireAdminKey(request);
   if (denied) return denied;
 
   try {

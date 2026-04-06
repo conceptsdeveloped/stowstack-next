@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.EXPENSIVE_API, "occupancy-forecast");
   if (limited) return limited;
 
-  const denied = requireAdminKey(request);
+  const denied = await requireAdminKey(request);
   if (denied) return denied;
 
   const facilityId = request.nextUrl.searchParams.get("facilityId");

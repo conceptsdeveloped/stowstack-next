@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export async function PUT(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "upload-token");
   if (limited) return limited;
-  const authError = requireAdminKey(req);
+  const authError = await requireAdminKey(req);
   if (authError) return authError;
 
   const filename = req.headers.get("x-filename") || `upload-${Date.now()}`;

@@ -76,18 +76,33 @@ export function safeCompare(a: string, b: string): boolean {
 }
 
 export function isAdminRequest(req: NextRequest): boolean {
-  const adminKey = process.env.ADMIN_SECRET;
   const providedKey = req.headers.get("x-admin-key");
-  if (!adminKey || !providedKey) return false;
-  return safeCompare(providedKey, adminKey);
+  if (!providedKey) return false;
+  const adminKey = process.env.ADMIN_SECRET;
+  if (adminKey && safeCompare(providedKey, adminKey)) return true;
+  return false;
 }
 
-export function requireAdminKey(req: NextRequest): NextResponse | null {
-  if (!isAdminRequest(req)) {
-    return errorResponse("Unauthorized", 401, req.headers.get("origin"));
+export async function requireAdminKey(req: NextRequest): Promise<NextResponse | null> {
+  // Fast path: shared ADMIN_SECRET (still supported during migration)
+  if (isAdminRequest(req)) {
+    Sentry.addBreadcrumb({ category: "auth", message: "Admin key authenticated (shared)", level: "info" });
+    return null;
   }
-  Sentry.addBreadcrumb({ category: "auth", message: "Admin key authenticated", level: "info" });
-  return null;
+
+  // Per-admin key path: check x-admin-key header for sa_adm_ prefixed keys
+  const providedKey = req.headers.get("x-admin-key");
+  if (providedKey?.startsWith("sa_adm_")) {
+    const { validateAdminKey } = await import("@/lib/admin-keys");
+    const { valid, adminEmail } = await validateAdminKey(providedKey);
+    if (valid) {
+      Sentry.setTag("admin_email", adminEmail);
+      Sentry.addBreadcrumb({ category: "auth", message: `Admin key authenticated: ${adminEmail}`, level: "info" });
+      return null;
+    }
+  }
+
+  return errorResponse("Unauthorized", 401, req.headers.get("origin"));
 }
 
 export function getOrigin(req: NextRequest): string | null {
