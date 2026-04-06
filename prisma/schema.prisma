@@ -132,7 +132,8 @@ model api_usage_log {
   status_code     Int?
   duration_ms     Int?
   created_at      DateTime  @default(now()) @db.Timestamptz(6)
-  api_keys        api_keys  @relation(fields: [api_key_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  api_keys        api_keys      @relation(fields: [api_key_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  organizations   organizations @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([created_at(sort: Desc)], map: "idx_api_usage_created")
   @@index([api_key_id], map: "idx_api_usage_key")
@@ -278,8 +279,9 @@ model churn_predictions {
   last_scored_at        DateTime?  @default(now()) @db.Timestamptz(6)
   created_at            DateTime   @default(now()) @db.Timestamptz(6)
   updated_at            DateTime   @updatedAt @db.Timestamptz(6)
-  facilities            facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  tenants               tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  facilities            facilities           @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants               tenants              @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  retention_campaigns   retention_campaigns? @relation(fields: [retention_campaign_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   @@index([facility_id], map: "idx_churn_predictions_facility")
   @@index([risk_level], map: "idx_churn_predictions_level")
@@ -1161,6 +1163,7 @@ model organizations {
   onboarding_steps        Json?                 @default("{}")
   scheduled_deletion_at   DateTime?             @db.Timestamptz(6)
   api_keys                api_keys[]
+  api_usage_log           api_usage_log[]
   facilities              facilities[]
   org_users               org_users[]
   rev_share_payouts       rev_share_payouts[]
@@ -1211,8 +1214,9 @@ model partial_leads {
   gclid               String?
   status_updated_at   DateTime?      @db.Timestamptz(6)
   lead_notes          String?
-  facilities          facilities?    @relation(fields: [facility_id], references: [id], onUpdate: NoAction)
-  landing_pages       landing_pages? @relation(fields: [landing_page_id], references: [id], onUpdate: NoAction)
+  facilities            facilities?            @relation(fields: [facility_id], references: [id], onUpdate: NoAction)
+  landing_pages         landing_pages?         @relation(fields: [landing_page_id], references: [id], onUpdate: NoAction)
+  nurture_enrollments   nurture_enrollments[]
 
   @@index([created_at(sort: Desc)], map: "idx_partial_leads_created")
   @@index([email], map: "idx_partial_leads_email")
@@ -1381,7 +1385,8 @@ model retention_campaigns {
   retained_count     Int?       @default(0)
   created_at         DateTime   @default(now()) @db.Timestamptz(6)
   updated_at         DateTime?  @default(now()) @db.Timestamptz(6)
-  facilities         facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  facilities         facilities          @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  churn_predictions  churn_predictions[]
 
   @@index([facility_id], map: "idx_retention_campaigns_facility")
 }
@@ -1520,6 +1525,7 @@ model tenants {
   tenant_communications                                          tenant_communications[]
   tenant_payments                                                tenant_payments[]
   facilities                                                     facilities                @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  nurture_enrollments                                            nurture_enrollments[]
   upsell_opportunities                                           upsell_opportunities[]
 
   @@index([facility_id, external_id], map: "idx_tenants_external")
@@ -1672,6 +1678,8 @@ model nurture_enrollments {
   updated_at        DateTime?           @default(now()) @db.Timestamptz(6)
   nurture_sequences nurture_sequences   @relation(fields: [sequence_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   facilities        facilities          @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  partial_leads     partial_leads?      @relation(fields: [lead_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  tenants           tenants?            @relation(fields: [tenant_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   nurture_messages  nurture_messages[]
 
   @@index([sequence_id], map: "idx_nurture_enrollments_seq")
