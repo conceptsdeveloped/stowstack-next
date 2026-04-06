@@ -359,8 +359,12 @@ model clients {
   client_reports      client_reports[]
   facilities          facilities         @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
+  deleted_at          DateTime?          @db.Timestamptz(6)
+  deleted_by          String?
+
   @@index([access_code], map: "idx_clients_access_code")
   @@index([facility_id], map: "idx_clients_facility")
+  @@index([deleted_at], map: "idx_clients_deleted_at")
 }
 
 model commit_comments {
@@ -593,11 +597,15 @@ model facilities {
   utm_links                    utm_links[]
   website_scrape_cache         website_scrape_cache[]
 
+  deleted_at                   DateTime?                      @db.Timestamptz(6)
+  deleted_by                   String?
+
   @@index([access_code], map: "idx_facilities_access_code")
   @@index([contact_email], map: "idx_facilities_contact_email")
   @@index([organization_id], map: "idx_facilities_organization")
   @@index([pipeline_status], map: "idx_facilities_pipeline_status")
   @@index([status], map: "idx_facilities_status")
+  @@index([deleted_at], map: "idx_facilities_deleted_at")
 }
 
 model facility_context {
@@ -1172,10 +1180,14 @@ model organizations {
   notifications           notifications[]
   audit_log               audit_log[]
 
+  deleted_at              DateTime?             @db.Timestamptz(6)
+  deleted_by              String?
+
   @@index([custom_domain], map: "idx_organizations_custom_domain")
   @@index([slug], map: "idx_organizations_slug")
   @@index([status], map: "idx_organizations_status")
   @@index([stripe_customer_id], map: "idx_organizations_stripe_customer")
+  @@index([deleted_at], map: "idx_organizations_deleted_at")
 }
 
 model partial_leads {
@@ -1528,9 +1540,13 @@ model tenants {
   nurture_enrollments                                            nurture_enrollments[]
   upsell_opportunities                                           upsell_opportunities[]
 
+  deleted_at                                                   DateTime?                 @db.Timestamptz(6)
+  deleted_by                                                   String?
+
   @@index([facility_id, external_id], map: "idx_tenants_external")
   @@index([facility_id], map: "idx_tenants_facility")
   @@index([status], map: "idx_tenants_status")
+  @@index([deleted_at], map: "idx_tenants_deleted_at")
 }
 
 model upsell_opportunities {
