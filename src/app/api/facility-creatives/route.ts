@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
+import { getBrandContextForCopy } from "@/lib/brand-doctrine";
 import { validateCompliance } from "@/lib/compliance";
 import { funnelConfigToDripSteps } from "@/lib/drip-sequences";
 import { applyRateLimit } from "@/lib/with-rate-limit";
@@ -370,25 +371,30 @@ async function generateWithClaude(systemPrompt: string, userMessage: string, api
 async function generateMetaAds(context: string, feedback: string | null, apiKey: string) {
   const feedbackNote = feedback ? `\n\nPREVIOUS FEEDBACK FROM REVIEWER:\n${feedback}` : "";
   const creativeDirective = getCreativeContext("meta");
-  const userMessage = `Generate 4 Meta ad variations for this self-storage facility.${feedbackNote}\n\n${creativeDirective}\n\n${context}\n\nReturn the JSON object with the "variations" array.`;
+  const brandDoctrine = getBrandContextForCopy();
+  const userMessage = `Generate 4 Meta ad variations for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${creativeDirective}\n\n${context}\n\nReturn the JSON object with the "variations" array.`;
   return generateWithClaude(SYSTEM_PROMPTS.meta_feed, userMessage, apiKey);
 }
 
 async function generateGoogleRSA(context: string, feedback: string | null, apiKey: string) {
   const feedbackNote = feedback ? `\n\nPREVIOUS FEEDBACK FROM REVIEWER:\n${feedback}` : "";
-  const userMessage = `Generate a Google Responsive Search Ad for this self-storage facility.${feedbackNote}\n\n${context}\n\nReturn the JSON object with the "adGroup".`;
+  const brandDoctrine = getBrandContextForCopy();
+  const creativeDirective = getCreativeContext("google_search");
+  const userMessage = `Generate a Google Responsive Search Ad for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${creativeDirective}\n\n${context}\n\nReturn the JSON object with the "adGroup".`;
   return generateWithClaude(SYSTEM_PROMPTS.google_search, userMessage, apiKey);
 }
 
 async function generateLandingPageCopy(context: string, feedback: string | null, apiKey: string) {
   const feedbackNote = feedback ? `\n\nPREVIOUS FEEDBACK FROM REVIEWER:\n${feedback}` : "";
-  const userMessage = `Generate complete landing page content for this self-storage facility.${feedbackNote}\n\n${context}\n\nReturn the JSON object with the "sections" array, "meta_title", and "meta_description".`;
+  const brandDoctrine = getBrandContextForCopy();
+  const userMessage = `Generate complete landing page content for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${context}\n\nReturn the JSON object with the "sections" array, "meta_title", and "meta_description".`;
   return generateWithClaude(SYSTEM_PROMPTS.landing_page, userMessage, apiKey);
 }
 
 async function generateEmailDrip(context: string, feedback: string | null, apiKey: string) {
   const feedbackNote = feedback ? `\n\nPREVIOUS FEEDBACK FROM REVIEWER:\n${feedback}` : "";
-  const userMessage = `Generate a 4-email drip sequence for this self-storage facility.${feedbackNote}\n\n${context}\n\nReturn the JSON object with the "sequence" array.`;
+  const brandDoctrine = getBrandContextForCopy();
+  const userMessage = `Generate a 4-email drip sequence for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${context}\n\nReturn the JSON object with the "sequence" array.`;
   return generateWithClaude(SYSTEM_PROMPTS.email_drip, userMessage, apiKey);
 }
 

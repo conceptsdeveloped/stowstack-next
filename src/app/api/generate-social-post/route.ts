@@ -9,6 +9,8 @@ import {
 } from "@/lib/api-helpers";
 import Anthropic from "@anthropic-ai/sdk";
 import * as Sentry from "@sentry/nextjs";
+import { getBrandContextForCopy } from "@/lib/brand-doctrine";
+import { getCreativeContext } from "@/lib/creative";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -90,7 +92,14 @@ export async function POST(req: NextRequest) {
       testimonial: "a post styled as or requesting customer testimonials",
     };
 
+    const brandDoctrine = getBrandContextForCopy();
+    const creativeDirective = getCreativeContext(platform === "instagram" ? "meta" : platform === "facebook" ? "meta" : "google_search");
+
     const prompt = `Write a ${platform} post for a self-storage facility.
+
+${brandDoctrine}
+
+${creativeDirective}
 
 Facility: ${facility.name}
 Location: ${facility.location || facility.google_address || ""}

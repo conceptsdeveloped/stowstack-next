@@ -9,6 +9,7 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { getBrandContextForVideo } from "@/lib/brand-doctrine";
 import { getStyleDirectives } from "@/lib/style-references";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -16,20 +17,20 @@ import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 export const maxDuration = 120;
 
 const CORE_STYLE =
-  "Kubrick-inspired symmetrical composition with one-point perspective. Warm muted color palette with visible film grain texture. Stop-motion-adjacent pacing — deliberate, slightly staccato movement with physical weight. Golden hour natural light, soft shadows, shallow depth of field. Transitions feel physical like pages turning or layers peeling away. A24 cinematography sensibility — candid, unhurried, analog warmth. Every frame obsessively composed. No digital dissolves or particle effects. Analog warmth meets scientific curiosity, delivered with indie film restraint.";
+  "Kubrick-inspired symmetrical composition with one-point perspective. Naturalistic color palette with visible film grain texture. Stop-motion-adjacent pacing — deliberate, slightly staccato movement with physical weight. Natural light appropriate to the scene (vary between daylight, overcast, window light, fluorescent, dusk). Transitions feel physical like pages turning or layers peeling away. A24 cinematography sensibility — candid, unhurried, textured. Every frame obsessively composed. No digital dissolves or particle effects. Analog texture meets scientific curiosity, delivered with indie film restraint.";
 
 const STYLE_PRESETS: Record<string, { name: string; suffix: string }> = {
   none: { name: "Default", suffix: "" },
   cinematic: { name: "Cinematic", suffix: "Anamorphic lens quality, shallow depth of field, 35mm film grain, rich shadow detail. Kubrick one-point perspective. Deliberate slow camera push." },
-  vintage: { name: "Vintage / Analog", suffix: "Warm analog color shift, soft halation around highlights, Super 8 texture, nostalgic and tactile. Newspaper-print tonal quality — bold blacks, warm highlights. Physical, not filtered." },
-  storybook: { name: "Storybook Symmetry", suffix: "Perfectly symmetrical centered Kubrick framing, warm muted tones, flat perspective, meticulously composed. Wes Anderson title sequence pacing — staccato, deliberate, physical transitions." },
-  drone: { name: "Aerial / Drone", suffix: "Aerial overhead perspective, smooth sweeping movement, landscape scale, golden hour warmth from above. Film grain texture. Geometric patterns in facility layout." },
+  vintage: { name: "Vintage / Analog", suffix: "Analog color shift, soft halation around highlights, Super 8 texture, nostalgic and tactile. Newspaper-print tonal quality — bold blacks, crisp highlights. Physical, not filtered." },
+  storybook: { name: "Storybook Symmetry", suffix: "Perfectly symmetrical centered Kubrick framing, muted tones, flat perspective, meticulously composed. Wes Anderson title sequence pacing — staccato, deliberate, physical transitions." },
+  drone: { name: "Aerial / Drone", suffix: "Aerial overhead perspective, smooth sweeping movement, landscape scale, natural daylight from above. Film grain texture. Geometric patterns in facility layout." },
   minimal: { name: "Clean / Minimal", suffix: "Maximum negative space, warm earth tones, single subject focus, quiet and sparse. Architectural simplicity with Kubrick precision. Not sterile — warm and textured." },
   bold: { name: "Bold / Graphic", suffix: "High contrast newspaper-print quality. Bold warm accent colors against muted backgrounds. Porsche print ad confidence — alive and striking, not corporate." },
-  moody: { name: "Moody / Atmospheric", suffix: "Deep shadows, warm amber tones, atmospheric haze, contemplative. Kubrick hallway tension. Dramatic light shafts through windows. Film grain." },
+  moody: { name: "Moody / Atmospheric", suffix: "Deep shadows, muted tones, atmospheric haze, contemplative. Kubrick hallway tension. Dramatic light shafts through windows. Film grain." },
   handheld: { name: "Handheld / Raw", suffix: "Slight handheld movement, natural available light, candid documentary feel. A24 sensibility — people caught in real moments, unhurried. Shallow depth of field on everyday objects." },
-  timelapse: { name: "Timelapse", suffix: "Smooth accelerated motion, golden light shifting, day passing in seconds. Film grain throughout. Warm muted palette. Geometric Kubrick composition held steady as time moves." },
-  textile: { name: "Tactile / Textured", suffix: "Rich material textures, close-up surface detail — kraft paper, cardboard, wood grain. Rimowa aesthetic: beauty through use and wear. Shallow DOF, warm window light." },
+  timelapse: { name: "Timelapse", suffix: "Smooth accelerated motion, light shifting naturally through the day. Film grain throughout. Naturalistic palette. Geometric Kubrick composition held steady as time moves." },
+  textile: { name: "Tactile / Textured", suffix: "Rich material textures, close-up surface detail — kraft paper, cardboard, wood grain. Rimowa aesthetic: beauty through use and wear. Shallow DOF, soft natural light." },
 };
 
 interface FacilityData {
@@ -52,14 +53,14 @@ const VIDEO_TEMPLATES: Record<
     description: "Kubrick one-point perspective hallway — symmetrical, geometric, hypnotic",
     mode: "image_to_video",
     promptTemplate: (f) =>
-      `Kubrick one-point perspective shot gliding slowly through ${f.name} storage facility hallway in ${f.location}. Perfectly symmetrical — rows of unit doors recede to a sharp vanishing point. Warm overhead lighting creates rhythmic shadows on concrete floor. Visible film grain. Stop-motion-adjacent pacing — the camera moves with deliberate weight, not fluid smoothness. The beauty of geometric repetition in an institutional space. No people. Quiet.`,
+      `Kubrick one-point perspective shot gliding slowly through ${f.name} storage facility hallway in ${f.location}. Perfectly symmetrical — rows of unit doors recede to a sharp vanishing point. Clean overhead fluorescent lighting creates rhythmic shadows on concrete floor. Visible film grain. Stop-motion-adjacent pacing — the camera moves with deliberate weight, not fluid smoothness. The beauty of geometric repetition in an institutional space. No people. Quiet.`,
   },
   hero_shot: {
     name: "Hero B-Roll",
-    description: "Contemplative exterior — golden hour, Kubrick symmetry, analog grain",
+    description: "Contemplative exterior — Kubrick symmetry, analog grain",
     mode: "text_to_video",
     promptTemplate: (f) =>
-      `Wide symmetrical establishing shot of ${f.name} storage facility exterior in ${f.location}. Golden hour light raking across rows of unit doors at a low angle. Long warm shadows creating geometric patterns. Film grain texture throughout. Camera holds steady, then pushes forward with deliberate weight — stop-motion pacing, not smooth glide. Newspaper-print contrast: bold shadows, warm highlights. No people.`,
+      `Wide symmetrical establishing shot of ${f.name} storage facility exterior in ${f.location}. Clear natural daylight across rows of unit doors. Crisp shadows creating geometric patterns. Film grain texture throughout. Camera holds steady, then pushes forward with deliberate weight — stop-motion pacing, not smooth glide. Newspaper-print contrast: bold shadows, bright highlights. No people.`,
   },
   seasonal_promo: {
     name: "Seasonal Promo",
@@ -73,28 +74,28 @@ const VIDEO_TEMPLATES: Record<
     description: "5-second visual punch — door reveals warm Kubrick interior",
     mode: "image_to_video",
     promptTemplate: (f) =>
-      `A storage unit door at ${f.name} rolls up with physical weight — not smooth, slightly staccato, you feel the mechanism. It reveals a perfectly lit interior with Kubrick symmetry. Warm golden light spills out. Camera holds. Film grain visible. The contrast between the dark door exterior and the warm interior is dramatic but muted. No people.`,
+      `A storage unit door at ${f.name} rolls up with physical weight — not smooth, slightly staccato, you feel the mechanism. It reveals a perfectly lit interior with Kubrick symmetry. Clean light from inside. Camera holds. Film grain visible. The contrast between the dark door exterior and the bright interior is dramatic. No people.`,
   },
   packing_asmr: {
     name: "Packing ASMR",
     description: "Tactile close-up — A24 shallow DOF, golden window light, deliberate hands",
     mode: "text_to_video",
     promptTemplate: () =>
-      `Close overhead shot of hands carefully wrapping an object in kraft paper. A24 cinematography — extremely shallow depth of field, only the hands and paper sharp. Warm golden window light from the left. Wooden table surface with visible grain. Movements are deliberate, slightly staccato, stop-motion pacing — each fold of paper feels considered. Tape pulled and torn. Film grain throughout. The tactile feeling of analog warmth.`,
+      `Close overhead shot of hands carefully wrapping an object in kraft paper. A24 cinematography — extremely shallow depth of field, only the hands and paper sharp. Soft natural window light from the left. Wooden table surface with visible grain. Movements are deliberate, slightly staccato, stop-motion pacing — each fold of paper feels considered. Tape pulled and torn. Film grain throughout. Tactile and grounded.`,
   },
   before_after: {
     name: "Before & After",
     description: "Physical transition from disorder to geometric calm",
     mode: "text_to_video",
     promptTemplate: () =>
-      `A room full of stacked boxes and clutter in warm disorganized light. The transition to order feels physical — like a page turning or a layer peeling away, not a digital dissolve. The same view transforms: clutter replaced by clean empty space, warm golden light, geometric order. Stop-motion pacing. Film grain. Newspaper-print contrast. Absence as relief. No people.`,
+      `A room full of stacked boxes and clutter in harsh overhead light. The transition to order feels physical — like a page turning or a layer peeling away, not a digital dissolve. The same view transforms: clutter replaced by clean empty space, even lighting, geometric order. Stop-motion pacing. Film grain. Newspaper-print contrast. Absence as relief. No people.`,
   },
   custom: {
     name: "Custom Prompt",
     description: "Write your own prompt — full creative control over the generated video",
     mode: "text_to_video",
     promptTemplate: (f) =>
-      `A beautifully composed Kubrick-symmetrical scene at ${f.name} in ${f.location}. Warm muted tones, visible film grain. Stop-motion-adjacent pacing — deliberate, weighted movement. Golden hour light. Analog warmth meets geometric precision.`,
+      `A beautifully composed Kubrick-symmetrical scene at ${f.name} in ${f.location}. Naturalistic tones, visible film grain. Stop-motion-adjacent pacing — deliberate, weighted movement. Natural daylight. Analog texture meets geometric precision.`,
   },
 };
 
@@ -122,11 +123,13 @@ async function generateVideoPrompt(
         role: "user",
         content: `You are writing a prompt for an AI video generator (Runway ML). The video is b-roll for a storage facility's marketing.
 
+${getBrandContextForVideo().slice(0, 1200)}
+
 VISUAL DOCTRINE (follow strictly):
 - KUBRICK COMPOSITION: Symmetrical framing, one-point perspective, geometric precision. Every element obsessively placed. Find beauty in institutional spaces — the repetition, the geometry, the order.
-- A24 CINEMATOGRAPHY: Warm natural light, golden hour tones, soft shadows, shallow depth of field on everyday objects. Human moments are candid and unhurried — people thinking, doing, living. Not posing.
+- A24 CINEMATOGRAPHY: Natural light appropriate to the scene (daylight, overcast, window light, fluorescent, dusk — NOT always golden hour). Soft shadows. Shallow depth of field on everyday objects. Human moments are candid and unhurried — people thinking, doing, living. Not posing.
 - STOP-MOTION PACING: Movement is deliberate, slightly staccato — things move with physical weight, not fluid ease. Transitions feel physical: pages turning, layers peeling, elements sliding with resistance. No swooshes, no digital dissolves, no particle effects.
-- ANALOG WARMTH: Visible film grain, warm muted tones, newspaper-print contrast. The warmth of ink on paper, not the glow of a screen.
+- ANALOG TEXTURE: Visible film grain, naturalistic tones, newspaper-print contrast. Vary the palette — not every scene is amber/orange.
 - THE GOVERNING PRINCIPLE: Analog warmth meets scientific curiosity, delivered with indie film restraint. No excess, no spectacle for its own sake. Trust the audience.
 ${styleDirectives}
 

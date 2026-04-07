@@ -7,6 +7,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { getBrandContextForCopy } from "@/lib/brand-doctrine";
+import { getCreativeContext } from "@/lib/creative";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -146,7 +148,14 @@ export async function POST(req: NextRequest) {
       (e) => e.month >= currentMonth && e.month <= currentMonth + 2
     );
 
+    const brandDoctrine = getBrandContextForCopy();
+    const creativeDirective = getCreativeContext("meta");
+
     const prompt = `You are a social media manager for a self-storage facility. Generate exactly ${count} social media posts spread across the next ${timeframeDays} days.
+
+${brandDoctrine}
+
+${creativeDirective}
 
 FACILITY CONTEXT:
 - Name: ${facility.name}

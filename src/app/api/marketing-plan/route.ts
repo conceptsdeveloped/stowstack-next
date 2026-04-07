@@ -4,6 +4,8 @@ import * as Sentry from "@sentry/nextjs";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
+import { getBrandContextForCopy } from "@/lib/brand-doctrine";
+import { getCreativeContext } from "@/lib/creative";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -363,7 +365,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `Generate a marketing plan for this facility. Think deeply — explain your reasoning. 2-3 target audiences, 3 messaging pillars, 4-week calendar, 3-4 KPIs, 3-5 strategic rationale points. tab_directives FIRST.\n\n${lines.join("\n")}`,
+          content: `Generate a marketing plan for this facility. Think deeply — explain your reasoning. 2-3 target audiences, 3 messaging pillars, 4-week calendar, 3-4 KPIs, 3-5 strategic rationale points. tab_directives FIRST.\n\n${getBrandContextForCopy()}\n\n${getCreativeContext("meta")}\n\n${lines.join("\n")}`,
         },
       ],
     });

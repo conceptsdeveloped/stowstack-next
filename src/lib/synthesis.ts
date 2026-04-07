@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 const DOC_PATHS: Record<string, string> = {
   creative: path.resolve(process.cwd(), "CREATIVE.md"),
   strategy: path.resolve(process.cwd(), "STRATEGY.md"),
+  brand: path.resolve(process.cwd(), "BRAND_DOCTRINE.md"),
 };
 
 function readDoc(doc: keyof typeof DOC_PATHS): string {

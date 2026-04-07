@@ -11,6 +11,7 @@ import {
   isAdminRequest,
 } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
+import { getBrandContextForVisual } from "@/lib/brand-doctrine";
 import { getStyleDirectives } from "@/lib/style-references";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -31,17 +32,17 @@ const IMAGE_TEMPLATES: Record<
   ad_hero: {
     name: "Ad Hero Image",
     description:
-      "Styled hero image for Meta/Instagram ads — facility exterior or interior at golden hour",
+      "Styled hero image for Meta/Instagram ads — facility exterior or interior",
     aspect: "1:1",
     promptBase:
-      "Photograph of a self-storage facility in warm golden hour light. Shallow depth of field. Visible film grain texture. Bold contrast like a high-quality newspaper print — deep blacks, warm highlights, slightly compressed tonal range. The image should feel tactile, like a 1980s Porsche print ad: confident, alive, not sterile. Natural light raking across clean architecture. No people.",
+      "Photograph of a clean, well-maintained self-storage facility — a single-story or multi-story commercial building with rows of orange or blue roll-up metal unit doors, wide driveways, and clear signage. Shallow depth of field. Visible film grain texture. Bold contrast like a newspaper print — deep blacks, crisp highlights, compressed tonal range. The image should feel like a 1980s Porsche print ad: confident, alive, not sterile. Natural daylight on clean architecture. No people.",
   },
   ad_hero_wide: {
     name: "Ad Hero (Wide)",
     description: "Wide format hero for Facebook feed or Google Display ads",
     aspect: "16:9",
     promptBase:
-      "Wide cinematic shot of a self-storage facility exterior. Kubrick-inspired one-point perspective — symmetrical composition, geometric precision. Late afternoon light casting long warm shadows. Subtle film grain. High contrast with warm muted tones, not oversaturated. The feel of a premium print advertisement scanned from a magazine. Generous negative space. No people.",
+      "Wide cinematic shot of a self-storage facility exterior — a long row of identical roll-up metal unit doors receding into the distance, clean concrete driveways, the repeating geometry of a commercial storage complex. Kubrick-inspired one-point perspective — symmetrical composition, geometric precision. Clear natural light. Subtle film grain. High contrast, not oversaturated. Neutral color palette. The feel of a premium print advertisement scanned from a magazine. Generous negative space. No people.",
   },
   lifestyle_moving: {
     name: "Lifestyle — Moving Day",
@@ -49,22 +50,22 @@ const IMAGE_TEMPLATES: Record<
       "Candid moving day moment — A24 film sensibility, not stock photography",
     aspect: "1:1",
     promptBase:
-      "Candid photograph of a person mid-stride carrying a cardboard box. Shot like an A24 film still — shallow depth of field, warm natural window light, golden hour tones. The person is caught in a real moment, unhurried, not posing. Visible grain. Warm muted color palette. Background soft and out of focus. The feeling of documentary photography, not commercial stock.",
+      "Candid photograph of a person mid-stride carrying a cardboard box through the hallway of a self-storage facility — indoor corridor with rows of metal roll-up doors on both sides, concrete floor, fluorescent overhead lights. Shot like an A24 film still — shallow depth of field, the person is caught in a real moment, unhurried, not posing. Visible grain. Muted naturalistic color palette. Background showing the storage hallway soft and out of focus. Documentary photography, not commercial stock.",
   },
   lifestyle_organized: {
     name: "Lifestyle — Organized Space",
     description:
-      "Satisfying organized storage unit — Kubrick symmetry meets warm analog texture",
+      "Satisfying organized storage unit — Kubrick symmetry, clean and precise",
     aspect: "1:1",
     promptBase:
-      "Perfectly organized storage unit interior shot with symmetrical Kubrick-style one-point perspective. Neatly stacked boxes receding to a vanishing point. Warm overhead lighting casting soft shadows. Subtle film grain texture. The satisfaction of geometric order. Muted warm tones — kraft browns, warm whites, soft amber light. Not clinical or sterile. The beauty of an institutional space treated with care.",
+      "Interior of a self-storage unit — rectangular room with corrugated metal walls, a rolled-up metal door at the entrance, smooth concrete floor. A realistic mix of stored belongings organized neatly: stacked cardboard boxes and plastic bins, a dresser or bookshelf against one wall, a bicycle, golf clubs, framed art leaning in a row, holiday decoration boxes. Everything arranged with satisfying Kubrick-style symmetry and precision. Clean overhead fluorescent lighting. Subtle film grain texture. Neutral tones — kraft browns, whites, concrete gray, metal silver. Clearly a commercial self-storage unit, not a closet or garage.",
   },
   lifestyle_packing: {
     name: "Lifestyle — Packing",
     description: "Close-up tactile packing moment — shallow DOF, natural light",
     aspect: "4:5",
     promptBase:
-      "Close-up photograph of hands wrapping an item in kraft paper and placing it into a cardboard box. Extremely shallow depth of field — only the hands and paper are sharp. Warm natural window light, golden hour. Wooden table surface with visible grain. Subtle film grain over the whole image. Tactile, analog warmth. Shot like a still from an independent film. The feeling of care and deliberateness.",
+      "Close-up photograph of hands carefully wrapping an item in kraft paper and placing it into a cardboard box. Extremely shallow depth of field — only the hands and paper are sharp. Soft natural window light. Wooden table surface with visible grain. Subtle film grain. Shot like a still from an independent film. The feeling of care and deliberateness in an everyday moment.",
   },
   social_promo: {
     name: "Social Promo Graphic",
@@ -72,23 +73,23 @@ const IMAGE_TEMPLATES: Record<
       "Bold promotional image — Porsche-ad confidence with newspaper print texture",
     aspect: "1:1",
     promptBase:
-      "A storage unit door as the central subject, shot straight-on with symmetrical framing. High contrast, newspaper-print tonal quality — bold blacks, warm highlights, visible grain texture. Large areas of warm negative space above and below for text overlay. The composition should feel like a 1980s Porsche print advertisement: bold, clean, confident, but with warmth and character. Not glossy or corporate.",
+      "A single orange or blue self-storage roll-up metal door as the central subject, shot straight-on with symmetrical framing. The door is set in a concrete or metal building facade, with a unit number visible. High contrast, newspaper-print tonal quality — bold blacks, bright highlights, visible grain texture. Large areas of neutral negative space above and below for text overlay. The composition should feel like a 1980s Porsche print advertisement: bold, clean, confident. Not glossy or corporate.",
   },
   social_seasonal: {
     name: "Seasonal Graphic",
     description:
-      "Seasonal atmosphere with analog warmth — cozy, textured, real",
+      "Seasonal atmosphere — textured, real, not stock",
     aspect: "1:1",
     promptBase:
-      "Warm seasonal still-life photograph. Natural materials — cardboard boxes, wooden surfaces, warm fabrics, kraft paper. Golden natural light from a window. Shallow depth of field with one element in sharp focus. Visible film grain. Muted seasonal color palette — warm ambers, soft greens, natural browns. The feeling of a quiet domestic moment. Shot like an indie film prop detail. Not glossy, not stock.",
+      "Seasonal still-life photograph. Natural materials — cardboard boxes, wooden surfaces, fabrics, kraft paper. Diffused natural light from a nearby window. Shallow depth of field with one element in sharp focus. Visible film grain. Naturalistic color palette appropriate to the season. The feeling of a quiet domestic moment. Shot like an indie film prop detail. Not glossy, not stock.",
   },
   before_after: {
     name: "Before/After Split",
     description:
-      "Dramatic transformation — disorder to Kubrick-precise order",
+      "Cluttered home vs. organized self-storage unit — clear transformation",
     aspect: "1:1",
     promptBase:
-      "Split composition photograph. Left half: a cluttered, chaotic garage with boxes stacked haphazardly, warm but messy natural light. Right half: the same items in a perfectly organized storage unit with Kubrick-symmetrical precision, clean warm overhead lighting, geometric order. Both sides share the same warm grain texture and muted color palette. The contrast should feel dramatic but the overall image cohesive. Not sterile on either side — warm and textured throughout.",
+      "Two photographs side by side as a diptych. LEFT PHOTO: a normal residential living room with carpet and a window. A couch with laundry piled on one end. A few cardboard boxes on the floor. Kids toys scattered around. A guitar leaning against the wall. A pair of skis or a golf bag in the corner. Books and shoes on the coffee table. Not a disaster — just a lived-in home running out of room. RIGHT PHOTO: a bright clean self-storage unit with steel walls, concrete floor, fluorescent lights, and a metal roll-up door. Inside the unit, ONLY A FEW items are placed with PERFECT geometric precision — three uniform boxes stacked in a neat column, one piece of furniture standing upright against the wall, one bicycle hanging from a hook. MOSTLY EMPTY FLOOR SPACE visible. The unit looks SPACIOUS, ORDERLY, and ALMOST EMPTY compared to the cluttered room. The contrast is chaos vs. calm, clutter vs. space. NO PEOPLE. Film grain texture.",
   },
   text_ad: {
     name: "Text Ad Creative",
@@ -96,14 +97,14 @@ const IMAGE_TEMPLATES: Record<
       "Ad background with generous negative space — newspaper-quality texture",
     aspect: "1:1",
     promptBase:
-      "A storage facility photographed with intentional composition leaving large areas of warm negative space for text overlay. Newspaper-print tonal quality — high contrast, subtle grain, warm muted tones. Soft focus on the facility elements, sharp architectural lines. The feel of a premium print advertisement background. Warm neutrals, not clinical whites. Room at top and bottom thirds for Franklin Gothic headlines. No people, no text.",
+      "A self-storage facility exterior — clean commercial building with rows of metal roll-up doors — photographed with intentional composition leaving large areas of neutral negative space (sky, concrete, driveway) for text overlay. Newspaper-print tonal quality — high contrast, subtle grain. Soft focus on the facility elements, sharp architectural lines of the building. The feel of a premium print advertisement background. Room at top and bottom thirds for bold headlines. No people, no text.",
   },
   story_bg: {
     name: "Story Background",
     description: "Vertical Kubrick-perspective hallway or exterior for stories",
     aspect: "9:16",
     promptBase:
-      "Vertical photograph of a storage facility hallway in Kubrick one-point perspective — symmetrical, geometric, receding to a vanishing point. Warm overhead lighting creating rhythmic shadows. Subtle film grain texture. Large areas of soft warm gradient for text readability. Dramatic but quiet. Muted warm color palette. The beauty of repetition and order in an institutional space. No people.",
+      "Vertical photograph of a self-storage facility indoor hallway — long corridor with identical metal roll-up unit doors on both sides, concrete floor, fluorescent ceiling lights — shot in Kubrick one-point perspective, symmetrical, geometric, receding to a vanishing point. Even overhead lighting creating rhythmic shadows on the concrete floor. Subtle film grain texture. Large areas of soft gradient for text readability. Dramatic but quiet. Neutral tones. The beauty of repetition and order. No people.",
   },
 };
 
@@ -119,6 +120,78 @@ const ASPECT_RATIOS: Record<string, { width: number; height: number }> = {
 interface FacilityData {
   name: string;
   location: string;
+  context?: string;
+}
+
+async function buildFacilityImageContext(facilityId: string): Promise<string> {
+  const lines: string[] = [];
+
+  try {
+    const [onboardingRows, pmsUnits, pmsSnapshot, pmsSpecials, placesRows] = await Promise.all([
+      db.$queryRaw<Array<{ steps: Record<string, unknown> }>>`
+        SELECT co.steps FROM client_onboarding co
+        JOIN clients c ON c.id = co.client_id
+        WHERE c.facility_id = ${facilityId}::uuid
+        ORDER BY co.updated_at DESC LIMIT 1
+      `.catch(() => []),
+      db.facility_pms_units.findMany({
+        where: { facility_id: facilityId },
+        orderBy: { total_count: "desc" },
+        take: 5,
+        select: { unit_type: true, total_count: true, occupied_count: true, street_rate: true, features: true },
+      }).catch(() => []),
+      db.facility_pms_snapshots.findFirst({
+        where: { facility_id: facilityId },
+        orderBy: { snapshot_date: "desc" },
+        select: { occupancy_pct: true },
+      }).catch(() => null),
+      db.facility_pms_specials.findMany({
+        where: { facility_id: facilityId, active: true },
+        take: 3,
+        select: { name: true, description: true },
+      }).catch(() => []),
+      db.$queryRaw<Array<Record<string, unknown>>>`
+        SELECT rating, review_count FROM places_data
+        WHERE facility_id = ${facilityId}::uuid
+        ORDER BY fetched_at DESC LIMIT 1
+      `.catch(() => []),
+    ]);
+
+    const onboarding = onboardingRows?.[0]?.steps as Record<string, Record<string, unknown>> | undefined;
+    if (onboarding) {
+      const details = onboarding?.facilityDetails?.data as Record<string, unknown> | undefined;
+      if (details?.brandDescription) lines.push(`Brand: ${String(details.brandDescription).slice(0, 200)}`);
+      if (details?.sellingPoints) lines.push(`Key selling points: ${String(details.sellingPoints)}`);
+      const demo = onboarding?.targetDemographics?.data as Record<string, unknown> | undefined;
+      if (demo?.primaryAudience) lines.push(`Target audience: ${String(demo.primaryAudience)}`);
+    }
+
+    if (pmsSnapshot?.occupancy_pct) {
+      const occ = parseFloat(String(pmsSnapshot.occupancy_pct));
+      lines.push(`Occupancy: ${occ}%`);
+      if (occ < 70) lines.push("Strategy: aggressive — facility needs to fill units");
+      else if (occ > 90) lines.push("Strategy: premium — facility is nearly full, emphasize quality and exclusivity");
+    }
+
+    if (pmsUnits.length > 0) {
+      const unitSummary = pmsUnits.map(u => {
+        const features = u.features ? ` (${String(u.features)})` : "";
+        return `${u.unit_type}${features}: $${u.street_rate}/mo`;
+      }).join(", ");
+      lines.push(`Available units: ${unitSummary}`);
+    }
+
+    if (pmsSpecials.length > 0) {
+      lines.push(`Active specials: ${pmsSpecials.map(s => s.name).join(", ")}`);
+    }
+
+    const places = placesRows?.[0];
+    if (places?.rating) lines.push(`Google rating: ${places.rating} stars (${places.review_count} reviews)`);
+  } catch {
+    // Non-fatal — proceed with whatever context we have
+  }
+
+  return lines.join("\n");
 }
 
 async function enhancePrompt(
@@ -132,7 +205,9 @@ async function enhancePrompt(
   if (!anthropicKey) return basePrompt;
 
   const creativeContext = getCreativeContext("meta");
+  const brandVisual = getBrandContextForVisual();
   const styleDirectives = await getStyleDirectives(facilityId);
+  const facilityContext = await buildFacilityImageContext(facilityId);
   const client = new Anthropic({ apiKey: anthropicKey });
 
   try {
@@ -143,26 +218,44 @@ async function enhancePrompt(
       messages: [
         {
           role: "user",
-          content: `Enhance this image generation prompt. Make it more visually specific and compelling. Keep under 150 words. No business names, no text on screen.
+          content: `You are enhancing an image generation prompt for a self-storage facility's advertising. Your job is to make the image SPECIFIC to this facility's situation and the ad copy it will accompany.
 
-VISUAL DOCTRINE (follow strictly):
-- Analog warmth, not digital sterility. Visible film grain. Warm muted tones.
-- Newspaper-print tonal quality: bold blacks, warm highlights, compressed tonal range, ink-on-paper texture.
-- Kubrick composition: symmetrical framing, one-point perspective, geometric precision, obsessively placed elements.
-- A24 cinematography: shallow depth of field, golden hour natural light, soft shadows, candid unhurried moments.
-- 1980s Porsche print ad energy: bold, clean, confident, witty, alive — never sterile or corporate.
-- Rimowa philosophy: beauty through texture and use, not pristine polish. Imperfection is intentional.
-- Anti-references: NO clip art, NO blue-and-orange storage schemes, NO stock-photo posing, NO HDR, NO sterile tech aesthetic.
+FACILITY CONTEXT (use this to tailor the image):
+Facility: ${facility.name} in ${facility.location}
+${facilityContext}
+${customNotes ? `Admin notes: ${customNotes}` : ""}
+
+${copyContext ? `AD COPY THIS IMAGE WILL ACCOMPANY — the image MUST visually reinforce this specific message:\n${copyContext}\n` : "WARNING: No ad copy provided. Generate a versatile image that works for general self-storage advertising.\n"}
+ADAPT THE IMAGE based on the facility context:
+- If the facility has low occupancy, the image should convey availability and welcome.
+- If the facility is nearly full, the image should convey premium quality and exclusivity.
+- If there are active specials, the image should feel promotional and energetic.
+- If the copy emphasizes security, the image should show clean, well-lit, secure-feeling spaces.
+- If the copy emphasizes convenience or moving, show relatable lifestyle moments.
+- If the copy uses social proof (ratings, reviews), the image should feel trustworthy and established.
+
+${brandVisual.slice(0, 800)}
+
+VISUAL DOCTRINE:
+- Visible film grain texture. Newspaper-print tonal quality.
+- Kubrick composition where applicable. A24 cinematography sensibility.
+- Vary lighting naturally — daylight, overcast, fluorescent, window light. NOT always golden hour.
+- No business names or text on screen.
 ${styleDirectives}
 
-${creativeContext.slice(0, 400)}
+${creativeContext.slice(0, 300)}
 
-Base prompt: ${basePrompt}
-Facility: ${facility.name} in ${facility.location}
-${customNotes ? `Notes: ${customNotes}` : ""}
-${copyContext ? `\nAD COPY THIS IMAGE WILL ACCOMPANY (design the image to complement this specific copy — match its emotional angle, reinforce its message visually, and create a cohesive ad unit):\n${copyContext}` : ""}
+IMAGE GENERATION RULES (critical for AI image models):
+- Keep object descriptions simple and separated. Do NOT pile many different objects together — the model will merge them into blobs.
+- When showing "messy" or "cluttered" scenes: use a few distinct recognizable items (a guitar, some boxes, shoes, books) each in their own spot. NOT a wall of overlapping stuff.
+- When showing "organized" or "clean" scenes: use minimal items with lots of visible empty floor space. A few neatly placed things reads as MORE organized than many neatly placed things.
+- Storage units should always feel BRIGHT and WELL-LIT — fluorescent white light, clean concrete floor, visible metal walls. Never dark or moody.
+- Residential/home scenes should feel warm and lived-in but recognizable — carpet, furniture, windows, curtains.
+- NO PEOPLE unless the template specifically calls for them. AI-generated people in ads are a liability.
 
-Return ONLY the enhanced prompt. Nothing else.`,
+Base prompt to enhance: ${basePrompt}
+
+Enhance this into a visually specific prompt under 150 words. Return ONLY the enhanced prompt.`,
         },
       ],
     });
@@ -196,8 +289,8 @@ async function generateImage(
     : aspect === "4:5" ? "4:5"
     : "1:1";
 
-  // Use FAL Flux for image generation (synchronous endpoint)
-  const res = await fetch("https://fal.run/fal-ai/flux/dev", {
+  // Use FAL Flux Realism for photorealistic output (better hands/people)
+  const res = await fetch("https://fal.run/fal-ai/flux-realism", {
     method: "POST",
     headers: {
       Authorization: `Key ${falKey}`,

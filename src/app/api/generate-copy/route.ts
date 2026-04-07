@@ -6,6 +6,8 @@ import {
   getOrigin,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { getCreativeContext } from "@/lib/creative";
+import { getBrandContextForCopy } from "@/lib/brand-doctrine";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -117,7 +119,14 @@ export async function POST(req: NextRequest) {
   if (biggestIssue)
     lines.push(`Operator's biggest challenge: ${biggestIssue}`);
 
+  const brandDoctrine = getBrandContextForCopy();
+  const creativeDirective = getCreativeContext("meta");
+
   const userMessage = `Generate 4 Meta ad variations for this self-storage facility. Use the real data provided — especially the rating and review snippets — to make the copy specific and credible.
+
+${brandDoctrine}
+
+${creativeDirective}
 
 ${lines.join("\n")}
 
