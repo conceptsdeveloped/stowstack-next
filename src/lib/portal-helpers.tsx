@@ -79,7 +79,7 @@ export interface ActivityItem {
   createdAt: string;
 }
 
-const SESSION_KEY = "stowstack_portal_session";
+const SESSION_KEY = "storageads_portal_session";
 const SESSION_TTL = 24 * 60 * 60 * 1000;
 
 export function getPortalSession(): PortalSession | null {

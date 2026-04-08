@@ -1,24 +1,23 @@
-import { readFileSync, writeFileSync } from "fs";
-import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
 import * as Sentry from "@sentry/nextjs";
+import { readDoctrine, writeDoctrine } from "@/lib/doctrine-store";
 
-const DOC_PATHS: Record<string, string> = {
-  creative: path.resolve(process.cwd(), "CREATIVE.md"),
-  strategy: path.resolve(process.cwd(), "STRATEGY.md"),
-  brand: path.resolve(process.cwd(), "BRAND_DOCTRINE.md"),
+const DOC_NAME_MAP: Record<string, "CREATIVE" | "STRATEGY" | "BRAND_DOCTRINE"> = {
+  creative: "CREATIVE",
+  strategy: "STRATEGY",
+  brand: "BRAND_DOCTRINE",
 };
 
-function readDoc(doc: keyof typeof DOC_PATHS): string {
-  try {
-    return readFileSync(DOC_PATHS[doc], "utf-8");
-  } catch {
-    return "";
-  }
+async function readDoc(doc: string): Promise<string> {
+  const docName = DOC_NAME_MAP[doc];
+  if (!docName) return "";
+  return readDoctrine(docName);
 }
 
-function writeDoc(doc: keyof typeof DOC_PATHS, content: string): void {
-  writeFileSync(DOC_PATHS[doc], content, "utf-8");
+async function writeDoc(doc: string, content: string, changeSummary?: string): Promise<void> {
+  const docName = DOC_NAME_MAP[doc];
+  if (!docName) return;
+  await writeDoctrine(docName, content, changeSummary);
 }
 
 export interface SynthesisInput {
@@ -64,7 +63,7 @@ export async function synthesize(
       : [input.targetDoc];
 
   for (const doc of targetDocs) {
-    const currentContent = readDoc(doc);
+    const currentContent = await readDoc(doc);
     if (!currentContent) continue;
 
     const docName = doc === "creative" ? "CREATIVE.md" : "STRATEGY.md";
@@ -159,8 +158,8 @@ Return only the bullet points.`,
         summaryMessage.content[0] as { type: "text"; text: string }
       ).text.trim();
 
-      // Write the updated document
-      writeDoc(doc, updatedContent);
+      // Write the updated document to DB
+      await writeDoc(doc, updatedContent, changeSummary);
 
       results.push({
         doc: docName,

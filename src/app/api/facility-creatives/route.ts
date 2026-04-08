@@ -6,6 +6,9 @@ import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
 import { getBrandContextForCopy } from "@/lib/brand-doctrine";
+import { getStyleDirectives } from "@/lib/style-references";
+import { getMarketContextForCopy } from "@/lib/market-research";
+import { getFacilityLearningsContext } from "@/lib/facility-learnings";
 import { validateCompliance } from "@/lib/compliance";
 import { funnelConfigToDripSteps } from "@/lib/drip-sequences";
 import { applyRateLimit } from "@/lib/with-rate-limit";
@@ -368,33 +371,53 @@ async function generateWithClaude(systemPrompt: string, userMessage: string, api
   return parseJsonResponse(block.text.trim());
 }
 
-async function generateMetaAds(context: string, feedback: string | null, apiKey: string) {
+async function generateMetaAds(context: string, feedback: string | null, apiKey: string, facilityId?: string) {
   const feedbackNote = feedback ? `\n\nPREVIOUS FEEDBACK FROM REVIEWER:\n${feedback}` : "";
-  const creativeDirective = getCreativeContext("meta");
-  const brandDoctrine = getBrandContextForCopy();
-  const userMessage = `Generate 4 Meta ad variations for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${creativeDirective}\n\n${context}\n\nReturn the JSON object with the "variations" array.`;
+  const [creativeDirective, brandDoctrine, styleRefs, facilityLearnings] = await Promise.all([
+    getCreativeContext("meta"),
+    getBrandContextForCopy(),
+    getStyleDirectives(facilityId),
+    facilityId ? getFacilityLearningsContext(facilityId) : Promise.resolve(""),
+  ]);
+  const marketIntel = getMarketContextForCopy("meta");
+  const userMessage = `Generate 4 Meta ad variations for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${marketIntel}\n\n${creativeDirective}\n\n${styleRefs}\n\n${facilityLearnings}\n\n${context}\n\nReturn the JSON object with the "variations" array.`;
   return generateWithClaude(SYSTEM_PROMPTS.meta_feed, userMessage, apiKey);
 }
 
-async function generateGoogleRSA(context: string, feedback: string | null, apiKey: string) {
+async function generateGoogleRSA(context: string, feedback: string | null, apiKey: string, facilityId?: string) {
   const feedbackNote = feedback ? `\n\nPREVIOUS FEEDBACK FROM REVIEWER:\n${feedback}` : "";
-  const brandDoctrine = getBrandContextForCopy();
-  const creativeDirective = getCreativeContext("google_search");
-  const userMessage = `Generate a Google Responsive Search Ad for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${creativeDirective}\n\n${context}\n\nReturn the JSON object with the "adGroup".`;
+  const [brandDoctrine, creativeDirective, styleRefs, facilityLearnings] = await Promise.all([
+    getBrandContextForCopy(),
+    getCreativeContext("google_search"),
+    getStyleDirectives(facilityId),
+    facilityId ? getFacilityLearningsContext(facilityId) : Promise.resolve(""),
+  ]);
+  const marketIntel = getMarketContextForCopy("google_search");
+  const userMessage = `Generate a Google Responsive Search Ad for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${marketIntel}\n\n${creativeDirective}\n\n${styleRefs}\n\n${facilityLearnings}\n\n${context}\n\nReturn the JSON object with the "adGroup".`;
   return generateWithClaude(SYSTEM_PROMPTS.google_search, userMessage, apiKey);
 }
 
-async function generateLandingPageCopy(context: string, feedback: string | null, apiKey: string) {
+async function generateLandingPageCopy(context: string, feedback: string | null, apiKey: string, facilityId?: string) {
   const feedbackNote = feedback ? `\n\nPREVIOUS FEEDBACK FROM REVIEWER:\n${feedback}` : "";
-  const brandDoctrine = getBrandContextForCopy();
-  const userMessage = `Generate complete landing page content for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${context}\n\nReturn the JSON object with the "sections" array, "meta_title", and "meta_description".`;
+  const [brandDoctrine, styleRefs, facilityLearnings] = await Promise.all([
+    getBrandContextForCopy(),
+    getStyleDirectives(facilityId),
+    facilityId ? getFacilityLearningsContext(facilityId) : Promise.resolve(""),
+  ]);
+  const marketIntel = getMarketContextForCopy();
+  const userMessage = `Generate complete landing page content for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${marketIntel}\n\n${styleRefs}\n\n${facilityLearnings}\n\n${context}\n\nReturn the JSON object with the "sections" array, "meta_title", and "meta_description".`;
   return generateWithClaude(SYSTEM_PROMPTS.landing_page, userMessage, apiKey);
 }
 
-async function generateEmailDrip(context: string, feedback: string | null, apiKey: string) {
+async function generateEmailDrip(context: string, feedback: string | null, apiKey: string, facilityId?: string) {
   const feedbackNote = feedback ? `\n\nPREVIOUS FEEDBACK FROM REVIEWER:\n${feedback}` : "";
-  const brandDoctrine = getBrandContextForCopy();
-  const userMessage = `Generate a 4-email drip sequence for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${context}\n\nReturn the JSON object with the "sequence" array.`;
+  const [brandDoctrine, styleRefs, facilityLearnings] = await Promise.all([
+    getBrandContextForCopy(),
+    getStyleDirectives(facilityId),
+    facilityId ? getFacilityLearningsContext(facilityId) : Promise.resolve(""),
+  ]);
+  const marketIntel = getMarketContextForCopy();
+  const userMessage = `Generate a 4-email drip sequence for this self-storage facility.${feedbackNote}\n\n${brandDoctrine}\n\n${marketIntel}\n\n${styleRefs}\n\n${facilityLearnings}\n\n${context}\n\nReturn the JSON object with the "sequence" array.`;
   return generateWithClaude(SYSTEM_PROMPTS.email_drip, userMessage, apiKey);
 }
 
@@ -553,7 +576,7 @@ export async function POST(req: NextRequest) {
 
     if (platforms.includes("meta_feed")) {
       generators.push(
-        generateMetaAds(context, feedback, apiKey).then(async (parsed) => {
+        generateMetaAds(context, feedback, apiKey, facilityId).then(async (parsed) => {
           const inserted = await insertVariations(
             parsed.variations,
             facilityId,
@@ -569,7 +592,7 @@ export async function POST(req: NextRequest) {
 
     if (platforms.includes("google_search")) {
       generators.push(
-        generateGoogleRSA(context, feedback, apiKey).then(async (parsed) => {
+        generateGoogleRSA(context, feedback, apiKey, facilityId).then(async (parsed) => {
           const compliance = await validateCompliance(parsed.adGroup || parsed, "google_search").catch(() => ({ status: "passed" as const, flags: [] }));
           const row = await db.ad_variations.create({
             data: {
@@ -592,7 +615,7 @@ export async function POST(req: NextRequest) {
 
     if (platforms.includes("landing_page")) {
       generators.push(
-        generateLandingPageCopy(context, feedback, apiKey).then(async (parsed) => {
+        generateLandingPageCopy(context, feedback, apiKey, facilityId).then(async (parsed) => {
           const row = await db.ad_variations.create({
             data: {
               facility_id: facilityId,
@@ -613,7 +636,7 @@ export async function POST(req: NextRequest) {
 
     if (platforms.includes("email_drip")) {
       generators.push(
-        generateEmailDrip(context, feedback, apiKey).then(async (parsed) => {
+        generateEmailDrip(context, feedback, apiKey, facilityId).then(async (parsed) => {
           const compliance = await validateCompliance(parsed, "sms").catch(() => ({ status: "passed" as const, flags: [] }));
           const row = await db.ad_variations.create({
             data: {

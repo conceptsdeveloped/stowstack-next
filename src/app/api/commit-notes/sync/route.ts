@@ -10,7 +10,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
-const GITHUB_REPO = "conceptsdeveloped/stowstack-next";
+const GITHUB_REPO = "conceptsdeveloped/storageads";
 const BATCH_SIZE = 5; // Process 5 commits concurrently to respect Anthropic rate limits
 const MAX_COMMITS = 100; // Max commits to sync per request
 

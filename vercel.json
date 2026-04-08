@@ -14,7 +14,9 @@
     { "path": "/api/cron/process-recovery", "schedule": "0 7 * * *" },
     { "path": "/api/cron/check-campaign-alerts", "schedule": "0 8 * * *" },
     { "path": "/api/cron/cleanup-organizations", "schedule": "30 3 * * *" },
-    { "path": "/api/cron/data-retention", "schedule": "0 4 * * *" }
+    { "path": "/api/cron/data-retention", "schedule": "0 4 * * *" },
+    { "path": "/api/cron/weekly-synthesis", "schedule": "0 10 * * 0" },
+    { "path": "/api/cron/process-synthesis-queue", "schedule": "0 12 * * *" }
   ],
   "headers": [
     {

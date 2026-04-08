@@ -820,7 +820,7 @@ function LeadCaptureFormSection({
 
     try {
       const sessionId =
-        sessionStorage.getItem("stowstack_session_id") ||
+        sessionStorage.getItem("storageads_session_id") ||
         `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
       const res = await fetch("/api/lead-capture", {
@@ -1229,10 +1229,10 @@ function LandingPageFooter({
 }: {
   orgBranding?: OrgBranding | null;
 }) {
-  const hideStowStack = orgBranding?.whiteLabel;
+  const hideStorageAds = orgBranding?.whiteLabel;
   return (
     <footer className="py-8 bg-white text-center">
-      {hideStowStack ? (
+      {hideStorageAds ? (
         orgBranding?.orgName && (
           <p className="text-xs text-slate-500">{orgBranding.orgName}</p>
         )
@@ -1243,9 +1243,8 @@ function LandingPageFooter({
             href="/"
             className="text-[var(--accent)] hover:text-blue-400"
           >
-            StowStack
-          </Link>{" "}
-          <span className="text-slate-600">by StorageAds.com</span>
+            StorageAds
+          </Link>
         </p>
       )}
     </footer>
@@ -1280,13 +1279,13 @@ export default function LandingPageRoute() {
       fbclid: searchParams.get("fbclid"),
       gclid: searchParams.get("gclid"),
     };
-    if (utm.fbclid) sessionStorage.setItem("stowstack_fbclid", utm.fbclid);
-    if (utm.gclid) sessionStorage.setItem("stowstack_gclid", utm.gclid);
+    if (utm.fbclid) sessionStorage.setItem("storageads_fbclid", utm.fbclid);
+    if (utm.gclid) sessionStorage.setItem("storageads_gclid", utm.gclid);
 
     // Generate session ID
-    if (!sessionStorage.getItem("stowstack_session_id")) {
+    if (!sessionStorage.getItem("storageads_session_id")) {
       sessionStorage.setItem(
-        "stowstack_session_id",
+        "storageads_session_id",
         `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
       );
     }
@@ -1294,7 +1293,7 @@ export default function LandingPageRoute() {
 
   // Exit intent handler
   useEffect(() => {
-    if (!page || sessionStorage.getItem("stowstack_exit_dismissed")) return;
+    if (!page || sessionStorage.getItem("storageads_exit_dismissed")) return;
 
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 0 && !showExitPopup) {
@@ -1307,12 +1306,12 @@ export default function LandingPageRoute() {
 
   const handleExitDismiss = useCallback(() => {
     setShowExitPopup(false);
-    sessionStorage.setItem("stowstack_exit_dismissed", "1");
+    sessionStorage.setItem("storageads_exit_dismissed", "1");
   }, []);
 
   const handleExitSubmit = useCallback(
     (email: string) => {
-      const sessionId = sessionStorage.getItem("stowstack_session_id");
+      const sessionId = sessionStorage.getItem("storageads_session_id");
       if (sessionId && page) {
         fetch("/api/consumer-lead", {
           method: "POST",
@@ -1323,9 +1322,9 @@ export default function LandingPageRoute() {
             facilityId: page.facility_id,
             landingPageId: page.id,
             fbclid:
-              sessionStorage.getItem("stowstack_fbclid") || undefined,
+              sessionStorage.getItem("storageads_fbclid") || undefined,
             gclid:
-              sessionStorage.getItem("stowstack_gclid") || undefined,
+              sessionStorage.getItem("storageads_gclid") || undefined,
           }),
           keepalive: true,
         }).catch(() => {});
@@ -1333,7 +1332,7 @@ export default function LandingPageRoute() {
 
       setTimeout(() => {
         setShowExitPopup(false);
-        sessionStorage.setItem("stowstack_exit_dismissed", "1");
+        sessionStorage.setItem("storageads_exit_dismissed", "1");
       }, 2000);
     },
     [page]
@@ -1430,7 +1429,7 @@ export default function LandingPageRoute() {
     }).catch(() => {});
 
     // Track page interactions (scroll, time, etc.)
-    const sessionId = sessionStorage.getItem("stowstack_session_id");
+    const sessionId = sessionStorage.getItem("storageads_session_id");
     let maxScroll = 0;
     const startTime = Date.now();
 

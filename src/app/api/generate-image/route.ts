@@ -42,7 +42,7 @@ const IMAGE_TEMPLATES: Record<
     description: "Wide format hero for Facebook feed or Google Display ads",
     aspect: "16:9",
     promptBase:
-      "Wide cinematic shot of a self-storage facility exterior — a long row of identical roll-up metal unit doors receding into the distance, clean concrete driveways, the repeating geometry of a commercial storage complex. Kubrick-inspired one-point perspective — symmetrical composition, geometric precision. Clear natural light. Subtle film grain. High contrast, not oversaturated. Neutral color palette. The feel of a premium print advertisement scanned from a magazine. Generous negative space. No people.",
+      "Wide cinematic shot of a self-storage facility exterior — a long row of identical roll-up metal unit doors, clean concrete driveways, the repeating geometry of a commercial storage complex. Deliberate, considered composition — every element placed with intention. Clear natural light. Subtle film grain. High contrast, not oversaturated. Neutral color palette. The feel of a premium print advertisement scanned from a magazine. Generous negative space. No people.",
   },
   lifestyle_moving: {
     name: "Lifestyle — Moving Day",
@@ -55,10 +55,10 @@ const IMAGE_TEMPLATES: Record<
   lifestyle_organized: {
     name: "Lifestyle — Organized Space",
     description:
-      "Satisfying organized storage unit — Kubrick symmetry, clean and precise",
+      "Satisfying organized storage unit — clean and precisely arranged",
     aspect: "1:1",
     promptBase:
-      "Interior of a self-storage unit — rectangular room with corrugated metal walls, a rolled-up metal door at the entrance, smooth concrete floor. A realistic mix of stored belongings organized neatly: stacked cardboard boxes and plastic bins, a dresser or bookshelf against one wall, a bicycle, golf clubs, framed art leaning in a row, holiday decoration boxes. Everything arranged with satisfying Kubrick-style symmetry and precision. Clean overhead fluorescent lighting. Subtle film grain texture. Neutral tones — kraft browns, whites, concrete gray, metal silver. Clearly a commercial self-storage unit, not a closet or garage.",
+      "Interior of a self-storage unit — rectangular room with corrugated metal walls, a rolled-up metal door at the entrance, smooth concrete floor. A realistic mix of stored belongings organized neatly: stacked cardboard boxes and plastic bins, a dresser or bookshelf against one wall, a bicycle, golf clubs, framed art leaning in a row, holiday decoration boxes. Everything arranged with deliberate care — nothing accidental. Clean overhead fluorescent lighting. Subtle film grain texture. Neutral tones — kraft browns, whites, concrete gray, metal silver. Clearly a commercial self-storage unit, not a closet or garage.",
   },
   lifestyle_packing: {
     name: "Lifestyle — Packing",
@@ -73,7 +73,7 @@ const IMAGE_TEMPLATES: Record<
       "Bold promotional image — Porsche-ad confidence with newspaper print texture",
     aspect: "1:1",
     promptBase:
-      "A single orange or blue self-storage roll-up metal door as the central subject, shot straight-on with symmetrical framing. The door is set in a concrete or metal building facade, with a unit number visible. High contrast, newspaper-print tonal quality — bold blacks, bright highlights, visible grain texture. Large areas of neutral negative space above and below for text overlay. The composition should feel like a 1980s Porsche print advertisement: bold, clean, confident. Not glossy or corporate.",
+      "A single orange or blue self-storage roll-up metal door as the central subject, shot straight-on. The door is set in a concrete or metal building facade, with a unit number visible. High contrast, newspaper-print tonal quality — bold blacks, bright highlights, visible grain texture. Large areas of neutral negative space above and below for text overlay. The composition should feel like a 1980s Porsche print advertisement: bold, clean, confident. Not glossy or corporate.",
   },
   social_seasonal: {
     name: "Seasonal Graphic",
@@ -101,10 +101,10 @@ const IMAGE_TEMPLATES: Record<
   },
   story_bg: {
     name: "Story Background",
-    description: "Vertical Kubrick-perspective hallway or exterior for stories",
+    description: "Vertical hallway or exterior for stories",
     aspect: "9:16",
     promptBase:
-      "Vertical photograph of a self-storage facility indoor hallway — long corridor with identical metal roll-up unit doors on both sides, concrete floor, fluorescent ceiling lights — shot in Kubrick one-point perspective, symmetrical, geometric, receding to a vanishing point. Even overhead lighting creating rhythmic shadows on the concrete floor. Subtle film grain texture. Large areas of soft gradient for text readability. Dramatic but quiet. Neutral tones. The beauty of repetition and order. No people.",
+      "Vertical photograph of a self-storage facility indoor hallway — long corridor with identical metal roll-up unit doors on both sides, concrete floor, fluorescent ceiling lights. Composed with care — the hallway recedes naturally into depth. Even overhead lighting creating rhythmic shadows on the concrete floor. Subtle film grain texture. Large areas of soft gradient for text readability. Dramatic but quiet. Neutral tones. The beauty of repetition and order. No people.",
   },
 };
 
@@ -204,8 +204,8 @@ async function enhancePrompt(
 ): Promise<string> {
   if (!anthropicKey) return basePrompt;
 
-  const creativeContext = getCreativeContext("meta");
-  const brandVisual = getBrandContextForVisual();
+  const creativeContext = await getCreativeContext("meta");
+  const brandVisual = await getBrandContextForVisual();
   const styleDirectives = await getStyleDirectives(facilityId);
   const facilityContext = await buildFacilityImageContext(facilityId);
   const client = new Anthropic({ apiKey: anthropicKey });
@@ -238,7 +238,7 @@ ${brandVisual.slice(0, 800)}
 
 VISUAL DOCTRINE:
 - Visible film grain texture. Newspaper-print tonal quality.
-- Kubrick composition where applicable. A24 cinematography sensibility.
+- Intentional composition — every element placed with purpose. Vary framing: wide shots, close-ups, off-center, rule of thirds. NOT always symmetrical or centered.
 - Vary lighting naturally — daylight, overcast, fluorescent, window light. NOT always golden hour.
 - No business names or text on screen.
 ${styleDirectives}

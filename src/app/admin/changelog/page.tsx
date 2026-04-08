@@ -90,7 +90,7 @@ const TYPE_FILTERS = [
   { key: "improvement", label: "Improvements", icon: Wrench },
 ] as const;
 
-const GITHUB_REPO = "conceptsdeveloped/stowstack-next";
+const GITHUB_REPO = "conceptsdeveloped/storageads";
 const PAGE_SIZE = 50;
 
 /* ═══════════════════════════════════════════

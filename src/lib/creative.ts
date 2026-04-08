@@ -1,11 +1,18 @@
 import { readFileSync } from "fs";
 import path from "path";
+import { readDoctrine } from "@/lib/doctrine-store";
 
 let _cached: string | null = null;
 
-/** Load CREATIVE.md and cache it for the lifetime of the serverless function */
-export function getCreativeDirective(): string {
+/** Load CREATIVE.md — DB first (persisted synthesis), filesystem fallback */
+export async function getCreativeDirective(): Promise<string> {
   if (_cached) return _cached;
+  try {
+    _cached = await readDoctrine("CREATIVE");
+    if (_cached) return _cached;
+  } catch {
+    // DB not available, fall through
+  }
   try {
     _cached = readFileSync(
       path.resolve(process.cwd(), "CREATIVE.md"),
@@ -21,8 +28,8 @@ export function getCreativeDirective(): string {
  * Extract a specific section from CREATIVE.md by heading.
  * Returns the content between the given ## heading and the next ## heading.
  */
-export function getCreativeSection(sectionName: string): string {
-  const full = getCreativeDirective();
+export async function getCreativeSection(sectionName: string): Promise<string> {
+  const full = await getCreativeDirective();
   const regex = new RegExp(`## ${sectionName}\\n([\\s\\S]*?)(?=\\n## |$)`);
   const match = full.match(regex);
   return match ? match[1].trim() : "";
@@ -32,10 +39,10 @@ export function getCreativeSection(sectionName: string): string {
  * Build a condensed creative context string for injection into prompts.
  * Keeps it under ~800 tokens to avoid bloating the prompt.
  */
-export function getCreativeContext(platform: string): string {
-  const voice = getCreativeSection("Voice & Identity");
-  const standards = getCreativeSection("Creative Standards");
-  const theory = getCreativeSection("Ad Theory & Conversion Principles");
+export async function getCreativeContext(platform: string): Promise<string> {
+  const voice = await getCreativeSection("Voice & Identity");
+  const standards = await getCreativeSection("Creative Standards");
+  const theory = await getCreativeSection("Ad Theory & Conversion Principles");
 
   let platformSection = "";
   if (
@@ -43,11 +50,11 @@ export function getCreativeContext(platform: string): string {
     platform === "meta_feed" ||
     platform === "meta_story"
   ) {
-    platformSection = getCreativeSection("Platform-Specific Guidelines").split(
+    platformSection = (await getCreativeSection("Platform-Specific Guidelines")).split(
       "### Google Search",
     )[0];
   } else if (platform === "google_search" || platform === "google_display") {
-    const full = getCreativeSection("Platform-Specific Guidelines");
+    const full = await getCreativeSection("Platform-Specific Guidelines");
     const googleStart = full.indexOf("### Google Search");
     const googleEnd = full.indexOf("### TikTok");
     platformSection =
@@ -55,16 +62,16 @@ export function getCreativeContext(platform: string): string {
         ? full.slice(googleStart, googleEnd >= 0 ? googleEnd : undefined)
         : "";
   } else if (platform === "tiktok") {
-    const full = getCreativeSection("Platform-Specific Guidelines");
+    const full = await getCreativeSection("Platform-Specific Guidelines");
     const start = full.indexOf("### TikTok");
     const end = full.indexOf("### Google Business");
     platformSection =
       start >= 0 ? full.slice(start, end >= 0 ? end : undefined) : "";
   } else if (platform === "video") {
-    platformSection = getCreativeSection("Video Content Direction");
+    platformSection = await getCreativeSection("Video Content Direction");
   }
 
-  const visualDoctrine = getCreativeSection("Visual Doctrine");
+  const visualDoctrine = await getCreativeSection("Visual Doctrine");
 
   const lines = [
     "--- CREATIVE DIRECTIVE (follow these standards) ---",

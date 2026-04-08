@@ -39,7 +39,7 @@ const DARK_OVERRIDES = `
 `;
 
 function applyDarkOverrides(isDark: boolean) {
-  const id = "stowstack-dark-overrides";
+  const id = "storageads-dark-overrides";
   let el = document.getElementById(id);
 
   if (isDark && !el) {
@@ -55,7 +55,7 @@ function applyDarkOverrides(isDark: boolean) {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return "light";
-    const stored = localStorage.getItem("stowstack-theme") as Theme | null;
+    const stored = localStorage.getItem("storageads-theme") as Theme | null;
     if (stored === "dark" || stored === "light") {
       document.documentElement.setAttribute("data-theme", stored);
       applyDarkOverrides(stored === "dark");
@@ -68,7 +68,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const next = prev === "light" ? "dark" : "light";
-      localStorage.setItem("stowstack-theme", next);
+      localStorage.setItem("storageads-theme", next);
       document.documentElement.setAttribute("data-theme", next);
       applyDarkOverrides(next === "dark");
       return next;

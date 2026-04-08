@@ -198,6 +198,15 @@ export async function GET(request: NextRequest) {
           `;
           results.alertsCreated++;
 
+          // Queue synthesis for critical alerts with sufficient data
+          if (alert.severity === "critical") {
+            db.$executeRaw`
+              INSERT INTO synthesis_log (id, trigger, facility_id, target_doc, input_summary, status)
+              VALUES (gen_random_uuid(), 'alert_triggered', ${client.fac_id}::uuid, 'facility_learnings',
+                      ${`${alert.type}: ${alert.detail}`}, 'pending')
+            `.catch(() => { /* non-fatal */ });
+          }
+
           if (alert.severity === "critical") {
             const apiKey = process.env.RESEND_API_KEY;
             if (apiKey) {

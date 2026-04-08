@@ -94,6 +94,7 @@ model ad_variations {
   facilities              facilities                @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   drip_sequence_templates drip_sequence_templates[]
   publish_log             publish_log[]
+  creative_performance    creative_performance[]
 
   @@index([brief_id], map: "idx_variations_brief")
   @@index([facility_id], map: "idx_variations_facility")
@@ -596,6 +597,8 @@ model facilities {
   style_references             style_references[]
   utm_links                    utm_links[]
   website_scrape_cache         website_scrape_cache[]
+  creative_performance         creative_performance[]
+  facility_learnings           facility_learnings?
 
   deleted_at                   DateTime?                      @db.Timestamptz(6)
   deleted_by                   String?
@@ -1811,4 +1814,65 @@ model changelog_entries {
   created_at   DateTime  @default(now()) @db.Timestamptz(6)
 
   @@index([published_at(sort: Desc)], map: "idx_changelog_published")
+}
+
+// ═══════════════════════════════════════════
+// INTELLIGENCE FEEDBACK LOOP (Phase 2)
+// ═══════════════════════════════════════════
+
+model doctrine_versions {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  doc_name       String   // "CREATIVE" | "STRATEGY" | "BRAND_DOCTRINE"
+  content        String
+  version        Int
+  change_summary String?
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([doc_name, version])
+  @@index([doc_name], map: "idx_doctrine_versions_doc")
+}
+
+model creative_performance {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String        @db.Uuid
+  variation_id  String        @db.Uuid
+  period        String        // "2026-04" (monthly)
+  spend         Decimal       @default(0) @db.Decimal(10, 2)
+  impressions   Int           @default(0)
+  clicks        Int           @default(0)
+  ctr           Decimal?      @db.Decimal(6, 4)
+  cpc           Decimal?      @db.Decimal(10, 2)
+  leads         Int           @default(0)
+  move_ins      Int           @default(0)
+  created_at    DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime      @updatedAt @db.Timestamptz(6)
+  facilities    facilities    @relation(fields: [facility_id], references: [id], onDelete: Cascade)
+  ad_variations ad_variations @relation(fields: [variation_id], references: [id], onDelete: Cascade)
+
+  @@unique([variation_id, period])
+  @@index([facility_id], map: "idx_creative_performance_facility")
+}
+
+model facility_learnings {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id      String     @unique @db.Uuid
+  learnings_json   Json       @default("{}")
+  last_synthesized DateTime?  @db.Timestamptz(6)
+  created_at       DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime   @updatedAt @db.Timestamptz(6)
+  facilities       facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade)
+}
+
+model synthesis_log {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  trigger       String   // "weekly_cron" | "alert_triggered" | "manual" | "campaign_sync"
+  facility_id   String?  @db.Uuid
+  target_doc    String   // "creative" | "strategy" | "facility_learnings"
+  input_summary String?
+  change_summary String?
+  tokens_used   Int?
+  status        String   @default("pending") // "pending" | "completed" | "failed" | "skipped"
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([status], map: "idx_synthesis_log_status")
 }

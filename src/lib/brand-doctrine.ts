@@ -1,11 +1,18 @@
 import { readFileSync } from "fs";
 import path from "path";
+import { readDoctrine } from "@/lib/doctrine-store";
 
 let _cached: string | null = null;
 
-/** Load BRAND_DOCTRINE.md and cache it for the lifetime of the serverless function */
-export function getBrandDoctrine(): string {
+/** Load BRAND_DOCTRINE.md — DB first (persisted synthesis), filesystem fallback */
+export async function getBrandDoctrine(): Promise<string> {
   if (_cached) return _cached;
+  try {
+    _cached = await readDoctrine("BRAND_DOCTRINE");
+    if (_cached) return _cached;
+  } catch {
+    // DB not available, fall through
+  }
   try {
     _cached = readFileSync(
       path.resolve(process.cwd(), "BRAND_DOCTRINE.md"),
@@ -21,8 +28,8 @@ export function getBrandDoctrine(): string {
  * Extract a section from BRAND_DOCTRINE.md by Roman-numeral heading.
  * Sections use "## I. TITLE", "## II. TITLE", etc.
  */
-export function getBrandDoctrineSection(sectionName: string): string {
-  const full = getBrandDoctrine();
+export async function getBrandDoctrineSection(sectionName: string): Promise<string> {
+  const full = await getBrandDoctrine();
   const regex = new RegExp(
     `## ${sectionName}[\\s\\S]*?(?=\\n## [IVX]+\\.|$)`,
   );
@@ -35,8 +42,8 @@ export function getBrandDoctrineSection(sectionName: string): string {
  * Includes creative philosophy (Chiat\Day, Bernays), brand voice, and
  * content generation standards (the 7 gates + copy principles).
  */
-export function getBrandContextForCopy(): string {
-  const full = getBrandDoctrine();
+export async function getBrandContextForCopy(): Promise<string> {
+  const full = await getBrandDoctrine();
 
   const extract = (heading: string): string => {
     const regex = new RegExp(
@@ -65,8 +72,8 @@ export function getBrandContextForCopy(): string {
  * Includes aesthetic identity (Porsche, Rimowa, newspaper finish) and
  * visual principles from content generation standards.
  */
-export function getBrandContextForVisual(): string {
-  const full = getBrandDoctrine();
+export async function getBrandContextForVisual(): Promise<string> {
+  const full = await getBrandDoctrine();
 
   const extract = (heading: string): string => {
     const regex = new RegExp(
@@ -100,8 +107,8 @@ export function getBrandContextForVisual(): string {
  * Build condensed brand context for video generation prompts.
  * Includes Kubrick/A24/stop-motion doctrine and video-specific sections.
  */
-export function getBrandContextForVideo(): string {
-  const full = getBrandDoctrine();
+export async function getBrandContextForVideo(): Promise<string> {
+  const full = await getBrandDoctrine();
 
   const extract = (heading: string): string => {
     const regex = new RegExp(

@@ -356,7 +356,7 @@ export default function SettingsPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("stowstack_admin_key");
+    localStorage.removeItem("storageads_admin_key");
     window.location.href = "/admin";
   };
 
