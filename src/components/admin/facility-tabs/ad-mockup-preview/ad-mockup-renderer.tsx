@@ -34,7 +34,7 @@ export function AdMockup({
 
   if (format === "instagram_story") {
     return (
-      <div className="w-[270px] h-[480px] bg-black rounded-2xl overflow-hidden relative shadow-2xl flex-shrink-0">
+      <div className="w-[270px] h-[480px] bg-black rounded-2xl overflow-hidden relative shadow-2xl flex-shrink-0" data-ad-mockup="true">
         {image ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
@@ -66,11 +66,13 @@ export function AdMockup({
         </div>
         {/* Content area */}
         <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-          <p className="text-white text-sm font-semibold leading-tight">
+          <span className="inline-block bg-black/85 text-white text-base font-black uppercase tracking-wide leading-tight px-3 py-1.5 rounded">
             {headline}
-          </p>
-          <p className="text-white/80 text-[11px] leading-relaxed line-clamp-3">
-            {primaryText}
+          </span>
+          <p className="mt-2">
+            <span className="inline bg-black/75 text-white text-xs font-bold leading-relaxed px-2 py-1 rounded box-decoration-clone">
+              {primaryText}
+            </span>
           </p>
           {/* Swipe-up CTA */}
           <div className="flex justify-center pt-2">
@@ -85,7 +87,7 @@ export function AdMockup({
 
   if (format === "instagram_post") {
     return (
-      <div className="w-[320px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
+      <div className="w-[320px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0" data-ad-mockup="true bg-[var(--bg-elevated)]">
         {/* Account header */}
         <div className="flex items-center gap-2 p-3">
           <div className="w-8 h-8 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-[10px] font-semibold">
@@ -109,8 +111,8 @@ export function AdMockup({
               <ImageIcon size={32} className="text-[var(--color-mid-gray)]" />
             </div>
           )}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12">
-            <p className="text-white text-base font-semibold">{headline}</p>
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <span className="inline-block bg-black/85 text-white text-lg font-black uppercase tracking-wide px-3 py-1.5 rounded">{headline}</span>
           </div>
         </div>
         {/* Like/comment/share icons */}
@@ -144,7 +146,7 @@ export function AdMockup({
 
   if (format === "facebook_feed") {
     return (
-      <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
+      <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0" data-ad-mockup="true bg-[var(--bg-elevated)]">
         {/* Profile header */}
         <div className="flex items-center gap-2 p-3">
           <div className="w-10 h-10 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-xs font-semibold">
@@ -178,14 +180,14 @@ export function AdMockup({
         {/* Headline + link description */}
         <div className="px-3 py-2 border-t border-[var(--border-subtle)] bg-[var(--color-light-gray)]">
           <p className="text-[10px] uppercase text-[var(--color-mid-gray)]">storageads.com</p>
-          <p className="text-sm font-semibold text-[var(--color-dark)] truncate">
+          <p className="text-sm font-black text-[var(--color-dark)] truncate">
             {headline}
           </p>
-          <p className="text-xs text-[var(--color-mid-gray)] truncate">{description}</p>
+          <p className="text-xs font-bold text-[var(--color-mid-gray)] truncate">{description}</p>
         </div>
         {/* Reactions bar */}
         <div className="px-3 py-2 border-t border-[var(--border-subtle)] flex items-center justify-between">
-          <button className="px-4 py-1.5 text-xs font-semibold rounded bg-[var(--color-light-gray)] text-[var(--color-dark)]">
+          <button className="px-4 py-1.5 text-xs font-black rounded bg-[var(--color-light-gray)] text-[var(--color-dark)]">
             {cta}
           </button>
           <div className="flex gap-4 text-[var(--color-mid-gray)]">
@@ -200,7 +202,7 @@ export function AdMockup({
 
   if (format === "google_display") {
     return (
-      <div className="w-[300px] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
+      <div className="w-[300px] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-2xl flex-shrink-0" data-ad-mockup="true bg-[var(--bg-elevated)]">
         {/* Banner image */}
         <div className="w-full h-[150px] bg-[var(--color-light-gray)] relative">
           {image ? (
@@ -217,7 +219,7 @@ export function AdMockup({
         </div>
         {/* Headline, description, CTA button, display URL */}
         <div className="p-3 space-y-1.5">
-          <p className="text-sm font-semibold leading-tight text-[var(--color-dark)]">
+          <p className="text-sm font-black leading-tight text-[var(--color-dark)]">
             {headline}
           </p>
           <p className="text-[11px] text-[var(--color-mid-gray)] line-clamp-2">

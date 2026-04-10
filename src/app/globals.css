@@ -125,6 +125,345 @@
 }
 
 /* ═══════════════════════════════════════════
+   ADMIN THEME — Neo-Brutalist
+   Bold borders. Hard shadows. Vivid colors. Heavy type.
+   Every button a different color. Text always readable.
+   Scoped to .admin-theme
+   ═══════════════════════════════════════════ */
+
+.admin-theme {
+  --bg: #ECEAE5;
+  --card: #FDFCFA;
+  --sidebar-bg: #1A1917;
+  --sidebar-text: #D4D0CB;
+  --sidebar-muted: #8A8580;
+  --sidebar-active-bg: var(--burgundy);
+  --sidebar-hover: rgba(255,255,255,0.06);
+  --header-bg: var(--burgundy);
+  --section-header-bg: #F5E8D8;
+  --section-header-text: var(--burgundy);
+  --tan: #C4A96A;
+  --link-color: var(--burgundy);
+  --ink: #050505;
+  --ink2: #444;
+  --ink3: #999;
+  --bw: 3px;
+  --r: 0.5em;
+  --shadow: 5px 5px 0 #050505;
+  --shadow-hover: 8px 8px 0 #050505;
+  --shadow-press: 2px 2px 0 #050505;
+  --font: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --navy: #2C3E6B;
+  --burgundy: #8C2332;
+  --forest: #1B4D3E;
+  --slate: #4A5563;
+  --teal: #3B5E5E;
+  --accent: var(--navy);
+  --accent2: var(--forest);
+  --accent3: var(--teal);
+  /* Override gold globally inside admin */
+  --color-gold: #8C2332;
+  --color-gold-hover: #7A1E2B;
+  --color-gold-on-light: #8C2332;
+  --color-gold-light: #F0DDE0;
+}
+
+/* Foundation */
+.admin-theme { font-family: var(--font); color: var(--ink); font-size: 14px; font-weight: 900; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+.admin-theme *, .admin-theme *::before, .admin-theme *::after { box-sizing: border-box; }
+.admin-theme main { background: var(--bg); }
+
+/* Sidebar — dark warm background */
+.admin-theme aside {
+  background: var(--sidebar-bg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.admin-theme aside [class*="text-\[\#6B7280\]"],
+.admin-theme aside [class*="text-\[\#9CA3AF\]"],
+.admin-theme aside [class*="text-gray-"],
+.admin-theme aside [class*="text-\[var(--color-dark)\]"] { color: var(--sidebar-text); }
+.admin-theme aside [class*="text-\[10px\]"],
+.admin-theme aside p[class*="uppercase"] { color: var(--sidebar-muted); }
+.admin-theme aside a { color: var(--sidebar-text); font-weight: 800; }
+.admin-theme aside a:hover { color: #FFFFFF; }
+/* Active sidebar item — burgundy bg */
+.admin-theme aside [class*="bg-\[var(--color-gold)\]"] { background-color: var(--sidebar-active-bg) !important; }
+.admin-theme aside [class*="font-medium"] { color: #FFFFFF; }
+/* Sidebar border */
+.admin-theme aside [class*="border-black"] { border-color: rgba(255,255,255,0.08); }
+/* Sidebar brand text */
+.admin-theme aside [class*="text-\[var(--color-gold)\]"] { color: var(--burgundy); }
+
+/* Header — burgundy nav bar (Vanguard style) */
+.admin-theme header {
+  background: var(--header-bg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 3px solid #6B1A25 !important;
+}
+.admin-theme header h1 { color: #FFFFFF !important; }
+.admin-theme header button { color: rgba(255,255,255,0.85); }
+.admin-theme header button:hover { color: #FFFFFF; }
+.admin-theme header [class*="bg-black"] { background: rgba(255,255,255,0.08); }
+.admin-theme header [class*="w-px"] { background: rgba(255,255,255,0.20); }
+
+/* Tabs — burgundy active state */
+.admin-theme [role="tab"][aria-selected="true"],
+.admin-theme [role="tab"][data-state="active"] { color: var(--burgundy); border-bottom: var(--bw) solid var(--burgundy); }
+
+/* Section headers — burgundy text on warm tan bg (Vanguard card sections) */
+.admin-theme main h2 { color: var(--burgundy); }
+.admin-theme main h3 { color: var(--navy); }
+
+/* Table headers — navy bg with white text */
+.admin-theme thead th { background: var(--navy); color: #FDFCFA; border-bottom-color: var(--ink); }
+
+/* Links — burgundy throughout */
+.admin-theme [class*="text-blue-"],
+.admin-theme [class*="text-\[\#3B82F6\]"],
+.admin-theme [class*="text-indigo-"] { color: var(--burgundy); }
+.admin-theme a[class*="text-blue-"] { color: var(--burgundy); text-decoration-color: var(--burgundy); }
+
+/* Warm tan dividers (Vanguard gold rule) */
+.admin-theme hr { border-color: var(--tan); border-width: 2px; }
+
+/* Card section headers — tan bg strip with burgundy text */
+.admin-theme [class*="border-b"][class*="pb-"] h3,
+.admin-theme [class*="border-b"][class*="pb-"] h4 { color: var(--burgundy); }
+
+/* Card left border — burgundy accent like Vanguard's signature stripe */
+.admin-theme [class*="bg-white"][class*="rounded"]:nth-child(4n+1) { border-left: 4px solid var(--burgundy); }
+.admin-theme [class*="bg-white"][class*="rounded"]:nth-child(4n+2) { border-left: 4px solid var(--navy); }
+.admin-theme [class*="bg-white"][class*="rounded"]:nth-child(4n+3) { border-left: 4px solid var(--forest); }
+.admin-theme [class*="bg-white"][class*="rounded"]:nth-child(4n+4) { border-left: 4px solid var(--tan); }
+
+/* Fix button text that uses CSS var colors — ensure always readable */
+.admin-theme button[class*="text-\[var(--color-mid-gray)\]"],
+.admin-theme button[class*="text-\[var(--color-body-text)\]"],
+.admin-theme button[class*="text-\[var(--color-light)\]"]:not([class*="bg-"]) {
+  color: #2C2825;
+}
+/* Buttons with colored bg get white text */
+.admin-theme button[class*="bg-\[var(--color-gold)\]"],
+.admin-theme button[class*="bg-emerald"],
+.admin-theme button[class*="bg-\[#"] {
+  color: #FDFCFA;
+}
+
+/* Scrollbar on dark sidebar */
+.admin-theme aside ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+.admin-theme aside ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+/* Facility tab sidebar — slightly darker than content for differentiation */
+.admin-theme main [class*="w-52"][class*="shrink-0"][class*="border-r"] {
+  background: #E0DDD8 !important;
+  border-right: 2px solid rgba(0,0,0,0.10) !important;
+}
+.admin-theme main [class*="w-52"][class*="shrink-0"] [class*="uppercase"] {
+  color: var(--slate);
+  font-weight: 900;
+}
+.admin-theme h1, .admin-theme h2, .admin-theme h3, .admin-theme h4, .admin-theme h5, .admin-theme h6 { font-family: var(--font); color: var(--ink); font-weight: 900; text-transform: uppercase; letter-spacing: 0.03em; }
+.admin-theme h1 { font-size: 28px; }
+.admin-theme h2 { font-size: 22px; }
+.admin-theme h3 { font-size: 17px; }
+.admin-theme h4 { font-size: 15px; }
+.admin-theme p, .admin-theme span, .admin-theme label, .admin-theme li, .admin-theme td, .admin-theme th, .admin-theme input, .admin-theme textarea, .admin-theme select, .admin-theme button, .admin-theme a { font-family: var(--font); font-weight: 900; }
+
+/* KPI numbers */
+.admin-theme [class*="text-2xl"], .admin-theme [class*="text-3xl"], .admin-theme [class*="text-4xl"] { font-weight: 900; letter-spacing: -0.03em; color: var(--ink); }
+
+/* Surface remap — warm cream, not white */
+.admin-theme [class*="bg-white"]         { background-color: var(--card); }
+.admin-theme [class*="bg-\[\#F9FAFB\]"] { background-color: var(--card); }
+.admin-theme [class*="bg-gray-50"]       { background-color: var(--card); }
+.admin-theme [class*="bg-\[\#F3F4F6\]"] { background-color: var(--bg); }
+.admin-theme [class*="bg-gray-100"]      { background-color: var(--bg); }
+
+/* Text remap */
+.admin-theme [class*="text-\[\#111827\]"], .admin-theme [class*="text-gray-900"], .admin-theme [class*="text-gray-800"], .admin-theme [class*="text-gray-700"], .admin-theme [class*="text-slate-900"], .admin-theme [class*="text-slate-800"] { color: var(--ink); }
+.admin-theme [class*="text-\[\#6B7280\]"], .admin-theme [class*="text-\[\#4B5563\]"], .admin-theme [class*="text-gray-600"], .admin-theme [class*="text-gray-500"] { color: var(--ink2); }
+.admin-theme [class*="text-\[\#9CA3AF\]"], .admin-theme [class*="text-gray-400"], .admin-theme [class*="text-gray-300"] { color: var(--ink3); }
+
+/* Borders — color only (not width — width stays as-is to avoid layout breakage) */
+.admin-theme [class*="border-black\/"], .admin-theme [class*="border-gray-"], .admin-theme [class*="border-slate-"], .admin-theme [class*="border-\[var"] { border-color: rgba(5, 5, 5, 0.15); }
+.admin-theme [class*="divide-gray-"] > * + *, .admin-theme [class*="divide-slate-"] > * + * { border-color: rgba(5, 5, 5, 0.12); }
+
+/* Radius */
+.admin-theme [class*="rounded-2xl"], .admin-theme [class*="rounded-xl"], .admin-theme [class*="rounded-lg"] { border-radius: var(--r); }
+.admin-theme [class*="rounded-md"] { border-radius: 0.3em; }
+
+/* Shadows → hard offset (brutalist) */
+.admin-theme [class*="shadow-sm"], .admin-theme [class*="shadow-md"], .admin-theme [class*="shadow-lg"], .admin-theme [class*="shadow-xl"] {
+  box-shadow: var(--shadow);
+}
+
+/* Cards — thick border, hard shadow */
+.admin-theme [class*="bg-white"][class*="rounded"], .admin-theme [class*="bg-white"][class*="border"] {
+  background: var(--card);
+  border: var(--bw) solid var(--ink);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.admin-theme [class*="bg-white"][class*="rounded"]:hover, .admin-theme [class*="bg-white"][class*="border"]:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Buttons — handled by ColorCycler JS for unique colors, but base styles here */
+.admin-theme button[class*="bg-blue-"], .admin-theme button[class*="bg-\[\#3B82F6\]"], .admin-theme a[class*="bg-blue-"], .admin-theme button[class*="bg-indigo-"] {
+  color: var(--card);
+  font-weight: 900;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: var(--bw) solid var(--ink);
+  border-radius: 0.4em;
+  box-shadow: 4px 4px 0 var(--ink);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.admin-theme button[class*="bg-blue-"]:hover, .admin-theme button[class*="bg-\[\#3B82F6\]"]:hover {
+  filter: brightness(1.1);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+.admin-theme button[class*="bg-blue-"]:active, .admin-theme button[class*="bg-\[\#3B82F6\]"]:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+/* Other button colors — each type different */
+.admin-theme button[class*="bg-amber-"], .admin-theme button[class*="bg-yellow-"] { background-color: #6B4C3B; color: var(--card); border: var(--bw) solid var(--ink); border-radius: 0.4em; box-shadow: 4px 4px 0 var(--ink); font-weight: 900; text-transform: uppercase; }
+.admin-theme button[class*="bg-red-"], .admin-theme button[class*="bg-rose-"] { background-color: #8C2332; color: var(--card); border: var(--bw) solid var(--ink); border-radius: 0.4em; box-shadow: 4px 4px 0 var(--ink); font-weight: 900; text-transform: uppercase; }
+.admin-theme button[class*="bg-green-"], .admin-theme button[class*="bg-emerald-"] { background-color: #1B4D3E; color: var(--card); border: var(--bw) solid var(--ink); border-radius: 0.4em; box-shadow: 4px 4px 0 var(--ink); font-weight: 900; text-transform: uppercase; }
+
+/* Inputs — thick border, hard shadow */
+.admin-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]), .admin-theme textarea, .admin-theme select {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 0.4em;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.03);
+  transition: all 0.2s ease;
+}
+.admin-theme input:focus, .admin-theme textarea:focus, .admin-theme select:focus {
+  border-color: var(--accent);
+  box-shadow: 3px 3px 0 var(--ink);
+  outline: none;
+}
+.admin-theme input::placeholder, .admin-theme textarea::placeholder { color: var(--ink3); font-weight: 600; }
+
+/* Tables */
+.admin-theme table { font-size: 14px; font-weight: 700; }
+.admin-theme thead th { background: var(--bg); color: var(--ink); font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 16px; border-bottom: var(--bw) solid var(--ink); }
+.admin-theme tbody td { padding: 10px 16px; border-bottom: 2px solid rgba(0,0,0,0.08); }
+.admin-theme tbody tr { transition: all 0.15s ease; }
+.admin-theme tbody tr:hover { background: rgba(0, 224, 176, 0.06); }
+
+/* Badges — vivid, thick border, tiny shadow */
+.admin-theme [class*="bg-green-100"]  { background: #1B4D3E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+.admin-theme [class*="bg-red-100"]    { background: #8C2332; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+.admin-theme [class*="bg-blue-100"]   { background: #2C3E6B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+.admin-theme [class*="bg-yellow-100"], .admin-theme [class*="bg-amber-100"], .admin-theme [class*="bg-orange-100"] { background: #6B4C3B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+.admin-theme [class*="bg-purple-100"], .admin-theme [class*="bg-violet-100"] { background: #5C3D6E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+.admin-theme [class*="bg-teal-100"], .admin-theme [class*="bg-cyan-100"] { background: #3B5E5E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+.admin-theme [class*="bg-pink-100"]   { background: #7A3B3B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+.admin-theme [class*="bg-indigo-100"] { background: #2E4A62; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+.admin-theme [class*="bg-emerald-100"] { background: #4A5D23; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+
+/* UNIVERSAL: Any dark background → ALL text inside is white/cream */
+.admin-theme [class*="bg-green-100"] *,
+.admin-theme [class*="bg-red-100"] *,
+.admin-theme [class*="bg-blue-100"] *,
+.admin-theme [class*="bg-yellow-100"] *,
+.admin-theme [class*="bg-amber-100"] *,
+.admin-theme [class*="bg-orange-100"] *,
+.admin-theme [class*="bg-purple-100"] *,
+.admin-theme [class*="bg-violet-100"] *,
+.admin-theme [class*="bg-teal-100"] *,
+.admin-theme [class*="bg-cyan-100"] *,
+.admin-theme [class*="bg-pink-100"] *,
+.admin-theme [class*="bg-indigo-100"] *,
+.admin-theme [class*="bg-emerald-100"] *,
+.admin-theme [class*="bg-indigo-500\/20"] *,
+.admin-theme [class*="bg-cyan-500\/20"] *,
+.admin-theme [class*="bg-teal-500\/20"] *,
+.admin-theme [class*="bg-amber-500\/20"] *,
+.admin-theme [class*="bg-purple-500\/20"] *,
+.admin-theme [class*="bg-orange-500\/20"] *,
+.admin-theme [class*="bg-emerald-500\/20"] *,
+.admin-theme [class*="bg-red-500\/20"] *,
+.admin-theme [class*="bg-\[var(--color-blue)\]\/20"] * { color: #FDFCFA; }
+
+/* Also catch selected/active states with colored backgrounds */
+.admin-theme [class*="bg-blue-500"],
+.admin-theme [class*="bg-blue-600"],
+.admin-theme [class*="bg-indigo-500"],
+.admin-theme [class*="bg-indigo-600"] { color: #FDFCFA; }
+.admin-theme [class*="bg-blue-500"] *,
+.admin-theme [class*="bg-blue-600"] *,
+.admin-theme [class*="bg-indigo-500"] *,
+.admin-theme [class*="bg-indigo-600"] * { color: #FDFCFA; }
+
+/* Status translucent badges → solid brutalist */
+.admin-theme [class*="bg-indigo-500\/20"]  { background: #2C3E6B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+.admin-theme [class*="bg-cyan-500\/20"]    { background: #3B5E5E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+.admin-theme [class*="bg-teal-500\/20"]    { background: #1B4D3E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+.admin-theme [class*="bg-amber-500\/20"]   { background: #6B4C3B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+.admin-theme [class*="bg-purple-500\/20"]  { background: #5C3D6E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+.admin-theme [class*="bg-orange-500\/20"]  { background: #7A3B3B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+.admin-theme [class*="bg-emerald-500\/20"] { background: #4A5D23; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+.admin-theme [class*="bg-red-500\/20"]     { background: #8C2332; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+.admin-theme [class*="bg-\[var(--color-blue)\]\/20"] { background: #2E4A62; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
+
+/* Links */
+.admin-theme [class*="text-blue-"], .admin-theme [class*="text-\[\#3B82F6\]"], .admin-theme [class*="text-indigo-"] { color: #2C3E6B; }
+.admin-theme a[class*="text-blue-"] { color: #2C3E6B; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.admin-theme [class*="text-\[var(--color-gold)\]"] { color: #8C2332; }
+.admin-theme [class*="text-\[var(--color-dark)\]"] { color: var(--ink); }
+/* Gold overridden to burgundy in admin — selected states, active items */
+
+/* Tabs */
+.admin-theme [role="tab"] { font-size: 14px; font-weight: 900; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.04em; transition: all 0.2s ease; border-radius: 0; }
+.admin-theme [role="tab"][aria-selected="true"], .admin-theme [role="tab"][data-state="active"] { color: var(--ink); border-bottom: var(--bw) solid var(--ink); }
+.admin-theme [role="tab"]:hover { color: var(--ink2); }
+
+/* Scrollbars */
+.admin-theme ::-webkit-scrollbar { width: 10px; height: 10px; }
+.admin-theme ::-webkit-scrollbar-track { background: var(--bg); }
+.admin-theme ::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 0; border: 2px solid var(--bg); }
+
+/* Interactive */
+.admin-theme [class*="animate-spin"] { border-color: #2C3E6B; border-top-color: transparent; }
+.admin-theme input[type="checkbox"]:checked { background-color: #1B4D3E; border-color: var(--ink); }
+.admin-theme [role="progressbar"] > div { background: #2C3E6B; }
+.admin-theme *:focus-visible { outline: 3px solid #2C3E6B; outline-offset: 2px; }
+.admin-theme button:focus:not(:focus-visible) { outline: none; box-shadow: 4px 4px 0 var(--ink); }
+.admin-theme button:active { outline: none; }
+.admin-theme [class*="animate-pulse"] { background-color: var(--bg); }
+
+/* Modals */
+.admin-theme [class*="fixed"][class*="inset-0"][class*="bg-black"] { background: rgba(5,5,5,0.5); }
+
+/* Charts */
+.admin-theme .recharts-cartesian-grid line { stroke: rgba(0,0,0,0.08); }
+.admin-theme .recharts-text { font-family: var(--font); font-size: 11px; font-weight: 800; fill: var(--ink3); }
+
+/* Empty states */
+.admin-theme [class*="border-dashed"] { border-color: var(--ink); border-width: 2px; }
+
+/* Grid pattern on main content area only */
+.admin-theme main {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* ═══════════════════════════════════════════
    TAILWIND THEME INTEGRATION
    ═══════════════════════════════════════════ */
 

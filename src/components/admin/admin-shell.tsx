@@ -28,6 +28,7 @@ import {
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { AdminProvider, STORAGE_KEY } from "@/lib/admin-context";
 import { AdminHeader } from "./admin-header";
+import { ColorCycler } from "./color-cycler";
 import { useClerkRole } from "@/hooks/use-clerk-role";
 import { VA_RESTRICTED_PATHS } from "@/lib/clerk-roles";
 import { haptic } from "@/lib/haptics";
@@ -405,7 +406,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminProvider initialKey={adminKey}>
-      <div className="flex h-screen overflow-hidden bg-white">
+      <div className="admin-theme flex h-screen overflow-hidden" style={{ background: "var(--bg)", fontFamily: "var(--font)" }}>
         <Sidebar
           collapsed={sidebarCollapsed}
           onCollapse={setSidebarCollapsed}
@@ -416,6 +417,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <AdminHeader onToggleSidebar={() => { haptic("light"); setMobileOpen((v) => !v); }} />
           <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-6">
+            <ColorCycler />
             {children}
           </main>
         </div>

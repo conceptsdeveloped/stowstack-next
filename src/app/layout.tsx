@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Poppins, Lora } from "next/font/google";
+import { Poppins, Lora, Inter } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
 import Analytics from "@/components/analytics";
@@ -19,6 +19,13 @@ const lora = Lora({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -124,7 +131,7 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" className={`${poppins.variable} ${lora.variable} antialiased`}>
+      <html lang="en" className={`${poppins.variable} ${lora.variable} ${inter.variable} antialiased`}>
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

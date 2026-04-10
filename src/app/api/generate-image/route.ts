@@ -225,14 +225,23 @@ Facility: ${facility.name} in ${facility.location}
 ${facilityContext}
 ${customNotes ? `Admin notes: ${customNotes}` : ""}
 
-${copyContext ? `AD COPY THIS IMAGE WILL ACCOMPANY — the image MUST visually reinforce this specific message:\n${copyContext}\n` : "WARNING: No ad copy provided. Generate a versatile image that works for general self-storage advertising.\n"}
-ADAPT THE IMAGE based on the facility context:
-- If the facility has low occupancy, the image should convey availability and welcome.
-- If the facility is nearly full, the image should convey premium quality and exclusivity.
-- If there are active specials, the image should feel promotional and energetic.
-- If the copy emphasizes security, the image should show clean, well-lit, secure-feeling spaces.
-- If the copy emphasizes convenience or moving, show relatable lifestyle moments.
-- If the copy uses social proof (ratings, reviews), the image should feel trustworthy and established.
+${copyContext ? `THIS IS THE MOST IMPORTANT PART — THE AD COPY THIS IMAGE MUST ILLUSTRATE:
+${copyContext}
+
+Your #1 job is to create an image that TELLS THE SAME STORY as this copy. Examples:
+- If the headline is about garages/cars → show a clean garage or car in a driveway
+- If it's about moving → show someone carrying boxes or a moving truck
+- If it's about decluttering → show a messy room transforming to clean space
+- If it's about seasonal storage → show seasonal items (holiday decorations, sports gear)
+- If it's about security → show a secure, well-lit facility
+- If it's about family → show a family home or domestic scene
+- If it's about price → show the facility looking premium and worth the money
+The image should make someone FEEL the emotion of the headline before they even read it.
+` : "No ad copy provided. Generate a versatile self-storage marketing image.\n"}
+ALSO ADAPT based on facility context:
+- Low occupancy → convey availability and welcome
+- Nearly full → convey premium quality and exclusivity
+- Active specials → feel promotional and energetic
 
 ${brandVisual.slice(0, 800)}
 
@@ -240,7 +249,7 @@ VISUAL DOCTRINE:
 - Visible film grain texture. Newspaper-print tonal quality.
 - Intentional composition — every element placed with purpose. Vary framing: wide shots, close-ups, off-center, rule of thirds. NOT always symmetrical or centered.
 - Vary lighting naturally — daylight, overcast, fluorescent, window light. NOT always golden hour.
-- No business names or text on screen.
+- CRITICAL: Do NOT render ANY text, words, letters, numbers, logos, or watermarks in the image. The image must be PURELY photographic with ZERO text of any kind. Text will be added separately as an HTML overlay.
 ${styleDirectives}
 
 ${creativeContext.slice(0, 300)}
@@ -253,9 +262,11 @@ IMAGE GENERATION RULES (critical for AI image models):
 - Residential/home scenes should feel warm and lived-in but recognizable — carpet, furniture, windows, curtains.
 - NO PEOPLE unless the template specifically calls for them. AI-generated people in ads are a liability.
 
-Base prompt to enhance: ${basePrompt}
+${copyContext
+  ? `Base template (USE AS A STARTING POINT ONLY — you MUST change the subject matter to match the ad copy above. If the copy is about cars, show a car. If it's about garages, show a garage. If it's about moving, show moving. Do NOT default to a generic storage hallway unless the copy is specifically about the facility itself): ${basePrompt}`
+  : `Base prompt to enhance: ${basePrompt}`}
 
-Enhance this into a visually specific prompt under 150 words. Return ONLY the enhanced prompt.`,
+Create a visually specific image generation prompt under 150 words that illustrates the ad copy's story. Return ONLY the prompt.`,
         },
       ],
     });
@@ -297,7 +308,7 @@ async function generateImage(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      prompt,
+      prompt: prompt + " Do not include any text, words, letters, numbers, logos, or watermarks anywhere in the image.",
       image_size: {
         width: dims.width,
         height: dims.height,
