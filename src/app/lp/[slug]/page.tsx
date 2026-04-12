@@ -208,7 +208,7 @@ function HeroSplash({
             {phone && (
               <a
                 href={telUrl}
-                className={`inline-flex items-center justify-center gap-2 px-5 py-3.5 md:px-6 md:py-4 border rounded-full text-sm font-medium transition-colors ${
+                className={`hidden sm:inline-flex items-center justify-center gap-2 px-5 py-3.5 md:px-6 md:py-4 border rounded-full text-sm font-medium transition-colors ${
                   backgroundImage
                     ? "border-white/40 text-white hover:bg-white/10"
                     : "border-[#141413]/20 text-[#141413] hover:bg-[#141413]/5"
