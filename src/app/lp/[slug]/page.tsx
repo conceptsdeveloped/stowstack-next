@@ -116,7 +116,7 @@ function HeroSplash({
   subheadline,
   reserveUrl,
   reserveLabel,
-  trackingPhone,
+  phone,
 }: {
   backgroundImage: string;
   facilityName?: string;
@@ -124,8 +124,10 @@ function HeroSplash({
   subheadline?: string;
   reserveUrl: string;
   reserveLabel: string;
-  trackingPhone: string | null;
+  phone: string | null;
 }) {
+  const isExternal = reserveUrl.startsWith("http");
+  const telUrl = phone ? `tel:${phone.replace(/[^+\d]/g, "")}` : "";
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {backgroundImage ? (
@@ -177,11 +179,25 @@ function HeroSplash({
           )}
 
           <div className="mt-7 md:mt-10 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
+            {/* Mobile: call if phone available and no external URL */}
+            {!isExternal && telUrl && (
+              <a
+                href={telUrl}
+                className={`sm:hidden inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-[15px] font-semibold transition-colors ${
+                  backgroundImage
+                    ? "bg-white text-[#141413] hover:bg-white/90"
+                    : "bg-[#141413] text-[#faf9f5] hover:bg-[#141413]/90"
+                }`}
+              >
+                <Phone size={16} /> Call to Reserve
+              </a>
+            )}
+            {/* Desktop (or mobile with external URL / no phone) */}
             <a
-              href={reserveUrl || "#"}
-              target={reserveUrl && reserveUrl.startsWith("http") ? "_blank" : undefined}
-              rel={reserveUrl && reserveUrl.startsWith("http") ? "noopener noreferrer" : undefined}
-              className={`inline-flex items-center justify-center gap-2 px-7 py-3.5 md:px-8 md:py-4 rounded-full text-[15px] md:text-base font-semibold transition-colors ${
+              href={isExternal ? reserveUrl : telUrl || "#cta"}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noopener noreferrer" : undefined}
+              className={`${!isExternal && telUrl ? "hidden sm:inline-flex" : "inline-flex"} items-center justify-center gap-2 px-7 py-3.5 md:px-8 md:py-4 rounded-full text-[15px] md:text-base font-semibold transition-colors ${
                 backgroundImage
                   ? "bg-white text-[#141413] hover:bg-white/90"
                   : "bg-[#141413] text-[#faf9f5] hover:bg-[#141413]/90"
@@ -189,16 +205,16 @@ function HeroSplash({
             >
               {reserveLabel} <ArrowRight size={16} />
             </a>
-            {trackingPhone && (
+            {phone && (
               <a
-                href={`tel:${trackingPhone.replace(/[^+\d]/g, "")}`}
+                href={telUrl}
                 className={`inline-flex items-center justify-center gap-2 px-5 py-3.5 md:px-6 md:py-4 border rounded-full text-sm font-medium transition-colors ${
                   backgroundImage
                     ? "border-white/40 text-white hover:bg-white/10"
                     : "border-[#141413]/20 text-[#141413] hover:bg-[#141413]/5"
                 }`}
               >
-                <Phone size={15} /> {trackingPhone}
+                <Phone size={15} /> {phone}
               </a>
             )}
           </div>
@@ -1050,7 +1066,7 @@ export default function LandingPageRoute() {
         subheadline={subheadline}
         reserveUrl={reserveUrl}
         reserveLabel={reserveLabel}
-        trackingPhone={trackingPhone}
+        phone={trackingPhone || (cta.phone as string) || (hero.phone as string) || null}
       />
 
       {sectionByType("trust_bar") && <TrustBarChapter items={trustItems} />}
