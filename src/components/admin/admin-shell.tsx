@@ -298,10 +298,9 @@ function Sidebar({
                     onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "#2a2926"; e.currentTarget.style.color = "#ffffff"; }}
                     onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#D4D0CB"; } }}
                     >
-                      <Icon
-                        className="h-4 w-4 shrink-0"
-                        style={{ color: isActive ? "#ffffff" : "#8A8580" }}
-                      />
+                      <span style={{ color: isActive ? "#ffffff" : "#8A8580" }}>
+                        <Icon className="h-4 w-4 shrink-0" />
+                      </span>
                       {!collapsed && <span>{item.label}</span>}
                     </Link>
                   </li>
