@@ -354,7 +354,7 @@ function VerticalTabSidebar({
   onMobileOpen: () => void;
 }) {
   const activeRef = useRef<HTMLButtonElement>(null);
-  const drawerRef = useRef<HTMLElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
   const [edgeHover, setEdgeHover] = useState(false);
 
   // Scroll active tab into view on mount
