@@ -207,7 +207,7 @@ function StatusBadge({ status }: { status?: string }) {
     draft: "bg-yellow-500/20 text-yellow-400",
     paused: "bg-orange-500/20 text-orange-400",
     inactive: "bg-red-500/20 text-red-400",
-    completed: "bg-[var(--color-gold)]/20 text-[var(--color-gold)]",
+    completed: "bg-[var(--burgundy)]/20 text-[var(--burgundy)]",
     answered: "bg-emerald-500/20 text-emerald-400",
     missed: "bg-red-500/20 text-red-400",
     voicemail: "bg-yellow-500/20 text-yellow-400",
@@ -519,18 +519,18 @@ function VerticalTabSidebar({
                     }}
                     className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150 ${
                       isActive
-                        ? "bg-[var(--color-gold)]/10 text-[var(--color-gold)] shadow-sm shadow-[var(--color-gold)]/5"
+                        ? "bg-[var(--burgundy)]/10 text-[var(--burgundy)] shadow-sm shadow-[var(--burgundy)]/5"
                         : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)]"
                     }`}
                   >
                     <Icon
                       className={`h-3.5 w-3.5 shrink-0 transition-colors ${
-                        isActive ? "text-[var(--color-gold)]" : "text-[var(--color-mid-gray)]"
+                        isActive ? "text-[var(--burgundy)]" : "text-[var(--color-mid-gray)]"
                       }`}
                     />
                     <span className="truncate">{tab.label}</span>
                     {isActive && (
-                      <div className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-gold)]" />
+                      <div className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--burgundy)]" />
                     )}
                   </button>
                 </li>
@@ -575,7 +575,7 @@ function VerticalTabSidebar({
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-dark)]">
               Tools
             </span>
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-gold)]/15 px-1 text-[10px] font-semibold text-[var(--color-gold)]">
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--burgundy)]/15 px-1 text-[10px] font-semibold text-[var(--burgundy)]">
               {TOTAL_TOOLS}
             </span>
           </div>
@@ -606,7 +606,7 @@ function VerticalTabSidebar({
               edgeHover ? "opacity-100 translate-x-0 scale-100" : "opacity-0 -translate-x-1 scale-95"
             }`}
           >
-            <div className="flex h-20 w-7 items-center justify-center rounded-r-xl bg-[var(--color-gold)] shadow-lg">
+            <div className="flex h-20 w-7 items-center justify-center rounded-r-xl bg-[var(--burgundy)] shadow-lg">
               <ChevronRight className="h-4 w-4 text-white" />
             </div>
           </div>
@@ -705,12 +705,12 @@ function FacilityDetail({
           <button
             type="button"
             onClick={() => setMobileNavOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-gold)] transition-all hover:bg-[var(--color-gold)]/20 active:scale-95 lg:hidden"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--burgundy)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--burgundy)] transition-all hover:bg-[var(--burgundy)]/20 active:scale-95 lg:hidden"
             aria-label="Open tools menu"
           >
             <Menu className="h-3.5 w-3.5" />
             <span>Tools</span>
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-gold)]/20 px-1 text-[10px] font-semibold">
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--burgundy)]/20 px-1 text-[10px] font-semibold">
               {TOTAL_TOOLS}
             </span>
           </button>
@@ -731,10 +731,10 @@ function FacilityDetail({
         <button
           type="button"
           onClick={() => setMobileNavOpen(true)}
-          className="group flex items-center gap-1.5 rounded-md px-1 py-0.5 transition-colors hover:bg-[var(--color-gold)]/10"
+          className="group flex items-center gap-1.5 rounded-md px-1 py-0.5 transition-colors hover:bg-[var(--burgundy)]/10"
         >
           {activeTabDef && (
-            <activeTabDef.icon className="h-3.5 w-3.5 text-[var(--color-gold)]" />
+            <activeTabDef.icon className="h-3.5 w-3.5 text-[var(--burgundy)]" />
           )}
           {activeGroupTitle ? (
             <>
@@ -964,7 +964,7 @@ function FacilitiesContent() {
             placeholder="Search facilities..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-9 pr-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:border-[var(--color-gold)]/50 focus:outline-none focus:ring-1 focus:ring-[var(--color-gold)]/50"
+            className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-9 pr-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:border-[var(--burgundy)]/50 focus:outline-none focus:ring-1 focus:ring-[var(--burgundy)]/50"
           />
           {localSearch && (
             <button

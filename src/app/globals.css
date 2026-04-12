@@ -13,11 +13,11 @@
   --color-light-gray: #e8e6dc;
   --color-body-text: #6a6560;
 
-  /* ── Primary Accent — Sienna Gold ── */
-  --color-gold: #B58B3F;
-  --color-gold-hover: #9E7A36;
-  --color-gold-on-light: #9A7A35;
-  --color-gold-light: #F2EBD9;
+  /* ── Primary Accent — Charcoal (was Sienna Gold — gold is banned) ── */
+  --color-gold: #141413;
+  --color-gold-hover: #2b2a27;
+  --color-gold-on-light: #141413;
+  --color-gold-light: #e8e6dc;
 
   /* ── Secondary Accents ── */
   --color-blue: #6a9bcc;
@@ -46,9 +46,9 @@
   --text-tertiary: var(--color-mid-gray);
   --text-inverse: var(--color-light);
 
-  --accent: var(--color-gold);
-  --accent-hover: var(--color-gold-hover);
-  --accent-glow: rgba(181, 139, 63, 0.15);
+  --accent: var(--color-dark);
+  --accent-hover: #2b2a27;
+  --accent-glow: rgba(20, 20, 19, 0.15);
 
   --border-subtle: rgba(20, 20, 19, 0.08);
   --border-medium: rgba(20, 20, 19, 0.15);
@@ -508,7 +508,7 @@ body {
 }
 
 ::selection {
-  background: var(--color-gold);
+  background: var(--color-dark);
   color: var(--color-light);
 }
 
@@ -580,7 +580,7 @@ body {
   justify-content: center;
   gap: 0.5rem;
   padding: 12px 24px;
-  background: var(--color-gold);
+  background: var(--color-dark);
   color: var(--color-light);
   font-family: var(--font-heading);
   font-weight: 500;
@@ -594,7 +594,7 @@ body {
 }
 
 .btn-primary:hover {
-  background: var(--color-gold-hover);
+  background: var(--accent-hover);
   color: var(--color-light);
 }
 
@@ -629,7 +629,7 @@ body {
 }
 
 .input-field:focus {
-  border-color: var(--color-gold);
+  border-color: var(--color-dark);
   box-shadow: none;
 }
 
@@ -777,7 +777,7 @@ body {
 
 /* Focus visible styles for keyboard navigation */
 :focus-visible {
-  outline: 2px solid var(--color-gold);
+  outline: 2px solid var(--color-dark);
   outline-offset: 2px;
 }
 
