@@ -585,9 +585,8 @@ function CTAChapter({
   reserveUrl: string;
   reserveLabel: string;
 }) {
-  if (!headline) return null;
   return (
-    <section className="bg-white py-14 md:py-28 border-t border-[#141413]/8">
+    <section id="cta" className="bg-white py-14 md:py-28 border-t border-[#141413]/8">
       <div className="max-w-3xl mx-auto px-5 md:px-14 text-center">
         <FadeIn>
           <h2 className="text-2xl md:text-5xl font-semibold leading-snug md:leading-tight tracking-tight text-[#141413]">
@@ -993,11 +992,19 @@ export default function LandingPageRoute() {
     (hero.headline as string) || page.title || "Reserve Your Unit";
   const subheadline = (hero.subheadline as string) || "";
 
-  const reserveUrl =
+  const externalUrl =
     page.storedge_widget_url ||
-    (cta.ctaUrl as string) ||
-    (hero.ctaUrl as string) ||
-    "";
+    (
+      (cta.ctaUrl as string) && (cta.ctaUrl as string).startsWith("http")
+        ? (cta.ctaUrl as string)
+        : ""
+    ) ||
+    (
+      (hero.ctaUrl as string) && (hero.ctaUrl as string).startsWith("http")
+        ? (hero.ctaUrl as string)
+        : ""
+    );
+  const reserveUrl = externalUrl || "#cta";
   const reserveLabel =
     (cta.ctaText as string) || (hero.ctaText as string) || "Reserve Unit";
 
@@ -1076,9 +1083,8 @@ export default function LandingPageRoute() {
           directions={directions}
         />
       )}
-      {sectionByType("cta") && (
-        <CTAChapter
-          headline={cta.headline as string | undefined}
+      <CTAChapter
+          headline={(cta.headline as string) || "Ready to reserve?"}
           subheadline={cta.subheadline as string | undefined}
           phone={
             trackingPhone || (cta.phone as string | undefined) || undefined
@@ -1086,7 +1092,6 @@ export default function LandingPageRoute() {
           reserveUrl={reserveUrl}
           reserveLabel={reserveLabel}
         />
-      )}
 
       <PageFooter />
 
