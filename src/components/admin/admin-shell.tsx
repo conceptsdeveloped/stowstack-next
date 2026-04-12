@@ -246,8 +246,8 @@ function Sidebar({
           href="/"
           className={`text-lg font-semibold transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
         >
-          <span className="text-white">storage</span>
-          <span className="text-white/70">ads</span>
+          <span style={{ color: "#ffffff" }}>storage</span>
+          <span style={{ color: "#D4D0CB" }}>ads</span>
         </Link>
         {!collapsed && (
           <Link
@@ -272,7 +272,7 @@ function Sidebar({
         {filteredGroups.map((group) => (
           <div key={group.title} className="mb-6">
             {!collapsed && (
-              <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-white/40">
+              <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#8A8580" }}>
                 {group.title}
               </p>
             )}
@@ -288,12 +288,19 @@ function Sidebar({
                       title={collapsed ? item.label : undefined}
                       className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
                         isActive
-                          ? "bg-white/10 font-medium text-white"
-                          : "text-white/60 hover:bg-white/[0.06] hover:text-white/90"
+                          ? "font-medium"
+                          : ""
                       } ${collapsed ? "justify-center" : ""}`}
+                    style={{
+                      background: isActive ? "#2a2926" : "transparent",
+                      color: isActive ? "#ffffff" : "#D4D0CB",
+                    }}
+                    onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "#2a2926"; e.currentTarget.style.color = "#ffffff"; }}
+                    onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#D4D0CB"; } }}
                     >
                       <Icon
-                        className={`h-4 w-4 shrink-0 ${isActive ? "text-white" : "text-white/40"}`}
+                        className="h-4 w-4 shrink-0"
+                        style={{ color: isActive ? "#ffffff" : "#8A8580" }}
                       />
                       {!collapsed && <span>{item.label}</span>}
                     </Link>
@@ -310,7 +317,8 @@ function Sidebar({
         <button
           type="button"
           onClick={() => onCollapse(!collapsed)}
-          className="flex w-full items-center justify-center rounded-lg p-2 text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70"
+          className="flex w-full items-center justify-center rounded-lg p-2 transition-colors"
+          style={{ color: "#8A8580" }}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <ChevronLeft
