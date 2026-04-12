@@ -241,7 +241,7 @@ function Sidebar({
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Brand */}
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-black/[0.08] px-4">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4">
         <Link
           href="/"
           className={`text-lg font-semibold transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
@@ -306,11 +306,11 @@ function Sidebar({
       </nav>
 
       {/* Collapse toggle (desktop only) */}
-      <div className="hidden shrink-0 border-t border-black/[0.08] p-3 md:block">
+      <div className="hidden shrink-0 border-t border-white/10 p-3 md:block">
         <button
           type="button"
           onClick={() => onCollapse(!collapsed)}
-          className="flex w-full items-center justify-center rounded-lg p-2 text-[#9CA3AF] transition-colors hover:bg-black/[0.03] hover:text-[#6B7280]"
+          className="flex w-full items-center justify-center rounded-lg p-2 text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <ChevronLeft
@@ -334,7 +334,7 @@ function Sidebar({
 
       {/* Mobile sidebar */}
       <aside
-        className={`safe-left fixed inset-y-0 left-0 z-50 w-64 border-r border-black/[0.08] bg-[#F9FAFB] transition-transform duration-200 md:hidden ${
+        className={`safe-left fixed inset-y-0 left-0 z-50 w-64 border-r border-white/10 bg-[#1A1917] transition-transform duration-200 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -343,7 +343,7 @@ function Sidebar({
 
       {/* Desktop sidebar */}
       <aside
-        className={`hidden shrink-0 border-r border-black/[0.08] bg-[#F9FAFB] transition-all duration-200 md:block ${
+        className={`hidden shrink-0 border-r border-white/10 bg-[#1A1917] transition-all duration-200 md:block ${
           collapsed ? "w-16" : "w-64"
         }`}
       >
@@ -416,7 +416,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         />
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <AdminHeader onToggleSidebar={() => { haptic("light"); setMobileOpen((v) => !v); }} />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-6">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-6 min-w-0">
             <ColorCycler />
             {children}
           </main>

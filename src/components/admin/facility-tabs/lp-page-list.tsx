@@ -73,71 +73,72 @@ export function PageList({
   const [archetype, setArchetype] = useState("")
   return (
     <div className="space-y-4">
-      <div className="border border-black/[0.08] rounded-xl bg-white">
-        <div className="p-5">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h3 className="text-lg font-semibold text-[#111827]">
+      <div className="border border-black/[0.08] rounded-xl bg-white overflow-hidden">
+        <div className="p-3 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-lg font-semibold text-[#111827]">
                 Landing Pages
               </h3>
-              <p className="text-sm text-[#9CA3AF]">
+              <p className="text-xs sm:text-sm text-[#9CA3AF]">
                 Ad-specific pages for this facility
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {onGenerate && (
                 <button
                   onClick={() => setShowGenerate(!showGenerate)}
                   disabled={generating}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#111827] border border-black/[0.08] hover:bg-black/[0.04] transition-colors disabled:opacity-40"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#111827] border border-black/[0.08] hover:bg-black/[0.04] transition-colors disabled:opacity-40"
                 >
                   {generating ? (
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader2 size={12} className="animate-spin" />
                   ) : (
-                    <Sparkles size={14} />
+                    <Sparkles size={12} />
                   )}
-                  {generating ? "Generating..." : "AI Generate"}
+                  <span className="hidden sm:inline">{generating ? "Generating..." : "AI Generate"}</span>
+                  <span className="sm:hidden">{generating ? "..." : "AI"}</span>
                 </button>
               )}
               <button
                 onClick={onCreateNew}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#111827] bg-[#3B82F6] hover:bg-[#3B82F6]/90 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-[#141413] hover:bg-[#141413]/90 transition-colors"
               >
-                <Plus size={14} /> Create Page
+                <Plus size={12} /> <span className="hidden sm:inline">Create Page</span><span className="sm:hidden">New</span>
               </button>
             </div>
           </div>
 
           {showGenerate && onGenerate && (
-            <div className="mb-5 p-5 border border-black/[0.08] rounded-xl bg-[#F9FAFB]">
-              <h4 className="text-sm font-semibold text-[#111827] mb-1">
+            <div className="mb-5 p-3 sm:p-5 border border-black/[0.08] rounded-xl bg-[#F9FAFB]">
+              <h4 className="text-xs sm:text-sm font-semibold text-[#111827] mb-1">
                 AI Landing Page Generator
               </h4>
-              <p className="text-xs text-[#9CA3AF] mb-4">
+              <p className="text-[10px] sm:text-xs text-[#9CA3AF] mb-3 sm:mb-4">
                 Generates a complete landing page using facility data, photos,
                 reviews, and professional ad copy principles.
               </p>
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
                 {FUNNEL_OPTIONS.map((opt) => (
                   <button
                     key={opt.key}
                     onClick={() => setFunnelStage(opt.key)}
-                    className={`p-3 rounded-lg border text-left transition-all ${
+                    className={`p-2 sm:p-3 rounded-lg border text-left transition-all ${
                       funnelStage === opt.key
-                        ? "border-[#3B82F6] bg-[#3B82F6]/5"
+                        ? "border-[#141413] bg-[#141413]/5"
                         : "border-black/[0.08] hover:border-black/[0.15]"
                     }`}
                   >
-                    <span className="text-xs font-semibold text-[#111827]">
+                    <span className="text-[11px] sm:text-xs font-semibold text-[#111827]">
                       {opt.label}
                     </span>
-                    <p className="text-[10px] text-[#9CA3AF] mt-0.5 leading-snug">
+                    <p className="text-[9px] sm:text-[10px] text-[#9CA3AF] mt-0.5 leading-snug hidden sm:block">
                       {opt.desc}
                     </p>
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                 <select
                   value={archetype}
                   onChange={(e) => setArchetype(e.target.value)}
@@ -155,14 +156,14 @@ export function PageList({
                     setShowGenerate(false)
                   }}
                   disabled={generating}
-                  className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white bg-[#141413] hover:bg-[#141413]/90 transition-colors disabled:opacity-40"
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-[#141413] hover:bg-[#141413]/90 transition-colors disabled:opacity-40"
                 >
                   {generating ? (
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader2 size={12} className="animate-spin" />
                   ) : (
-                    <Sparkles size={14} />
+                    <Sparkles size={12} />
                   )}
-                  Generate Landing Page
+                  Generate
                 </button>
               </div>
             </div>
