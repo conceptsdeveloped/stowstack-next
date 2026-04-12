@@ -179,8 +179,8 @@ function HeroSplash({
           <div className="mt-7 md:mt-10 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
             <a
               href={reserveUrl || "#"}
-              target={reserveUrl ? "_blank" : undefined}
-              rel={reserveUrl ? "noopener noreferrer" : undefined}
+              target={reserveUrl && reserveUrl.startsWith("http") ? "_blank" : undefined}
+              rel={reserveUrl && reserveUrl.startsWith("http") ? "noopener noreferrer" : undefined}
               className={`inline-flex items-center justify-center gap-2 px-7 py-3.5 md:px-8 md:py-4 rounded-full text-[15px] md:text-base font-semibold transition-colors ${
                 backgroundImage
                   ? "bg-white text-[#141413] hover:bg-white/90"
@@ -601,8 +601,8 @@ function CTAChapter({
           <div className="mt-7 md:mt-10 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 md:gap-4">
             <a
               href={reserveUrl || "#"}
-              target={reserveUrl ? "_blank" : undefined}
-              rel={reserveUrl ? "noopener noreferrer" : undefined}
+              target={reserveUrl && reserveUrl.startsWith("http") ? "_blank" : undefined}
+              rel={reserveUrl && reserveUrl.startsWith("http") ? "noopener noreferrer" : undefined}
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 md:px-8 md:py-4 bg-[#141413] text-[#faf9f5] rounded-full text-[15px] md:text-base font-semibold hover:bg-[#141413]/90 transition-colors"
             >
               {reserveLabel} <ArrowRight size={16} />
