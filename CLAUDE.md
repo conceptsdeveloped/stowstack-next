@@ -55,7 +55,7 @@ All API routes are in `src/app/api/`. There are 118+ route directories. Common p
 
 ### Frontend Structure
 
-- **Marketing site** — Homepage at `src/app/page.tsx` with lazy-loaded chapter components in `src/components/marketing/`. Light theme, Poppins + Lora fonts, sienna gold accent. **Copy is draft — will be regenerated from brand identity/tone docs.**
+- **Marketing site** — Homepage at `src/app/page.tsx` with lazy-loaded chapter components in `src/components/marketing/`. Light theme, Poppins + Lora fonts, charcoal-and-cream palette (no gold). **Copy is draft — will be regenerated from brand identity/tone docs.**
 - **Admin dashboard** — `src/app/admin/` pages wrapped by `src/components/admin/admin-shell.tsx` (sidebar + login gate). Facility manager at `/admin/facilities` has 16+ lazy-loaded tab components in `src/components/admin/facility-tabs/`. **Needs reorganization** — ad creation, management, and publishing should be separate sections rather than everything under facility overview.
 - **Client portal** — `src/app/portal/page.tsx` with inline login gate. Onboarding wizard at `/portal/onboarding`. Sub-pages: campaigns, billing, reports, messaging, settings.
 - **Partner dashboard** — `src/app/partner/` pages wrapped by `src/components/partner/partner-shell.tsx` (sidebar + login gate).
@@ -78,26 +78,24 @@ Anthropic-inspired warm palette. CSS custom properties defined in `src/app/globa
 - `--color-mid-gray` (#b0aea5) — secondary/muted
 - `--color-light-gray` (#e8e6dc) — card fills, borders, surfaces
 
-**Accent — Sienna Gold (primary):**
-- `--color-gold` (#B58B3F) — CTAs, links, key metrics, logo "ads"
-- `--color-gold-hover` (#9E7A36) — hover/active
-- `--color-gold-on-light` (#9A7A35) — numbers/text on cream backgrounds
-- `--color-gold-light` (#F2EBD9) — gold-tinted highlight backgrounds
+**Accent — Charcoal-on-light / Light-on-dark (no primary color accent):**
+- CTAs use `--color-dark` (#141413) on light surfaces and `--color-light` (#faf9f5) on dark surfaces — contrast-based, not color-based.
+- **Sienna gold is banned.** Do not use `#B58B3F`, `--color-gold`, `--color-gold-hover`, `--color-gold-on-light`, `--color-gold-light`, or any near variant anywhere — including CTAs, links, metrics, charts, logos, and generated assets. Older `--color-gold*` tokens still exist in `globals.css` for now but must not be referenced in new code. The A24/Kubrick editorial feel comes from typography and negative space, not a color accent.
 
-**Secondary accents:** `--color-blue` (#6a9bcc, Google/informational), `--color-green` (#788c5d, success/growth)
+**Secondary accents:** `--color-blue` (#6a9bcc, Google/informational), `--color-green` (#788c5d, success/growth) — use sparingly for categorical distinctions (chart series, informational callouts), never as a primary CTA color.
 **Error only:** `--color-red` (#B04A3A) — NEVER for CTAs or decorative use
 **Dashboard surfaces:** `--color-dark-surface` (#1e1d1b) for admin/partner dashboards
 
 **Typography:** Poppins (headings, 500-600 max) + Lora (body, 400). No other fonts. No weight below 400 or above 600.
 
-**Logo:** `storageads` — "storage" in --color-dark, "ads" in --color-gold. Poppins 600, lowercase, no icon.
+**Logo:** `storageads` — all one color, `--color-dark` on light surfaces, `--color-light` on dark surfaces. Poppins 600, lowercase, no icon. (The old two-tone "storage" + gold "ads" treatment is retired.)
 
 **Rules:**
 - Never use pure #000 or #fff — always brand tokens
 - Never use Tailwind default grays — only brand tokens
 - Never use gradients, icon libraries, stock photos, or AI images
-- Gold is the ONLY primary accent; blue/green are secondary
-- Chart colors: gold=Meta, blue=Google, green=retargeting
+- Never use sienna gold (see above) — this supersedes any older gold references in this file or in `globals.css`
+- Chart colors: dark=Meta, blue=Google, green=retargeting
 - All emails from *@storageads.com
 
 ### Cron Jobs

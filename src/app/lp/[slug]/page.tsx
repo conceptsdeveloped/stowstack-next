@@ -6,18 +6,15 @@ import Link from "next/link";
 import { useTrackingParams } from "@/hooks/use-tracking-params";
 import {
   Phone,
-  Mail,
   MapPin,
   Check,
   Star,
-  ChevronDown,
-  ChevronUp,
   Shield,
   Clock,
   Truck,
   ArrowRight,
   Building2,
-  ExternalLink,
+  ChevronDown,
   X,
   Loader2,
 } from "lucide-react";
@@ -37,12 +34,6 @@ interface Section {
   config: SectionConfig;
 }
 
-interface ThemeConfig {
-  primaryColor?: string;
-  accentColor?: string;
-  darkHero?: boolean;
-}
-
 interface LandingPage {
   id: string;
   facility_id: string;
@@ -52,28 +43,19 @@ interface LandingPage {
   meta_title?: string;
   meta_description?: string;
   og_image_url?: string;
-  theme?: ThemeConfig;
+  theme?: { primaryColor?: string; accentColor?: string };
   storedge_widget_url?: string;
   sections: Section[];
-  orgBranding?: OrgBranding;
-}
-
-interface OrgBranding {
-  orgName?: string;
-  logoUrl?: string | null;
-  primaryColor?: string;
-  accentColor?: string;
-  whiteLabel?: boolean;
 }
 
 /* ═══════════════════════════════════════════════════════ */
-/*  SECTION RENDERERS                                      */
+/*  HELPERS                                                */
 /* ═══════════════════════════════════════════════════════ */
 
-function iconForName(name: string | undefined, size = 14) {
+function iconForName(name: string | undefined, size = 16) {
   switch (name) {
     case "star":
-      return <Star size={size} className="text-yellow-300" />;
+      return <Star size={size} />;
     case "shield":
       return <Shield size={size} />;
     case "clock":
@@ -89,367 +71,225 @@ function iconForName(name: string | undefined, size = 14) {
   }
 }
 
-function HeroSection({
-  config,
-  theme,
-}: {
-  config: SectionConfig;
-  theme?: ThemeConfig;
-}) {
-  const isDark = config.style !== "light";
-  const pc = theme?.primaryColor;
+const ICON_LABELS: Record<string, string> = {
+  star: "Top Rated",
+  shield: "Secure",
+  clock: "24/7 Access",
+  check: "Verified",
+  truck: "Drive-Up",
+  building: "On-Site Staff",
+};
+
+function FadeIn({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
   return (
-    <section
-      className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden"
-      style={{
-        background: isDark
-          ? "linear-gradient(to bottom, #050505, #0A0A0A, #111111)"
-          : "linear-gradient(to bottom, #f8fafc, #ffffff)",
-      }}
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+      } ${className}`}
     >
-      {isDark && (
-        <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute top-20 left-10 w-72 h-72 rounded-full blur-3xl animate-pulse"
-            style={{ background: "rgba(59,130,246,0.08)" }}
-          />
-          <div
-            className="absolute bottom-10 right-10 w-96 h-96 rounded-full blur-3xl"
-            style={{ background: "rgba(99,102,241,0.04)" }}
-          />
-        </div>
+      {children}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  HERO                                                   */
+/* ═══════════════════════════════════════════════════════ */
+
+function HeroSplash({
+  backgroundImage,
+  facilityName,
+  headline,
+  subheadline,
+  reserveUrl,
+  reserveLabel,
+  trackingPhone,
+}: {
+  backgroundImage: string;
+  facilityName?: string;
+  headline: string;
+  subheadline?: string;
+  reserveUrl: string;
+  reserveLabel: string;
+  trackingPhone: string | null;
+}) {
+  return (
+    <section className="relative h-screen w-full overflow-hidden">
+      {backgroundImage ? (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${backgroundImage})` }}
+          aria-hidden
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[#faf9f5]" aria-hidden />
       )}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: backgroundImage
+            ? "linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.5))"
+            : "none",
+        }}
+        aria-hidden
+      />
 
-      {typeof config.backgroundImage === "string" && config.backgroundImage && (
-        <div className="absolute inset-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={config.backgroundImage}
-            alt=""
-            className="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/80 to-white/95" />
-        </div>
-      )}
-
-      <div className="max-w-5xl mx-auto px-5 relative">
-        <div className="max-w-3xl mx-auto text-center">
-          {typeof config.badgeText === "string" && config.badgeText && (
-            <div
-              className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-6 ${
-                isDark
-                  ? "bg-blue-500/20 border border-blue-500/30 text-blue-300"
-                  : "bg-blue-50 border border-blue-200 text-blue-700"
-              }`}
-            >
-              {config.badgeText as string}
-            </div>
-          )}
-
-          <h1
-            className={`text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.08] mb-6 ${
-              isDark ? "text-white" : "text-slate-900"
+      <div className="relative z-10 h-full flex flex-col px-5 md:px-14 py-6 md:py-12">
+        <header>
+          <span
+            className={`text-[10px] md:text-[11px] tracking-[0.22em] uppercase ${
+              backgroundImage ? "text-white/80" : "text-[#6a6560]"
             }`}
           >
-            {(config.headline as string) || "Your Storage Solution"}
-          </h1>
+            {facilityName || "Self Storage"}
+          </span>
+        </header>
 
-          {typeof config.subheadline === "string" && config.subheadline && (
+        <div className="flex-1 flex flex-col justify-center max-w-3xl">
+          <h1
+            className={`text-[28px] leading-[1.1] sm:text-4xl md:text-6xl lg:text-7xl font-semibold md:leading-[1.05] tracking-tight ${
+              backgroundImage ? "text-white" : "text-[#141413]"
+            }`}
+          >
+            {headline}
+          </h1>
+          {subheadline && (
             <p
-              className={`text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8 ${
-                isDark ? "text-slate-400" : "text-slate-600"
+              className={`mt-3 md:mt-5 text-[15px] md:text-xl max-w-2xl leading-relaxed ${
+                backgroundImage ? "text-white/85" : "text-[#6a6560]"
               }`}
             >
-              {config.subheadline}
+              {subheadline}
             </p>
           )}
 
-          {typeof config.ctaText === "string" && config.ctaText && (
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href={(config.ctaUrl as string) || "#cta"}
-                className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-semibold text-[#111827] shadow-lg transition-all ${pc ? "" : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/25"}`}
-                style={
-                  pc
-                    ? {
-                        background: pc,
-                        boxShadow: `0 10px 15px -3px ${pc}40`,
-                      }
-                    : undefined
-                }
-              >
-                {config.ctaText as string}
-                <ArrowRight size={16} />
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TrustBarSection({
-  config,
-  theme,
-}: {
-  config: SectionConfig;
-  theme?: ThemeConfig;
-}) {
-  const items = (config.items as { icon?: string; text: string }[]) || [];
-  if (items.length === 0) return null;
-
-  return (
-    <section
-      className={`py-6 ${theme?.primaryColor ? "" : "bg-blue-600"}`}
-      style={
-        theme?.primaryColor ? { background: theme.primaryColor } : undefined
-      }
-    >
-      <div className="max-w-5xl mx-auto px-5">
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-          {items.map((item, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-2 text-white/90 text-sm font-medium"
+          <div className="mt-7 md:mt-10 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
+            <a
+              href={reserveUrl || "#"}
+              target={reserveUrl ? "_blank" : undefined}
+              rel={reserveUrl ? "noopener noreferrer" : undefined}
+              className={`inline-flex items-center justify-center gap-2 px-7 py-3.5 md:px-8 md:py-4 rounded-full text-[15px] md:text-base font-semibold transition-colors ${
+                backgroundImage
+                  ? "bg-white text-[#141413] hover:bg-white/90"
+                  : "bg-[#141413] text-[#faf9f5] hover:bg-[#141413]/90"
+              }`}
             >
-              {iconForName(item.icon)}
-              <span>{item.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FeaturesSection({
-  config,
-  theme,
-}: {
-  config: SectionConfig;
-  theme?: ThemeConfig;
-}) {
-  const items =
-    (config.items as { icon?: string; title: string; desc: string }[]) || [];
-  return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-5xl mx-auto px-5">
-        {typeof config.headline === "string" && config.headline && (
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
-              {config.headline}
-            </h2>
-            {typeof config.subheadline === "string" && config.subheadline && (
-              <p className="text-lg text-slate-500 mt-3 max-w-2xl mx-auto">
-                {config.subheadline}
-              </p>
+              {reserveLabel} <ArrowRight size={16} />
+            </a>
+            {trackingPhone && (
+              <a
+                href={`tel:${trackingPhone.replace(/[^+\d]/g, "")}`}
+                className={`inline-flex items-center justify-center gap-2 px-5 py-3.5 md:px-6 md:py-4 border rounded-full text-sm font-medium transition-colors ${
+                  backgroundImage
+                    ? "border-white/40 text-white hover:bg-white/10"
+                    : "border-[#141413]/20 text-[#141413] hover:bg-[#141413]/5"
+                }`}
+              >
+                <Phone size={15} /> {trackingPhone}
+              </a>
             )}
           </div>
-        )}
-        <div
-          className={`grid gap-6 ${items.length <= 3 ? "md:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-3"}`}
-        >
-          {items.map((item, i) => (
-            <div
-              key={i}
-              className="p-6 rounded-2xl bg-slate-50 border border-slate-100"
-            >
-              <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${theme?.primaryColor ? "" : "bg-blue-100 text-blue-600"}`}
-                style={
-                  theme?.primaryColor
-                    ? {
-                        background: `${theme.primaryColor}20`,
-                        color: theme.primaryColor,
-                      }
-                    : undefined
-                }
-              >
-                {iconForName(item.icon, 20)}
-              </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                {item.title}
-              </h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
+        </div>
+
+        <div className="mt-auto flex justify-center">
+          <ChevronDown
+            size={18}
+            className={`animate-bounce ${
+              backgroundImage ? "text-white/50" : "text-[#141413]/30"
+            }`}
+          />
         </div>
       </div>
     </section>
   );
 }
 
-function UnitTypesSection({
-  config,
-  theme,
+/* ═══════════════════════════════════════════════════════ */
+/*  CHAPTERS (all light backgrounds)                       */
+/* ═══════════════════════════════════════════════════════ */
+
+function TrustBarChapter({
+  items,
 }: {
-  config: SectionConfig;
-  theme?: ThemeConfig;
+  items: { icon?: string; text?: string }[];
 }) {
-  const units =
-    (config.units as {
-      name: string;
-      size?: string;
-      price?: string;
-      features?: string[];
-    }[]) || [];
+  const rendered = items
+    .slice(0, 4)
+    .map((item) => ({
+      icon: item.icon,
+      label: item.text || ICON_LABELS[item.icon || ""] || "",
+    }))
+    .filter((i) => i.label);
+  if (rendered.length === 0) return null;
   return (
-    <section className="py-16 md:py-24 bg-slate-50">
-      <div className="max-w-5xl mx-auto px-5">
-        {typeof config.headline === "string" && config.headline && (
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
-              {config.headline}
-            </h2>
-          </div>
-        )}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {units.map((unit, i) => (
-            <div
-              key={i}
-              className="p-6 rounded-2xl bg-white border border-slate-200 hover:shadow-md transition-all"
-            >
-              <h3 className="text-lg font-semibold text-slate-900 mb-1">
-                {unit.name}
-              </h3>
-              {unit.size && (
-                <p className="text-sm text-slate-500 mb-3">{unit.size}</p>
-              )}
-              {unit.price && (
-                <p
-                  className={`text-2xl font-semibold mb-4 ${theme?.primaryColor ? "" : "text-blue-600"}`}
-                  style={
-                    theme?.primaryColor
-                      ? { color: theme.primaryColor }
-                      : undefined
-                  }
-                >
-                  {unit.price}
-                  <span className="text-sm font-normal text-slate-400">
-                    /mo
-                  </span>
-                </p>
-              )}
-              {unit.features && unit.features.length > 0 && (
-                <ul className="space-y-2">
-                  {unit.features.map((f, j) => (
-                    <li
-                      key={j}
-                      className="flex items-center gap-2 text-sm text-slate-600"
-                    >
-                      <Check
-                        size={14}
-                        className={`shrink-0 ${theme?.primaryColor ? "" : "text-blue-500"}`}
-                        style={
-                          theme?.primaryColor
-                            ? { color: theme.primaryColor }
-                            : undefined
-                        }
-                      />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </div>
+    <section className="bg-white border-b border-[#141413]/8 py-6 md:py-10">
+      <div className="max-w-5xl mx-auto px-5 md:px-14 grid grid-cols-2 md:flex md:flex-wrap md:justify-center gap-x-6 md:gap-x-12 gap-y-3 md:gap-y-4">
+        {rendered.map((item, i) => (
+          <FadeIn key={i}>
+            <span className="inline-flex items-center gap-2 md:gap-2.5 text-[11px] md:text-sm tracking-[0.1em] md:tracking-[0.15em] uppercase text-[#141413]/70">
+              <span className="text-[#141413]">
+                {iconForName(item.icon, 16)}
+              </span>
+              {item.label}
+            </span>
+          </FadeIn>
+        ))}
       </div>
     </section>
   );
 }
 
-function GallerySection({ config }: { config: SectionConfig }) {
-  const images = (config.images as { url: string; alt?: string }[]) || [];
-  if (images.length === 0) return null;
-
-  return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-5xl mx-auto px-5">
-        {typeof config.headline === "string" && config.headline && (
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
-              {config.headline}
-            </h2>
-          </div>
-        )}
-        <div
-          className={`grid gap-3 ${images.length === 1 ? "grid-cols-1" : images.length === 2 ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3"}`}
-        >
-          {images.map((img, i) => (
-            <div
-              key={i}
-              className={`rounded-xl overflow-hidden ${i === 0 && images.length > 2 ? "col-span-2 row-span-2" : ""}`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img.url}
-                alt={img.alt || "Facility photo"}
-                className="w-full h-full object-cover"
-                style={{ minHeight: 200 }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TestimonialsSection({
-  config,
+function FeaturesChapter({
+  headline,
+  items,
 }: {
-  config: SectionConfig;
+  headline?: string;
+  items: { icon?: string; title?: string; desc?: string }[];
 }) {
-  const items =
-    (config.items as {
-      name: string;
-      role?: string;
-      text: string;
-      metric?: string;
-    }[]) || [];
+  const filtered = items.filter((i) => i.title);
+  if (filtered.length === 0) return null;
   return (
-    <section className="py-16 md:py-24 bg-slate-50">
-      <div className="max-w-5xl mx-auto px-5">
-        {typeof config.headline === "string" && config.headline && (
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
-              {config.headline}
+    <section className="bg-[#faf9f5] py-14 md:py-28">
+      <div className="max-w-5xl mx-auto px-5 md:px-14">
+        {headline && (
+          <FadeIn>
+            <h2 className="text-2xl md:text-5xl font-semibold leading-snug md:leading-tight tracking-tight text-[#141413] mb-10 md:mb-20 max-w-xl">
+              {headline}
             </h2>
-          </div>
+          </FadeIn>
         )}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {items.map((item, i) => (
-            <div
-              key={i}
-              className="p-6 rounded-2xl bg-white border border-slate-200"
-            >
-              <div className="flex items-center gap-1 mb-3">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star
-                    key={s}
-                    size={14}
-                    className="text-yellow-400 fill-yellow-400"
-                  />
-                ))}
-              </div>
-              <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                &ldquo;{item.text}&rdquo;
-              </p>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {item.name}
-                  </p>
-                  {item.role && (
-                    <p className="text-xs text-slate-400">{item.role}</p>
+        <div className="grid md:grid-cols-2 gap-x-16 gap-y-8 md:gap-y-16">
+          {filtered.map((feature, i) => (
+            <FadeIn key={i}>
+              <div className="flex gap-4 md:gap-5">
+                <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#141413]/[0.06] flex items-center justify-center text-[#141413]">
+                  {iconForName(feature.icon, 16)}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-base md:text-xl font-semibold text-[#141413] tracking-tight">
+                    {feature.title}
+                  </h3>
+                  {feature.desc && (
+                    <p className="mt-1.5 md:mt-2 text-[14px] md:text-[15px] text-[#6a6560] leading-relaxed">
+                      {feature.desc}
+                    </p>
                   )}
                 </div>
               </div>
-            </div>
+            </FadeIn>
           ))}
         </div>
       </div>
@@ -457,622 +297,346 @@ function TestimonialsSection({
   );
 }
 
-function FAQSection({ config }: { config: SectionConfig }) {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
-  const items = (config.items as { q: string; a: string }[]) || [];
-
+function UnitTypesChapter({
+  headline,
+  units,
+}: {
+  headline?: string;
+  units: {
+    name?: string;
+    size?: string;
+    price?: string;
+    features?: string[];
+  }[];
+}) {
+  const filtered = units.filter((u) => u.name || u.size);
+  if (filtered.length === 0) return null;
   return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-3xl mx-auto px-5">
-        {typeof config.headline === "string" && config.headline && (
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
-              {config.headline}
-            </h2>
-          </div>
-        )}
-        <div className="space-y-3">
-          {items.map((item, i) => (
-            <div
-              key={i}
-              className="border border-slate-200 rounded-xl overflow-hidden"
-            >
-              <button
-                onClick={() => setOpenIdx(openIdx === i ? null : i)}
-                className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors"
-              >
-                <span className="text-sm font-semibold text-slate-900 pr-4">
-                  {item.q}
+    <section className="bg-white py-14 md:py-28 overflow-hidden border-t border-[#141413]/8">
+      <div className="max-w-5xl mx-auto px-5 md:px-14 mb-8 md:mb-14">
+        <FadeIn>
+          <span className="text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-[#6a6560]">
+            Available
+          </span>
+          <h2 className="mt-2 text-2xl md:text-5xl font-semibold leading-snug md:leading-tight tracking-tight text-[#141413]">
+            {headline || "Units"}
+          </h2>
+        </FadeIn>
+      </div>
+      <div className="flex gap-4 md:gap-5 pl-5 md:pl-14 pr-5 overflow-x-auto snap-x snap-mandatory pb-4 -webkit-overflow-scrolling-touch">
+        {filtered.map((unit, i) => (
+          <FadeIn key={i}>
+            <div className="snap-start shrink-0 w-[75vw] sm:w-[70vw] md:w-[400px] border border-[#141413]/10 rounded-xl p-5 md:p-9 flex flex-col justify-between min-h-[320px] md:min-h-[380px] bg-[#faf9f5]">
+              <div>
+                <span className="text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-[#6a6560]">
+                  {unit.name || `Unit ${i + 1}`}
                 </span>
-                {openIdx === i ? (
-                  <ChevronUp
-                    size={16}
-                    className="text-slate-400 shrink-0"
-                  />
-                ) : (
-                  <ChevronDown
-                    size={16}
-                    className="text-slate-400 shrink-0"
-                  />
-                )}
-              </button>
-              {openIdx === i && (
-                <div className="px-5 pb-5">
-                  <p className="text-sm text-slate-500 leading-relaxed">
-                    {item.a}
+                <h3 className="mt-2 md:mt-3 text-3xl md:text-5xl font-semibold leading-none tracking-tight text-[#141413]">
+                  {unit.size}
+                </h3>
+                {unit.price && (
+                  <p className="mt-4 text-xl text-[#6a6560]">
+                    from{" "}
+                    <span className="text-[#141413] font-semibold">
+                      {unit.price}
+                    </span>
+                    /mo
                   </p>
-                </div>
+                )}
+              </div>
+              {Array.isArray(unit.features) && unit.features.length > 0 && (
+                <ul className="mt-8 space-y-2 text-sm text-[#6a6560]">
+                  {unit.features
+                    .filter((f) => f)
+                    .map((f, fi) => (
+                      <li key={fi} className="flex items-center gap-2">
+                        <Check size={14} className="text-[#141413]/50" /> {f}
+                      </li>
+                    ))}
+                </ul>
               )}
             </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function GalleryChapter({
+  images,
+}: {
+  images: { url?: string; alt?: string }[];
+}) {
+  const valid = images.filter((im) => im.url);
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    if (valid.length < 2) return;
+    const id = setInterval(() => {
+      setActive((a) => (a + 1) % valid.length);
+    }, 5500);
+    return () => clearInterval(id);
+  }, [valid.length]);
+  if (valid.length === 0) return null;
+  return (
+    <section className="relative h-[50vh] md:h-[75vh] w-full overflow-hidden bg-[#faf9f5]">
+      {valid.map((img, i) => (
+        <div
+          key={i}
+          className="absolute inset-2 md:inset-8 rounded-lg md:rounded-xl overflow-hidden transition-opacity duration-[1500ms]"
+          style={{
+            opacity: i === active ? 1 : 0,
+          }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${img.url})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              animation:
+                i === active
+                  ? "lp-kenburns 12s ease-in-out infinite alternate"
+                  : undefined,
+            }}
+            aria-hidden
+          />
+        </div>
+      ))}
+      <div className="absolute inset-2 md:inset-8 rounded-lg md:rounded-xl bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+      {valid[active]?.alt && (
+        <div className="absolute bottom-6 md:bottom-14 left-6 md:left-14 text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-white/90">
+          {valid[active].alt}
+        </div>
+      )}
+      {valid.length > 1 && (
+        <div className="absolute bottom-6 md:bottom-14 right-6 md:right-14 flex gap-2">
+          {valid.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              className={`w-8 h-0.5 rounded-full transition-colors ${
+                i === active ? "bg-white" : "bg-white/40"
+              }`}
+              aria-label={`Image ${i + 1}`}
+            />
           ))}
         </div>
-      </div>
+      )}
     </section>
   );
 }
 
-function CTASection({
-  config,
-  theme,
-  widgetUrl,
+function TestimonialsChapter({
+  items,
 }: {
-  config: SectionConfig;
-  theme?: ThemeConfig;
-  widgetUrl?: string;
+  items: { name?: string; text?: string; role?: string; metric?: string }[];
 }) {
-  const isGradient = config.style !== "simple";
+  const filtered = items.filter((t) => t.text);
+  if (filtered.length === 0) return null;
   return (
-    <section
-      id="cta"
-      className={`py-16 md:py-24 ${isGradient ? "text-white" : ""}`}
-      style={
-        isGradient
-          ? {
-              background:
-                "linear-gradient(135deg, #050505 0%, #0A0A0A 50%, #111111 100%)",
-            }
-          : {}
-      }
-    >
-      <div className="max-w-4xl mx-auto px-5 text-center">
-        <h2
-          className={`text-3xl md:text-4xl font-semibold tracking-tight mb-5 ${isGradient ? "text-white" : "text-slate-900"}`}
-        >
-          {(config.headline as string) || "Ready to Get Started?"}
-        </h2>
-        {typeof config.subheadline === "string" && config.subheadline && (
-          <p
-            className={`text-lg leading-relaxed max-w-2xl mx-auto mb-8 ${isGradient ? "text-[#6B7280]" : "text-slate-500"}`}
-          >
-            {config.subheadline}
-          </p>
-        )}
-
-        {widgetUrl && (
-          <div className="max-w-2xl mx-auto mb-8 rounded-2xl overflow-hidden shadow-xl">
-            <iframe
-              src={widgetUrl}
-              title="Reserve your unit"
-              className="w-full border-0"
-              style={{ minHeight: 520 }}
-              allow="payment"
-              loading="lazy"
-            />
-          </div>
-        )}
-
-        {!widgetUrl && (
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-            {typeof config.ctaText === "string" && config.ctaText && (
-              <a
-                href={(config.ctaUrl as string) || "#"}
-                className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-semibold text-[#111827] shadow-lg transition-all ${theme?.primaryColor ? "" : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/25"}`}
-                style={
-                  theme?.primaryColor
-                    ? {
-                        background: theme.primaryColor,
-                        boxShadow: `0 10px 15px -3px ${theme.primaryColor}40`,
-                      }
-                    : undefined
-                }
-              >
-                {config.ctaText as string}
-                <ArrowRight size={16} />
-              </a>
-            )}
-            {typeof config.phone === "string" && config.phone && (
-              <a
-                href={`tel:${(config.phone as string).replace(/[^+\d]/g, "")}`}
-                className={`inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-base font-medium border transition-colors ${
-                  isGradient
-                    ? "border-white/20 text-white hover:bg-black/5"
-                    : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                <Phone size={16} /> {config.phone as string}
-              </a>
-            )}
-          </div>
-        )}
-
-        {typeof config.email === "string" && config.email && (
-          <a
-            href={`mailto:${config.email}`}
-            className={`inline-flex items-center gap-2 text-sm ${isGradient ? "text-[#9CA3AF] hover:text-[#111827]/70" : "text-slate-400 hover:text-slate-600"} transition-colors`}
-          >
-            <Mail size={14} /> {config.email as string}
-          </a>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function LocationMapSection({
-  config,
-  theme,
-}: {
-  config: SectionConfig;
-  theme?: ThemeConfig;
-}) {
-  return (
-    <section className="py-16 md:py-24 bg-slate-50">
-      <div className="max-w-5xl mx-auto px-5">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            {typeof config.headline === "string" && config.headline && (
-              <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight mb-4">
-                {config.headline}
-              </h2>
-            )}
-            {typeof config.address === "string" && config.address && (
-              <div className="flex items-start gap-3 mb-4">
-                <MapPin
-                  size={18}
-                  className={`shrink-0 mt-0.5 ${theme?.primaryColor ? "" : "text-blue-600"}`}
-                  style={
-                    theme?.primaryColor
-                      ? { color: theme.primaryColor }
-                      : undefined
-                  }
-                />
-                <p className="text-slate-600">{config.address as string}</p>
+    <section className="bg-[#faf9f5] py-14 md:py-28 border-t border-[#141413]/8">
+      <div className="max-w-4xl mx-auto px-5 md:px-14 space-y-14 md:space-y-28">
+        {filtered.map((t, i) => (
+          <FadeIn key={i}>
+            <div className="text-center">
+              <span className="text-4xl md:text-7xl leading-none text-[#141413]/15 font-serif select-none">
+                &ldquo;
+              </span>
+              <blockquote className="mt-1 md:mt-2 text-xl md:text-4xl font-semibold leading-snug tracking-tight text-[#141413] max-w-3xl mx-auto">
+                {t.text}
+              </blockquote>
+              <div className="mt-5 md:mt-8 flex flex-wrap items-baseline justify-center gap-x-3 md:gap-x-4 gap-y-1">
+                {t.name && (
+                  <span className="text-xs md:text-sm font-medium tracking-[0.08em] uppercase text-[#141413]">
+                    {t.name}
+                  </span>
+                )}
+                {t.role && (
+                  <span className="text-[10px] md:text-xs tracking-[0.08em] uppercase text-[#6a6560]">
+                    {t.role}
+                  </span>
+                )}
+                {t.metric && (
+                  <span className="text-[10px] md:text-xs tracking-[0.08em] uppercase text-[#6a6560]">
+                    · {t.metric}
+                  </span>
+                )}
               </div>
-            )}
-            {typeof config.directions === "string" && config.directions && (
-              <p className="text-sm text-slate-500 leading-relaxed mb-4">
-                {config.directions as string}
-              </p>
-            )}
-            {typeof config.address === "string" && config.address && (
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.address as string)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`inline-flex items-center gap-2 text-sm font-medium ${theme?.primaryColor ? "" : "text-blue-600 hover:text-blue-700"}`}
-                style={
-                  theme?.primaryColor
-                    ? { color: theme.primaryColor }
-                    : undefined
-                }
-              >
-                Get Directions <ExternalLink size={14} />
-              </a>
-            )}
-          </div>
-          <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-200 min-h-[300px]">
-            {typeof config.googleMapsEmbed === "string" &&
-            config.googleMapsEmbed ? (
-              <iframe
-                src={config.googleMapsEmbed}
-                width="100%"
-                height="300"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Facility location"
-              />
-            ) : typeof config.address === "string" && config.address ? (
-              <iframe
-                src={`https://www.google.com/maps?q=${encodeURIComponent(config.address as string)}&output=embed`}
-                width="100%"
-                height="300"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                title="Facility location"
-              />
-            ) : (
-              <div className="w-full h-[300px] flex items-center justify-center text-slate-400 text-sm">
-                <MapPin size={32} className="text-slate-300" />
-              </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </FadeIn>
+        ))}
       </div>
     </section>
   );
 }
 
-function StorEdgeEmbedSection({
-  config,
-  widgetUrl,
+function FAQChapter({
+  headline,
+  items,
 }: {
-  config: SectionConfig;
-  theme?: ThemeConfig;
-  widgetUrl?: string;
+  headline?: string;
+  items: { q?: string; a?: string }[];
 }) {
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const searchParams = useSearchParams();
-
-  const buildWidgetUrl = () => {
-    const base = widgetUrl || (config.widgetUrl as string);
-    if (!base) return null;
-    try {
-      const url = new URL(base);
-      const utmKeys = [
-        "utm_source",
-        "utm_medium",
-        "utm_campaign",
-        "utm_content",
-        "utm_term",
-      ];
-      utmKeys.forEach((key) => {
-        const val = searchParams.get(key);
-        if (val) url.searchParams.set(key, val);
-      });
-      return url.toString();
-    } catch {
-      return base;
-    }
-  };
-
-  const finalUrl = buildWidgetUrl();
-
-  return (
-    <section id="reserve" className="py-16 md:py-24 bg-white">
-      <div className="max-w-4xl mx-auto px-5">
-        {typeof config.headline === "string" && config.headline && (
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
-              {config.headline}
-            </h2>
-            {typeof config.subheadline === "string" && config.subheadline && (
-              <p className="text-lg text-slate-500 mt-3 max-w-2xl mx-auto">
-                {config.subheadline as string}
-              </p>
-            )}
-          </div>
-        )}
-
-        {finalUrl ? (
-          <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-lg">
-            {!iframeLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
-                <div className="text-center">
-                  <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-sm text-slate-500">
-                    Loading available units...
-                  </p>
-                </div>
-              </div>
-            )}
-            <iframe
-              src={finalUrl}
-              title="Reserve your unit"
-              className="w-full border-0"
-              style={{ minHeight: 800 }}
-              allow="payment"
-              loading="lazy"
-              onLoad={() => setIframeLoaded(true)}
-            />
-          </div>
-        ) : (
-          <div className="text-center p-12 rounded-2xl bg-slate-50 border border-slate-200">
-            <Phone size={32} className="mx-auto mb-4 text-blue-600" />
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">
-              Call to Reserve Your Unit
-            </h3>
-            <p className="text-slate-500 mb-4">
-              Speak with our team to find the right unit for you.
-            </p>
-          </div>
-        )}
-      </div>
-    </section>
+  const filtered = items.filter((it) => it.q && it.a);
+  const [openIdx, setOpenIdx] = useState<number | null>(
+    filtered.length > 0 ? 0 : null
   );
-}
-
-function LeadCaptureFormSection({
-  config,
-  theme,
-  facilityId,
-  landingPageId,
-}: {
-  config: SectionConfig;
-  theme?: ThemeConfig;
-  facilityId?: string;
-  landingPageId?: string;
-}) {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    unitSize: "",
-    timeline: "",
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
-  const searchParams = useSearchParams();
-
-  const pc = theme?.primaryColor || "#3B82F6";
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
-      setError("Please fill in name, email, and phone.");
-      return;
-    }
-    setSubmitting(true);
-    setError("");
-
-    try {
-      const sessionId =
-        sessionStorage.getItem("storageads_session_id") ||
-        `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-
-      const res = await fetch("/api/lead-capture", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-          unitSize: form.unitSize,
-          timeline: form.timeline,
-          facilityId,
-          landingPageId,
-          sessionId,
-          utmSource: searchParams.get("utm_source") || undefined,
-          utmMedium: searchParams.get("utm_medium") || undefined,
-          utmCampaign: searchParams.get("utm_campaign") || undefined,
-          utmContent: searchParams.get("utm_content") || undefined,
-          referrer: document.referrer || undefined,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Failed to submit");
-
-      if (typeof window !== "undefined") {
-        const w = window as unknown as Record<string, unknown>;
-        if (typeof w.fbq === "function")
-          (w.fbq as (...args: unknown[]) => void)("track", "Lead", {
-            content_name: "lead_capture_form",
-            content_category: "storage",
-          });
-        if (typeof w.gtag === "function")
-          (w.gtag as (...args: unknown[]) => void)("event", "generate_lead", {
-            event_category: "engagement",
-            event_label: "lead_capture_form",
-          });
-      }
-
-      setSubmitted(true);
-    } catch {
-      setError("Something went wrong. Please try again or call us.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (submitted) {
-    return (
-      <section id="lead-form" className="py-16 md:py-24 bg-slate-50">
-        <div className="max-w-lg mx-auto px-5 text-center">
-          <div
-            className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-            style={{ background: `${pc}20` }}
-          >
-            <Check size={32} style={{ color: pc }} />
-          </div>
-          <h3 className="text-2xl font-semibold text-slate-900 mb-2">
-            Got it — we will be in touch.
-          </h3>
-          <p className="text-slate-500">
-            Check your email for next steps. If you need a unit today, scroll
-            down to reserve online or call us directly.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
+  if (filtered.length === 0) return null;
   return (
-    <section id="lead-form" className="py-16 md:py-24 bg-slate-50">
-      <div className="max-w-lg mx-auto px-5">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">
-            {(config.headline as string) || "Check Availability"}
+    <section className="bg-white py-14 md:py-28 border-t border-[#141413]/8">
+      <div className="max-w-3xl mx-auto px-5 md:px-14">
+        <FadeIn>
+          <h2 className="text-2xl md:text-5xl font-semibold leading-snug md:leading-tight tracking-tight text-[#141413] mb-8 md:mb-16">
+            {headline || "Frequently Asked"}
           </h2>
-          {typeof config.subheadline === "string" && config.subheadline && (
-            <p className="text-slate-500 mt-2">
-              {config.subheadline as string}
+        </FadeIn>
+        <div>
+          {filtered.map((item, i) => {
+            const open = openIdx === i;
+            return (
+              <FadeIn key={i}>
+                <div className="border-t border-[#141413]/10 last:border-b py-6">
+                  <button
+                    onClick={() => setOpenIdx(open ? null : i)}
+                    className="w-full flex items-center justify-between gap-6 text-left group"
+                  >
+                    <span className="text-lg md:text-xl font-medium tracking-tight text-[#141413] group-hover:text-[#141413]/80 transition-colors">
+                      {item.q}
+                    </span>
+                    <span className="shrink-0 text-[#141413]/40 text-2xl leading-none font-light">
+                      {open ? "−" : "+"}
+                    </span>
+                  </button>
+                  {open && (
+                    <p className="mt-4 text-[15px] text-[#6a6560] leading-relaxed max-w-2xl">
+                      {item.a}
+                    </p>
+                  )}
+                </div>
+              </FadeIn>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LocationChapter({
+  headline,
+  address,
+  directions,
+}: {
+  headline?: string;
+  address?: string;
+  directions?: string;
+}) {
+  if (!address) return null;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  return (
+    <section className="bg-[#faf9f5] py-14 md:py-28 border-t border-[#141413]/8">
+      <div className="max-w-5xl mx-auto px-5 md:px-14 grid md:grid-cols-12 gap-6 md:gap-10">
+        <div className="md:col-span-5">
+          <FadeIn>
+            <span className="text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-[#6a6560]">
+              Visit
+            </span>
+            <h2 className="mt-2 text-2xl md:text-5xl font-semibold leading-snug md:leading-tight tracking-tight text-[#141413]">
+              {headline || "Find us"}
+            </h2>
+          </FadeIn>
+        </div>
+        <div className="md:col-span-7 flex flex-col gap-4 md:gap-5">
+          <FadeIn>
+            <p className="text-lg md:text-2xl font-medium leading-snug tracking-tight text-[#141413] whitespace-pre-line">
+              {address}
+            </p>
+            {directions && (
+              <p className="text-sm text-[#6a6560] max-w-md leading-relaxed whitespace-pre-line mt-2">
+                {directions}
+              </p>
+            )}
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] uppercase text-[#141413]/70 hover:text-[#141413] transition-colors w-fit mt-4"
+            >
+              <MapPin size={12} /> Get directions
+            </a>
+          </FadeIn>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CTAChapter({
+  headline,
+  subheadline,
+  phone,
+  reserveUrl,
+  reserveLabel,
+}: {
+  headline?: string;
+  subheadline?: string;
+  phone?: string;
+  reserveUrl: string;
+  reserveLabel: string;
+}) {
+  if (!headline) return null;
+  return (
+    <section className="bg-white py-14 md:py-28 border-t border-[#141413]/8">
+      <div className="max-w-3xl mx-auto px-5 md:px-14 text-center">
+        <FadeIn>
+          <h2 className="text-2xl md:text-5xl font-semibold leading-snug md:leading-tight tracking-tight text-[#141413]">
+            {headline}
+          </h2>
+          {subheadline && (
+            <p className="mt-3 md:mt-4 text-[15px] md:text-lg text-[#6a6560] leading-relaxed max-w-xl mx-auto">
+              {subheadline}
             </p>
           )}
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4"
-        >
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Name *
-            </label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent"
-              placeholder="Your full name"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Email *
-            </label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent"
-              placeholder="your@email.com"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Phone *
-            </label>
-            <input
-              type="tel"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent"
-              placeholder="(555) 123-4567"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Unit size needed
-            </label>
-            <select
-              value={form.unitSize}
-              onChange={(e) => setForm({ ...form, unitSize: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent bg-white"
+          <div className="mt-7 md:mt-10 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 md:gap-4">
+            <a
+              href={reserveUrl || "#"}
+              target={reserveUrl ? "_blank" : undefined}
+              rel={reserveUrl ? "noopener noreferrer" : undefined}
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 md:px-8 md:py-4 bg-[#141413] text-[#faf9f5] rounded-full text-[15px] md:text-base font-semibold hover:bg-[#141413]/90 transition-colors"
             >
-              <option value="">Select a size...</option>
-              <option value="5x5">5x5 (Closet)</option>
-              <option value="5x10">5x10 (Half Garage)</option>
-              <option value="10x10">10x10 (Full Garage)</option>
-              <option value="10x15">10x15 (Large)</option>
-              <option value="10x20">10x20 (Extra Large)</option>
-              <option value="10x30">10x30 (Oversized)</option>
-              <option value="other">Other / Not Sure</option>
-            </select>
+              {reserveLabel} <ArrowRight size={16} />
+            </a>
+            {phone && (
+              <a
+                href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 md:px-6 md:py-4 border border-[#141413]/20 rounded-full text-sm font-medium text-[#141413] hover:bg-[#141413]/5 transition-colors"
+              >
+                <Phone size={15} /> {phone}
+              </a>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Move-in timeline
-            </label>
-            <select
-              value={form.timeline}
-              onChange={(e) => setForm({ ...form, timeline: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent bg-white"
-            >
-              <option value="">When do you need it?</option>
-              <option value="this-week">This week</option>
-              <option value="within-2-weeks">Within 2 weeks</option>
-              <option value="within-a-month">Within a month</option>
-              <option value="just-exploring">Just exploring</option>
-            </select>
-          </div>
-
-          {error && <p className="text-sm text-red-600">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-3.5 rounded-xl text-base font-semibold text-[#111827] transition-opacity hover:opacity-90 disabled:opacity-50"
-            style={{ background: pc }}
-          >
-            {submitting
-              ? "Sending..."
-              : (config.ctaText as string) || "Check Availability"}
-          </button>
-
-          <p className="text-xs text-slate-400 text-center">
-            No spam. Your info is only used to help you find the right unit.
-          </p>
-        </form>
+        </FadeIn>
       </div>
     </section>
   );
 }
 
-/* ═══════════════════════════════════════════════════════ */
-/*  SECTION ROUTER                                         */
-/* ═══════════════════════════════════════════════════════ */
-
-function RenderSection({
-  section,
-  theme,
-  widgetUrl,
-  trackingPhone,
-  facilityId,
-  landingPageId,
-}: {
-  section: Section;
-  theme?: ThemeConfig;
-  widgetUrl?: string;
-  trackingPhone?: string | null;
-  facilityId?: string;
-  landingPageId?: string;
-}) {
-  const { section_type, config } = section;
-  const effectiveConfig =
-    trackingPhone && typeof config.phone === "string"
-      ? { ...config, phone: trackingPhone }
-      : config;
-  switch (section_type) {
-    case "hero":
-      return <HeroSection config={effectiveConfig} theme={theme} />;
-    case "trust_bar":
-      return <TrustBarSection config={config} theme={theme} />;
-    case "features":
-      return <FeaturesSection config={config} theme={theme} />;
-    case "unit_types":
-      return <UnitTypesSection config={config} theme={theme} />;
-    case "gallery":
-      return <GallerySection config={config} />;
-    case "testimonials":
-      return <TestimonialsSection config={config} />;
-    case "faq":
-      return <FAQSection config={config} />;
-    case "cta":
-      return (
-        <CTASection
-          config={effectiveConfig}
-          theme={theme}
-          widgetUrl={widgetUrl}
-        />
-      );
-    case "location_map":
-      return <LocationMapSection config={config} theme={theme} />;
-    case "storedge_embed":
-      return (
-        <StorEdgeEmbedSection
-          config={config}
-          theme={theme}
-          widgetUrl={widgetUrl}
-        />
-      );
-    case "lead_capture":
-      return (
-        <LeadCaptureFormSection
-          config={config}
-          theme={theme}
-          facilityId={facilityId}
-          landingPageId={landingPageId}
-        />
-      );
-    default:
-      return null;
-  }
+function PageFooter() {
+  return (
+    <footer className="bg-[#faf9f5] border-t border-[#141413]/8 py-10 md:py-12">
+      <div className="max-w-5xl mx-auto px-6 md:px-14 text-center">
+        <a
+          href="https://storageads.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] tracking-[0.25em] uppercase text-[#6a6560] hover:text-[#141413] transition-colors"
+        >
+          Powered by <span className="text-[#141413] font-medium">storageads</span>
+        </a>
+      </div>
+    </footer>
+  );
 }
 
 /* ═══════════════════════════════════════════════════════ */
@@ -1083,13 +647,11 @@ function ExitIntentPopup({
   show,
   onDismiss,
   onSubmit,
-  theme,
   facilityName,
 }: {
   show: boolean;
   onDismiss: () => void;
   onSubmit: (email: string) => void;
-  theme?: ThemeConfig;
   facilityName?: string;
 }) {
   const [email, setEmail] = useState("");
@@ -1105,50 +667,40 @@ function ExitIntentPopup({
     }
   };
 
-  const pc = theme?.primaryColor || "#3B82F6";
-
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center px-4"
-      style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+      style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
     >
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
         <button
           onClick={onDismiss}
-          className="absolute top-3 right-3 p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          className="absolute top-3 right-3 p-1.5 rounded-full text-[#6a6560] hover:text-[#141413] hover:bg-black/5 transition-colors"
           aria-label="Close"
         >
           <X size={18} />
         </button>
 
-        <div
-          className="p-6 pt-8 text-center"
-          style={{
-            background: `linear-gradient(135deg, ${pc}10, ${pc}05)`,
-          }}
-        >
+        <div className="p-6 pt-8 text-center">
           {submitted ? (
             <>
-              <div
-                className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center"
-                style={{ background: `${pc}20` }}
-              >
-                <Check size={24} style={{ color: pc }} />
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center bg-[#141413]/[0.06]">
+                <Check size={24} className="text-[#141413]" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+              <h3 className="text-xl font-semibold text-[#141413] mb-2">
                 You are all set!
               </h3>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#6a6560]">
                 We will send you availability updates
                 {facilityName ? ` for ${facilityName}` : ""}. Check your inbox.
               </p>
             </>
           ) : (
             <>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+              <h3 className="text-xl font-semibold text-[#141413] mb-2">
                 Wait — don&apos;t lose your spot!
               </h3>
-              <p className="text-sm text-slate-500 mb-5">
+              <p className="text-sm text-[#6a6560] mb-5">
                 Enter your email and we will save your progress. Plus, we will
                 let you know if availability changes
                 {facilityName ? ` at ${facilityName}` : ""}.
@@ -1159,19 +711,18 @@ function ExitIntentPopup({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent"
+                  className="flex-1 px-4 py-3 rounded-xl border border-[#141413]/10 text-sm text-[#141413] bg-[#faf9f5] focus:outline-none focus:ring-2 focus:ring-[#141413]/20 focus:border-transparent"
                   autoFocus
                   required
                 />
                 <button
                   type="submit"
-                  className="px-5 py-3 rounded-xl text-sm font-semibold text-[#111827] transition-opacity hover:opacity-90"
-                  style={{ background: pc }}
+                  className="px-5 py-3 rounded-xl text-sm font-semibold text-[#faf9f5] bg-[#141413] hover:bg-[#141413]/90 transition-colors"
                 >
                   Save My Spot
                 </button>
               </form>
-              <p className="text-xs text-slate-400 mt-3">
+              <p className="text-xs text-[#6a6560] mt-3">
                 No spam. Unsubscribe anytime.
               </p>
             </>
@@ -1179,75 +730,6 @@ function ExitIntentPopup({
         </div>
       </div>
     </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════ */
-/*  NAV & FOOTER                                           */
-/* ═══════════════════════════════════════════════════════ */
-
-function LandingPageNav({
-  facilityName,
-  theme,
-  orgBranding,
-}: {
-  facilityName?: string;
-  theme?: ThemeConfig;
-  orgBranding?: OrgBranding | null;
-}) {
-  const pc = theme?.primaryColor || orgBranding?.primaryColor;
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-100">
-      <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {orgBranding?.logoUrl && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={orgBranding.logoUrl}
-              alt={orgBranding.orgName || ""}
-              className="h-6 object-contain"
-            />
-          )}
-          <span className="text-sm font-semibold text-slate-900">
-            {facilityName || "Self Storage"}
-          </span>
-        </div>
-        <a
-          href="#cta"
-          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold text-[#111827] transition-colors ${pc ? "" : "bg-blue-600 hover:bg-blue-700"}`}
-          style={pc ? { background: pc } : undefined}
-        >
-          Reserve Now
-        </a>
-      </div>
-    </nav>
-  );
-}
-
-function LandingPageFooter({
-  orgBranding,
-}: {
-  orgBranding?: OrgBranding | null;
-}) {
-  const hideStorageAds = orgBranding?.whiteLabel;
-  return (
-    <footer className="py-8 bg-white text-center">
-      {hideStorageAds ? (
-        orgBranding?.orgName && (
-          <p className="text-xs text-slate-500">{orgBranding.orgName}</p>
-        )
-      ) : (
-        <p className="text-xs text-slate-500">
-          Powered by{" "}
-          <Link
-            href="/"
-            className="text-[var(--accent)] hover:text-blue-400"
-          >
-            StorageAds
-          </Link>
-        </p>
-      )}
-    </footer>
   );
 }
 
@@ -1265,24 +747,14 @@ export default function LandingPageRoute() {
   const [showExitPopup, setShowExitPopup] = useState(false);
   const pageTrackerInitialized = useRef(false);
 
-  // Wire into visit tracking (fires once per session)
   useTrackingParams(page?.id, page?.facility_id);
 
-  // Capture UTM params on mount
   useEffect(() => {
-    const utm = {
-      source: searchParams.get("utm_source"),
-      medium: searchParams.get("utm_medium"),
-      campaign: searchParams.get("utm_campaign"),
-      content: searchParams.get("utm_content"),
-      term: searchParams.get("utm_term"),
-      fbclid: searchParams.get("fbclid"),
-      gclid: searchParams.get("gclid"),
-    };
-    if (utm.fbclid) sessionStorage.setItem("storageads_fbclid", utm.fbclid);
-    if (utm.gclid) sessionStorage.setItem("storageads_gclid", utm.gclid);
+    const fbclid = searchParams.get("fbclid");
+    const gclid = searchParams.get("gclid");
+    if (fbclid) sessionStorage.setItem("storageads_fbclid", fbclid);
+    if (gclid) sessionStorage.setItem("storageads_gclid", gclid);
 
-    // Generate session ID
     if (!sessionStorage.getItem("storageads_session_id")) {
       sessionStorage.setItem(
         "storageads_session_id",
@@ -1291,14 +763,10 @@ export default function LandingPageRoute() {
     }
   }, [searchParams]);
 
-  // Exit intent handler
   useEffect(() => {
     if (!page || sessionStorage.getItem("storageads_exit_dismissed")) return;
-
     const handleMouseLeave = (e: MouseEvent) => {
-      if (e.clientY <= 0 && !showExitPopup) {
-        setShowExitPopup(true);
-      }
+      if (e.clientY <= 0 && !showExitPopup) setShowExitPopup(true);
     };
     document.addEventListener("mouseleave", handleMouseLeave);
     return () => document.removeEventListener("mouseleave", handleMouseLeave);
@@ -1321,15 +789,12 @@ export default function LandingPageRoute() {
             email,
             facilityId: page.facility_id,
             landingPageId: page.id,
-            fbclid:
-              sessionStorage.getItem("storageads_fbclid") || undefined,
-            gclid:
-              sessionStorage.getItem("storageads_gclid") || undefined,
+            fbclid: sessionStorage.getItem("storageads_fbclid") || undefined,
+            gclid: sessionStorage.getItem("storageads_gclid") || undefined,
           }),
           keepalive: true,
         }).catch(() => {});
       }
-
       setTimeout(() => {
         setShowExitPopup(false);
         sessionStorage.setItem("storageads_exit_dismissed", "1");
@@ -1338,13 +803,20 @@ export default function LandingPageRoute() {
     [page]
   );
 
-  // Fetch page data
   useEffect(() => {
     async function fetchPage() {
       try {
-        const res = await fetch(
-          `/api/landing-pages?slug=${encodeURIComponent(slug)}`,
-        );
+        const isPreview = searchParams.get("preview") === "1";
+        const adminKey =
+          typeof window !== "undefined"
+            ? localStorage.getItem("storageads_admin_key") || ""
+            : "";
+        const headers: Record<string, string> = {};
+        if (isPreview && adminKey) headers["X-Admin-Key"] = adminKey;
+        const qs = isPreview
+          ? `slug=${encodeURIComponent(slug)}&preview=1`
+          : `slug=${encodeURIComponent(slug)}`;
+        const res = await fetch(`/api/landing-pages?${qs}`, { headers });
         if (res.status === 404) {
           setError("Page not found");
           return;
@@ -1354,7 +826,6 @@ export default function LandingPageRoute() {
         const pageData = data.page;
         setPage(pageData);
 
-        // Fetch tracking number
         if (pageData?.id) {
           try {
             const tnRes = await fetch(
@@ -1369,7 +840,6 @@ export default function LandingPageRoute() {
           }
         }
 
-        // Set SEO meta
         if (pageData?.meta_title) document.title = pageData.meta_title;
         else if (pageData?.title) document.title = pageData.title;
 
@@ -1384,26 +854,28 @@ export default function LandingPageRoute() {
       }
     }
     fetchPage();
-  }, [slug]);
+  }, [slug, searchParams]);
 
-  // Track page view and interactions
   useEffect(() => {
     if (!page || pageTrackerInitialized.current) return;
     pageTrackerInitialized.current = true;
 
     const w = window as unknown as Record<string, unknown>;
-    // Generate shared event_id for browser/server deduplication
     const capiEventId = crypto.randomUUID();
 
     if (typeof w.fbq === "function")
-      (w.fbq as (...args: unknown[]) => void)("track", "PageView", {}, { eventID: capiEventId });
+      (w.fbq as (...args: unknown[]) => void)(
+        "track",
+        "PageView",
+        {},
+        { eventID: capiEventId }
+      );
     if (typeof w.gtag === "function")
       (w.gtag as (...args: unknown[]) => void)("event", "page_view", {
         page_title: page.title,
         page_location: window.location.href,
       });
 
-    // Fire server-side CAPI with matching event_id
     const params = new URLSearchParams(window.location.search);
     const fbclid = params.get("fbclid") || undefined;
     fetch("/api/meta-capi", {
@@ -1428,7 +900,6 @@ export default function LandingPageRoute() {
       keepalive: true,
     }).catch(() => {});
 
-    // Track page interactions (scroll, time, etc.)
     const sessionId = sessionStorage.getItem("storageads_session_id");
     let maxScroll = 0;
     const startTime = Date.now();
@@ -1459,10 +930,7 @@ export default function LandingPageRoute() {
       }).catch(() => {});
     };
 
-    // Send interaction data on unload
     window.addEventListener("beforeunload", sendInteraction);
-
-    // Also send periodically (every 30s)
     const interval = setInterval(sendInteraction, 30000);
 
     return () => {
@@ -1475,25 +943,25 @@ export default function LandingPageRoute() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#faf9f5]">
+        <Loader2 className="w-8 h-8 text-[#141413] animate-spin" />
       </div>
     );
   }
 
   if (error || !page) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white px-5">
-        <h1 className="text-2xl font-semibold text-slate-900 mb-2">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#faf9f5] px-5">
+        <h1 className="text-2xl font-semibold text-[#141413] mb-2">
           Page Not Found
         </h1>
-        <p className="text-slate-500 mb-6">
+        <p className="text-[#6a6560] mb-6">
           This landing page doesn&apos;t exist or hasn&apos;t been published
           yet.
         </p>
         <Link
           href="/"
-          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="text-sm font-medium text-[#141413] underline underline-offset-4 hover:text-[#6a6560]"
         >
           Go to homepage
         </Link>
@@ -1501,69 +969,131 @@ export default function LandingPageRoute() {
     );
   }
 
-  const heroSection = page.sections.find((s) => s.section_type === "hero");
-  const facilityName = heroSection?.config?.facilityName as string | undefined;
-  const ctaSection = page.sections.find((s) => s.section_type === "cta");
-  const heroPhone = page.sections.find((s) => s.section_type === "hero")?.config
-    ?.phone as string | undefined;
-  const displayPhone =
-    trackingPhone ||
-    (ctaSection?.config?.phone as string) ||
-    heroPhone;
+  /* ── Extract section data ── */
+  const sectionByType = (t: string) =>
+    page.sections.find((s) => s.section_type === t);
+  const hero = sectionByType("hero")?.config ?? {};
+  const trustBar = sectionByType("trust_bar")?.config ?? {};
+  const features = sectionByType("features")?.config ?? {};
+  const cta = sectionByType("cta")?.config ?? {};
+  const gallery = sectionByType("gallery")?.config ?? {};
+  const units = sectionByType("unit_types")?.config ?? {};
+  const testimonials = sectionByType("testimonials")?.config ?? {};
+  const faq = sectionByType("faq")?.config ?? {};
+  const location = sectionByType("location_map")?.config ?? {};
+
+  const galleryImages = Array.isArray(gallery.images)
+    ? (gallery.images as { url?: string; alt?: string }[])
+    : [];
+  const firstGalleryUrl = galleryImages.find((im) => im.url)?.url;
+  const backgroundImage =
+    (hero.backgroundImage as string) || firstGalleryUrl || "";
+
+  const headline =
+    (hero.headline as string) || page.title || "Reserve Your Unit";
+  const subheadline = (hero.subheadline as string) || "";
+
+  const reserveUrl =
+    page.storedge_widget_url ||
+    (cta.ctaUrl as string) ||
+    (hero.ctaUrl as string) ||
+    "";
+  const reserveLabel =
+    (cta.ctaText as string) || (hero.ctaText as string) || "Reserve Unit";
+
+  const trustItems = Array.isArray(trustBar.items)
+    ? (trustBar.items as { icon?: string; text?: string }[])
+    : [];
+  const featureItems = Array.isArray(features.items)
+    ? (features.items as {
+        icon?: string;
+        title?: string;
+        desc?: string;
+      }[])
+    : [];
+  const unitItems = Array.isArray(units.units)
+    ? (units.units as {
+        name?: string;
+        size?: string;
+        price?: string;
+        features?: string[];
+      }[])
+    : [];
+  const testimonialItems = Array.isArray(testimonials.items)
+    ? (testimonials.items as {
+        name?: string;
+        text?: string;
+        role?: string;
+        metric?: string;
+      }[])
+    : [];
+  const faqItems = Array.isArray(faq.items)
+    ? (faq.items as { q?: string; a?: string }[])
+    : [];
+  const address = (location.address as string) || "";
+  const directions = (location.directions as string) || "";
+  const facilityName = (hero.facilityName as string) || undefined;
 
   return (
-    <div className="min-h-screen bg-white">
-      <LandingPageNav
+    <div className="bg-[#faf9f5]">
+      <HeroSplash
+        backgroundImage={backgroundImage}
         facilityName={facilityName}
-        theme={page.theme}
-        orgBranding={page.orgBranding}
+        headline={headline}
+        subheadline={subheadline}
+        reserveUrl={reserveUrl}
+        reserveLabel={reserveLabel}
+        trackingPhone={trackingPhone}
       />
-      <main>
-        {page.sections
-          .sort((a, b) => a.sort_order - b.sort_order)
-          .map((section) => (
-            <RenderSection
-              key={section.id}
-              section={section}
-              theme={page.theme}
-              widgetUrl={page.storedge_widget_url}
-              trackingPhone={trackingPhone}
-              facilityId={page.facility_id}
-              landingPageId={page.id}
-            />
-          ))}
-      </main>
-      <LandingPageFooter orgBranding={page.orgBranding} />
 
-      {/* Mobile sticky phone bar */}
-      {displayPhone && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-slate-200 shadow-lg">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <a
-              href={`tel:${displayPhone.replace(/[^+\d]/g, "")}`}
-              className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-[#111827]"
-              style={{
-                background: page.theme?.primaryColor || "#3B82F6",
-              }}
-            >
-              <Phone size={16} /> Call Now
-            </a>
-            <a
-              href="#reserve"
-              className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border border-slate-200 text-slate-700"
-            >
-              Reserve Online
-            </a>
-          </div>
-        </div>
+      {sectionByType("trust_bar") && <TrustBarChapter items={trustItems} />}
+      {sectionByType("features") && (
+        <FeaturesChapter
+          headline={features.headline as string | undefined}
+          items={featureItems}
+        />
+      )}
+      {sectionByType("unit_types") && (
+        <UnitTypesChapter
+          headline={units.headline as string | undefined}
+          units={unitItems}
+        />
+      )}
+      {sectionByType("gallery") && <GalleryChapter images={galleryImages} />}
+      {sectionByType("testimonials") && (
+        <TestimonialsChapter items={testimonialItems} />
+      )}
+      {sectionByType("faq") && (
+        <FAQChapter
+          headline={faq.headline as string | undefined}
+          items={faqItems}
+        />
+      )}
+      {sectionByType("location_map") && (
+        <LocationChapter
+          headline={location.headline as string | undefined}
+          address={address}
+          directions={directions}
+        />
+      )}
+      {sectionByType("cta") && (
+        <CTAChapter
+          headline={cta.headline as string | undefined}
+          subheadline={cta.subheadline as string | undefined}
+          phone={
+            trackingPhone || (cta.phone as string | undefined) || undefined
+          }
+          reserveUrl={reserveUrl}
+          reserveLabel={reserveLabel}
+        />
       )}
 
-      {/* Exit Intent Popup */}
+      <PageFooter />
+
       <ExitIntentPopup
         show={showExitPopup}
         onDismiss={handleExitDismiss}
         onSubmit={handleExitSubmit}
-        theme={page.theme}
         facilityName={facilityName}
       />
     </div>

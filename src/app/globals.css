@@ -516,29 +516,31 @@ body {
    TYPOGRAPHY
    ═══════════════════════════════════════════ */
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  letter-spacing: var(--tracking-tight);
-  line-height: var(--leading-tight);
-  color: var(--color-dark);
-}
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+    color: var(--color-dark);
+  }
 
-p {
-  font-family: var(--font-body);
-  color: var(--color-body-text);
-  line-height: var(--leading-normal);
-  max-width: 600px;
-}
+  p {
+    font-family: var(--font-body);
+    color: var(--color-body-text);
+    line-height: var(--leading-normal);
+    max-width: 600px;
+  }
 
-a {
-  color: var(--color-gold);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out);
-}
+  a {
+    color: var(--color-dark);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
 
-a:hover {
-  color: var(--color-dark);
+  a:hover {
+    color: var(--color-body-text);
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -875,4 +877,9 @@ body {
 /* Prevent horizontal overflow on mobile */
 @layer base {
   body { overflow-x: hidden; }
+}
+
+@keyframes lp-kenburns {
+  0%   { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.12) translate(-1.5%, -1.5%); }
 }

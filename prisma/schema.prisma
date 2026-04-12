@@ -1037,7 +1037,7 @@ model landing_pages {
   theme                 Json                    @default("{}")
   storedge_widget_url   String?
   created_at            DateTime                @default(now()) @db.Timestamptz(6)
-  updated_at            DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime                @updatedAt @db.Timestamptz(6)
   published_at          DateTime?               @db.Timestamptz(6)
   call_tracking_numbers call_tracking_numbers[]
   landing_page_sections landing_page_sections[]

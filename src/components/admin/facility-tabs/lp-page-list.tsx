@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   Plus,
   Trash2,
@@ -7,14 +8,50 @@ import {
   ExternalLink,
   Copy,
   Loader2,
+  Sparkles,
 } from "lucide-react"
 import { type LandingPageRecord } from "./lp-builder-types"
+
+const FUNNEL_OPTIONS = [
+  {
+    key: "awareness",
+    label: "Awareness",
+    desc: "Reach new customers — problem-focused, aspirational",
+  },
+  {
+    key: "consideration",
+    label: "Consideration",
+    desc: "Show why you're the best option — features, proof, pricing",
+  },
+  {
+    key: "decision",
+    label: "Decision",
+    desc: "Close the deal — offer-led, urgent, direct",
+  },
+  {
+    key: "retargeting",
+    label: "Retargeting",
+    desc: "Remind past visitors — short, memorable, direct",
+  },
+]
+
+const ARCHETYPE_OPTIONS = [
+  { key: "", label: "General" },
+  { key: "downsizer", label: "Downsizer" },
+  { key: "business", label: "Business Owner" },
+  { key: "student", label: "Student" },
+  { key: "military", label: "Military / Relocating" },
+  { key: "renovator", label: "Renovator" },
+  { key: "life_event", label: "Life Event" },
+]
 
 export function PageList({
   pages,
   loading,
   error,
+  generating,
   onCreateNew,
+  onGenerate,
   onOpenPage,
   onClonePage,
   onDeletePage,
@@ -23,12 +60,17 @@ export function PageList({
   pages: LandingPageRecord[]
   loading: boolean
   error: string | null
+  generating?: boolean
   onCreateNew: () => void
+  onGenerate?: (funnelStage: string, archetypeKey?: string) => void
   onOpenPage: (pageId: string) => void
   onClonePage: (pageId: string) => void
   onDeletePage: (pageId: string) => void
   onDismissError: () => void
 }) {
+  const [showGenerate, setShowGenerate] = useState(false)
+  const [funnelStage, setFunnelStage] = useState("consideration")
+  const [archetype, setArchetype] = useState("")
   return (
     <div className="space-y-4">
       <div className="border border-black/[0.08] rounded-xl bg-white">
@@ -42,13 +84,89 @@ export function PageList({
                 Ad-specific pages for this facility
               </p>
             </div>
-            <button
-              onClick={onCreateNew}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#111827] bg-[#3B82F6] hover:bg-[#3B82F6]/90 transition-colors"
-            >
-              <Plus size={14} /> Create Page
-            </button>
+            <div className="flex items-center gap-2">
+              {onGenerate && (
+                <button
+                  onClick={() => setShowGenerate(!showGenerate)}
+                  disabled={generating}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#111827] border border-black/[0.08] hover:bg-black/[0.04] transition-colors disabled:opacity-40"
+                >
+                  {generating ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Sparkles size={14} />
+                  )}
+                  {generating ? "Generating..." : "AI Generate"}
+                </button>
+              )}
+              <button
+                onClick={onCreateNew}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#111827] bg-[#3B82F6] hover:bg-[#3B82F6]/90 transition-colors"
+              >
+                <Plus size={14} /> Create Page
+              </button>
+            </div>
           </div>
+
+          {showGenerate && onGenerate && (
+            <div className="mb-5 p-5 border border-black/[0.08] rounded-xl bg-[#F9FAFB]">
+              <h4 className="text-sm font-semibold text-[#111827] mb-1">
+                AI Landing Page Generator
+              </h4>
+              <p className="text-xs text-[#9CA3AF] mb-4">
+                Generates a complete landing page using facility data, photos,
+                reviews, and professional ad copy principles.
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {FUNNEL_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setFunnelStage(opt.key)}
+                    className={`p-3 rounded-lg border text-left transition-all ${
+                      funnelStage === opt.key
+                        ? "border-[#3B82F6] bg-[#3B82F6]/5"
+                        : "border-black/[0.08] hover:border-black/[0.15]"
+                    }`}
+                  >
+                    <span className="text-xs font-semibold text-[#111827]">
+                      {opt.label}
+                    </span>
+                    <p className="text-[10px] text-[#9CA3AF] mt-0.5 leading-snug">
+                      {opt.desc}
+                    </p>
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-3">
+                <select
+                  value={archetype}
+                  onChange={(e) => setArchetype(e.target.value)}
+                  className="h-9 px-3 rounded-lg text-xs border border-black/[0.08] bg-white text-[#111827] outline-none"
+                >
+                  {ARCHETYPE_OPTIONS.map((opt) => (
+                    <option key={opt.key} value={opt.key}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => {
+                    onGenerate(funnelStage, archetype || undefined)
+                    setShowGenerate(false)
+                  }}
+                  disabled={generating}
+                  className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white bg-[#141413] hover:bg-[#141413]/90 transition-colors disabled:opacity-40"
+                >
+                  {generating ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Sparkles size={14} />
+                  )}
+                  Generate Landing Page
+                </button>
+              </div>
+            </div>
+          )}
 
           {loading && (
             <div className="flex justify-center py-12">

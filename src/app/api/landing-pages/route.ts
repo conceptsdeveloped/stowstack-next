@@ -18,8 +18,9 @@ export async function GET(req: NextRequest) {
   // Public access by slug (for rendering landing pages)
   const slug = url.searchParams.get("slug");
   if (slug) {
+    const preview = url.searchParams.get("preview") === "1" && isAdminRequest(req);
     const page = await db.landing_pages.findFirst({
-      where: { slug, status: "published" },
+      where: preview ? { slug } : { slug, status: "published" },
     });
     if (!page) return errorResponse("Page not found", 404, origin);
 
@@ -80,14 +81,28 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { facilityId, name, title, slug, templateType: _templateType, cloneFrom } = body;
-    const pageName = name || title;
+    const {
+      facilityId,
+      name,
+      title,
+      slug,
+      status,
+      metaTitle,
+      metaDescription,
+      theme,
+      storedgeWidgetUrl,
+      ogImageUrl,
+      variationIds,
+      sections,
+      cloneFrom,
+    } = body;
+    const pageTitle: string | undefined = title || name;
 
-    // For clone-only requests, generate name/slug automatically
-    if (cloneFrom && (!pageName || !slug)) {
+    // For clone-only requests, generate title/slug automatically
+    if (cloneFrom && (!pageTitle || !slug)) {
       const sourceP = await db.landing_pages.findUnique({ where: { id: cloneFrom } });
       if (!sourceP) return errorResponse("Source page not found", 404, origin);
-      const cloneName = pageName || `${sourceP.title} (Copy)`;
+      const cloneTitle = pageTitle || `${sourceP.title} (Copy)`;
       const cloneSlug = slug || `${sourceP.slug}-copy-${Date.now().toString(36)}`;
       const cloneFacility = facilityId || sourceP.facility_id;
 
@@ -96,7 +111,7 @@ export async function POST(req: NextRequest) {
 
       const clonedPage = await db.$transaction(async (tx) => {
         const newPage = await tx.landing_pages.create({
-          data: { facility_id: cloneFacility, title: cloneName, slug: cloneSlug, status: "draft" },
+          data: { facility_id: cloneFacility, title: cloneTitle, slug: cloneSlug, status: "draft" },
         });
 
         const sourceSections = await tx.landing_page_sections.findMany({
@@ -120,31 +135,37 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ page: clonedPage }, 200, origin);
     }
 
-    if (!facilityId || !pageName || !slug) {
-      return errorResponse("Missing required fields: facilityId, name/title, slug", 400, origin);
+    if (!facilityId || !pageTitle || !slug) {
+      return errorResponse("Missing required fields: facilityId, title, slug", 400, origin);
     }
 
-    // Check slug uniqueness
     const existing = await db.landing_pages.findFirst({ where: { slug } });
     if (existing) return errorResponse("Slug already exists", 400, origin);
+
+    const nowPublished = status === "published";
 
     const page = await db.$transaction(async (tx) => {
       const newPage = await tx.landing_pages.create({
         data: {
           facility_id: facilityId,
-          title: pageName,
+          title: pageTitle,
           slug,
-          status: "draft",
+          status: status || "draft",
+          meta_title: metaTitle ?? null,
+          meta_description: metaDescription ?? null,
+          theme: theme ?? {},
+          storedge_widget_url: storedgeWidgetUrl ?? null,
+          og_image_url: ogImageUrl ?? null,
+          variation_ids: Array.isArray(variationIds) ? variationIds : [],
+          published_at: nowPublished ? new Date() : null,
         },
       });
 
-      // Clone sections from another page if requested
       if (cloneFrom) {
         const sourceSections = await tx.landing_page_sections.findMany({
           where: { landing_page_id: cloneFrom },
           orderBy: { sort_order: "asc" },
         });
-
         for (const section of sourceSections) {
           await tx.landing_page_sections.create({
             data: {
@@ -155,9 +176,26 @@ export async function POST(req: NextRequest) {
             },
           });
         }
+      } else if (Array.isArray(sections)) {
+        for (let i = 0; i < sections.length; i++) {
+          const s = sections[i];
+          await tx.landing_page_sections.create({
+            data: {
+              landing_page_id: newPage.id,
+              section_type: s.sectionType || s.section_type,
+              sort_order: s.sortOrder ?? s.sort_order ?? i,
+              config: s.config ?? {},
+            },
+          });
+        }
       }
 
-      return newPage;
+      const createdSections = await tx.landing_page_sections.findMany({
+        where: { landing_page_id: newPage.id },
+        orderBy: { sort_order: "asc" },
+      });
+
+      return { ...newPage, sections: createdSections };
     });
 
     return jsonResponse({ page }, 200, origin);
@@ -181,24 +219,22 @@ export async function PATCH(req: NextRequest) {
 
     const { ...updates } = body;
     delete updates.id;
+    delete updates.facilityId;
+    delete updates.facility_id;
 
     const page = await db.landing_pages.findUnique({ where: { id } });
     if (!page) return errorResponse("Page not found", 404, origin);
 
-    // Handle sections replacement (accept both snake_case and camelCase)
     const sections = updates.sections;
-    if (sections) {
-      delete updates.sections;
-    }
+    delete updates.sections;
 
-    // Map camelCase field names to snake_case
     const fieldMap: Record<string, string> = {
       metaTitle: "meta_title",
       metaDescription: "meta_description",
-      storedgeWidgetUrl: "storedge_url",
-      storedgeUrl: "storedge_url",
-      ogImage: "og_image",
-      templateType: "template_type",
+      storedgeWidgetUrl: "storedge_widget_url",
+      ogImageUrl: "og_image_url",
+      ogImage: "og_image_url",
+      variationIds: "variation_ids",
     };
     for (const [camel, snake] of Object.entries(fieldMap)) {
       if (updates[camel] !== undefined && updates[snake] === undefined) {
@@ -206,17 +242,29 @@ export async function PATCH(req: NextRequest) {
       }
       delete updates[camel];
     }
-    // Also accept "title" as alias for "name" (builder sends title)
-    if (updates.title !== undefined && updates.name === undefined) {
-      updates.name = updates.title;
-    }
-    delete updates.title;
 
-    // Update page fields
-    const allowedFields = ["name", "slug", "status", "template_type", "meta_title", "meta_description", "og_image", "theme", "storedge_url"];
+    const allowedFields = [
+      "title",
+      "slug",
+      "status",
+      "meta_title",
+      "meta_description",
+      "og_image_url",
+      "theme",
+      "storedge_widget_url",
+      "variation_ids",
+    ];
     const pageUpdates: Record<string, unknown> = {};
     for (const key of allowedFields) {
       if (updates[key] !== undefined) pageUpdates[key] = updates[key];
+    }
+
+    if (
+      pageUpdates.status === "published" &&
+      page.status !== "published" &&
+      !page.published_at
+    ) {
+      pageUpdates.published_at = new Date();
     }
 
     const { updated, updatedSections } = await db.$transaction(async (tx) => {
