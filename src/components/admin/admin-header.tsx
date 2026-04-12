@@ -107,15 +107,15 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="text-base md:text-lg font-semibold text-[#111827] truncate min-w-0">
+      <h1 className="font-semibold text-[#111827] min-w-0">
         {getPageTitle(pathname)}
       </h1>
 
-      <div className="ml-auto flex items-center gap-0.5 md:gap-1 shrink-0">
+      <div className="ml-auto flex items-center gap-1 shrink-0">
         <button
           type="button"
           onClick={handleRefresh}
-          className="rounded-lg p-1.5 md:p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
+          className="hidden sm:block rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
           aria-label="Refresh data"
         >
           <RefreshCw
@@ -126,7 +126,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         <button
           type="button"
           onClick={handleExport}
-          className="hidden sm:block rounded-lg p-1.5 md:p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
+          className="hidden sm:block rounded-lg p-2 text-[#6B7280] transition-colors hover:bg-black/[0.04] hover:text-[#111827]"
           aria-label="Export CSV"
         >
           <Download className="h-4 w-4" />
@@ -147,7 +147,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
 
         <span className="hidden sm:inline-block"><ThemeToggle /></span>
 
-        <div className="ml-1 md:ml-2 h-6 w-px bg-black/[0.04]" />
+        <div className="hidden sm:block ml-2 h-6 w-px bg-black/[0.04]" />
 
         {isSignedIn ? (
           <div className="ml-2">

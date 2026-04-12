@@ -266,6 +266,9 @@
 }
 .admin-theme h1, .admin-theme h2, .admin-theme h3, .admin-theme h4, .admin-theme h5, .admin-theme h6 { font-family: var(--font); color: var(--ink); font-weight: 900; text-transform: uppercase; letter-spacing: 0.03em; }
 .admin-theme h1 { font-size: 28px; }
+@media (max-width: 639px) {
+  .admin-theme h1 { font-size: 20px; letter-spacing: 0; }
+}
 .admin-theme h2 { font-size: 22px; }
 .admin-theme h3 { font-size: 17px; }
 .admin-theme h4 { font-size: 15px; }
