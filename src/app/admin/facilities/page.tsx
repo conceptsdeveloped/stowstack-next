@@ -560,10 +560,11 @@ function VerticalTabSidebar({
         aria-hidden="true"
       />
 
-      {/* Mobile/tablet slide-out drawer */}
-      <aside
+      {/* Mobile/tablet slide-out drawer — uses <div> not <aside> to avoid
+           .admin-theme aside { background: dark } override from globals.css */}
+      <div
         ref={drawerRef}
-        className={`fixed inset-y-0 left-0 z-50 w-56 border-r border-[var(--border-subtle)] bg-[var(--bg-elevated)] shadow-2xl transition-transform duration-200 ease-out lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-56 border-r border-[var(--border-subtle)] bg-white shadow-2xl transition-transform duration-200 ease-out lg:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         role="dialog"
@@ -589,7 +590,7 @@ function VerticalTabSidebar({
           </button>
         </div>
         {sidebarContent}
-      </aside>
+      </div>
 
       {/* Left-edge peek zone — positioned relative to the sidebar slot, not fixed to viewport.
            Uses absolute positioning within the flex layout so it doesn't overlap the admin sidebar. */}
