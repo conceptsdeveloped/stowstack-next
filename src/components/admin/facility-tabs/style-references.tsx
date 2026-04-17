@@ -150,7 +150,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
       {error && (
         <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
           <p className="flex-1 text-sm text-red-300">{error}</p>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+          <button onClick={() => setError(null)} aria-label="Dismiss error" className="text-red-400 hover:text-red-300">
             <X size={16} />
           </button>
         </div>
@@ -321,6 +321,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
                     <div className="flex gap-1 flex-shrink-0">
                       <button
                         onClick={() => handleToggle(ref.id, !ref.active)}
+                        aria-label={ref.active ? 'Disable reference' : 'Enable reference'}
                         className="p-1.5 rounded-lg text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] transition-colors"
                         title={ref.active ? 'Disable' : 'Enable'}
                       >
@@ -328,6 +329,7 @@ export default function StyleReferences({ facilityId, adminKey }: {
                       </button>
                       <button
                         onClick={() => handleDelete(ref.id)}
+                        aria-label="Delete reference"
                         className="p-1.5 rounded-lg text-[var(--color-mid-gray)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
                         title="Delete"
                       >

@@ -84,7 +84,7 @@ export function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMo
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 hover:bg-[var(--color-light-gray)]">
+        <button onClick={onBack} aria-label="Back to tenant list" className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 hover:bg-[var(--color-light-gray)]">
           <ChevronLeft className="h-4 w-4 text-[var(--color-body-text)]" />
         </button>
         <div className="flex-1">

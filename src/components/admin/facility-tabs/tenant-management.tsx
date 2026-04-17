@@ -278,7 +278,7 @@ export default function TenantManagement({ facilityId, adminKey: _adminKey }: Pr
             className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:border-[var(--color-gold)]/50 focus:outline-none"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]">
+            <button onClick={() => setSearchQuery("")} aria-label="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]">
               <X className="h-3.5 w-3.5" />
             </button>
           )}
@@ -373,6 +373,7 @@ export default function TenantManagement({ facilityId, adminKey: _adminKey }: Pr
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
+            aria-label="Previous page"
             className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -396,6 +397,7 @@ export default function TenantManagement({ facilityId, adminKey: _adminKey }: Pr
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
+            aria-label="Next page"
             className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] disabled:opacity-30"
           >
             <ChevronRight className="h-4 w-4" />

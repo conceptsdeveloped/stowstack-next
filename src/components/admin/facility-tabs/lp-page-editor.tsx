@@ -387,6 +387,7 @@ export function PageEditor({
                     </p>
                     <button
                       onClick={() => setShowAddSection(false)}
+                      aria-label="Close add section"
                       className="text-[#9CA3AF]"
                     >
                       <XIcon size={14} />

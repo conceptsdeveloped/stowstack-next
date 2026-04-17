@@ -272,23 +272,23 @@ export function SequencesView({
                             <div className="flex items-center gap-1">
                               {e.status === 'active' && (
                                 <>
-                                  <button onClick={() => updateEnrollment(e.id, 'pause')} className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Pause">
+                                  <button onClick={() => updateEnrollment(e.id, 'pause')} aria-label="Pause enrollment" className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Pause">
                                     <Pause size={12} className="text-amber-500" />
                                   </button>
-                                  <button onClick={() => updateEnrollment(e.id, 'skip')} className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Skip step">
+                                  <button onClick={() => updateEnrollment(e.id, 'skip')} aria-label="Skip step" className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Skip step">
                                     <SkipForward size={12} className="text-[var(--color-body-text)]" />
                                   </button>
-                                  <button onClick={() => updateEnrollment(e.id, 'convert')} className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Mark converted">
+                                  <button onClick={() => updateEnrollment(e.id, 'convert')} aria-label="Mark converted" className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Mark converted">
                                     <UserCheck size={12} className="text-emerald-500" />
                                   </button>
                                 </>
                               )}
                               {e.status === 'paused' && (
-                                <button onClick={() => updateEnrollment(e.id, 'resume')} className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Resume">
+                                <button onClick={() => updateEnrollment(e.id, 'resume')} aria-label="Resume enrollment" className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Resume">
                                   <Play size={12} className="text-emerald-500" />
                                 </button>
                               )}
-                              <button onClick={() => deleteItem(e.id, 'enrollment')} className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Remove">
+                              <button onClick={() => deleteItem(e.id, 'enrollment')} aria-label="Remove enrollment" className="p-1 rounded hover:bg-[var(--color-light-gray)]" title="Remove">
                                 <Trash2 size={12} className="text-red-400" />
                               </button>
                             </div>

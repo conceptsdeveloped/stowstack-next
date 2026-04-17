@@ -213,9 +213,9 @@ export function SlideEditorPanel({
                   </select>
                   <div className="flex-1" />
                   {/* Move controls */}
-                  <button onClick={e => { e.stopPropagation(); moveSlide(idx, -1) }} disabled={idx === 0} className="p-0.5 text-[var(--color-mid-gray)] disabled:opacity-20 hover:text-[var(--color-dark)]"><ChevronLeft size={11} /></button>
-                  <button onClick={e => { e.stopPropagation(); moveSlide(idx, 1) }} disabled={idx === slides.length - 1} className="p-0.5 text-[var(--color-mid-gray)] disabled:opacity-20 hover:text-[var(--color-dark)]"><ChevronRight size={11} /></button>
-                  <button onClick={e => { e.stopPropagation(); removeSlide(idx) }} className="p-0.5 text-red-400 hover:text-red-300"><Trash2 size={11} /></button>
+                  <button onClick={e => { e.stopPropagation(); moveSlide(idx, -1) }} disabled={idx === 0} aria-label="Move slide left" className="p-0.5 text-[var(--color-mid-gray)] disabled:opacity-20 hover:text-[var(--color-dark)]"><ChevronLeft size={11} /></button>
+                  <button onClick={e => { e.stopPropagation(); moveSlide(idx, 1) }} disabled={idx === slides.length - 1} aria-label="Move slide right" className="p-0.5 text-[var(--color-mid-gray)] disabled:opacity-20 hover:text-[var(--color-dark)]"><ChevronRight size={11} /></button>
+                  <button onClick={e => { e.stopPropagation(); removeSlide(idx) }} aria-label="Delete slide" className="p-0.5 text-red-400 hover:text-red-300"><Trash2 size={11} /></button>
                 </div>
               </div>
             </div>

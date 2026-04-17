@@ -111,7 +111,7 @@ export default function TextOverlayEditor({ videoUrl, adminKey }: {
                 placeholder={layer.style === 'headline' ? 'Your headline...' : layer.style === 'cta' ? 'Call to action...' : 'Text...'}
                 className="flex-1 px-2 py-1.5 border border-[var(--border-subtle)] rounded text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
               />
-              <button onClick={() => removeLayer(idx)} className="p-1 text-red-400 hover:text-red-300 mt-1"><Trash2 size={12} /></button>
+              <button onClick={() => removeLayer(idx)} aria-label="Remove text layer" className="p-1 text-red-400 hover:text-red-300 mt-1"><Trash2 size={12} /></button>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {/* Style */}

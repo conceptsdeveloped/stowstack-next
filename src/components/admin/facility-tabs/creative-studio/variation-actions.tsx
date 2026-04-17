@@ -63,6 +63,7 @@ export function VariationActions({
       <button
         onClick={onDelete}
         disabled={saving}
+        aria-label="Delete variation"
         className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--border-subtle)] text-[var(--color-mid-gray)] hover:text-red-400 hover:border-red-500/20 disabled:opacity-40 transition-colors ml-auto"
       >
         <Trash2 size={12} />

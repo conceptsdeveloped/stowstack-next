@@ -328,6 +328,7 @@ export function PostCard({
             <>
               <button
                 onClick={handleSchedule}
+                aria-label="Schedule post"
                 className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
                 title="Schedule"
               >
@@ -336,6 +337,7 @@ export function PostCard({
               <button
                 onClick={handlePublish}
                 disabled={publishing}
+                aria-label="Publish now"
                 className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
                 title="Publish now"
               >
@@ -351,6 +353,7 @@ export function PostCard({
             <button
               onClick={handlePublish}
               disabled={publishing}
+              aria-label="Publish now"
               className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
               title="Publish now"
             >
@@ -368,6 +371,7 @@ export function PostCard({
                   setEditing(true)
                   setExpanded(true)
                 }}
+                aria-label="Edit post"
                 className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
                 title="Edit"
               >
@@ -376,6 +380,7 @@ export function PostCard({
               <button
                 onClick={handleDelete}
                 disabled={deleting}
+                aria-label="Delete post"
                 className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
                 title="Delete"
               >
@@ -396,6 +401,7 @@ export function PostCard({
           )}
           <button
             onClick={() => setExpanded(!expanded)}
+            aria-label={expanded ? "Collapse post" : "Expand post"}
             className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-light-gray)]"
           >
             {expanded ? (

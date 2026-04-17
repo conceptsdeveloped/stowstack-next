@@ -272,6 +272,7 @@ export function PageList({
                         e.stopPropagation()
                         onClonePage(p.id)
                       }}
+                      aria-label="Duplicate page"
                       className="p-1.5 rounded-lg hover:bg-black/[0.04]"
                       title="Duplicate page"
                     >
@@ -282,6 +283,7 @@ export function PageList({
                         e.stopPropagation()
                         onDeletePage(p.id)
                       }}
+                      aria-label="Delete page"
                       className="p-1.5 rounded-lg hover:bg-black/[0.04]"
                       title="Delete page"
                     >

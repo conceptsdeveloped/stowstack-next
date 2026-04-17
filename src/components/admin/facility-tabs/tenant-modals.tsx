@@ -66,7 +66,7 @@ export function AddTenantModal({ facilityId, onClose, onSuccess }: { facilityId:
       <div className="mx-4 w-full max-w-lg rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Add Tenant</h3>
-          <button onClick={onClose} className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} aria-label="Close" className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
         </div>
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
         <div className="grid gap-3 sm:grid-cols-2">
@@ -195,7 +195,7 @@ export function ImportCSVModal({ facilityId, onClose, onSuccess }: { facilityId:
       <div className="mx-4 w-full max-w-2xl rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Import Tenants from CSV</h3>
-          <button onClick={onClose} className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} aria-label="Close" className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
         </div>
 
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
