@@ -241,8 +241,8 @@ export async function POST(req: NextRequest) {
       .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 
     // Enroll in post-audit drip sequence (day 1, 3, 7 follow-ups)
-    const existingDrip = await db.drip_sequences.findUnique({
-      where: { facility_id: facilityId },
+    const existingDrip = await db.drip_sequences.findFirst({
+      where: { facility_id: facilityId, sequence_id: "post_audit" },
     });
     if (!existingDrip) {
       const firstSendAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // Day 2

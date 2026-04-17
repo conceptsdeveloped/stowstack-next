@@ -90,14 +90,17 @@ model ad_variations {
   compliance_flags        Json?
   funnel_config           Json?
   funnel_metrics          Json?
+  funnel_id               String?                   @db.Uuid
   creative_briefs         creative_briefs?          @relation(fields: [brief_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   facilities              facilities                @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  funnels                 funnels?                  @relation(fields: [funnel_id], references: [id], onUpdate: NoAction)
   drip_sequence_templates drip_sequence_templates[]
   publish_log             publish_log[]
   creative_performance    creative_performance[]
 
   @@index([brief_id], map: "idx_variations_brief")
   @@index([facility_id], map: "idx_variations_facility")
+  @@index([funnel_id], map: "idx_variations_funnel")
   @@index([status], map: "idx_variations_status")
 }
 
@@ -479,20 +482,26 @@ model drip_sequence_templates {
   id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   facility_id   String         @db.Uuid
   variation_id  String?        @db.Uuid
+  funnel_id     String?        @db.Uuid
   name          String
+  sequence_type String         @default("post_conversion") // post_conversion, recovery, retargeting
   steps         Json
   created_at    DateTime       @default(now()) @db.Timestamptz(6)
   updated_at    DateTime       @default(now()) @updatedAt @db.Timestamptz(6)
   facilities    facilities     @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   ad_variations ad_variations? @relation(fields: [variation_id], references: [id], onUpdate: NoAction)
+  funnels       funnels?       @relation(fields: [funnel_id], references: [id], onUpdate: NoAction)
 
   @@unique([facility_id, variation_id])
   @@index([facility_id], map: "idx_drip_templates_facility")
+  @@index([funnel_id], map: "idx_drip_templates_funnel")
 }
 
 model drip_sequences {
   id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  facility_id   String     @unique @db.Uuid
+  facility_id   String     @db.Uuid
+  funnel_id     String?    @db.Uuid
+  lead_id       String?    @db.Uuid // partial_leads.id — the specific lead in this drip
   sequence_id   String     @default("post_audit")
   current_step  Int        @default(0)
   status        String     @default("active")
@@ -505,6 +514,9 @@ model drip_sequences {
   history       Json?      @default("[]")
   facilities    facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
+  @@index([facility_id], map: "idx_drip_sequences_facility")
+  @@index([funnel_id], map: "idx_drip_sequences_funnel")
+  @@index([lead_id], map: "idx_drip_sequences_lead")
   @@index([next_send_at], map: "idx_drip_sequences_next_send")
   @@index([status], map: "idx_drip_sequences_status")
 }
@@ -555,7 +567,8 @@ model facilities {
   creative_briefs              creative_briefs[]
   delinquency_escalations      delinquency_escalations[]
   drip_sequence_templates      drip_sequence_templates[]
-  drip_sequences               drip_sequences?
+  drip_sequences               drip_sequences[]
+  funnels                      funnels[]
   organizations                organizations?                 @relation(fields: [organization_id], references: [id], onUpdate: NoAction)
   facility_context             facility_context[]
   facility_market_intel        facility_market_intel?
@@ -1036,16 +1049,19 @@ model landing_pages {
   og_image_url          String?
   theme                 Json                    @default("{}")
   storedge_widget_url   String?
+  funnel_id             String?                 @db.Uuid
   created_at            DateTime                @default(now()) @db.Timestamptz(6)
   updated_at            DateTime                @updatedAt @db.Timestamptz(6)
   published_at          DateTime?               @db.Timestamptz(6)
   call_tracking_numbers call_tracking_numbers[]
   landing_page_sections landing_page_sections[]
   facilities            facilities              @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  funnels               funnels?                @relation(fields: [funnel_id], references: [id], onUpdate: NoAction)
   partial_leads         partial_leads[]
   utm_links             utm_links[]
 
   @@index([facility_id], map: "idx_landing_pages_facility")
+  @@index([funnel_id], map: "idx_landing_pages_funnel")
   @@index([slug], map: "idx_landing_pages_slug")
   @@index([status], map: "idx_landing_pages_status")
 }
@@ -1229,8 +1245,10 @@ model partial_leads {
   gclid               String?
   status_updated_at   DateTime?      @db.Timestamptz(6)
   lead_notes          String?
+  funnel_id             String?                @db.Uuid
   facilities            facilities?            @relation(fields: [facility_id], references: [id], onUpdate: NoAction)
   landing_pages         landing_pages?         @relation(fields: [landing_page_id], references: [id], onUpdate: NoAction)
+  funnels               funnels?               @relation(fields: [funnel_id], references: [id], onUpdate: NoAction)
   nurture_enrollments   nurture_enrollments[]
 
   @@index([created_at(sort: Desc)], map: "idx_partial_leads_created")
@@ -1241,6 +1259,7 @@ model partial_leads {
   @@index([lead_status], map: "idx_partial_leads_lead_status")
   @@index([recovery_status, next_recovery_at], map: "idx_partial_leads_recovery")
   @@index([session_id], map: "idx_partial_leads_session")
+  @@index([funnel_id], map: "idx_partial_leads_funnel")
   @@index([utm_campaign], map: "idx_partial_leads_utm_campaign")
 }
 
@@ -1836,6 +1855,7 @@ model creative_performance {
   id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   facility_id   String        @db.Uuid
   variation_id  String        @db.Uuid
+  funnel_id     String?       @db.Uuid
   period        String        // "2026-04" (monthly)
   spend         Decimal       @default(0) @db.Decimal(10, 2)
   impressions   Int           @default(0)
@@ -1848,9 +1868,54 @@ model creative_performance {
   updated_at    DateTime      @updatedAt @db.Timestamptz(6)
   facilities    facilities    @relation(fields: [facility_id], references: [id], onDelete: Cascade)
   ad_variations ad_variations @relation(fields: [variation_id], references: [id], onDelete: Cascade)
+  funnels       funnels?      @relation(fields: [funnel_id], references: [id], onUpdate: NoAction)
 
   @@unique([variation_id, period])
   @@index([facility_id], map: "idx_creative_performance_facility")
+  @@index([funnel_id], map: "idx_creative_performance_funnel")
+}
+
+model funnels {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id     String    @db.Uuid
+  name            String    @db.VarChar(255)
+  archetype       String?   @db.VarChar(40) // social_proof, convenience, urgency, lifestyle, custom
+  status          String    @default("draft") // draft, testing, live, paused, archived
+  config          Json      @default("{}") // Full funnel config: landingHero, landingFeatures, postConversion, retargeting, recovery
+  metrics         Json?     // Rolled-up stage metrics: impressions, clicks, pageViews, formStarts, conversions, dripEngagement, moveIns
+  daily_budget    Decimal?  @db.Decimal(10, 2)
+  target_audience Json?     // Targeting config: age range, radius, interests, custom audiences
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime  @updatedAt @db.Timestamptz(6)
+  published_at    DateTime? @db.Timestamptz(6)
+  archived_at     DateTime? @db.Timestamptz(6)
+
+  // Relations — funnel owns everything
+  facilities              facilities                @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  ad_variations           ad_variations[]
+  landing_pages           landing_pages[]
+  drip_sequence_templates drip_sequence_templates[]
+  partial_leads           partial_leads[]
+  creative_performance    creative_performance[]
+  funnel_stage_metrics    funnel_stage_metrics[]
+
+  @@index([facility_id], map: "idx_funnels_facility")
+  @@index([status], map: "idx_funnels_status")
+  @@index([facility_id, status], map: "idx_funnels_facility_status")
+}
+
+model funnel_stage_metrics {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  funnel_id   String   @db.Uuid
+  period      String   // "2026-04-12" (daily) or "2026-04" (monthly)
+  stage       String   // impression, click, page_view, form_start, form_submit, conversion, drip_sent, drip_opened, move_in
+  count       Int      @default(0)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  funnels     funnels  @relation(fields: [funnel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([funnel_id, period, stage])
+  @@index([funnel_id], map: "idx_funnel_stage_metrics_funnel")
+  @@index([funnel_id, period], map: "idx_funnel_stage_metrics_funnel_period")
 }
 
 model facility_learnings {

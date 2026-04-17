@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
       return errorResponse("Lead not found", 404, origin);
     }
 
-    const existing = await db.drip_sequences.findUnique({
+    const existing = await db.drip_sequences.findFirst({
       where: { facility_id: leadId },
     });
 
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
 
     const drip = await db.$transaction(async (tx) => {
       if (existing) {
-        await tx.drip_sequences.delete({ where: { facility_id: leadId } });
+        await tx.drip_sequences.delete({ where: { id: existing.id } });
       }
 
       const sequence = SEQUENCES[sequenceId];
@@ -189,14 +189,17 @@ export async function POST(req: NextRequest) {
       const delayMs = (firstStep.delayDays || 0) * 24 * 60 * 60 * 1000;
       const nextSendAt = new Date(now.getTime() + delayMs);
 
-      const rows = await tx.$queryRaw<Array<Record<string, unknown>>>`
-        INSERT INTO drip_sequences (facility_id, sequence_id, current_step, status, enrolled_at, next_send_at, history)
-        VALUES (${leadId}, ${sequenceId}, 0, 'active', ${now}::timestamptz, ${nextSendAt}::timestamptz, '[]'::jsonb)
-        ON CONFLICT (facility_id) DO NOTHING
-        RETURNING *
-      `;
-
-      return rows[0] || null;
+      return await tx.drip_sequences.create({
+        data: {
+          facility_id: leadId,
+          sequence_id: sequenceId,
+          current_step: 0,
+          status: "active",
+          enrolled_at: now,
+          next_send_at: nextSendAt,
+          history: [],
+        },
+      });
     });
     return jsonResponse({ success: true, drip }, 200, origin);
   } catch {
@@ -229,7 +232,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
-    const drip = await db.drip_sequences.findUnique({
+    const drip = await db.drip_sequences.findFirst({
       where: { facility_id: leadId },
     });
     if (!drip) {
@@ -245,7 +248,7 @@ export async function PATCH(req: NextRequest) {
 
     if (action === "pause") {
       await db.drip_sequences.update({
-        where: { facility_id: leadId },
+        where: { id: drip.id },
         data: { status: "paused", paused_at: new Date() },
       });
     } else {
@@ -263,13 +266,13 @@ export async function PATCH(req: NextRequest) {
         );
       }
       await db.drip_sequences.update({
-        where: { facility_id: leadId },
+        where: { id: drip.id },
         data: { status: "active", paused_at: null, next_send_at: nextSendAt },
       });
     }
 
     const updated = await db.drip_sequences.findUnique({
-      where: { facility_id: leadId },
+      where: { id: drip.id },
     });
     return jsonResponse({ success: true, drip: updated }, 200, origin);
   } catch {
@@ -297,7 +300,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    const drip = await db.drip_sequences.findUnique({
+    const drip = await db.drip_sequences.findFirst({
       where: { facility_id: leadId },
     });
     if (!drip) {
@@ -305,7 +308,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     await db.drip_sequences.update({
-      where: { facility_id: leadId },
+      where: { id: drip.id },
       data: { status: "cancelled", cancelled_at: new Date() },
     });
 
