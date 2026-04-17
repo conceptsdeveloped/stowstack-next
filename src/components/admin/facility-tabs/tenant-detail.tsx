@@ -119,7 +119,7 @@ export function TenantDetail({ tenant, onBack, onRecordPayment, onEscalate, onMo
       </div>
 
       {/* Contact & Details */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
           <h3 className="mb-3 text-sm font-semibold">Contact Info</h3>
           <div className="space-y-2 text-sm">

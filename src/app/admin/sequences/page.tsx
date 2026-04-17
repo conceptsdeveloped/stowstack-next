@@ -325,7 +325,7 @@ export default function SequencesPage() {
           <h2 className="text-sm font-medium mb-3" style={{ color: "var(--color-body-text)" }}>
             Sequence Templates
           </h2>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {templates.map((t) => (
               <SequenceCard
                 key={t.id}

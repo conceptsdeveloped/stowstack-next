@@ -394,7 +394,7 @@ export default function FunnelDetailPage() {
       )}
 
       {/* Content sections */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Ad Creative */}
         <div className="rounded-xl border border-black/[0.08] bg-white p-5">
           <div className="flex items-center justify-between mb-3">

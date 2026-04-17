@@ -69,7 +69,7 @@ export function AddTenantModal({ facilityId, onClose, onSuccess }: { facilityId:
           <button onClick={onClose} aria-label="Close" className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
         </div>
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Name *" value={form.name} onChange={v => setForm({ ...form, name: v })} />
           <Field label="Email" value={form.email} onChange={v => setForm({ ...form, email: v })} />
           <Field label="Phone" value={form.phone} onChange={v => setForm({ ...form, phone: v })} />

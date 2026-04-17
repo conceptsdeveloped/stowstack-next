@@ -456,7 +456,7 @@ export default function PortfolioPage() {
       )}
 
       {/* charts */}
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         {/* monthly performance area chart */}
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
           <h2 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
