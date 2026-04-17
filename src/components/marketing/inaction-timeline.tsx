@@ -101,7 +101,7 @@ export default function InactionTimeline() {
             {MONTHS.map((m, i) => (
               <div
                 key={m.month}
-                className={`flex items-start gap-3 sm:gap-4 md:gap-6 transition-all duration-600 ${
+                className={`flex items-start gap-2.5 sm:gap-4 md:gap-6 transition-all duration-600 ${
                   isVisible
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 -translate-x-4"
@@ -109,45 +109,45 @@ export default function InactionTimeline() {
                 style={{ transitionDelay: `${200 + i * 120}ms` }}
               >
                 <div
-                  className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ${m.severity} flex items-center justify-center flex-shrink-0 border-2 border-red-500/30`}
+                  className={`w-10 h-10 sm:w-16 sm:h-16 rounded-full ${m.severity} flex items-center justify-center flex-shrink-0 border-2 border-red-500/30`}
                 >
                   <div className="text-center">
-                    <p className="text-[8px] sm:text-[10px] text-red-900 uppercase leading-none">
-                      Month
+                    <p className="text-[7px] sm:text-[10px] text-red-900 uppercase leading-none tracking-tight">
+                      Mo
                     </p>
-                    <p className="text-base sm:text-lg font-semibold text-[var(--color-dark)] leading-none mt-0.5">
+                    <p className="text-[13px] sm:text-lg font-semibold text-[var(--color-dark)] leading-none mt-0.5">
                       {m.month}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex-1 min-w-0 bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-xl p-3 sm:p-4 hover:border-red-500/20 transition-colors">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                <div className="flex-1 min-w-0 bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-xl p-2.5 sm:p-4 hover:border-red-500/20 transition-colors">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-4">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-sm sm:text-base text-[var(--color-dark)]">{m.title}</h3>
+                      <h3 className="font-semibold text-[13px] sm:text-base text-[var(--color-dark)] leading-snug">{m.title}</h3>
                       <p
-                        className="text-xs sm:text-sm mt-0.5"
+                        className="text-[11px] sm:text-sm mt-1 leading-snug"
                         style={{ color: "var(--text-secondary)" }}
                       >
                         {m.detail}
                       </p>
                     </div>
-                    <div className="sm:text-right shrink-0">
-                      <p className="text-sm text-red-400 font-medium whitespace-nowrap">
+                    <div className="sm:text-right shrink-0 flex flex-row sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-black/[0.04] sm:border-none">
+                      <p className="text-[11px] sm:text-sm text-red-400 font-medium whitespace-nowrap">
                         -${m.loss.toLocaleString()}/mo
                       </p>
                       <p
-                        className="text-xs whitespace-nowrap"
+                        className="text-[10px] sm:text-xs whitespace-nowrap"
                         style={{ color: "var(--text-tertiary)" }}
                       >
-                        cumulative: -${m.cumulative.toLocaleString()}
+                        cum: -${m.cumulative.toLocaleString()}
                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-3 w-full h-2 rounded-full bg-[var(--color-dark)]/5 overflow-hidden">
+                  <div className="mt-2.5 sm:mt-3 w-full h-1.5 sm:h-2 rounded-full bg-[var(--color-dark)]/5 overflow-hidden">
                     <div
-                      className={`h-2 rounded-full ${m.severity} transition-all duration-1000`}
+                      className={`h-full rounded-full ${m.severity} transition-all duration-1000`}
                       style={{
                         width: isVisible
                           ? `${(m.cumulative / 5850) * 100}%`
