@@ -28,7 +28,7 @@ export default function GlobalError({
           <p style={{ color: "#6a6560", marginBottom: 24 }}>An unexpected error occurred. Our team has been notified.</p>
           <button
             onClick={reset}
-            style={{ background: "#B58B3F", color: "#fff", border: "none", padding: "12px 24px", borderRadius: 8, cursor: "pointer", fontWeight: 500, fontSize: 16 }}
+            style={{ background: "#141413", color: "#faf9f5", border: "none", padding: "12px 24px", borderRadius: 8, cursor: "pointer", fontWeight: 500, fontSize: 16 }}
           >
             Try Again
           </button>
