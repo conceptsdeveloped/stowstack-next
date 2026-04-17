@@ -1105,7 +1105,11 @@ export default function Hero() {
           </div>
 
           {/* ── Right column — Dashboard ── */}
-          <DashboardMockup isVisible={isVisible} />
+          {/* Dense desktop UI with 3D tilt + horizontal-scroll tabs. Not
+              suited to <lg; MobileLiveTicker below carries the mobile signal. */}
+          <div className="hidden lg:block">
+            <DashboardMockup isVisible={isVisible} />
+          </div>
         </div>
 
         {/* Mobile live activity ticker — only visible on mobile */}
