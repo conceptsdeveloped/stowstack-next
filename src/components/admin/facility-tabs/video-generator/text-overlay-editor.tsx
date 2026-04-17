@@ -11,6 +11,7 @@ import {
   ANIM_OPTIONS,
   POSITION_OPTIONS,
 } from './types'
+import { compositeTextOverlays } from './text-overlay-renderer'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function TextOverlayEditor({ videoUrl, adminKey }: {
@@ -53,23 +54,19 @@ export default function TextOverlayEditor({ videoUrl, adminKey }: {
     setCompositing(true)
     setCompositProgress(0)
     try {
-      // Simulate compositing with progress
-      for (let i = 0; i <= 100; i += 10) {
-        setCompositProgress(i)
-        await new Promise(r => setTimeout(r, 200))
-      }
+      const blob = await compositeTextOverlays(videoUrl, activeLayers, (p) => {
+        if (p.phase === 'recording' && p.total && p.total > 0) {
+          setCompositProgress(Math.round(((p.elapsed || 0) / p.total) * 100))
+        } else if (p.phase === 'finalizing') {
+          setCompositProgress(99)
+        }
+      })
 
-      // Create a download of the video URL with text overlay metadata
-      const metadata = {
-        videoUrl,
-        layers: activeLayers,
-        exportedAt: new Date().toISOString(),
-      }
-      const blob = new Blob([JSON.stringify(metadata, null, 2)], { type: 'application/json' })
+      const ext = blob.type.includes('mp4') ? 'mp4' : 'webm'
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `video-overlay-${Date.now()}.json`
+      a.download = `video-overlay-${Date.now()}.${ext}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { TikTokPreview } from './tiktok-preview'
 import { SlideEditorPanel } from './slide-editor-panel'
+import { renderSlideshow } from './slideshow-renderer'
 
 /* ── Types ── */
 
@@ -66,6 +67,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
   const [caption, setCaption] = useState('')
   const [generating, setGenerating] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [exportProgress, setExportProgress] = useState<string | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [engagementCounts] = useState(() => ({
     heart: Math.floor(Math.random() * 500) + 100,
@@ -222,62 +224,34 @@ export default function TikTokCreator({ facilityId, adminKey }: {
   async function exportVideo() {
     if (slides.length === 0 || exporting) return
     setExporting(true)
+    setError(null)
     try {
-      const canvas = document.createElement('canvas')
-      canvas.width = 1080
-      canvas.height = 1920
-      const ctx = canvas.getContext('2d')
-      if (!ctx) throw new Error('Canvas context unavailable')
-
-      const activeSlide = slides[activeSlideIdx]
-      if (activeSlide) {
-        const img = new Image()
-        img.crossOrigin = 'anonymous'
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => resolve()
-          img.onerror = () => reject(new Error('Image load failed'))
-          img.src = activeSlide.imageUrl
-        })
-
-        const scale = Math.max(canvas.width / img.width, canvas.height / img.height)
-        const w = img.width * scale
-        const h = img.height * scale
-        ctx.drawImage(img, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h)
-
-        const gradient = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height)
-        gradient.addColorStop(0, 'rgba(0,0,0,0)')
-        gradient.addColorStop(1, 'rgba(0,0,0,0.7)')
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        if (activeSlide.textOverlay) {
-          ctx.fillStyle = 'white'
-          ctx.font = 'bold 64px sans-serif'
-          ctx.textAlign = 'center'
-          const y = activeSlide.textPosition === 'top' ? 300 :
-                    activeSlide.textPosition === 'center' ? canvas.height / 2 :
-                    canvas.height - 400
-          ctx.fillText(activeSlide.textOverlay, canvas.width / 2, y)
+      const blob = await renderSlideshow(slides, (p) => {
+        if (p.phase === 'recording' && p.total) {
+          const pct = Math.round(((p.elapsed || 0) / p.total) * 100)
+          setExportProgress(`Rendering… ${pct}%`)
+        } else if (p.phase === 'loading') {
+          setExportProgress('Loading images…')
+        } else if (p.phase === 'finalizing') {
+          setExportProgress('Finalizing…')
         }
-      }
-
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Failed to create blob')), 'image/png')
       })
 
+      const extension = blob.type.includes('mp4') ? 'mp4' : 'webm'
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `tiktok-slideshow-${Date.now()}.png`
+      a.download = `tiktok-slideshow-${Date.now()}.${extension}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Export failed:', err)
-      setError('Export failed. Please try again.')
+      setError(err instanceof Error ? err.message : 'Export failed. Please try again.')
     } finally {
       setExporting(false)
+      setExportProgress(null)
     }
   }
 
@@ -384,6 +358,7 @@ export default function TikTokCreator({ facilityId, adminKey }: {
             assets={assets}
             totalDuration={totalDuration}
             exporting={exporting}
+            exportProgress={exportProgress}
             exportVideo={exportVideo}
           />
         </div>

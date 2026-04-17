@@ -58,6 +58,7 @@ export function SlideEditorPanel({
   assets,
   totalDuration,
   exporting,
+  exportProgress,
   exportVideo,
 }: {
   slides: Slide[]
@@ -73,6 +74,7 @@ export function SlideEditorPanel({
   assets: Asset[]
   totalDuration: number
   exporting: boolean
+  exportProgress?: string | null
   exportVideo: () => void
 }) {
   const activeSlide = slides[activeSlideIdx]
@@ -255,7 +257,7 @@ export function SlideEditorPanel({
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
         >
           {exporting ? (
-            <><Loader2 size={14} className="animate-spin" /> Exporting...</>
+            <><Loader2 size={14} className="animate-spin" /> {exportProgress || 'Exporting…'}</>
           ) : (
             <><Download size={14} /> Export Video ({totalDuration.toFixed(0)}s)</>
           )}
