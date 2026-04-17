@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin } from "@/lib/api-helpers";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { notifyCronFailure } from "@/lib/cron-runner";
 import { computeFacilityLearnings } from "@/lib/facility-learnings";
 
 export const maxDuration = 120;
@@ -54,6 +55,7 @@ export async function GET(req: NextRequest) {
 
     return jsonResponse({ processed, failed, total: pending.length }, 200, origin);
   } catch (err) {
+    notifyCronFailure("process-synthesis-queue", err);
     return errorResponse(
       `Synthesis queue processing failed: ${(err as Error).message}`,
       500,

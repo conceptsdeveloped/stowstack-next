@@ -20,8 +20,9 @@ export function createCronHandler(
   handler: () => Promise<CronResult>
 ) {
   return async (req: NextRequest) => {
-    const authErr = verifyCronSecret(req);
-    if (authErr) return authErr;
+    if (!verifyCronSecret(req)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const startTime = Date.now();
     const { name, notifyOnFailure = true, notifyOnPartialFailure = true } = config;
@@ -94,6 +95,21 @@ export async function withRetry<T>(
     }
   }
   throw lastError;
+}
+
+/**
+ * Minimal failure alert for crons that don't use createCronHandler.
+ * Logs to console and emails admin (via Resend) when configured.
+ */
+export function notifyCronFailure(cronName: string, error: unknown, durationMs?: number) {
+  const message = error instanceof Error ? error.message : String(error);
+  Sentry.captureException(error, { tags: { cron: cronName } });
+  sendCronAlert({
+    cronName,
+    type: "fatal_error",
+    error: message,
+    durationMs: durationMs ?? 0,
+  });
 }
 
 function sendCronAlert(alert: {

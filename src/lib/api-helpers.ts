@@ -83,8 +83,12 @@ export function isAdminRequest(req: NextRequest): boolean {
   return false;
 }
 
-export async function requireAdminKey(req: NextRequest): Promise<NextResponse | null> {
-  // Fast path: shared ADMIN_SECRET (still supported during migration)
+export async function requireAdminKey(
+  req: NextRequest,
+  requiredScope?: string
+): Promise<NextResponse | null> {
+  // Fast path: shared ADMIN_SECRET (still supported during migration).
+  // Shared key is god-mode — scope checks are bypassed for founders.
   if (isAdminRequest(req)) {
     Sentry.addBreadcrumb({ category: "auth", message: "Admin key authenticated (shared)", level: "info" });
     return null;
@@ -93,9 +97,17 @@ export async function requireAdminKey(req: NextRequest): Promise<NextResponse | 
   // Per-admin key path: check x-admin-key header for sa_adm_ prefixed keys
   const providedKey = req.headers.get("x-admin-key");
   if (providedKey?.startsWith("sa_adm_")) {
-    const { validateAdminKey } = await import("@/lib/admin-keys");
-    const { valid, adminEmail } = await validateAdminKey(providedKey);
+    const { validateAdminKey, hasScope } = await import("@/lib/admin-keys");
+    const { valid, adminEmail, scopes } = await validateAdminKey(providedKey);
     if (valid) {
+      if (requiredScope && !hasScope(scopes, requiredScope)) {
+        Sentry.addBreadcrumb({
+          category: "auth",
+          message: `Scope denied: ${adminEmail} lacks ${requiredScope}`,
+          level: "warning",
+        });
+        return errorResponse(`Missing required scope: ${requiredScope}`, 403, req.headers.get("origin"));
+      }
       Sentry.setTag("admin_email", adminEmail);
       Sentry.addBreadcrumb({ category: "auth", message: `Admin key authenticated: ${adminEmail}`, level: "info" });
       return null;

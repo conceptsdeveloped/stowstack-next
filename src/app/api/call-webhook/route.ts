@@ -13,16 +13,28 @@ function twimlResponse(twiml: InstanceType<typeof VoiceResponse>): NextResponse 
   });
 }
 
-async function parseFormBody(
-  req: NextRequest
-): Promise<Record<string, string>> {
-  const text = await req.text();
+function parseFormParams(text: string): Record<string, string> {
   const params = new URLSearchParams(text);
   const result: Record<string, string> = {};
   params.forEach((value, key) => {
     result[key] = value;
   });
   return result;
+}
+
+function verifyTwilioSignature(req: NextRequest, rawBody: string): boolean {
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!authToken) {
+    // No token configured — in dev, allow through. In prod, require it.
+    return process.env.VERCEL_ENV !== "production";
+  }
+  const signature = req.headers.get("x-twilio-signature");
+  if (!signature) return false;
+  // Twilio signs <url> + sorted(body params concatenated as key+value)
+  const url = new URL(req.url);
+  const fullUrl = `${process.env.NEXT_PUBLIC_SITE_URL || `https://${url.host}`}${url.pathname}${url.search}`;
+  const params = parseFormParams(rawBody);
+  return twilio.validateRequest(authToken, signature, fullUrl, params);
 }
 
 export async function OPTIONS() {
@@ -32,9 +44,13 @@ export async function OPTIONS() {
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-call-webhook");
   if (limited) return limited;
+  const rawBody = await req.text();
+  if (!verifyTwilioSignature(req, rawBody)) {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
   const url = new URL(req.url);
   const event = url.searchParams.get("event");
-  const body = await parseFormBody(req);
+  const body = parseFormParams(rawBody);
 
   // Status callback: update call duration and final status
   if (event === "status") {

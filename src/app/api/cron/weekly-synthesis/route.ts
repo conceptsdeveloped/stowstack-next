@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin } from "@/lib/api-helpers";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { notifyCronFailure } from "@/lib/cron-runner";
 import { computeFacilityLearnings } from "@/lib/facility-learnings";
 import { aggregateGlobalPerformance, formatForSynthesis } from "@/lib/performance-aggregator";
 import { synthesizeCampaignResult } from "@/lib/synthesis";
@@ -102,6 +103,7 @@ export async function GET(req: NextRequest) {
 
     return jsonResponse(results, 200, origin);
   } catch (err) {
+    notifyCronFailure("weekly-synthesis", err);
     return errorResponse(
       `Weekly synthesis failed: ${(err as Error).message}`,
       500,
