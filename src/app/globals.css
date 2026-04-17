@@ -916,6 +916,22 @@ body {
   line-height: 1.65;
 }
 
+/* Mobile: fall back to proportional fonts so monospace doesn't blow out
+   layouts on narrow screens. Urbit aesthetic is preserved on sm+ (640px+). */
+@media (max-width: 639px) {
+  .urbit-landing {
+    --font-body: var(--font-lora), 'Lora', Georgia, serif;
+    --font-heading: var(--font-poppins), 'Poppins', -apple-system, system-ui, sans-serif;
+    --font-display: var(--font-heading);
+    --font-ad-headline: var(--font-heading);
+    --font-ad-body: var(--font-body);
+  }
+  .urbit-landing .btn-primary,
+  .urbit-landing .input-field {
+    font-family: var(--font-heading);
+  }
+}
+
 /* Buttons → monochrome, minimal */
 .urbit-landing .btn-primary {
   background: var(--color-dark);
