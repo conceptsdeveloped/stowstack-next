@@ -832,9 +832,14 @@ body {
 .safe-y      { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 .safe-all    { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
 
-/* Prevent horizontal overflow on mobile */
+/* Prevent horizontal overflow globally.
+   overflow-x: clip is stronger than hidden — it does NOT establish a scroll
+   container, so position:sticky descendants keep working. Applying to both
+   html and body closes the iOS Safari gap where the html element remains
+   the root scroll target. max-width: 100% guards against the Safari
+   vw-includes-scrollbar quirk. */
 @layer base {
-  body { overflow-x: hidden; }
+  html, body { overflow-x: clip; max-width: 100%; }
 }
 
 @keyframes lp-kenburns {
