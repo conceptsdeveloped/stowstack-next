@@ -573,7 +573,7 @@ function MobileLiveTicker({ isVisible }: { isVisible: boolean }) {
         <span className="text-[11px] font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>Live Activity</span>
       </div>
       <div className="overflow-hidden relative" style={{ height: "36px" }}>
-        <div className="flex items-center gap-8 absolute whitespace-nowrap" style={{ animation: "hero-ticker-scroll 25s linear infinite" }}>
+        <div className="flex items-center gap-8 absolute left-0 whitespace-nowrap" style={{ animation: "hero-ticker-scroll 25s linear infinite" }}>
           {[...NOTIFICATION_FEED, ...NOTIFICATION_FEED].map((item, i) => (
             <span key={i} className="flex items-center gap-2 text-[11px]" style={{ fontFamily: "var(--font-heading)" }}>
               <span>{item.icon}</span>
