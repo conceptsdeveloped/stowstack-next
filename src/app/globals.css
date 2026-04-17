@@ -125,345 +125,300 @@
 }
 
 /* ═══════════════════════════════════════════
-   ADMIN THEME — Neo-Brutalist
-   Bold borders. Hard shadows. Vivid colors. Heavy type.
-   Every button a different color. Text always readable.
+   ADMIN THEME — Urbit Landscape
+   Monospace-forward. Grayscale. Minimal chrome.
+   Terminal meets messaging app. Quiet confidence.
    Scoped to .admin-theme
    ═══════════════════════════════════════════ */
 
 .admin-theme {
-  --bg: #ECEAE5;
-  --card: #FDFCFA;
-  --sidebar-bg: #1A1917;
-  --sidebar-text: #D4D0CB;
-  --sidebar-muted: #8A8580;
-  --sidebar-active-bg: var(--burgundy);
-  --sidebar-hover: rgba(255,255,255,0.06);
-  --header-bg: var(--burgundy);
-  --section-header-bg: #F5E8D8;
-  --section-header-text: var(--burgundy);
-  --tan: #C4A96A;
-  --link-color: var(--burgundy);
-  --ink: #050505;
-  --ink2: #444;
-  --ink3: #999;
-  --bw: 3px;
-  --r: 0.5em;
-  --shadow: 5px 5px 0 #050505;
-  --shadow-hover: 8px 8px 0 #050505;
-  --shadow-press: 2px 2px 0 #050505;
-  --font: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --navy: #2C3E6B;
-  --burgundy: #8C2332;
-  --forest: #1B4D3E;
-  --slate: #4A5563;
-  --teal: #3B5E5E;
-  --accent: var(--navy);
-  --accent2: var(--forest);
-  --accent3: var(--teal);
-  /* Override gold globally inside admin */
-  --color-gold: #8C2332;
-  --color-gold-hover: #7A1E2B;
-  --color-gold-on-light: #8C2332;
-  --color-gold-light: #F0DDE0;
+  --bg: #FFFFFF;
+  --card: #FFFFFF;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-text: #737373;
+  --sidebar-text-active: #1A1A1A;
+  --sidebar-muted: #A3A3A3;
+  --ink: #1A1A1A;
+  --ink2: #737373;
+  --ink3: #A3A3A3;
+  --bdr: rgba(0, 0, 0, 0.08);
+  --bdr-strong: rgba(0, 0, 0, 0.15);
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --active-bg: rgba(0, 0, 0, 0.06);
+  --r: 4px;
+  --font: var(--font-jetbrains), "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  /* Terminal ANSI palette — used sparingly, only for semantic meaning */
+  --t-red: #FF3B30;
+  --t-green: #28CD41;
+  --t-yellow: #FFCC00;
+  --t-blue: #0A84FF;
+  --t-magenta: #BF5AF2;
+  --t-cyan: #5AC8FA;
+  --t-red-light: rgba(255, 59, 48, 0.08);
+  --t-green-light: rgba(40, 205, 65, 0.08);
+  --t-yellow-light: rgba(255, 204, 0, 0.08);
+  --t-blue-light: rgba(10, 132, 255, 0.08);
+  --t-magenta-light: rgba(191, 90, 242, 0.08);
+  --t-cyan-light: rgba(90, 200, 250, 0.08);
+  /* Override gold to monochrome for admin — no primary color accent */
+  --color-gold: var(--ink);
+  --color-gold-hover: #333333;
+  --color-gold-on-light: var(--ink);
+  --color-gold-light: rgba(0, 0, 0, 0.04);
 }
 
 /* Foundation */
-.admin-theme { font-family: var(--font); color: var(--ink); font-size: 14px; font-weight: 900; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+.admin-theme {
+  font-family: var(--font);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
 .admin-theme *, .admin-theme *::before, .admin-theme *::after { box-sizing: border-box; }
 .admin-theme main { background: var(--bg); }
 
-/* Sidebar — dark warm background */
+/* Sidebar */
 .admin-theme aside {
   background: var(--sidebar-bg) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  border-right: 1px solid var(--bdr) !important;
 }
-.admin-theme aside [class*="text-\[\#6B7280\]"],
-.admin-theme aside [class*="text-\[\#9CA3AF\]"],
-.admin-theme aside [class*="text-gray-"],
-.admin-theme aside [class*="text-\[var(--color-dark)\]"] { color: var(--sidebar-text); }
-.admin-theme aside [class*="text-\[10px\]"],
-.admin-theme aside p[class*="uppercase"] { color: var(--sidebar-muted); }
-.admin-theme aside a { color: var(--sidebar-text); font-weight: 800; }
-.admin-theme aside a:hover { color: #FFFFFF; }
-/* Active sidebar item — burgundy bg */
-.admin-theme aside [class*="bg-\[var(--color-gold)\]"] { background-color: var(--sidebar-active-bg) !important; }
-.admin-theme aside [class*="font-medium"] { color: #FFFFFF; }
-/* Sidebar border */
-.admin-theme aside [class*="border-black"] { border-color: rgba(255,255,255,0.08); }
-/* Sidebar brand text */
-.admin-theme aside [class*="text-\[var(--color-gold)\]"] { color: var(--burgundy); }
+.admin-theme aside [class*="border-white"] { border-color: var(--bdr) !important; }
+.admin-theme aside a { color: var(--sidebar-text); font-weight: 400; font-size: 13px; transition: color 120ms ease; }
+.admin-theme aside a:hover { color: var(--ink); }
+.admin-theme aside p[class*="uppercase"] { color: var(--sidebar-muted); font-weight: 400; font-size: 10px; letter-spacing: 0.12em; }
 
-/* Header — burgundy nav bar (Vanguard style) */
+/* Header */
 .admin-theme header {
-  background: var(--header-bg) !important;
+  background: var(--bg) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border-bottom: 3px solid #6B1A25 !important;
+  border-bottom: 1px solid var(--bdr) !important;
 }
-.admin-theme header h1 { color: #FFFFFF !important; }
-.admin-theme header button { color: rgba(255,255,255,0.85); }
-.admin-theme header button:hover { color: #FFFFFF; }
-.admin-theme header [class*="bg-black"] { background: rgba(255,255,255,0.08); }
-.admin-theme header [class*="w-px"] { background: rgba(255,255,255,0.20); }
+.admin-theme header h1 { color: var(--ink) !important; font-size: 14px !important; font-weight: 500 !important; }
+.admin-theme header button { color: var(--ink3); }
+.admin-theme header button:hover { color: var(--ink); background: var(--hover-bg); }
+.admin-theme header [class*="w-px"] { background: var(--bdr); }
 
-/* Tabs — burgundy active state */
-.admin-theme [role="tab"][aria-selected="true"],
-.admin-theme [role="tab"][data-state="active"] { color: var(--burgundy); border-bottom: var(--bw) solid var(--burgundy); }
-
-/* Section headers — burgundy text on warm tan bg (Vanguard card sections) */
-.admin-theme main h2 { color: var(--burgundy); }
-.admin-theme main h3 { color: var(--navy); }
-
-/* Table headers — navy bg with white text */
-.admin-theme thead th { background: var(--navy); color: #FDFCFA; border-bottom-color: var(--ink); }
-
-/* Links — burgundy throughout */
-.admin-theme [class*="text-blue-"],
-.admin-theme [class*="text-\[\#3B82F6\]"],
-.admin-theme [class*="text-indigo-"] { color: var(--burgundy); }
-.admin-theme a[class*="text-blue-"] { color: var(--burgundy); text-decoration-color: var(--burgundy); }
-
-/* Warm tan dividers (Vanguard gold rule) */
-.admin-theme hr { border-color: var(--tan); border-width: 2px; }
-
-/* Card section headers — tan bg strip with burgundy text */
-.admin-theme [class*="border-b"][class*="pb-"] h3,
-.admin-theme [class*="border-b"][class*="pb-"] h4 { color: var(--burgundy); }
-
-/* Card left border — burgundy accent like Vanguard's signature stripe */
-.admin-theme [class*="bg-white"][class*="rounded"]:nth-child(4n+1) { border-left: 4px solid var(--burgundy); }
-.admin-theme [class*="bg-white"][class*="rounded"]:nth-child(4n+2) { border-left: 4px solid var(--navy); }
-.admin-theme [class*="bg-white"][class*="rounded"]:nth-child(4n+3) { border-left: 4px solid var(--forest); }
-.admin-theme [class*="bg-white"][class*="rounded"]:nth-child(4n+4) { border-left: 4px solid var(--tan); }
-
-/* Fix button text that uses CSS var colors — ensure always readable */
-.admin-theme button[class*="text-\[var(--color-mid-gray)\]"],
-.admin-theme button[class*="text-\[var(--color-body-text)\]"],
-.admin-theme button[class*="text-\[var(--color-light)\]"]:not([class*="bg-"]) {
-  color: #2C2825;
+/* Typography — Landscape calm */
+.admin-theme h1, .admin-theme h2, .admin-theme h3, .admin-theme h4, .admin-theme h5, .admin-theme h6 {
+  font-family: var(--font);
+  color: var(--ink);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: -0.02em;
 }
-/* Buttons with colored bg get white text */
-.admin-theme button[class*="bg-\[var(--color-gold)\]"],
-.admin-theme button[class*="bg-emerald"],
-.admin-theme button[class*="bg-\[#"] {
-  color: #FDFCFA;
+.admin-theme h1 { font-size: 20px; }
+@media (max-width: 639px) { .admin-theme h1 { font-size: 16px; } }
+.admin-theme h2 { font-size: 16px; }
+.admin-theme h3 { font-size: 14px; }
+.admin-theme h4 { font-size: 13px; }
+.admin-theme p, .admin-theme span, .admin-theme label, .admin-theme li, .admin-theme td, .admin-theme th, .admin-theme input, .admin-theme textarea, .admin-theme select, .admin-theme button, .admin-theme a {
+  font-family: var(--font);
+  font-weight: 400;
 }
-
-/* Scrollbar on dark sidebar */
-.admin-theme aside ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
-.admin-theme aside ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
-
-/* Facility tab sidebar — slightly darker than content for differentiation */
-.admin-theme main [class*="w-52"][class*="shrink-0"][class*="border-r"] {
-  background: #E0DDD8 !important;
-  border-right: 2px solid rgba(0,0,0,0.10) !important;
-}
-.admin-theme main [class*="w-52"][class*="shrink-0"] [class*="uppercase"] {
-  color: var(--slate);
-  font-weight: 900;
-}
-.admin-theme h1, .admin-theme h2, .admin-theme h3, .admin-theme h4, .admin-theme h5, .admin-theme h6 { font-family: var(--font); color: var(--ink); font-weight: 900; text-transform: uppercase; letter-spacing: 0.03em; }
-.admin-theme h1 { font-size: 28px; }
-@media (max-width: 639px) {
-  .admin-theme h1 { font-size: 20px; letter-spacing: 0; }
-}
-.admin-theme h2 { font-size: 22px; }
-.admin-theme h3 { font-size: 17px; }
-.admin-theme h4 { font-size: 15px; }
-.admin-theme p, .admin-theme span, .admin-theme label, .admin-theme li, .admin-theme td, .admin-theme th, .admin-theme input, .admin-theme textarea, .admin-theme select, .admin-theme button, .admin-theme a { font-family: var(--font); font-weight: 900; }
 
 /* KPI numbers */
-.admin-theme [class*="text-2xl"], .admin-theme [class*="text-3xl"], .admin-theme [class*="text-4xl"] { font-weight: 900; letter-spacing: -0.03em; color: var(--ink); }
+.admin-theme [class*="text-2xl"], .admin-theme [class*="text-3xl"], .admin-theme [class*="text-4xl"] {
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
 
-/* Surface remap — warm cream, not white */
+/* Surface remap — clean white */
 .admin-theme [class*="bg-white"]         { background-color: var(--card); }
-.admin-theme [class*="bg-\[\#F9FAFB\]"] { background-color: var(--card); }
-.admin-theme [class*="bg-gray-50"]       { background-color: var(--card); }
-.admin-theme [class*="bg-\[\#F3F4F6\]"] { background-color: var(--bg); }
-.admin-theme [class*="bg-gray-100"]      { background-color: var(--bg); }
+.admin-theme [class*="bg-\[\#F9FAFB\]"] { background-color: var(--bg); }
+.admin-theme [class*="bg-gray-50"]       { background-color: var(--bg); }
+.admin-theme [class*="bg-\[\#F3F4F6\]"] { background-color: #F7F7F7; }
+.admin-theme [class*="bg-gray-100"]      { background-color: #F7F7F7; }
 
 /* Text remap */
 .admin-theme [class*="text-\[\#111827\]"], .admin-theme [class*="text-gray-900"], .admin-theme [class*="text-gray-800"], .admin-theme [class*="text-gray-700"], .admin-theme [class*="text-slate-900"], .admin-theme [class*="text-slate-800"] { color: var(--ink); }
 .admin-theme [class*="text-\[\#6B7280\]"], .admin-theme [class*="text-\[\#4B5563\]"], .admin-theme [class*="text-gray-600"], .admin-theme [class*="text-gray-500"] { color: var(--ink2); }
 .admin-theme [class*="text-\[\#9CA3AF\]"], .admin-theme [class*="text-gray-400"], .admin-theme [class*="text-gray-300"] { color: var(--ink3); }
 
-/* Borders — color only (not width — width stays as-is to avoid layout breakage) */
-.admin-theme [class*="border-black\/"], .admin-theme [class*="border-gray-"], .admin-theme [class*="border-slate-"], .admin-theme [class*="border-\[var"] { border-color: rgba(5, 5, 5, 0.15); }
-.admin-theme [class*="divide-gray-"] > * + *, .admin-theme [class*="divide-slate-"] > * + * { border-color: rgba(5, 5, 5, 0.12); }
+/* Borders — hairline, subtle */
+.admin-theme [class*="border-black\/"], .admin-theme [class*="border-gray-"], .admin-theme [class*="border-slate-"], .admin-theme [class*="border-\[var"] { border-color: var(--bdr); }
+.admin-theme [class*="divide-gray-"] > * + *, .admin-theme [class*="divide-slate-"] > * + * { border-color: var(--bdr); }
 
-/* Radius */
+/* Radius — tight, Landscape-style */
 .admin-theme [class*="rounded-2xl"], .admin-theme [class*="rounded-xl"], .admin-theme [class*="rounded-lg"] { border-radius: var(--r); }
-.admin-theme [class*="rounded-md"] { border-radius: 0.3em; }
+.admin-theme [class*="rounded-md"] { border-radius: 3px; }
 
-/* Shadows → hard offset (brutalist) */
+/* Shadows — none (Landscape is flat) */
 .admin-theme [class*="shadow-sm"], .admin-theme [class*="shadow-md"], .admin-theme [class*="shadow-lg"], .admin-theme [class*="shadow-xl"] {
-  box-shadow: var(--shadow);
+  box-shadow: none !important;
 }
 
-/* Cards — thick border, hard shadow */
+/* Cards — clean, minimal border */
 .admin-theme [class*="bg-white"][class*="rounded"], .admin-theme [class*="bg-white"][class*="border"] {
   background: var(--card);
-  border: var(--bw) solid var(--ink);
+  border: 1px solid var(--bdr);
   border-radius: var(--r);
-  box-shadow: var(--shadow);
-  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: none;
 }
 .admin-theme [class*="bg-white"][class*="rounded"]:hover, .admin-theme [class*="bg-white"][class*="border"]:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: var(--shadow-hover);
+  transform: none;
+  box-shadow: none;
 }
 
-/* Buttons — handled by ColorCycler JS for unique colors, but base styles here */
+/* Buttons — monochrome primary, terminal colors only for semantic variants */
 .admin-theme button[class*="bg-blue-"], .admin-theme button[class*="bg-\[\#3B82F6\]"], .admin-theme a[class*="bg-blue-"], .admin-theme button[class*="bg-indigo-"] {
-  color: var(--card);
-  font-weight: 900;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border: var(--bw) solid var(--ink);
-  border-radius: 0.4em;
-  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--ink) !important;
+  color: #FFFFFF;
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: 0;
+  border: 1px solid var(--ink);
+  border-radius: var(--r);
+  box-shadow: none;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: opacity 120ms ease;
 }
 .admin-theme button[class*="bg-blue-"]:hover, .admin-theme button[class*="bg-\[\#3B82F6\]"]:hover {
-  filter: brightness(1.1);
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--ink);
+  opacity: 0.8;
+  filter: none;
+  transform: none;
+  box-shadow: none;
 }
 .admin-theme button[class*="bg-blue-"]:active, .admin-theme button[class*="bg-\[\#3B82F6\]"]:active {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--ink);
+  transform: none;
+  box-shadow: none;
+  opacity: 0.65;
 }
 
-/* Other button colors — each type different */
-.admin-theme button[class*="bg-amber-"], .admin-theme button[class*="bg-yellow-"] { background-color: #6B4C3B; color: var(--card); border: var(--bw) solid var(--ink); border-radius: 0.4em; box-shadow: 4px 4px 0 var(--ink); font-weight: 900; text-transform: uppercase; }
-.admin-theme button[class*="bg-red-"], .admin-theme button[class*="bg-rose-"] { background-color: #8C2332; color: var(--card); border: var(--bw) solid var(--ink); border-radius: 0.4em; box-shadow: 4px 4px 0 var(--ink); font-weight: 900; text-transform: uppercase; }
-.admin-theme button[class*="bg-green-"], .admin-theme button[class*="bg-emerald-"] { background-color: #1B4D3E; color: var(--card); border: var(--bw) solid var(--ink); border-radius: 0.4em; box-shadow: 4px 4px 0 var(--ink); font-weight: 900; text-transform: uppercase; }
+/* Semantic button colors — terminal ANSI */
+.admin-theme button[class*="bg-amber-"], .admin-theme button[class*="bg-yellow-"] { background-color: var(--t-yellow) !important; color: var(--ink); border: 1px solid var(--t-yellow); border-radius: var(--r); box-shadow: none; font-weight: 500; text-transform: none; }
+.admin-theme button[class*="bg-red-"], .admin-theme button[class*="bg-rose-"] { background-color: var(--t-red) !important; color: #FFFFFF; border: 1px solid var(--t-red); border-radius: var(--r); box-shadow: none; font-weight: 500; text-transform: none; }
+.admin-theme button[class*="bg-green-"], .admin-theme button[class*="bg-emerald-"] { background-color: var(--t-green) !important; color: #FFFFFF; border: 1px solid var(--t-green); border-radius: var(--r); box-shadow: none; font-weight: 500; text-transform: none; }
 
-/* Inputs — thick border, hard shadow */
+/* Inputs — clean, minimal */
 .admin-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]), .admin-theme textarea, .admin-theme select {
   background: var(--card);
-  border: 2px solid var(--ink);
-  border-radius: 0.4em;
+  border: 1px solid var(--bdr-strong);
+  border-radius: var(--r);
   color: var(--ink);
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.03);
-  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 400;
+  box-shadow: none;
+  transition: border-color 120ms ease;
 }
 .admin-theme input:focus, .admin-theme textarea:focus, .admin-theme select:focus {
-  border-color: var(--accent);
-  box-shadow: 3px 3px 0 var(--ink);
+  border-color: var(--ink);
+  box-shadow: none;
   outline: none;
 }
-.admin-theme input::placeholder, .admin-theme textarea::placeholder { color: var(--ink3); font-weight: 600; }
+.admin-theme input::placeholder, .admin-theme textarea::placeholder { color: var(--ink3); font-weight: 300; }
 
-/* Tables */
-.admin-theme table { font-size: 14px; font-weight: 700; }
-.admin-theme thead th { background: var(--bg); color: var(--ink); font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 16px; border-bottom: var(--bw) solid var(--ink); }
-.admin-theme tbody td { padding: 10px 16px; border-bottom: 2px solid rgba(0,0,0,0.08); }
-.admin-theme tbody tr { transition: all 0.15s ease; }
-.admin-theme tbody tr:hover { background: rgba(0, 224, 176, 0.06); }
+/* Tables — clean, monospace */
+.admin-theme table { font-size: 12px; font-weight: 400; }
+.admin-theme thead th {
+  background: #F7F7F7;
+  color: var(--ink2);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--bdr-strong);
+}
+.admin-theme tbody td { padding: 8px 16px; border-bottom: 1px solid var(--bdr); }
+.admin-theme tbody tr { transition: background 100ms ease; }
+.admin-theme tbody tr:hover { background: rgba(0, 0, 0, 0.02); }
 
-/* Badges — vivid, thick border, tiny shadow */
-.admin-theme [class*="bg-green-100"]  { background: #1B4D3E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
-.admin-theme [class*="bg-red-100"]    { background: #8C2332; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
-.admin-theme [class*="bg-blue-100"]   { background: #2C3E6B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
-.admin-theme [class*="bg-yellow-100"], .admin-theme [class*="bg-amber-100"], .admin-theme [class*="bg-orange-100"] { background: #6B4C3B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
-.admin-theme [class*="bg-purple-100"], .admin-theme [class*="bg-violet-100"] { background: #5C3D6E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
-.admin-theme [class*="bg-teal-100"], .admin-theme [class*="bg-cyan-100"] { background: #3B5E5E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
-.admin-theme [class*="bg-pink-100"]   { background: #7A3B3B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
-.admin-theme [class*="bg-indigo-100"] { background: #2E4A62; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
-.admin-theme [class*="bg-emerald-100"] { background: #4A5D23; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-size: 11px; font-weight: 900; text-transform: uppercase; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); }
+/* Badges — terminal ANSI colors on near-transparent tint */
+.admin-theme [class*="bg-green-100"]  { background: var(--t-green-light); color: var(--t-green); border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; text-transform: none; box-shadow: none; }
+.admin-theme [class*="bg-red-100"]    { background: var(--t-red-light); color: var(--t-red); border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; text-transform: none; box-shadow: none; }
+.admin-theme [class*="bg-blue-100"]   { background: var(--t-blue-light); color: var(--t-blue); border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; text-transform: none; box-shadow: none; }
+.admin-theme [class*="bg-yellow-100"], .admin-theme [class*="bg-amber-100"], .admin-theme [class*="bg-orange-100"] { background: var(--t-yellow-light); color: #B8860B; border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; text-transform: none; box-shadow: none; }
+.admin-theme [class*="bg-purple-100"], .admin-theme [class*="bg-violet-100"] { background: var(--t-magenta-light); color: var(--t-magenta); border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; box-shadow: none; }
+.admin-theme [class*="bg-teal-100"], .admin-theme [class*="bg-cyan-100"] { background: var(--t-cyan-light); color: #0891B2; border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; box-shadow: none; }
+.admin-theme [class*="bg-pink-100"]   { background: var(--t-magenta-light); color: var(--t-magenta); border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; box-shadow: none; }
+.admin-theme [class*="bg-indigo-100"] { background: var(--t-blue-light); color: var(--t-blue); border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; box-shadow: none; }
+.admin-theme [class*="bg-emerald-100"] { background: var(--t-green-light); color: var(--t-green); border: none; border-radius: var(--r); font-size: 11px; font-weight: 500; box-shadow: none; }
 
-/* UNIVERSAL: Any dark background → ALL text inside is white/cream */
-.admin-theme [class*="bg-green-100"] *,
-.admin-theme [class*="bg-red-100"] *,
-.admin-theme [class*="bg-blue-100"] *,
-.admin-theme [class*="bg-yellow-100"] *,
-.admin-theme [class*="bg-amber-100"] *,
-.admin-theme [class*="bg-orange-100"] *,
-.admin-theme [class*="bg-purple-100"] *,
-.admin-theme [class*="bg-violet-100"] *,
-.admin-theme [class*="bg-teal-100"] *,
-.admin-theme [class*="bg-cyan-100"] *,
-.admin-theme [class*="bg-pink-100"] *,
-.admin-theme [class*="bg-indigo-100"] *,
-.admin-theme [class*="bg-emerald-100"] *,
-.admin-theme [class*="bg-indigo-500\/20"] *,
-.admin-theme [class*="bg-cyan-500\/20"] *,
-.admin-theme [class*="bg-teal-500\/20"] *,
-.admin-theme [class*="bg-amber-500\/20"] *,
-.admin-theme [class*="bg-purple-500\/20"] *,
-.admin-theme [class*="bg-orange-500\/20"] *,
-.admin-theme [class*="bg-emerald-500\/20"] *,
-.admin-theme [class*="bg-red-500\/20"] *,
-.admin-theme [class*="bg-\[var(--color-blue)\]\/20"] * { color: #FDFCFA; }
+/* Badge text inherits parent color, not forced white */
+.admin-theme [class*="bg-green-100"] *, .admin-theme [class*="bg-red-100"] *, .admin-theme [class*="bg-blue-100"] *,
+.admin-theme [class*="bg-yellow-100"] *, .admin-theme [class*="bg-amber-100"] *, .admin-theme [class*="bg-orange-100"] *,
+.admin-theme [class*="bg-purple-100"] *, .admin-theme [class*="bg-violet-100"] *, .admin-theme [class*="bg-teal-100"] *,
+.admin-theme [class*="bg-cyan-100"] *, .admin-theme [class*="bg-pink-100"] *, .admin-theme [class*="bg-indigo-100"] *,
+.admin-theme [class*="bg-emerald-100"] * { color: inherit; }
 
-/* Also catch selected/active states with colored backgrounds */
-.admin-theme [class*="bg-blue-500"],
-.admin-theme [class*="bg-blue-600"],
-.admin-theme [class*="bg-indigo-500"],
-.admin-theme [class*="bg-indigo-600"] { color: #FDFCFA; }
-.admin-theme [class*="bg-blue-500"] *,
-.admin-theme [class*="bg-blue-600"] *,
-.admin-theme [class*="bg-indigo-500"] *,
-.admin-theme [class*="bg-indigo-600"] * { color: #FDFCFA; }
+/* Translucent status badges — terminal tints */
+.admin-theme [class*="bg-indigo-500\/20"]  { background: var(--t-blue-light); font-weight: 500; border: none; box-shadow: none; }
+.admin-theme [class*="bg-cyan-500\/20"]    { background: var(--t-cyan-light); font-weight: 500; border: none; box-shadow: none; }
+.admin-theme [class*="bg-teal-500\/20"]    { background: var(--t-cyan-light); font-weight: 500; border: none; box-shadow: none; }
+.admin-theme [class*="bg-amber-500\/20"]   { background: var(--t-yellow-light); font-weight: 500; border: none; box-shadow: none; }
+.admin-theme [class*="bg-purple-500\/20"]  { background: var(--t-magenta-light); font-weight: 500; border: none; box-shadow: none; }
+.admin-theme [class*="bg-orange-500\/20"]  { background: var(--t-yellow-light); font-weight: 500; border: none; box-shadow: none; }
+.admin-theme [class*="bg-emerald-500\/20"] { background: var(--t-green-light); font-weight: 500; border: none; box-shadow: none; }
+.admin-theme [class*="bg-red-500\/20"]     { background: var(--t-red-light); font-weight: 500; border: none; box-shadow: none; }
 
-/* Status translucent badges → solid brutalist */
-.admin-theme [class*="bg-indigo-500\/20"]  { background: #2C3E6B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-.admin-theme [class*="bg-cyan-500\/20"]    { background: #3B5E5E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-.admin-theme [class*="bg-teal-500\/20"]    { background: #1B4D3E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-.admin-theme [class*="bg-amber-500\/20"]   { background: #6B4C3B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-.admin-theme [class*="bg-purple-500\/20"]  { background: #5C3D6E; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-.admin-theme [class*="bg-orange-500\/20"]  { background: #7A3B3B; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-.admin-theme [class*="bg-emerald-500\/20"] { background: #4A5D23; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-.admin-theme [class*="bg-red-500\/20"]     { background: #8C2332; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-.admin-theme [class*="bg-\[var(--color-blue)\]\/20"] { background: #2E4A62; color: var(--card); border: 2px solid var(--ink); border-radius: 0.3em; font-weight: 900; }
-
-/* Links */
-.admin-theme [class*="text-blue-"], .admin-theme [class*="text-\[\#3B82F6\]"], .admin-theme [class*="text-indigo-"] { color: #2C3E6B; }
-.admin-theme a[class*="text-blue-"] { color: #2C3E6B; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.admin-theme [class*="text-\[var(--color-gold)\]"] { color: #8C2332; }
+/* Links — monochrome, underline differentiates */
+.admin-theme [class*="text-blue-"], .admin-theme [class*="text-\[\#3B82F6\]"], .admin-theme [class*="text-indigo-"] { color: var(--ink); }
+.admin-theme a[class*="text-blue-"] { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--ink3); }
+.admin-theme a[class*="text-blue-"]:hover { text-decoration-color: var(--ink); }
+.admin-theme [class*="text-\[var(--color-gold)\]"] { color: var(--ink); }
 .admin-theme [class*="text-\[var(--color-dark)\]"] { color: var(--ink); }
-/* Gold overridden to burgundy in admin — selected states, active items */
 
-/* Tabs */
-.admin-theme [role="tab"] { font-size: 14px; font-weight: 900; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.04em; transition: all 0.2s ease; border-radius: 0; }
-.admin-theme [role="tab"][aria-selected="true"], .admin-theme [role="tab"][data-state="active"] { color: var(--ink); border-bottom: var(--bw) solid var(--ink); }
+/* Tabs — monochrome, clean underline */
+.admin-theme [role="tab"] {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink3);
+  text-transform: none;
+  letter-spacing: 0;
+  transition: color 120ms ease;
+  border-radius: 0;
+}
+.admin-theme [role="tab"][aria-selected="true"], .admin-theme [role="tab"][data-state="active"] {
+  color: var(--ink);
+  font-weight: 500;
+  border-bottom: 2px solid var(--ink);
+}
 .admin-theme [role="tab"]:hover { color: var(--ink2); }
 
-/* Scrollbars */
-.admin-theme ::-webkit-scrollbar { width: 10px; height: 10px; }
-.admin-theme ::-webkit-scrollbar-track { background: var(--bg); }
-.admin-theme ::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 0; border: 2px solid var(--bg); }
+/* Scrollbars — thin, subtle */
+.admin-theme ::-webkit-scrollbar { width: 4px; height: 4px; }
+.admin-theme ::-webkit-scrollbar-track { background: transparent; }
+.admin-theme ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 2px; }
+.admin-theme ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
-/* Interactive */
-.admin-theme [class*="animate-spin"] { border-color: #2C3E6B; border-top-color: transparent; }
-.admin-theme input[type="checkbox"]:checked { background-color: #1B4D3E; border-color: var(--ink); }
-.admin-theme [role="progressbar"] > div { background: #2C3E6B; }
-.admin-theme *:focus-visible { outline: 3px solid #2C3E6B; outline-offset: 2px; }
-.admin-theme button:focus:not(:focus-visible) { outline: none; box-shadow: 4px 4px 0 var(--ink); }
+/* Interactive — monochrome, terminal color only on semantic state */
+.admin-theme [class*="animate-spin"] { border-color: var(--ink3); border-top-color: transparent; }
+.admin-theme input[type="checkbox"]:checked { background-color: var(--ink); border-color: var(--ink); }
+.admin-theme [role="progressbar"] > div { background: var(--ink); }
+.admin-theme *:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.admin-theme button:focus:not(:focus-visible) { outline: none; box-shadow: none; }
 .admin-theme button:active { outline: none; }
-.admin-theme [class*="animate-pulse"] { background-color: var(--bg); }
+.admin-theme [class*="animate-pulse"] { background-color: #F7F7F7; }
 
 /* Modals */
-.admin-theme [class*="fixed"][class*="inset-0"][class*="bg-black"] { background: rgba(5,5,5,0.5); }
+.admin-theme [class*="fixed"][class*="inset-0"][class*="bg-black"] { background: rgba(0,0,0,0.25); }
 
 /* Charts */
-.admin-theme .recharts-cartesian-grid line { stroke: rgba(0,0,0,0.08); }
-.admin-theme .recharts-text { font-family: var(--font); font-size: 11px; font-weight: 800; fill: var(--ink3); }
+.admin-theme .recharts-cartesian-grid line { stroke: var(--bdr); }
+.admin-theme .recharts-text { font-family: var(--font); font-size: 10px; font-weight: 400; fill: var(--ink3); }
 
 /* Empty states */
-.admin-theme [class*="border-dashed"] { border-color: var(--ink); border-width: 2px; }
+.admin-theme [class*="border-dashed"] { border-color: var(--bdr-strong); border-width: 1px; }
 
-/* Grid pattern on main content area only */
-.admin-theme main {
-  background-image: linear-gradient(to right, rgba(0,0,0,0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.025) 1px, transparent 1px);
-  background-size: 16px 16px;
+/* Selection */
+.admin-theme ::selection { background: var(--ink); color: #FFFFFF; }
+
+/* Facility tab sidebar */
+.admin-theme main [class*="w-52"][class*="shrink-0"][class*="border-r"] {
+  background: #FAFAFA !important;
+  border-right: 1px solid var(--bdr) !important;
+}
+.admin-theme main [class*="w-52"][class*="shrink-0"] [class*="uppercase"] {
+  color: var(--ink3);
+  font-weight: 400;
 }
 
 /* ═══════════════════════════════════════════
@@ -885,4 +840,322 @@ body {
 @keyframes lp-kenburns {
   0%   { transform: scale(1) translate(0, 0); }
   100% { transform: scale(1.12) translate(-1.5%, -1.5%); }
+}
+
+/* ═══════════════════════════════════════════
+   URBIT LANDING THEME
+   Overrides root CSS variables for marketing pages.
+   Monospace, monochrome, terminal-sparse color.
+   Scoped to .urbit-landing
+   ═══════════════════════════════════════════ */
+
+.urbit-landing {
+  /* Core palette → monochrome */
+  --color-dark: #1A1A1A;
+  --color-light: #FFFFFF;
+  --color-body-text: #737373;
+  --color-mid-gray: #A3A3A3;
+  --color-light-gray: #F0F0F0;
+
+  /* Gold → monochrome (no accent color) */
+  --color-gold: #1A1A1A;
+  --color-gold-hover: #333333;
+  --color-gold-on-light: #1A1A1A;
+  --color-gold-light: rgba(0, 0, 0, 0.04);
+
+  /* Secondary accents → terminal ANSI (only where semantic) */
+  --color-blue: #0A84FF;
+  --color-blue-light: rgba(10, 132, 255, 0.06);
+  --color-green: #28CD41;
+  --color-green-light: rgba(40, 205, 65, 0.06);
+  --color-red: #FF3B30;
+  --color-red-light: rgba(255, 59, 48, 0.06);
+
+  /* Semantic aliases */
+  --bg-void: #FFFFFF;
+  --bg-primary: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-surface: #F7F7F7;
+
+  --text-primary: #1A1A1A;
+  --text-secondary: #737373;
+  --text-tertiary: #A3A3A3;
+  --text-inverse: #FFFFFF;
+
+  --accent: #1A1A1A;
+  --accent-hover: #333333;
+  --accent-glow: rgba(0, 0, 0, 0.08);
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.15);
+
+  /* Typography → monospace */
+  --font-heading: var(--font-jetbrains), "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  --font-body: var(--font-jetbrains), "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  --font-display: var(--font-heading);
+  --font-ad-headline: var(--font-heading);
+  --font-ad-body: var(--font-body);
+}
+
+/* Base typography overrides */
+.urbit-landing {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.urbit-landing h1, .urbit-landing h2, .urbit-landing h3,
+.urbit-landing h4, .urbit-landing h5, .urbit-landing h6 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.urbit-landing p {
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.65;
+}
+
+/* Buttons → monochrome, minimal */
+.urbit-landing .btn-primary {
+  background: var(--color-dark);
+  color: #FFFFFF;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 13px;
+  border-radius: 4px;
+  border: none;
+  letter-spacing: 0;
+}
+.urbit-landing .btn-primary:hover {
+  background: #333333;
+  color: #FFFFFF;
+}
+
+/* Inputs → clean monospace */
+.urbit-landing .input-field {
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+.urbit-landing .input-field:focus {
+  border-color: #1A1A1A;
+}
+
+/* Selection */
+.urbit-landing ::selection {
+  background: #1A1A1A;
+  color: #FFFFFF;
+}
+
+/* Flat — no shadows */
+.urbit-landing [class*="shadow"] {
+  box-shadow: none !important;
+}
+
+/* Tight radius */
+.urbit-landing [class*="rounded-2xl"],
+.urbit-landing [class*="rounded-xl"],
+.urbit-landing [class*="rounded-lg"] {
+  border-radius: 4px;
+}
+
+/* Scrollbar */
+.urbit-landing ::-webkit-scrollbar { width: 4px; }
+.urbit-landing ::-webkit-scrollbar-track { background: transparent; }
+.urbit-landing ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 2px; }
+
+/* Nav blur background → white instead of cream */
+.urbit-landing nav[aria-label="Main navigation"] {
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* ═══════════════════════════════════════════
+   NEO-BRUTALIST THEME — Vanguard Prestige
+   Thick borders, hard shadows, no radius,
+   institutional color palette (crimson, navy,
+   sand, cream). Old-money trust aesthetic
+   meets raw brutalist structure.
+   Scoped to .neo-brutalist
+   ═══════════════════════════════════════════ */
+
+.neo-brutalist {
+  /* Core palette → Vanguard institutional */
+  --color-dark: #1B2A3D;          /* deep navy charcoal */
+  --color-light: #FAF8F4;         /* warm parchment cream */
+  --color-body-text: #3D4F5F;     /* muted navy body */
+  --color-mid-gray: #8A9BAA;      /* steel blue-gray */
+  --color-light-gray: #EDE9E0;    /* warm sand */
+
+  /* Accent → deep crimson (Vanguard red) */
+  --color-gold: #96242D;
+  --color-gold-hover: #7A1D25;
+  --color-gold-on-light: #96242D;
+  --color-gold-light: #F5E8E9;
+
+  /* Secondary accents */
+  --color-blue: #003366;          /* Vanguard navy */
+  --color-blue-light: #E4EBF2;
+  --color-green: #2D6B4A;         /* heritage green */
+  --color-green-light: #E5F0EA;
+  --color-red: #96242D;           /* same crimson */
+  --color-red-light: #F5E8E9;
+
+  /* Surfaces */
+  --bg-void: #FAF8F4;
+  --bg-primary: #FAF8F4;
+  --bg-elevated: #FFFFFF;
+  --bg-surface: #F0ECE3;          /* warm sand surface */
+
+  --text-primary: #1B2A3D;
+  --text-secondary: #3D4F5F;
+  --text-tertiary: #8A9BAA;
+  --text-inverse: #FAF8F4;
+
+  --accent: #96242D;
+  --accent-hover: #7A1D25;
+  --accent-glow: rgba(150, 36, 45, 0.10);
+
+  --border-subtle: #1B2A3D;
+  --border-medium: #1B2A3D;
+
+  /* Typography → bold sans-serif */
+  --font-heading: var(--font-inter), "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-body: var(--font-inter), "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-heading);
+  --font-ad-headline: var(--font-heading);
+  --font-ad-body: var(--font-body);
+}
+
+/* Base typography */
+.neo-brutalist {
+  font-family: var(--font-body);
+  background: var(--color-light);
+  color: var(--color-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+.neo-brutalist h1, .neo-brutalist h2, .neo-brutalist h3,
+.neo-brutalist h4, .neo-brutalist h5, .neo-brutalist h6 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-dark);
+}
+
+.neo-brutalist p {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--color-body-text);
+}
+
+/* Buttons → crimson fill, navy border, hard shadow */
+.neo-brutalist .btn-primary {
+  background: #96242D;
+  color: #FAF8F4;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 0;
+  border: 3px solid #1B2A3D;
+  box-shadow: 4px 4px 0 #1B2A3D;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.neo-brutalist .btn-primary:hover {
+  background: #7A1D25;
+  color: #FAF8F4;
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #1B2A3D;
+}
+.neo-brutalist .btn-primary:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 #1B2A3D;
+}
+
+/* Inputs → navy border, no radius */
+.neo-brutalist .input-field {
+  font-family: var(--font-body);
+  font-size: 14px;
+  background: #FFFFFF;
+  border: 2px solid #1B2A3D;
+  border-radius: 0;
+}
+.neo-brutalist .input-field:focus {
+  border-color: #96242D;
+  box-shadow: 3px 3px 0 #96242D;
+}
+
+/* Selection */
+.neo-brutalist ::selection {
+  background: #96242D;
+  color: #FAF8F4;
+}
+
+/* Hard offset shadows → navy instead of pure black */
+.neo-brutalist [class*="shadow"] {
+  box-shadow: 4px 4px 0 #1B2A3D !important;
+}
+
+/* KILL all rounded corners */
+.neo-brutalist [class*="rounded-full"] {
+  border-radius: 0 !important;
+}
+.neo-brutalist [class*="rounded-2xl"],
+.neo-brutalist [class*="rounded-xl"],
+.neo-brutalist [class*="rounded-lg"],
+.neo-brutalist [class*="rounded-md"],
+.neo-brutalist [class*="rounded"] {
+  border-radius: 0 !important;
+}
+
+/* Borders → navy, thick */
+.neo-brutalist [class*="border"] {
+  border-color: #1B2A3D !important;
+}
+.neo-brutalist [class*="border"]:not([class*="border-0"]):not([class*="border-transparent"]) {
+  border-width: 2px;
+}
+
+/* Cards / elevated surfaces */
+.neo-brutalist [class*="bg-white"],
+.neo-brutalist [class*="bg-\\[var\\(--bg-elevated\\)\\]"] {
+  border: 2px solid #1B2A3D;
+  box-shadow: 4px 4px 0 #1B2A3D;
+}
+
+/* No grain texture in brutalist mode */
+.neo-brutalist ~ .grain-overlay,
+.neo-brutalist .grain-overlay {
+  display: none !important;
+}
+
+/* Scrollbar → navy, blocky */
+.neo-brutalist ::-webkit-scrollbar { width: 8px; }
+.neo-brutalist ::-webkit-scrollbar-track { background: #EDE9E0; }
+.neo-brutalist ::-webkit-scrollbar-thumb { background: #1B2A3D; border-radius: 0; }
+
+/* Nav → parchment bg, navy bottom border */
+.neo-brutalist nav[aria-label="Main navigation"] {
+  background: rgba(250, 248, 244, 0.95) !important;
+  border-bottom: 3px solid #1B2A3D !important;
+  backdrop-filter: none !important;
+}
+
+/* Sections → navy separators */
+.neo-brutalist section {
+  border-bottom: 2px solid #1B2A3D;
+}
+.neo-brutalist section:last-child {
+  border-bottom: none;
+}
+
+/* Sand-toned alternating section backgrounds */
+.neo-brutalist section:nth-child(even) {
+  background: #F0ECE3;
 }

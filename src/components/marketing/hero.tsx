@@ -227,9 +227,9 @@ function DotGrid() {
         </defs>
         <rect width="100%" height="100%" fill="url(#hero-dots)" />
       </svg>
-      <div className="absolute w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full" style={{ top: "10%", left: "5%", background: "radial-gradient(circle, rgba(181,139,63,0.06), transparent 70%)", animation: "hero-orb-drift 12s ease-in-out infinite alternate" }} />
-      <div className="absolute w-[250px] h-[250px] sm:w-[400px] sm:h-[400px] rounded-full" style={{ bottom: "5%", right: "0%", background: "radial-gradient(circle, rgba(106,155,204,0.05), transparent 70%)", animation: "hero-orb-drift 10s ease-in-out infinite alternate-reverse" }} />
-      <div className="absolute w-[200px] h-[200px] rounded-full" style={{ top: "40%", right: "20%", background: "radial-gradient(circle, rgba(120,140,93,0.04), transparent 70%)", animation: "hero-orb-drift 14s ease-in-out infinite alternate" }} />
+      <div className="absolute w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full" style={{ top: "10%", left: "5%", background: "radial-gradient(circle, var(--accent-glow), transparent 70%)", animation: "hero-orb-drift 12s ease-in-out infinite alternate" }} />
+      <div className="absolute w-[250px] h-[250px] sm:w-[400px] sm:h-[400px] rounded-full" style={{ bottom: "5%", right: "0%", background: "radial-gradient(circle, var(--color-blue-light), transparent 70%)", animation: "hero-orb-drift 10s ease-in-out infinite alternate-reverse" }} />
+      <div className="absolute w-[200px] h-[200px] rounded-full" style={{ top: "40%", right: "20%", background: "radial-gradient(circle, var(--color-green-light), transparent 70%)", animation: "hero-orb-drift 14s ease-in-out infinite alternate" }} />
     </div>
   );
 }
@@ -261,7 +261,7 @@ function PipelineFlow({ isVisible }: { isVisible: boolean }) {
           <div
             className="h-full rounded-full"
             style={{
-              background: "linear-gradient(90deg, var(--color-gold), var(--color-green))",
+              background: "linear-gradient(90deg, var(--accent), var(--color-green))",
               width: activeStep >= 3 ? "100%" : activeStep >= 0 ? `${(activeStep + 1) * 33}%` : "0%",
               transition: "width 0.6s cubic-bezier(0.16,1,0.3,1)",
             }}
@@ -277,12 +277,12 @@ function PipelineFlow({ isVisible }: { isVisible: boolean }) {
                 className="w-10 h-10 rounded-xl flex items-center justify-center border-2 transition-all duration-500"
                 style={{
                   background: isActive ? "var(--bg-elevated)" : "var(--color-light)",
-                  borderColor: isActive ? "var(--color-gold)" : "var(--border-subtle)",
+                  borderColor: isActive ? "var(--accent)" : "var(--border-subtle)",
                   transform: isActive ? "scale(1.1)" : "scale(1)",
-                  boxShadow: isActive ? "0 4px 12px rgba(181,139,63,0.15)" : "none",
+                  boxShadow: isActive ? "0 4px 12px var(--accent-glow)" : "none",
                 }}
               >
-                <Icon size={16} style={{ color: isActive ? "var(--color-gold)" : "var(--text-tertiary)", transition: "color 0.3s" }} />
+                <Icon size={16} style={{ color: isActive ? "var(--accent)" : "var(--text-tertiary)", transition: "color 0.3s" }} />
               </div>
               <span
                 className="text-[11px] font-semibold mt-1.5 transition-colors duration-300"
@@ -311,8 +311,8 @@ function StatItem({ stat, active, delay }: { stat: (typeof STATS)[0]; active: bo
       className="flex items-center gap-3 transition-all duration-700"
       style={{ transitionDelay: `${delay}ms`, opacity: active ? 1 : 0, transform: active ? "translateY(0)" : "translateY(16px)" }}
     >
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(181,139,63,0.08)", border: "1px solid rgba(181,139,63,0.15)" }}>
-        <Icon size={18} style={{ color: "var(--color-gold)" }} />
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--accent-glow)", border: "1px solid var(--border-medium)" }}>
+        <Icon size={18} style={{ color: "var(--accent)" }} />
       </div>
       <div>
         <div className="font-semibold leading-none" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.5rem, 3vw, 2rem)", color: "var(--color-dark)" }}>
@@ -915,74 +915,101 @@ function ROITeaser({ isVisible }: { isVisible: boolean }) {
   const costPerMI = useCountUp(41, 2000, 0, isVisible);
   const revenue = useCountUp(27200, 2400, 0, isVisible);
 
+  const stats = [
+    { label: "Ad Spend", value: `$${adSpend.toLocaleString()}`, sub: "per month", color: "var(--color-blue)" },
+    { label: "Move-ins", value: String(moveIns), sub: "attributed", color: "var(--color-green)" },
+    { label: "Cost / Move-in", value: `$${costPerMI}`, sub: "average", color: "var(--accent)" },
+    { label: "Revenue", value: `$${revenue.toLocaleString()}`, sub: "90 days", color: "var(--color-green)" },
+  ];
+
   return (
     <div
-      className="relative rounded-2xl border overflow-hidden transition-all duration-700"
+      className="relative overflow-hidden transition-all duration-700"
       style={{
-        borderColor: "var(--border-subtle)",
-        background: "linear-gradient(135deg, var(--bg-elevated), var(--color-light))",
+        border: "2px solid var(--border-medium)",
+        background: "var(--bg-elevated)",
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? "translateY(0)" : "translateY(20px)",
         transitionDelay: "300ms",
       }}
     >
-      <div className="p-5 sm:p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(181,139,63,0.1)" }}>
-            <DollarSign size={16} style={{ color: "var(--color-gold)" }} />
-          </div>
-          <h3 className="text-sm font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
-            Real facility results: 90 day snapshot
-          </h3>
-        </div>
+      {/* Header bar */}
+      <div
+        className="flex items-center gap-3 px-6 sm:px-8 py-4"
+        style={{ background: "var(--color-dark)", borderBottom: "2px solid var(--border-medium)" }}
+      >
+        <DollarSign size={18} style={{ color: "var(--text-inverse)", opacity: 0.5 }} />
+        <h3
+          className="text-xs sm:text-sm font-bold tracking-wider uppercase"
+          style={{ fontFamily: "var(--font-heading)", color: "var(--text-inverse)", letterSpacing: "0.08em" }}
+        >
+          90-Day Performance Snapshot
+        </h3>
+      </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { label: "Ad Spend", value: `$${adSpend.toLocaleString()}`, sub: "/month", color: "var(--color-blue)" },
-            { label: "Move-ins", value: String(moveIns), sub: "attributed", color: "var(--color-green)" },
-            { label: "Cost / Move-in", value: `$${costPerMI}`, sub: "avg", color: "var(--color-gold)" },
-            { label: "Revenue Generated", value: `$${revenue.toLocaleString()}`, sub: "90 days", color: "var(--color-green)" },
-          ].map((item, i) => (
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4">
+        {stats.map((item, i) => (
+          <div
+            key={item.label}
+            className="relative transition-all duration-500"
+            style={{
+              padding: "1.25rem 1.5rem",
+              borderRight: i < 3 ? "1px solid var(--border-medium)" : "none",
+              borderBottom: "1px solid var(--border-medium)",
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(0)" : "translateY(12px)",
+              transitionDelay: `${500 + i * 100}ms`,
+            }}
+          >
             <div
-              key={item.label}
-              className="text-center sm:text-left transition-all duration-500"
-              style={{
-                opacity: isVisible ? 1 : 0,
-                transform: isVisible ? "translateY(0)" : "translateY(12px)",
-                transitionDelay: `${500 + i * 100}ms`,
-              }}
+              className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase mb-2"
+              style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
             >
-              <div className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>
-                {item.label}
-              </div>
-              <div className="text-xl sm:text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)", color: item.color }}>
-                {item.value}
-              </div>
-              <div className="text-[10px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
-                {item.sub}
-              </div>
+              {item.label}
             </div>
-          ))}
-        </div>
-
-        {/* Visual bar */}
-        <div className="mt-4 pt-4 border-t flex items-center gap-3" style={{ borderColor: "var(--border-subtle)" }}>
-          <span className="text-[11px] font-semibold flex-shrink-0" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>ROAS</span>
-          <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: "var(--border-subtle)" }}>
             <div
-              className="h-full rounded-full transition-all duration-1500"
-              style={{
-                background: "linear-gradient(90deg, var(--color-gold), var(--color-green))",
-                width: isVisible ? "88%" : "0%",
-                transitionDelay: "800ms",
-                transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
-              }}
-            />
+              className="text-2xl sm:text-3xl font-bold leading-none"
+              style={{ fontFamily: "var(--font-heading)", color: item.color }}
+            >
+              {item.value}
+            </div>
+            <div
+              className="text-[10px] sm:text-[11px] mt-1.5 font-medium"
+              style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}
+            >
+              {item.sub}
+            </div>
           </div>
-          <span className="text-sm font-semibold" style={{ color: "var(--color-green)", fontFamily: "var(--font-heading)" }}>
-            35x
-          </span>
+        ))}
+      </div>
+
+      {/* ROAS bar */}
+      <div className="flex items-center gap-4 px-6 sm:px-8 py-4" style={{ background: "var(--bg-surface)" }}>
+        <span
+          className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase flex-shrink-0"
+          style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
+        >
+          ROAS
+        </span>
+        <div className="flex-1 h-4 overflow-hidden" style={{ background: "var(--border-medium)" }}>
+          <div
+            className="h-full transition-all"
+            style={{
+              background: "linear-gradient(90deg, var(--accent), var(--color-green))",
+              width: isVisible ? "88%" : "0%",
+              transitionDuration: "1.8s",
+              transitionDelay: "800ms",
+              transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+            }}
+          />
         </div>
+        <span
+          className="text-lg sm:text-xl font-bold flex-shrink-0"
+          style={{ color: "var(--color-green)", fontFamily: "var(--font-heading)" }}
+        >
+          35x
+        </span>
       </div>
     </div>
   );
@@ -1019,10 +1046,10 @@ export default function Hero() {
             >
               The marketing system that{" "}
               <span className="relative inline-block">
-                <span style={{ background: "linear-gradient(135deg, var(--color-gold), #D4A853, var(--color-gold-hover))", backgroundSize: "200% 200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "hero-gradient-shift 3s ease-in-out infinite" }}>
+                <span style={{ background: "linear-gradient(135deg, var(--accent), var(--color-blue), var(--accent-hover))", backgroundSize: "200% 200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "hero-gradient-shift 3s ease-in-out infinite" }}>
                   proves
                 </span>
-                <span className="absolute bottom-0 left-0 h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, var(--color-gold), var(--color-gold-hover))", animation: isVisible ? "hero-underline-draw 0.8s ease-out 0.6s both" : "none", width: 0 }} />
+                <span className="absolute bottom-0 left-0 h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, var(--accent), var(--accent-hover))", animation: isVisible ? "hero-underline-draw 0.8s ease-out 0.6s both" : "none", width: 0 }} />
               </span>{" "}
               which ads produce move-ins.
             </h1>
@@ -1096,9 +1123,9 @@ export default function Hero() {
       </div>
 
       {/* ── Stats bar ── */}
-      <div ref={statsRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "rgba(255,255,255,0.5)" }}>
-        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+      <div ref={statsRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-surface)" }}>
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-10 sm:py-14">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
             {STATS.map((stat, i) => (
               <StatItem key={stat.label} stat={stat} active={statsVisible} delay={i * 120} />
             ))}
@@ -1108,7 +1135,7 @@ export default function Hero() {
 
       {/* ── ROI Teaser ── */}
       <div ref={roiRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
-        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
+        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-10 sm:py-14">
           <ROITeaser isVisible={roiVisible} />
         </div>
       </div>

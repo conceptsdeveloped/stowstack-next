@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Poppins, Lora, Inter } from "next/font/google";
+import { Poppins, Lora, Inter, JetBrains_Mono } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
 import Analytics from "@/components/analytics";
@@ -26,6 +26,13 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
   display: "swap",
 });
 
@@ -131,7 +138,7 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" className={`${poppins.variable} ${lora.variable} ${inter.variable} antialiased`}>
+      <html lang="en" className={`${poppins.variable} ${lora.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}>
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -155,7 +162,7 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
           />
         </head>
-        <body>
+        <body className="urbit-landing">
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-dark)] focus:text-[var(--color-light)] focus:rounded-lg"
