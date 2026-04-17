@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Film,
   FileText,
+  GitBranch,
   Globe,
   Image as ImageIcon,
   Sparkles,
@@ -100,6 +101,9 @@ const PmsDashboard = lazy(
 const CallTracking = lazy(
   () => import("@/components/admin/facility-tabs/call-tracking")
 );
+const FacilityFunnels = lazy(
+  () => import("@/components/admin/facility-tabs/facility-funnels")
+);
 
 /* ================================================================
    Types
@@ -163,6 +167,7 @@ const TAB_GROUPS: TabGroup[] = [
   {
     title: "MARKETING",
     tabs: [
+      { key: "funnels", label: "Funnels", icon: GitBranch },
       { key: "landing-pages", label: "Landing Pages", icon: FileText },
       { key: "utm-links", label: "UTM Links", icon: Link2 },
       { key: "gbp", label: "Google Business", icon: Globe },
@@ -308,6 +313,7 @@ function TabContent({
       {activeTab === "google-ads" && <GoogleAdsLab {...commonProps} />}
       {activeTab === "tiktok" && <TikTokCreator {...commonProps} />}
       {activeTab === "video" && <VideoGenerator {...commonProps} />}
+      {activeTab === "funnels" && <FacilityFunnels {...commonProps} />}
       {activeTab === "landing-pages" && <LandingPageBuilder {...commonProps} />}
       {activeTab === "utm-links" && <UTMLinks {...commonProps} />}
       {activeTab === "gbp" && <GBPFull {...commonProps} />}

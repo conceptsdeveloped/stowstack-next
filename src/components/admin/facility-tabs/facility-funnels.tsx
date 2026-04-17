@@ -1,0 +1,220 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import Link from "next/link";
+import { useAdminFetch, adminFetch } from "@/hooks/use-admin-fetch";
+import {
+  GitBranch,
+  Plus,
+  ChevronRight,
+  Eye,
+  FileText,
+  MousePointerClick,
+  Users,
+  Loader2,
+  Sparkles,
+  Mail,
+  Smartphone,
+  ExternalLink,
+} from "lucide-react";
+
+interface FunnelSummary {
+  id: string;
+  name: string;
+  archetype: string | null;
+  status: string;
+  created_at: string;
+  published_at: string | null;
+  ad_variations: { id: string; status: string; platform: string; angle: string }[];
+  landing_pages: { id: string; slug: string; status: string }[];
+  _count: { partial_leads: number };
+}
+
+const ARCHETYPE_LABELS: Record<string, string> = {
+  social_proof: "Trusted Choice",
+  convenience: "Easy Move",
+  urgency: "Last Chance",
+  lifestyle: "Fresh Start",
+  custom: "Custom",
+};
+
+const STATUS_STYLES: Record<string, string> = {
+  draft: "bg-[var(--color-light-gray)] text-[var(--color-body-text)]",
+  testing: "bg-blue-50 text-[var(--color-blue)]",
+  live: "bg-green-50 text-[var(--color-green)]",
+  paused: "bg-amber-50 text-amber-700",
+  archived: "bg-gray-100 text-gray-500",
+};
+
+export default function FacilityFunnels({
+  facilityId,
+  adminKey,
+  facilityName,
+}: {
+  facilityId: string;
+  adminKey: string;
+  facilityName: string;
+}) {
+  const [generating, setGenerating] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+
+  const { data: funnels, loading, refetch } = useAdminFetch<FunnelSummary[]>(
+    "/api/funnels",
+    { facilityId }
+  );
+
+  const handleGenerate = useCallback(
+    async (archetype: string) => {
+      setGenerating(true);
+      try {
+        await adminFetch("/api/funnels/generate", {
+          method: "POST",
+          body: JSON.stringify({ facilityId, archetype }),
+        });
+        refetch();
+        setShowCreate(false);
+      } catch (err) {
+        console.error("Failed to generate funnel:", err);
+      } finally {
+        setGenerating(false);
+      }
+    },
+    [facilityId, refetch]
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 size={24} className="animate-spin text-[var(--color-mid-gray)]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-[var(--color-dark)]">Funnels</h2>
+          <p className="text-sm text-[var(--color-body-text)]">
+            Complete ad-to-move-in paths for {facilityName}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-[var(--color-dark)] text-[var(--color-light)] rounded-lg hover:opacity-90 transition-opacity"
+        >
+          <Plus size={14} />
+          New Funnel
+        </button>
+      </div>
+
+      {!funnels?.length ? (
+        <div className="rounded-xl border border-black/[0.08] bg-[var(--color-light)] p-10 text-center">
+          <GitBranch size={36} className="mx-auto text-[var(--color-mid-gray)] mb-3" />
+          <p className="text-[var(--color-dark)] font-medium mb-1">No funnels yet</p>
+          <p className="text-sm text-[var(--color-body-text)] mb-4">
+            Generate a complete funnel — ad, landing page, and drip — in one click.
+          </p>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-[var(--color-dark)] text-[var(--color-light)] rounded-lg"
+          >
+            <Sparkles size={14} />
+            Create First Funnel
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {funnels.map((funnel) => (
+            <Link
+              key={funnel.id}
+              href={`/admin/funnels/${funnel.id}`}
+              className="group block rounded-xl border border-black/[0.08] bg-white p-4 hover:border-black/[0.16] transition-colors"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <GitBranch size={18} className="text-[var(--color-dark)]" />
+                  <div>
+                    <h3 className="font-medium text-[var(--color-dark)]">{funnel.name}</h3>
+                    <p className="text-xs text-[var(--color-body-text)]">
+                      {ARCHETYPE_LABELS[funnel.archetype || "custom"]}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLES[funnel.status] || STATUS_STYLES.draft}`}>
+                    {funnel.status}
+                  </span>
+                  <ChevronRight size={16} className="text-[var(--color-mid-gray)] group-hover:text-[var(--color-dark)] transition-colors" />
+                </div>
+              </div>
+
+              {/* Mini funnel path */}
+              <div className="flex items-center gap-2 text-xs">
+                <span className="flex items-center gap-1 px-2 py-1 rounded bg-[var(--color-light-gray)]">
+                  <Eye size={10} /> {funnel.ad_variations.length} ad{funnel.ad_variations.length !== 1 ? "s" : ""}
+                </span>
+                <ChevronRight size={10} className="text-[var(--color-mid-gray)]" />
+                <span className="flex items-center gap-1 px-2 py-1 rounded bg-[var(--color-light-gray)]">
+                  <FileText size={10} /> {funnel.landing_pages.length} page{funnel.landing_pages.length !== 1 ? "s" : ""}
+                </span>
+                <ChevronRight size={10} className="text-[var(--color-mid-gray)]" />
+                <span className="flex items-center gap-1 px-2 py-1 rounded bg-[var(--color-light-gray)]">
+                  <Users size={10} /> {funnel._count.partial_leads} lead{funnel._count.partial_leads !== 1 ? "s" : ""}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Create modal */}
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 p-6">
+            <h2 className="text-lg font-semibold text-[var(--color-dark)] mb-1">
+              Generate Funnel for {facilityName}
+            </h2>
+            <p className="text-sm text-[var(--color-body-text)] mb-5">
+              Pick an archetype. We generate the ad, landing page, drip sequence, and recovery flow.
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { key: "social_proof", label: "Trusted Choice", desc: "Lead with trust signals and reviews" },
+                { key: "convenience", label: "Easy Move", desc: "Proximity, speed, zero friction" },
+                { key: "urgency", label: "Last Chance", desc: "Scarcity-backed inventory pressure" },
+                { key: "lifestyle", label: "Fresh Start", desc: "Emotional hook, nurture over 2 weeks" },
+              ].map((arch) => (
+                <button
+                  key={arch.key}
+                  onClick={() => handleGenerate(arch.key)}
+                  disabled={generating}
+                  className="rounded-xl border border-black/[0.08] p-4 text-left hover:border-black/[0.2] transition-colors disabled:opacity-50"
+                >
+                  <p className="font-medium text-sm text-[var(--color-dark)]">{arch.label}</p>
+                  <p className="text-xs text-[var(--color-body-text)] mt-1">{arch.desc}</p>
+                </button>
+              ))}
+            </div>
+
+            {generating && (
+              <div className="flex items-center justify-center gap-2 mt-4 py-3 rounded-lg bg-[var(--color-light)]">
+                <Loader2 size={16} className="animate-spin text-[var(--color-dark)]" />
+                <span className="text-sm text-[var(--color-dark)]">Generating complete funnel...</span>
+              </div>
+            )}
+
+            <button
+              onClick={() => setShowCreate(false)}
+              disabled={generating}
+              className="mt-4 w-full py-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)]"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
