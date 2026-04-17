@@ -146,7 +146,7 @@ export function AdMockup({
 
   if (format === "facebook_feed") {
     return (
-      <div className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0" data-ad-mockup="true bg-[var(--bg-elevated)]">
+      <div className="w-full max-w-[400px] rounded-xl overflow-hidden shadow-2xl" data-ad-mockup="true bg-[var(--bg-elevated)]">
         {/* Profile header */}
         <div className="flex items-center gap-2 p-3">
           <div className="w-10 h-10 bg-[var(--color-gold)] rounded-full flex items-center justify-center text-white text-xs font-semibold">
@@ -202,7 +202,7 @@ export function AdMockup({
 
   if (format === "google_display") {
     return (
-      <div className="w-[300px] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-2xl flex-shrink-0" data-ad-mockup="true bg-[var(--bg-elevated)]">
+      <div className="w-full max-w-[300px] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-2xl" data-ad-mockup="true bg-[var(--bg-elevated)]">
         {/* Banner image */}
         <div className="w-full h-[150px] bg-[var(--color-light-gray)] relative">
           {image ? (

@@ -224,10 +224,10 @@ export default function FunnelDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Link
           href="/admin/funnels"
-          className="p-1.5 rounded-lg hover:bg-[var(--color-light-gray)] transition-colors"
+          className="p-1.5 rounded-lg hover:bg-[var(--color-light-gray)] transition-colors shrink-0"
         >
           <ArrowLeft size={18} className="text-[var(--color-body-text)]" />
         </Link>
@@ -237,11 +237,11 @@ export default function FunnelDetailPage() {
               <input
                 value={nameValue}
                 onChange={(e) => setNameValue(e.target.value)}
-                className="text-xl font-semibold text-[var(--color-dark)] border-b-2 border-[var(--color-dark)] bg-transparent outline-none"
+                className="w-full text-lg sm:text-xl font-semibold text-[var(--color-dark)] border-b-2 border-[var(--color-dark)] bg-transparent outline-none"
                 autoFocus
                 onKeyDown={(e) => e.key === "Enter" && handleNameSave()}
               />
-              <button onClick={handleNameSave} disabled={saving} className="p-1">
+              <button onClick={handleNameSave} disabled={saving} className="p-1 shrink-0" aria-label="Save name">
                 <Save size={16} />
               </button>
             </div>
@@ -251,12 +251,12 @@ export default function FunnelDetailPage() {
                 setNameValue(funnel.name);
                 setEditingName(true);
               }}
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-2 group max-w-full"
             >
-              <h1 className="text-xl font-semibold text-[var(--color-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
+              <h1 className="text-lg sm:text-xl font-semibold text-[var(--color-dark)] truncate" style={{ fontFamily: "var(--font-heading)" }}>
                 {funnel.name}
               </h1>
-              <Pencil size={14} className="text-[var(--color-mid-gray)] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Pencil size={14} className="text-[var(--color-mid-gray)] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
             </button>
           )}
           <p className="text-sm text-[var(--color-body-text)]">
@@ -268,7 +268,7 @@ export default function FunnelDetailPage() {
           <button
             onClick={() => handleStatusChange(statusAction.next)}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-[var(--color-dark)] text-[var(--color-light)] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="inline-flex shrink-0 items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium bg-[var(--color-dark)] text-[var(--color-light)] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <statusAction.icon size={16} />
             {statusAction.label}
@@ -277,11 +277,12 @@ export default function FunnelDetailPage() {
       </div>
 
       {/* Funnel visualization — the heartbeat */}
-      <div className="rounded-xl border border-black/[0.08] bg-white p-6">
+      <div className="rounded-xl border border-black/[0.08] bg-white p-4 sm:p-6">
         <h2 className="text-sm font-medium text-[var(--color-body-text)] uppercase tracking-wide mb-4">
           Funnel Path
         </h2>
-        <div className="flex items-stretch gap-0">
+        <div className="-mx-4 sm:mx-0 overflow-x-auto pb-2">
+        <div className="flex items-stretch gap-0 min-w-max px-4 sm:px-0 sm:min-w-0">
           {/* Stage: Ad */}
           <FunnelStage
             title="Ad Impression"
@@ -371,6 +372,7 @@ export default function FunnelDetailPage() {
             emptyLabel="Awaiting move-ins"
             isLast
           />
+        </div>
         </div>
       </div>
 

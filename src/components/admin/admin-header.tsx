@@ -97,12 +97,17 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
 
   const iconBtnStyle = {
     color: '#A3A3A3',
-    borderRadius: '4px',
+    borderRadius: '6px',
     background: 'transparent',
     border: 'none',
     cursor: 'pointer',
     transition: 'color 120ms ease',
-    padding: '6px',
+    padding: '10px',
+    minWidth: '40px',
+    minHeight: '40px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   };
 
   return (

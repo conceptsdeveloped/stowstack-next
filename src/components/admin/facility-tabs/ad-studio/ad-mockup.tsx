@@ -200,7 +200,7 @@ export function AdMockup({ format, image, copy, facilityName }: {
 
   if (format === 'facebook_feed') {
     return (
-      <div data-ad-mockup="true" className="w-[400px] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
+      <div data-ad-mockup="true" className="w-full max-w-[400px] rounded-xl overflow-hidden shadow-2xl bg-[var(--bg-elevated)]">
         <div className="flex items-center gap-2 p-3">
           <div className="w-10 h-10 bg-[#8C2332] rounded-full flex items-center justify-center" style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 900 }}>SA</div>
           <div className="flex-1">
@@ -237,7 +237,7 @@ export function AdMockup({ format, image, copy, facilityName }: {
 
   if (format === 'google_display') {
     return (
-      <div data-ad-mockup="true" className="w-[300px] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[var(--bg-elevated)]">
+      <div data-ad-mockup="true" className="w-full max-w-[300px] border border-[var(--border-subtle)] rounded-lg overflow-hidden shadow-2xl bg-[var(--bg-elevated)]">
         <div className="w-full h-[150px] bg-[var(--color-light-gray)] relative">
           {image ? (
             /* eslint-disable-next-line @next/next/no-img-element */

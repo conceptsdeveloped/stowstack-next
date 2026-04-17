@@ -277,8 +277,7 @@ export default function Nav() {
                 letterSpacing: "-0.5px",
               }}
             >
-              <span style={{ color: "var(--color-dark)" }}>storage</span>
-              <span style={{ color: "var(--color-gold)" }}>ads</span>
+              <span style={{ color: "var(--color-dark)" }}>storageads</span>
             </span>
           </Link>
 

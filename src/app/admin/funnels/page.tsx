@@ -91,9 +91,9 @@ export default function FunnelsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-semibold text-[var(--color-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
             Funnels
           </h1>
           <p className="text-sm text-[var(--color-body-text)] mt-1">
@@ -103,20 +103,21 @@ export default function FunnelsPage() {
         <button
           onClick={() => setShowCreateModal(true)}
           disabled={!selectedFacility}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-[var(--color-dark)] text-[var(--color-light)] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-40"
+          className="inline-flex shrink-0 items-center gap-2 px-4 py-2 text-sm font-medium bg-[var(--color-dark)] text-[var(--color-light)] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-40"
         >
           <Plus size={16} />
-          New Funnel
+          <span className="hidden sm:inline">New Funnel</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
 
       {/* Facility selector */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
         <label className="text-sm font-medium text-[var(--color-body-text)]">Facility</label>
         <select
           value={selectedFacility}
           onChange={(e) => setSelectedFacility(e.target.value)}
-          className="rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-sm text-[var(--color-dark)] min-w-[280px]"
+          className="w-full sm:w-auto sm:min-w-[280px] rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-sm text-[var(--color-dark)]"
         >
           <option value="">Select a facility...</option>
           {facilities?.map((f) => (
@@ -153,7 +154,7 @@ export default function FunnelsPage() {
           </button>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {funnels.map((funnel) => (
             <Link
               key={funnel.id}
