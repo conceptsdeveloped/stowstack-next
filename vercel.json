@@ -16,7 +16,8 @@
     { "path": "/api/cron/cleanup-organizations", "schedule": "30 3 * * *" },
     { "path": "/api/cron/data-retention", "schedule": "0 4 * * *" },
     { "path": "/api/cron/weekly-synthesis", "schedule": "0 10 * * 0" },
-    { "path": "/api/cron/process-synthesis-queue", "schedule": "0 12 * * *" }
+    { "path": "/api/cron/process-synthesis-queue", "schedule": "0 12 * * *" },
+    { "path": "/api/cron/process-pms-uploads", "schedule": "0 * * * *" }
   ],
   "headers": [
     {
