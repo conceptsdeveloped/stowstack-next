@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isValidEmail, sanitizeString } from "@/lib/validation";
+import { fireMetaCapi } from "@/lib/meta-capi";
 
 /**
  * When a lead converts on a landing page that belongs to a funnel,
@@ -176,6 +177,26 @@ export async function POST(req: NextRequest) {
         console.error("[funnel-drip-enroll] Fire-and-forget failed:", err)
       );
     }
+
+    // Server-side Meta CAPI Lead event — fires only when META_PIXEL_ID and
+    // META_ACCESS_TOKEN are configured. Dedupe with browser pixel via event_id.
+    fireMetaCapi({
+      eventName: "Lead",
+      eventId: `lead-${sid}`,
+      eventSourceUrl: referrer || undefined,
+      userData: {
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        firstName: name.trim().split(" ")[0],
+        lastName: name.trim().split(" ").slice(1).join(" ") || null,
+        clientIpAddress: ip !== "unknown" ? ip : null,
+        clientUserAgent: req.headers.get("user-agent"),
+      },
+      customData: {
+        contentName: utmCampaign || "landing_page_lead",
+        contentCategory: "lead",
+      },
+    }).catch((err) => console.error("[meta-capi] lead fire failed:", err));
 
     const apiKey = process.env.RESEND_API_KEY;
     if (apiKey && facilityId) {
