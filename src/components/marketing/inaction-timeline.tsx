@@ -111,8 +111,8 @@ export default function InactionTimeline() {
                 <div
                   className={`w-10 h-10 sm:w-16 sm:h-16 rounded-full ${m.severity} flex items-center justify-center flex-shrink-0 border-2 border-red-500/30`}
                 >
-                  <div className="text-center">
-                    <p className="text-[7px] sm:text-[10px] text-red-900 uppercase leading-none tracking-tight">
+                  <div className="text-center font-system">
+                    <p className="text-[7px] sm:text-[10px] text-red-900 uppercase leading-none tracking-[0.12em]">
                       Mo
                     </p>
                     <p className="text-[13px] sm:text-lg font-semibold text-[var(--color-dark)] leading-none mt-0.5">
@@ -132,15 +132,15 @@ export default function InactionTimeline() {
                         {m.detail}
                       </p>
                     </div>
-                    <div className="sm:text-right shrink-0 flex flex-row sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-black/[0.04] sm:border-none">
+                    <div className="font-system sm:text-right shrink-0 flex flex-row sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-black/[0.04] sm:border-none">
                       <p className="text-[11px] sm:text-sm text-red-400 font-medium whitespace-nowrap">
                         -${m.loss.toLocaleString()}/mo
                       </p>
                       <p
-                        className="text-[10px] sm:text-xs whitespace-nowrap"
+                        className="text-[10px] sm:text-xs whitespace-nowrap uppercase tracking-[0.08em]"
                         style={{ color: "var(--text-tertiary)" }}
                       >
-                        cum: -${m.cumulative.toLocaleString()}
+                        CUM -${m.cumulative.toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -169,39 +169,31 @@ export default function InactionTimeline() {
               : "opacity-0 translate-y-4"
           }`}
         >
-          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 sm:p-6 text-center">
+          <div className="zine-frame bg-red-500/10 border border-red-500/20 rounded-2xl p-5 sm:p-6 text-center">
             <TrendingDown size={24} className="text-red-400 mx-auto mb-2" />
             <p
-              className="text-xs uppercase mb-1 text-red-400"
-              style={{ letterSpacing: "var(--tracking-wide)" }}
+              className="font-system text-[10px] sm:text-xs uppercase mb-1 text-red-400 tracking-[0.14em]"
             >
               6-Month Inaction Cost
             </p>
-            <p className="text-2xl sm:text-3xl font-semibold text-red-400">-$5,850</p>
-            <p
-              className="text-sm mt-1"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              Lost revenue that compounds every month
+            <p className="font-system text-2xl sm:text-3xl font-semibold text-red-400">-$5,850</p>
+            <p className="zine-caption text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+              Lost revenue that compounds every month.
             </p>
           </div>
-          <div className="bg-[var(--color-dark)]/5 border border-[var(--color-dark)]/10 rounded-2xl p-5 sm:p-6 text-center">
+          <div className="zine-frame bg-[var(--color-dark)]/5 border border-[var(--color-dark)]/10 rounded-2xl p-5 sm:p-6 text-center">
             <TrendingDown
               size={24}
               className="text-[var(--color-dark)] mx-auto mb-2 rotate-180"
             />
             <p
-              className="text-xs uppercase mb-1 text-[var(--color-dark)]"
-              style={{ letterSpacing: "var(--tracking-wide)" }}
+              className="font-system text-[10px] sm:text-xs uppercase mb-1 text-[var(--color-dark)] tracking-[0.14em]"
             >
               6 Months with StorageAds
             </p>
-            <p className="text-2xl sm:text-3xl font-semibold text-[var(--color-dark)]">+$43,200</p>
-            <p
-              className="text-sm mt-1"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              Based on 8 move-ins/mo at $900 avg lifetime value per tenant
+            <p className="font-system text-2xl sm:text-3xl font-semibold text-[var(--color-dark)]">+$43,200</p>
+            <p className="zine-caption text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+              Based on 8 move-ins/mo at $900 avg lifetime value per tenant.
             </p>
           </div>
         </div>
