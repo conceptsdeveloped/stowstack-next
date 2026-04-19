@@ -3,6 +3,16 @@
 import { Check, X, Minus } from "lucide-react";
 import { useInView } from "./use-in-view";
 
+/**
+ * Repetition-grid disruptor (concept-copy/02). A 5×5 grid where all cells
+ * carry the same label except one, which breaks the pattern to deliver
+ * the message. Translates Urbit's "Discord sells you out" structural
+ * device into StorageAds' category frame.
+ */
+const GRID_SIZE = 25;
+const DISRUPTOR_INDEX = 12; // center
+const GRID_LABELS = ["DIY", "Ad Agency"];
+
 const ROWS = [
   {
     label: "Landing Pages",
@@ -77,25 +87,62 @@ export default function ThreeWayComparison() {
     >
       <div ref={ref} className="section-content">
         <div
-          className={`max-w-3xl mx-auto text-center mb-14 transition-all duration-700 ${
+          className={`max-w-3xl mx-auto text-center mb-10 transition-all duration-700 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
           }`}
         >
-          <h2
-            className="font-semibold"
-            style={{ fontSize: "var(--text-section-head)" }}
-          >
-            Doing It Yourself vs. Hiring an Agency vs.{" "}
-            <span style={{ color: "var(--color-gold)" }}>Using a Demand Engine</span>
+          <h2 className="font-semibold text-3xl sm:text-4xl md:text-5xl leading-[1.05] tracking-tight">
+            Three approaches.
+            <br />
+            <span className="zine-caption text-2xl sm:text-3xl md:text-4xl font-normal">
+              Only one fills units and proves it.
+            </span>
           </h2>
-          <p
-            className="mt-4 text-lg"
-            style={{ color: "var(--text-secondary)" }}
+        </div>
+
+        {/* Repetition-grid disruptor — everyone else is one of two things,
+            StorageAds is a third thing. The message lives in the cell
+            that breaks the pattern. */}
+        <div
+          className={`max-w-3xl mx-auto mb-14 transition-all duration-700 delay-150 ${
+            isVisible
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-6"
+          }`}
+        >
+          <div
+            className="grid grid-cols-5 border border-[var(--border-subtle)]"
+            style={{ gap: "1px", background: "var(--border-subtle)" }}
           >
-            Three approaches. Only one fills units and proves it.
-          </p>
+            {Array.from({ length: GRID_SIZE }).map((_, i) => {
+              const isDisruptor = i === DISRUPTOR_INDEX;
+              const label = isDisruptor
+                ? "StorageAds fills the unit."
+                : GRID_LABELS[i % GRID_LABELS.length];
+              return (
+                <div
+                  key={i}
+                  className={`aspect-square flex items-center justify-center text-center px-1.5 py-2 transition-colors ${
+                    isDisruptor
+                      ? "bg-[var(--color-dark)] text-[var(--color-light)]"
+                      : "bg-[var(--color-light)] text-[var(--text-tertiary)]"
+                  }`}
+                >
+                  <span
+                    className={
+                      isDisruptor
+                        ? "font-system text-[9px] sm:text-[11px] md:text-[13px] font-semibold leading-tight tracking-tight"
+                        : "font-system text-[9px] sm:text-[11px] md:text-[13px] tracking-tight"
+                    }
+                  >
+                    {label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Column headers */}
@@ -112,11 +159,8 @@ export default function ThreeWayComparison() {
               <Minus size={12} className="text-stone-500" />
             </div>
             <span
-              className="text-xs font-semibold uppercase"
-              style={{
-                color: "var(--text-tertiary)",
-                letterSpacing: "var(--tracking-wide)",
-              }}
+              className="font-system text-[10px] font-semibold uppercase tracking-[0.14em]"
+              style={{ color: "var(--text-tertiary)" }}
             >
               Do It Yourself
             </span>
@@ -125,20 +169,16 @@ export default function ThreeWayComparison() {
             <div className="w-6 h-6 bg-orange-500/10 rounded-full flex items-center justify-center">
               <X size={12} className="text-orange-500" />
             </div>
-            <span
-              className="text-xs font-semibold text-orange-800 uppercase"
-              style={{ letterSpacing: "var(--tracking-wide)" }}
-            >
+            <span className="font-system text-[10px] font-semibold text-orange-800 uppercase tracking-[0.14em]">
               Ad Agency
             </span>
           </div>
           <div className="flex items-center gap-2 px-4">
-            <div className="w-6 h-6 bg-[var(--color-gold)]/10 rounded-full flex items-center justify-center">
-              <Check size={12} className="text-[var(--color-gold)]" />
+            <div className="w-6 h-6 bg-[var(--color-dark)]/10 rounded-full flex items-center justify-center">
+              <Check size={12} className="text-[var(--color-dark)]" />
             </div>
             <span
-              className="text-xs font-semibold text-[var(--color-gold)] uppercase"
-              style={{ letterSpacing: "var(--tracking-wide)" }}
+              className="font-system text-[10px] font-semibold text-[var(--color-dark)] uppercase tracking-[0.14em]"
             >
               StorageAds
             </span>
@@ -165,11 +205,8 @@ export default function ThreeWayComparison() {
 
               <div className="bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-xl px-4 py-3">
                 <span
-                  className="md:hidden text-[10px] font-semibold uppercase"
-                  style={{
-                    color: "var(--text-tertiary)",
-                    letterSpacing: "var(--tracking-wide)",
-                  }}
+                  className="md:hidden font-system text-[10px] font-semibold uppercase tracking-[0.14em]"
+                  style={{ color: "var(--text-tertiary)" }}
                 >
                   DIY
                 </span>
@@ -182,23 +219,17 @@ export default function ThreeWayComparison() {
               </div>
 
               <div className="bg-orange-500/[0.05] border border-orange-500/10 rounded-xl px-4 py-3">
-                <span
-                  className="md:hidden text-[10px] font-semibold text-orange-800 uppercase"
-                  style={{ letterSpacing: "var(--tracking-wide)" }}
-                >
+                <span className="md:hidden font-system text-[10px] font-semibold text-orange-800 uppercase tracking-[0.14em]">
                   Agency
                 </span>
                 <p className="text-sm text-orange-800">{row.agency}</p>
               </div>
 
-              <div className="bg-[var(--color-gold)]/[0.08] border border-[var(--color-gold)]/20 rounded-xl px-4 py-3">
-                <span
-                  className="md:hidden text-[10px] font-semibold text-[var(--color-gold)] uppercase"
-                  style={{ letterSpacing: "var(--tracking-wide)" }}
-                >
+              <div className="bg-[var(--color-dark)] border border-[var(--color-dark)] rounded-xl px-4 py-3">
+                <span className="md:hidden font-system text-[10px] font-semibold text-[var(--color-light)] uppercase tracking-[0.14em]">
                   StorageAds
                 </span>
-                <p className="text-sm text-[var(--color-gold)] font-medium">
+                <p className="text-sm text-[var(--color-light)] font-medium">
                   {row.storageads}
                 </p>
               </div>
