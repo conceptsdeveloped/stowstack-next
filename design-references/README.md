@@ -25,7 +25,37 @@ This folder exists so you can **decompose reference images into concrete design 
 
 ## Aesthetic direction (summary)
 
-Editorial zine × oversized sans-serif × cinematic film photography × dry, confident copy. Think newsprint/letterpress finish, offset-frame halftones, massive hero type that fills the frame, and a preference for found/real imagery over stock or AI. Flat graphic color blocks allowed as accents (see `editorial-zine/03`). Ties into the A24/Kubrick editorial principle in CREATIVE.md.
+StorageAds has **two voices working against each other**, on purpose:
+
+### 1. The editorial voice (what the references in this folder describe)
+
+Editorial zine × oversized sans-serif × cinematic film photography × dry, confident copy. Think newsprint/letterpress finish, offset-frame halftones, massive hero type that fills the frame, and a preference for found/real imagery over stock or AI. Flat graphic color blocks allowed as accents (see `editorial-zine/03`). Ties into the A24/Kubrick editorial principle in `CREATIVE.md`.
+
+**This voice carries emotion.** It's what tells the reader "this was made by people who care about what they're saying." Use it for headlines, captions, editorial imagery, CTA moments, brand statements, storytelling sections, blog posts written in operator voice.
+
+### 2. The system voice (the engineering layer)
+
+Monospace body type, terminal-sparse color palette, grid-true layouts, no decoration-for-decoration's-sake. Admin chrome, data tables, metric readouts, technical UI surfaces, code-adjacent captions, attribution panels, timestamps, deltas, currency. This is what the `.admin-theme` scope does in `globals.css`, and what the `.urbit-landing` body class extends to parts of the marketing site that benefit from a system feel.
+
+**This voice carries precision.** It's what tells the reader "this wasn't just designed — it was engineered." Use it for: anything numeric, anything that looks like operating-system chrome, anything where a human expects to see *machine output*.
+
+### How the two voices divide the page
+
+- **Headline = editorial.** Heavy sans display, tight leading, space around it. (See `typography/01`, `typography/02`.)
+- **Hero body / lead copy = editorial.** Italic serif or heavy sans, never monospace.
+- **Eyebrow / category labels = system.** Monospace, uppercase, letterspaced, small.
+- **Metric readouts (KPIs, prices, percentages, timestamps) = system.** Monospace.
+- **Captions under imagery = editorial.** Italic serif. (See `editorial-zine/01`, `editorial-zine/02`.)
+- **Body prose = editorial** on emotional surfaces (homepage, about, blog), **system** on technical surfaces (admin, audit JSON, dev tooling).
+- **CTAs = editorial on light, system on dark admin/data surfaces.**
+
+The rule is: **the voice should match the job, not the page.** A single marketing section can contain both — an editorial headline above a system metric strip above an editorial caption. That pairing is the signature of the site.
+
+### Why two voices and not one
+
+One voice is a brand. Two voices that don't fight is a product. The editorial voice without the system voice reads like a lifestyle blog; the system voice without the editorial reads like unstyled dev tooling. Together they say "an operator who partnered with real engineering" — which happens to be the actual fact of the company and the implicit trust signal behind everything else.
+
+**A reference with monospace inside this folder** (concept-copy/02, the Urbit grid) is not telling you to steal monospace wholesale — it's showing you the **structural device** (repetition + disruption) that the system voice is good at delivering. Extract the device, not the brand.
 
 ---
 
