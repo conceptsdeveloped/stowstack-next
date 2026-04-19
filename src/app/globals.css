@@ -57,11 +57,21 @@
   --color-error: var(--color-red);
   --color-success: var(--color-green);
 
-  /* ── Typography ── */
-  --font-heading: var(--font-poppins), 'Poppins', Arial, sans-serif;
-  --font-body: var(--font-lora), 'Lora', Georgia, serif;
-  --font-ad-headline: var(--font-heading);
-  --font-ad-body: var(--font-body);
+  /* ── Typography ──
+     One voice. JetBrains Mono is the primary typeface across the product —
+     display, body, chrome, data. Hierarchy comes from size/weight/opacity/
+     case/tracking, not from switching families. Inter is the humanist-sans
+     escape valve (via var(--font-warm)) for moments where full monospace
+     would read too harsh or technical — long-form editorial body,
+     emotional set-pieces. Default is mono; use --font-warm only when
+     earned. */
+  --font-primary: var(--font-jetbrains), "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  --font-warm: var(--font-inter), Inter, -apple-system, system-ui, sans-serif;
+  --font-heading: var(--font-primary);
+  --font-body: var(--font-primary);
+  --font-ad-headline: var(--font-primary);
+  --font-ad-body: var(--font-primary);
+  --font-display: var(--font-primary);
 
   /* Typography scale */
   --text-hero: clamp(2.5rem, 8vw, 3.5rem);
@@ -119,9 +129,7 @@
   /* Nav */
   --nav-height: 64px;
 
-  /* Font families (display alias for backward compat) */
-  --font-display: var(--font-heading);
-  --font-mono-family: var(--font-mono), "SF Mono", "Menlo", monospace;
+  --font-mono-family: var(--font-primary);
 }
 
 /* ═══════════════════════════════════════════
@@ -894,12 +902,7 @@ body {
   --border-subtle: rgba(0, 0, 0, 0.08);
   --border-medium: rgba(0, 0, 0, 0.15);
 
-  /* Typography → monospace */
-  --font-heading: var(--font-jetbrains), "JetBrains Mono", "SF Mono", "Menlo", monospace;
-  --font-body: var(--font-jetbrains), "JetBrains Mono", "SF Mono", "Menlo", monospace;
-  --font-display: var(--font-heading);
-  --font-ad-headline: var(--font-heading);
-  --font-ad-body: var(--font-body);
+  /* Typography — inherits mono from root; kept for explicit scoping */
 }
 
 /* Base typography overrides */

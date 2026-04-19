@@ -161,7 +161,7 @@ export default function AuditLogPage() {
         <Shield className="mb-4 h-12 w-12 text-[var(--color-mid-gray)]" />
         <h2
           className="mb-2 text-lg font-medium text-[var(--color-light)]"
-          style={{ fontFamily: "var(--font-poppins, Poppins, sans-serif)" }}
+          style={{ fontFamily: "var(--font-primary)" }}
         >
           Access Denied
         </h2>
@@ -181,7 +181,7 @@ export default function AuditLogPage() {
       <div className="mb-6">
         <h1
           className="text-xl font-semibold text-[var(--color-light)] sm:text-2xl"
-          style={{ fontFamily: "var(--font-poppins, Poppins, sans-serif)" }}
+          style={{ fontFamily: "var(--font-primary)" }}
         >
           Audit Log
         </h1>
@@ -224,7 +224,7 @@ export default function AuditLogPage() {
           <Clock className="mb-4 h-10 w-10 text-[var(--color-mid-gray)]" />
           <p
             className="text-base font-medium text-[var(--color-light)]"
-            style={{ fontFamily: "var(--font-poppins, Poppins, sans-serif)" }}
+            style={{ fontFamily: "var(--font-primary)" }}
           >
             No activity yet
           </p>

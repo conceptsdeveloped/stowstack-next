@@ -139,7 +139,7 @@ export function TwoFactorSetup({ enabled: initialEnabled }: { enabled: boolean }
               <ShieldCheck className="h-5 w-5 text-[var(--color-green)]" />
             </div>
             <div>
-              <p className="font-[family-name:var(--font-poppins)] text-sm font-medium text-[var(--color-dark)]">
+              <p className="font-[family-name:var(--font-primary)] text-sm font-medium text-[var(--color-dark)]">
                 Two-factor authentication is enabled
               </p>
               <p className="text-xs text-[var(--color-body-text)]">
@@ -172,7 +172,7 @@ export function TwoFactorSetup({ enabled: initialEnabled }: { enabled: boolean }
             <ShieldOff className="h-5 w-5 text-[var(--color-red)]" />
           </div>
           <div>
-            <p className="font-[family-name:var(--font-poppins)] text-sm font-medium text-[var(--color-dark)]">
+            <p className="font-[family-name:var(--font-primary)] text-sm font-medium text-[var(--color-dark)]">
               Disable two-factor authentication
             </p>
             <p className="text-xs text-[var(--color-body-text)]">
@@ -237,7 +237,7 @@ export function TwoFactorSetup({ enabled: initialEnabled }: { enabled: boolean }
               <Shield className="h-5 w-5 text-[var(--color-body-text)]" />
             </div>
             <div>
-              <p className="font-[family-name:var(--font-poppins)] text-sm font-medium text-[var(--color-dark)]">
+              <p className="font-[family-name:var(--font-primary)] text-sm font-medium text-[var(--color-dark)]">
                 Two-factor authentication
               </p>
               <p className="text-xs text-[var(--color-body-text)]">
@@ -272,7 +272,7 @@ export function TwoFactorSetup({ enabled: initialEnabled }: { enabled: boolean }
             <Shield className="h-5 w-5 text-[var(--color-gold)]" />
           </div>
           <div>
-            <p className="font-[family-name:var(--font-poppins)] text-sm font-medium text-[var(--color-dark)]">
+            <p className="font-[family-name:var(--font-primary)] text-sm font-medium text-[var(--color-dark)]">
               Scan QR code
             </p>
             <p className="text-xs text-[var(--color-body-text)]">
@@ -377,7 +377,7 @@ export function TwoFactorSetup({ enabled: initialEnabled }: { enabled: boolean }
             <ShieldCheck className="h-5 w-5 text-[var(--color-green)]" />
           </div>
           <div>
-            <p className="font-[family-name:var(--font-poppins)] text-sm font-medium text-[var(--color-dark)]">
+            <p className="font-[family-name:var(--font-primary)] text-sm font-medium text-[var(--color-dark)]">
               Save your backup codes
             </p>
             <p className="text-xs text-[var(--color-body-text)]">
@@ -498,7 +498,7 @@ export function TwoFactorLogin({ tempToken, onSuccess, onCancel }: TwoFactorLogi
           <Shield className="h-6 w-6 text-[var(--color-gold)]" />
         </div>
         <div>
-          <h2 className="font-[family-name:var(--font-poppins)] text-lg font-medium text-[var(--color-dark)]">
+          <h2 className="font-[family-name:var(--font-primary)] text-lg font-medium text-[var(--color-dark)]">
             Two-factor authentication
           </h2>
           <p className="mt-1 text-sm text-[var(--color-body-text)]">

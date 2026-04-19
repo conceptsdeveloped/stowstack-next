@@ -161,7 +161,7 @@ export default function ChangelogPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="font-[family-name:var(--font-poppins)] text-xl font-semibold text-[var(--color-dark)]">
+          <h1 className="font-[family-name:var(--font-primary)] text-xl font-semibold text-[var(--color-dark)]">
             Changelog
           </h1>
           <p className="mt-1 text-sm text-[var(--color-body-text)]">
@@ -191,7 +191,7 @@ export default function ChangelogPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="font-[family-name:var(--font-poppins)] text-xl font-semibold text-[var(--color-dark)]">
+          <h1 className="font-[family-name:var(--font-primary)] text-xl font-semibold text-[var(--color-dark)]">
             Changelog
           </h1>
         </div>
@@ -216,7 +216,7 @@ export default function ChangelogPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="font-[family-name:var(--font-poppins)] text-xl font-semibold text-[var(--color-dark)]">
+          <h1 className="font-[family-name:var(--font-primary)] text-xl font-semibold text-[var(--color-dark)]">
             Changelog
           </h1>
           <p className="mt-1 text-sm text-[var(--color-body-text)]">
@@ -241,7 +241,7 @@ export default function ChangelogPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-[family-name:var(--font-poppins)] text-xl font-semibold text-[var(--color-dark)]">
+        <h1 className="font-[family-name:var(--font-primary)] text-xl font-semibold text-[var(--color-dark)]">
           Changelog
         </h1>
         <p className="mt-1 text-sm text-[var(--color-body-text)]">
@@ -251,7 +251,7 @@ export default function ChangelogPage() {
 
       {grouped.map((group) => (
         <div key={group.label}>
-          <h2 className="mb-3 font-[family-name:var(--font-poppins)] text-sm font-semibold text-[var(--color-mid-gray)]">
+          <h2 className="mb-3 font-[family-name:var(--font-primary)] text-sm font-semibold text-[var(--color-mid-gray)]">
             {group.label}
           </h2>
           <div className="space-y-3">
