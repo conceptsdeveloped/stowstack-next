@@ -67,9 +67,9 @@ Prisma schema at `prisma/schema.prisma` (~75 models, 1485 lines). All tables use
 
 Singleton client at `src/lib/db.ts`. Some routes use `db.$queryRawUnsafe()` for complex upserts; prefer Prisma methods where possible.
 
-### Design System — Light Only, Two Voices
+### Design System — Light Only
 
-The site runs **two typographic voices intentionally coexisting**: an editorial voice that carries emotion (headlines, captions, brand moments) and a system voice that carries precision (metrics, admin chrome, data). Both are light-theme, both share the same palette. See `design-references/README.md` for the visual contracts driving this.
+Anthropic-inspired warm palette. CSS custom properties defined in `src/app/globals.css`:
 
 **Core palette:**
 - `--color-dark` (#141413) — primary text, never pure black
@@ -78,51 +78,23 @@ The site runs **two typographic voices intentionally coexisting**: an editorial 
 - `--color-mid-gray` (#b0aea5) — secondary/muted
 - `--color-light-gray` (#e8e6dc) — card fills, borders, surfaces
 
-**CTAs — contrast-based, not color-based:**
-- `--color-dark` on light surfaces, `--color-light` on dark surfaces.
-- **Sienna gold is banned.** Do not use `#B58B3F`, `--color-gold`, `--color-gold-hover`, `--color-gold-on-light`, `--color-gold-light`, or any near variant anywhere — including CTAs, links, metrics, charts, logos, and generated assets. Older `--color-gold*` tokens still exist in `globals.css` for now but must not be referenced in new code. The editorial feel comes from typography, offset-frame devices, flat color blocks, and negative space — not from a color accent.
+**Accent — Charcoal-on-light / Light-on-dark (no primary color accent):**
+- CTAs use `--color-dark` (#141413) on light surfaces and `--color-light` (#faf9f5) on dark surfaces — contrast-based, not color-based.
+- **Sienna gold is banned.** Do not use `#B58B3F`, `--color-gold`, `--color-gold-hover`, `--color-gold-on-light`, `--color-gold-light`, or any near variant anywhere — including CTAs, links, metrics, charts, logos, and generated assets. Older `--color-gold*` tokens still exist in `globals.css` for now but must not be referenced in new code. The A24/Kubrick editorial feel comes from typography and negative space, not a color accent.
 
 **Secondary accents:** `--color-blue` (#6a9bcc, Google/informational), `--color-green` (#788c5d, success/growth) — use sparingly for categorical distinctions (chart series, informational callouts), never as a primary CTA color.
 **Error only:** `--color-red` (#B04A3A) — NEVER for CTAs or decorative use
 **Dashboard surfaces:** `--color-dark-surface` (#1e1d1b) for admin/partner dashboards
 
-**Typography — three fonts, three jobs:**
-
-| Font | CSS token | Job |
-|---|---|---|
-| Poppins (500–700) | `--font-heading` on editorial scopes | Hero headlines, ad display, section openers, heavy sans display moments. Tight leading, negative space below. |
-| Lora (400, italic variant) | `--font-lora` | Editorial body, captions under imagery (use italic variant here), blog prose in operator voice. |
-| JetBrains Mono (300–600) | `--font-jetbrains` | System voice: admin chrome, data tables, KPI readouts, timestamps, currency, eyebrow labels, technical captions, code-adjacent UI. Extended to marketing via the `.urbit-landing` body scope. |
-
-No other fonts. No weight below 300 or above 700.
-
-**Which voice for which moment:**
-- **Headline = editorial** (heavy Poppins, never monospace)
-- **Lead / hero body copy = editorial** (Lora or heavy Poppins)
-- **Eyebrow / category labels = system** (monospace, uppercase, letterspaced)
-- **Metric readouts (percentages, prices, timestamps, deltas) = system** (monospace)
-- **Captions under imagery = editorial** (italic Lora)
-- **Body prose on emotional surfaces (home, about, blog) = editorial**
-- **Body prose on technical surfaces (admin, audit, dev tooling) = system**
-- **CTAs** = editorial on light marketing surfaces, system on dark admin surfaces
-
-A single marketing section can mix both: editorial headline above a system metric strip above an editorial caption. That pairing is the signature.
+**Typography:** Poppins (headings, 500-600 max) + Lora (body, 400). No other fonts. No weight below 400 or above 600.
 
 **Logo:** `storageads` — all one color, `--color-dark` on light surfaces, `--color-light` on dark surfaces. Poppins 600, lowercase, no icon. (The old two-tone "storage" + gold "ads" treatment is retired.)
-
-**Editorial devices to reuse (see `design-references/`):**
-- **Offset double-frame** — outer paper-colored frame + inner plate offset ~6–10px (the `editorial-zine/01` + `02` signature). Ship as `.zine-frame` utility.
-- **Halftone grain on imagery** — SVG turbulence filter, grain overlay. For testimonial/principle cards.
-- **Italic serif caption** — short, centered-or-left-aligned, under imagery or beside a small logomark.
-- **Flat color block section** — full-bleed sanctioned color as a section background, tiny stacked 4-word label + small mark at lower-left. For CTA / brand moments.
-- **Hand-drawn arrow annotations** — rough white glyphs overlaid on B&W photojournalism. For diagnostic / "how it works" visuals.
-- **Repetition-grid disruptor** — identical cells except one, which carries the message. For statement sections (e.g., "everyone else is X. StorageAds is Y").
 
 **Rules:**
 - Never use pure #000 or #fff — always brand tokens
 - Never use Tailwind default grays — only brand tokens
-- Never use gradients (background gradients, text gradients — both forbidden), stock photos, or generic AI slop
-- Never use sienna gold (see above)
+- Never use gradients, icon libraries, stock photos, or AI images
+- Never use sienna gold (see above) — this supersedes any older gold references in this file or in `globals.css`
 - Chart colors: dark=Meta, blue=Google, green=retargeting
 - All emails from *@storageads.com
 

@@ -96,7 +96,7 @@ export default function ThreeWayComparison() {
           <h2 className="font-semibold text-3xl sm:text-4xl md:text-5xl leading-[1.05] tracking-tight">
             Three approaches.
             <br />
-            <span className="zine-caption text-2xl sm:text-3xl md:text-4xl font-normal">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-normal">
               Only one fills units and proves it.
             </span>
           </h2>
@@ -133,8 +133,8 @@ export default function ThreeWayComparison() {
                   <span
                     className={
                       isDisruptor
-                        ? "font-system text-[9px] sm:text-[11px] md:text-[13px] font-semibold leading-tight tracking-tight"
-                        : "font-system text-[9px] sm:text-[11px] md:text-[13px] tracking-tight"
+                        ? "text-[9px] sm:text-[11px] md:text-[13px] font-semibold leading-tight tracking-tight"
+                        : "text-[9px] sm:text-[11px] md:text-[13px] tracking-tight"
                     }
                   >
                     {label}
@@ -159,7 +159,7 @@ export default function ThreeWayComparison() {
               <Minus size={12} className="text-stone-500" />
             </div>
             <span
-              className="font-system text-[10px] font-semibold uppercase tracking-[0.14em]"
+              className="text-[10px] font-semibold uppercase tracking-[0.14em]"
               style={{ color: "var(--text-tertiary)" }}
             >
               Do It Yourself
@@ -169,7 +169,7 @@ export default function ThreeWayComparison() {
             <div className="w-6 h-6 bg-orange-500/10 rounded-full flex items-center justify-center">
               <X size={12} className="text-orange-500" />
             </div>
-            <span className="font-system text-[10px] font-semibold text-orange-800 uppercase tracking-[0.14em]">
+            <span className="text-[10px] font-semibold text-orange-800 uppercase tracking-[0.14em]">
               Ad Agency
             </span>
           </div>
@@ -178,7 +178,7 @@ export default function ThreeWayComparison() {
               <Check size={12} className="text-[var(--color-dark)]" />
             </div>
             <span
-              className="font-system text-[10px] font-semibold text-[var(--color-dark)] uppercase tracking-[0.14em]"
+              className="text-[10px] font-semibold text-[var(--color-dark)] uppercase tracking-[0.14em]"
             >
               StorageAds
             </span>
@@ -205,7 +205,7 @@ export default function ThreeWayComparison() {
 
               <div className="bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-xl px-4 py-3">
                 <span
-                  className="md:hidden font-system text-[10px] font-semibold uppercase tracking-[0.14em]"
+                  className="md:hidden text-[10px] font-semibold uppercase tracking-[0.14em]"
                   style={{ color: "var(--text-tertiary)" }}
                 >
                   DIY
@@ -219,14 +219,14 @@ export default function ThreeWayComparison() {
               </div>
 
               <div className="bg-orange-500/[0.05] border border-orange-500/10 rounded-xl px-4 py-3">
-                <span className="md:hidden font-system text-[10px] font-semibold text-orange-800 uppercase tracking-[0.14em]">
+                <span className="md:hidden text-[10px] font-semibold text-orange-800 uppercase tracking-[0.14em]">
                   Agency
                 </span>
                 <p className="text-sm text-orange-800">{row.agency}</p>
               </div>
 
               <div className="bg-[var(--color-dark)] border border-[var(--color-dark)] rounded-xl px-4 py-3">
-                <span className="md:hidden font-system text-[10px] font-semibold text-[var(--color-light)] uppercase tracking-[0.14em]">
+                <span className="md:hidden text-[10px] font-semibold text-[var(--color-light)] uppercase tracking-[0.14em]">
                   StorageAds
                 </span>
                 <p className="text-sm text-[var(--color-light)] font-medium">

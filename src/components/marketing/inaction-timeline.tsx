@@ -111,8 +111,8 @@ export default function InactionTimeline() {
                 <div
                   className={`w-10 h-10 sm:w-16 sm:h-16 rounded-full ${m.severity} flex items-center justify-center flex-shrink-0 border-2 border-red-500/30`}
                 >
-                  <div className="text-center font-system">
-                    <p className="text-[7px] sm:text-[10px] text-red-900 uppercase leading-none tracking-[0.12em]">
+                  <div className="text-center">
+                    <p className="text-[7px] sm:text-[10px] text-red-900 uppercase leading-none tracking-tight">
                       Mo
                     </p>
                     <p className="text-[13px] sm:text-lg font-semibold text-[var(--color-dark)] leading-none mt-0.5">
@@ -121,7 +121,7 @@ export default function InactionTimeline() {
                   </div>
                 </div>
 
-                <div className="zine-frame flex-1 min-w-0 bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-xl p-2.5 sm:p-4 hover:border-red-500/20 transition-colors">
+                <div className="flex-1 min-w-0 bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-xl p-2.5 sm:p-4 hover:border-red-500/20 transition-colors">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-4">
                     <div className="min-w-0 flex-1">
                       <h3 className="font-semibold text-[13px] sm:text-base text-[var(--color-dark)] leading-snug">{m.title}</h3>
@@ -132,15 +132,15 @@ export default function InactionTimeline() {
                         {m.detail}
                       </p>
                     </div>
-                    <div className="font-system sm:text-right shrink-0 flex flex-row sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-black/[0.04] sm:border-none">
+                    <div className="sm:text-right shrink-0 flex flex-row sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-black/[0.04] sm:border-none">
                       <p className="text-[11px] sm:text-sm text-red-400 font-medium whitespace-nowrap">
                         -${m.loss.toLocaleString()}/mo
                       </p>
                       <p
-                        className="text-[10px] sm:text-xs whitespace-nowrap uppercase tracking-[0.08em]"
+                        className="text-[10px] sm:text-xs whitespace-nowrap"
                         style={{ color: "var(--text-tertiary)" }}
                       >
-                        CUM -${m.cumulative.toLocaleString()}
+                        cum: -${m.cumulative.toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -169,31 +169,39 @@ export default function InactionTimeline() {
               : "opacity-0 translate-y-4"
           }`}
         >
-          <div className="zine-frame bg-red-500/10 border border-red-500/20 rounded-2xl p-5 sm:p-6 text-center">
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 sm:p-6 text-center">
             <TrendingDown size={24} className="text-red-400 mx-auto mb-2" />
             <p
-              className="font-system text-[10px] sm:text-xs uppercase mb-1 text-red-400 tracking-[0.14em]"
+              className="text-xs uppercase mb-1 text-red-400"
+              style={{ letterSpacing: "var(--tracking-wide)" }}
             >
               6-Month Inaction Cost
             </p>
-            <p className="font-system text-2xl sm:text-3xl font-semibold text-red-400">-$5,850</p>
-            <p className="zine-caption text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-              Lost revenue that compounds every month.
+            <p className="text-2xl sm:text-3xl font-semibold text-red-400">-$5,850</p>
+            <p
+              className="text-sm mt-1"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Lost revenue that compounds every month
             </p>
           </div>
-          <div className="zine-frame bg-[var(--color-dark)]/5 border border-[var(--color-dark)]/10 rounded-2xl p-5 sm:p-6 text-center">
+          <div className="bg-[var(--color-dark)]/5 border border-[var(--color-dark)]/10 rounded-2xl p-5 sm:p-6 text-center">
             <TrendingDown
               size={24}
               className="text-[var(--color-dark)] mx-auto mb-2 rotate-180"
             />
             <p
-              className="font-system text-[10px] sm:text-xs uppercase mb-1 text-[var(--color-dark)] tracking-[0.14em]"
+              className="text-xs uppercase mb-1 text-[var(--color-dark)]"
+              style={{ letterSpacing: "var(--tracking-wide)" }}
             >
               6 Months with StorageAds
             </p>
-            <p className="font-system text-2xl sm:text-3xl font-semibold text-[var(--color-dark)]">+$43,200</p>
-            <p className="zine-caption text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-              Based on 8 move-ins/mo at $900 avg lifetime value per tenant.
+            <p className="text-2xl sm:text-3xl font-semibold text-[var(--color-dark)]">+$43,200</p>
+            <p
+              className="text-sm mt-1"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Based on 8 move-ins/mo at $900 avg lifetime value per tenant
             </p>
           </div>
         </div>
