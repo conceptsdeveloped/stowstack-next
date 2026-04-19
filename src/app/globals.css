@@ -763,6 +763,71 @@ body {
 }
 
 /* ═══════════════════════════════════════════
+   EDITORIAL DEVICES
+   From design-references/ — reusable across marketing
+   ═══════════════════════════════════════════ */
+
+/*
+ * Offset double-frame device (editorial-zine/01, 02).
+ * A ghost frame sits behind the element, shifted down-right, in a
+ * paper-colored fill with a thin stroke. Gives cards the signature
+ * "printing misalignment" look without committing to real halftone.
+ * Apply as: <div class="zine-frame [existing-classes]">
+ */
+.zine-frame {
+  position: relative;
+}
+.zine-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background: var(--color-light, #faf9f5);
+  border-radius: inherit;
+  transform: translate(4px, 4px);
+  z-index: 0;
+  pointer-events: none;
+}
+@media (min-width: 640px) {
+  .zine-frame::before { transform: translate(8px, 8px); }
+}
+.zine-frame > * {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * Italic serif editorial caption (editorial-zine/01, 02).
+ * Short text under imagery. Tight leading, centered or left-aligned
+ * per context.
+ */
+.zine-caption {
+  font-family: var(--font-lora), 'Lora', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+/*
+ * Halftone grain overlay (editorial-zine/02).
+ * Applied as a mix-blend overlay on imagery containers. Subtle by default.
+ */
+.zine-halftone {
+  position: relative;
+}
+.zine-halftone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.32) 1px, transparent 1px);
+  background-size: 3px 3px;
+  mix-blend-mode: multiply;
+  opacity: 0.6;
+}
+
+/* ═══════════════════════════════════════════
    SECTION TRANSITIONS
    ═══════════════════════════════════════════ */
 

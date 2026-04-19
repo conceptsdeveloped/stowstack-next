@@ -121,7 +121,7 @@ export default function InactionTimeline() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-w-0 bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-xl p-2.5 sm:p-4 hover:border-red-500/20 transition-colors">
+                <div className="zine-frame flex-1 min-w-0 bg-[var(--color-light-gray)] border border-[var(--border-subtle)] rounded-xl p-2.5 sm:p-4 hover:border-red-500/20 transition-colors">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-4">
                     <div className="min-w-0 flex-1">
                       <h3 className="font-semibold text-[13px] sm:text-base text-[var(--color-dark)] leading-snug">{m.title}</h3>
