@@ -45,6 +45,61 @@ export default function VideoGenerator({ facilityId, adminKey }: {
     }).catch(() => {}).finally(() => setLoading(false))
   }, [facilityId, adminKey])
 
+  const pollFalJob = useCallback((requestId: string, app: string) => {
+    const startedAt = Date.now()
+    const MAX_POLL_MS = 15 * 60 * 1000 // 15-minute hard cap
+    const INTERVAL_MS = 3000
+
+    const tick = async () => {
+      try {
+        const res = await fetch(
+          `/api/generate-video/status?requestId=${encodeURIComponent(requestId)}&app=${encodeURIComponent(app)}`,
+          { headers: { 'X-Admin-Key': adminKey } },
+        )
+        const data = await res.json().catch(() => ({}))
+        const status = data.status as string | undefined
+
+        if (status === 'SUCCEEDED' && data.videoUrl) {
+          setJobs(prev => prev.map(j =>
+            j.taskId === requestId
+              ? { ...j, status: 'SUCCEEDED', videoUrl: data.videoUrl as string, error: null }
+              : j,
+          ))
+          return
+        }
+        if (status === 'FAILED') {
+          setJobs(prev => prev.map(j =>
+            j.taskId === requestId
+              ? { ...j, status: 'FAILED', error: (data.error as string) || 'FAL reported error' }
+              : j,
+          ))
+          return
+        }
+        if (Date.now() - startedAt > MAX_POLL_MS) {
+          setJobs(prev => prev.map(j =>
+            j.taskId === requestId
+              ? { ...j, status: 'FAILED', error: 'Polling timeout (15m)' }
+              : j,
+          ))
+          return
+        }
+        setTimeout(tick, INTERVAL_MS)
+      } catch (err) {
+        // Transient network errors — keep polling until the 15m cap.
+        if (Date.now() - startedAt > MAX_POLL_MS) {
+          const msg = err instanceof Error ? err.message : 'status poll failed'
+          setJobs(prev => prev.map(j =>
+            j.taskId === requestId ? { ...j, status: 'FAILED', error: msg } : j,
+          ))
+          return
+        }
+        setTimeout(tick, INTERVAL_MS)
+      }
+    }
+
+    setTimeout(tick, INTERVAL_MS)
+  }, [adminKey])
+
   const startGeneration = useCallback(async (overridePrompt?: string, overrideImage?: string) => {
     const templateId = selectedTemplate
     if (!templateId || generating) return
@@ -74,8 +129,9 @@ export default function VideoGenerator({ facilityId, adminKey }: {
       }
 
       if (data.videoUrl) {
+        // Sync path (PixVerse or before_after) — video already done.
         setJobs(prev => [{
-          taskId: `fal-${Date.now()}`,
+          taskId: `sync-${Date.now()}`,
           templateId,
           templateName: template.name,
           status: 'SUCCEEDED',
@@ -88,6 +144,26 @@ export default function VideoGenerator({ facilityId, adminKey }: {
           statusUrl: null,
           responseUrl: null,
         }, ...prev])
+      } else if (data.requestId && data.app) {
+        // Async path (FAL queue) — add a RUNNING job; pollFalJob below
+        // watches it to completion.
+        const requestId = data.requestId as string
+        const app = data.app as string
+        setJobs(prev => [{
+          taskId: requestId,
+          templateId,
+          templateName: template.name,
+          status: 'RUNNING',
+          videoUrl: null,
+          error: null,
+          prompt: (data.prompt as string) || overridePrompt || '',
+          imageUrl: overrideImage || selectedImage || null,
+          startedAt: Date.now(),
+          provider: 'fal',
+          statusUrl: app,
+          responseUrl: null,
+        }, ...prev])
+        pollFalJob(requestId, app)
       } else if (data.error) {
         setJobs(prev => [{
           taskId: `fal-${Date.now()}`,
@@ -123,7 +199,7 @@ export default function VideoGenerator({ facilityId, adminKey }: {
     } finally {
       setGenerating(false)
     }
-  }, [selectedTemplate, generating, templates, adminKey, facilityId, selectedImage, customNotes, promptOverride, selectedStyle])
+  }, [selectedTemplate, generating, templates, adminKey, facilityId, selectedImage, customNotes, promptOverride, selectedStyle, pollFalJob])
 
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId)

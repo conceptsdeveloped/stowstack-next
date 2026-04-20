@@ -298,6 +298,12 @@ async function generateBeforeAfter(): Promise<{ videoUrl: string }> {
 
 /* ── FAL.ai Wan2.2 Video Generation ── */
 
+/**
+ * Synchronous FAL call — blocks until video is ready. Only used by the
+ * composite `before_after` flow that needs two videos + a merge in a
+ * single orchestration. Subject to Vercel's 300s cap; for the normal
+ * path use submitFalJob + the /status polling endpoint instead.
+ */
 async function callFal(
   prompt: string,
   imageUrl: string | null,
@@ -305,8 +311,52 @@ async function callFal(
 ): Promise<{ videoUrl: string }> {
   const falKey = process.env.FAL_KEY;
   if (!falKey) throw new Error("NO_FAL_KEY");
+  const app = mode === "image_to_video" ? "fal-ai/wan-i2v" : "fal-ai/wan-t2v";
+  const input: Record<string, unknown> = {
+    prompt: prompt.slice(0, 500),
+    num_frames: 81,
+    frames_per_second: 16,
+    resolution: "480p",
+    aspect_ratio: "9:16",
+    num_inference_steps: 27,
+    guidance_scale: 3.5,
+  };
+  if (mode === "image_to_video" && imageUrl) input.image_url = imageUrl;
 
-  const model =
+  const res = await fetch(`https://fal.run/${app}`, {
+    method: "POST",
+    headers: { Authorization: `Key ${falKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const responseText = await res.text();
+  let data: Record<string, unknown>;
+  try { data = JSON.parse(responseText); }
+  catch { throw new Error(`FAL returned non-JSON (${res.status}): ${responseText.slice(0, 200)}`); }
+  if (!res.ok) {
+    const detail = typeof data.detail === 'string' ? data.detail
+      : Array.isArray(data.detail) ? data.detail.map((d: Record<string, string>) => d.msg).join(', ')
+      : data.message || JSON.stringify(data);
+    throw new Error(`FAL error (${res.status}): ${detail}`);
+  }
+  const videoUrl = (data.video as Record<string, string>)?.url;
+  if (!videoUrl) throw new Error("FAL returned no video URL");
+  return { videoUrl };
+}
+
+/**
+ * Submit a video-generation job to FAL's async queue.
+ * Returns immediately with a request_id that the UI can poll.
+ * Same model + params as the sync call — zero quality difference.
+ */
+async function submitFalJob(
+  prompt: string,
+  imageUrl: string | null,
+  mode: string,
+): Promise<{ requestId: string; app: string; statusUrl: string; responseUrl: string }> {
+  const falKey = process.env.FAL_KEY;
+  if (!falKey) throw new Error("NO_FAL_KEY");
+
+  const app =
     mode === "image_to_video"
       ? "fal-ai/wan-i2v"
       : "fal-ai/wan-t2v";
@@ -325,8 +375,10 @@ async function callFal(
     input.image_url = imageUrl;
   }
 
-  // Synchronous call — blocks until video is generated (~30-60s with fast model)
-  const res = await fetch(`https://fal.run/${model}`, {
+  // Queue mode — FAL returns a request_id in under a second; the video
+  // is generated asynchronously and we poll /status for completion.
+  // Decouples generation time from Vercel's 300s function cap entirely.
+  const res = await fetch(`https://queue.fal.run/${app}`, {
     method: "POST",
     headers: {
       Authorization: `Key ${falKey}`,
@@ -340,7 +392,7 @@ async function callFal(
   try {
     data = JSON.parse(responseText);
   } catch {
-    throw new Error(`FAL returned non-JSON response (${res.status}): ${responseText.slice(0, 200)}`);
+    throw new Error(`FAL returned non-JSON (${res.status}): ${responseText.slice(0, 200)}`);
   }
 
   if (!res.ok) {
@@ -350,14 +402,25 @@ async function callFal(
     throw new Error(`FAL error (${res.status}): ${detail}`);
   }
 
-  const videoUrl = (data.video as Record<string, string>)?.url;
-  if (!videoUrl) throw new Error("FAL returned no video URL");
+  const requestId = data.request_id as string;
+  const statusUrl = data.status_url as string;
+  const responseUrl = data.response_url as string;
+  if (!requestId || !statusUrl || !responseUrl) {
+    throw new Error(`FAL submission response missing fields: ${responseText.slice(0, 200)}`);
+  }
 
-  return { videoUrl };
+  return { requestId, app, statusUrl, responseUrl };
 }
 
 
-/* ── Generate video — routes to appropriate model ── */
+/* ── Generate video — routes to appropriate model ──
+   FAL (Wan 2.2) paths submit async to FAL's queue; PixVerse and the
+   composite before_after flow remain synchronous (they're faster and
+   use different provider endpoints). */
+
+type VideoResult =
+  | { kind: "sync"; videoUrl: string }
+  | { kind: "async"; requestId: string; app: string; statusUrl: string; responseUrl: string };
 
 async function generateVideo(
   prompt: string,
@@ -365,14 +428,17 @@ async function generateVideo(
   mode: string,
   templateId?: string,
   model?: string,
-): Promise<{ videoUrl: string }> {
+): Promise<VideoResult> {
   if (templateId === "before_after") {
-    return generateBeforeAfter();
+    const r = await generateBeforeAfter();
+    return { kind: "sync", videoUrl: r.videoUrl };
   }
   if (model === "pixverse") {
-    return callPixVerse(prompt);
+    const r = await callPixVerse(prompt);
+    return { kind: "sync", videoUrl: r.videoUrl };
   }
-  return callFal(prompt, imageUrl, mode);
+  const submission = await submitFalJob(prompt, imageUrl, mode);
+  return { kind: "async", ...submission };
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -469,14 +535,31 @@ export async function POST(req: NextRequest) {
 
     const result = await generateVideo(prompt, sourceImage, template.mode, templateId, template.model);
 
+    if (result.kind === "sync") {
+      return jsonResponse(
+        {
+          videoUrl: result.videoUrl,
+          prompt,
+          template: templateId,
+          status: "SUCCEEDED",
+        },
+        200,
+        origin,
+      );
+    }
+
+    // Async queue job — UI polls /api/generate-video/status to completion.
     return jsonResponse(
       {
-        videoUrl: result.videoUrl,
+        requestId: result.requestId,
+        app: result.app,
+        statusUrl: result.statusUrl,
+        responseUrl: result.responseUrl,
         prompt,
         template: templateId,
-        status: "SUCCEEDED",
+        status: "IN_QUEUE",
       },
-      200,
+      202,
       origin,
     );
   } catch (err) {
