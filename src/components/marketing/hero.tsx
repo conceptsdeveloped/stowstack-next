@@ -61,6 +61,46 @@ function useCountUp(target: number, duration = 2000, decimals = 0, active = fals
   return value;
 }
 
+// Animates 0 → target on first reveal; subsequent target updates snap into
+// place without re-animating. Pair with useFlashOnChange for the polled-tick feel.
+function useRevealCountUp(target: number, active: boolean, duration = 1800) {
+  const [value, setValue] = useState(0);
+  const animatedRef = useRef(false);
+  useEffect(() => {
+    if (!active) return;
+    if (animatedRef.current) {
+      setValue(target);
+      return;
+    }
+    animatedRef.current = true;
+    const start = performance.now();
+    let raf = 0;
+    function tick(now: number) {
+      const elapsed = now - start;
+      const p = Math.min(elapsed / duration, 1);
+      const eased = 1 - (1 - p) * (1 - p);
+      setValue(Math.round(eased * target));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    }
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, target, duration]);
+  return value;
+}
+
+function useFlashOnChange<T>(value: T, ms = 600) {
+  const [flashing, setFlashing] = useState(false);
+  const prevRef = useRef(value);
+  useEffect(() => {
+    if (prevRef.current === value) return;
+    prevRef.current = value;
+    setFlashing(true);
+    const t = setTimeout(() => setFlashing(false), ms);
+    return () => clearTimeout(t);
+  }, [value, ms]);
+  return flashing;
+}
+
 function useTypewriter(words: string[], active: boolean, typingSpeed = 80, pauseMs = 2200) {
   const [display, setDisplay] = useState("");
   const [wordIdx, setWordIdx] = useState(0);
@@ -1140,15 +1180,109 @@ function HeroStatusStrip() {
 
 type StatCard = {
   key: string;
-  value: string;
+  rawValue: number;
+  format: "count" | "money";
   label: string;
   caption: string;
   hue: string;
+  delta?: string;
+  context?: string;
 };
 
 function formatCount(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k`;
   return n.toLocaleString();
+}
+
+function StatCell({
+  card,
+  index,
+  isVisible,
+}: {
+  card: StatCard;
+  index: number;
+  isVisible: boolean;
+}) {
+  const animated = useRevealCountUp(card.rawValue, isVisible, 1800);
+  const flashing = useFlashOnChange(card.rawValue);
+  const display =
+    card.format === "money" ? `$${formatCount(animated)}` : formatCount(animated);
+
+  return (
+    <div
+      style={{
+        padding: "22px 20px 24px",
+        background: MONO.bgAlt,
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+        position: "relative",
+        animation: flashing ? "mono-flash 600ms ease-out" : undefined,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          gap: 10,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0 }}>
+          <Label style={{ color: MONO.textFaint, fontSize: 9 }}>
+            #{String(index + 1).padStart(2, "0")}
+          </Label>
+          <Label style={{ color: MONO.textDim }}>{card.label}</Label>
+        </div>
+        {card.context && (
+          <Label
+            style={{
+              color: MONO.textFaint,
+              fontSize: 9,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {card.context}
+          </Label>
+        )}
+      </div>
+      <Display
+        size={64}
+        style={{
+          color: card.hue,
+          fontSize: "clamp(3rem, 6.5vw, 4.5rem)",
+          lineHeight: 0.95,
+        }}
+      >
+        {display}
+      </Display>
+      <div style={{ height: 1, background: MONO.lineDim, marginTop: 4 }} />
+      {card.delta && (
+        <Label
+          style={{
+            color: MONO.hueC,
+            fontWeight: 500,
+            fontSize: 10,
+            letterSpacing: "0.08em",
+          }}
+        >
+          {card.delta}
+        </Label>
+      )}
+      <span
+        style={{
+          fontFamily: MONO.serif,
+          fontStyle: "italic",
+          fontSize: 13,
+          lineHeight: 1.5,
+          color: MONO.textDim,
+          maxWidth: "40ch",
+        }}
+      >
+        {card.caption}
+      </span>
+    </div>
+  );
 }
 
 function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
@@ -1158,54 +1292,102 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
   if (!stats) return null;
 
   // Cycle hues per card position so colors feel categorical, not arbitrary.
-  const hueCycle = [MONO.hueA, MONO.hueB, MONO.hueC, MONO.accent];
+  const hueCycle = [MONO.hueA, MONO.hueB, MONO.hueC, MONO.accent, MONO.hueA, MONO.hueB];
   const cards: StatCard[] = [];
 
   if (stats.adsGenerated > 0) {
     cards.push({
       key: "ads",
-      value: formatCount(stats.adsGenerated),
+      rawValue: stats.adsGenerated,
+      format: "count",
       label: "Ads generated",
-      caption: "for the operators in alpha testing. Every one passed Blake's eye before shipping.",
+      caption:
+        "for the operators in alpha testing. Every one passed Blake's eye before shipping.",
       hue: hueCycle[cards.length],
+      delta:
+        stats.adsGenerated7d > 0
+          ? `+${formatCount(stats.adsGenerated7d)} · LAST 7D`
+          : undefined,
     });
   }
   if (stats.auditsRun > 0) {
     cards.push({
       key: "audits",
-      value: formatCount(stats.auditsRun),
+      rawValue: stats.auditsRun,
+      format: "count",
       label: "Audits analyzed",
-      caption: "facilities from 30 units to 400+. Each is a fifteen-minute pass over public data and what the operator tells us.",
+      caption:
+        "facilities from 30 units to 400+. Each is a fifteen-minute pass over public data and what the operator tells us.",
       hue: hueCycle[cards.length],
+      delta:
+        stats.auditsRun7d > 0
+          ? `+${formatCount(stats.auditsRun7d)} · LAST 7D`
+          : undefined,
     });
   }
   if (stats.facilities > 0) {
     cards.push({
       key: "facilities",
-      value: formatCount(stats.facilities),
+      rawValue: stats.facilities,
+      format: "count",
       label: "Facilities on platform",
-      caption: "most running their first attributable campaigns. Blake works closest with each of them.",
+      caption:
+        "most running their first attributable campaigns. Blake works closest with each of them.",
       hue: hueCycle[cards.length],
+      delta:
+        stats.facilities7d > 0
+          ? `+${formatCount(stats.facilities7d)} · LAST 7D`
+          : undefined,
     });
   }
   if (stats.avgCostPerMoveIn && stats.avgCostPerMoveIn > 0) {
     cards.push({
       key: "cpm",
-      value: `$${stats.avgCostPerMoveIn}`,
+      rawValue: stats.avgCostPerMoveIn,
+      format: "money",
       label: "Avg cost per move-in",
-      caption: "the aggregate across the network. Agencies quote $200+. We optimize for fewer, better clicks.",
+      caption:
+        "the aggregate across the network. Agencies quote $200+. We optimize for fewer, better clicks.",
       hue: hueCycle[cards.length],
+      context: "AVG · ALL TIME",
+    });
+  }
+  if (stats.impressionsServed > 0) {
+    cards.push({
+      key: "impressions",
+      rawValue: stats.impressionsServed,
+      format: "count",
+      label: "Impressions served",
+      caption:
+        "across attributable campaigns the platform has tracked end to end. Reach with receipts.",
+      hue: hueCycle[cards.length],
+      context: "TOTAL",
+    });
+  }
+  if (stats.moveInsAttributed > 0) {
+    cards.push({
+      key: "moveins",
+      rawValue: stats.moveInsAttributed,
+      format: "count",
+      label: "Move-ins attributed",
+      caption:
+        "leases tied to specific creatives, channels, and pages — not last-click guesses.",
+      hue: hueCycle[cards.length],
+      context: "ATTRIBUTED",
     });
   }
   if (cards.length === 0) return null;
 
-  const gridCols = cards.length === 1
-    ? "1fr"
-    : cards.length === 2
-    ? "repeat(2, minmax(0, 1fr))"
-    : cards.length === 3
-    ? "repeat(3, minmax(0, 1fr))"
-    : "repeat(2, minmax(0, 1fr))";
+  // 1–4 cards stay in a single row at desktop. 5–6 wrap into 3-col 2-row on
+  // desktop, 2-col stack on mobile. Hairline seams come "for free" via a 1px
+  // gap on a line-colored background — works at any column count without
+  // computing per-cell borderRight/borderBottom.
+  let gridClass: string;
+  if (cards.length === 1) gridClass = "grid grid-cols-1";
+  else if (cards.length === 2) gridClass = "grid grid-cols-1 md:grid-cols-2";
+  else if (cards.length === 3) gridClass = "grid grid-cols-1 md:grid-cols-3";
+  else if (cards.length === 4) gridClass = "grid grid-cols-2 md:grid-cols-4";
+  else gridClass = "grid grid-cols-2 md:grid-cols-3";
 
   return (
     <div
@@ -1215,7 +1397,7 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
         transition: "all 700ms",
         transitionDelay: "1600ms",
         border: `1px solid ${MONO.line}`,
-        background: MONO.bgAlt,
+        background: MONO.line, // hairline seam color showing through gaps
       }}
     >
       {/* Section header — § NN NUMBERS · LIVE ← kicker */}
@@ -1227,6 +1409,7 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
           padding: "8px 14px",
           borderBottom: `1px solid ${MONO.line}`,
           gap: 12,
+          background: MONO.bgAlt,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
@@ -1239,60 +1422,10 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
         </div>
       </div>
 
-      {/* Stat cells — hairline grid, no rounded corners */}
-      <div
-        className="grid"
-        style={{
-          gridTemplateColumns: gridCols,
-          gap: 0,
-        }}
-      >
+      {/* Stat cells — hairline seams via 1px gap on line-colored background */}
+      <div className={gridClass} style={{ gap: 1, background: MONO.line }}>
         {cards.map((c, i) => (
-          <div
-            key={c.key}
-            style={{
-              padding: "22px 20px 24px",
-              borderRight: i < cards.length - 1 ? `1px solid ${MONO.line}` : undefined,
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-              position: "relative",
-            }}
-          >
-            {/* Index badge */}
-            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-              <Label style={{ color: MONO.textFaint, fontSize: 9 }}>
-                #{String(i + 1).padStart(2, "0")}
-              </Label>
-              <Label style={{ color: MONO.textDim }}>{c.label}</Label>
-            </div>
-            {/* Display number */}
-            <Display
-              size={64}
-              style={{
-                color: c.hue,
-                fontSize: "clamp(3rem, 6.5vw, 4.5rem)",
-                lineHeight: 0.95,
-              }}
-            >
-              {c.value}
-            </Display>
-            {/* Hairline break */}
-            <div style={{ height: 1, background: MONO.lineDim, marginTop: 4 }} />
-            {/* Italic serif editorial caption */}
-            <span
-              style={{
-                fontFamily: MONO.serif,
-                fontStyle: "italic",
-                fontSize: 13,
-                lineHeight: 1.5,
-                color: MONO.textDim,
-                maxWidth: "40ch",
-              }}
-            >
-              {c.caption}
-            </span>
-          </div>
+          <StatCell key={c.key} card={c} index={i} isVisible={isVisible} />
         ))}
       </div>
     </div>
