@@ -1,7 +1,7 @@
 "use client";
 
 import { MONO, Label, Dot, Display } from "@/components/mono";
-import { usePublicStats, useClock } from "@/hooks/use-live-data";
+import { useClock } from "@/hooks/use-live-data";
 import { LiveMonitorTriptych } from "./live-monitors";
 
 import { useState, useEffect, useRef } from "react";
@@ -1291,161 +1291,86 @@ function StatCell({
 }
 
 function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
-  const stats = usePublicStats();
   const clock = useClock();
 
-  if (!stats) return null;
-
-  // Hue-by-data-type so the strip reads as three visual groups:
-  //   PLATFORM (live alpha)   → hueA
-  //   INDUSTRY (public, 2026) → hueB
-  //   FORECAST (year-one)     → hueC
-  const cards: StatCard[] = [];
-
-  // ─── PLATFORM · ALPHA ────────────────────────────────────────────
-  if (stats.adsGenerated > 0) {
-    cards.push({
-      key: "ads",
-      rawValue: stats.adsGenerated,
-      format: "count",
-      label: "Ads generated",
-      caption:
-        "for the operators in alpha testing. Every one passed Blake's eye before shipping.",
-      hue: MONO.hueA,
-      context: "PLATFORM · ALPHA",
-      delta:
-        stats.adsGenerated7d > 0
-          ? `+${formatCount(stats.adsGenerated7d)} · LAST 7D`
-          : undefined,
-    });
-  }
-  if (stats.auditsRun > 0) {
-    cards.push({
-      key: "audits",
-      rawValue: stats.auditsRun,
-      format: "count",
-      label: "Audits analyzed",
-      caption:
-        "facilities from 30 units to 400+. Each is a fifteen-minute pass over public data and what the operator tells us.",
-      hue: MONO.hueA,
-      context: "PLATFORM · ALPHA",
-      delta:
-        stats.auditsRun7d > 0
-          ? `+${formatCount(stats.auditsRun7d)} · LAST 7D`
-          : undefined,
-    });
-  }
-  if (stats.facilities > 0) {
-    cards.push({
-      key: "facilities",
-      rawValue: stats.facilities,
-      format: "count",
-      label: "Facilities on platform",
-      caption:
-        "most running their first attributable campaigns. Blake works closest with each of them.",
-      hue: MONO.hueA,
-      context: "PLATFORM · ALPHA",
-      delta:
-        stats.facilities7d > 0
-          ? `+${formatCount(stats.facilities7d)} · LAST 7D`
-          : undefined,
-    });
-  }
-  if (stats.avgCostPerMoveIn && stats.avgCostPerMoveIn > 0) {
-    cards.push({
-      key: "cpm",
-      rawValue: stats.avgCostPerMoveIn,
+  // Industry + forecast cards only. The alpha portfolio numbers don't yet
+  // reflect what's actually being built behind the scenes, so showing the
+  // raw platform counts (60 ads / 7 audits) was misleading. Instead the
+  // strip tells the "$50B market → here's what we're building toward"
+  // story via two clearly-labeled data types:
+  //   INDUSTRY (public, sourced) → hueB
+  //   FORECAST (year-one targets) → hueC
+  const cards: StatCard[] = [
+    // ─── INDUSTRY · 2026 ─────────────────────────────────────────────
+    // Sourced public figures — Blake to confirm final values + citations.
+    {
+      key: "market",
+      rawValue: 50_000_000_000,
       format: "money",
-      label: "Avg cost per move-in",
+      label: "US storage market",
       caption:
-        "the aggregate across the network. Agencies quote $200+. We optimize for fewer, better clicks.",
-      hue: MONO.hueA,
-      context: "PLATFORM · AVG",
-    });
-  }
-  if (stats.impressionsServed > 0) {
-    cards.push({
-      key: "impressions",
-      rawValue: stats.impressionsServed,
+        "the US self-storage industry by annual revenue (Self Storage Association, 2026). Marketing is the slowest part of it to modernize.",
+      hue: MONO.hueB,
+      context: "INDUSTRY · 2026",
+    },
+    {
+      key: "industry-facilities",
+      rawValue: 52_000,
       format: "count",
-      label: "Impressions served",
+      label: "Facilities nationwide",
       caption:
-        "across attributable campaigns the platform has tracked end to end. Reach with receipts.",
-      hue: MONO.hueA,
-      context: "PLATFORM · TOTAL",
-    });
-  }
-  if (stats.moveInsAttributed > 0) {
-    cards.push({
-      key: "moveins",
-      rawValue: stats.moveInsAttributed,
+        "independent + REIT self-storage facilities in the US (SpareFoot industry data). Most still buy ads on faith.",
+      hue: MONO.hueB,
+      context: "INDUSTRY · 2026",
+    },
+    {
+      key: "agency-cpa",
+      rawValue: 200,
+      format: "money",
+      label: "Typical agency CPA",
+      caption:
+        "what self-storage operators pay traditional agencies per move-in. We optimize for fewer, better clicks instead.",
+      hue: MONO.hueB,
+      context: "INDUSTRY · BENCHMARK",
+    },
+
+    // ─── FORECAST · YEAR 1 ───────────────────────────────────────────
+    // Placeholder targets — replace with Blake's actual year-one goals.
+    {
+      key: "y1-spend",
+      rawValue: 10_000_000,
+      format: "money",
+      label: "Spend tracked goal",
+      caption:
+        "attributable ad spend StorageAds will route through the platform by EOY. Every dollar tied to a move-in or audited away.",
+      hue: MONO.hueC,
+      context: "FORECAST · YEAR 1",
+    },
+    {
+      key: "y1-facilities",
+      rawValue: 250,
+      format: "count",
+      label: "Facilities goal",
+      caption:
+        "operators live on the platform by EOY. Partner operators carry the growth.",
+      hue: MONO.hueC,
+      context: "FORECAST · YEAR 1",
+    },
+    {
+      key: "y1-moveins",
+      rawValue: 10_000,
       format: "count",
       label: "Move-ins attributed",
       caption:
-        "leases tied to specific creatives, channels, and pages — not last-click guesses.",
-      hue: MONO.hueA,
-      context: "PLATFORM · ATTRIBUTED",
-    });
-  }
+        "leases tied to specific creatives, channels, and pages — not last-click guesses or vendor reports.",
+      hue: MONO.hueC,
+      context: "FORECAST · YEAR 1",
+    },
+  ];
 
-  // ─── INDUSTRY · 2026 ─────────────────────────────────────────────
-  // Sourced public figures — defensible, dial as Blake confirms exact figures.
-  cards.push({
-    key: "market",
-    rawValue: 50_000_000_000,
-    format: "money",
-    label: "US storage market",
-    caption:
-      "the US self-storage industry by annual revenue (Self Storage Association, 2026). Marketing is the slowest part of it to modernize.",
-    hue: MONO.hueB,
-    context: "INDUSTRY · 2026",
-  });
-  cards.push({
-    key: "industry-facilities",
-    rawValue: 52_000,
-    format: "count",
-    label: "Facilities nationwide",
-    caption:
-      "independent + REIT self-storage facilities in the US (SpareFoot industry data). Most still buy ads on faith.",
-    hue: MONO.hueB,
-    context: "INDUSTRY · 2026",
-  });
-
-  // ─── FORECAST · YEAR 1 ───────────────────────────────────────────
-  // Placeholder year-one targets — adjust to match Blake's actual goals.
-  cards.push({
-    key: "y1-spend",
-    rawValue: 10_000_000,
-    format: "money",
-    label: "Spend tracked goal",
-    caption:
-      "attributable ad spend StorageAds will route through the platform by EOY. Every dollar tied to a move-in or audited away.",
-    hue: MONO.hueC,
-    context: "FORECAST · YEAR 1",
-  });
-  cards.push({
-    key: "y1-facilities",
-    rawValue: 250,
-    format: "count",
-    label: "Facilities goal",
-    caption:
-      "operators live on the platform by EOY. The alpha cohort is the seed; partner operators carry the growth.",
-    hue: MONO.hueC,
-    context: "FORECAST · YEAR 1",
-  });
-
-  if (cards.length === 0) return null;
-
-  // 1–4 cards stay in a single row at desktop. 5–6 wrap into 3-col 2-row on
-  // desktop, 2-col stack on mobile. Hairline seams come "for free" via a 1px
-  // gap on a line-colored background — works at any column count without
-  // computing per-cell borderRight/borderBottom.
-  let gridClass: string;
-  if (cards.length === 1) gridClass = "grid grid-cols-1";
-  else if (cards.length === 2) gridClass = "grid grid-cols-1 md:grid-cols-2";
-  else if (cards.length === 3) gridClass = "grid grid-cols-1 md:grid-cols-3";
-  else if (cards.length === 4) gridClass = "grid grid-cols-2 md:grid-cols-4";
-  else gridClass = "grid grid-cols-2 md:grid-cols-3";
+  // 6 cards land at 3-col × 2-row on desktop, 2-col stack on mobile.
+  // Hairline seams via 1px gap on a line-colored background.
+  const gridClass = "grid grid-cols-2 md:grid-cols-3";
 
   return (
     <div
@@ -1473,7 +1398,7 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
         <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
           <Label style={{ color: MONO.accent, fontWeight: 500 }}>§ 00 · NUMBERS</Label>
           <Label style={{ color: MONO.textDim }}>
-            n = {cards.length} · platform · industry · forecast
+            n = {cards.length} · industry · forecast
           </Label>
         </div>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
