@@ -1190,7 +1190,12 @@ type StatCard = {
 };
 
 function formatCount(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k`;
+  if (n >= 1_000_000_000)
+    return `${(n / 1_000_000_000).toFixed(n >= 10_000_000_000 ? 0 : 1).replace(/\.0$/, "")}B`;
+  if (n >= 1_000_000)
+    return `${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1).replace(/\.0$/, "")}M`;
+  if (n >= 1000)
+    return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k`;
   return n.toLocaleString();
 }
 
@@ -1291,10 +1296,13 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
 
   if (!stats) return null;
 
-  // Cycle hues per card position so colors feel categorical, not arbitrary.
-  const hueCycle = [MONO.hueA, MONO.hueB, MONO.hueC, MONO.accent, MONO.hueA, MONO.hueB];
+  // Hue-by-data-type so the strip reads as three visual groups:
+  //   PLATFORM (live alpha)   → hueA
+  //   INDUSTRY (public, 2026) → hueB
+  //   FORECAST (year-one)     → hueC
   const cards: StatCard[] = [];
 
+  // ─── PLATFORM · ALPHA ────────────────────────────────────────────
   if (stats.adsGenerated > 0) {
     cards.push({
       key: "ads",
@@ -1303,7 +1311,8 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       label: "Ads generated",
       caption:
         "for the operators in alpha testing. Every one passed Blake's eye before shipping.",
-      hue: hueCycle[cards.length],
+      hue: MONO.hueA,
+      context: "PLATFORM · ALPHA",
       delta:
         stats.adsGenerated7d > 0
           ? `+${formatCount(stats.adsGenerated7d)} · LAST 7D`
@@ -1318,7 +1327,8 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       label: "Audits analyzed",
       caption:
         "facilities from 30 units to 400+. Each is a fifteen-minute pass over public data and what the operator tells us.",
-      hue: hueCycle[cards.length],
+      hue: MONO.hueA,
+      context: "PLATFORM · ALPHA",
       delta:
         stats.auditsRun7d > 0
           ? `+${formatCount(stats.auditsRun7d)} · LAST 7D`
@@ -1333,7 +1343,8 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       label: "Facilities on platform",
       caption:
         "most running their first attributable campaigns. Blake works closest with each of them.",
-      hue: hueCycle[cards.length],
+      hue: MONO.hueA,
+      context: "PLATFORM · ALPHA",
       delta:
         stats.facilities7d > 0
           ? `+${formatCount(stats.facilities7d)} · LAST 7D`
@@ -1348,8 +1359,8 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       label: "Avg cost per move-in",
       caption:
         "the aggregate across the network. Agencies quote $200+. We optimize for fewer, better clicks.",
-      hue: hueCycle[cards.length],
-      context: "AVG · ALL TIME",
+      hue: MONO.hueA,
+      context: "PLATFORM · AVG",
     });
   }
   if (stats.impressionsServed > 0) {
@@ -1360,8 +1371,8 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       label: "Impressions served",
       caption:
         "across attributable campaigns the platform has tracked end to end. Reach with receipts.",
-      hue: hueCycle[cards.length],
-      context: "TOTAL",
+      hue: MONO.hueA,
+      context: "PLATFORM · TOTAL",
     });
   }
   if (stats.moveInsAttributed > 0) {
@@ -1372,10 +1383,57 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       label: "Move-ins attributed",
       caption:
         "leases tied to specific creatives, channels, and pages — not last-click guesses.",
-      hue: hueCycle[cards.length],
-      context: "ATTRIBUTED",
+      hue: MONO.hueA,
+      context: "PLATFORM · ATTRIBUTED",
     });
   }
+
+  // ─── INDUSTRY · 2026 ─────────────────────────────────────────────
+  // Sourced public figures — defensible, dial as Blake confirms exact figures.
+  cards.push({
+    key: "market",
+    rawValue: 50_000_000_000,
+    format: "money",
+    label: "US storage market",
+    caption:
+      "the US self-storage industry by annual revenue (Self Storage Association, 2026). Marketing is the slowest part of it to modernize.",
+    hue: MONO.hueB,
+    context: "INDUSTRY · 2026",
+  });
+  cards.push({
+    key: "industry-facilities",
+    rawValue: 52_000,
+    format: "count",
+    label: "Facilities nationwide",
+    caption:
+      "independent + REIT self-storage facilities in the US (SpareFoot industry data). Most still buy ads on faith.",
+    hue: MONO.hueB,
+    context: "INDUSTRY · 2026",
+  });
+
+  // ─── FORECAST · YEAR 1 ───────────────────────────────────────────
+  // Placeholder year-one targets — adjust to match Blake's actual goals.
+  cards.push({
+    key: "y1-spend",
+    rawValue: 10_000_000,
+    format: "money",
+    label: "Spend tracked goal",
+    caption:
+      "attributable ad spend StorageAds will route through the platform by EOY. Every dollar tied to a move-in or audited away.",
+    hue: MONO.hueC,
+    context: "FORECAST · YEAR 1",
+  });
+  cards.push({
+    key: "y1-facilities",
+    rawValue: 250,
+    format: "count",
+    label: "Facilities goal",
+    caption:
+      "operators live on the platform by EOY. The alpha cohort is the seed; partner operators carry the growth.",
+    hue: MONO.hueC,
+    context: "FORECAST · YEAR 1",
+  });
+
   if (cards.length === 0) return null;
 
   // 1–4 cards stay in a single row at desktop. 5–6 wrap into 3-col 2-row on
@@ -1414,7 +1472,9 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
           <Label style={{ color: MONO.accent, fontWeight: 500 }}>§ 00 · NUMBERS</Label>
-          <Label style={{ color: MONO.textDim }}>n = {cards.length} · real</Label>
+          <Label style={{ color: MONO.textDim }}>
+            n = {cards.length} · platform · industry · forecast
+          </Label>
         </div>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
           <Dot live color={MONO.accent} />
