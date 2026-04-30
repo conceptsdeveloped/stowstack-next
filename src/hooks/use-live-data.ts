@@ -217,9 +217,14 @@ export function useFlashMap(
 
 export type PublicStats = {
   adsGenerated: number;
+  adsGenerated7d: number;
   auditsRun: number;
+  auditsRun7d: number;
   facilities: number;
+  facilities7d: number;
   avgCostPerMoveIn: number | null;
+  impressionsServed: number;
+  moveInsAttributed: number;
   updatedAt?: string;
 };
 
