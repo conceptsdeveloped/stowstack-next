@@ -1,61 +1,393 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════
-   STORAGEADS DESIGN TOKENS
-   Source: DESIGN_TOKENS.json
+   NULL//TRACE PALETTES
+   7 palettes swap via <html data-palette="...">.
+   Every component reads tokens, never hardcodes a hex.
+   Source: design_handoff_storageads_theme/reference/Homepage.html
+   ═══════════════════════════════════════════ */
+
+:root,
+:root[data-palette="paper"] {
+  /* Surfaces */
+  --bg: #f2ede3;
+  --bg-alt: #ebe5d6;
+  --bg-hi: #e0d8c4;
+  --bg-ink: #1c1a16;
+  /* Lines */
+  --line: #b5a890;
+  --line-hi: #8a8068;
+  --line-dim: #d4cbb6;
+  /* Type */
+  --text: #1c1a16;
+  --text-dim: #5a5448;
+  --text-faint: #8a8270;
+  --text-accent: #0d0c0a;
+  /* Accent (rare, loud) + secondary hues (categorical) */
+  --accent: #c0452b;        /* brick */
+  --accent-dim: #8a2f1e;
+  --accent-soft: #e8c2b0;
+  --hue-a: #1f5a6b;         /* deep teal */
+  --hue-b: #c99018;         /* ochre */
+  --hue-c: #4a6b2e;         /* olive — POSITIVE slot */
+  --hue-d: #5e3880;         /* plum */
+  /* Type families */
+  --mono: var(--font-jetbrains), 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  --serif: var(--font-archivo), 'Archivo', 'Neue Haas Grotesk', 'Helvetica Neue', system-ui, sans-serif;
+}
+
+:root[data-palette="oxblood"] {
+  --bg: #2a0e0d; --bg-alt: #37110f; --bg-hi: #4a1815; --bg-ink: #ebe1cc;
+  --line: #6a2a22; --line-hi: #8a3d30; --line-dim: #3d1411;
+  --text: #ebe1cc; --text-dim: #b8a78a; --text-faint: #8a7860; --text-accent: #f5ead3;
+  --accent: #f0b93d; --accent-dim: #b88a1e; --accent-soft: #5a3a18;
+  --hue-a: #6aa8c4; --hue-b: #e85a3a; --hue-c: #a8c472; --hue-d: #d490b8;
+}
+
+:root[data-palette="petrol"] {
+  --bg: #0d2336; --bg-alt: #112a40; --bg-hi: #1a3a52; --bg-ink: #e8e2d1;
+  --line: #2e5072; --line-hi: #4270a0; --line-dim: #18304a;
+  --text: #e8e2d1; --text-dim: #9ba8b6; --text-faint: #6a7a88; --text-accent: #f4eedd;
+  --accent: #ffb840; --accent-dim: #c08820; --accent-soft: #2a3a4a;
+  --hue-a: #5ac4b8; --hue-b: #ff6b4a; --hue-c: #c8a2ff; --hue-d: #f0e8a8;
+}
+
+:root[data-palette="blueprint"] {
+  --bg: #0e2440; --bg-alt: #142d4d; --bg-hi: #1c3b62; --bg-ink: #e8eef0;
+  --line: #30527a; --line-hi: #4870a0; --line-dim: #183258;
+  --text: #e8eef0; --text-dim: #8ca0b8; --text-faint: #5a7090; --text-accent: #ffffff;
+  --accent: #ff7a2a; --accent-dim: #c04818; --accent-soft: #2a3a58;
+  --hue-a: #ffd23a; --hue-b: #4ac4e8; --hue-c: #8ae070; --hue-d: #ff5a8a;
+}
+
+:root[data-palette="eames"] {
+  --bg: #4a4a2a; --bg-alt: #555532; --bg-hi: #62623a; --bg-ink: #f0ead5;
+  --line: #7a7a48; --line-hi: #989858; --line-dim: #3e3e22;
+  --text: #f0ead5; --text-dim: #c6bf9e; --text-faint: #938d72; --text-accent: #faf4e0;
+  --accent: #e85a1e; --accent-dim: #a84014; --accent-soft: #3a3a1c;
+  --hue-a: #70bab8; --hue-b: #ffd148; --hue-c: #d89ac4; --hue-d: #a8c8f0;
+}
+
+:root[data-palette="amber"] {
+  --bg: #0c0906; --bg-alt: #150f08; --bg-hi: #1f170c; --bg-ink: #ffb000;
+  --line: #5a4018; --line-hi: #7a5a20; --line-dim: #26180a;
+  --text: #ffb000; --text-dim: #b07a00; --text-faint: #704a00; --text-accent: #ffd970;
+  --accent: #ff4a1a; --accent-dim: #c03008; --accent-soft: #2a1a08;
+  --hue-a: #33ccff; --hue-b: #cc3366; --hue-c: #66cc33; --hue-d: #ffffff;
+}
+
+:root[data-palette="green"] {
+  --bg: #040a05; --bg-alt: #081408; --bg-hi: #0e1f0c; --bg-ink: #33ff66;
+  --line: #1e5a22; --line-hi: #2a7a30; --line-dim: #0e2410;
+  --text: #44ee77; --text-dim: #2a9944; --text-faint: #1a6028; --text-accent: #9cffb8;
+  --accent: #ffcc33; --accent-dim: #b08820; --accent-soft: #0a2a10;
+  --hue-a: #33ddff; --hue-b: #ff5544; --hue-c: #ff88cc; --hue-d: #ffffff;
+}
+
+/* Keyframes driving all motion — prefers-reduced-motion override below */
+@keyframes mono-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes mono-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+@keyframes mono-tick  { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes mono-flash { 0% { background: rgba(255, 255, 255, 0.20); } 100% { background: transparent; } }
+@keyframes mono-scan  { from { background-position: 0 0; } to { background-position: 0 3px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NULL//TRACE GLOBAL SWEEP
+   Applies the theme's structural rules to every marketing surface under
+   .urbit-landing without having to rewrite each component. Scoped away
+   from .admin-theme so admin keeps its own treatment.
+   ═══════════════════════════════════════════ */
+
+.urbit-landing:not(.admin-theme) *,
+.urbit-landing:not(.admin-theme) *::before,
+.urbit-landing:not(.admin-theme) *::after {
+  border-radius: 0 !important;
+}
+
+.urbit-landing :where(aside, header, main, section, article, div, button, a, span, p, figure, img) {
+  box-shadow: none !important;
+}
+
+/* Kill gradient backgrounds on marketing — flat ink on flat paper */
+.urbit-landing [style*="radial-gradient"],
+.urbit-landing [style*="linear-gradient"] {
+  background-image: none !important;
+}
+
+/* Body background honors palette */
+.urbit-landing {
+  background: var(--bg) !important;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  transition: background 300ms, color 300ms;
+}
+
+/* ─── TYPOGRAPHY ENFORCEMENT ───
+   Stylesheet !important beats regular inline style per CSS spec. We
+   target headings with max specificity + !important so inline
+   fontFamily on h-tags collapses into Archivo. */
+.urbit-landing h1,
+.urbit-landing h2,
+.urbit-landing h3,
+.urbit-landing h4,
+.urbit-landing h5,
+.urbit-landing h6 {
+  font-family: var(--serif) !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.02 !important;
+  color: var(--text-accent) !important;
+  font-weight: 600 !important;
+}
+.urbit-landing p,
+.urbit-landing li,
+.urbit-landing span:not([style*="Archivo"]),
+.urbit-landing label,
+.urbit-landing input,
+.urbit-landing textarea,
+.urbit-landing select,
+.urbit-landing button,
+.urbit-landing a,
+.urbit-landing td,
+.urbit-landing th {
+  font-family: var(--mono);
+}
+
+/* ─── PALETTE-COLOR ENFORCEMENT OVER TAILWIND UTILITY CLASSES ───
+   Tailwind utility classes (bg-red-500, text-orange-400, border-blue-300,
+   etc.) are not palette-aware — they hard-code hex. Remap the families
+   to palette tokens so palette swaps cascade through every component.
+   Specificity: [class*="..."] attribute selector + !important beats
+   Tailwind's default utility specificity. */
+
+/* RED family → accent (the loud/alert slot on most palettes) */
+.urbit-landing [class*="bg-red-"]      { background-color: color-mix(in srgb, var(--accent) 12%, transparent) !important; }
+.urbit-landing [class*="text-red-"]    { color: var(--accent) !important; }
+.urbit-landing [class*="border-red-"]  { border-color: var(--accent) !important; }
+
+/* ORANGE family → hue-b (warm secondary) */
+.urbit-landing [class*="bg-orange-"]    { background-color: color-mix(in srgb, var(--hue-b) 12%, transparent) !important; }
+.urbit-landing [class*="text-orange-"]  { color: var(--hue-b) !important; }
+.urbit-landing [class*="border-orange-"]{ border-color: var(--hue-b) !important; }
+
+/* AMBER / YELLOW → hue-b too (warm) */
+.urbit-landing [class*="bg-amber-"],
+.urbit-landing [class*="bg-yellow-"]    { background-color: color-mix(in srgb, var(--hue-b) 12%, transparent) !important; }
+.urbit-landing [class*="text-amber-"],
+.urbit-landing [class*="text-yellow-"]  { color: var(--hue-b) !important; }
+.urbit-landing [class*="border-amber-"],
+.urbit-landing [class*="border-yellow-"]{ border-color: var(--hue-b) !important; }
+
+/* GREEN / EMERALD / LIME → hue-c (positive slot) */
+.urbit-landing [class*="bg-green-"],
+.urbit-landing [class*="bg-emerald-"],
+.urbit-landing [class*="bg-lime-"]      { background-color: color-mix(in srgb, var(--hue-c) 12%, transparent) !important; }
+.urbit-landing [class*="text-green-"],
+.urbit-landing [class*="text-emerald-"],
+.urbit-landing [class*="text-lime-"]    { color: var(--hue-c) !important; }
+.urbit-landing [class*="border-green-"],
+.urbit-landing [class*="border-emerald-"],
+.urbit-landing [class*="border-lime-"]  { border-color: var(--hue-c) !important; }
+
+/* BLUE / SKY / CYAN / INDIGO → hue-a (cool secondary) */
+.urbit-landing [class*="bg-blue-"],
+.urbit-landing [class*="bg-sky-"],
+.urbit-landing [class*="bg-cyan-"],
+.urbit-landing [class*="bg-indigo-"]    { background-color: color-mix(in srgb, var(--hue-a) 12%, transparent) !important; }
+.urbit-landing [class*="text-blue-"],
+.urbit-landing [class*="text-sky-"],
+.urbit-landing [class*="text-cyan-"],
+.urbit-landing [class*="text-indigo-"]  { color: var(--hue-a) !important; }
+.urbit-landing [class*="border-blue-"],
+.urbit-landing [class*="border-sky-"],
+.urbit-landing [class*="border-cyan-"],
+.urbit-landing [class*="border-indigo-"]{ border-color: var(--hue-a) !important; }
+
+/* PURPLE / VIOLET / FUCHSIA / PINK / ROSE → hue-d (alt accent) */
+.urbit-landing [class*="bg-purple-"],
+.urbit-landing [class*="bg-violet-"],
+.urbit-landing [class*="bg-fuchsia-"],
+.urbit-landing [class*="bg-pink-"],
+.urbit-landing [class*="bg-rose-"]      { background-color: color-mix(in srgb, var(--hue-d) 12%, transparent) !important; }
+.urbit-landing [class*="text-purple-"],
+.urbit-landing [class*="text-violet-"],
+.urbit-landing [class*="text-fuchsia-"],
+.urbit-landing [class*="text-pink-"],
+.urbit-landing [class*="text-rose-"]    { color: var(--hue-d) !important; }
+.urbit-landing [class*="border-purple-"],
+.urbit-landing [class*="border-violet-"],
+.urbit-landing [class*="border-fuchsia-"],
+.urbit-landing [class*="border-pink-"],
+.urbit-landing [class*="border-rose-"]  { border-color: var(--hue-d) !important; }
+
+/* NEUTRAL grays → palette text/bg/line tokens */
+.urbit-landing [class*="bg-stone-"],
+.urbit-landing [class*="bg-neutral-"],
+.urbit-landing [class*="bg-zinc-"],
+.urbit-landing [class*="bg-slate-"],
+.urbit-landing [class*="bg-gray-"]      { background-color: var(--bg-alt) !important; }
+.urbit-landing [class*="bg-white"]      { background-color: var(--bg-alt) !important; }
+.urbit-landing [class*="bg-black"]      { background-color: var(--text) !important; }
+
+.urbit-landing [class*="text-stone-"],
+.urbit-landing [class*="text-neutral-"],
+.urbit-landing [class*="text-zinc-"],
+.urbit-landing [class*="text-slate-"],
+.urbit-landing [class*="text-gray-"]    { color: var(--text-dim) !important; }
+.urbit-landing [class*="text-white"]    { color: var(--bg) !important; }
+.urbit-landing [class*="text-black"]    { color: var(--text) !important; }
+
+.urbit-landing [class*="border-stone-"],
+.urbit-landing [class*="border-neutral-"],
+.urbit-landing [class*="border-zinc-"],
+.urbit-landing [class*="border-slate-"],
+.urbit-landing [class*="border-gray-"]  { border-color: var(--line) !important; }
+.urbit-landing [class*="border-white"]  { border-color: var(--line-dim) !important; }
+.urbit-landing [class*="border-black"]  { border-color: var(--line-hi) !important; }
+
+/* Marketing cards + bordered blocks: hairline only, no rounded */
+.urbit-landing :where([class*="rounded"], [class*="border"]) {
+  border-radius: 0 !important;
+}
+
+/* Inputs and textareas: hairline bottom-only, mono type */
+.urbit-landing input,
+.urbit-landing textarea,
+.urbit-landing select {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text) !important;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.urbit-landing input:focus,
+.urbit-landing textarea:focus,
+.urbit-landing select:focus {
+  outline: none;
+  border-color: var(--accent) !important;
+}
+
+/* Section backgrounds — force palette bg, not hard-coded light/white */
+.urbit-landing section { background: var(--bg) !important; }
+
+/* ─── SPACING — tighten the site so it stops feeling empty ───
+   NULL//TRACE sections are dense. Default .section padding was 5rem
+   top/bottom which produces too much breathing room between chapters
+   when eight of them stack. Compress vertically; horizontal unchanged. */
+.urbit-landing .section {
+  padding: 2.75rem 1.5rem !important;
+}
+@media (min-width: 1024px) {
+  .urbit-landing .section {
+    padding: 4rem 2rem !important;
+  }
+}
+
+/* Section-content max width: tighter per handoff (1320px, not 1200px) */
+.urbit-landing .section-content {
+  max-width: 1320px;
+}
+
+/* Card / panel inline styles use bg-[var(--color-light-gray)] and
+   rgba tints — those already flow through palette via the aliases.
+   But inline "background: #fff" style strings slip through. Route them
+   to --bg-alt so cards LIFT on any palette (light or dark) rather than
+   going blown-white on dark grounds. */
+.urbit-landing [style*="background: #fff"],
+.urbit-landing [style*="background:#fff"],
+.urbit-landing [style*="background-color: #fff"],
+.urbit-landing [style*="background-color:#fff"],
+.urbit-landing [style*="background: white"],
+.urbit-landing [style*="background: rgb(255"],
+.urbit-landing [style*="background-color: rgb(255"] {
+  background: var(--bg-alt) !important;
+}
+
+/* Any bg-[var(--bg-elevated)] / bg-[var(--color-light)] / etc. that
+   points at a "elevated surface" token — normalize to --bg-alt for
+   consistent lift on dark palettes. */
+.urbit-landing [class*="bg-[var(--bg-elevated)]"],
+.urbit-landing [class*="bg-[var(--color-light)]"] {
+  background-color: var(--bg-alt) !important;
+}
+
+/* Text on elevated cards: ensure legibility by using --text (full
+   strength) rather than any inherited dim on card interiors. Card text
+   must read cleanly on both light and dark palettes. */
+.urbit-landing [class*="bg-[var(--color-light-gray)]"] :where(h1, h2, h3, h4, h5, h6),
+.urbit-landing [class*="bg-[var(--color-light-gray)]"] > p {
+  color: var(--text) !important;
+}
+
+/* ═══════════════════════════════════════════
+   LEGACY STORAGEADS TOKENS
+   Kept so existing components don't break. Aliased onto the NULL//TRACE
+   palette — swapping data-palette now changes the whole site, legacy
+   components included.
    ═══════════════════════════════════════════ */
 
 :root {
-  /* ── Core Palette ── */
-  --color-dark: #141413;
-  --color-light: #faf9f5;
-  --color-mid-gray: #b0aea5;
-  --color-light-gray: #e8e6dc;
-  --color-body-text: #6a6560;
+  /* ── Legacy StorageAds palette → aliased onto NULL//TRACE tokens
+     so every palette swap cascades through the existing components. */
+  --color-dark: var(--text);
+  --color-light: var(--bg);
+  --color-mid-gray: var(--text-faint);
+  --color-light-gray: var(--bg-alt);
+  --color-body-text: var(--text-dim);
 
-  /* ── Primary Accent — Charcoal (was Sienna Gold — gold is banned) ── */
-  --color-gold: #141413;
-  --color-gold-hover: #2b2a27;
-  --color-gold-on-light: #141413;
-  --color-gold-light: #e8e6dc;
+  /* Sienna gold still aliased to text (gold is banned). */
+  --color-gold: var(--text);
+  --color-gold-hover: var(--accent-dim);
+  --color-gold-on-light: var(--text);
+  --color-gold-light: var(--bg-alt);
 
-  /* ── Secondary Accents ── */
-  --color-blue: #6a9bcc;
-  --color-blue-light: #e8f0f7;
-  --color-green: #788c5d;
-  --color-green-light: #ecf0e6;
+  /* Secondary accents → hues so palette swaps recolor them too */
+  --color-blue: var(--hue-a);
+  --color-blue-light: color-mix(in srgb, var(--hue-a) 12%, transparent);
+  --color-green: var(--hue-c);
+  --color-green-light: color-mix(in srgb, var(--hue-c) 12%, transparent);
 
-  /* ── Error / Negative — Clay Red ── */
-  --color-red: #B04A3A;
-  --color-red-hover: #983F32;
-  --color-red-light: #F5E8E5;
+  /* Negative / errors → the palette's accent (which is the "loud" slot
+     and reads red/orange on most palettes) */
+  --color-red: var(--accent);
+  --color-red-hover: var(--accent-dim);
+  --color-red-light: color-mix(in srgb, var(--accent) 12%, transparent);
 
-  /* ── Dark mode surfaces (dashboards) ── */
-  --color-dark-surface: #1e1d1b;
-  --color-dark-border: #2a2926;
+  /* Dashboard surfaces */
+  --color-dark-surface: var(--bg-ink);
+  --color-dark-border: var(--line-hi);
 
-  /* ── Semantic aliases (backward compat — maps old vars to new palette) ── */
-  --bg-void: var(--color-light);
-  --bg-primary: var(--color-light);
-  --bg-elevated: #ffffff;
-  --bg-surface: var(--color-light-gray);
-  --bg-overlay: rgba(0, 0, 0, 0.5);
+  /* Semantic aliases — cards use --bg-alt / --bg-hi so they LIFT from
+     the page background on both light and dark palettes. Never flip to
+     white on a dark palette — that creates harsh blown-out contrast. */
+  --bg-void: var(--bg);
+  --bg-primary: var(--bg);
+  --bg-elevated: var(--bg-alt);
+  --bg-surface: var(--bg-alt);
+  --bg-overlay: color-mix(in srgb, var(--text) 50%, transparent);
 
-  --text-primary: var(--color-dark);
-  --text-secondary: var(--color-body-text);
-  --text-tertiary: var(--color-mid-gray);
-  --text-inverse: var(--color-light);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-dim);
+  --text-tertiary: var(--text-faint);
+  --text-inverse: var(--bg);
 
-  --accent: var(--color-dark);
-  --accent-hover: #2b2a27;
-  --accent-glow: rgba(20, 20, 19, 0.15);
+  --accent-hover: var(--accent-dim);
+  --accent-glow: color-mix(in srgb, var(--accent) 15%, transparent);
 
-  --border-subtle: rgba(20, 20, 19, 0.08);
-  --border-medium: rgba(20, 20, 19, 0.15);
+  --border-subtle: var(--line-dim);
+  --border-medium: var(--line);
 
-  /* Utility */
-  --color-error: var(--color-red);
-  --color-success: var(--color-green);
+  --color-error: var(--accent);
+  --color-success: var(--hue-c);
 
   /* ── Typography ──
      One voice. JetBrains Mono is the primary typeface across the product —
@@ -140,9 +472,22 @@
    ═══════════════════════════════════════════ */
 
 .admin-theme {
-  --bg: #FFFFFF;
-  --card: #FFFFFF;
-  --sidebar-bg: #FFFFFF;
+  /* ONE cream. ONE hex. Every surface token in admin scope is pinned to
+     #F1EAE0 — the exact swatch Angelo shipped. Includes both the new
+     --bg/card/sidebar-bg tokens AND every legacy alias (--color-light,
+     --color-light-gray, --bg-alt, --bg-elevated, --bg-surface, etc.) so
+     no Tailwind arbitrary-var class can resolve to a different cream
+     via :root cascade. Cards lift via 1px hairline borders only. */
+  --bg: #F1EAE0;
+  --card: #F1EAE0;
+  --sidebar-bg: #F1EAE0;
+  --bg-elevated: #F1EAE0;
+  --bg-surface: #F1EAE0;
+  --bg-void: #F1EAE0;
+  --bg-primary: #F1EAE0;
+  --bg-alt: #F1EAE0;
+  --color-light: #F1EAE0;
+  --color-light-gray: #F1EAE0;
   --sidebar-text: #737373;
   --sidebar-text-active: #1A1A1A;
   --sidebar-muted: #A3A3A3;
@@ -237,12 +582,18 @@
   color: var(--ink);
 }
 
-/* Surface remap — clean white */
+/* Surface remap. The plain `[class*="bg-white"]` rule does NOT use
+   !important because `.bg-white` Tailwind utility wins by source order
+   anyway (and adding !important would force-cream toggle-pill indicators
+   and ad-mockup CTAs that are intentionally white). The composite
+   `[bg-white][rounded|border]` rule below at line ~600 is what catches
+   actual panel surfaces and uses var(--card). For non-panel sidebars/
+   wrappers, use inline `style={{ background: 'var(--card)' }}` directly. */
 .admin-theme [class*="bg-white"]         { background-color: var(--card); }
 .admin-theme [class*="bg-\[\#F9FAFB\]"] { background-color: var(--bg); }
 .admin-theme [class*="bg-gray-50"]       { background-color: var(--bg); }
-.admin-theme [class*="bg-\[\#F3F4F6\]"] { background-color: #F7F7F7; }
-.admin-theme [class*="bg-gray-100"]      { background-color: #F7F7F7; }
+.admin-theme [class*="bg-\[\#F3F4F6\]"] { background-color: var(--card); }
+.admin-theme [class*="bg-gray-100"]      { background-color: var(--card); }
 
 /* Text remap */
 .admin-theme [class*="text-\[\#111827\]"], .admin-theme [class*="text-gray-900"], .admin-theme [class*="text-gray-800"], .admin-theme [class*="text-gray-700"], .admin-theme [class*="text-slate-900"], .admin-theme [class*="text-slate-800"] { color: var(--ink); }
@@ -862,48 +1213,13 @@ body {
    Scoped to .urbit-landing
    ═══════════════════════════════════════════ */
 
-.urbit-landing {
-  /* Core palette → monochrome */
-  --color-dark: #1A1A1A;
-  --color-light: #FFFFFF;
-  --color-body-text: #737373;
-  --color-mid-gray: #A3A3A3;
-  --color-light-gray: #F0F0F0;
-
-  /* Gold → monochrome (no accent color) */
-  --color-gold: #1A1A1A;
-  --color-gold-hover: #333333;
-  --color-gold-on-light: #1A1A1A;
-  --color-gold-light: rgba(0, 0, 0, 0.04);
-
-  /* Secondary accents → terminal ANSI (only where semantic) */
-  --color-blue: #0A84FF;
-  --color-blue-light: rgba(10, 132, 255, 0.06);
-  --color-green: #28CD41;
-  --color-green-light: rgba(40, 205, 65, 0.06);
-  --color-red: #FF3B30;
-  --color-red-light: rgba(255, 59, 48, 0.06);
-
-  /* Semantic aliases */
-  --bg-void: #FFFFFF;
-  --bg-primary: #FFFFFF;
-  --bg-elevated: #FFFFFF;
-  --bg-surface: #F7F7F7;
-
-  --text-primary: #1A1A1A;
-  --text-secondary: #737373;
-  --text-tertiary: #A3A3A3;
-  --text-inverse: #FFFFFF;
-
-  --accent: #1A1A1A;
-  --accent-hover: #333333;
-  --accent-glow: rgba(0, 0, 0, 0.08);
-
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-medium: rgba(0, 0, 0, 0.15);
-
-  /* Typography — inherits mono from root; kept for explicit scoping */
-}
+/* NOTE: the previous `.urbit-landing { --color-*: #hex; ... }` block was
+   deleted here. It hardcoded every color variable to light-theme values
+   on <body>, which shadowed the palette-aware definitions set on
+   <html data-palette="X">. Without that override, the :root aliases
+   further up (e.g. `--color-light-gray: var(--bg-alt)`) now cascade
+   correctly on every palette — cards lift on dark backgrounds instead
+   of staying white. */
 
 /* Base typography overrides */
 .urbit-landing {
@@ -924,10 +1240,11 @@ body {
   line-height: 1.65;
 }
 
-/* Buttons → monochrome, minimal */
+/* Buttons → monochrome, minimal. Colors read through palette tokens so
+   a dark palette inverts them automatically (text-on-bg → bg-on-text). */
 .urbit-landing .btn-primary {
-  background: var(--color-dark);
-  color: #FFFFFF;
+  background: var(--text);
+  color: var(--bg);
   font-family: var(--font-heading);
   font-weight: 500;
   font-size: 13px;
@@ -936,26 +1253,27 @@ body {
   letter-spacing: 0;
 }
 .urbit-landing .btn-primary:hover {
-  background: #333333;
-  color: #FFFFFF;
+  background: var(--accent);
+  color: var(--bg);
 }
 
 /* Inputs → clean monospace */
 .urbit-landing .input-field {
   font-family: var(--font-body);
   font-size: 13px;
-  background: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: var(--bg-alt);
+  color: var(--text);
+  border: 1px solid var(--line);
   border-radius: 4px;
 }
 .urbit-landing .input-field:focus {
-  border-color: #1A1A1A;
+  border-color: var(--accent);
 }
 
 /* Selection */
 .urbit-landing ::selection {
-  background: #1A1A1A;
-  color: #FFFFFF;
+  background: var(--text);
+  color: var(--bg);
 }
 
 /* Flat — no shadows */
@@ -973,11 +1291,11 @@ body {
 /* Scrollbar */
 .urbit-landing ::-webkit-scrollbar { width: 4px; }
 .urbit-landing ::-webkit-scrollbar-track { background: transparent; }
-.urbit-landing ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 2px; }
+.urbit-landing ::-webkit-scrollbar-thumb { background: var(--line-hi); border-radius: 2px; }
 
-/* Nav blur background → white instead of cream */
+/* Nav blur background — palette-aware so dark palettes don't flash white */
 .urbit-landing nav[aria-label="Main navigation"] {
-  background: rgba(255, 255, 255, 0.92) !important;
+  background: color-mix(in srgb, var(--bg) 92%, transparent) !important;
 }
 
 /* ═══════════════════════════════════════════

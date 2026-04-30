@@ -1,5 +1,7 @@
 "use client";
 
+import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
+
 import { Check, X, Minus } from "lucide-react";
 import { useInView } from "./use-in-view";
 
@@ -86,6 +88,7 @@ export default function ThreeWayComparison() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
+        <SectionHeader number="04" kicker="VS THE ALTERNATIVES" right={<SectionMeta text="MATRIX · 3×10" />} style={{ marginBottom: 28 }} />
         <div
           className={`max-w-3xl mx-auto text-center mb-10 transition-all duration-700 ${
             isVisible

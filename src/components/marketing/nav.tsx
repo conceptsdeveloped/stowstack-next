@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
+import { Dot, Label, MONO } from "@/components/mono";
 
 /* ── Link configuration ── */
 const SECTION_LINKS = [
@@ -265,21 +266,34 @@ export default function Nav() {
         />
 
         <div className="max-w-[1200px] mx-auto h-full flex items-center justify-between px-4 sm:px-6">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="text-lg hover:opacity-80 transition-opacity relative z-10"
-          >
+          {/* Logo + LIVE tag */}
+          <div className="flex items-center gap-3 relative z-10">
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <span
+                style={{
+                  fontFamily: MONO.serif,
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                  fontSize: 18,
+                  color: MONO.textAccent,
+                }}
+              >
+                storage<span style={{ color: MONO.accent }}>ads</span>
+                <span style={{ color: MONO.textFaint, fontWeight: 400 }}>/attr</span>
+              </span>
+            </Link>
             <span
+              className="hidden sm:inline-flex items-center gap-1.5"
               style={{
-                fontFamily: "var(--font-heading)",
-                fontWeight: 600,
-                letterSpacing: "-0.5px",
+                padding: "2px 6px",
+                border: `1px solid ${MONO.accent}`,
+                background: "color-mix(in srgb, var(--accent) 12%, transparent)",
               }}
             >
-              <span style={{ color: "var(--color-dark)" }}>storageads</span>
+              <Dot live color={MONO.accent} />
+              <Label style={{ color: MONO.accent, fontWeight: 500 }}>LIVE</Label>
             </span>
-          </Link>
+          </div>
 
           {/* Desktop links */}
           <div className="hidden lg:flex items-center gap-1">
@@ -319,26 +333,48 @@ export default function Nav() {
               href={CALCOM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-2 text-sm font-medium transition-colors hover:opacity-70"
               style={{
-                color: "var(--color-muted)",
-                fontFamily: "var(--font-heading)",
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "7px 14px",
+                border: `1px solid ${MONO.lineHi}`,
+                background: "transparent",
+                color: MONO.text,
+                fontFamily: MONO.mono,
+                fontSize: 11,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                transition: "all 120ms",
               }}
+              className="hover:[background:var(--bg-hi)]"
             >
-              Book a Call
+              Book Call
             </a>
 
             <a
               href="#cta"
-              className="ml-2 px-5 py-2 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
               style={{
-                background: "var(--accent)",
-                color: "var(--text-inverse)",
-                borderRadius: "6px",
-                fontFamily: "var(--font-heading)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "7px 14px",
+                background: MONO.accent,
+                color: MONO.bg,
+                border: `1px solid ${MONO.accent}`,
+                fontFamily: MONO.mono,
+                fontSize: 11,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                transition: "all 120ms",
               }}
             >
-              Get a Free Audit
+              Get Audit →
             </a>
           </div>
 

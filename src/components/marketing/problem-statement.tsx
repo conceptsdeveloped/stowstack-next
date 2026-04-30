@@ -1,6 +1,7 @@
 "use client";
 
 import { useInView } from "./use-in-view";
+import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 
 const PROBLEMS = [
   {
@@ -30,6 +31,7 @@ export default function ProblemStatement() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="text-container">
+        <SectionHeader number="01" kicker="THE PROBLEM" right={<SectionMeta text="TRUTH · 4" />} style={{ marginBottom: 28 }} />
         {/* Section headline */}
         <div
           className={`text-center mb-16 transition-all duration-700 ${

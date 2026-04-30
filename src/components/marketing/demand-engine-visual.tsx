@@ -1,5 +1,7 @@
 "use client";
 
+import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
+
 import { useState } from "react";
 import { useInView } from "./use-in-view";
 
@@ -89,6 +91,7 @@ export default function DemandEngineVisual() {
       className="section"
       style={{ background: "var(--color-light)" }}
     >
+      <div className="section-content"><SectionHeader number="02" kicker="THE DEMAND ENGINE" right={<SectionMeta text="COMPONENTS · 6" />} style={{ marginBottom: 28 }} /></div>
       <div ref={ref} className="text-container">
         <div
           className={`max-w-3xl mx-auto text-center mb-16 transition-all duration-700 ${

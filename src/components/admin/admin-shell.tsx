@@ -130,7 +130,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
   const mono = "var(--font-jetbrains), 'JetBrains Mono', 'SF Mono', 'Menlo', monospace";
 
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ background: '#FFFFFF', fontFamily: mono }}>
+    <div className="admin-theme flex min-h-screen items-center justify-center" style={{ background: 'var(--bg)', fontFamily: mono }}>
       <div className="w-full max-w-[340px] p-8" style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: '6px' }}>
         <div className="mb-8 text-center">
           <h1 className="mb-1" style={{ fontFamily: mono, fontSize: '15px', fontWeight: 500, letterSpacing: '0.04em', color: '#1A1A1A' }}>
@@ -160,7 +160,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
                 <div className="w-full" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }} />
               </div>
               <div className="relative flex justify-center">
-                <span style={{ fontFamily: mono, fontSize: '11px', color: '#A3A3A3', background: '#FFFFFF', padding: '0 12px', letterSpacing: '0.06em' }}>or</span>
+                <span style={{ fontFamily: mono, fontSize: '11px', color: '#A3A3A3', background: 'var(--bg)', padding: '0 12px', letterSpacing: '0.06em' }}>or</span>
               </div>
             </div>
 
@@ -196,7 +196,7 @@ function LoginGate({ onAuthenticated }: { onAuthenticated: (key: string) => void
                   className="w-full"
                   style={{
                     fontFamily: mono, fontSize: '13px', fontWeight: 400,
-                    background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.15)',
+                    background: 'var(--card)', border: '1px solid rgba(0,0,0,0.15)',
                     borderRadius: '4px', color: '#1A1A1A', padding: '8px 12px 8px 36px',
                     outline: 'none',
                   }}
@@ -262,7 +262,7 @@ function Sidebar({
     : NAV_GROUPS;
 
   const sidebarContent = (
-    <div className="flex h-full flex-col" style={{ background: '#FFFFFF' }}>
+    <div className="flex h-full flex-col" style={{ background: 'var(--bg)' }}>
       {/* Brand */}
       <div className="flex h-14 shrink-0 items-center justify-between px-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
         <Link
@@ -361,7 +361,7 @@ function Sidebar({
         className={`fixed inset-y-0 left-0 z-50 w-56 transition-transform duration-150 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
-        style={{ background: '#FFFFFF', borderRight: '1px solid rgba(0,0,0,0.08)' }}
+        style={{ background: 'var(--sidebar-bg)', borderRight: '1px solid rgba(0,0,0,0.08)' }}
       >
         {sidebarContent}
       </aside>
@@ -371,7 +371,7 @@ function Sidebar({
         className={`hidden shrink-0 transition-all duration-150 md:block ${
           collapsed ? "w-14" : "w-56"
         }`}
-        style={{ background: '#FFFFFF', borderRight: '1px solid rgba(0,0,0,0.08)' }}
+        style={{ background: 'var(--sidebar-bg)', borderRight: '1px solid rgba(0,0,0,0.08)' }}
       >
         {sidebarContent}
       </aside>
@@ -398,7 +398,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   if (!checked || !clerkLoaded) {
     return (
-      <div className="admin-theme flex min-h-screen items-center justify-center" style={{ background: '#FFFFFF' }}>
+      <div className="admin-theme flex min-h-screen items-center justify-center" style={{ background: 'var(--bg)' }}>
         <div className="h-4 w-4 animate-spin rounded-full" style={{ border: '1.5px solid #1A1A1A', borderTopColor: 'transparent' }} />
       </div>
     );
@@ -408,7 +408,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   if (isSignedIn && !canAccessAdmin && !adminKey) {
     return (
-      <div className="admin-theme flex min-h-screen items-center justify-center" style={{ background: '#FFFFFF' }}>
+      <div className="admin-theme flex min-h-screen items-center justify-center" style={{ background: 'var(--bg)' }}>
         <div className="w-full max-w-sm p-8 text-center" style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: '6px' }}>
           <ShieldCheck className="mx-auto mb-4 h-8 w-8" style={{ color: '#A3A3A3' }} />
           <h2 className="mb-2" style={{ fontSize: '14px', fontWeight: 500 }}>access denied</h2>
@@ -427,7 +427,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminProvider initialKey={adminKey}>
-      <div className="admin-theme flex h-screen overflow-hidden" style={{ background: '#FFFFFF', fontFamily: 'var(--font)' }}>
+      <div className="admin-theme flex h-screen overflow-hidden" style={{ background: 'var(--bg)', fontFamily: 'var(--font)' }}>
         <Sidebar
           collapsed={sidebarCollapsed}
           onCollapse={setSidebarCollapsed}

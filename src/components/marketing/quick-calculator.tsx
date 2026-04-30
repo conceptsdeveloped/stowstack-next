@@ -1,5 +1,7 @@
 "use client";
 
+import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
+
 import { useState } from "react";
 import { Calculator, ArrowRight } from "lucide-react";
 import { useInView } from "./use-in-view";
@@ -29,6 +31,7 @@ export default function QuickCalculator() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
+        <SectionHeader number="06" kicker="REVENUE CALCULATOR" right={<SectionMeta text="LEDGER · LIVE" />} style={{ marginBottom: 28 }} />
         <div
           className={`transition-all duration-700 ${
             isVisible

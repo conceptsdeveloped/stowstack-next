@@ -1,5 +1,9 @@
 "use client";
 
+import { MONO, Label, Dot, Display } from "@/components/mono";
+import { usePublicStats, useClock } from "@/hooks/use-live-data";
+import { LiveMonitorTriptych } from "./live-monitors";
+
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
@@ -315,7 +319,7 @@ function StatItem({ stat, active, delay }: { stat: (typeof STATS)[0]; active: bo
         <Icon size={18} style={{ color: "var(--accent)" }} />
       </div>
       <div>
-        <div className="font-semibold leading-none" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.5rem, 3vw, 2rem)", color: "var(--color-dark)" }}>
+        <div className="font-semibold leading-none" style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.5rem, 3vw, 2rem)", letterSpacing: "-0.03em", color: "var(--color-dark)" }}>
           {stat.prefix}{stat.decimals > 0 ? count.toFixed(stat.decimals) : Math.round(count)}{stat.suffix}
         </div>
         <div className="text-xs mt-0.5" style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)" }}>{stat.label}</div>
@@ -532,12 +536,18 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
         </div>
       </div>
 
-      {/* Floating pills — desktop */}
+      {/* Floating pills — desktop. Tucked under the top/bottom border so
+          they visually overlap the card edge ("tag on a card" look) but
+          the portion INSIDE the card sits only in the top-bar / body
+          padding zones — never over the search bar, icons, tabs, or
+          activity rows. Top bar has py-2.5 (10px top padding) and body
+          has p-3/p-4 (12–16px) bottom padding, which is the safe zone
+          we aim the overlap into. */}
       {[
-        { label: "Meta Ads", icon: Megaphone, pos: { top: "2%", right: "-5%" }, bg: "rgba(106,155,204,0.08)", border: "rgba(106,155,204,0.25)", color: "#5a8bb8", anim: "hero-float-a", dur: "4s", ad: "0s", td: "1400ms" },
-        { label: "Landing Pages", icon: FileText, pos: { top: "40%", right: "-8%" }, bg: "rgba(181,139,63,0.06)", border: "rgba(181,139,63,0.25)", color: "var(--color-gold)", anim: "hero-float-b", dur: "3.5s", ad: "1s", td: "1550ms" },
-        { label: "Attribution", icon: Target, pos: { bottom: "18%", right: "-4%" }, bg: "rgba(120,140,93,0.08)", border: "rgba(120,140,93,0.25)", color: "#6a7d50", anim: "hero-float-a", dur: "3.8s", ad: "1.8s", td: "1700ms" },
-        { label: "storEDGE", icon: Zap, pos: { bottom: "5%", left: "-3%" }, bg: "rgba(140,120,180,0.06)", border: "rgba(140,120,180,0.25)", color: "#8a70b0", anim: "hero-float-b", dur: "4.2s", ad: "0.5s", td: "1850ms" },
+        { label: "Meta Ads", icon: Megaphone, pos: { top: "-22px", right: "32px" }, bg: "rgba(106,155,204,0.08)", border: "rgba(106,155,204,0.25)", color: "#5a8bb8", anim: "hero-float-a", dur: "4s", ad: "0s", td: "1400ms" },
+        { label: "Landing Pages", icon: FileText, pos: { top: "-28px", left: "150px" }, bg: "rgba(181,139,63,0.06)", border: "rgba(181,139,63,0.25)", color: "var(--color-gold)", anim: "hero-float-b", dur: "3.5s", ad: "1s", td: "1550ms" },
+        { label: "Attribution", icon: Target, pos: { bottom: "-20px", right: "110px" }, bg: "rgba(120,140,93,0.08)", border: "rgba(120,140,93,0.25)", color: "#6a7d50", anim: "hero-float-a", dur: "3.8s", ad: "1.8s", td: "1700ms" },
+        { label: "storEDGE", icon: Zap, pos: { bottom: "-26px", left: "64px" }, bg: "rgba(140,120,180,0.06)", border: "rgba(140,120,180,0.25)", color: "#8a70b0", anim: "hero-float-b", dur: "4.2s", ad: "0.5s", td: "1850ms" },
       ].map((pill) => {
         const PillIcon = pill.icon;
         return (
@@ -556,7 +566,56 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
    don't miss the live feed hidden in dashboard
    ═══════════════════════════════════════════ */
 
+type PublicActivityEvent = {
+  id: string;
+  platform: string;
+  locale: string | null;
+  createdAt: string;
+};
+
+function formatRelative(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function platformGlyph(p: string): string {
+  if (p.startsWith("google")) return "↗";
+  if (p.startsWith("tiktok")) return "▸";
+  return "●"; // meta / default
+}
+
 function MobileLiveTicker({ isVisible }: { isVisible: boolean }) {
+  const [events, setEvents] = useState<PublicActivityEvent[]>([]);
+
+  useEffect(() => {
+    let alive = true;
+    const load = () => {
+      fetch("/api/public-activity")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (alive && d?.events) setEvents(d.events);
+        })
+        .catch(() => {});
+    };
+    load();
+    const id = setInterval(load, 60_000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, []);
+
+  // Need at least 3 to make a scrolling track feel populated; otherwise hide.
+  if (events.length < 3) return null;
+
+  // Double the list for seamless infinite scroll.
+  const track = [...events, ...events];
+
   return (
     <div
       className="sm:hidden overflow-hidden rounded-xl border transition-all duration-700"
@@ -570,15 +629,17 @@ function MobileLiveTicker({ isVisible }: { isVisible: boolean }) {
     >
       <div className="flex items-center gap-1.5 px-3 py-2 border-b" style={{ borderColor: "var(--border-subtle)" }}>
         <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-green)", animation: "hero-live-dot 2s ease-in-out infinite" }} />
-        <span className="text-[11px] font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>Live Activity</span>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--color-dark)", fontFamily: "var(--font-primary)" }}>Live</span>
       </div>
       <div className="overflow-hidden relative" style={{ height: "36px" }}>
         <div className="flex items-center gap-8 absolute left-0 whitespace-nowrap" style={{ animation: "hero-ticker-scroll 25s linear infinite" }}>
-          {[...NOTIFICATION_FEED, ...NOTIFICATION_FEED].map((item, i) => (
-            <span key={i} className="flex items-center gap-2 text-[11px]" style={{ fontFamily: "var(--font-heading)" }}>
-              <span>{item.icon}</span>
-              <span style={{ color: "var(--color-dark)", fontWeight: 500 }}>{item.text}</span>
-              <span style={{ color: "var(--text-tertiary)" }}>{item.time} ago</span>
+          {track.map((e, i) => (
+            <span key={`${e.id}-${i}`} className="flex items-center gap-2 text-[11px]" style={{ fontFamily: "var(--font-primary)" }}>
+              <span style={{ color: "var(--color-green)" }}>{platformGlyph(e.platform)}</span>
+              <span style={{ color: "var(--color-dark)", fontWeight: 500 }}>
+                {e.locale ? `A facility in ${e.locale}` : "A facility"} published a {e.platform} campaign
+              </span>
+              <span style={{ color: "var(--text-tertiary)" }}>{formatRelative(e.createdAt)}</span>
             </span>
           ))}
         </div>
@@ -606,8 +667,8 @@ function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
             key={feat.title}
             className="relative rounded-2xl border p-5 transition-all duration-500 cursor-default group"
             style={{
-              borderColor: isHovered ? "rgba(181,139,63,0.3)" : "var(--border-subtle)",
-              background: isHovered ? "var(--bg-elevated)" : "var(--color-light)",
+              borderColor: isHovered ? "var(--accent)" : "var(--border-subtle)",
+              background: "var(--bg-alt)",
               opacity: revealed[i] ? 1 : 0,
               transform: revealed[i]
                 ? isHovered ? "translateY(-4px)" : "translateY(0)"
@@ -933,12 +994,15 @@ function ROITeaser({ isVisible }: { isVisible: boolean }) {
         transitionDelay: "300ms",
       }}
     >
-      {/* Header bar */}
+      {/* Header bar. Uses --bg-hi (palette's "lifted cell" tone) so the
+          h1–h6 forced `color: var(--text-accent) !important` contrasts
+          against it on every palette. Previously used --color-dark which
+          aliases to --text — making text ≈ bg on dark palettes. */}
       <div
         className="flex items-center gap-3 px-6 sm:px-8 py-4"
-        style={{ background: "var(--color-dark)", borderBottom: "2px solid var(--border-medium)" }}
+        style={{ background: "var(--bg-hi)", borderBottom: "2px solid var(--border-medium)" }}
       >
-        <DollarSign size={18} style={{ color: "var(--text-inverse)", opacity: 0.5 }} />
+        <DollarSign size={18} style={{ color: "var(--text)", opacity: 0.5 }} />
         <h3
           className="text-xs sm:text-sm font-bold tracking-wider uppercase"
           style={{ fontFamily: "var(--font-heading)", color: "var(--text-inverse)", letterSpacing: "0.08em" }}
@@ -970,7 +1034,7 @@ function ROITeaser({ isVisible }: { isVisible: boolean }) {
             </div>
             <div
               className="text-2xl sm:text-3xl font-bold leading-none"
-              style={{ fontFamily: "var(--font-heading)", color: item.color }}
+              style={{ fontFamily: "var(--serif)", letterSpacing: "-0.03em", color: item.color }}
             >
               {item.value}
             </div>
@@ -1006,10 +1070,230 @@ function ROITeaser({ isVisible }: { isVisible: boolean }) {
         </div>
         <span
           className="text-lg sm:text-xl font-bold flex-shrink-0"
-          style={{ color: "var(--color-green)", fontFamily: "var(--font-heading)" }}
+          style={{ color: "var(--color-green)", fontFamily: "var(--serif)", letterSpacing: "-0.03em" }}
         >
           35x
         </span>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   HERO STATUS STRIP — ultra-thin ribbon between nav and hero content.
+   Left: live pulse + "MARKETING INFRASTRUCTURE · BUILT FOR SELF-STORAGE".
+   Right: revision date · wall clock · compliance tag.
+   Ported from the handoff hero reference §205.
+   This is the natural home for the clock — NOT crammed into the nav.
+   ═══════════════════════════════════════════ */
+
+function HeroStatusStrip() {
+  const clock = useClock();
+  return (
+    <div
+      style={{
+        position: "relative",
+        top: "var(--nav-height)",
+        marginTop: "calc(var(--nav-height) * -1)",
+        paddingTop: "var(--nav-height)",
+      }}
+    >
+      <div
+        style={{
+          borderBottom: `1px solid ${MONO.line}`,
+          borderTop: `1px solid ${MONO.line}`,
+        }}
+      >
+        <div
+          className="max-w-[1320px] mx-auto px-5 sm:px-8 lg:px-14"
+          style={{
+            padding: "8px 20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+        >
+          <Label style={{ color: MONO.accent, fontWeight: 500 }}>
+            <Dot live color={MONO.accent} style={{ marginRight: 8, verticalAlign: "middle" }} />
+            MARKETING INFRASTRUCTURE · BUILT FOR SELF-STORAGE
+          </Label>
+          <Label style={{ color: MONO.textDim }}>
+            REV {clock.ymd} · {clock.hms} {clock.tz} · SOC2
+          </Label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   LIVE STATS STRIP — NULL//TRACE theme
+   Real aggregates from /api/public-stats. Each stat is a Panel with
+   eyebrow + index, big serif Display number, categorical hue, and an
+   italic serif editorial caption below. LIVE tag + square Dot pulses
+   because this is real live data and we want operators to see that.
+   Cards auto-hide when their stat is 0 or null.
+   ═══════════════════════════════════════════ */
+
+type StatCard = {
+  key: string;
+  value: string;
+  label: string;
+  caption: string;
+  hue: string;
+};
+
+function formatCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k`;
+  return n.toLocaleString();
+}
+
+function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
+  const stats = usePublicStats();
+  const clock = useClock();
+
+  if (!stats) return null;
+
+  // Cycle hues per card position so colors feel categorical, not arbitrary.
+  const hueCycle = [MONO.hueA, MONO.hueB, MONO.hueC, MONO.accent];
+  const cards: StatCard[] = [];
+
+  if (stats.adsGenerated > 0) {
+    cards.push({
+      key: "ads",
+      value: formatCount(stats.adsGenerated),
+      label: "Ads generated",
+      caption: "for the operators in alpha testing. Every one passed Blake's eye before shipping.",
+      hue: hueCycle[cards.length],
+    });
+  }
+  if (stats.auditsRun > 0) {
+    cards.push({
+      key: "audits",
+      value: formatCount(stats.auditsRun),
+      label: "Audits analyzed",
+      caption: "facilities from 30 units to 400+. Each is a fifteen-minute pass over public data and what the operator tells us.",
+      hue: hueCycle[cards.length],
+    });
+  }
+  if (stats.facilities > 0) {
+    cards.push({
+      key: "facilities",
+      value: formatCount(stats.facilities),
+      label: "Facilities on platform",
+      caption: "most running their first attributable campaigns. Blake works closest with each of them.",
+      hue: hueCycle[cards.length],
+    });
+  }
+  if (stats.avgCostPerMoveIn && stats.avgCostPerMoveIn > 0) {
+    cards.push({
+      key: "cpm",
+      value: `$${stats.avgCostPerMoveIn}`,
+      label: "Avg cost per move-in",
+      caption: "the aggregate across the network. Agencies quote $200+. We optimize for fewer, better clicks.",
+      hue: hueCycle[cards.length],
+    });
+  }
+  if (cards.length === 0) return null;
+
+  const gridCols = cards.length === 1
+    ? "1fr"
+    : cards.length === 2
+    ? "repeat(2, minmax(0, 1fr))"
+    : cards.length === 3
+    ? "repeat(3, minmax(0, 1fr))"
+    : "repeat(2, minmax(0, 1fr))";
+
+  return (
+    <div
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(12px)",
+        transition: "all 700ms",
+        transitionDelay: "1600ms",
+        border: `1px solid ${MONO.line}`,
+        background: MONO.bgAlt,
+      }}
+    >
+      {/* Section header — § NN NUMBERS · LIVE ← kicker */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "8px 14px",
+          borderBottom: `1px solid ${MONO.line}`,
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
+          <Label style={{ color: MONO.accent, fontWeight: 500 }}>§ 00 · NUMBERS</Label>
+          <Label style={{ color: MONO.textDim }}>n = {cards.length} · real</Label>
+        </div>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <Dot live color={MONO.accent} />
+          <Label style={{ color: MONO.accent, fontWeight: 500 }}>LIVE · {clock.hms}</Label>
+        </div>
+      </div>
+
+      {/* Stat cells — hairline grid, no rounded corners */}
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: gridCols,
+          gap: 0,
+        }}
+      >
+        {cards.map((c, i) => (
+          <div
+            key={c.key}
+            style={{
+              padding: "22px 20px 24px",
+              borderRight: i < cards.length - 1 ? `1px solid ${MONO.line}` : undefined,
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              position: "relative",
+            }}
+          >
+            {/* Index badge */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <Label style={{ color: MONO.textFaint, fontSize: 9 }}>
+                #{String(i + 1).padStart(2, "0")}
+              </Label>
+              <Label style={{ color: MONO.textDim }}>{c.label}</Label>
+            </div>
+            {/* Display number */}
+            <Display
+              size={64}
+              style={{
+                color: c.hue,
+                fontSize: "clamp(3rem, 6.5vw, 4.5rem)",
+                lineHeight: 0.95,
+              }}
+            >
+              {c.value}
+            </Display>
+            {/* Hairline break */}
+            <div style={{ height: 1, background: MONO.lineDim, marginTop: 4 }} />
+            {/* Italic serif editorial caption */}
+            <span
+              style={{
+                fontFamily: MONO.serif,
+                fontStyle: "italic",
+                fontSize: 13,
+                lineHeight: 1.5,
+                color: MONO.textDim,
+                maxWidth: "40ch",
+              }}
+            >
+              {c.caption}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1033,8 +1317,10 @@ export default function Hero() {
       <HeroStyles />
       <DotGrid />
 
+      <HeroStatusStrip />
+
       {/* ── Hero content ── */}
-      <div ref={ref} className="relative w-full pt-24 sm:pt-28 lg:pt-32 pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
+      <div ref={ref} className="relative w-full pt-16 sm:pt-20 lg:pt-24 pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
         <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
 
           {/* ── Left column ── */}
@@ -1042,7 +1328,7 @@ export default function Hero() {
             {/* Headline */}
             <h1
               className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--font-heading)" }}
+              style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--serif)" }}
             >
               The marketing system that{" "}
               <span className="relative inline-block">
@@ -1056,7 +1342,7 @@ export default function Hero() {
 
             {/* Typewriter */}
             <div className={`mt-3 h-8 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "200ms" }}>
-              <span className="text-lg sm:text-xl font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>{typedText}</span>
+              <span className="text-lg sm:text-xl font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--serif)", letterSpacing: "-0.03em" }}>{typedText}</span>
               <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
             </div>
 
@@ -1116,6 +1402,18 @@ export default function Hero() {
         <div className="max-w-[1280px] mx-auto mt-6">
           <MobileLiveTicker isVisible={isVisible} />
         </div>
+
+        {/* Live stats strip — real aggregates from the product */}
+        <div className="max-w-[1280px] mx-auto mt-10 lg:mt-14">
+          <LiveStatsStrip isVisible={isVisible} />
+        </div>
+
+        {/* Live monitor triptych — channel spend / moves tape / attribution,
+            ported verbatim from design_handoff §4 to make the page feel
+            like a running operating environment. Synthetic data for now. */}
+        <div className="max-w-[1280px] mx-auto mt-6">
+          <LiveMonitorTriptych />
+        </div>
       </div>
 
       {/* Scroll indicator */}
@@ -1150,7 +1448,7 @@ export default function Hero() {
           <div className={`text-center mb-6 transition-all duration-700 ${featVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             <h2
               className="text-lg sm:text-xl font-semibold"
-              style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}
+              style={{ fontFamily: "var(--serif)", letterSpacing: "-0.03em", color: "var(--color-dark)" }}
             >
               Everything you need to fill units
             </h2>
@@ -1163,12 +1461,12 @@ export default function Hero() {
       </div>
 
       {/* ── Before / After ── */}
-      <div ref={baRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "rgba(255,255,255,0.3)" }}>
+      <div ref={baRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-alt)" }}>
         <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
           <div className={`text-center mb-6 transition-all duration-700 ${baVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             <h2
               className="text-lg sm:text-xl font-semibold"
-              style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}
+              style={{ fontFamily: "var(--serif)", letterSpacing: "-0.03em", color: "var(--color-dark)" }}
             >
               Stop guessing. Start knowing.
             </h2>
@@ -1189,7 +1487,7 @@ export default function Hero() {
           <div className={`text-center mb-5 transition-all duration-700 ${capsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             <h2
               className="text-lg sm:text-xl font-semibold"
-              style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}
+              style={{ fontFamily: "var(--serif)", letterSpacing: "-0.03em", color: "var(--color-dark)" }}
             >
               Full platform capabilities
             </h2>

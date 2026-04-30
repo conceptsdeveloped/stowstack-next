@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Archivo } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
 import Analytics from "@/components/analytics";
+import TweaksPanel from "@/components/mono/tweaks-panel";
 import "./globals.css";
 
 // JetBrains Mono is the primary voice across the product.
@@ -22,6 +23,16 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Archivo — serif/display-sans for headlines under the NULL//TRACE theme.
+// Used sparingly (section titles, hero display number). Mono handles everything else.
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -127,7 +138,11 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" className={`${jetbrainsMono.variable} ${inter.variable} antialiased`}>
+      <html
+        lang="en"
+        data-palette="paper"
+        className={`${jetbrainsMono.variable} ${inter.variable} ${archivo.variable} antialiased`}
+      >
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -164,6 +179,7 @@ export default function RootLayout({
           <ScrollProgress />
           <GrainOverlay />
           {children}
+          <TweaksPanel />
         </body>
       </html>
     </ClerkProvider>

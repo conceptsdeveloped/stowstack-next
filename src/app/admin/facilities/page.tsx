@@ -566,13 +566,14 @@ function VerticalTabSidebar({
         aria-hidden="true"
       />
 
-      {/* Mobile/tablet slide-out drawer — uses <div> not <aside> to avoid
-           .admin-theme aside { background: dark } override from globals.css */}
+      {/* Mobile/tablet slide-out drawer. Hardcoded to the unified admin
+           cream so no CSS-variable resolution can land it on white. */}
       <div
         ref={drawerRef}
-        className={`fixed inset-y-0 left-0 z-50 w-56 border-r border-[var(--border-subtle)] bg-white shadow-2xl transition-transform duration-200 ease-out lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-56 border-r border-[var(--border-subtle)] shadow-2xl transition-transform duration-200 ease-out lg:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{ background: '#F1EAE0' }}
         role="dialog"
         aria-modal="true"
         aria-label="Facility tools navigation"
@@ -620,8 +621,12 @@ function VerticalTabSidebar({
         </div>
       )}
 
-      {/* Desktop sidebar — always visible, permanent */}
-      <div className="hidden w-52 shrink-0 border-r border-[var(--border-subtle)] bg-[var(--color-light-gray)]/30 lg:block">
+      {/* Desktop sidebar — always visible, permanent. Hardcoded cream so
+           no CSS-variable resolution can land it on white. */}
+      <div
+        className="hidden w-52 shrink-0 border-r border-[var(--border-subtle)] lg:block"
+        style={{ background: '#F1EAE0' }}
+      >
         {sidebarContent}
       </div>
     </>

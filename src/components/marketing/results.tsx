@@ -1,5 +1,7 @@
 "use client";
 
+import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
+
 import { useInView } from "./use-in-view";
 
 const CASE_STUDIES = [
@@ -38,12 +40,14 @@ export default function Results() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
+        <SectionHeader number="07" kicker="RESULTS" right={<SectionMeta text="CASE STUDIES" />} style={{ marginBottom: 28 }} />
         <div
-          className={`text-center mb-16 transition-all duration-700 ${
+          className={`text-center transition-all duration-700 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
           }`}
+          style={{ marginBottom: "56px" }}
         >
           <h2
             className="font-semibold"
@@ -51,6 +55,20 @@ export default function Results() {
           >
             We tested it on our own facilities first. Here&apos;s what happened.
           </h2>
+          <p
+            className="mt-5 mx-auto"
+            style={{
+              color: "var(--text-dim)",
+              fontFamily: "var(--serif)",
+              fontStyle: "italic",
+              fontSize: 15,
+              maxWidth: "60ch",
+              lineHeight: 1.55,
+            }}
+          >
+            Two facilities. Real campaigns. Numbers pulled directly from
+            storEDGE plus our attribution layer. No case-study polish.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -101,11 +119,12 @@ export default function Results() {
 
         {/* ROI math */}
         <div
-          className={`max-w-3xl mx-auto mt-16 text-container transition-all duration-700 delay-500 ${
+          className={`max-w-3xl mx-auto text-container transition-all duration-700 delay-500 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
           }`}
+          style={{ marginTop: 80 }}
         >
           <p
             className="text-sm leading-relaxed"
