@@ -90,7 +90,7 @@ export default function HowItWorks() {
                 }`}
                 style={{ transitionDelay: `${300 + i * 150}ms` }}
               >
-                <div className="flex items-start gap-6">
+                <div className="flex items-start gap-6 min-w-0">
                   <span
                     className="text-3xl font-semibold flex-shrink-0"
                     style={{
@@ -100,7 +100,7 @@ export default function HowItWorks() {
                   >
                     {step.number}
                   </span>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3
                       className="font-semibold mb-3"
                       style={{ fontSize: "var(--text-subhead)" }}
@@ -127,6 +127,8 @@ export default function HowItWorks() {
                               color: "var(--text-secondary)",
                               fontFamily: "var(--font-mono-family)",
                               fontSize: "var(--text-small)",
+                              overflowWrap: "anywhere",
+                              wordBreak: "break-word",
                             }}
                           >
                             {ex}
