@@ -252,6 +252,9 @@ function HeroStyles() {
       @keyframes hero-card-lift{0%{box-shadow:0 1px 3px rgba(0,0,0,0.04)}100%{box-shadow:0 8px 24px rgba(0,0,0,0.08)}}
       @keyframes hero-ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
       @keyframes hero-badge-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+      .stat-cell{padding:16px 12px 18px}
+      @media (min-width:480px){.stat-cell{padding:20px 16px 22px}}
+      @media (min-width:768px){.stat-cell{padding:22px 20px 24px}}
     `}</style>
   );
 }
@@ -1215,36 +1218,47 @@ function StatCell({
 
   return (
     <div
+      className="stat-cell"
       style={{
-        padding: "22px 20px 24px",
         background: MONO.bgAlt,
         display: "flex",
         flexDirection: "column",
         gap: 12,
         position: "relative",
+        minWidth: 0,
+        overflow: "hidden",
         animation: flashing ? "mono-flash 600ms ease-out" : undefined,
       }}
     >
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 4,
+          display: "block",
           minWidth: 0,
         }}
       >
         {card.context && (
-          <Label
+          <div
             style={{
-              color: MONO.textFaint,
-              fontSize: 9,
-              whiteSpace: "nowrap",
+              display: "block",
+              marginBottom: 4,
+              minWidth: 0,
               overflow: "hidden",
-              textOverflow: "ellipsis",
             }}
           >
-            {card.context}
-          </Label>
+            <Label
+              style={{
+                color: MONO.textFaint,
+                fontSize: 9,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                display: "block",
+                maxWidth: "100%",
+              }}
+            >
+              {card.context}
+            </Label>
+          </div>
         )}
         <div
           style={{
@@ -1255,10 +1269,18 @@ function StatCell({
             flexWrap: "wrap",
           }}
         >
-          <Label style={{ color: MONO.textFaint, fontSize: 9 }}>
+          <Label style={{ color: MONO.textFaint, fontSize: 9, flex: "0 0 auto" }}>
             #{String(index + 1).padStart(2, "0")}
           </Label>
-          <Label style={{ color: MONO.textDim, minWidth: 0, wordBreak: "break-word" }}>
+          <Label
+            style={{
+              color: MONO.textDim,
+              minWidth: 0,
+              overflowWrap: "anywhere",
+              wordBreak: "break-word",
+              flex: "1 1 auto",
+            }}
+          >
             {card.label}
           </Label>
         </div>
