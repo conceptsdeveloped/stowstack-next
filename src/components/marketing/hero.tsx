@@ -1228,28 +1228,40 @@ function StatCell({
       <div
         style={{
           display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          gap: 10,
+          flexDirection: "column",
+          gap: 4,
+          minWidth: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0 }}>
-          <Label style={{ color: MONO.textFaint, fontSize: 9 }}>
-            #{String(index + 1).padStart(2, "0")}
-          </Label>
-          <Label style={{ color: MONO.textDim }}>{card.label}</Label>
-        </div>
         {card.context && (
           <Label
             style={{
               color: MONO.textFaint,
               fontSize: 9,
               whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
             {card.context}
           </Label>
         )}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: 8,
+            minWidth: 0,
+            flexWrap: "wrap",
+          }}
+        >
+          <Label style={{ color: MONO.textFaint, fontSize: 9 }}>
+            #{String(index + 1).padStart(2, "0")}
+          </Label>
+          <Label style={{ color: MONO.textDim, minWidth: 0, wordBreak: "break-word" }}>
+            {card.label}
+          </Label>
+        </div>
       </div>
       <Display
         size={64}
@@ -1395,15 +1407,19 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
           background: MONO.bgAlt,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
-          <Label style={{ color: MONO.accent, fontWeight: 500 }}>§ 00 · NUMBERS</Label>
-          <Label style={{ color: MONO.textDim }}>
-            n = {cards.length} · industry · forecast
-          </Label>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: "1 1 auto", overflow: "hidden" }}>
+          <Label style={{ color: MONO.accent, fontWeight: 500, whiteSpace: "nowrap" }}>§ 00 · NUMBERS</Label>
+          <span className="hidden sm:inline" style={{ minWidth: 0, overflow: "hidden" }}>
+            <Label
+              style={{ color: MONO.textDim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "inline-block", maxWidth: "100%" }}
+            >
+              n = {cards.length} · industry · forecast
+            </Label>
+          </span>
         </div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, flex: "0 0 auto" }}>
           <Dot live color={MONO.accent} />
-          <Label style={{ color: MONO.accent, fontWeight: 500 }}>LIVE · {clock.hms}</Label>
+          <Label style={{ color: MONO.accent, fontWeight: 500, whiteSpace: "nowrap" }}>LIVE · {clock.hms}</Label>
         </div>
       </div>
 
