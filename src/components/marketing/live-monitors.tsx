@@ -29,7 +29,7 @@ export function LiveChannelMini() {
   const hues = [MONO.accent, MONO.hueA, MONO.hueB, MONO.hueC, MONO.hueD, MONO.accent];
   return (
     <Panel label="CHANNEL · 24H" right={<Label style={{ color: MONO.textDim }}>USD</Label>}>
-      <div style={{ padding: "6px 10px" }}>
+      <div style={{ padding: "6px 10px", overflow: "hidden" }}>
         {rows.slice(0, 6).map((r, ri) => {
           const pct = (r.value / total) * 100;
           const hue = hues[ri % hues.length];
@@ -38,8 +38,8 @@ export function LiveChannelMini() {
               key={r.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "46px 1fr 52px 44px",
-                gap: 6,
+                gridTemplateColumns: "minmax(40px, auto) minmax(0, 1fr) minmax(48px, auto) minmax(36px, auto)",
+                gap: 5,
                 padding: "3px 0",
                 alignItems: "center",
                 borderBottom: `1px dotted ${MONO.line}`,
@@ -54,7 +54,9 @@ export function LiveChannelMini() {
               }}
             >
               <Label style={{ color: hue, fontWeight: 500 }}>{r.id}</Label>
-              <BarMeter value={pct} max={60} width={16} color={hue} />
+              <span style={{ minWidth: 0, overflow: "hidden", whiteSpace: "nowrap" }}>
+                <BarMeter value={pct} max={60} width={12} color={hue} />
+              </span>
               <span style={{ color: MONO.text, textAlign: "right", whiteSpace: "nowrap" }}>
                 ${(r.value / 1000).toFixed(1)}k
               </span>
@@ -63,6 +65,7 @@ export function LiveChannelMini() {
                   textAlign: "right",
                   color: r.delta >= 0 ? MONO.hueC : MONO.accent,
                   fontSize: 10,
+                  whiteSpace: "nowrap",
                 }}
               >
                 {r.delta >= 0 ? "▲" : "▽"} {Math.abs(Math.round(r.delta))}
