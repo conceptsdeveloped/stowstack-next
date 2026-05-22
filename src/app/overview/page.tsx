@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OVERVIEW_PNG_B64 } from "./image-data";
 
 export const metadata: Metadata = {
   title: "Overview · StorageAds",
@@ -6,6 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function OverviewPage() {
+  const src = `data:image/png;base64,${OVERVIEW_PNG_B64}`;
   return (
     <div
       style={{
@@ -18,7 +20,7 @@ export default function OverviewPage() {
       }}
     >
       <img
-        src="/overview.png"
+        src={src}
         alt="StorageAds overview card"
         style={{
           width: "100%",
