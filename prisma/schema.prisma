@@ -475,6 +475,7 @@ model facilities {
   style_references             style_references[]
   utm_links                    utm_links[]
   website_scrape_cache         website_scrape_cache[]
+  noi_report_snapshots         noi_report_snapshots[]
 
   deleted_at                   DateTime?                      @db.Timestamptz(6)
   deleted_by                   String?
@@ -1691,4 +1692,52 @@ model changelog_entries {
   created_at   DateTime  @default(now()) @db.Timestamptz(6)
 
   @@index([published_at(sort: Desc)], map: "idx_changelog_published")
+}
+
+// Roadmap 13 phase 1: composes weekly/monthly NOI lift snapshots per facility
+// from the existing PMS, marketing, ECRI, and retention tables. The snapshot
+// is a cache/rollup, not a source of truth.
+model noi_report_snapshots {
+  id                            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id                   String     @db.Uuid
+  report_period                 String     @db.VarChar(16) // "weekly" | "monthly"
+  period_start                  DateTime   @db.Date
+  period_end                    DateTime   @db.Date
+
+  total_revenue                 Decimal?   @default(0) @db.Decimal(12, 2)
+  rent_revenue                  Decimal?   @default(0) @db.Decimal(12, 2)
+  fee_revenue                   Decimal?   @default(0) @db.Decimal(12, 2)
+  auction_revenue               Decimal?   @default(0) @db.Decimal(12, 2)
+
+  new_move_ins                  Int?       @default(0)
+  move_outs                     Int?       @default(0)
+  net_units                     Int?       @default(0)
+
+  dynamic_pricing_lift          Decimal?   @default(0) @db.Decimal(12, 2)
+  ecri_realized_lift            Decimal?   @default(0) @db.Decimal(12, 2)
+  retention_saves               Int?       @default(0)
+  retention_saves_value         Decimal?   @default(0) @db.Decimal(12, 2)
+
+  marketing_spend               Decimal?   @default(0) @db.Decimal(10, 2)
+  leads_generated               Int?       @default(0)
+  attributed_move_ins           Int?       @default(0)
+  attributed_revenue            Decimal?   @default(0) @db.Decimal(12, 2)
+
+  vs_prior_period_revenue_delta Decimal?   @default(0) @db.Decimal(12, 2)
+  vs_year_ago_revenue_delta     Decimal?   @default(0) @db.Decimal(12, 2)
+
+  estimated_noi_lift            Decimal?   @default(0) @db.Decimal(12, 2)
+  platform_fee                  Decimal?   @default(0) @db.Decimal(10, 2)
+  net_value_delivered           Decimal?   @default(0) @db.Decimal(12, 2)
+
+  pending_approvals             Json?      @default("[]")
+  source_notes                  Json?      @default("{}") // tracks which feeds were available at compute time
+
+  computed_at                   DateTime   @default(now()) @db.Timestamptz(6)
+
+  facilities                    facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([facility_id, report_period, period_start])
+  @@index([facility_id, computed_at(sort: Desc)], map: "idx_noi_snapshots_facility")
+  @@index([report_period, period_start(sort: Desc)], map: "idx_noi_snapshots_period")
 }

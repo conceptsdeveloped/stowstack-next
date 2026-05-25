@@ -15,7 +15,8 @@
     { "path": "/api/cron/check-campaign-alerts", "schedule": "0 8 * * *" },
     { "path": "/api/cron/cleanup-organizations", "schedule": "30 3 * * *" },
     { "path": "/api/cron/data-retention", "schedule": "0 4 * * *" },
-    { "path": "/api/cron/score-churn-risk", "schedule": "0 11 * * 1" }
+    { "path": "/api/cron/score-churn-risk", "schedule": "0 11 * * 1" },
+    { "path": "/api/cron/generate-noi-reports", "schedule": "0 12 * * 5" }
   ],
   "headers": [
     {
