@@ -4,6 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
+## Voice & Copy
+
+**Canonical brand authority:** [BRAND_DOCTRINE.md](BRAND_DOCTRINE.md) and [CREATIVE.md](CREATIVE.md). Read these first. They define the StorageAds aesthetic, voice, strategic positioning, and content generation standards across both contexts (StorageAds Product itself, and Generated Marketing Content for client facilities).
+
+**Tactical implementation for day-to-day copywriting:**
+- [.claude/copy-voice.md](.claude/copy-voice.md) — operationalizes BRAND_DOCTRINE Section VIII (StorageAds Brand Voice) for customer-facing copy on the StorageAds product: website, landing pages, cold emails to operators, in-app text, ads we run for ourselves. Includes specific banned/preferred vocabulary, sentence rules, and worked examples.
+- [.claude/pitch-voice.md](.claude/pitch-voice.md) — operationalizes the "Sales/pitch materials" tone row from BRAND_DOCTRINE Section VIII for investor, acquirer (Storable corp dev), technical due-diligence, partnership, and whitepaper-adjacent copy. References the bounded novelty claim in `analysis/08_comparison.md` §8.6.
+
+Where the tactical docs and BRAND_DOCTRINE conflict, BRAND_DOCTRINE wins. For Generated Marketing Content (ads/landing pages produced for client facilities), CREATIVE.md is the operational doc — not the tactical voice docs above. If unsure which register applies, ask before drafting.
+
 ## Build & Development Commands
 
 ```bash
