@@ -96,7 +96,7 @@ export default function CTASection() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="08" kicker="FREE AUDIT" right={<SectionMeta text="STEP · FINAL" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="09" kicker="FREE AUDIT" right={<SectionMeta text="STEP · FINAL" />} style={{ marginBottom: 28 }} />
         <div
           className={`text-center mb-12 transition-all duration-700 ${
             isVisible
@@ -114,9 +114,9 @@ export default function CTASection() {
             className="mt-4 max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary)" }}
           >
-            Get a free facility audit. We&apos;ll look at your Google listing,
-            your ads, your website, your rental flow, and what your competitors
-            are doing — then show you where you&apos;re leaking move-ins.
+            Get a free facility audit. We look at your Google listing, your ads,
+            your website, your rental flow, and what your competitors are doing.
+            Then we show you where you&apos;re leaking move-ins.
           </p>
           <p
             className="mt-2"
@@ -135,22 +135,22 @@ export default function CTASection() {
               onClick={() => setMobileTab("audit")}
               className={`flex-1 py-3 text-sm font-semibold transition-colors ${
                 mobileTab === "audit"
-                  ? "bg-[var(--color-gold)]/10 text-[var(--color-dark)]"
+                  ? "bg-[var(--color-dark)] text-[var(--color-light)]"
                   : "bg-[var(--color-light-gray)] text-[var(--color-muted)]"
               }`}
             >
-              Get Your Audit
+              Get the audit
             </button>
             <button
               type="button"
               onClick={() => setMobileTab("call")}
               className={`flex-1 py-3 text-sm font-semibold transition-colors ${
                 mobileTab === "call"
-                  ? "bg-[var(--color-gold)]/10 text-[var(--color-dark)]"
+                  ? "bg-[var(--color-dark)] text-[var(--color-light)]"
                   : "bg-[var(--color-light-gray)] text-[var(--color-muted)]"
               }`}
             >
-              Book a Call
+              Book a call
             </button>
           </div>
         </div>
@@ -170,21 +170,30 @@ export default function CTASection() {
               Tell us about your facility.
             </h3>
 
-            {/* Deep Diagnostic CTA */}
+            {/* Deep Diagnostic CTA — escalation to the longer-form audit */}
             <a
               href="/diagnostic"
-              className="mb-6 flex items-center gap-3 rounded-xl border border-[var(--color-gold)]/20 bg-[var(--color-gold)]/[0.06] p-4 transition-colors hover:bg-[var(--color-gold)]/[0.1]"
+              className="mb-6 flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-[var(--color-dark)] hover:text-[var(--color-light)] group"
+              style={{
+                borderColor: "var(--color-dark)",
+                background: "var(--color-light)",
+              }}
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-gold)]/20">
-                <Zap size={18} className="text-[var(--color-gold)]" />
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg group-hover:bg-[var(--color-light)] group-hover:text-[var(--color-dark)]"
+                style={{ background: "var(--color-dark)", color: "var(--color-light)" }}
+              >
+                <Zap size={18} />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-[var(--color-dark)]">Want an AI-Powered Deep Diagnostic?</p>
-                <p className="text-xs text-[var(--color-muted)]">
-                  5-minute form &rarr; Instant AI audit with scores, benchmarks &amp; action plan
+                <p className="text-sm font-semibold" style={{ color: "var(--color-dark)" }}>
+                  Want the deep diagnostic instead?
+                </p>
+                <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+                  5-minute form. Instant scored audit with benchmarks and an action plan.
                 </p>
               </div>
-              <ArrowRight size={16} className="text-[var(--color-gold)] shrink-0" />
+              <ArrowRight size={16} className="shrink-0" />
             </a>
 
             {isSubmitted ? (

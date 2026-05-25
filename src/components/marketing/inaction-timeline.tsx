@@ -74,7 +74,7 @@ export default function InactionTimeline() {
       />
 
       <div ref={ref} className="section-content relative">
-        <SectionHeader number="05" kicker="COST OF INACTION" right={<SectionMeta text="MONTHS · 6" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="04" kicker="COST OF INACTION" right={<SectionMeta text="MONTHS · 6" />} style={{ marginBottom: 28 }} />
         <div
           className={`max-w-3xl mx-auto text-center mb-14 transition-all duration-700 ${
             isVisible

@@ -2,12 +2,10 @@
 
 import { MONO, Label, Dot, Display } from "@/components/mono";
 import { useClock } from "@/hooks/use-live-data";
-import { LiveMonitorTriptych } from "./live-monitors";
 
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
-
   BarChart3,
   Megaphone,
   FileText,
@@ -18,7 +16,6 @@ import {
   Eye,
   DollarSign,
   Sparkles,
-  Layers,
   Globe,
   Activity,
   ChevronDown,
@@ -30,7 +27,6 @@ import {
   Bell,
   Settings,
   LayoutDashboard,
-  Star,
 } from "lucide-react";
 import { useInView } from "./use-in-view";
 import { SplitFlap as SplitFlapComponent } from "./split-flap";
@@ -62,13 +58,18 @@ function useCountUp(target: number, duration = 2000, decimals = 0, active = fals
 }
 
 // Animates 0 → target on first reveal; subsequent target updates snap into
-// place without re-animating. Pair with useFlashOnChange for the polled-tick feel.
+// place without re-animating. Honors prefers-reduced-motion by snapping
+// immediately to the final value.
 function useRevealCountUp(target: number, active: boolean, duration = 1800) {
   const [value, setValue] = useState(0);
   const animatedRef = useRef(false);
   useEffect(() => {
     if (!active) return;
-    if (animatedRef.current) {
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (animatedRef.current || prefersReduced) {
+      animatedRef.current = true;
       setValue(target);
       return;
     }
@@ -101,59 +102,37 @@ function useFlashOnChange<T>(value: T, ms = 600) {
   return flashing;
 }
 
-function useTypewriter(words: string[], active: boolean, typingSpeed = 80, pauseMs = 2200) {
-  const [display, setDisplay] = useState("");
-  const [wordIdx, setWordIdx] = useState(0);
-  const [charIdx, setCharIdx] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false);
   useEffect(() => {
-    if (!active) return;
-    const word = words[wordIdx];
-    let timeout: ReturnType<typeof setTimeout>;
-    if (!isDeleting && charIdx < word.length) {
-      timeout = setTimeout(() => setCharIdx((c) => c + 1), typingSpeed);
-    } else if (!isDeleting && charIdx === word.length) {
-      timeout = setTimeout(() => setIsDeleting(true), pauseMs);
-    } else if (isDeleting && charIdx > 0) {
-      timeout = setTimeout(() => setCharIdx((c) => c - 1), typingSpeed / 2);
-    } else if (isDeleting && charIdx === 0) {
-      setIsDeleting(false); // eslint-disable-line react-hooks/set-state-in-effect -- state machine transition
-      setWordIdx((i) => (i + 1) % words.length);
-    }
-    setDisplay(word.slice(0, charIdx));
-    return () => clearTimeout(timeout);
-  }, [active, charIdx, isDeleting, wordIdx, words, typingSpeed, pauseMs]);
-  return display;
-}
-
-function useAutoTab(count: number, intervalMs = 3500, active = false) {
-  const [tab, setTab] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    const timer = setInterval(() => setTab((t) => (t + 1) % count), intervalMs);
-    return () => clearInterval(timer);
-  }, [count, intervalMs, active]);
-  return [tab, setTab] as const;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return reduced;
 }
 
 function useMouseTilt(enabled: boolean) {
   const ref = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const reduced = useReducedMotion();
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || reduced) return;
     const el = ref.current;
     if (!el) return;
     function handleMove(e: MouseEvent) {
       const rect = el!.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
-      setTilt({ x: y * -4, y: x * 4 });
+      setTilt({ x: y * -3, y: x * 3 });
     }
     function handleLeave() { setTilt({ x: 0, y: 0 }); }
     el.addEventListener("mousemove", handleMove);
     el.addEventListener("mouseleave", handleLeave);
     return () => { el.removeEventListener("mousemove", handleMove); el.removeEventListener("mouseleave", handleLeave); };
-  }, [enabled]);
+  }, [enabled, reduced]);
   return { ref, tilt };
 }
 
@@ -181,24 +160,14 @@ const STATS = [
 ];
 
 const CAPABILITIES = [
-  { icon: Megaphone, label: "Meta & Google Ads", desc: "Full-funnel campaigns across platforms", color: "var(--color-blue)" },
-  { icon: FileText, label: "Landing Pages", desc: "Ad-specific, conversion-optimized", color: "var(--color-gold)" },
-  { icon: Target, label: "Full Attribution", desc: "Ad → page → reservation → move-in", color: "var(--color-green)" },
-  { icon: Zap, label: "storEDGE Integration", desc: "Embedded rental & reservation flow", color: "#8a70b0" },
-  { icon: BarChart3, label: "Revenue Analytics", desc: "ROAS by creative & campaign", color: "var(--color-gold)" },
-  { icon: Eye, label: "A/B Testing", desc: "Revenue-based winner selection", color: "var(--color-blue)" },
-  { icon: Sparkles, label: "AI Creative Studio", desc: "Generate ads, copy & pages", color: "var(--color-green)" },
+  { icon: Megaphone, label: "Meta & Google Ads", desc: "Both channels, run by an operator who fills units", color: "var(--color-blue)" },
+  { icon: FileText, label: "Landing Pages", desc: "One page per ad, with the offer that ad promised", color: "var(--color-dark)" },
+  { icon: Target, label: "Move-in Tracking", desc: "Ad → page → reservation → move-in", color: "var(--color-green)" },
+  { icon: Zap, label: "storEDGE Integration", desc: "Renter never leaves your branded page", color: "#8a70b0" },
+  { icon: BarChart3, label: "Revenue Reporting", desc: "What you spent. What you got. What each one cost.", color: "var(--color-dark)" },
+  { icon: Eye, label: "A/B Testing", desc: "Winners picked by move-ins, not clicks", color: "var(--color-blue)" },
+  { icon: Sparkles, label: "AI Creative Studio", desc: "Generate ad copy, headlines, and page variants", color: "var(--color-green)" },
   { icon: Activity, label: "Live Monitoring", desc: "Real-time performance alerts", color: "#8a70b0" },
-];
-
-const TYPEWRITER_WORDS = ["Fill units.", "Prove ROAS.", "Kill bad spend.", "Track every move-in.", "Win your zip code."];
-
-const NOTIFICATION_FEED = [
-  { text: "New move-in: Climate Control 10x10", time: "2m", color: "var(--color-blue)", icon: "🎯" },
-  { text: "Conversion rate: 12.3% (+2.1%)", time: "15m", color: "var(--color-green)", icon: "📈" },
-  { text: "Google CPC dropped to $1.82", time: "1h", color: "var(--color-gold)", icon: "💰" },
-  { text: "A/B winner: First Month Free", time: "3h", color: "var(--color-green)", icon: "🏆" },
-  { text: "New reservation: 5x10 unit", time: "4h", color: "var(--color-blue)", icon: "📦" },
 ];
 
 const PIPELINE_STEPS = [
@@ -255,6 +224,16 @@ function HeroStyles() {
       .stat-cell{padding:16px 12px 18px}
       @media (min-width:480px){.stat-cell{padding:20px 16px 22px}}
       @media (min-width:768px){.stat-cell{padding:22px 20px 24px}}
+      /* Scoped reduce-motion override — kills hero's looping animations
+         (float, pulse, shimmer, gradient shift, scroll bounce) while
+         leaving fade-in transitions intact at a much shorter duration. */
+      @media (prefers-reduced-motion: reduce) {
+        #hero *, #hero *::before, #hero *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          animation-delay: 0ms !important;
+        }
+      }
     `}</style>
   );
 }
@@ -286,7 +265,7 @@ function DotGrid() {
    Shows: Ad → Page → Reserve → Move-in
    ═══════════════════════════════════════════ */
 
-function PipelineFlow({ isVisible }: { isVisible: boolean }) {
+export function PipelineFlow({ isVisible }: { isVisible: boolean }) {
   const [activeStep, setActiveStep] = useState(-1);
 
   useEffect(() => {
@@ -372,206 +351,256 @@ function StatItem({ stat, active, delay }: { stat: (typeof STATS)[0]; active: bo
 }
 
 /* ═══════════════════════════════════════════
-   LIVE FEED
-   ═══════════════════════════════════════════ */
-
-function LiveFeed({ isVisible }: { isVisible: boolean }) {
-  const [visibleCount, setVisibleCount] = useState(0);
-  useEffect(() => {
-    if (!isVisible) return;
-    const timers = NOTIFICATION_FEED.map((_, i) =>
-      setTimeout(() => setVisibleCount((c) => Math.max(c, i + 1)), 1600 + i * 600)
-    );
-    return () => timers.forEach(clearTimeout);
-  }, [isVisible]);
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      {NOTIFICATION_FEED.map((item, i) => (
-        <div
-          key={i}
-          className="flex items-start gap-2 rounded-lg px-2.5 py-1.5 border transition-all duration-500"
-          style={{
-            background: i < visibleCount ? "var(--bg-elevated)" : "transparent",
-            borderColor: i < visibleCount ? "var(--border-subtle)" : "transparent",
-            opacity: i < visibleCount ? 1 : 0,
-            transform: i < visibleCount ? "translateX(0) scale(1)" : "translateX(20px) scale(0.95)",
-          }}
-        >
-          <span className="text-[10px] mt-0.5 flex-shrink-0">{item.icon}</span>
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] leading-snug truncate" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)", fontWeight: 500 }}>{item.text}</div>
-            <div className="text-[9px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>{item.time}</div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
    DASHBOARD MOCKUP
    ═══════════════════════════════════════════ */
 
-function DashboardMockup({ isVisible }: { isVisible: boolean }) {
-  const tabs = ["Overview", "Campaigns", "Pages", "Attribution"];
-  const [activeTab, setActiveTab] = useAutoTab(tabs.length, 4000, isVisible);
+// Demo data — designed to match the public stats on the rest of the site so
+// the numbers reconcile between hero, ROI, and funnel sections.
+const DASHBOARD_ROWS = [
+  { campaign: "Two Paws — 10x10 Climate", channel: "Meta", spend: 847, clicks: 312, reservations: 14, moveIns: 9, cpm: 94, trend: "down" as const },
+  { campaign: "Midway — Drive-up", channel: "Google", spend: 612, clicks: 198, reservations: 11, moveIns: 7, cpm: 87, trend: "down" as const },
+  { campaign: "Two Paws — Boat / RV", channel: "Meta", spend: 423, clicks: 156, reservations: 6, moveIns: 4, cpm: 106, trend: "flat" as const },
+  { campaign: "Midway — Climate retarget", channel: "Meta", spend: 298, clicks: 89, reservations: 5, moveIns: 4, cpm: 74, trend: "down" as const },
+];
+
+const CHANNEL_DOT: Record<string, string> = {
+  Meta: "var(--color-dark)",
+  Google: "var(--color-blue)",
+  Retargeting: "var(--color-green)",
+};
+
+// Sparkline path for the avg cost-per-move-in trend (12 points). In SVG
+// y=0 is top, so a descending line starts at a small y and ends at a
+// large y — i.e. cost was higher 30 days ago and is lower now.
+const SPARKLINE_PATH = "M0 4 C8 5, 16 6, 24 8 S40 11, 48 13 S64 15, 72 16 S88 17, 96 18";
+
+export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
   const { ref: tiltRef, tilt } = useMouseTilt(isVisible);
+  const avgCpm = useRevealCountUp(91, isVisible, 800);
 
   return (
     <div
-      className="relative w-full transition-all duration-1000"
-      style={{ transitionDelay: "200ms", opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0) scale(1)" : "translateY(40px) scale(0.96)" }}
+      className="relative w-full transition-all duration-[400ms]"
+      style={{
+        transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(4px)",
+      }}
     >
-      {/* Glow */}
-      <div className="absolute -inset-6 rounded-3xl pointer-events-none hidden lg:block" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(181,139,63,0.1), transparent 65%)", filter: "blur(30px)", animation: "hero-glow-pulse 4s ease-in-out infinite" }} />
+      {/* Neutral glow — replaces the old gold halo */}
+      <div
+        className="absolute -inset-6 rounded-3xl pointer-events-none hidden lg:block"
+        style={{
+          background: "radial-gradient(ellipse at 50% 50%, rgba(20,20,19,0.05), transparent 65%)",
+          filter: "blur(30px)",
+        }}
+        aria-hidden="true"
+      />
 
-      {/* Mouse-follow tilt wrapper */}
       <div ref={tiltRef} style={{ perspective: "1400px" }}>
         <div
-          className="w-full rounded-2xl overflow-hidden border transition-all duration-300"
+          className="w-full rounded-2xl overflow-hidden border bg-[var(--color-light)] transition-transform duration-300"
           style={{
             borderColor: "rgba(0,0,0,0.08)",
-            background: "var(--bg-elevated)",
-            animation: "hero-border-glow 6s ease-in-out infinite",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)",
             transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
             transformStyle: "preserve-3d",
           }}
         >
-          {/* Shimmer */}
-          <div className="absolute inset-0 pointer-events-none z-10" style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.25) 50%, transparent 60%)", backgroundSize: "200% 100%", animation: "hero-shimmer 5s ease-in-out infinite", animationDelay: "2s" }} />
-
-          <div className="flex" style={{ height: "clamp(280px, 40vw, 480px)" }}>
+          <div className="flex">
             {/* Sidebar */}
-            <div className="hidden sm:flex flex-col items-center py-4 gap-2 flex-shrink-0" style={{ width: "52px", background: "var(--color-dark)" }}>
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-2" style={{ background: "var(--color-gold)" }}>
-                <span className="text-[10px] font-semibold text-white" style={{ fontFamily: "var(--font-heading)" }}>SA</span>
+            <div
+              className="hidden sm:flex flex-col items-center py-4 gap-2 flex-shrink-0"
+              style={{ width: "52px", background: "var(--color-dark)" }}
+              aria-hidden="true"
+            >
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center mb-2"
+                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+              >
+                <span className="text-[10px] font-bold tracking-tight" style={{ fontFamily: "var(--font-heading)", color: "var(--color-light)" }}>SA</span>
               </div>
               {[LayoutDashboard, Megaphone, FileText, BarChart3, Settings].map((SideIcon, i) => (
-                <div key={i} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-500" style={{ background: i === 0 ? "rgba(181,139,63,0.2)" : "transparent", border: i === 0 ? "1px solid rgba(181,139,63,0.4)" : "1px solid transparent", transitionDelay: `${500 + i * 60}ms`, opacity: isVisible ? 1 : 0 }}>
-                  <SideIcon size={14} style={{ color: i === 0 ? "var(--color-gold)" : "rgba(255,255,255,0.3)" }} />
+                <div
+                  key={i}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{
+                    background: i === 0 ? "rgba(255,255,255,0.1)" : "transparent",
+                    border: i === 0 ? "1px solid rgba(255,255,255,0.14)" : "1px solid transparent",
+                  }}
+                >
+                  <SideIcon size={14} style={{ color: i === 0 ? "var(--color-light)" : "rgba(255,255,255,0.35)" }} />
                 </div>
               ))}
               <div className="flex-1" />
-              <div className="w-7 h-7 rounded-full" style={{ background: "rgba(255,255,255,0.1)" }} />
+              <div className="w-7 h-7 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }} />
             </div>
 
-            {/* Content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Content column */}
+            <div className="flex-1 flex flex-col min-w-0">
               {/* Top bar */}
-              <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b transition-all duration-500" style={{ borderColor: "var(--border-subtle)", background: "rgba(250,249,245,0.5)", transitionDelay: "400ms", opacity: isVisible ? 1 : 0 }}>
-                <div className="h-7 w-28 sm:w-36 rounded-md flex items-center gap-2 px-2.5" style={{ background: "var(--border-subtle)" }}>
-                  <Search size={10} style={{ color: "var(--text-tertiary)" }} />
-                  <span className="text-[10px] hidden sm:inline" style={{ color: "var(--text-tertiary)" }}>Search facilities...</span>
+              <div
+                className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b"
+                style={{ borderColor: "var(--border-subtle)", background: "rgba(250,249,245,0.6)" }}
+              >
+                <div className="h-7 w-36 sm:w-48 rounded-md flex items-center gap-2 px-2.5" style={{ background: "var(--border-subtle)" }}>
+                  <Search size={11} style={{ color: "var(--text-tertiary)" }} />
+                  <span className="text-[10px] hidden sm:inline" style={{ color: "var(--text-tertiary)" }}>Search campaigns…</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="relative">
                     <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "var(--border-subtle)" }}>
                       <Bell size={11} style={{ color: "var(--text-tertiary)" }} />
                     </div>
-                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 animate-pulse" style={{ background: "var(--color-red)", borderColor: "var(--bg-elevated)" }} />
+                    <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full" style={{ background: "var(--color-green)" }} />
                   </div>
-                  <div className="w-6 h-6 rounded-full" style={{ background: "var(--color-gold-light)", border: "1px solid rgba(181,139,63,0.2)" }} />
+                  <div className="w-6 h-6 rounded-full" style={{ background: "var(--color-light-gray)", border: "1px solid var(--border-subtle)" }} />
                 </div>
               </div>
 
-              {/* Tabs */}
-              <div className="flex items-center gap-0.5 sm:gap-1 px-3 sm:px-4 pt-3 pb-0 transition-all duration-500 overflow-x-auto" style={{ transitionDelay: "500ms", opacity: isVisible ? 1 : 0 }}>
-                {tabs.map((tab, i) => (
-                  <button key={tab} onClick={() => setActiveTab(i)} className="px-2 sm:px-3 py-1.5 rounded-md text-[10px] sm:text-[11px] font-medium transition-all duration-300 flex-shrink-0 relative" style={{ fontFamily: "var(--font-heading)", background: activeTab === i ? "rgba(181,139,63,0.1)" : "transparent", color: activeTab === i ? "var(--color-gold)" : "var(--text-tertiary)", border: activeTab === i ? "1px solid rgba(181,139,63,0.2)" : "1px solid transparent" }}>
-                    {tab}
-                  </button>
+              {/* Header */}
+              <div className="flex items-end justify-between px-4 sm:px-5 pt-4 sm:pt-5 pb-2">
+                <div>
+                  <h3
+                    className="text-[13px] sm:text-sm font-semibold"
+                    style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}
+                  >
+                    Campaign performance
+                  </h3>
+                  <p className="text-[10px] sm:text-[11px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+                    Last 30 days
+                  </p>
+                </div>
+                {/* Sparkline */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] uppercase tracking-wide" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>
+                    Cost / move-in
+                  </span>
+                  <svg width="96" height="22" viewBox="0 0 96 22" fill="none" aria-hidden="true">
+                    <path
+                      d={SPARKLINE_PATH}
+                      stroke="var(--color-green)"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="none"
+                      style={{
+                        strokeDasharray: 140,
+                        strokeDashoffset: isVisible ? 0 : 140,
+                        transition: "stroke-dashoffset 1.4s cubic-bezier(0.16,1,0.3,1) 300ms",
+                      }}
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Stat strip */}
+              <div className="grid grid-cols-3 gap-2 px-4 sm:px-5 mt-2">
+                {[
+                  { label: "Total spend", value: "$2,180", delta: null },
+                  { label: "Move-ins", value: "24", delta: null },
+                  { label: "Avg cost / move-in", value: `$${avgCpm}`, delta: "−18% vs prior 30d", deltaColor: "var(--color-green)" },
+                ].map((s, i) => (
+                  <div
+                    key={s.label}
+                    className="rounded-xl p-2.5 sm:p-3 border"
+                    style={{
+                      borderColor: "var(--border-subtle)",
+                      background: "var(--color-light)",
+                      transition: "opacity 600ms cubic-bezier(0.16,1,0.3,1), transform 600ms cubic-bezier(0.16,1,0.3,1)",
+                      transitionDelay: `${200 + i * 80}ms`,
+                      opacity: isVisible ? 1 : 0,
+                      transform: isVisible ? "translateY(0)" : "translateY(6px)",
+                    }}
+                  >
+                    <div className="text-[9px] sm:text-[10px] uppercase tracking-wide" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>
+                      {s.label}
+                    </div>
+                    <div
+                      className="text-base sm:text-lg font-semibold mt-1 tabular-nums"
+                      style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)", lineHeight: 1 }}
+                    >
+                      {s.value}
+                    </div>
+                    {s.delta && (
+                      <div className="text-[9px] sm:text-[10px] mt-1 font-medium" style={{ color: s.deltaColor }}>
+                        {s.delta}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
 
-              {/* Body */}
-              <div className="flex-1 p-3 sm:p-4 flex flex-col gap-2.5 overflow-hidden">
-                {/* Metrics */}
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: "Move-ins", value: "34", change: "+12%", accent: "var(--color-green)", up: true },
-                    { label: "Cost / MI", value: "$41", change: "-18%", accent: "var(--color-green)", up: false },
-                    { label: "Conv. Rate", value: "8.7%", change: "+3.2%", accent: "var(--color-gold)", up: true },
-                  ].map((card, i) => (
-                    <div key={i} className="rounded-xl p-2 sm:p-2.5 border transition-all duration-600" style={{ borderColor: "var(--border-subtle)", background: "var(--color-light)", transitionDelay: `${600 + i * 100}ms`, opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(10px)" }}>
-                      <div className="text-[9px] sm:text-[10px]" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>{card.label}</div>
-                      <div className="flex items-baseline gap-1 mt-0.5">
-                        <span className="text-sm sm:text-base font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)", lineHeight: 1 }}>{card.value}</span>
-                        <span className="text-[9px] font-semibold flex items-center gap-0.5" style={{ color: card.accent, fontFamily: "var(--font-heading)" }}>
-                          <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d={card.up ? "M4 7V1M4 1L1.5 3.5M4 1L6.5 3.5" : "M4 1V7M4 7L1.5 4.5M4 7L6.5 4.5"} stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                          {card.change}
-                        </span>
-                      </div>
-                      <svg viewBox="0 0 80 20" className="w-full h-3 mt-1" preserveAspectRatio="none">
-                        <path d={i === 0 ? "M0 18 C10 16, 20 14, 30 12 S50 6, 60 4 S75 2, 80 1" : i === 1 ? "M0 4 C10 6, 20 10, 30 12 S50 16, 60 14 S75 8, 80 6" : "M0 16 C10 14, 20 10, 30 8 S50 5, 60 3 S75 2, 80 1"} fill="none" stroke={card.accent} strokeWidth="1.5" strokeLinecap="round" style={{ strokeDasharray: 120, strokeDashoffset: isVisible ? 0 : 120, transition: "stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1)", transitionDelay: `${900 + i * 150}ms` }} />
-                      </svg>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Chart + Feed */}
-                <div className="flex-1 grid grid-cols-1 sm:grid-cols-[1.5fr_1fr] gap-2 min-h-0">
-                  {/* Chart */}
-                  <div className="relative rounded-xl border overflow-hidden transition-all duration-600" style={{ borderColor: "var(--border-subtle)", background: "var(--color-light)", transitionDelay: "800ms", opacity: isVisible ? 1 : 0 }}>
-                    <div className="flex items-center justify-between px-3 pt-2">
-                      <span className="text-[10px] sm:text-[11px] font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>Revenue Attribution</span>
-                      <div className="flex gap-2">
-                        {[{ l: "Meta", c: "var(--color-blue)" }, { l: "Google", c: "var(--color-gold)" }, { l: "Organic", c: "var(--color-green)" }].map((leg) => (
-                          <span key={leg.l} className="flex items-center gap-0.5 text-[8px]" style={{ color: "var(--text-tertiary)" }}>
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: leg.c }} />{leg.l}
-                          </span>
+              {/* Table */}
+              <div className="px-4 sm:px-5 pt-4 pb-4 sm:pb-5 flex-1 min-w-0">
+                <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--border-subtle)" }}>
+                  <table className="w-full text-left" style={{ borderCollapse: "collapse" }}>
+                    <caption className="sr-only">Campaign performance for the last 30 days</caption>
+                    <thead>
+                      <tr style={{ background: "var(--color-light-gray)" }}>
+                        {["Campaign", "Spend", "Clicks", "Res.", "Move-ins", "Cost / MI"].map((h, i) => (
+                          <th
+                            key={h}
+                            scope="col"
+                            className={`text-[9px] sm:text-[10px] uppercase tracking-wide px-2.5 sm:px-3 py-2 font-semibold ${i > 0 ? "text-right tabular-nums" : ""} ${i > 2 ? "hidden sm:table-cell" : ""}`}
+                            style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}
+                          >
+                            {h}
+                          </th>
                         ))}
-                      </div>
-                    </div>
-                    <svg viewBox="0 0 400 140" className="w-full" preserveAspectRatio="none" style={{ display: "block", height: "calc(100% - 24px)" }}>
-                      {[35, 60, 85, 110, 135].map((y) => (<line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(0,0,0,0.03)" />))}
-                      {[{ y: 38, l: "$15k" }, { y: 63, l: "$10k" }, { y: 88, l: "$5k" }, { y: 113, l: "$2k" }].map((a) => (<text key={a.y} x="8" y={a.y} fontSize="7" fill="rgba(0,0,0,0.18)" fontFamily="var(--font-heading)">{a.l}</text>))}
-                      <defs>
-                        <linearGradient id="hcfb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="rgba(106,155,204,0.15)" /><stop offset="100%" stopColor="rgba(106,155,204,0)" /></linearGradient>
-                        <linearGradient id="hcfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="rgba(181,139,63,0.12)" /><stop offset="100%" stopColor="rgba(181,139,63,0)" /></linearGradient>
-                        <linearGradient id="hcfgr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="rgba(120,140,93,0.1)" /><stop offset="100%" stopColor="rgba(120,140,93,0)" /></linearGradient>
-                      </defs>
-                      <path d="M30 110 C60 105,100 90,140 78 S220 55,280 42 S350 30,395 22 L395 140 L30 140Z" fill="url(#hcfb)" className="transition-opacity duration-1000" style={{ opacity: isVisible ? 1 : 0, transitionDelay: "1000ms" }} />
-                      <path d="M30 110 C60 105,100 90,140 78 S220 55,280 42 S350 30,395 22" fill="none" stroke="var(--color-blue)" strokeWidth="2" strokeLinecap="round" style={{ strokeDasharray: 600, strokeDashoffset: isVisible ? 0 : 600, transition: "stroke-dashoffset 2s cubic-bezier(0.16,1,0.3,1)", transitionDelay: "900ms" }} />
-                      <path d="M30 120 C60 118,100 108,140 98 S220 80,280 68 S350 52,395 40 L395 140 L30 140Z" fill="url(#hcfg)" className="transition-opacity duration-1000" style={{ opacity: isVisible ? 1 : 0, transitionDelay: "1100ms" }} />
-                      <path d="M30 120 C60 118,100 108,140 98 S220 80,280 68 S350 52,395 40" fill="none" stroke="var(--color-gold)" strokeWidth="2" strokeLinecap="round" style={{ strokeDasharray: 600, strokeDashoffset: isVisible ? 0 : 600, transition: "stroke-dashoffset 2s cubic-bezier(0.16,1,0.3,1)", transitionDelay: "1000ms" }} />
-                      <path d="M30 128 C60 126,100 120,140 112 S220 98,280 88 S350 72,395 62 L395 140 L30 140Z" fill="url(#hcfgr)" className="transition-opacity duration-1000" style={{ opacity: isVisible ? 1 : 0, transitionDelay: "1200ms" }} />
-                      <path d="M30 128 C60 126,100 120,140 112 S220 98,280 88 S350 72,395 62" fill="none" stroke="var(--color-green)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3" style={{ strokeDashoffset: isVisible ? 0 : 600, transition: "stroke-dashoffset 2s cubic-bezier(0.16,1,0.3,1)", transitionDelay: "1100ms" }} />
-                      <circle cx="395" cy="22" r="3.5" fill="var(--color-blue)" className="transition-opacity duration-500" style={{ opacity: isVisible ? 1 : 0, transitionDelay: "2200ms" }} />
-                      <circle cx="395" cy="40" r="3.5" fill="var(--color-gold)" className="transition-opacity duration-500" style={{ opacity: isVisible ? 1 : 0, transitionDelay: "2300ms" }} />
-                      <circle cx="395" cy="62" r="3" fill="var(--color-green)" className="transition-opacity duration-500" style={{ opacity: isVisible ? 1 : 0, transitionDelay: "2400ms" }} />
-                    </svg>
-                  </div>
-
-                  {/* Live feed */}
-                  <div className="hidden sm:flex flex-col rounded-xl border overflow-hidden transition-all duration-600" style={{ borderColor: "var(--border-subtle)", background: "var(--color-light)", transitionDelay: "900ms", opacity: isVisible ? 1 : 0 }}>
-                    <div className="flex items-center gap-1.5 px-3 pt-2 pb-1">
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-green)", animation: "hero-live-dot 2s ease-in-out infinite" }} />
-                      <span className="text-[10px] sm:text-[11px] font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>Live Activity</span>
-                    </div>
-                    <div className="flex-1 px-1.5 pb-1.5 overflow-hidden">
-                      <LiveFeed isVisible={isVisible} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Campaign row */}
-                <div className="grid grid-cols-3 gap-2 transition-all duration-600" style={{ transitionDelay: "1000ms", opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(8px)" }}>
-                  {[
-                    { name: "FB: Climate", movins: "14", bar: "82%", color: "var(--color-blue)" },
-                    { name: "Google: 10x10", movins: "11", bar: "65%", color: "var(--color-gold)" },
-                    { name: "IG: Free Mo.", movins: "9", bar: "52%", color: "var(--color-green)" },
-                  ].map((c, i) => (
-                    <div key={i} className="rounded-lg border p-1.5 sm:p-2" style={{ borderColor: "var(--border-subtle)", background: "var(--color-light)" }}>
-                      <div className="text-[9px] sm:text-[10px] font-semibold truncate" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>{c.name}</div>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--border-subtle)" }}>
-                          <div className="h-full rounded-full transition-all duration-1200" style={{ background: c.color, width: isVisible ? c.bar : "0%", transitionDelay: `${1300 + i * 150}ms` }} />
-                        </div>
-                        <span className="text-[8px] sm:text-[9px] font-semibold flex-shrink-0" style={{ color: c.color, fontFamily: "var(--font-heading)" }}>{c.movins} MI</span>
-                      </div>
-                    </div>
-                  ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {DASHBOARD_ROWS.map((row, i) => (
+                        <tr
+                          key={row.campaign}
+                          style={{
+                            borderTop: "1px solid var(--border-subtle)",
+                            transition: "opacity 500ms ease-out, transform 500ms ease-out",
+                            transitionDelay: `${450 + i * 70}ms`,
+                            opacity: isVisible ? 1 : 0,
+                            transform: isVisible ? "translateY(0)" : "translateY(4px)",
+                          }}
+                        >
+                          <td className="px-2.5 sm:px-3 py-2 text-[10px] sm:text-[11px]" style={{ color: "var(--color-dark)" }}>
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span
+                                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                style={{ background: CHANNEL_DOT[row.channel] || "var(--color-dark)" }}
+                                aria-label={`${row.channel} channel`}
+                              />
+                              <span className="font-medium truncate">{row.campaign}</span>
+                            </div>
+                          </td>
+                          <td className="px-2.5 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                            ${row.spend.toLocaleString()}
+                          </td>
+                          <td className="px-2.5 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                            {row.clicks}
+                          </td>
+                          <td className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                            {row.reservations}
+                          </td>
+                          <td className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums font-medium" style={{ color: "var(--color-dark)" }}>
+                            {row.moveIns}
+                          </td>
+                          <td className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums" style={{ color: "var(--color-dark)" }}>
+                            <span className="inline-flex items-center gap-1">
+                              <span className="font-semibold">${row.cpm}</span>
+                              {row.trend === "down" && (
+                                <svg width="9" height="9" viewBox="0 0 8 8" aria-label="trending down">
+                                  <path d="M4 1V7M4 7L1.5 4.5M4 7L6.5 4.5" stroke="var(--color-green)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                                </svg>
+                              )}
+                              {row.trend === "flat" && (
+                                <span className="w-2 h-px" style={{ background: "var(--text-tertiary)" }} aria-label="flat" />
+                              )}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -579,22 +608,33 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
         </div>
       </div>
 
-      {/* Floating pills — desktop. Tucked under the top/bottom border so
-          they visually overlap the card edge ("tag on a card" look) but
-          the portion INSIDE the card sits only in the top-bar / body
-          padding zones — never over the search bar, icons, tabs, or
-          activity rows. Top bar has py-2.5 (10px top padding) and body
-          has p-3/p-4 (12–16px) bottom padding, which is the safe zone
-          we aim the overlap into. */}
+      {/* Floating channel pills — desktop only. Recolored to charcoal /
+          blue / green / neutral purple. No gold anywhere. */}
       {[
-        { label: "Meta Ads", icon: Megaphone, pos: { top: "-22px", right: "32px" }, bg: "rgba(106,155,204,0.08)", border: "rgba(106,155,204,0.25)", color: "#5a8bb8", anim: "hero-float-a", dur: "4s", ad: "0s", td: "1400ms" },
-        { label: "Landing Pages", icon: FileText, pos: { top: "-28px", left: "150px" }, bg: "rgba(181,139,63,0.06)", border: "rgba(181,139,63,0.25)", color: "var(--color-gold)", anim: "hero-float-b", dur: "3.5s", ad: "1s", td: "1550ms" },
-        { label: "Attribution", icon: Target, pos: { bottom: "-20px", right: "110px" }, bg: "rgba(120,140,93,0.08)", border: "rgba(120,140,93,0.25)", color: "#6a7d50", anim: "hero-float-a", dur: "3.8s", ad: "1.8s", td: "1700ms" },
-        { label: "storEDGE", icon: Zap, pos: { bottom: "-26px", left: "64px" }, bg: "rgba(140,120,180,0.06)", border: "rgba(140,120,180,0.25)", color: "#8a70b0", anim: "hero-float-b", dur: "4.2s", ad: "0.5s", td: "1850ms" },
+        { label: "Meta Ads", icon: Megaphone, pos: { top: "-22px", right: "32px" }, bg: "rgba(106,155,204,0.08)", border: "rgba(106,155,204,0.25)", color: "#5a8bb8", anim: "hero-float-a", dur: "4s", ad: "0s", td: "650ms" },
+        { label: "Landing Pages", icon: FileText, pos: { top: "-28px", left: "150px" }, bg: "rgba(20,20,19,0.05)", border: "rgba(20,20,19,0.18)", color: "var(--color-dark)", anim: "hero-float-b", dur: "3.5s", ad: "1s", td: "780ms" },
+        { label: "Attribution", icon: Target, pos: { bottom: "-20px", right: "110px" }, bg: "rgba(120,140,93,0.08)", border: "rgba(120,140,93,0.25)", color: "#6a7d50", anim: "hero-float-a", dur: "3.8s", ad: "1.8s", td: "910ms" },
+        { label: "storEDGE", icon: Zap, pos: { bottom: "-26px", left: "64px" }, bg: "rgba(140,120,180,0.06)", border: "rgba(140,120,180,0.25)", color: "#8a70b0", anim: "hero-float-b", dur: "4.2s", ad: "0.5s", td: "1040ms" },
       ].map((pill) => {
         const PillIcon = pill.icon;
         return (
-          <div key={pill.label} className="absolute hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border shadow-sm transition-all duration-700" style={{ ...pill.pos, background: pill.bg, borderColor: pill.border, color: pill.color, fontFamily: "var(--font-heading)", animation: `${pill.anim} ${pill.dur} ease-in-out infinite`, animationDelay: pill.ad, transitionDelay: pill.td, opacity: isVisible ? 1 : 0, scale: isVisible ? "1" : "0.8" }}>
+          <div
+            key={pill.label}
+            className="absolute hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border shadow-sm"
+            style={{
+              ...pill.pos,
+              background: pill.bg,
+              borderColor: pill.border,
+              color: pill.color,
+              fontFamily: "var(--font-heading)",
+              animation: `${pill.anim} ${pill.dur} ease-in-out infinite`,
+              animationDelay: pill.ad,
+              transition: "opacity 600ms, transform 600ms",
+              transitionDelay: pill.td,
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "scale(1)" : "scale(0.85)",
+            }}
+          >
             <PillIcon size={12} /> {pill.label}
           </div>
         );
@@ -632,7 +672,7 @@ function platformGlyph(p: string): string {
   return "●"; // meta / default
 }
 
-function MobileLiveTicker({ isVisible }: { isVisible: boolean }) {
+export function MobileLiveTicker({ isVisible }: { isVisible: boolean }) {
   const [events, setEvents] = useState<PublicActivityEvent[]>([]);
 
   useEffect(() => {
@@ -696,7 +736,7 @@ function MobileLiveTicker({ isVisible }: { isVisible: boolean }) {
    Interactive cards with hover lift + animated icons
    ═══════════════════════════════════════════ */
 
-function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
+export function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
   const revealed = useStaggeredReveal(FEATURE_HIGHLIGHTS.length, isVisible, 200, 120);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
@@ -783,7 +823,7 @@ function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
    Animated check reveals
    ═══════════════════════════════════════════ */
 
-function BeforeAfterComparison({ isVisible }: { isVisible: boolean }) {
+export function BeforeAfterComparison({ isVisible }: { isVisible: boolean }) {
   const revealed = useStaggeredReveal(BEFORE_AFTER.length, isVisible, 400, 150);
 
   return (
@@ -845,7 +885,7 @@ function BeforeAfterComparison({ isVisible }: { isVisible: boolean }) {
    CAPABILITIES INTERACTIVE GRID
    ═══════════════════════════════════════════ */
 
-function CapabilitiesGrid({ isVisible }: { isVisible: boolean }) {
+export function CapabilitiesGrid({ isVisible }: { isVisible: boolean }) {
   const revealed = useStaggeredReveal(CAPABILITIES.length, isVisible, 200, 80);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
 
@@ -979,9 +1019,10 @@ function ResponsiveSplitFlap({ messages, holdTime }: { messages: string[]; holdT
   return <SplitFlapComponent messages={messages} cols={layout.cols} rows={layout.rows} holdTime={holdTime} />;
 }
 
-function BecauseLetterboard() {
+export function BecauseLetterboard() {
   return (
-    <div
+    <section
+      aria-label="Because (split-flap pain refrain)"
       className="relative border-t overflow-hidden"
       style={{ borderColor: "var(--border-subtle)", background: "var(--color-dark)" }}
     >
@@ -1005,7 +1046,7 @@ function BecauseLetterboard() {
         {/* Split-flap display — responsive cols/rows */}
         <ResponsiveSplitFlap messages={BECAUSE_MESSAGES} holdTime={4500} />
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -1013,7 +1054,7 @@ function BecauseLetterboard() {
    ROI TEASER — quick animated value prop
    ═══════════════════════════════════════════ */
 
-function ROITeaser({ isVisible }: { isVisible: boolean }) {
+export function ROITeaser({ isVisible }: { isVisible: boolean }) {
   const adSpend = useCountUp(2400, 2000, 0, isVisible);
   const moveIns = useCountUp(34, 2200, 0, isVisible);
   const costPerMI = useCountUp(41, 2000, 0, isVisible);
@@ -1324,7 +1365,7 @@ function StatCell({
   );
 }
 
-function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
+export function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
   const clock = useClock();
 
   // Industry + forecast cards only. The alpha portfolio numbers don't yet
@@ -1456,200 +1497,111 @@ function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
 }
 
 /* ═══════════════════════════════════════════
-   HERO — Main Export
+   STATS BAR — page-level section, extracted from Hero per IA spec.
+   Renders the four hero-stat counters (move-ins, cost per MI, LP CVR, ROAS).
+   Consumed at slot 6 (Proof) in page.tsx.
+   ═══════════════════════════════════════════ */
+
+export function StatsBar() {
+  const { ref, isVisible } = useInView(0.1);
+  return (
+    <section ref={ref} aria-label="Key performance stats" className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-surface)" }}>
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-10 sm:py-14">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          {STATS.map((stat, i) => (
+            <StatItem key={stat.label} stat={stat} active={isVisible} delay={i * 120} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   HERO — Main Export (lean per IA spec).
+   Contains exactly: 1 H1, 1 subhead, 2 CTAs, 1 trust element.
+   Everything else was lifted into named exports above and consumed
+   from page.tsx at its target slot.
    ═══════════════════════════════════════════ */
 
 export default function Hero() {
   const { ref, isVisible } = useInView(0.02);
-  const { ref: statsRef, isVisible: statsVisible } = useInView(0.1);
-  const { ref: capsRef, isVisible: capsVisible } = useInView(0.1);
-  const { ref: featRef, isVisible: featVisible } = useInView(0.08);
-  const { ref: baRef, isVisible: baVisible } = useInView(0.1);
-  const { ref: roiRef, isVisible: roiVisible } = useInView(0.1);
-  const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
-    <section id="hero" aria-label="StorageAds: full-funnel demand engine for self-storage" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
+    <section id="hero" aria-label="StorageAds: fill units and prove which ads did it" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
       <HeroStyles />
       <DotGrid />
-
       <HeroStatusStrip />
 
-      {/* ── Hero content ── */}
-      <div ref={ref} className="relative w-full pt-16 sm:pt-20 lg:pt-24 pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
-
-          {/* ── Left column ── */}
-          <div className="text-center lg:text-left max-w-xl mx-auto lg:mx-0">
-            {/* Headline */}
+      {/* Hero content — 2-column on lg+ (text left, dashboard right), stacked
+          and centered below lg. The dashboard sits in slot 1 (above the
+          fold) so the first thing visitors see is the product, not prose. */}
+      <div ref={ref} className="relative w-full pt-12 sm:pt-16 lg:pt-20 pb-16 lg:pb-24 px-5 sm:px-8 lg:px-14">
+        <div className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] gap-10 lg:gap-12 xl:gap-16 items-center">
+          {/* LEFT — headline, sub, CTAs, trust */}
+          <div className="text-center lg:text-left">
             <h1
-              className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--serif)" }}
+              className={`font-semibold transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{ fontSize: "clamp(1.75rem, 4.8vw, 3rem)", lineHeight: 1.08, letterSpacing: "-0.03em", fontFamily: "var(--serif)" }}
             >
-              The marketing system that{" "}
-              <span className="relative inline-block">
-                <span style={{ background: "linear-gradient(135deg, var(--accent), var(--color-blue), var(--accent-hover))", backgroundSize: "200% 200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "hero-gradient-shift 3s ease-in-out infinite" }}>
-                  proves
-                </span>
-                <span className="absolute bottom-0 left-0 h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, var(--accent), var(--accent-hover))", animation: isVisible ? "hero-underline-draw 0.8s ease-out 0.6s both" : "none", width: 0 }} />
-              </span>{" "}
-              which ads produce move-ins.
+              Fill units. Prove which ads did it.
             </h1>
 
-            {/* Typewriter */}
-            <div className={`mt-3 h-8 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "200ms" }}>
-              <span className="text-lg sm:text-xl font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--serif)", letterSpacing: "-0.03em" }}>{typedText}</span>
-              <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
-            </div>
-
-            {/* Subheadline */}
             <p
-              className={`mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{ color: "var(--text-secondary)", lineHeight: 1.55, transitionDelay: "350ms", maxWidth: "460px" }}
+              className={`mt-5 text-[15px] sm:text-base transition-all duration-700 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{ color: "var(--text-secondary)", lineHeight: 1.55, transitionDelay: "120ms", maxWidth: "440px" }}
             >
-              Every move-in traced to the ad that produced it. Custom landing pages with embedded rental flow — from first click to signed lease.
+              We run your Meta and Google ads, send the clicks to a landing page with your storEDGE rental flow built in, and show you which campaigns actually filled units.
             </p>
 
-            {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
-            <div className="mt-5 mb-5">
-              <PipelineFlow isVisible={isVisible} />
-            </div>
-
-            {/* CTAs */}
-            <div className={`flex flex-col sm:flex-row items-center lg:items-start gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
+            <div
+              className={`mt-7 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{ transitionDelay: "240ms" }}
+            >
               <a href="#cta" className="btn-primary text-base group">
-                Get a Free Facility Audit
+                Get a free facility audit
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
               </a>
-              <a href={CALCOM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-all hover:border-[var(--color-gold)]/30 hover:shadow-sm" style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}>
-                Book a Call
+              <a
+                href={CALCOM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-colors hover:bg-[var(--color-light-gray)]"
+                style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}
+              >
+                Book a call
               </a>
             </div>
 
-            {/* Trust signals — removed "Operator-founded" per Blake's request */}
-            <div className={`mt-5 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
-              <div className="flex items-center gap-4 justify-center lg:justify-start flex-wrap">
-                {[
-                  { icon: Layers, text: "storEDGE integrated" },
-                  { icon: Globe, text: "Tested on our own facilities first" },
-                  { icon: Star, text: "Full-funnel attribution" },
-                ].map((badge, i) => {
-                  const BadgeIcon = badge.icon;
-                  return (
-                    <div key={badge.text} className="flex items-center gap-1.5 text-xs transition-all duration-500" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${750 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
-                      <BadgeIcon size={13} style={{ color: "var(--color-gold)", opacity: 0.7 }} />
-                      {badge.text}
-                    </div>
-                  );
-                })}
+            <div
+              className={`mt-6 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+              style={{ transitionDelay: "360ms" }}
+            >
+              <div
+                className="inline-flex items-center gap-2 text-xs"
+                style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}
+              >
+                <Globe size={13} style={{ color: "var(--text-tertiary)", opacity: 0.8 }} />
+                Running on our own facilities since 2024
               </div>
             </div>
           </div>
 
-          {/* ── Right column — Dashboard ── */}
-          {/* Dense desktop UI with 3D tilt + horizontal-scroll tabs. Not
-              suited to <lg; MobileLiveTicker below carries the mobile signal. */}
-          <div className="hidden lg:block">
+          {/* RIGHT — dashboard mockup. Always rendered. On mobile it stacks
+              below the headline at full width and scales down a touch via
+              its internal clamp() sizing. */}
+          <div className="w-full mt-2 lg:mt-0">
             <DashboardMockup isVisible={isVisible} />
           </div>
-        </div>
-
-        {/* Mobile live activity ticker — only visible on mobile */}
-        <div className="max-w-[1280px] mx-auto mt-6">
-          <MobileLiveTicker isVisible={isVisible} />
-        </div>
-
-        {/* Live stats strip — real aggregates from the product */}
-        <div className="max-w-[1280px] mx-auto mt-10 lg:mt-14">
-          <LiveStatsStrip isVisible={isVisible} />
-        </div>
-
-        {/* Live monitor triptych — channel spend / moves tape / attribution,
-            ported verbatim from design_handoff §4 to make the page feel
-            like a running operating environment. Synthetic data for now. */}
-        <div className="max-w-[1280px] mx-auto mt-6">
-          <LiveMonitorTriptych />
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className={`flex justify-center pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
+      <div className={`flex justify-center pb-4 transition-opacity duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "900ms" }}>
         <a href="#problem" className="flex flex-col items-center gap-1 group" aria-label="Scroll to learn more">
           <span className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>Learn more</span>
           <ChevronDown size={16} style={{ color: "var(--text-tertiary)", animation: "hero-scroll-bounce 2s ease-in-out infinite" }} />
         </a>
-      </div>
-
-      {/* ── Stats bar ── */}
-      <div ref={statsRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-surface)" }}>
-        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-10 sm:py-14">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-            {STATS.map((stat, i) => (
-              <StatItem key={stat.label} stat={stat} active={statsVisible} delay={i * 120} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── ROI Teaser ── */}
-      <div ref={roiRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
-        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-10 sm:py-14">
-          <ROITeaser isVisible={roiVisible} />
-        </div>
-      </div>
-
-      {/* ── Feature Highlight Cards ── */}
-      <div ref={featRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
-        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
-          <div className={`text-center mb-6 transition-all duration-700 ${featVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-            <h2
-              className="text-lg sm:text-xl font-semibold"
-              style={{ fontFamily: "var(--serif)", letterSpacing: "-0.03em", color: "var(--color-dark)" }}
-            >
-              Everything you need to fill units
-            </h2>
-            <p className="text-sm mt-1 mx-auto" style={{ color: "var(--text-secondary)", maxWidth: "480px" }}>
-              From the first impression to the signed lease: every step tracked, every dollar accounted for.
-            </p>
-          </div>
-          <FeatureHighlights isVisible={featVisible} />
-        </div>
-      </div>
-
-      {/* ── Before / After ── */}
-      <div ref={baRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-alt)" }}>
-        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
-          <div className={`text-center mb-6 transition-all duration-700 ${baVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-            <h2
-              className="text-lg sm:text-xl font-semibold"
-              style={{ fontFamily: "var(--serif)", letterSpacing: "-0.03em", color: "var(--color-dark)" }}
-            >
-              Stop guessing. Start knowing.
-            </h2>
-            <p className="text-sm mt-1 mx-auto" style={{ color: "var(--text-secondary)", maxWidth: "420px" }}>
-              See how StorageAds replaces every broken workflow.
-            </p>
-          </div>
-          <BeforeAfterComparison isVisible={baVisible} />
-        </div>
-      </div>
-
-      {/* ── "Because" letterboard ── */}
-      <BecauseLetterboard />
-
-      {/* ── Capabilities interactive grid ── */}
-      <div ref={capsRef} className="relative border-t" style={{ borderColor: "var(--border-subtle)" }}>
-        <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-8 sm:py-10">
-          <div className={`text-center mb-5 transition-all duration-700 ${capsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-            <h2
-              className="text-lg sm:text-xl font-semibold"
-              style={{ fontFamily: "var(--serif)", letterSpacing: "-0.03em", color: "var(--color-dark)" }}
-            >
-              Full platform capabilities
-            </h2>
-          </div>
-          <CapabilitiesGrid isVisible={capsVisible} />
-        </div>
       </div>
     </section>
   );

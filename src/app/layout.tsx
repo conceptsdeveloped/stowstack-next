@@ -21,17 +21,17 @@ const manrope = Manrope({
 });
 
 const siteDescription =
-  "Stop losing units to bad marketing. StorageAds builds the entire system — ads, landing pages, attribution, and conversion — so independent storage operators fill vacancies and prove every dollar.";
+  "StorageAds runs the Meta and Google ads, builds the landing pages with your storEDGE rental flow embedded, and shows you which campaigns filled units. Built by an operator. Tested on our own facilities first.";
 
 export const metadata: Metadata = {
   title: {
-    default: "StorageAds | Full-Funnel Demand Engine for Self-Storage",
+    default: "StorageAds — Fill units. Prove which ads did it.",
     template: "%s | StorageAds",
   },
   description: siteDescription,
   metadataBase: new URL("https://storageads.com"),
   openGraph: {
-    title: "StorageAds | Full-Funnel Demand Engine for Self-Storage",
+    title: "StorageAds — Fill units. Prove which ads did it.",
     description: siteDescription,
     url: "https://storageads.com",
     siteName: "StorageAds",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "StorageAds | Full-Funnel Demand Engine for Self-Storage",
+    title: "StorageAds — Fill units. Prove which ads did it.",
     description: siteDescription,
     images: ["/og-image.png"],
   },
@@ -86,7 +86,7 @@ const jsonLd = {
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
       url: "https://storageads.com",
-      description: "Full-funnel marketing automation for self-storage facilities. Ads, landing pages, call tracking, and move-in attribution.",
+      description: "Marketing system for self-storage operators. Meta and Google ads, custom landing pages with embedded storEDGE rental flow, and per-move-in tracking from click to lease.",
       offers: {
         "@type": "AggregateOffer",
         priceCurrency: "USD",

@@ -45,7 +45,7 @@ export default function HowItWorks() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="03" kicker="HOW IT WORKS" right={<SectionMeta text="STEPS · 4" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="01" kicker="HOW IT WORKS" right={<SectionMeta text="STEPS · 4" />} style={{ marginBottom: 28 }} />
         <div
           className={`text-center mb-16 transition-all duration-700 ${
             isVisible

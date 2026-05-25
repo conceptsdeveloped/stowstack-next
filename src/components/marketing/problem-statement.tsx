@@ -26,12 +26,13 @@ export default function ProblemStatement() {
 
   return (
     <section
+      id="problem"
       aria-label="The problem with current self-storage marketing"
       className="section"
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="text-container">
-        <SectionHeader number="01" kicker="THE PROBLEM" right={<SectionMeta text="TRUTH · 4" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="05" kicker="THE PROBLEM" right={<SectionMeta text="TRUTH · 4" />} style={{ marginBottom: 28 }} />
         {/* Section headline */}
         <div
           className={`text-center mb-16 transition-all duration-700 ${

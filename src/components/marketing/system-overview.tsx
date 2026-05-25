@@ -91,7 +91,7 @@ export default function SystemOverview() {
       className="section"
       style={{ background: "var(--color-light)" }}
     >
-      <div className="section-content"><SectionHeader number="02" kicker="THE DEMAND ENGINE" right={<SectionMeta text="COMPONENTS · 6" />} style={{ marginBottom: 28 }} /></div>
+      <div className="section-content"><SectionHeader number="02" kicker="THE SYSTEM" right={<SectionMeta text="COMPONENTS · 6" />} style={{ marginBottom: 28 }} /></div>
       <div ref={ref} className="text-container">
         <div
           className={`max-w-3xl mx-auto text-center mb-16 transition-all duration-700 ${
@@ -105,7 +105,7 @@ export default function SystemOverview() {
             style={{ fontSize: "var(--text-section-head)" }}
           >
             One system. Six parts.{" "}
-            <span style={{ color: "var(--color-gold)" }}>Every move-in tracked.</span>
+            <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>Every move-in tracked.</span>
           </h2>
           <p
             className="mt-4"
@@ -148,7 +148,7 @@ export default function SystemOverview() {
                   <div className="flex items-baseline gap-4 md:gap-6">
                     <span
                       className="text-sm font-semibold tabular-nums flex-shrink-0"
-                      style={{ color: "var(--color-gold)", fontFamily: "var(--font-heading)" }}
+                      style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)", opacity: 0.5 }}
                     >
                       {part.number}
                     </span>
@@ -197,7 +197,7 @@ export default function SystemOverview() {
                             >
                               <span
                                 className="w-1 h-1 rounded-full flex-shrink-0"
-                                style={{ background: "var(--color-gold)" }}
+                                style={{ background: "var(--color-dark)", opacity: 0.6 }}
                               />
                               {item}
                             </li>
