@@ -1625,12 +1625,11 @@ export default function Hero() {
               <PipelineFlow isVisible={isVisible} />
             </div>
 
-            {/* CTAs — both full-width on mobile so they stack with matching
-                widths (.btn-primary already hits width:100% at <=639px via
-                globals.css; secondary mirrors that here with w-full
-                sm:w-auto + justify-center to align the label). */}
+            {/* CTAs — both use design-system classes (.btn-primary +
+                .btn-secondary) so they share identical shape, font,
+                padding, mobile width behavior. Only fill differs. */}
             <div className={`flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
-              <a href="#cta" className="btn-primary text-base group text-center">
+              <a href="#cta" className="btn-primary group">
                 Get your free facility audit — instant results
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
@@ -1638,10 +1637,10 @@ export default function Hero() {
                 href={CALCOM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-all hover:border-[var(--color-gold)]/30 hover:shadow-sm text-center"
-                style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}
+                className="btn-secondary group"
               >
-                Book a call to review with our team
+                Schedule a call to review your facility
+                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
             </div>
 

@@ -937,7 +937,10 @@ body {
   font-family: var(--font-heading);
   font-weight: 500;
   font-size: 15px;
-  border: none;
+  /* Transparent border reserves the same 2px box-model space as
+     .btn-secondary's 1px outline, so dual-CTA pairs render at
+     identical heights. */
+  border: 1px solid transparent;
   border-radius: 8px;
   cursor: pointer;
   transition: background var(--duration-fast) ease,
@@ -956,6 +959,45 @@ body {
 
 @media (max-width: 639px) {
   .btn-primary {
+    width: 100%;
+    padding: 16px 32px;
+  }
+}
+
+/* Secondary CTA — outline mirror of .btn-primary so dual-CTA pairs
+   share identical shape (padding, radius, font, mobile width) and only
+   differ by fill. Hover inverts to match the primary's filled state. */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--color-dark);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 15px;
+  border: 1px solid var(--color-dark);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--duration-fast) ease,
+              color var(--duration-fast) ease,
+              transform 100ms ease;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: var(--color-dark);
+  color: var(--color-light);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 639px) {
+  .btn-secondary {
     width: 100%;
     padding: 16px 32px;
   }
@@ -1284,11 +1326,31 @@ body {
   font-weight: 500;
   font-size: 13px;
   border-radius: 4px;
-  border: none;
+  /* Transparent border to match .btn-secondary's 1px outline width
+     and keep dual-CTA pairs identical in height on the marketing site. */
+  border: 1px solid transparent;
   letter-spacing: 0;
 }
 .urbit-landing .btn-primary:hover {
   background: var(--accent);
+  color: var(--bg);
+}
+
+/* .btn-secondary marketing override — mirrors .btn-primary's scoped
+   override exactly so dual-CTA pairs render at identical dimensions
+   (font, padding, weight) on .urbit-landing pages. Only fill differs. */
+.urbit-landing .btn-secondary {
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid var(--text);
+  letter-spacing: 0;
+}
+.urbit-landing .btn-secondary:hover {
+  background: var(--text);
   color: var(--bg);
 }
 
