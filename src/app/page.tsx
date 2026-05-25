@@ -36,6 +36,9 @@ const CTASection = dynamic(
   () => import("@/components/marketing/cta-section"),
 );
 const FAQ = dynamic(() => import("@/components/marketing/faq"));
+const DemandTriggers = dynamic(
+  () => import("@/components/marketing/demand-triggers"),
+);
 const Footer = dynamic(() => import("@/components/marketing/footer"));
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -46,6 +49,7 @@ const Footer = dynamic(() => import("@/components/marketing/footer"));
  *    1    —   <Hero />                 Hook + primary CTA (lean per spec)
  *    2    01  <HowItWorks />           How the product works (start here)
  *    —    —   <SolutionVisuals />      Pipeline + Feature highlight cards
+ *    —    —   <DemandTriggers />       9 demand moments (operator cred, dark)
  *    3    02  <SystemOverview />       The system — 6 parts wired together
  *    —    —   <CapabilitiesSection />  Full platform capabilities grid
  *    4    03  <FourWayComparison />    StorageAds vs StorageRankers / Adverank / SpareFoot
@@ -243,6 +247,10 @@ export default function HomePage() {
         {/* §01 — How it works (starts the page, per Blake) */}
         <HowItWorks />
         <SolutionVisuals />
+
+        {/* Demand triggers — operator-credibility interlude before the system.
+            "We see these triggers in our own facilities every week." */}
+        <DemandTriggers />
 
         {/* §02 — The system (6 parts wired together) */}
         <SystemOverview />
