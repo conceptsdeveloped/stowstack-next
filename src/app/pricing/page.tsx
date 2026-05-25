@@ -5,20 +5,20 @@ import { ArrowLeft, Check } from "lucide-react";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+    "StorageAds pricing. The ads, the landing pages, the tracking. One system, one bill, per facility. From $750/mo.",
   openGraph: {
     title: "Pricing — StorageAds",
-    description: "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+    description: "StorageAds pricing. The ads, the landing pages, the tracking. One system, one bill, per facility. From $750/mo.",
     url: "https://storageads.com/pricing",
   },
   twitter: {
     card: "summary_large_image",
     title: "Pricing — StorageAds",
-    description: "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+    description: "StorageAds pricing. The ads, the landing pages, the tracking. One system, one bill, per facility. From $750/mo.",
   },
 };
 
-const demandEnginePlans = [
+const paidMediaPlans = [
   {
     name: "Launch",
     price: "$750",
@@ -48,8 +48,8 @@ const demandEnginePlans = [
       "Retargeting campaigns for abandoned visitors",
       "A/B testing on creative and landing pages",
       "Video creative production",
-      "Full attribution dashboard: cost per reservation, cost per move-in, ROAS by creative",
-      "Bi-weekly optimization calls",
+      "One dashboard: what you spent, what you got, what each move-in cost",
+      "Bi-weekly tuning calls",
     ],
     bestFor:
       "Operators who want every dollar tracked to a move-in and a dedicated team optimizing campaigns every two weeks.",
@@ -63,8 +63,8 @@ const demandEnginePlans = [
       "Everything in Growth, scaled across your portfolio.",
     features: [
       "Unlimited landing pages across all facilities",
-      "Cross-facility budget allocation and optimization",
-      "Portfolio-level attribution and reporting",
+      "Cross-facility budget allocation",
+      "Portfolio-level reporting",
       "Dedicated strategist",
       "Volume discount: 20-35% off per-facility rates",
     ],
@@ -81,7 +81,7 @@ const conversionPlans = [
     features: [
       "Custom designed and branded to your facility",
       "Embedded storEDGE rental flow: customers reserve without leaving your site",
-      "Mobile-optimized and speed-optimized",
+      "Built for mobile and fast to load",
       "Trust elements and social proof built in",
     ],
     bestFor:
@@ -96,7 +96,7 @@ const conversionPlans = [
       "5 ad-specific landing pages built for campaign traffic",
       "Per-page tracking setup",
       "A/B testing framework",
-      "Ongoing conversion rate optimization",
+      "Ongoing landing page tuning",
     ],
     bestFor:
       "Operators planning to run paid ads (now or soon) who want the landing page infrastructure ready from day one.",
@@ -179,7 +179,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Demand Engine */}
+      {/* Paid Ads */}
       <section
         className="py-20"
         style={{ background: "var(--color-light)" }}
@@ -203,7 +203,7 @@ export default function PricingPage() {
               lineHeight: "var(--leading-snug)",
             }}
           >
-            Demand Engine (Paid Media)
+            Paid Ads (Meta + Google)
           </h2>
           <p
             className="mb-4"
@@ -213,8 +213,8 @@ export default function PricingPage() {
               maxWidth: "680px",
             }}
           >
-            We create, manage, and optimize paid ad campaigns. Every campaign
-            maps to its own landing page.
+            We build, run, and tune your paid ad campaigns. Every campaign gets
+            its own landing page.
           </p>
           <p
             className="mb-12"
@@ -228,7 +228,7 @@ export default function PricingPage() {
           </p>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {demandEnginePlans.map((plan) => (
+            {paidMediaPlans.map((plan) => (
               <div
                 key={plan.name}
                 className="rounded-lg p-6 flex flex-col relative"
@@ -340,7 +340,7 @@ export default function PricingPage() {
             }}
           >
             A branded facility website with embedded reservation and move-in
-            functionality. Sold standalone or bundled with the Demand Engine.
+            functionality. Sold standalone or bundled with the ads.
           </p>
           <p
             className="mb-12"
@@ -430,7 +430,7 @@ export default function PricingPage() {
               lineHeight: "var(--leading-snug)",
             }}
           >
-            The Bundle: Full-Stack Acquisition System
+            The Bundle: One System for Filling Units
           </h2>
           <p
             className="mb-8"
@@ -451,8 +451,8 @@ export default function PricingPage() {
           >
             <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-body)" }}>
               Commit to 6 months of Growth and the site build drops from $5,000
-              to $2,500. That&apos;s a $2,500 discount that locks in your full
-              acquisition system from day one.
+              to $2,500. That&apos;s a $2,500 discount that locks in the whole
+              system from day one.
             </p>
             <ul className="space-y-2 text-sm" style={{ color: "var(--text-secondary)" }}>
               <li className="flex gap-2">
@@ -497,8 +497,8 @@ export default function PricingPage() {
                 copy: "You get a nice website and a promise that organic traffic will build in 3-6 months. No paid traffic. No embedded rental flow. No attribution. No idea which page produced a move-in.",
               },
               {
-                price: "$149-399/mo on a Google-only platform",
-                copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No full-funnel attribution. They optimize for clicks, not leases.',
+                price: "$149-399/mo on a Google-only tool",
+                copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No way to tell which click filled a unit. They chase clicks, not leases.',
               },
               {
                 price: "$750-1,500/mo on StorageAds",
@@ -657,7 +657,7 @@ export default function PricingPage() {
           >
             This isn&apos;t a self-serve checkout. StorageAds is built for operators
             who want a real conversation about their vacancy, their market, and
-            what a full-funnel system would look like for their facilities.
+            what the whole system would look like at their facilities.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
