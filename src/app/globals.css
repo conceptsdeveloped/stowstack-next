@@ -7,6 +7,14 @@
    Source: design_handoff_storageads_theme/reference/Homepage.html
    ═══════════════════════════════════════════ */
 
+:root {
+  /* ── Stable brand tokens — DO NOT scope under a palette ──
+     These survive palette swaps so brand-critical surfaces (logo gold,
+     etc.) read consistently no matter which palette is active. */
+  --brand-gold: #B58B3F;        /* original StorageAds sienna gold, brand-locked */
+  --brand-gold-hover: #9E7A36;
+}
+
 :root,
 :root[data-palette="paper"] {
   /* Surfaces */
@@ -137,6 +145,13 @@
   font-size: 15px;          /* bumped from 13 — proportional Manrope at 13 reads tiny */
   line-height: 1.6;         /* body 1.6 per brand spec */
   letter-spacing: 0;        /* drop the mono 0.01em — Manrope is well-tracked already */
+  /* Tabular numerals — replaces the column-alignment we lost when we
+     swapped JetBrains Mono for proportional Manrope. Keeps timestamps,
+     stat values, ticker numbers, and sparkline labels visually aligned
+     in tabular contexts (status bar, live monitors, count-up cards,
+     §00·NUMBERS grids). Manrope ships tabular figures via OpenType. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
   transition: background 300ms, color 300ms;
 }
 

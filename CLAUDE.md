@@ -106,9 +106,9 @@ CSS variable mapping (so the 125+ inline `MONO.mono` / `MONO.serif` / `var(--fon
 
 Line-height tokens: `--leading-body` (1.6), `--leading-tight` (1.2), `--leading-snug` (1.3), `--leading-ui` (1.4), `--leading-display` (1.2).
 
-**Note on NULL//TRACE layout:** The editorial chrome (`§ 00 · NUMBERS` headers, status bar, live monitor panels, sparklines, ticker tape) was designed around monospace — numeric columns may not align as tightly with Manrope. Layout was intentionally kept; if alignment matters in a future tweak, swap individual data cells to `font-variant-numeric: tabular-nums` or `font-family: ui-monospace`.
+**Tabular numerals:** `.urbit-landing` in globals.css applies `font-variant-numeric: tabular-nums` + `font-feature-settings: "tnum" 1` globally so numbers in the editorial chrome (status bar timestamps, live monitor data cells, sparkline labels, `§ 00 · NUMBERS` count-up cards, ticker tape) keep tabular column alignment despite Manrope being a proportional font. Manrope ships tabular figures via OpenType.
 
-**Logo:** `storageads` (`storageads/attr` in the mono nav). Manrope 700, lowercase, no icon. Color treatment palette-aware via `MONO.textAccent` and `MONO.accent` — on paper palette the "ads" portion renders brick red, on oxblood it's gold, etc.
+**Logo:** `storageads` (`storageads/attr` in the marketing nav). Manrope 700, lowercase, no icon. **Two-tone color split is brand-mandatory** — "storage" renders in the surface text color (palette-aware: `--text-accent` / `--color-dark` / `#1A1A1A`), "ads" always renders in `var(--brand-gold)` (`#B58B3F`, the original StorageAds sienna gold). `--brand-gold` is defined in `:root` outside any palette scope so the gold survives palette swaps — it is a brand-locked exception to the otherwise palette-driven color system. Used in marketing nav, footer, admin sidebar, and admin login.
 
 **Rules:**
 - Never use pure #000 or #fff — always brand tokens
