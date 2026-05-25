@@ -10,6 +10,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { scoreActiveTenants } from "@/lib/churn-scoring";
 
 function serializeBigInts(obj: unknown): unknown {
   if (obj === null || obj === undefined) return obj;
@@ -25,162 +26,8 @@ function serializeBigInts(obj: unknown): unknown {
   return obj;
 }
 
-interface ChurnResult {
-  score: number;
-  riskLevel: string;
-  factors: Array<{ factor: string; weight: number; detail: string }>;
-  actions: Array<{
-    action: string;
-    priority: string;
-    description: string;
-  }>;
-  predictedVacate: string | null;
-}
-
-function computeChurnScore(
-  tenant: Record<string, unknown>,
-  payments: Record<string, unknown>[]
-): ChurnResult {
-  const factors: ChurnResult["factors"] = [];
-  const actions: ChurnResult["actions"] = [];
-  let score = 0;
-
-  const daysDelinquent = Number(tenant.days_delinquent || 0);
-  if (daysDelinquent > 0) {
-    const pts = Math.min(30, daysDelinquent);
-    score += pts;
-    factors.push({
-      factor: "Payment delinquency",
-      weight: pts,
-      detail: `${daysDelinquent} days past due`,
-    });
-  }
-
-  if (!tenant.autopay_enabled) {
-    score += 10;
-    factors.push({
-      factor: "No autopay",
-      weight: 10,
-      detail: "Manual payment increases churn risk",
-    });
-  }
-
-  const latePayments = payments.filter(
-    (p) => Number(p.days_late || 0) > 0
-  );
-  if (latePayments.length > 0) {
-    const pts = Math.min(20, latePayments.length * 5);
-    score += pts;
-    factors.push({
-      factor: "Late payment history",
-      weight: pts,
-      detail: `${latePayments.length} late payments`,
-    });
-  }
-
-  const tenureMonths = Math.floor(
-    (Date.now() - new Date(String(tenant.move_in_date)).getTime()) /
-      (30 * 86400000)
-  );
-  if (tenureMonths < 3) {
-    const pts = 15 - tenureMonths * 5;
-    score += pts;
-    factors.push({
-      factor: "Short tenure",
-      weight: pts,
-      detail: `${tenureMonths} month(s) tenure`,
-    });
-  }
-
-  if (tenant.lease_end_date) {
-    const daysToEnd = Math.floor(
-      (new Date(String(tenant.lease_end_date)).getTime() - Date.now()) /
-        86400000
-    );
-    if (daysToEnd <= 30 && daysToEnd > 0) {
-      const pts = Math.min(15, Math.round(15 * (1 - daysToEnd / 30)));
-      score += pts;
-      factors.push({
-        factor: "Lease expiring soon",
-        weight: pts,
-        detail: `${daysToEnd} days until lease end`,
-      });
-    } else if (daysToEnd <= 0) {
-      score += 15;
-      factors.push({
-        factor: "Lease expired",
-        weight: 15,
-        detail: "Month-to-month, easy to leave",
-      });
-    }
-  } else {
-    score += 5;
-    factors.push({
-      factor: "No lease end date",
-      weight: 5,
-      detail: "Month-to-month tenant",
-    });
-  }
-
-  if (!tenant.has_insurance) {
-    score += 5;
-    factors.push({
-      factor: "No insurance",
-      weight: 5,
-      detail: "Less invested in unit",
-    });
-  }
-
-  score = Math.min(100, score);
-  const riskLevel =
-    score >= 75
-      ? "critical"
-      : score >= 50
-        ? "high"
-        : score >= 25
-          ? "medium"
-          : "low";
-
-  if (score >= 50) {
-    actions.push({
-      action: "personal_call",
-      priority: "high",
-      description: "Schedule a personal check-in call",
-    });
-  }
-  if (score >= 25 && !tenant.autopay_enabled) {
-    actions.push({
-      action: "autopay_incentive",
-      priority: "medium",
-      description: "Offer autopay discount incentive",
-    });
-  }
-  if (score >= 50 && tenant.lease_end_date) {
-    actions.push({
-      action: "renewal_offer",
-      priority: "high",
-      description: "Send early renewal offer with discount",
-    });
-  }
-  if (daysDelinquent > 7) {
-    actions.push({
-      action: "payment_reminder",
-      priority: "urgent",
-      description: "Send payment reminder with flexible options",
-    });
-  }
-
-  return {
-    score,
-    riskLevel,
-    factors,
-    actions,
-    predictedVacate:
-      riskLevel === "critical" || riskLevel === "high"
-        ? new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10)
-        : null,
-  };
-}
+// Scoring logic lives in @/lib/churn-scoring (shared with the weekly cron at
+// /api/cron/score-churn-risk). See roadmap 11 phase 2 (revised).
 
 export async function OPTIONS(request: NextRequest) {
   return corsResponse(getOrigin(request));
@@ -335,36 +182,12 @@ export async function POST(request: NextRequest) {
 
     // Run churn scoring
     const { facilityId } = body;
-    const scoringFacilityFilter = facilityId
-      ? Prisma.sql`AND facility_id = ${facilityId}::uuid`
-      : Prisma.empty;
-
-    const tenants = await db.$queryRaw<Record<string, unknown>[]>`
-      SELECT * FROM tenants WHERE status = 'active' ${scoringFacilityFilter}
-    `;
-
-    let scored = 0;
-    for (const tenant of tenants) {
-      const payments = await db.$queryRaw<Record<string, unknown>[]>`
-        SELECT * FROM tenant_payments WHERE tenant_id = ${tenant.id}::uuid ORDER BY payment_date DESC LIMIT 12
-      `;
-
-      const result = computeChurnScore(tenant, payments);
-
-      await db.$executeRaw`
-        INSERT INTO churn_predictions (tenant_id, facility_id, risk_score, risk_level, predicted_vacate, factors, recommended_actions, last_scored_at)
-         VALUES (${tenant.id}::uuid, ${tenant.facility_id}::uuid, ${result.score}, ${result.riskLevel}, ${result.predictedVacate}, ${JSON.stringify(result.factors)}::jsonb, ${JSON.stringify(result.actions)}::jsonb, NOW())
-         ON CONFLICT (tenant_id) DO UPDATE SET
-           risk_score = EXCLUDED.risk_score, risk_level = EXCLUDED.risk_level,
-           predicted_vacate = EXCLUDED.predicted_vacate, factors = EXCLUDED.factors,
-           recommended_actions = EXCLUDED.recommended_actions, last_scored_at = NOW()
-      `;
-
-      scored++;
-    }
+    const result = await scoreActiveTenants(db, {
+      facilityId: facilityId || undefined,
+    });
 
     return jsonResponse(
-      { scored, message: `Scored ${scored} tenants` },
+      { ...result, message: `Scored ${result.scored} tenants` },
       200,
       origin
     );
