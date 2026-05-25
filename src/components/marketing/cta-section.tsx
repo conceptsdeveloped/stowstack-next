@@ -52,7 +52,7 @@ export default function CTASection() {
         // @ts-expect-error Cal is injected globally
         window.Cal("ui", {
           theme: "light",
-          styles: { branding: { brandColor: "var(--color-gold)" } },
+          styles: { branding: { brandColor: "#141413" } },
           hideEventTypeDetails: false,
         });
         setCalLoaded(true);

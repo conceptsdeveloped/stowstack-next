@@ -1559,7 +1559,7 @@ export default function Hero() {
   const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
-    <section id="hero" aria-label="StorageAds: full-funnel demand engine for self-storage" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
+    <section id="hero" aria-label="StorageAds: fill units and prove which ads did it" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
       <HeroStyles />
       <DotGrid />
       <HeroStatusStrip />
@@ -1621,7 +1621,7 @@ export default function Hero() {
                 {[
                   { icon: Layers, text: "storEDGE integrated" },
                   { icon: Globe, text: "Tested on our own facilities first" },
-                  { icon: Star, text: "Full-funnel attribution" },
+                  { icon: Star, text: "Move-in level attribution" },
                 ].map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (

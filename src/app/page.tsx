@@ -46,7 +46,7 @@ const Footer = dynamic(() => import("@/components/marketing/footer"));
  *    1    —   <Hero />                 Hook + primary CTA (lean per spec)
  *    2    01  <HowItWorks />           How the product works (start here)
  *    —    —   <SolutionVisuals />      Pipeline + Feature highlight cards
- *    3    02  <SystemOverview />       The system / demand engine (6 parts)
+ *    3    02  <SystemOverview />       The system — 6 parts wired together
  *    —    —   <CapabilitiesSection />  Full platform capabilities grid
  *    4    03  <FourWayComparison />    StorageAds vs StorageRankers / Adverank / SpareFoot
  *    —    —   <BeforeAfterSection />   Before/after broken-workflow pairs
@@ -244,7 +244,7 @@ export default function HomePage() {
         <HowItWorks />
         <SolutionVisuals />
 
-        {/* §02 — The system / demand engine */}
+        {/* §02 — The system (6 parts wired together) */}
         <SystemOverview />
         <CapabilitiesSection />
 
