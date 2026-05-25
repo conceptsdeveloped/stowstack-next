@@ -250,7 +250,7 @@ export default function DemoDashboardClient() {
                 -${(visibleData[0].cpl - visibleData[visibleData.length - 1].cpl).toFixed(0)} reduction
               </span>
             </div>
-            <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>CPL decreases as Pixel data matures and audiences sharpen</p>
+            <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>Cost per lead drops as the system learns who actually moves in</p>
             <ResponsiveChart mobileHeight={180} desktopHeight={220}>
               <BarChart data={visibleData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />

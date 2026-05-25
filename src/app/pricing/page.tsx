@@ -430,7 +430,7 @@ export default function PricingPage() {
               lineHeight: "var(--leading-snug)",
             }}
           >
-            The Bundle: Full-Stack Acquisition System
+            The Bundle: One System, One Bill
           </h2>
           <p
             className="mb-8"
@@ -497,8 +497,8 @@ export default function PricingPage() {
                 copy: "You get a nice website and a promise that organic traffic will build in 3-6 months. No paid traffic. No embedded rental flow. No attribution. No idea which page produced a move-in.",
               },
               {
-                price: "$149-399/mo on a Google-only platform",
-                copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No full-funnel attribution. They optimize for clicks, not leases.',
+                price: "$149-399/mo on a Google-only tool",
+                copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No way to tell which click filled a unit. They chase clicks, not leases.',
               },
               {
                 price: "$750-1,500/mo on StorageAds",
@@ -657,7 +657,7 @@ export default function PricingPage() {
           >
             This isn&apos;t a self-serve checkout. StorageAds is built for operators
             who want a real conversation about their vacancy, their market, and
-            what a full-funnel system would look like for their facilities.
+            what the full system would look like at their facilities.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

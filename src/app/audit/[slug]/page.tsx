@@ -1133,7 +1133,7 @@ export default async function SharedAuditPage({
                   What StorageAds Would Fix First
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Our platform is purpose-built to solve the exact problems this diagnostic found
+                  Every fix in this diagnostic maps to a feature we already built.
                 </p>
               </div>
             </div>
@@ -1146,7 +1146,7 @@ export default async function SharedAuditPage({
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">Ad-Specific Landing Pages</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Every ad campaign gets its own conversion-optimized landing page with real-time unit availability, pricing, and online rental — no more sending prospects to a generic website.
+                Every ad campaign gets its own landing page, built for the reserve button — with live unit availability, your pricing, and online rental. No more sending prospects to a generic website.
               </p>
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
@@ -1179,10 +1179,10 @@ export default async function SharedAuditPage({
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <BarChart3 className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Performance Dashboard</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">One Screen, Every Number</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Real-time dashboard showing ad spend, leads, move-ins, revenue, and ROI across all channels. One login, every metric that matters.
+                Live dashboard showing ad spend, leads, move-ins, and revenue across every channel. One login. Every number that matters.
               </p>
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
