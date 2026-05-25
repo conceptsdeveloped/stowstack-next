@@ -11,6 +11,7 @@ import {
   ANIM_OPTIONS,
   POSITION_OPTIONS,
 } from './types'
+import { compositeTextOverlays } from './text-overlay-renderer'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function TextOverlayEditor({ videoUrl, adminKey }: {
@@ -53,23 +54,19 @@ export default function TextOverlayEditor({ videoUrl, adminKey }: {
     setCompositing(true)
     setCompositProgress(0)
     try {
-      // Simulate compositing with progress
-      for (let i = 0; i <= 100; i += 10) {
-        setCompositProgress(i)
-        await new Promise(r => setTimeout(r, 200))
-      }
+      const blob = await compositeTextOverlays(videoUrl, activeLayers, (p) => {
+        if (p.phase === 'recording' && p.total && p.total > 0) {
+          setCompositProgress(Math.round(((p.elapsed || 0) / p.total) * 100))
+        } else if (p.phase === 'finalizing') {
+          setCompositProgress(99)
+        }
+      })
 
-      // Create a download of the video URL with text overlay metadata
-      const metadata = {
-        videoUrl,
-        layers: activeLayers,
-        exportedAt: new Date().toISOString(),
-      }
-      const blob = new Blob([JSON.stringify(metadata, null, 2)], { type: 'application/json' })
+      const ext = blob.type.includes('mp4') ? 'mp4' : 'webm'
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `video-overlay-${Date.now()}.json`
+      a.download = `video-overlay-${Date.now()}.${ext}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -111,7 +108,7 @@ export default function TextOverlayEditor({ videoUrl, adminKey }: {
                 placeholder={layer.style === 'headline' ? 'Your headline...' : layer.style === 'cta' ? 'Call to action...' : 'Text...'}
                 className="flex-1 px-2 py-1.5 border border-[var(--border-subtle)] rounded text-sm bg-[var(--color-light-gray)] text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:outline-none focus:border-[var(--color-gold)]"
               />
-              <button onClick={() => removeLayer(idx)} className="p-1 text-red-400 hover:text-red-300 mt-1"><Trash2 size={12} /></button>
+              <button onClick={() => removeLayer(idx)} aria-label="Remove text layer" className="p-1 text-red-400 hover:text-red-300 mt-1"><Trash2 size={12} /></button>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {/* Style */}

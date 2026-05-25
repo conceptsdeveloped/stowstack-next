@@ -114,7 +114,7 @@ export function PageEditor({
         <div className="flex items-center gap-2">
           {editingPage.id && (
             <a
-              href={`/lp/${editingPage.slug}`}
+              href={`/lp/${editingPage.slug}${editingPage.status === "published" ? "" : "?preview=1"}`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1.5 rounded-lg text-xs font-medium border border-black/[0.08] text-[#6B7280] hover:bg-black/[0.04]"
@@ -387,6 +387,7 @@ export function PageEditor({
                     </p>
                     <button
                       onClick={() => setShowAddSection(false)}
+                      aria-label="Close add section"
                       className="text-[#9CA3AF]"
                     >
                       <XIcon size={14} />

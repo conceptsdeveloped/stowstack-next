@@ -64,7 +64,7 @@ Every generated image must embody these qualities:
 - **Warm, high-contrast, textured.** Not sterile. Think Porsche print, Rimowa campaign, newspaper broadsheet. Grain is a feature. Contrast is a tool. Warmth is non-negotiable.
 - **Photography over illustration.** Real facilities, real units, real spaces. Stock photography acceptable only when conveying authentic lifestyle emotion.
 - **Shallow depth of field on everyday objects.** A key on a counter. A hand on a door handle. A moving box being sealed. These details are the emotional core — treat them like they matter.
-- **Natural light, always.** Golden hour tones. Soft shadows. Light should feel like it came through a window, not from a studio rig. Warm and soft, never harsh or clinical.
+- **Natural light, varied.** Light should feel real — daylight, overcast, window light, fluorescent, dusk. Match the lighting to the scene and mood. Not every image is golden hour. Avoid defaulting to orange/amber.
 - **Kubrick composition when applicable.** Symmetrical, geometric, obsessively composed. One-point perspective for hallways, unit rows, facility exteriors. Nothing accidental, nothing careless.
 - **The newspaper finish.** Bold blacks, visible grain, slightly compressed tonal range. The warmth of ink on paper. This is a texture treatment, not a filter.
 - **Generous negative space.** White space communicates confidence, but it should feel like the white space on a well-designed printed page, not the white space of a sterile tech landing page.
@@ -177,7 +177,7 @@ All video content — whether AI-generated, slideshow, or produced — should em
 - Find beauty in institutional spaces. Storage facilities are institutional — treat them with the Kubrick eye. Find beauty in the geometry, the repetition, the order.
 
 **A24 Cinematography:**
-- Warm, natural light. Golden hour tones. Soft shadows. Shallow depth of field on everyday objects.
+- Natural light appropriate to the scene. Soft shadows. Shallow depth of field on everyday objects. Lighting should serve the story, not default to one look.
 - Candid, unhurried human moments. People thinking, doing, living — not pointing at screens or looking amazed. Mid-life, mid-move, mid-decision. Show the real moment.
 - No holographic interfaces, no floating UI mockups, no "the future is here" visual language.
 

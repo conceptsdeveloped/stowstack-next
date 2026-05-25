@@ -3,6 +3,72 @@ import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isValidEmail, sanitizeString } from "@/lib/validation";
+import { fireMetaCapi } from "@/lib/meta-capi";
+
+/**
+ * When a lead converts on a landing page that belongs to a funnel,
+ * auto-enroll them in that funnel's post-conversion drip sequence.
+ */
+async function enrollInFunnelDrip(
+  landingPageId: string,
+  facilityId: string | null,
+  leadSessionId: string
+) {
+  // Look up the landing page's funnel
+  const lp = await db.landing_pages.findUnique({
+    where: { id: landingPageId },
+    select: { funnel_id: true, facility_id: true },
+  });
+  if (!lp?.funnel_id) return; // No funnel — nothing to enroll in
+
+  const fId = facilityId || lp.facility_id;
+
+  // Find the lead record
+  const lead = await db.partial_leads.findUnique({
+    where: { session_id: leadSessionId },
+    select: { id: true },
+  });
+  if (!lead) return;
+
+  // Tag the lead with the funnel
+  await db.partial_leads.update({
+    where: { session_id: leadSessionId },
+    data: { funnel_id: lp.funnel_id },
+  });
+
+  // Find the funnel's post-conversion drip template
+  const template = await db.drip_sequence_templates.findFirst({
+    where: {
+      funnel_id: lp.funnel_id,
+      sequence_type: "post_conversion",
+    },
+    select: { id: true, steps: true },
+  });
+  if (!template) return;
+
+  const steps = template.steps as Array<{
+    delayDays?: number;
+    delayHours?: number;
+  }>;
+  const firstStep = steps[0];
+  const delayMs = firstStep
+    ? ((firstStep.delayDays || 0) * 86400000 + (firstStep.delayHours || 0) * 3600000)
+    : 0;
+
+  // Create a drip sequence for this lead
+  await db.drip_sequences.create({
+    data: {
+      facility_id: fId,
+      funnel_id: lp.funnel_id,
+      lead_id: lead.id,
+      sequence_id: `funnel_${lp.funnel_id}`,
+      current_step: 0,
+      status: "active",
+      next_send_at: new Date(Date.now() + delayMs),
+      history: [],
+    },
+  });
+}
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -104,6 +170,33 @@ export async function POST(req: NextRequest) {
         })
         .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
     }
+
+    // Auto-enroll in funnel drip sequence if landing page belongs to a funnel
+    if (landingPageId) {
+      enrollInFunnelDrip(landingPageId, facilityId, sid).catch((err) =>
+        console.error("[funnel-drip-enroll] Fire-and-forget failed:", err)
+      );
+    }
+
+    // Server-side Meta CAPI Lead event — fires only when META_PIXEL_ID and
+    // META_ACCESS_TOKEN are configured. Dedupe with browser pixel via event_id.
+    fireMetaCapi({
+      eventName: "Lead",
+      eventId: `lead-${sid}`,
+      eventSourceUrl: referrer || undefined,
+      userData: {
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        firstName: name.trim().split(" ")[0],
+        lastName: name.trim().split(" ").slice(1).join(" ") || null,
+        clientIpAddress: ip !== "unknown" ? ip : null,
+        clientUserAgent: req.headers.get("user-agent"),
+      },
+      customData: {
+        contentName: utmCampaign || "landing_page_lead",
+        contentCategory: "lead",
+      },
+    }).catch((err) => console.error("[meta-capi] lead fire failed:", err));
 
     const apiKey = process.env.RESEND_API_KEY;
     if (apiKey && facilityId) {

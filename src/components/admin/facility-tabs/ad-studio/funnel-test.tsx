@@ -123,26 +123,30 @@ export function FunnelTest({ copy, image, facilityName, variationId, adminKey, s
         <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-light-gray)] text-[var(--color-body-text)] uppercase">{angle}</span>
         <div className="ml-auto flex gap-1.5">
           <button
+            data-no-recolor="true"
             onClick={() => setShowMetrics(!showMetrics)}
-            className={`px-2.5 py-1 text-[10px] font-medium rounded-lg border transition-colors ${
-              showMetrics ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'border-[var(--border-subtle)] text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]'
+            className={`px-2.5 py-1 text-[10px] rounded-lg border transition-colors ${
+              showMetrics ? 'bg-[#1B4D3E] border-[#1B4D3E]' : 'border-[var(--border-subtle)] hover:border-[var(--border-medium)]'
             }`}
+            style={{ color: showMetrics ? '#FDFCFA' : '#2C2825', fontWeight: 900 }}
           >
             Metrics
           </button>
           {!editing ? (
             <button
+              data-no-recolor="true"
               onClick={() => setEditing(true)}
-              className="px-2.5 py-1 text-[10px] font-medium rounded-lg border border-[var(--border-subtle)] text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)] transition-colors"
+              className="px-2.5 py-1 text-[10px] rounded-lg border border-[var(--border-subtle)] transition-colors"
+              style={{ color: '#2C2825', fontWeight: 900 }}
             >
               <Pencil size={10} className="inline mr-1" />Edit Funnel
             </button>
           ) : (
             <div className="flex gap-1">
-              <button onClick={handleSave} disabled={saving} className="px-2.5 py-1 text-[10px] font-medium rounded-lg bg-[var(--color-gold)] text-[var(--color-light)] disabled:opacity-40">
+              <button data-no-recolor="true" onClick={handleSave} disabled={saving} className="px-2.5 py-1 text-[10px] rounded-lg bg-[var(--color-gold)] disabled:opacity-40" style={{ color: '#FDFCFA', fontWeight: 900 }}>
                 {saving ? 'Saving...' : 'Save'}
               </button>
-              <button onClick={() => setEditing(false)} className="px-2.5 py-1 text-[10px] text-[var(--color-mid-gray)]">Cancel</button>
+              <button data-no-recolor="true" onClick={() => setEditing(false)} className="px-2.5 py-1 text-[10px]" style={{ color: '#2C2825', fontWeight: 900 }}>Cancel</button>
             </div>
           )}
         </div>

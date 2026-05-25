@@ -1,4 +1,4 @@
-const CACHE_NAME = "storageads-v1";
+const CACHE_NAME = "storageads-v2";
 const OFFLINE_URL = "/offline";
 
 // Assets to pre-cache on install

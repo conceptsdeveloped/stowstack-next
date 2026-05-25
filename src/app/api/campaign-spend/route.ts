@@ -7,6 +7,7 @@ import {
   corsResponse,
   requireAdminKey,
 } from "@/lib/api-helpers";
+import { attributeSpendToVariations } from "@/lib/attribution";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -185,6 +186,11 @@ export async function POST(req: NextRequest) {
       `;
       synced++;
     }
+
+    // Attribute spend to specific ad variations (fire-and-forget)
+    attributeSpendToVariations(facilityId).catch((err) =>
+      console.error("[attribution] Failed:", (err as Error).message)
+    );
 
     return jsonResponse(
       { success: true, synced, dateRange: { start, end } },

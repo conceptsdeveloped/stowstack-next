@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StorageAds — Architecture Map</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --navy: #1B2A3D;
+    --cream: #FAF8F4;
+    --sand: #EDE9E0;
+    --crimson: #96242D;
+    --muted: #3D4F5F;
+    --steel: #8A9BAA;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'Helvetica Neue', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    line-height: 1.6;
+  }
+  header {
+    background: var(--navy);
+    color: var(--cream);
+    padding: 3rem 2rem 2rem;
+    border-bottom: 4px solid var(--crimson);
+  }
+  header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  header p {
+    margin: 0;
+    opacity: 0.8;
+    max-width: 900px;
+  }
+  header .stats {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  header .stats div {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+  }
+  header .stats strong {
+    display: block;
+    font-size: 1.75rem;
+    color: var(--cream);
+    opacity: 1;
+    margin-bottom: 0.25rem;
+  }
+  nav {
+    background: var(--sand);
+    padding: 1rem 2rem;
+    border-bottom: 2px solid var(--navy);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  nav a {
+    display: inline-block;
+    margin-right: 1rem;
+    padding: 0.35rem 0.75rem;
+    color: var(--navy);
+    text-decoration: none;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+  nav a:hover {
+    border-color: var(--navy);
+    background: var(--cream);
+  }
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  section {
+    margin-bottom: 4rem;
+    scroll-margin-top: 80px;
+  }
+  section h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.5rem;
+    color: var(--navy);
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  section h2 .num {
+    color: var(--crimson);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  section p.lede {
+    color: var(--muted);
+    margin: 0 0 1.25rem;
+    max-width: 900px;
+  }
+  .diagram {
+    background: #fff;
+    border: 2px solid var(--navy);
+    box-shadow: 6px 6px 0 var(--navy);
+    padding: 1.5rem;
+    overflow-x: auto;
+  }
+  .diagram svg {
+    max-width: 100%;
+    height: auto !important;
+  }
+  table.quickref {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 2px solid var(--navy);
+    box-shadow: 6px 6px 0 var(--navy);
+  }
+  table.quickref th {
+    background: var(--navy);
+    color: var(--cream);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  table.quickref td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--sand);
+    vertical-align: top;
+    font-size: 0.9rem;
+  }
+  table.quickref code {
+    background: var(--sand);
+    padding: 0.1em 0.4em;
+    font-size: 0.85em;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  footer {
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border-top: 2px solid var(--navy);
+    background: var(--sand);
+  }
+  /* Mermaid overrides — make it match the Vanguard palette */
+  .mermaid {
+    font-family: 'Inter', sans-serif !important;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>StorageAds — Architecture Map</h1>
+  <p>Every major surface, subsystem, and data flow. Click any section header in the nav to jump. Diagrams are interactive — try zooming in your browser (Cmd +) if details feel tight.</p>
+  <div class="stats">
+    <div><strong>~184</strong>API routes</div>
+    <div><strong>~95</strong>Prisma models</div>
+    <div><strong>~62</strong>Facility tabs</div>
+    <div><strong>~15</strong>Cron jobs</div>
+    <div><strong>4</strong>Auth systems</div>
+    <div><strong>~20+</strong>Integrations</div>
+  </div>
+</header>
+
+<nav>
+  <a href="#top">0. Top-Level</a>
+  <a href="#auth">1. Auth</a>
+  <a href="#journey">2. Lead Journey</a>
+  <a href="#creative">3. Creative → Publish</a>
+  <a href="#drip">4. Drip</a>
+  <a href="#attribution">5. Attribution</a>
+  <a href="#synthesis">6. Synthesis</a>
+  <a href="#tabs">7. Admin Tabs</a>
+  <a href="#external">8. Externals</a>
+  <a href="#cron">9. Cron</a>
+  <a href="#models">10. Models</a>
+  <a href="#index">11. Index</a>
+</nav>
+
+<main>
+
+<section id="top">
+  <h2><span class="num">00</span>Top-Level System Map</h2>
+  <p class="lede">Every actor, surface, auth, API, service, persistence layer, and external integration in one view.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  subgraph actors[Actors]
+    visitor[Anonymous Visitor]
+    prospect[Prospect / Lead]
+    client[Signed Client]
+    tenant[Tenant]
+    partner[Partner / Reseller]
+    admin[Admin / Founder]
+    cron[Vercel Cron]
+    platforms[Ad Platforms<br/>Meta · Google · TikTok]
+  end
+
+  subgraph fe[Front-end Surfaces]
+    marketing[Marketing Site<br/>/ · /pricing · /blog · /about]
+    audit[Audit Tool<br/>/audit-tool · /audit/:slug]
+    lp[Dynamic Landing Pages<br/>/lp/:slug · /walkin/:code]
+    portalUI[Client Portal<br/>/portal · onboarding · campaigns · reports · gbp]
+    partnerUI[Partner Dashboard<br/>/partner · facilities · api-keys · revenue]
+    adminUI[Admin Dashboard<br/>/admin · facilities · campaigns · funnels]
+  end
+
+  subgraph auth[Auth Layer]
+    clerk[Clerk Middleware<br/>passthrough]
+    adminKey[X-Admin-Key]
+    portalAuth[Client Access Code]
+    orgSession[Org Session ss_]
+    apiKey[V1 API Key]
+    cronAuth[CRON_SECRET]
+  end
+
+  subgraph api[API Layer ~184 routes]
+    pubAPI[Public API<br/>audit · lead-capture · stripe-webhook]
+    adminAPI[Admin API<br/>admin-* · publish-ad · synthesize]
+    portalAPI[Portal API<br/>client-* · portal-*]
+    partnerAPI[Partner API<br/>organizations · referrals]
+    v1API[V1 External API]
+    cronAPI[Cron Routes]
+  end
+
+  subgraph svc[Domain Services]
+    creative[Creative + Compliance]
+    synth[Synthesis Engine]
+    attrib[Attribution]
+    drip[Drip / Nurture]
+    intel[Market Intel]
+    pmsSvc[PMS Service]
+    platformSvc[Platform Auth]
+    audit2[Audit]
+    billingSvc[Billing]
+  end
+
+  subgraph data[Persistence]
+    db[(Postgres · Neon<br/>~95 models)]
+    redis[(Upstash Redis)]
+    blob[(Vercel Blob)]
+    fs[Filesystem doctrine<br/>CREATIVE · STRATEGY · BRAND · COMPLIANCE]
+  end
+
+  subgraph ext[External Services]
+    claude[Anthropic Claude]
+    fal[FAL.ai · Replicate]
+    runway[Runway ML]
+    pollin[Pollinations]
+    resend[Resend]
+    twilio[Twilio]
+    stripeExt[Stripe]
+    places[Google Places]
+    gbp[Google Business Profile]
+    googleAds[Google Ads]
+    metaAds[Meta / CAPI]
+    tiktok[TikTok Ads]
+    sentry[Sentry]
+    cal[Cal.com]
+  end
+
+  visitor --> marketing
+  visitor --> audit
+  visitor --> lp
+  prospect --> audit
+  client --> portalUI
+  partner --> partnerUI
+  admin --> adminUI
+  platforms -- webhooks --> pubAPI
+
+  marketing --> pubAPI
+  audit --> pubAPI
+  lp --> pubAPI
+  portalUI --> portalAuth --> portalAPI
+  partnerUI --> orgSession --> partnerAPI
+  adminUI --> adminKey --> adminAPI
+  partner -. API keys .-> apiKey --> v1API
+  cron --> cronAuth --> cronAPI
+
+  clerk -. wraps all .-> fe
+
+  pubAPI --> svc
+  adminAPI --> svc
+  portalAPI --> svc
+  partnerAPI --> svc
+  v1API --> svc
+  cronAPI --> svc
+
+  svc --> db
+  svc --> redis
+  svc --> blob
+  synth --> fs
+  creative --> fs
+
+  creative --> claude
+  creative --> fal
+  creative --> runway
+  creative --> pollin
+  synth --> claude
+  attrib --> metaAds
+  attrib --> googleAds
+  drip --> resend
+  drip --> twilio
+  intel --> places
+  intel --> claude
+  audit2 --> places
+  audit2 --> claude
+  billingSvc --> stripeExt
+  platformSvc --> metaAds
+  platformSvc --> googleAds
+  platformSvc --> tiktok
+  platformSvc --> gbp
+  pubAPI --> sentry
+  marketing -. embed .-> cal
+  </pre></div>
+</section>
+
+<section id="auth">
+  <h2><span class="num">01</span>Authentication Routing</h2>
+  <p class="lede">Four independent systems. Clerk wraps everything as passthrough; real gating happens in the other three + API key + cron secret.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart TB
+  req[Incoming Request]
+  req --> mw[Clerk middleware<br/>marks routes public]
+  mw --> router{Route prefix}
+
+  router -->|/admin/* or /api/admin-*| ak[requireAdminKey<br/>X-Admin-Key header]
+  router -->|/portal/* or /api/client-*| pac[Access Code<br/>Bearer token]
+  router -->|/partner/* or partner API| os[getSession<br/>ss_ token · 30d TTL]
+  router -->|/api/v1/*| vk[v1-auth<br/>partner API key]
+  router -->|/api/cron/*| cs[verifyCronSecret<br/>CRON_SECRET]
+  router -->|public| pass[no auth]
+
+  ak --> okAdmin((Admin route))
+  pac --> okPortal((Portal route))
+  os --> okPartner((Partner route))
+  vk --> okV1((V1 route))
+  cs --> okCron((Cron route))
+  pass --> okPub((Public route))
+
+  ak -. fail .-> rej[401]
+  pac -. fail .-> rej
+  os -. fail .-> rej
+  vk -. fail .-> rej
+  cs -. fail .-> rej
+  </pre></div>
+</section>
+
+<section id="journey">
+  <h2><span class="num">02</span>Lead Journey — Audit → Client → Tenant</h2>
+  <p class="lede">End-to-end conversion path. This is the backbone of the entire business.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  A[Visitor on<br/>/audit-tool or /lp/:slug] --> B[POST /api/audit-form<br/>or /api/lead-capture]
+  B --> C{Entry type}
+  C -->|audit| D[POST /api/audit-generate<br/>Google Places + Claude]
+  C -->|landing page| E[partial_leads<br/>UTM captured]
+
+  D --> F[audits +<br/>audit_report_cache]
+  F --> G[/audit/:slug page<br/>Cal.com CTA]
+  G --> H[Call booked → demo]
+
+  E --> I[Enroll in funnel drip]
+  H --> J[Contract signed<br/>status = client_signed]
+
+  J --> K[Access code email<br/>via Resend]
+  K --> L[/portal login]
+  L --> M[/portal/onboarding<br/>facility info + Stripe]
+  M --> N[clients +<br/>client_onboarding]
+
+  N --> O[Active subscription]
+  O --> P[Campaigns run]
+  P --> Q[Lead → tour → lease]
+  Q --> R[Tenant record]
+
+  R --> S[tenant_payments +<br/>communications]
+  R --> T[churn_predictions +<br/>retention_campaigns]
+  R -. moveout .-> U[moveout_remarketing drip]
+  </pre></div>
+</section>
+
+<section id="creative">
+  <h2><span class="num">03</span>Ad Creative & Publish Flow</h2>
+  <p class="lede">From creative brief to platform to attributed revenue.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart TB
+  subgraph studio[Ad Studio]
+    A1[Creative brief<br/>angle · audience · platform]
+    A2[Generate copy<br/>Claude]
+    A3[Generate image<br/>FAL → Pollinations]
+    A4[Generate video<br/>FAL Wan2.2 → Runway]
+    A5[Compliance validate<br/>vs COMPLIANCE.md]
+    A6[Funnel test config]
+  end
+
+  subgraph doctrine[Doctrine]
+    D1[CREATIVE.md]
+    D2[STRATEGY.md]
+    D3[BRAND_DOCTRINE.md]
+    D4[COMPLIANCE.md]
+    D5[style_references]
+  end
+
+  D5 --> A2
+  D5 --> A3
+  D5 --> A4
+  D1 --> A2
+  D1 --> A3
+  D2 --> A1
+  D4 --> A5
+
+  A1 --> A2 --> A5
+  A1 --> A3 --> A5
+  A1 --> A4 --> A5
+  A5 --> A6
+  A6 --> V[ad_variations<br/>compliance_status · funnel_config]
+
+  V --> PUB[POST /api/publish-ad]
+  PUB -->|Meta| M1[Meta Ads API]
+  PUB -->|Google| M2[Google Ads API]
+  PUB -->|TikTok| M3[TikTok Ads API]
+  PUB --> PL[publish_log]
+
+  M1 --> IMP[Impressions · clicks]
+  M2 --> IMP
+  M3 --> IMP
+  IMP --> LPGO[/lp/:slug landing page]
+  LPGO --> LC[POST /api/lead-capture]
+  LC --> PL2[partial_leads<br/>UTM captured]
+
+  PL2 --> DRIP[drip_sequences]
+  PL2 --> CT[call_tracking_numbers]
+  CT --> CL[call_logs]
+  CL --> MOV[tenants · move-in linked]
+
+  SPEND[campaign_spend] --> ATTR[GET /api/attribution]
+  PL2 --> ATTR
+  CL --> ATTR
+  MOV --> ATTR
+  ATTR --> CP[creative_performance<br/>CPL · CPMI · ROAS]
+  </pre></div>
+</section>
+
+<section id="drip">
+  <h2><span class="num">04</span>Drip / Nurture Automation</h2>
+  <p class="lede">Post-conversion, recovery, and retargeting sequences. Triggered on events, dispatched by cron, delivered via Resend + Twilio.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  TRIG{Trigger}
+  TRIG -->|lead capture| E1[partial_leads]
+  TRIG -->|form abandoned| E2[partial-lead endpoint]
+  TRIG -->|moved out| E3[moveout webhook]
+  TRIG -->|audit generated| E4[post-audit email]
+
+  E1 --> F[funnelConfigToDripSteps]
+  E2 --> RECOV[recovery template]
+  E3 --> MOV[moveout_remarketing]
+  E4 --> NUR[nurture_enrollments]
+
+  F --> DS[drip_sequences<br/>status=active<br/>next_send_at=now+delay0]
+  RECOV --> DS
+  MOV --> DS
+  NUR --> NS[nurture_sequences]
+
+  CRON1[/process-drips 5 AM/] --> DS
+  CRON2[/process-nurture 6 AM/] --> NS
+  CRON3[/process-recovery 7 AM/] --> DS
+
+  CRON1 --> RESOLVE[Resolve template]
+  RESOLVE --> CH{Channel}
+  CH -->|email| RES[Resend<br/>tracked opens/clicks]
+  CH -->|SMS| TWI[Twilio<br/>delivery webhook]
+
+  RES --> UPD[Advance step<br/>next_send_at = now+delay_n]
+  TWI --> UPD
+  UPD --> DS
+
+  UPD --> DONE{Last step?}
+  DONE -->|yes| COMP[status=completed]
+  DONE -->|no| DS
+  </pre></div>
+</section>
+
+<section id="attribution">
+  <h2><span class="num">05</span>Attribution Pipeline</h2>
+  <p class="lede">Spend + leads + calls + move-ins all join to produce ROAS.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  subgraph sources[Sources]
+    S1[Meta Ads<br/>spend · impressions · clicks]
+    S2[Google Ads<br/>spend · conversions]
+    S3[TikTok Ads]
+    S4[Meta CAPI]
+    S5[Google Conversion]
+  end
+
+  S1 --> SP[campaign_spend<br/>daily rollup]
+  S2 --> SP
+  S3 --> SP
+
+  subgraph capture[Capture]
+    L1[/lp/:slug form] --> L2[POST /api/lead-capture]
+    L2 --> PL[partial_leads<br/>utm_source · campaign · session_id]
+    C1[Twilio webhook] --> C2[POST /api/call-webhook]
+    C2 --> CL[call_logs<br/>move_in_linked FK]
+  end
+
+  subgraph fulfill[Fulfillment]
+    T[tenants<br/>move_in_date]
+    CS[clients<br/>status=client_signed]
+  end
+
+  SP --> ENG[attribution.ts<br/>performance-aggregator]
+  PL --> ENG
+  CL --> ENG
+  T --> ENG
+  CS --> ENG
+
+  S4 --> METAFB[Meta CAPI feedback<br/>audience improvement]
+  S5 --> GFB[Google feedback]
+
+  ENG --> OUT[client_campaigns<br/>CPL · CPMI · ROAS · revenue]
+  OUT --> VIZ1[Admin Revenue Analytics]
+  OUT --> VIZ2[Client portal reports]
+  OUT --> MR[monthly report cron]
+  </pre></div>
+</section>
+
+<section id="synthesis">
+  <h2><span class="num">06</span>Synthesis / Self-Evolving Doctrine</h2>
+  <p class="lede">User uploads a style reference or campaign data — Claude rewrites CREATIVE.md and STRATEGY.md. New doctrine feeds back into creative generation.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart TB
+  IN1[Manual upload<br/>/admin/style-references]
+  IN2[Cron weekly-synthesis<br/>Sun 10 AM]
+  IN3[Campaign threshold<br/>high ROAS · movement]
+
+  IN1 --> Q[POST /api/synthesize]
+  IN2 --> Q2[POST /api/process-synthesis-queue]
+  IN3 --> Q
+
+  Q --> LOAD[doctrine-store.ts<br/>read CREATIVE + STRATEGY]
+  Q2 --> LOAD
+
+  LOAD --> RUN[synthesis.ts<br/>Claude prompt: how does input update doctrine?]
+  RUN --> OUT1[New CREATIVE.md]
+  RUN --> OUT2[New STRATEGY.md]
+  RUN --> OUT3[doctrine_versions]
+  RUN --> OUT4[synthesis_log]
+  RUN --> OUT5[facility_learnings]
+
+  OUT1 -. feeds .-> CREAT[Creative generation<br/>copy · image · video]
+  OUT2 -. feeds .-> CREAT
+  OUT5 -. feeds .-> CREAT
+  </pre></div>
+</section>
+
+<section id="tabs">
+  <h2><span class="num">07</span>Admin Facility Manager — Tab Taxonomy</h2>
+  <p class="lede">62 lazy-loaded tabs grouped by domain. Single facility selector at the top; each tab is its own micro-app.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  SEL[Facility selector<br/>facility-context.tsx]
+  SEL --> OVR[Overview]
+
+  subgraph CREATIVE[Creative]
+    T1[Ad Studio]
+    T2[Creative Studio]
+    T3[Image Generator]
+    T4[Video Generator]
+    T5[Ad Mockup Preview]
+    T6[Ad Publisher]
+    T7[Style References]
+  end
+
+  subgraph PAGES[Funnels · Pages]
+    P1[Landing Pages]
+    P2[Facility Funnels]
+    P3[UTM Links]
+    P4[Lead Nurture Engine]
+  end
+
+  subgraph GBP_G[Google Business Profile]
+    G1[GBP Full]
+    G2[GBP Posts]
+    G3[GBP Insights]
+    G4[GBP Reviews]
+    G5[GBP Q&A]
+    G6[GBP Settings]
+  end
+
+  subgraph SOCIAL[Social]
+    SC1[Command Center]
+    SC2[Batch Generator]
+    SC3[Content Calendar]
+    SC4[TikTok Creator]
+  end
+
+  subgraph ADS_G[Paid Channels]
+    AD1[Google Ads Lab]
+    AD2[Call Tracking]
+  end
+
+  subgraph DATA_G[Facility Data]
+    PM0[PMS Dashboard]
+    PM1[PMS Overview]
+    PM2[PMS Rent Roll]
+    PM3[PMS Revenue]
+    PM4[PMS Length of Stay]
+    PM5[PMS Aging]
+    PM6[PMS Upload]
+    PM7[PMS Queue]
+    ML[Media Library]
+  end
+
+  subgraph INTEL[Intelligence]
+    I1[Occupancy Intelligence]
+    I2[Market Intelligence]
+    I3[Revenue Analytics]
+  end
+
+  subgraph TENANT[Tenants]
+    TN1[Tenant Management]
+    TN2[Churn Dashboard]
+    TN3[Retention Dashboard]
+  end
+
+  SEL --> CREATIVE
+  SEL --> PAGES
+  SEL --> GBP_G
+  SEL --> SOCIAL
+  SEL --> ADS_G
+  SEL --> DATA_G
+  SEL --> INTEL
+  SEL --> TENANT
+  </pre></div>
+</section>
+
+<section id="external">
+  <h2><span class="num">08</span>External Integration Surface</h2>
+  <p class="lede">Every third-party service and what it powers.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  core[StorageAds Core]
+
+  core --> claude[Anthropic Claude]
+  claude -. powers .-> F1[Audit generation]
+  claude -. powers .-> F2[Copy generation]
+  claude -. powers .-> F3[Marketing plans]
+  claude -. powers .-> F4[Synthesis]
+  claude -. powers .-> F5[Market intel]
+
+  core --> resend[Resend]
+  resend -. powers .-> E1[Access codes]
+  resend -. powers .-> E2[Drip email]
+  resend -. powers .-> E3[Monthly reports]
+
+  core --> stripe[Stripe]
+  stripe -. powers .-> B1[Checkout]
+  stripe -. powers .-> B2[Portal]
+  stripe -. powers .-> B3[Subscriptions]
+
+  core --> twilio[Twilio]
+  twilio -. powers .-> TW1[SMS drips]
+  twilio -. powers .-> TW2[Call tracking]
+  twilio -. powers .-> TW3[Recordings]
+
+  core --> falr[FAL · Runway · Pollinations]
+  falr -. powers .-> I1[Image generation]
+  falr -. powers .-> I2[Video generation]
+
+  core --> gemini[Gemini]
+  gemini -. powers .-> AV[Video analysis]
+
+  core --> places[Google Places]
+  places -. powers .-> PL1[Facility lookup]
+  places -. powers .-> PL2[Competitor research]
+  places -. powers .-> PL3[Audit enrichment]
+
+  core --> gbp[Google Business Profile]
+  gbp -. powers .-> GBP1[Post publishing]
+  gbp -. powers .-> GBP2[Insights · reviews · Q&A]
+
+  core --> gads[Google Ads]
+  gads -. powers .-> GA1[Campaigns + keywords]
+
+  core --> meta[Meta · Facebook]
+  meta -. powers .-> MA1[Meta + IG ads]
+  meta -. powers .-> MA2[CAPI]
+  meta -. powers .-> MA3[Audience sync]
+
+  core --> tiktok[TikTok Ads]
+  tiktok -. powers .-> TT1[TikTok ads]
+
+  core --> upstash[Upstash Redis]
+  upstash -. powers .-> U1[Rate limiting · cache]
+
+  core --> blob[Vercel Blob]
+  blob -. powers .-> BL1[Assets · PDFs · video]
+
+  core --> sentry[Sentry]
+  sentry -. powers .-> SEN1[Errors · perf]
+
+  core --> clerk[Clerk]
+  clerk -. wraps .-> CL1[Sessions]
+
+  core --> cal[Cal.com embed]
+  cal -. powers .-> CA1[Demo booking]
+  </pre></div>
+</section>
+
+<section id="cron">
+  <h2><span class="num">09</span>Cron Schedule</h2>
+  <p class="lede">All 15 scheduled functions and their downstream effects, UTC.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  subgraph sched[Vercel Cron · UTC]
+    S1[3:00 AM cleanup-sessions]
+    S2[3:30 AM cleanup-organizations]
+    S3[Sun 1 AM sync-audiences]
+    S4[2 AM aggregate-page-stats]
+    S5[4 AM process-gbp]
+    S6[4 AM data-retention]
+    S7[5 AM process-drips]
+    S8[6 AM process-nurture]
+    S9[7 AM process-recovery]
+    S10[8 AM check-campaign-alerts]
+    S11[9 AM send-client-reports]
+    S12[Fri 9 AM weekly-digest]
+    S13[10 AM review-solicitation]
+    S14[Sun 10 AM weekly-synthesis]
+    S15[12 PM process-synthesis-queue]
+  end
+
+  S1 --> T1[org_sessions TTL cleanup]
+  S2 --> T2[soft-deleted orgs purge]
+  S3 --> T3[Meta/Google audience sync]
+  S4 --> T4[landing page stats rollup]
+  S5 --> T5[GBP posts · insights · reviews · Q&A]
+  S6 --> T6[log + audit retention]
+  S7 --> T7[Resend · Twilio dispatch]
+  S8 --> T7
+  S9 --> T7
+  S10 --> T8[alert emails]
+  S11 --> T9[monthly HTML + PDF]
+  S12 --> T10[weekly digest]
+  S13 --> T11[post-move-in review requests]
+  S14 --> T12[CREATIVE · STRATEGY rewrite]
+  S15 --> T12
+  </pre></div>
+</section>
+
+<section id="models">
+  <h2><span class="num">10</span>Data Model Clusters</h2>
+  <p class="lede">95 Prisma models grouped by domain. Arrows show the strongest FK relationships.</p>
+  <div class="diagram"><pre class="mermaid">
+flowchart TB
+  subgraph ORG[Orgs · Users]
+    organizations
+    org_users
+    org_sessions
+    admin_keys
+    api_keys
+  end
+
+  subgraph FAC[Facility]
+    facilities
+    facility_context
+    facility_learnings
+    facility_market_intel
+    pms_reports
+    facility_pms_snapshots
+    facility_pms_rent_roll
+    facility_pms_units
+  end
+
+  subgraph PEOPLE[Clients · Leads · Tenants]
+    clients
+    client_onboarding
+    client_campaigns
+    client_reports
+    partial_leads
+    shared_audits
+    tenants
+    tenant_communications
+    tenant_payments
+    churn_predictions
+    retention_campaigns
+    moveout_remarketing
+  end
+
+  subgraph ADS[Campaigns · Creatives]
+    creative_briefs
+    ad_variations
+    funnels
+    funnel_stage_metrics
+    publish_log
+    creative_performance
+    campaign_spend
+    ab_tests
+  end
+
+  subgraph PAGES[Landing]
+    landing_pages
+    landing_page_sections
+    utm_links
+    page_interactions
+    call_tracking_numbers
+    call_logs
+  end
+
+  subgraph AUTO[Automation]
+    drip_sequences
+    drip_sequence_templates
+    nurture_sequences
+    nurture_enrollments
+  end
+
+  subgraph GBPM[GBP]
+    gbp_connections
+    gbp_insights
+    gbp_posts
+    gbp_reviews
+    gbp_questions
+  end
+
+  subgraph PLAT[Platforms]
+    platform_connections
+    audience_syncs
+    social_posts
+  end
+
+  subgraph AUDIT[Audits]
+    audits
+    audit_report_cache
+    website_scrape_cache
+    places_data
+  end
+
+  subgraph DOCT[Doctrine]
+    style_references
+    synthesis_log
+    doctrine_versions
+    ideas
+    marketing_plans
+  end
+
+  subgraph BILL[Billing]
+    client_invoices
+    referral_codes
+    referrals
+    rev_share_payouts
+  end
+
+  organizations --> org_users
+  organizations --> org_sessions
+  organizations --> facilities
+  organizations --> api_keys
+  organizations --> clients
+  facilities --> facility_context
+  facilities --> facility_learnings
+  facilities --> pms_reports
+  facilities --> landing_pages
+  facilities --> funnels
+  facilities --> ad_variations
+  facilities --> gbp_connections
+  facilities --> platform_connections
+  facilities --> call_tracking_numbers
+  facilities --> tenants
+
+  clients --> client_onboarding
+  clients --> client_campaigns
+  clients --> client_reports
+  clients --> client_invoices
+  partial_leads --> drip_sequences
+  partial_leads --> nurture_enrollments
+
+  funnels --> ad_variations
+  funnels --> drip_sequence_templates
+  ad_variations --> publish_log
+  ad_variations --> creative_performance
+  campaign_spend --> creative_performance
+
+  landing_pages --> landing_page_sections
+  landing_pages --> utm_links
+  landing_pages --> page_interactions
+  landing_pages --> ab_tests
+  call_tracking_numbers --> call_logs
+  call_logs --> tenants
+
+  drip_sequences --> drip_sequence_templates
+  nurture_enrollments --> nurture_sequences
+
+  gbp_connections --> gbp_insights
+  gbp_connections --> gbp_posts
+  gbp_connections --> gbp_reviews
+
+  platform_connections --> audience_syncs
+
+  audits --> audit_report_cache
+  shared_audits --> audits
+
+  style_references --> synthesis_log
+  synthesis_log --> doctrine_versions
+
+  referral_codes --> referrals
+  referrals --> rev_share_payouts
+  </pre></div>
+</section>
+
+<section id="index">
+  <h2><span class="num">11</span>Quick Reference Index</h2>
+  <p class="lede">Common questions → where in the codebase to look.</p>
+  <table class="quickref">
+    <thead>
+      <tr><th>Question</th><th>Start here</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>How does a visitor become a client?</td><td>Section 2 + <code>src/app/api/audit-*</code>, <code>src/app/api/lead-capture</code>, <code>src/lib/session-auth.ts</code></td></tr>
+      <tr><td>How is an ad generated and published?</td><td>Section 3 + <code>src/components/admin/facility-tabs/ad-studio.tsx</code>, <code>src/app/api/generate-*</code>, <code>src/app/api/publish-ad</code></td></tr>
+      <tr><td>How does a drip fire?</td><td>Section 4 + <code>src/lib/drip-sequences.ts</code>, <code>src/app/api/cron/process-drips</code></td></tr>
+      <tr><td>How is ROAS calculated?</td><td>Section 5 + <code>src/lib/attribution.ts</code>, <code>src/lib/performance-aggregator.ts</code></td></tr>
+      <tr><td>Why did CREATIVE.md change?</td><td>Section 6 + <code>src/lib/synthesis.ts</code>, tables <code>doctrine_versions</code> + <code>synthesis_log</code></td></tr>
+      <tr><td>Which auth guards this route?</td><td>Section 1 + <code>src/lib/api-helpers.ts</code>, <code>src/lib/session-auth.ts</code>, <code>src/lib/v1-auth.ts</code>, <code>src/lib/cron-auth.ts</code></td></tr>
+      <tr><td>Where is facility data stored?</td><td>Section 10 + <code>prisma/schema.prisma</code> (FAC cluster)</td></tr>
+      <tr><td>Which cron does X?</td><td>Section 9 + <code>vercel.json</code>, <code>src/app/api/cron/*</code></td></tr>
+      <tr><td>What does a tab do?</td><td>Section 7 + <code>src/components/admin/facility-tabs/</code></td></tr>
+      <tr><td>Which env var powers Y?</td><td>Section 8</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+
+<footer>
+  <div>StorageAds Architecture Map · Generated from live codebase survey · Render with any modern browser</div>
+</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#FAF8F4',
+      primaryTextColor: '#1B2A3D',
+      primaryBorderColor: '#1B2A3D',
+      lineColor: '#1B2A3D',
+      secondaryColor: '#EDE9E0',
+      tertiaryColor: '#FFFFFF',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '13px',
+      clusterBkg: '#EDE9E0',
+      clusterBorder: '#1B2A3D',
+      nodeBorder: '#1B2A3D',
+      mainBkg: '#FFFFFF',
+      edgeLabelBackground: '#FAF8F4',
+    },
+    flowchart: {
+      curve: 'basis',
+      padding: 15,
+      nodeSpacing: 40,
+      rankSpacing: 50,
+    }
+  });
+</script>
+
+</body>
+</html>

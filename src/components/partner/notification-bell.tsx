@@ -215,7 +215,7 @@ export function NotificationBell() {
           <div className="flex items-center justify-between border-b border-[var(--color-light-gray)] px-4 py-3">
             <h3
               className="text-sm font-semibold text-[var(--color-dark)]"
-              style={{ fontFamily: "var(--font-poppins, Poppins, sans-serif)" }}
+              style={{ fontFamily: "var(--font-primary)" }}
             >
               Notifications
             </h3>

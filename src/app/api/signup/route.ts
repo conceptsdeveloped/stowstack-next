@@ -10,6 +10,8 @@ import {
   corsResponse,
 } from "@/lib/api-helpers";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { PLANS } from "@/lib/stripe";
+import { sendVerificationEmail } from "@/lib/verification-email";
 
 const scryptAsync = promisify(crypto.scrypt);
 const SCRYPT_KEYLEN = 64;
@@ -17,11 +19,12 @@ const SCRYPT_KEYLEN = 64;
 const VALID_PLANS = ["launch", "growth", "portfolio"] as const;
 type Plan = (typeof VALID_PLANS)[number];
 
-const FACILITY_LIMITS: Record<Plan, number> = {
-  launch: 10,
-  growth: 50,
-  portfolio: 999,
-};
+// Canonical facility limits come from lib/stripe.ts PLANS. -1 (unlimited) is
+// stored as a very large number so the DB column can remain a positive Int.
+function facilityLimitFor(plan: Plan): number {
+  const limit = PLANS[plan].facilityLimit;
+  return limit === -1 ? 999 : limit;
+}
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -138,7 +141,7 @@ export async function POST(req: NextRequest) {
           name: companyName.trim(),
           slug,
           plan: selectedPlan,
-          facility_limit: FACILITY_LIMITS[selectedPlan],
+          facility_limit: facilityLimitFor(selectedPlan),
           status: "active",
           subscription_status: "trialing",
           trial_ends_at: trialEndsAt,
@@ -174,6 +177,14 @@ export async function POST(req: NextRequest) {
 
       return { org };
     });
+
+    // Fire-and-forget verification email so signup response isn't blocked
+    // by email delivery. User can request a resend from /verify-email.
+    sendVerificationEmail({
+      to: email.toLowerCase(),
+      name: contactName.trim(),
+      token: emailVerifyToken,
+    }).catch((err) => console.error("[signup] verification email failed:", err));
 
     // Create session
     const token = await createSession(userId, req);

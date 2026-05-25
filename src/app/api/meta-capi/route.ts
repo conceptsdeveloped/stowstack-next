@@ -5,6 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
+  verifyCsrfOrigin,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -221,6 +222,11 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-meta-capi");
   if (limited) return limited;
   const origin = getOrigin(req);
+
+  // Browser-facing pixel proxy: reject requests from foreign origins so
+  // attackers can't pollute our Meta pixel conversion data.
+  const csrfDeny = verifyCsrfOrigin(req);
+  if (csrfDeny) return csrfDeny;
 
   try {
     const body: EventBody = await req.json();

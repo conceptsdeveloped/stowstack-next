@@ -11,6 +11,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { canAddFacility } from "@/lib/plan-limits";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -98,14 +99,9 @@ export async function POST(req: NextRequest) {
       return errorResponse("Facility belongs to another organization", 403, origin);
     }
 
-    const org = await db.organizations.findUnique({
-      where: { id: orgId },
-      select: { facility_limit: true },
-    });
-    const currentCount = await db.facilities.count({ where: { organization_id: orgId } });
-
-    if (currentCount >= (org?.facility_limit || 10)) {
-      return errorResponse("Facility limit reached for your plan", 400, origin);
+    const gate = await canAddFacility(orgId);
+    if (!gate.ok) {
+      return errorResponse(gate.reason || "Facility limit reached for your plan", 400, origin);
     }
 
     const facility = await db.facilities.update({

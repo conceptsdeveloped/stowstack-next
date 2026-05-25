@@ -139,6 +139,7 @@ export default function SocialCommandCenter({
             </button>
             <button
               onClick={fetchPosts}
+              aria-label="Refresh posts"
               className="p-2 rounded-xl border border-[var(--border-subtle)] transition-colors hover:bg-[var(--color-light-gray)]"
             >
               <RefreshCw size={14} className={textTertiary} />

@@ -28,6 +28,7 @@ export default function LandingPageBuilder({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showTemplatePicker, setShowTemplatePicker] = useState(false)
+  const [generating, setGenerating] = useState(false)
 
   const fetchPages = useCallback(async () => {
     try {
@@ -216,6 +217,36 @@ export default function LandingPageBuilder({
     }
   }
 
+  async function generatePage(
+    funnelStage = "consideration",
+    archetypeKey?: string
+  ) {
+    setGenerating(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/landing-pages/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Key": adminKey,
+        },
+        body: JSON.stringify({
+          facilityId,
+          funnelStage,
+          archetypeKey: archetypeKey || null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Generation failed")
+      setEditingPage(data.page)
+      fetchPages()
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Unknown error")
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   /* ── TEMPLATE PICKER ── */
   if (showTemplatePicker) {
     return (
@@ -235,7 +266,9 @@ export default function LandingPageBuilder({
         pages={pages}
         loading={loading}
         error={error}
+        generating={generating}
         onCreateNew={() => setShowTemplatePicker(true)}
+        onGenerate={generatePage}
         onOpenPage={openPageForEdit}
         onClonePage={clonePage}
         onDeletePage={deletePage}

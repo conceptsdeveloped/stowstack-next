@@ -266,6 +266,33 @@ async function handleExecuteDeletion(
       txDeleted.tenants = tenantDel.count;
     }
 
+    // Delete nurture enrollments and drip sequences that reference this email
+    // before (or by side of) partial_leads deletion. nurture_enrollments has
+    // onDelete: SetNull on lead_id, so we must delete the enrollment rows
+    // directly or they would linger with NULL references and contact_email.
+    const leadRows = await tx.partial_leads.findMany({
+      where: { email },
+      select: { id: true },
+    });
+    const leadIds = leadRows.map((l) => l.id);
+
+    const nurtureDel = await tx.nurture_enrollments.deleteMany({
+      where: {
+        OR: [
+          { contact_email: email },
+          ...(leadIds.length ? [{ lead_id: { in: leadIds } }] : []),
+        ],
+      },
+    });
+    txDeleted.nurture_enrollments = nurtureDel.count;
+
+    if (leadIds.length) {
+      const dripDel = await tx.drip_sequences.deleteMany({
+        where: { lead_id: { in: leadIds } },
+      });
+      txDeleted.drip_sequences = dripDel.count;
+    }
+
     // Delete partial leads
     const partialDel = await tx.partial_leads.deleteMany({
       where: { email },

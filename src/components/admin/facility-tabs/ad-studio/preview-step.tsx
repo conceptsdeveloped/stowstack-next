@@ -51,22 +51,26 @@ export function PreviewStep({
       {/* Mode toggle: Mockup vs Funnel */}
       <div className="flex gap-2">
         <button
+          data-no-recolor="true"
           onClick={() => setPreviewMode('mockup')}
-          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg border transition-colors ${
             previewMode === 'mockup'
-              ? 'bg-[var(--color-gold)] text-[var(--color-light)] border-[var(--color-gold)]'
-              : 'border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]'
+              ? 'bg-[var(--color-gold)] border-[var(--color-gold)]'
+              : 'border-[var(--border-subtle)] hover:bg-[var(--color-light-gray)]'
           }`}
+          style={{ color: previewMode === 'mockup' ? '#FDFCFA' : '#2C2825', fontWeight: 900 }}
         >
           <Smartphone size={13} /> Ad Mockup
         </button>
         <button
+          data-no-recolor="true"
           onClick={() => setPreviewMode('funnel')}
-          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs rounded-lg border transition-colors ${
             previewMode === 'funnel'
-              ? 'bg-[var(--color-gold)] text-[var(--color-light)] border-[var(--color-gold)]'
-              : 'border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]'
+              ? 'bg-[var(--color-gold)] border-[var(--color-gold)]'
+              : 'border-[var(--border-subtle)] hover:bg-[var(--color-light-gray)]'
           }`}
+          style={{ color: previewMode === 'funnel' ? '#FDFCFA' : '#2C2825', fontWeight: 900 }}
         >
           <Layout size={13} /> Test Funnel
         </button>
@@ -78,14 +82,19 @@ export function PreviewStep({
           <button
             key={f.id}
             onClick={() => setActiveFormat(f.id)}
-            className={`shrink-0 px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-medium rounded-lg border transition-colors ${
+            data-no-recolor="true"
+            className={`shrink-0 px-3 sm:px-4 py-2 text-[11px] sm:text-xs rounded-lg border transition-colors ${
               activeFormat === f.id
-                ? 'bg-[var(--color-gold)] text-[var(--color-light)] border-[var(--color-gold)]'
-                : 'border-[var(--border-subtle)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]'
+                ? 'bg-[var(--color-gold)] border-[var(--color-gold)]'
+                : 'border-[var(--border-subtle)] hover:bg-[var(--color-light-gray)]'
             }`}
+            style={{
+              color: activeFormat === f.id ? '#FDFCFA' : '#2C2825',
+              fontWeight: 900,
+            }}
           >
             {f.label}
-            <span className={`ml-1 sm:ml-1.5 text-[9px] sm:text-[10px] hidden sm:inline ${activeFormat === f.id ? 'text-[var(--color-blue)]' : 'text-[var(--color-mid-gray)]'}`}>
+            <span className="ml-1 sm:ml-1.5 text-[9px] sm:text-[10px] hidden sm:inline" style={{ color: activeFormat === f.id ? '#FDFCFA' : '#6B6560' }}>
               {f.width}x{f.height}
             </span>
           </button>

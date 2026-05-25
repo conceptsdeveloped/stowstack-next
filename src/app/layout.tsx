@@ -1,23 +1,37 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Poppins, Lora } from "next/font/google";
+import { Inter, JetBrains_Mono, Archivo } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
 import Analytics from "@/components/analytics";
+import TweaksPanel from "@/components/mono/tweaks-panel";
 import "./globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+// JetBrains Mono is the primary voice across the product.
+// Inter is the humanist-sans escape valve for the rare moments where
+// full monospace would read too harsh or technical — the Anthropic
+// principle of finding the happy medium.
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const lora = Lora({
-  variable: "--font-lora",
+// Archivo — serif/display-sans for headlines under the NULL//TRACE theme.
+// Used sparingly (section titles, hero display number). Mono handles everything else.
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   style: ["normal", "italic"],
   display: "swap",
 });
@@ -117,14 +131,18 @@ export default function RootLayout({
     <ClerkProvider
       appearance={{
         variables: {
-          colorPrimary: "#B58B3F",
+          colorPrimary: "#141413",
           colorBackground: "#faf9f5",
           colorInputBackground: "#ffffff",
           colorText: "#141413",
         },
       }}
     >
-      <html lang="en" className={`${poppins.variable} ${lora.variable} antialiased`}>
+      <html
+        lang="en"
+        data-palette="paper"
+        className={`${jetbrainsMono.variable} ${inter.variable} ${archivo.variable} antialiased`}
+      >
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -148,10 +166,10 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
           />
         </head>
-        <body>
+        <body className="urbit-landing">
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-gold)] focus:text-[var(--color-light)] focus:rounded-lg"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-dark)] focus:text-[var(--color-light)] focus:rounded-lg"
           >
             Skip to content
           </a>
@@ -161,6 +179,7 @@ export default function RootLayout({
           <ScrollProgress />
           <GrainOverlay />
           {children}
+          <TweaksPanel />
         </body>
       </html>
     </ClerkProvider>

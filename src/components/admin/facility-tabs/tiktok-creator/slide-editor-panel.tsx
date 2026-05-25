@@ -58,6 +58,7 @@ export function SlideEditorPanel({
   assets,
   totalDuration,
   exporting,
+  exportProgress,
   exportVideo,
 }: {
   slides: Slide[]
@@ -73,6 +74,7 @@ export function SlideEditorPanel({
   assets: Asset[]
   totalDuration: number
   exporting: boolean
+  exportProgress?: string | null
   exportVideo: () => void
 }) {
   const activeSlide = slides[activeSlideIdx]
@@ -213,9 +215,9 @@ export function SlideEditorPanel({
                   </select>
                   <div className="flex-1" />
                   {/* Move controls */}
-                  <button onClick={e => { e.stopPropagation(); moveSlide(idx, -1) }} disabled={idx === 0} className="p-0.5 text-[var(--color-mid-gray)] disabled:opacity-20 hover:text-[var(--color-dark)]"><ChevronLeft size={11} /></button>
-                  <button onClick={e => { e.stopPropagation(); moveSlide(idx, 1) }} disabled={idx === slides.length - 1} className="p-0.5 text-[var(--color-mid-gray)] disabled:opacity-20 hover:text-[var(--color-dark)]"><ChevronRight size={11} /></button>
-                  <button onClick={e => { e.stopPropagation(); removeSlide(idx) }} className="p-0.5 text-red-400 hover:text-red-300"><Trash2 size={11} /></button>
+                  <button onClick={e => { e.stopPropagation(); moveSlide(idx, -1) }} disabled={idx === 0} aria-label="Move slide left" className="p-0.5 text-[var(--color-mid-gray)] disabled:opacity-20 hover:text-[var(--color-dark)]"><ChevronLeft size={11} /></button>
+                  <button onClick={e => { e.stopPropagation(); moveSlide(idx, 1) }} disabled={idx === slides.length - 1} aria-label="Move slide right" className="p-0.5 text-[var(--color-mid-gray)] disabled:opacity-20 hover:text-[var(--color-dark)]"><ChevronRight size={11} /></button>
+                  <button onClick={e => { e.stopPropagation(); removeSlide(idx) }} aria-label="Delete slide" className="p-0.5 text-red-400 hover:text-red-300"><Trash2 size={11} /></button>
                 </div>
               </div>
             </div>
@@ -255,7 +257,7 @@ export function SlideEditorPanel({
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-gold)] text-[var(--color-light)] text-sm font-medium rounded-lg hover:bg-[var(--color-gold-hover)] disabled:opacity-40 transition-colors"
         >
           {exporting ? (
-            <><Loader2 size={14} className="animate-spin" /> Exporting...</>
+            <><Loader2 size={14} className="animate-spin" /> {exportProgress || 'Exporting…'}</>
           ) : (
             <><Download size={14} /> Export Video ({totalDuration.toFixed(0)}s)</>
           )}

@@ -30,7 +30,7 @@ export async function createAdminKey(
 
 export async function validateAdminKey(
   key: string
-): Promise<{ valid: boolean; adminEmail?: string; keyId?: string }> {
+): Promise<{ valid: boolean; adminEmail?: string; keyId?: string; scopes?: string[] }> {
   if (!key.startsWith(KEY_PREFIX)) {
     return { valid: false };
   }
@@ -61,7 +61,18 @@ export async function validateAdminKey(
     valid: true,
     adminEmail: record.user_email,
     keyId: record.id,
+    scopes: record.scopes,
   };
+}
+
+/**
+ * Return true if the given scope list grants the required scope.
+ * "*" is a wildcard that grants everything.
+ */
+export function hasScope(scopes: string[] | undefined, required: string): boolean {
+  if (!scopes || scopes.length === 0) return false;
+  if (scopes.includes("*")) return true;
+  return scopes.includes(required);
 }
 
 export async function revokeAdminKey(keyId: string): Promise<void> {

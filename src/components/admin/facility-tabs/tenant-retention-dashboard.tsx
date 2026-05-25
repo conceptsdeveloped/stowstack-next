@@ -120,7 +120,7 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
       <div className="mx-4 w-full max-w-lg rounded-2xl border border-[var(--border-subtle)] bg-[var(--color-light)] p-6" onClick={e => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Create Retention Campaign</h3>
-          <button onClick={onClose} className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} aria-label="Close" className="text-[var(--color-mid-gray)] hover:text-[var(--color-body-text)]"><X className="h-5 w-5" /></button>
         </div>
 
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
@@ -182,7 +182,7 @@ function CreateCampaignModal({ facilityId, onClose, onSuccess }: { facilityId: s
                       <option value="follow_up">Follow Up</option>
                     </select>
                   </div>
-                  <button onClick={() => removeStep(i)} className="mt-3 text-[var(--color-mid-gray)] hover:text-red-400">
+                  <button onClick={() => removeStep(i)} aria-label="Remove step" className="mt-3 text-[var(--color-mid-gray)] hover:text-red-400">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -256,7 +256,7 @@ export function RetentionDashboard({ facilityId, onBack }: { facilityId: string;
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 hover:bg-[var(--color-light-gray)]">
+        <button onClick={onBack} aria-label="Back" className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-2 hover:bg-[var(--color-light-gray)]">
           <ChevronLeft className="h-4 w-4 text-[var(--color-body-text)]" />
         </button>
         <h2 className="flex-1 text-lg font-semibold">Retention Campaigns</h2>

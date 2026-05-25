@@ -421,6 +421,7 @@ export default function GBPPosts({
                 </div>
                 <button
                   onClick={() => deletePost(post.id)}
+                  aria-label="Delete post"
                   className="p-1.5 rounded-lg transition-colors hover:bg-red-500/10 text-[var(--color-mid-gray)] hover:text-red-400"
                 >
                   <Trash2 size={14} />

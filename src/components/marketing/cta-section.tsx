@@ -1,5 +1,7 @@
 "use client";
 
+import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
+
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Check, Shield, Clock, Wrench, Zap, Calendar } from "lucide-react";
 import { useInView } from "./use-in-view";
@@ -94,6 +96,7 @@ export default function CTASection() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
+        <SectionHeader number="08" kicker="FREE AUDIT" right={<SectionMeta text="STEP · FINAL" />} style={{ marginBottom: 28 }} />
         <div
           className={`text-center mb-12 transition-all duration-700 ${
             isVisible

@@ -137,6 +137,7 @@ export function PostComposer({
             <h3 className={`font-semibold ${textPrimary}`}>Create Post</h3>
             <button
               onClick={onClose}
+              aria-label="Close composer"
               className="p-1.5 rounded-lg hover:bg-[var(--color-light-gray)]"
             >
               <X size={16} className={textTertiary} />
