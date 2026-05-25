@@ -151,7 +151,7 @@ export async function POST(req: NextRequest) {
           from: "StorageAds <notifications@storageads.com>",
           to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
           subject: `PMS Report Uploaded: ${escapeHtml(facility?.name ?? "Unknown")}`,
-          html: `<div style="font-family: Poppins, sans-serif; padding: 24px; max-width: 480px;">
+          html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; max-width: 480px;">
             <h2 style="color: #141413; margin: 0 0 16px;">New PMS Report Upload</h2>
             <table style="font-size: 14px; color: #6a6560; line-height: 1.6;">
               <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">Facility</td><td>${escapeHtml(facility?.name ?? "Unknown")}</td></tr>

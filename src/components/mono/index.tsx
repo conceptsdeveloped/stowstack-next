@@ -369,10 +369,10 @@ export function Display({
       style={{
         fontFamily: MONO.serif,
         fontSize: size,
-        fontWeight: 700,
+        fontWeight: 800,                    /* max Manrope display weight for hero stats */
         lineHeight: 1.05,
         color: MONO.textAccent,
-        letterSpacing: "-0.03em",
+        letterSpacing: "-0.035em",          /* slightly tighter at 800 to keep numerals visually connected */
         ...style,
       }}
     >

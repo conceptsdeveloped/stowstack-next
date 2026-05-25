@@ -316,7 +316,7 @@ export function PageEditor({
                 </label>
                 <select
                   className={inputCls}
-                  value={editingPage.theme?.fontFamily || "system"}
+                  value={editingPage.theme?.fontFamily || "manrope"}
                   onChange={(e) =>
                     onUpdatePage({
                       ...editingPage,
@@ -327,10 +327,10 @@ export function PageEditor({
                     })
                   }
                 >
+                  <option value="manrope">Manrope (Brand)</option>
                   <option value="system">System Default</option>
                   <option value="inter">Inter</option>
                   <option value="dm-sans">DM Sans</option>
-                  <option value="poppins">Poppins</option>
                 </select>
               </div>
             </div>

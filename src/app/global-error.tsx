@@ -22,7 +22,7 @@ export default function GlobalError({
 
   return (
     <html>
-      <body style={{ fontFamily: "Poppins, sans-serif", background: "#faf9f5", color: "#141413", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+      <body style={{ fontFamily: "Manrope, system-ui, -apple-system, sans-serif", background: "#faf9f5", color: "#141413", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
         <div style={{ textAlign: "center", maxWidth: 480, padding: 32 }}>
           <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8 }}>Something went wrong</h2>
           <p style={{ color: "#6a6560", marginBottom: 24 }}>An unexpected error occurred. Our team has been notified.</p>
