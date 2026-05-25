@@ -1425,6 +1425,7 @@ model tenants {
   moveout_remarketing_moveout_remarketing_tenant_idTotenants     moveout_remarketing?      @relation("moveout_remarketing_tenant_idTotenants")
   tenant_communications                                          tenant_communications[]
   tenant_payments                                                tenant_payments[]
+  tenant_sensitivity_features                                    tenant_sensitivity_features[]
   facilities                                                     facilities                @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   nurture_enrollments                                            nurture_enrollments[]
   upsell_opportunities                                           upsell_opportunities[]
@@ -1692,6 +1693,42 @@ model changelog_entries {
   created_at   DateTime  @default(now()) @db.Timestamptz(6)
 
   @@index([published_at(sort: Desc)], map: "idx_changelog_published")
+}
+
+// Roadmap 08 phase 2: weekly snapshot of price-sensitivity features per active
+// tenant. Feeds the ECRI cycle recommendation engine (Phase 3) without
+// duplicating tenant data — joins to tenants on tenant_id.
+model tenant_sensitivity_features {
+  id                          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                   String   @db.Uuid
+  facility_id                 String   @db.Uuid
+  snapshot_date               DateTime @db.Date
+
+  tenure_months               Int
+  months_since_last_increase  Int?
+
+  payment_health_score        Float    // 0..1, 1 = perfect history
+  late_payment_count_12mo     Int      @default(0)
+  autopay_flag                Boolean  @default(false)
+
+  current_rate                Decimal? @db.Decimal(10, 2)
+  market_rate                 Decimal? @db.Decimal(10, 2)
+  rate_gap_pct                Float?   // (market - current) / market, positive = under-priced
+
+  unit_size                   String?
+  has_insurance               Boolean  @default(false)
+
+  sensitivity_score           Float    // 0..1, 1 = highly price-sensitive
+  bucket                      String   @db.VarChar(16) // "very_low" | "low" | "medium" | "high"
+  factors                     Json?    @default("{}")
+
+  computed_at                 DateTime @default(now()) @db.Timestamptz(6)
+
+  tenants                     tenants  @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tenant_id, snapshot_date])
+  @@index([tenant_id, snapshot_date(sort: Desc)], map: "idx_tenant_sensitivity_tenant")
+  @@index([facility_id, bucket], map: "idx_tenant_sensitivity_facility_bucket")
 }
 
 // Roadmap 13 phase 1: composes weekly/monthly NOI lift snapshots per facility
