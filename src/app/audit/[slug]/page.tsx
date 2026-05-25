@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cache } from "react";
+import {
+  getSampleAuditData,
+  SAMPLE_AUDIT_SLUG,
+} from "@/lib/sample-audit";
 import {
   BarChart3,
   DollarSign,
@@ -139,7 +144,13 @@ interface AuditData {
 /*  Data Fetching                                                      */
 /* ------------------------------------------------------------------ */
 
-async function loadAudit(slug: string): Promise<AuditData | null> {
+const loadAudit = cache(async (slug: string): Promise<AuditData | null> => {
+  // Static sample fixture — no DB hit, no view increment, no admin emails,
+  // and works even if the audit-load API or database is unreachable.
+  if (slug === SAMPLE_AUDIT_SLUG) {
+    return getSampleAuditData() as AuditData;
+  }
+
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.VERCEL_URL
@@ -156,7 +167,7 @@ async function loadAudit(slug: string): Promise<AuditData | null> {
   } catch {
     return null;
   }
-}
+});
 
 /* ------------------------------------------------------------------ */
 /*  Metadata                                                           */
@@ -582,7 +593,7 @@ export default async function SharedAuditPage({
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-32 sm:pb-28">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
@@ -776,18 +787,18 @@ export default async function SharedAuditPage({
           </div>
         )}
 
-        {/* Revenue Optimization */}
+        {/* Revenue Opportunity */}
         {revenueOptimization && revenueOptimization.potentialMonthlyRevenue > 0 && (
           <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.03] overflow-hidden mb-8">
             <div className="px-6 py-4 border-b border-emerald-500/10">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-emerald-400" />
                 <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                  Revenue Optimization Opportunity
+                  Revenue You&apos;re Leaving on the Table
                 </h2>
               </div>
               <p className="text-sm text-[var(--text-secondary)] mt-1">
-                Identified revenue you&apos;re leaving on the table
+                What your vacant units would be earning if they were full
               </p>
             </div>
 
@@ -1133,7 +1144,7 @@ export default async function SharedAuditPage({
                   What StorageAds Would Fix First
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Our platform is purpose-built to solve the exact problems this diagnostic found
+                  StorageAds was built to solve the exact problems this audit found
                 </p>
               </div>
             </div>
@@ -1146,16 +1157,16 @@ export default async function SharedAuditPage({
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">Ad-Specific Landing Pages</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Every ad campaign gets its own conversion-optimized landing page with real-time unit availability, pricing, and online rental — no more sending prospects to a generic website.
+                Every ad campaign gets its own landing page, built for the reserve button — with live unit availability, your pricing, and online rental. No more sending prospects to a generic website.
               </p>
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Full-Funnel Lead Tracking</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Ad → Move-in Tracking</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Track every lead from first click to move-in. Know your exact cost-per-lead and cost-per-move-in by campaign, ad group, and keyword — no more guessing.
+                Track every renter from first click to move-in. See what each move-in cost, by campaign, ad group, and keyword — no more guessing.
               </p>
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
@@ -1233,6 +1244,34 @@ export default async function SharedAuditPage({
             ` · ${new Date(createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`}
         </div>
       </div>
+
+      {/* Sticky booking bar */}
+      {vacancyCost && vacancyCost.monthlyLoss > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-elevated)] border-t border-[var(--border-medium)] shadow-[0_-4px_16px_rgba(20,20,19,0.08)]">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-3.5 flex items-center gap-3 sm:gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm sm:text-[0.95rem] font-semibold text-[var(--text-primary)] leading-tight">
+                You&rsquo;re leaving{" "}
+                <span className="text-[var(--accent)]">
+                  ${vacancyCost.monthlyLoss.toLocaleString()}/mo
+                </span>{" "}
+                on the table
+              </p>
+              <p className="hidden sm:block text-xs text-[var(--text-secondary)] mt-0.5">
+                30-minute walkthrough. We&rsquo;ll show you how to fix it.
+              </p>
+            </div>
+            <a
+              href={process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-lg bg-[var(--accent)] text-[var(--color-light)] text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors shrink-0"
+            >
+              Book a Call <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

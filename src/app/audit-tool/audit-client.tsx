@@ -421,12 +421,12 @@ export default function AuditToolPage() {
                         </p>
                         <p className="text-sm text-[var(--text-secondary)] mt-1">
                           {auditScore.grade === "Excellent"
-                            ? "Your facility has a strong online presence. Focus on conversion optimization."
+                            ? "Your facility shows up well online. Focus on turning visitors into renters."
                             : auditScore.grade === "Strong"
-                              ? "Good foundation. There are areas to improve for better lead generation."
+                              ? "Good foundation. A few things to tighten up to fill more units."
                               : auditScore.grade === "Moderate"
-                                ? "Your online presence needs work. You are likely losing leads to competitors."
-                                : "Significant gaps in your online presence. Immediate action recommended."}
+                                ? "Your online presence needs work. You're likely losing renters to competitors."
+                                : "Big gaps in your online presence. Worth fixing this month."}
                         </p>
                       </div>
                     </div>
