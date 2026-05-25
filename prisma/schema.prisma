@@ -8,40 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model ab_test_events {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  test_id    String    @db.Uuid
-  variant_id String
-  visitor_id String
-  event_name String
-  metadata   Json?
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  ab_tests   ab_tests  @relation(fields: [test_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([test_id, variant_id, visitor_id, event_name], map: "idx_ab_test_events_dedup")
-  @@index([test_id], map: "idx_ab_test_events_test")
-}
-
-model ab_tests {
-  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  facility_id       String           @db.Uuid
-  name              String
-  description       String?
-  status            String           @default("active")
-  variants          Json
-  metrics           Json
-  landing_page_ids  String[]         @db.Uuid
-  start_date        DateTime         @default(now()) @db.Timestamptz(6)
-  end_date          DateTime?        @db.Timestamptz(6)
-  winner_variant_id String?
-  created_at        DateTime         @default(now()) @db.Timestamptz(6)
-  ab_test_events    ab_test_events[]
-  facilities        facilities       @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([facility_id], map: "idx_ab_tests_facility")
-  @@index([status], map: "idx_ab_tests_status")
-}
-
 model activity_log {
   id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type          String
@@ -182,17 +148,6 @@ model audits {
   facilities    facilities? @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([facility_id], map: "idx_audits_facility")
-}
-
-model betapad_notes {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  session_id String
-  entry_type String
-  entry_data Json
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-
-  @@index([created_at(sort: Desc)], map: "idx_betapad_notes_created")
-  @@index([session_id], map: "idx_betapad_notes_session")
 }
 
 model call_logs {
@@ -367,54 +322,6 @@ model clients {
   @@index([deleted_at], map: "idx_clients_deleted_at")
 }
 
-model commit_comments {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  commit_hash String
-  author      String
-  body        String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-
-  @@index([commit_hash], map: "idx_commit_comments_hash")
-}
-
-model commit_enrichments {
-  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  commit_hash       String    @unique
-  subject           String?
-  body              String?
-  dev_note          String?
-  dev_name          String?
-  commit_type       String?   @default("improvement")
-  laymans_summary   String?
-  technical_summary String?
-  committed_at      DateTime? @db.Timestamptz(6)
-  created_at        DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
-
-  @@index([commit_hash], map: "idx_commit_enrichments_hash")
-}
-
-model commit_flags {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  commit_hash String
-  flag_type   String
-  reason      String?   @default("")
-  flagged_by  String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-
-  @@index([commit_hash], map: "idx_commit_flags_hash")
-}
-
-model commit_reviews {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  commit_hash String
-  reviewed_by String
-  status      String    @default("reviewed")
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-
-  @@unique([commit_hash, reviewed_by], map: "idx_commit_reviews_unique")
-}
-
 model creative_briefs {
   id                      String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   facility_id             String?         @db.Uuid
@@ -445,33 +352,6 @@ model delinquency_escalations {
   @@index([facility_id], map: "idx_delinquency_escalations_facility")
   @@index([stage], map: "idx_delinquency_escalations_stage")
   @@index([tenant_id], map: "idx_delinquency_escalations_tenant")
-}
-
-model deployment_tags {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  commit_hash String
-  environment String    @default("production")
-  deployed_by String
-  version     String?
-  notes       String?
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-
-  @@index([environment], map: "idx_deployment_tags_env")
-  @@index([commit_hash], map: "idx_deployment_tags_hash")
-}
-
-model dev_handoffs {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  from_dev    String
-  to_dev      String?
-  title       String
-  body        String
-  commit_hash String?
-  status      String    @default("active")
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
-
-  @@index([status], map: "idx_dev_handoffs_status")
 }
 
 model drip_sequence_templates {
@@ -539,7 +419,6 @@ model facilities {
   organization_id              String?                        @db.Uuid
   baseline_occupancy           Float?
   baseline_date                DateTime?                      @db.Date
-  ab_tests                     ab_tests[]
   activity_log                 activity_log[]
   ad_variations                ad_variations[]
   assets                       assets[]
@@ -1226,6 +1105,7 @@ model partial_leads {
   gclid               String?
   status_updated_at   DateTime?      @db.Timestamptz(6)
   lead_notes          String?
+  deleted_at          DateTime?      @db.Timestamptz(6)
   facilities            facilities?            @relation(fields: [facility_id], references: [id], onUpdate: NoAction)
   landing_pages         landing_pages?         @relation(fields: [landing_page_id], references: [id], onUpdate: NoAction)
   nurture_enrollments   nurture_enrollments[]

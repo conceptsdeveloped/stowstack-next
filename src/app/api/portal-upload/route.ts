@@ -6,7 +6,6 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  requireAdminKey,
   isAdminRequest,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";

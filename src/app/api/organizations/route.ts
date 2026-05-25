@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
       const hash = (await scryptAsync(tempPassword, salt, SCRYPT_KEYLEN)) as Buffer;
       const passwordHash = `scrypt:${salt.toString("hex")}:${hash.toString("hex")}`;
 
-      const { org, user } = await db.$transaction(async (tx) => {
+      const { org } = await db.$transaction(async (tx) => {
         const org = await tx.organizations.create({
           data: {
             name: companyName,

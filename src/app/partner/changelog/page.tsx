@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Loader2,
   Sparkles,
   Wrench,
   Bug,
@@ -54,10 +53,6 @@ function groupByMonth(entries: ChangelogEntry[]): GroupedEntries[] {
   for (const entry of entries) {
     const date = new Date(entry.published_at || entry.created_at || "");
     const key = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, "0")}`;
-    const label = date.toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    });
 
     if (!groups.has(key)) {
       groups.set(key, []);

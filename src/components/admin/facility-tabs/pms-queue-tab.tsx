@@ -11,7 +11,6 @@ import {
   ChevronRight,
   Info,
   Zap,
-  Clock,
   Upload,
   X,
   MessageSquare,
@@ -287,7 +286,6 @@ export function PmsQueueTab({
 /* ── CSV Processor ── */
 
 function CSVProcessor({
-  reportId,
   fileUrl,
   facilityId,
   onDone,

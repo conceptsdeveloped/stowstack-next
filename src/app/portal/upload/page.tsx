@@ -156,7 +156,6 @@ export default function UploadPage() {
 
   const uploadAll = async () => {
     setUploading(true);
-    const pending = queue.filter((q) => q.state === "pending");
 
     for (let i = 0; i < queue.length; i++) {
       if (queue[i].state !== "pending") continue;

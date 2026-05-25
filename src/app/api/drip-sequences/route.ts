@@ -60,25 +60,6 @@ const SEQUENCES: Record<
   },
 };
 
-async function enrollLead(facilityId: string, sequenceId = "post_audit") {
-  const sequence = SEQUENCES[sequenceId];
-  if (!sequence) throw new Error(`Unknown sequence: ${sequenceId}`);
-
-  const now = new Date();
-  const firstStep = sequence.steps[0];
-  const delayMs = (firstStep.delayDays || 0) * 24 * 60 * 60 * 1000;
-  const nextSendAt = new Date(now.getTime() + delayMs);
-
-  const rows = await db.$queryRaw<Array<Record<string, unknown>>>`
-    INSERT INTO drip_sequences (facility_id, sequence_id, current_step, status, enrolled_at, next_send_at, history)
-    VALUES (${facilityId}, ${sequenceId}, 0, 'active', ${now}::timestamptz, ${nextSendAt}::timestamptz, '[]'::jsonb)
-    ON CONFLICT (facility_id) DO NOTHING
-    RETURNING *
-  `;
-
-  return rows[0] || null;
-}
-
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }

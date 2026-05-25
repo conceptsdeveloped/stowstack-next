@@ -11,7 +11,6 @@ const ISSUER = "StorageAds";
 const TOTP_DIGITS = 6;
 const TOTP_PERIOD = 30;
 const TOTP_ALGORITHM = "SHA1";
-const TEMP_TOKEN_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 // ---------- helpers ----------
 
@@ -73,15 +72,6 @@ function generateBackupCodes(count = 10): string[] {
     codes.push(crypto.randomBytes(4).toString("hex"));
   }
   return codes;
-}
-
-function signTempToken(userId: string): string {
-  const payload = JSON.stringify({ userId, exp: Date.now() + TEMP_TOKEN_TTL_MS });
-  const sig = crypto
-    .createHmac("sha256", process.env.ADMIN_SECRET || "")
-    .update(payload)
-    .digest("hex");
-  return Buffer.from(payload).toString("base64") + "." + sig;
 }
 
 function verifyTempToken(tempToken: string): { userId: string } | null {
