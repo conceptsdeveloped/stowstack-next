@@ -865,8 +865,7 @@ export function DiagnosticForm() {
           Powered by{" "}
           <Link href="/" className="text-[var(--accent)] hover:underline">
             StorageAds
-          </Link>{" "}
-          by StorageAds.com
+          </Link>
         </p>
       </div>
 

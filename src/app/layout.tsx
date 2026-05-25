@@ -41,13 +41,13 @@ const siteDescription =
 
 export const metadata: Metadata = {
   title: {
-    default: "StorageAds | Full-Funnel Demand Engine for Self-Storage",
+    default: "StorageAds | Marketing that proves which ads fill units",
     template: "%s | StorageAds",
   },
   description: siteDescription,
   metadataBase: new URL("https://storageads.com"),
   openGraph: {
-    title: "StorageAds | Full-Funnel Demand Engine for Self-Storage",
+    title: "StorageAds | Marketing that proves which ads fill units",
     description: siteDescription,
     url: "https://storageads.com",
     siteName: "StorageAds",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "StorageAds | Full-Funnel Demand Engine for Self-Storage",
+    title: "StorageAds | Marketing that proves which ads fill units",
     description: siteDescription,
     images: ["/og-image.png"],
   },
@@ -102,7 +102,7 @@ const jsonLd = {
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
       url: "https://storageads.com",
-      description: "Full-funnel marketing automation for self-storage facilities. Ads, landing pages, call tracking, and move-in attribution.",
+      description: "The marketing system built for self-storage operators. Ads, landing pages, call tracking, and ad-to-move-in tracking on one dashboard.",
       offers: {
         "@type": "AggregateOffer",
         priceCurrency: "USD",

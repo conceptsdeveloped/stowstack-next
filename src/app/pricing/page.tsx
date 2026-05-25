@@ -5,16 +5,16 @@ import { ArrowLeft, Check } from "lucide-react";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+    "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
   openGraph: {
     title: "Pricing — StorageAds",
-    description: "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+    description: "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
     url: "https://storageads.com/pricing",
   },
   twitter: {
     card: "summary_large_image",
     title: "Pricing — StorageAds",
-    description: "StorageAds pricing for self-storage demand engine and conversion layer. From $750/mo per facility.",
+    description: "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
   },
 };
 
@@ -203,7 +203,7 @@ export default function PricingPage() {
               lineHeight: "var(--leading-snug)",
             }}
           >
-            Demand Engine (Paid Media)
+            Paid Media
           </h2>
           <p
             className="mb-4"

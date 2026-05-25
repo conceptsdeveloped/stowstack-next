@@ -142,7 +142,7 @@ function renderReportHTML(
     <a href="${baseUrl}/portal" style="display:inline-block;padding:14px 32px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">View Full Dashboard</a>
   </div>
   <div style="text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:16px;">
-    <p style="margin:0;">StorageAds by StorageAds.com</p>
+    <p style="margin:0;">StorageAds &middot; storageads.com</p>
     <p style="margin:4px 0 0;">This report tracks the digital path from ad click to move-in.</p>
   </div>
 </div>

@@ -179,9 +179,9 @@ export default function CTASection() {
                 <Zap size={18} className="text-[var(--color-gold)]" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-[var(--color-dark)]">Want an AI-Powered Deep Diagnostic?</p>
+                <p className="text-sm font-semibold text-[var(--color-dark)]">Want the deep diagnostic?</p>
                 <p className="text-xs text-[var(--color-muted)]">
-                  5-minute form &rarr; Instant AI audit with scores, benchmarks &amp; action plan
+                  5-minute form. Scores, benchmarks, an action plan &mdash; in your inbox.
                 </p>
               </div>
               <ArrowRight size={16} className="text-[var(--color-gold)] shrink-0" />

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalLayout title="Privacy Policy">
-      <p>StorageAds by StorageAds.com (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) operates the website storageads.com and related applications. This Privacy Policy explains how we collect, use, disclose, and protect your information when you visit our website, use our services, or interact with our applications on third-party platforms including Meta (Facebook and Instagram).</p>
+      <p>StorageAds (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) operates the website storageads.com and related applications. This Privacy Policy explains how we collect, use, disclose, and protect your information when you visit our website, use our services, or interact with our applications on third-party platforms including Meta (Facebook and Instagram).</p>
 
       <h2>Information We Collect</h2>
       <p><strong>Information you provide directly:</strong></p>

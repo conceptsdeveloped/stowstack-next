@@ -712,10 +712,7 @@ export default function AuditToolPage() {
           Powered by{" "}
           <Link href="/" className="text-[var(--accent)] hover:underline">
             StorageAds
-          </Link>{" "}
-          <span className="text-[var(--text-tertiary)]/60">
-            by StorageAds.com
-          </span>
+          </Link>
         </div>
       </div>
     </div>

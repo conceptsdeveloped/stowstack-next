@@ -163,8 +163,8 @@ export default function AboutPage() {
               fontFamily: "var(--font-heading)",
             }}
           >
-            This isn&apos;t a marketing agency. It&apos;s a demand engine built
-            by someone who signs the same checks you do.
+            This isn&apos;t a marketing agency. It&apos;s the system I needed,
+            built by someone who signs the same checks you do.
           </p>
 
           {/* Sign-off */}

@@ -75,7 +75,7 @@ function renderInvoiceHTML(invoice: {
         <p style="margin:4px 0 0;font-size:13px;color:#94a3b8;">${esc(invoiceNumber)}</p>
       </div>
       <div style="text-align:right;">
-        <p style="margin:0;font-size:13px;font-weight:600;color:#0f172a;">StorageAds by StorageAds.com</p>
+        <p style="margin:0;font-size:13px;font-weight:600;color:#0f172a;">StorageAds &middot; storageads.com</p>
         <p style="margin:2px 0 0;font-size:11px;color:#94a3b8;">blake@storageads.com</p>
       </div>
     </div>

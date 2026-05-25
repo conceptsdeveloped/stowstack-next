@@ -100,7 +100,7 @@ function InfoBox({ children }: { children: React.ReactNode }) {
 }
 
 const tocItems = [
-  { id: "welcome", label: "Welcome to StorageAds by StorageAds.com" },
+  { id: "welcome", label: "Welcome to StorageAds" },
   { id: "getting-started", label: "Getting Started" },
   { id: "dashboard", label: "Your Dashboard" },
   { id: "charts", label: "Understanding Your Charts" },
@@ -164,7 +164,7 @@ export default function GuidePage() {
             className="text-sm font-semibold tracking-tight"
             style={{ color: "var(--text-primary)" }}
           >
-            Stow<span style={{ color: "var(--accent)" }}>Stack</span>
+            storage<span style={{ color: "var(--accent)" }}>ads</span>
           </span>
           <span
             className="text-xs ml-1"
@@ -221,7 +221,7 @@ export default function GuidePage() {
         </nav>
 
         <div className="space-y-6">
-          <Section id="welcome" icon={Building2} title="Welcome to StorageAds by StorageAds.com">
+          <Section id="welcome" icon={Building2} title="Welcome to StorageAds">
             <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
               StorageAds is a marketing platform built specifically for
               self-storage operators. We run targeted Facebook and Instagram ad
