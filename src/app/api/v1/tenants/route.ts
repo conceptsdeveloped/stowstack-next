@@ -13,6 +13,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidUuid } from "@/lib/validation";
+import { enrollIfMovedOut } from "@/lib/moveout-trigger";
 
 export async function OPTIONS() {
   return v1CorsResponse();
@@ -133,6 +134,7 @@ export async function POST(request: NextRequest) {
 
   try {
     let imported = 0;
+    let enrolled = 0;
     const errors: { name: string; error: string }[] = [];
 
     for (const t of tenantList) {
@@ -142,15 +144,17 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        await db.$queryRaw`
+        const inserted = await db.$queryRaw<Array<{ id: string }>>`
           INSERT INTO tenants (facility_id, external_id, name, email, phone, unit_number,
                                unit_size, unit_type, monthly_rate, move_in_date,
-                               autopay_enabled, has_insurance, balance, status)
+                               autopay_enabled, has_insurance, balance, status,
+                               moved_out_date, move_out_reason)
           VALUES (${fId}::uuid, ${t.externalId || null}, ${t.name}, ${t.email || null}, ${t.phone || null},
                   ${t.unitNumber || null}, ${t.unitSize || null}, ${t.unitType || null},
                   ${t.monthlyRate || null}, ${t.moveInDate || null}::date,
                   ${t.autopayEnabled || false}, ${t.hasInsurance || false},
-                  ${t.balance || 0}, ${t.status || "active"})
+                  ${t.balance || 0}, ${t.status || "active"},
+                  ${t.movedOutDate || null}::date, ${t.moveOutReason || null})
           ON CONFLICT (facility_id, external_id)
           WHERE external_id IS NOT NULL
           DO UPDATE SET
@@ -158,17 +162,28 @@ export async function POST(request: NextRequest) {
             unit_number = EXCLUDED.unit_number, unit_size = EXCLUDED.unit_size,
             unit_type = EXCLUDED.unit_type, monthly_rate = EXCLUDED.monthly_rate,
             autopay_enabled = EXCLUDED.autopay_enabled, has_insurance = EXCLUDED.has_insurance,
-            balance = EXCLUDED.balance, status = EXCLUDED.status, updated_at = NOW()
+            balance = EXCLUDED.balance, status = EXCLUDED.status,
+            moved_out_date = EXCLUDED.moved_out_date, move_out_reason = EXCLUDED.move_out_reason,
+            updated_at = NOW()
           RETURNING id
         `;
         imported++;
+
+        if (inserted.length && t.status === "moved_out") {
+          try {
+            const result = await enrollIfMovedOut(db, inserted[0].id);
+            if (result.enrolled) enrolled++;
+          } catch {
+            // Enrollment failure is non-fatal; import already succeeded.
+          }
+        }
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : "Unknown error";
         errors.push({ name: t.name, error: message });
       }
     }
 
-    return v1Json({ imported, total: tenantList.length, errors });
+    return v1Json({ imported, enrolled, total: tenantList.length, errors });
   } catch {
     return v1Error("Failed to import tenants", 500);
   }
@@ -223,6 +238,11 @@ export async function PATCH(request: NextRequest) {
 
   const setFragment = Prisma.join(setClauses, ", ");
 
+  const movedOutTouched =
+    body.movedOutDate !== undefined ||
+    body.moveOutReason !== undefined ||
+    body.status === "moved_out";
+
   try {
     const rows = await db.$queryRaw<Record<string, unknown>[]>`
       UPDATE tenants SET ${setFragment}
@@ -234,7 +254,18 @@ export async function PATCH(request: NextRequest) {
                  tenants.unit_number, tenants.unit_size, tenants.status, tenants.updated_at
     `;
     if (!rows.length) return v1Error("Tenant not found", 404);
-    return v1Json({ tenant: rows[0] });
+
+    let enrolled = false;
+    if (movedOutTouched) {
+      try {
+        const result = await enrollIfMovedOut(db, id);
+        enrolled = result.enrolled;
+      } catch {
+        // Enrollment failure is non-fatal; update already succeeded.
+      }
+    }
+
+    return v1Json({ tenant: rows[0], moveoutEnrolled: enrolled });
   } catch {
     return v1Error("Failed to update tenant", 500);
   }

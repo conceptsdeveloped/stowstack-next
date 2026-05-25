@@ -10,6 +10,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { enrollIfMovedOut } from "@/lib/moveout-trigger";
 
 // Convert BigInt values to numbers in raw query results
 function serializeBigInts(obj: unknown): unknown {
@@ -473,14 +474,7 @@ export async function PATCH(req: NextRequest) {
             WHERE id = ANY(${ids}::uuid[])
           `;
           for (const tid of ids) {
-            const t = await tx.tenants.findUnique({ where: { id: tid } });
-            if (t) {
-              await tx.$executeRaw`
-                INSERT INTO moveout_remarketing (tenant_id, facility_id, moved_out_date, move_out_reason, sequence_status, next_send_at)
-                VALUES (${tid}::uuid, ${t.facility_id}::uuid, ${t.moved_out_date || today}::date, ${t.move_out_reason || "voluntary"}, 'active', NOW() + INTERVAL '3 days')
-                ON CONFLICT (tenant_id) DO NOTHING
-              `;
-            }
+            await enrollIfMovedOut(tx, tid);
           }
         }, { maxWait: 10000, timeout: 30000 });
         return jsonResponse({ updated: ids.length }, 200, origin);
@@ -555,12 +549,7 @@ export async function PATCH(req: NextRequest) {
         `;
 
         if (updated.length) {
-          const tenant = updated[0];
-          await tx.$executeRaw`
-            INSERT INTO moveout_remarketing (tenant_id, facility_id, moved_out_date, move_out_reason, sequence_status, next_send_at)
-            VALUES (${id}::uuid, ${tenant.facility_id}::uuid, ${tenant.moved_out_date}::date, ${tenant.move_out_reason}, 'active', NOW() + INTERVAL '3 days')
-            ON CONFLICT (tenant_id) DO NOTHING
-          `;
+          await enrollIfMovedOut(tx, id);
         }
 
         return updated;
