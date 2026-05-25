@@ -16,6 +16,7 @@ import {
   Eye,
   DollarSign,
   Sparkles,
+  Layers,
   Globe,
   Activity,
   ChevronDown,
@@ -27,6 +28,7 @@ import {
   Bell,
   Settings,
   LayoutDashboard,
+  Star,
 } from "lucide-react";
 import { useInView } from "./use-in-view";
 import { SplitFlap as SplitFlapComponent } from "./split-flap";
@@ -100,6 +102,31 @@ function useFlashOnChange<T>(value: T, ms = 600) {
     return () => clearTimeout(t);
   }, [value, ms]);
   return flashing;
+}
+
+function useTypewriter(words: string[], active: boolean, typingSpeed = 80, pauseMs = 2200) {
+  const [display, setDisplay] = useState("");
+  const [wordIdx, setWordIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  useEffect(() => {
+    if (!active) return;
+    const word = words[wordIdx];
+    let timeout: ReturnType<typeof setTimeout>;
+    if (!isDeleting && charIdx < word.length) {
+      timeout = setTimeout(() => setCharIdx((c) => c + 1), typingSpeed);
+    } else if (!isDeleting && charIdx === word.length) {
+      timeout = setTimeout(() => setIsDeleting(true), pauseMs);
+    } else if (isDeleting && charIdx > 0) {
+      timeout = setTimeout(() => setCharIdx((c) => c - 1), typingSpeed / 2);
+    } else if (isDeleting && charIdx === 0) {
+      setIsDeleting(false); // eslint-disable-line react-hooks/set-state-in-effect -- state machine transition
+      setWordIdx((i) => (i + 1) % words.length);
+    }
+    setDisplay(word.slice(0, charIdx));
+    return () => clearTimeout(timeout);
+  }, [active, charIdx, isDeleting, wordIdx, words, typingSpeed, pauseMs]);
+  return display;
 }
 
 function useReducedMotion() {
@@ -176,6 +203,8 @@ const PIPELINE_STEPS = [
   { icon: Smartphone, label: "Reserve", sublabel: "storEDGE" },
   { icon: Target, label: "Move-in", sublabel: "Attributed" },
 ];
+
+const TYPEWRITER_WORDS = ["Fill units.", "Prove ROAS.", "Kill bad spend.", "Track every move-in.", "Win your zip code."];
 
 const FEATURE_HIGHLIGHTS = [
   { icon: LineChart, title: "Revenue Attribution", stat: "35x ROAS", desc: "Track every dollar from ad impression to signed lease. Know exactly which campaigns produce move-ins." },
@@ -1518,86 +1547,106 @@ export function StatsBar() {
 }
 
 /* ═══════════════════════════════════════════
-   HERO — Main Export (lean per IA spec).
-   Contains exactly: 1 H1, 1 subhead, 2 CTAs, 1 trust element.
-   Everything else was lifted into named exports above and consumed
-   from page.tsx at its target slot.
+   HERO — Main Export (Angelo's original 2-column layout).
+   H1 + typewriter + subhead + pipeline + 2 CTAs + 3 trust badges on the
+   left; DashboardMockup on the right. Stats/ROI/Features/etc. that used
+   to render below this in Angelo's commit are now lifted into named
+   exports and consumed from page.tsx at slot 3/4/5/6 per the IA spec.
    ═══════════════════════════════════════════ */
 
 export default function Hero() {
   const { ref, isVisible } = useInView(0.02);
+  const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
-    <section id="hero" aria-label="StorageAds: fill units and prove which ads did it" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
+    <section id="hero" aria-label="StorageAds: full-funnel demand engine for self-storage" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
       <HeroStyles />
       <DotGrid />
       <HeroStatusStrip />
 
-      {/* Hero content — 2-column on lg+ (text left, dashboard right), stacked
-          and centered below lg. The dashboard sits in slot 1 (above the
-          fold) so the first thing visitors see is the product, not prose. */}
-      <div ref={ref} className="relative w-full pt-12 sm:pt-16 lg:pt-20 pb-16 lg:pb-24 px-5 sm:px-8 lg:px-14">
-        <div className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] gap-10 lg:gap-12 xl:gap-16 items-center">
-          {/* LEFT — headline, sub, CTAs, trust */}
-          <div className="text-center lg:text-left">
+      {/* ── Hero content ── */}
+      <div ref={ref} className="relative w-full pt-16 sm:pt-20 lg:pt-24 pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
+
+          {/* ── Left column ── */}
+          <div className="text-center lg:text-left max-w-xl mx-auto lg:mx-0">
+            {/* Headline */}
             <h1
-              className={`font-semibold transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{ fontSize: "clamp(1.75rem, 4.8vw, 3rem)", lineHeight: 1.08, letterSpacing: "-0.03em", fontFamily: "var(--serif)" }}
+              className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--serif)" }}
             >
-              Fill units. Prove which ads did it.
+              The marketing system that{" "}
+              <span className="relative inline-block">
+                <span style={{ background: "linear-gradient(135deg, var(--accent), var(--color-blue), var(--accent-hover))", backgroundSize: "200% 200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "hero-gradient-shift 3s ease-in-out infinite" }}>
+                  proves
+                </span>
+                <span className="absolute bottom-0 left-0 h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, var(--accent), var(--accent-hover))", animation: isVisible ? "hero-underline-draw 0.8s ease-out 0.6s both" : "none", width: 0 }} />
+              </span>{" "}
+              which ads produce move-ins.
             </h1>
 
+            {/* Typewriter */}
+            <div className={`mt-3 h-8 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "200ms" }}>
+              <span className="text-lg sm:text-xl font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--serif)", letterSpacing: "-0.03em" }}>{typedText}</span>
+              <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
+            </div>
+
+            {/* Subheadline */}
             <p
-              className={`mt-5 text-[15px] sm:text-base transition-all duration-700 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{ color: "var(--text-secondary)", lineHeight: 1.55, transitionDelay: "120ms", maxWidth: "440px" }}
+              className={`mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              style={{ color: "var(--text-secondary)", lineHeight: 1.55, transitionDelay: "350ms", maxWidth: "460px" }}
             >
-              We run your Meta and Google ads, send the clicks to a landing page with your storEDGE rental flow built in, and show you which campaigns actually filled units.
+              Every move-in traced to the ad that produced it. Custom landing pages with embedded rental flow — from first click to signed lease.
             </p>
 
-            <div
-              className={`mt-7 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{ transitionDelay: "240ms" }}
-            >
+            {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
+            <div className="mt-5 mb-5">
+              <PipelineFlow isVisible={isVisible} />
+            </div>
+
+            {/* CTAs */}
+            <div className={`flex flex-col sm:flex-row items-center lg:items-start gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
               <a href="#cta" className="btn-primary text-base group">
-                Get a free facility audit
+                Get a Free Facility Audit
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
               </a>
-              <a
-                href={CALCOM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-colors hover:bg-[var(--color-light-gray)]"
-                style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}
-              >
-                Book a call
+              <a href={CALCOM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-all hover:border-[var(--color-gold)]/30 hover:shadow-sm" style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}>
+                Book a Call
               </a>
             </div>
 
-            <div
-              className={`mt-6 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-              style={{ transitionDelay: "360ms" }}
-            >
-              <div
-                className="inline-flex items-center gap-2 text-xs"
-                style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}
-              >
-                <Globe size={13} style={{ color: "var(--text-tertiary)", opacity: 0.8 }} />
-                Running on our own facilities since 2024
+            {/* Trust signals — three badges per Angelo's original */}
+            <div className={`mt-5 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
+              <div className="flex items-center gap-4 justify-center lg:justify-start flex-wrap">
+                {[
+                  { icon: Layers, text: "storEDGE integrated" },
+                  { icon: Globe, text: "Tested on our own facilities first" },
+                  { icon: Star, text: "Full-funnel attribution" },
+                ].map((badge, i) => {
+                  const BadgeIcon = badge.icon;
+                  return (
+                    <div key={badge.text} className="flex items-center gap-1.5 text-xs transition-all duration-500" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${750 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
+                      <BadgeIcon size={13} style={{ color: "var(--color-gold)", opacity: 0.7 }} />
+                      {badge.text}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          {/* RIGHT — dashboard mockup. Always rendered. On mobile it stacks
-              below the headline at full width and scales down a touch via
-              its internal clamp() sizing. */}
-          <div className="w-full mt-2 lg:mt-0">
+          {/* ── Right column — Dashboard ── */}
+          {/* Dense desktop UI with 3D tilt + horizontal-scroll tabs. Not
+              suited to <lg; MobileLiveTicker below (at slot 6) carries the
+              mobile signal. */}
+          <div className="hidden lg:block">
             <DashboardMockup isVisible={isVisible} />
           </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className={`flex justify-center pb-4 transition-opacity duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "900ms" }}>
+      <div className={`flex justify-center pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
         <a href="#problem" className="flex flex-col items-center gap-1 group" aria-label="Scroll to learn more">
           <span className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>Learn more</span>
           <ChevronDown size={16} style={{ color: "var(--text-tertiary)", animation: "hero-scroll-bounce 2s ease-in-out infinite" }} />

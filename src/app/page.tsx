@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import Hero, {
-  PipelineFlow,
   MobileLiveTicker,
   BecauseLetterboard,
   FeatureHighlights,
@@ -68,8 +67,9 @@ const Footer = dynamic(() => import("@/components/marketing/footer"));
  * ───────────────────────────────────────────────────────────────────────────
  */
 
-/* ─── Slot 3 visuals — pipeline flow + feature highlights. The dashboard
-       mockup that used to render here now sits in the hero block above. ─── */
+/* ─── Slot 3 visuals — feature highlight cards.
+       The pipeline flow + dashboard mockup that used to render here are
+       now restored to Angelo's hero block above. ─── */
 function SolutionVisuals() {
   const { ref, isVisible } = useInView(0.08);
   return (
@@ -80,10 +80,6 @@ function SolutionVisuals() {
       style={{ borderColor: "var(--border-subtle)" }}
     >
       <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-12 sm:py-16">
-        <div className="mb-10">
-          <PipelineFlow isVisible={isVisible} />
-        </div>
-
         <div
           className={`text-center mb-6 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
         >
