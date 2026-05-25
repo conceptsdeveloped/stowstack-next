@@ -201,23 +201,29 @@ const PIPELINE_STEPS = [
   { icon: Megaphone, label: "Ad", sublabel: "Meta / Google" },
   { icon: FileText, label: "Page", sublabel: "Custom LP" },
   { icon: Smartphone, label: "Reserve", sublabel: "storEDGE" },
-  { icon: Target, label: "Move-in", sublabel: "Attributed" },
+  { icon: Target, label: "Move-in", sublabel: "Signed lease" },
 ];
 
-const TYPEWRITER_WORDS = ["Fill units.", "Prove ROAS.", "Kill bad spend.", "Track every move-in.", "Win your zip code."];
+const TYPEWRITER_WORDS = [
+  "Fill units.",
+  "Hold occupancy.",
+  "Beat the REIT in your zip code.",
+  "Skip the SpareFoot tax.",
+  "Self-serve or fully managed.",
+];
 
 const FEATURE_HIGHLIGHTS = [
-  { icon: LineChart, title: "Revenue Attribution", stat: "35x ROAS", desc: "Track every dollar from ad impression to signed lease. Know exactly which campaigns produce move-ins." },
-  { icon: FileText, title: "Smart Landing Pages", stat: "8.7% CVR", desc: "Custom pages per ad with embedded storEDGE rental. No more generic website sends." },
-  { icon: Sparkles, title: "AI Creative Engine", stat: "4x faster", desc: "Generate ad copy, headlines, and page variants. Test winners automatically by revenue." },
-  { icon: PieChart, title: "Occupancy Intelligence", stat: "Live data", desc: "Market-wide occupancy and pricing intelligence scraped from every competitor in your radius." },
+  { icon: TrendingUp, title: "Predictable move-ins", stat: "30–60 day ramp", desc: "Meta and Google demand generation tuned to your zip code, unit mix, and seasonality. Built to fill units — not to look busy." },
+  { icon: FileText, title: "Smart landing pages", stat: "8.7% CVR", desc: "Custom pages per ad with embedded storEDGE rental. No more generic website sends." },
+  { icon: Layers, title: "Two paths", stat: "DIY or managed", desc: "Run the platform yourself, or hand it to our team. Same software, same playbook — just who's at the wheel." },
+  { icon: LineChart, title: "Move-in receipts", stat: "35x ROAS", desc: "Every move-in tied to the ad that produced it. So you can audit every dollar — and kill what isn't working." },
 ];
 
 const BEFORE_AFTER = [
-  { before: "Vanity metrics (clicks, impressions)", after: "Revenue attribution per ad" },
+  { before: "Waiting on the next walk-in", after: "Demand generated on schedule" },
   { before: "Generic website as landing page", after: "Custom LP per campaign" },
-  { before: "Monthly agency PDF report", after: "Real-time live dashboard" },
-  { before: "Guessing which ads work", after: "Move-in level tracking" },
+  { before: "Renting demand from SpareFoot", after: "Owning every lead you create" },
+  { before: "Watching the REIT down the road fill first", after: "Showing up in their feed instead" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -653,7 +659,7 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
       {[
         { label: "Meta Ads", icon: Megaphone, pos: { top: "-22px", right: "32px" }, bg: "rgba(106,155,204,0.08)", border: "rgba(106,155,204,0.25)", color: "#5a8bb8", anim: "hero-float-a", dur: "4s", ad: "0s", td: "650ms" },
         { label: "Landing Pages", icon: FileText, pos: { top: "-28px", left: "150px" }, bg: "rgba(20,20,19,0.05)", border: "rgba(20,20,19,0.18)", color: "var(--color-dark)", anim: "hero-float-b", dur: "3.5s", ad: "1s", td: "780ms" },
-        { label: "Attribution", icon: Target, pos: { bottom: "-20px", right: "110px" }, bg: "rgba(120,140,93,0.08)", border: "rgba(120,140,93,0.25)", color: "#6a7d50", anim: "hero-float-a", dur: "3.8s", ad: "1.8s", td: "910ms" },
+        { label: "Move-ins", icon: Target, pos: { bottom: "-20px", right: "110px" }, bg: "rgba(120,140,93,0.08)", border: "rgba(120,140,93,0.25)", color: "#6a7d50", anim: "hero-float-a", dur: "3.8s", ad: "1.8s", td: "910ms" },
         { label: "storEDGE", icon: Zap, pos: { bottom: "-26px", left: "64px" }, bg: "rgba(140,120,180,0.06)", border: "rgba(140,120,180,0.25)", color: "#8a70b0", anim: "hero-float-b", dur: "4.2s", ad: "0.5s", td: "1040ms" },
       ].map((pill) => {
         const PillIcon = pill.icon;
@@ -1570,13 +1576,17 @@ export default function Hero() {
   const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
-    <section id="hero" aria-label="StorageAds: fill units and prove which ads did it" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
+    <section id="hero" aria-label="StorageAds: predictable move-ins for independent storage" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
       <HeroStyles />
       <DotGrid />
       <HeroStatusStrip />
 
       {/* ── Hero content ── */}
-      <div ref={ref} className="relative w-full pt-10 sm:pt-20 lg:pt-24 pb-6 sm:pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
+      {/* pt was pt-10 mobile but the H1 ended up clashing visually with the
+          status strip on iPhone 17 Pro Max. Bumped to pt-14 to restore a
+          clear breathing band between the strip and the headline while
+          keeping the page condensed overall. */}
+      <div ref={ref} className="relative w-full pt-14 sm:pt-20 lg:pt-24 pb-6 sm:pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
         <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-6 sm:gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
 
           {/* ── Left column ── */}
@@ -1592,12 +1602,13 @@ export default function Hero() {
                 textWrap: "balance",
               }}
             >
-              {/* Non-breaking spaces keep each side of the equation intact so
-                  on narrow viewports the H1 breaks cleanly between the two
-                  halves (e.g. iPhone 17 Pro Max ~440px / Safari) rather than
-                  stranding the "=" or "out." on a line of their own. */}
-              Ad&nbsp;spend&nbsp;in{" "}
-              <span className="whitespace-nowrap">= move-ins&nbsp;out.</span>
+              {/* Non-breaking spaces keep "move-ins" together so the H1 breaks
+                  cleanly on narrow viewports (iPhone 17 Pro Max ~440px /
+                  Safari) rather than orphaning a hyphenated word on its own
+                  line. */}
+              Predictable{" "}
+              <span className="whitespace-nowrap">move-ins</span>{" "}
+              for independent storage.
             </h1>
 
             {/* Typewriter */}
@@ -1617,7 +1628,7 @@ export default function Hero() {
                 textWrap: "pretty",
               }}
             >
-              The REITs operate marketing teams and proprietary tools built around that equation. It&apos;s not a secret, and it&apos;s not new. StorageAds is that infrastructure, productized for independent operators to take control of their occupancy rates through proactive marketing and demand generation.
+              The marketing system the REITs run on their own portfolios — productized for independent operators. Run the platform yourself, or have our team run it for you. Either way: ads, pages, and move-ins, wired together.
             </p>
 
             {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
@@ -1639,7 +1650,7 @@ export default function Hero() {
                 rel="noopener noreferrer"
                 className="btn-secondary group"
               >
-                Schedule a call to review your facility
+                Talk to our team — DIY or managed
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
             </div>
@@ -1650,7 +1661,7 @@ export default function Hero() {
                 {[
                   { icon: Layers, text: "storEDGE integrated" },
                   { icon: Globe, text: "Tested on our own facilities first" },
-                  { icon: Star, text: "Move-in level attribution" },
+                  { icon: Star, text: "Self-serve or fully managed" },
                 ].map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
