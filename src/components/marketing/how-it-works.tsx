@@ -29,8 +29,8 @@ const STEPS = [
   },
   {
     number: "04",
-    title: "We tell you exactly which ad produced which move-in.",
-    body: "Cost per reservation. Cost per move-in. Reservation rate by campaign, ad, keyword, and creative. Not clicks. Not likes. Move-ins.",
+    title: "Receipts for every move-in.",
+    body: "So you can audit each dollar instead of trust it. Cost per reservation, cost per move-in, reservation rate by campaign, ad, keyword, and creative. Not clicks. Not likes. Move-ins.",
   },
 ];
 
@@ -57,14 +57,14 @@ export default function HowItWorks() {
             className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            From ad click to signed lease. One system. You see what&apos;s working.
+            From ad click to signed lease. One system. Built to fill units.
           </h2>
           <p
             className="mt-4 mx-auto max-w-2xl"
             style={{ color: "var(--text-secondary)" }}
           >
-            Every step connects. The ad gets the click, the landing page books
-            the unit, and the dashboard tells you which ad filled it.
+            Every step connects. The ad earns the click, the landing page books
+            the rental, and the unit gets filled — with a receipt for which ad did it.
           </p>
         </div>
 

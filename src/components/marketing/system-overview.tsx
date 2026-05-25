@@ -105,7 +105,7 @@ export default function SystemOverview() {
             style={{ fontSize: "var(--text-section-head)" }}
           >
             One system. Six parts.{" "}
-            <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>Every move-in tracked.</span>
+            <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>Built to fill units.</span>
           </h2>
           <p
             className="mt-4"
@@ -114,8 +114,7 @@ export default function SystemOverview() {
               fontSize: "var(--text-body)",
             }}
           >
-            Ads, pages, the reserve button, the tracking. All connected. Not an
-            agency guessing on your behalf. A system that shows you what&apos;s filling units and what isn&apos;t.
+            Ads, pages, the reserve button, and the receipts — all wired together. Not an agency guessing on your behalf. A system that fills units and shows its work.
           </p>
         </div>
 

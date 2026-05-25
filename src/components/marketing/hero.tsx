@@ -209,7 +209,7 @@ const TYPEWRITER_WORDS = [
   "Hold occupancy.",
   "Beat the REIT in your zip code.",
   "Skip the SpareFoot tax.",
-  "Self-serve or fully managed.",
+  "First leads in 7 days.",
 ];
 
 const FEATURE_HIGHLIGHTS = [
@@ -1576,7 +1576,7 @@ export default function Hero() {
   const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
-    <section id="hero" aria-label="StorageAds: predictable move-ins for independent storage" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
+    <section id="hero" aria-label="StorageAds: predictable move-ins for independent storage — ad spend in, move-ins out" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
       <HeroStyles />
       <DotGrid />
       <HeroStatusStrip />
@@ -1591,7 +1591,21 @@ export default function Hero() {
 
           {/* ── Left column ── */}
           <div className="text-center lg:text-left max-w-xl mx-auto lg:mx-0">
-            {/* Headline */}
+            {/* Eyebrow — names the audience + outcome promise so the H1
+                stays the punchy equation. SaaS hierarchy: who-it's-for first,
+                hook second, explanation third. */}
+            <p
+              className={`text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em] mb-2 sm:mb-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{
+                color: "var(--text-tertiary)",
+                fontFamily: "var(--font-heading)",
+              }}
+            >
+              Predictable move-ins for independent storage
+            </p>
+
+            {/* Headline — the equation. The eyebrow above does the promise
+                framing so this can stay the punchy hook. */}
             <h1
               className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
@@ -1600,15 +1614,15 @@ export default function Hero() {
                 letterSpacing: "-0.03em",
                 fontFamily: "var(--serif)",
                 textWrap: "balance",
+                transitionDelay: "100ms",
               }}
             >
-              {/* Non-breaking spaces keep "move-ins" together so the H1 breaks
-                  cleanly on narrow viewports (iPhone 17 Pro Max ~440px /
-                  Safari) rather than orphaning a hyphenated word on its own
-                  line. */}
-              Predictable{" "}
-              <span className="whitespace-nowrap">move-ins</span>{" "}
-              for independent storage.
+              {/* Non-breaking spaces keep each side of the equation intact so
+                  on narrow viewports the H1 breaks cleanly between the two
+                  halves (e.g. iPhone 17 Pro Max ~440px / Safari) rather than
+                  stranding the "=" or "out." on a line of their own. */}
+              Ad&nbsp;spend&nbsp;in{" "}
+              <span className="whitespace-nowrap">= move-ins&nbsp;out.</span>
             </h1>
 
             {/* Typewriter */}
@@ -1617,7 +1631,9 @@ export default function Hero() {
               <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
             </div>
 
-            {/* Subheadline */}
+            {/* Subheadline — REIT-infrastructure narrative. Names the
+                category, explains the parity move, ties StorageAds to the
+                equation in the H1. */}
             <p
               className={`mt-2 sm:mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
@@ -1628,13 +1644,45 @@ export default function Hero() {
                 textWrap: "pretty",
               }}
             >
-              The marketing system the REITs run on their own portfolios — productized for independent operators. Run the platform yourself, or have our team run it for you. Either way: ads, pages, and move-ins, wired together.
+              The REITs operate marketing teams and proprietary tools built around that equation. It&apos;s not a secret, and it&apos;s not new. StorageAds is that infrastructure, productized for independent operators to take control of their occupancy rates through proactive marketing and demand generation.
+            </p>
+
+            {/* Capability strip — parallel cadence ("One platform. One
+                operator. Self-serve or fully managed.") makes the offer
+                tangible without bloating the subhead. */}
+            <p
+              className={`mt-3 text-[13px] sm:text-sm font-medium transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              style={{
+                color: "var(--color-dark)",
+                lineHeight: 1.5,
+                transitionDelay: "425ms",
+                maxWidth: "460px",
+                textWrap: "pretty",
+                fontFamily: "var(--font-heading)",
+              }}
+            >
+              Meta and Google paid tenant acquisition. Dedicated landing pages with storEDGE rental embedded. One platform. One operator. Self-serve or fully managed.
             </p>
 
             {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
             <div className="mt-4 mb-4 sm:mt-5 sm:mb-5">
               <PipelineFlow isVisible={isVisible} />
             </div>
+
+            {/* Pre-CTA bridge — friendly transition from the system to the
+                action. Keeps the audit CTA feeling like a natural next step,
+                not a pop. */}
+            <p
+              className={`mb-2 sm:mb-3 text-sm font-semibold transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{
+                color: "var(--color-dark)",
+                fontFamily: "var(--font-heading)",
+                transitionDelay: "475ms",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              See what we can do for your facility.
+            </p>
 
             {/* CTAs — both use design-system classes (.btn-primary +
                 .btn-secondary) so they share identical shape, font,
@@ -1650,18 +1698,36 @@ export default function Hero() {
                 rel="noopener noreferrer"
                 className="btn-secondary group"
               >
-                Talk to our team — DIY or managed
+                Book a call to review with our team
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
             </div>
 
-            {/* Trust signals — three badges per Angelo's original */}
-            <div className={`mt-3 sm:mt-5 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
+            {/* Reassurance — answers the "what does this cost me to try?"
+                anxiety immediately under the CTAs. Echoes Blake's
+                "= 100% free" framing. */}
+            <p
+              className={`mt-2 sm:mt-3 text-[11px] sm:text-xs font-medium transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{
+                color: "var(--text-tertiary)",
+                fontFamily: "var(--font-heading)",
+                transitionDelay: "600ms",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Both options ={" "}
+              <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>100% free</span>
+              . No card. No contracts.
+            </p>
+
+            {/* Trust signals — three badges. Identity (operator-built),
+                integration (storEDGE), validation (own-portfolio testing). */}
+            <div className={`mt-3 sm:mt-4 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
               <div className="flex items-center gap-x-3 gap-y-1.5 sm:gap-4 justify-center lg:justify-start flex-wrap">
                 {[
+                  { icon: Star, text: "Built by storage operators, for storage operators" },
                   { icon: Layers, text: "storEDGE integrated" },
                   { icon: Globe, text: "Tested on our own facilities first" },
-                  { icon: Star, text: "Self-serve or fully managed" },
                 ].map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
