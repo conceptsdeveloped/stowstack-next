@@ -664,7 +664,7 @@ export default function PricingPage() {
               href="/#cta"
               className="btn-primary inline-block text-center"
             >
-              Get your free facility audit
+              Get a Free Facility Audit
             </Link>
           </div>
         </div>

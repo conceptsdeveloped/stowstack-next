@@ -577,7 +577,7 @@ export default async function SharedAuditPage({
             href="/"
             className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-dark)]/20 text-[var(--color-light)] hover:bg-[var(--color-dark)]/30 transition-colors"
           >
-            Get Your Free Audit
+            Get a Free Facility Audit
           </Link>
         </div>
       </div>
@@ -1170,10 +1170,10 @@ export default async function SharedAuditPage({
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <Globe className="w-4 h-4 text-[var(--accent)]" />
-                <h3 className="text-sm font-semibold text-[var(--text-primary)]">GBP & Review Management</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Google Listing, on Auto</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Automated Google Business Profile posting, AI-powered review responses, and review solicitation campaigns to boost your rating and local search visibility.
+                Your Google Business Profile gets new posts on schedule, review responses drafted by AI, and a review-solicitation flow to lift your rating and local rank.
               </p>
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
@@ -1269,7 +1269,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
             href="/"
             className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-dark)]/20 text-[var(--color-light)] hover:bg-[var(--color-dark)]/30 transition-colors"
           >
-            Get Your Free Audit
+            Get a Free Facility Audit
           </Link>
         </div>
       </div>
@@ -1363,7 +1363,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
             href="/"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--accent)] text-[var(--color-light)] font-medium hover:bg-[var(--accent-hover)] transition-colors"
           >
-            Get Your Free Audit <ArrowRight className="w-4 h-4" />
+            Get a Free Facility Audit <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 

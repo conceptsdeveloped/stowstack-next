@@ -430,7 +430,7 @@ export default function InsightsPage() {
             Get a free diagnostic for your facility.
           </p>
           <Link href="/diagnostic" className="btn-primary inline-block">
-            Get your free facility audit
+            Get a Free Facility Audit
           </Link>
         </div>
       </div>

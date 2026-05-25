@@ -63,9 +63,9 @@ export default function HowItWorks() {
             className="mt-4 mx-auto max-w-2xl"
             style={{ color: "var(--text-secondary)" }}
           >
-            Every step connects. The ad drives the click, the landing page
-            converts it, the rental flow closes it, and attribution tells you
-            which ad deserves the credit.
+            Every step connects. The ad gets the click. The page converts it.
+            The rental flow closes it. The dashboard shows you which ad
+            filled the unit.
           </p>
         </div>
 

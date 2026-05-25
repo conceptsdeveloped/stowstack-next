@@ -437,7 +437,7 @@ export default function DemoDashboardClient() {
             Every facility is different. Our free audit analyzes your specific market, unit mix, and competition to project what campaigns could deliver for you.
           </p>
           <Link href="/#cta" className="btn-primary inline-flex items-center gap-2">
-            Get your free facility audit <ArrowUpRight size={16} />
+            Get a Free Facility Audit <ArrowUpRight size={16} />
           </Link>
         </div>
 

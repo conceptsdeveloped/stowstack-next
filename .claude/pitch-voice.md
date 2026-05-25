@@ -84,7 +84,7 @@ StorageAds sits at the intersection none of them occupy: vertical-specific + out
 
 ### The bounded novelty claim
 
-The defensible claim, lifted verbatim from the whitepaper's comparative analysis (§8.6 of `analysis/08_comparison.md`):
+The defensible claim, lifted verbatim from the comparative analysis at `analysis/08_comparison.md` §8.6 (the canonical source for the technical/pitch register; `WHITEPAPER.md` at the repo root is the operator-friendly long-form version of the same argument and is in customer voice by design):
 
 > To the analyst's knowledge, **the combination of (a) server-side multi-platform paid-acquisition attribution forwarding (Meta CAPI, Google Enhanced Conversions), (b) PMS-data-driven operational intelligence (occupancy, ECRI candidate flagging, churn prediction), and (c) operator-language AI audits as a public top-of-funnel demand-generation tool, in a single self-storage vertical software platform operating outside the PMS, is uncommon — because (a) is typically the domain of generalist attribution platforms that lack the PMS data connection; (b) is typically the domain of the PMS vendor itself that has not integrated cross-platform server-side ad attribution; and (c) is typically the domain of agencies that operate the audit as a sales-team service rather than as automated software.**
 

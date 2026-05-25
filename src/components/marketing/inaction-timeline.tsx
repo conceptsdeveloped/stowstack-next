@@ -220,7 +220,7 @@ export default function InactionTimeline() {
             option.
           </p>
           <a href="#cta" className="btn-primary inline-flex items-center gap-2">
-            Get Your Free Revenue Audit <ArrowRight size={16} />
+            Get a Free Facility Audit <ArrowRight size={16} />
           </a>
         </div>
       </div>

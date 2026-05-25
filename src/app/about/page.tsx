@@ -217,7 +217,7 @@ export default function AboutPage() {
             Get a free diagnostic: no pitch deck, no commitment.
           </p>
           <Link href="/diagnostic" className="btn-primary inline-block">
-            Get your free facility audit
+            Get a Free Facility Audit
           </Link>
         </div>
       </article>
