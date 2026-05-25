@@ -1584,9 +1584,20 @@ export default function Hero() {
             {/* Headline */}
             <h1
               className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--serif)" }}
+              style={{
+                fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)",
+                lineHeight: 1.12,
+                letterSpacing: "-0.03em",
+                fontFamily: "var(--serif)",
+                textWrap: "balance",
+              }}
             >
-              Ad spend in = move-ins out.
+              {/* Non-breaking spaces keep each side of the equation intact so
+                  on narrow viewports the H1 breaks cleanly between the two
+                  halves (e.g. iPhone 17 Pro Max ~440px / Safari) rather than
+                  stranding the "=" or "out." on a line of their own. */}
+              Ad&nbsp;spend&nbsp;in{" "}
+              <span className="whitespace-nowrap">= move-ins&nbsp;out.</span>
             </h1>
 
             {/* Typewriter */}
@@ -1598,7 +1609,13 @@ export default function Hero() {
             {/* Subheadline */}
             <p
               className={`mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{ color: "var(--text-secondary)", lineHeight: 1.55, transitionDelay: "350ms", maxWidth: "460px" }}
+              style={{
+                color: "var(--text-secondary)",
+                lineHeight: 1.55,
+                transitionDelay: "350ms",
+                maxWidth: "460px",
+                textWrap: "pretty",
+              }}
             >
               The REITs operate marketing teams and proprietary tools built around that equation. It&apos;s not a secret, and it&apos;s not new. StorageAds is that infrastructure, productized for independent operators to take control of their occupancy rates through proactive marketing and demand generation.
             </p>
@@ -1608,13 +1625,22 @@ export default function Hero() {
               <PipelineFlow isVisible={isVisible} />
             </div>
 
-            {/* CTAs */}
-            <div className={`flex flex-col sm:flex-row items-center lg:items-start gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
-              <a href="#cta" className="btn-primary text-base group">
+            {/* CTAs — both full-width on mobile so they stack with matching
+                widths (.btn-primary already hits width:100% at <=639px via
+                globals.css; secondary mirrors that here with w-full
+                sm:w-auto + justify-center to align the label). */}
+            <div className={`flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
+              <a href="#cta" className="btn-primary text-base group text-center">
                 Get your free facility audit — instant results
-                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
-              <a href={CALCOM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-all hover:border-[var(--color-gold)]/30 hover:shadow-sm" style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}>
+              <a
+                href={CALCOM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-all hover:border-[var(--color-gold)]/30 hover:shadow-sm text-center"
+                style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}
+              >
                 Book a call to review with our team
               </a>
             </div>
