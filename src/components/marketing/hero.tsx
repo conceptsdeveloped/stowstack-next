@@ -1576,8 +1576,8 @@ export default function Hero() {
       <HeroStatusStrip />
 
       {/* ── Hero content ── */}
-      <div ref={ref} className="relative w-full pt-16 sm:pt-20 lg:pt-24 pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
+      <div ref={ref} className="relative w-full pt-10 sm:pt-20 lg:pt-24 pb-6 sm:pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-6 sm:gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
 
           {/* ── Left column ── */}
           <div className="text-center lg:text-left max-w-xl mx-auto lg:mx-0">
@@ -1586,7 +1586,7 @@ export default function Hero() {
               className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
                 fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)",
-                lineHeight: 1.12,
+                lineHeight: 1.1,
                 letterSpacing: "-0.03em",
                 fontFamily: "var(--serif)",
                 textWrap: "balance",
@@ -1601,17 +1601,17 @@ export default function Hero() {
             </h1>
 
             {/* Typewriter */}
-            <div className={`mt-3 h-8 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "200ms" }}>
+            <div className={`mt-2 sm:mt-3 h-7 sm:h-8 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "200ms" }}>
               <span className="text-lg sm:text-xl font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--serif)", letterSpacing: "-0.03em" }}>{typedText}</span>
               <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
             </div>
 
             {/* Subheadline */}
             <p
-              className={`mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              className={`mt-2 sm:mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
                 color: "var(--text-secondary)",
-                lineHeight: 1.55,
+                lineHeight: 1.5,
                 transitionDelay: "350ms",
                 maxWidth: "460px",
                 textWrap: "pretty",
@@ -1621,14 +1621,14 @@ export default function Hero() {
             </p>
 
             {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
-            <div className="mt-5 mb-5">
+            <div className="mt-4 mb-4 sm:mt-5 sm:mb-5">
               <PipelineFlow isVisible={isVisible} />
             </div>
 
             {/* CTAs — both use design-system classes (.btn-primary +
                 .btn-secondary) so they share identical shape, font,
                 padding, mobile width behavior. Only fill differs. */}
-            <div className={`flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
+            <div className={`flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-2 sm:gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
               <a href="#cta" className="btn-primary group">
                 Get your free facility audit — instant results
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
@@ -1645,8 +1645,8 @@ export default function Hero() {
             </div>
 
             {/* Trust signals — three badges per Angelo's original */}
-            <div className={`mt-5 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
-              <div className="flex items-center gap-4 justify-center lg:justify-start flex-wrap">
+            <div className={`mt-3 sm:mt-5 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
+              <div className="flex items-center gap-x-3 gap-y-1.5 sm:gap-4 justify-center lg:justify-start flex-wrap">
                 {[
                   { icon: Layers, text: "storEDGE integrated" },
                   { icon: Globe, text: "Tested on our own facilities first" },
@@ -1654,8 +1654,8 @@ export default function Hero() {
                 ].map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
-                    <div key={badge.text} className="flex items-center gap-1.5 text-xs transition-all duration-500" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${750 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
-                      <BadgeIcon size={13} style={{ color: "var(--color-gold)", opacity: 0.7 }} />
+                    <div key={badge.text} className="flex items-center gap-1.5 text-[11px] sm:text-xs transition-all duration-500" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${750 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
+                      <BadgeIcon size={12} style={{ color: "var(--color-gold)", opacity: 0.7 }} />
                       {badge.text}
                     </div>
                   );
@@ -1675,7 +1675,7 @@ export default function Hero() {
       </div>
 
       {/* Scroll indicator */}
-      <div className={`flex justify-center pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
+      <div className={`flex justify-center pb-3 sm:pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
         <a href="#problem" className="flex flex-col items-center gap-1 group" aria-label="Scroll to learn more">
           <span className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>Learn more</span>
           <ChevronDown size={16} style={{ color: "var(--text-tertiary)", animation: "hero-scroll-bounce 2s ease-in-out infinite" }} />
