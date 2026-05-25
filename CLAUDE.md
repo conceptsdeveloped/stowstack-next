@@ -4,6 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
+## Voice & Copy
+
+For customer-facing copy (website, landing pages, cold emails, ads, in-app text), read [.claude/copy-voice.md](.claude/copy-voice.md) before writing.
+
+For investor, acquirer, due-diligence, partnership, or whitepaper-adjacent copy, read [.claude/pitch-voice.md](.claude/pitch-voice.md) before writing.
+
+If unsure which register applies, ask before drafting.
+
 ## Build & Development Commands
 
 ```bash
