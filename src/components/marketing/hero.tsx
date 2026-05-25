@@ -234,7 +234,6 @@ function HeroStyles() {
       @keyframes hero-shimmer{0%{background-position:200% 0}50%{background-position:-200% 0}100%{background-position:200% 0}}
       @keyframes hero-orb-drift{0%{transform:translate(0,0)}100%{transform:translate(30px,-20px)}}
       @keyframes hero-live-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.7)}}
-      @keyframes hero-underline-draw{0%{width:0}100%{width:100%}}
       @keyframes hero-gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
       @keyframes hero-scroll-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
       @keyframes hero-pipeline-flow{0%{width:0}100%{width:100%}}
@@ -253,6 +252,18 @@ function HeroStyles() {
       .stat-cell{padding:16px 12px 18px}
       @media (min-width:480px){.stat-cell{padding:20px 16px 22px}}
       @media (min-width:768px){.stat-cell{padding:22px 20px 24px}}
+      /* "proves" gradient text. Defined here (not inline) so the
+         .urbit-landing [style*="linear-gradient"] kill-switch in
+         globals.css doesn't strip it. */
+      .hero-proves-gradient{
+        background-image:linear-gradient(135deg,var(--accent),var(--color-blue),var(--accent-hover));
+        background-size:200% 200%;
+        -webkit-background-clip:text;
+        background-clip:text;
+        color:transparent;
+        -webkit-text-fill-color:transparent;
+        animation:hero-gradient-shift 3s ease-in-out infinite;
+      }
       /* Scoped reduce-motion override — kills hero's looping animations
          (float, pulse, shimmer, gradient shift, scroll bounce) while
          leaving fade-in transitions intact at a much shorter duration. */
@@ -1575,14 +1586,7 @@ export default function Hero() {
               className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "var(--serif)" }}
             >
-              The marketing system that{" "}
-              <span className="relative inline-block">
-                <span style={{ background: "linear-gradient(135deg, var(--accent), var(--color-blue), var(--accent-hover))", backgroundSize: "200% 200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "hero-gradient-shift 3s ease-in-out infinite" }}>
-                  proves
-                </span>
-                <span className="absolute bottom-0 left-0 h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, var(--accent), var(--accent-hover))", animation: isVisible ? "hero-underline-draw 0.8s ease-out 0.6s both" : "none", width: 0 }} />
-              </span>{" "}
-              which ads produce move-ins.
+              Ad spend in = move-ins out.
             </h1>
 
             {/* Typewriter */}
@@ -1596,7 +1600,7 @@ export default function Hero() {
               className={`mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ color: "var(--text-secondary)", lineHeight: 1.55, transitionDelay: "350ms", maxWidth: "460px" }}
             >
-              Every move-in traced to the ad that produced it. Custom landing pages with embedded rental flow — from first click to signed lease.
+              The REITs operate marketing teams and proprietary tools built around that equation. It&apos;s not a secret, and it&apos;s not new. StorageAds is that infrastructure, productized for independent operators to take control of their occupancy rates through proactive marketing and demand generation.
             </p>
 
             {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
@@ -1607,11 +1611,11 @@ export default function Hero() {
             {/* CTAs */}
             <div className={`flex flex-col sm:flex-row items-center lg:items-start gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
               <a href="#cta" className="btn-primary text-base group">
-                Get a Free Facility Audit
+                Get your free facility audit — instant results
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5" />
               </a>
               <a href={CALCOM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition-all hover:border-[var(--color-gold)]/30 hover:shadow-sm" style={{ borderColor: "var(--border-medium)", color: "var(--text-secondary)", fontFamily: "var(--font-heading)" }}>
-                Book a Call
+                Book a call to review with our team
               </a>
             </div>
 
