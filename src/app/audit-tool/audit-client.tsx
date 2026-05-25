@@ -592,12 +592,11 @@ export default function AuditToolPage() {
                 <div className="rounded-2xl bg-gradient-to-br from-[var(--accent-glow)] to-transparent border border-[var(--accent)]/20 p-8 text-center">
                   <TrendingUp className="w-8 h-8 text-[var(--accent)] mx-auto mb-3" />
                   <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-                    Want a full marketing audit?
+                    Want the full audit?
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)] mb-5 max-w-md mx-auto">
-                    Get a detailed analysis including vacancy cost, ROI
-                    projections, competitive insights, and personalized
-                    recommendations.
+                    Get vacancy cost, projections, competitor data, and what
+                    to fix first.
                   </p>
                   {captureSubmitted ? (
                     <div className="flex items-center justify-center gap-2 text-[var(--accent)] font-semibold">

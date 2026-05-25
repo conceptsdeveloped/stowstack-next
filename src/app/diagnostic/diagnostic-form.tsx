@@ -522,8 +522,8 @@ export function DiagnosticForm() {
           Free Facility Diagnostic
         </h1>
         <p className="text-[var(--text-secondary)] max-w-lg mx-auto leading-relaxed">
-          Get a comprehensive AI-powered analysis of your self-storage
-          facility across 8 key categories. Takes about 5 minutes.
+          A full analysis of your facility across 8 categories.
+          Takes about 5 minutes.
         </p>
       </div>
 

@@ -102,7 +102,7 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
               className="text-sm font-medium uppercase tracking-wider mb-2"
               style={{ color: "var(--color-gold)" }}
             >
-              Before you go
+              One more thing
             </p>
             <h3
               id="exit-intent-popup-title"
