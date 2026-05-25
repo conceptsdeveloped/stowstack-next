@@ -1,54 +1,44 @@
 # Task 25: Collapse audit-* API routes
 
-## Problem
+## Status: DEFERRED — high risk, requires UI verification
 
-10 API routes handle audit functionality with overlapping responsibilities:
+10 API routes handle audit functionality. On closer reading, they're not simple CRUD slices:
 
-- `api/audit-form` — form intake
-- `api/audit-save` — save draft
-- `api/audit-load` — load saved
-- `api/audit-generate` — generate audit
-- `api/audit-generate-diagnostic` — generate diagnostic (1,157 lines)
-- `api/audit-approve` — approve audit
-- `api/audit-report` — report
-- `api/diagnostic-analyze` — diagnostic analyzer
-- `api/diagnostic-intake` — diagnostic intake
-- `api/synthesize` — synthesis
+- `api/audit-form` — form intake validation
+- `api/audit-save` — partial save with localStorage sync
+- `api/audit-load` — load drafts by anon visitor token
+- `api/audit-generate` — generate basic audit
+- `api/audit-generate-diagnostic` — 1,157-line AI-driven diagnostic (Claude + Google Places + scrape)
+- `api/audit-approve` — admin approval triggers drip enrollment (see Task 24)
+- `api/audit-report` — render shareable report
+- `api/diagnostic-analyze` — analyzer step
+- `api/diagnostic-intake` — intake step
+- `api/synthesize` — synthesis step
 
-## Goal
+## Why the collapse is risky
 
-3 routes:
+1. The audit funnel is your top-of-funnel — breaking it breaks lead capture
+2. Each route has unique AI prompts and post-processing logic
+3. They're chained: form → save → generate-diagnostic → approve → report
+4. Consumers across the app: `audit-tool/audit-client.tsx`, `diagnostic/diagnostic-form.tsx`, `audit/[slug]/page.tsx`, `admin/audits/page.tsx`
+5. No tests — verification requires manual end-to-end run of the audit funnel
 
-- `api/audits` — full CRUD on audit records (POST = create/save, GET = list, PATCH = update)
-- `api/audits/[id]/generate` — kick off AI generation (handles diagnostic + report synthesis)
-- `api/audits/[id]/share` — create shareable link, return public URL
+## Recommendation
 
-## Steps
+Don't do this in one PR. Instead:
 
-1. Read `audit-generate-diagnostic/route.ts` to understand the canonical AI prompt flow.
-2. Read each of the 10 routes to map current handlers to the new 3-route API.
-3. Build the 3 new routes under `src/app/api/audits/` with the same auth + rate-limit patterns from `api-helpers.ts`.
-4. Update consumers (search for `/api/audit-*`, `/api/diagnostic-*`, `/api/synthesize` in client code) to call the new routes.
-5. Delete the 10 old routes.
-6. Verify build + manually test the audit funnel from `/audit-tool` end to end (use the verify skill).
+- **Phase A**: Collapse `diagnostic-*` and `synthesize` into `audit-generate-diagnostic` (it's already 1,157 lines, has the canonical flow)
+- **Phase B**: Merge `audit-form` + `audit-save` + `audit-load` into a single `audits` CRUD route
+- **Phase C**: Move `audit-approve` and `audit-report` under `audits/[id]/approve` and `audits/[id]/share` once stable
 
-## Files affected
+Each phase = its own PR with its own verification.
 
-- 10 deletions under `src/app/api/`
-- 3 new files under `src/app/api/audits/`
-- Client updates: `src/app/audit-tool/audit-client.tsx`, `src/app/diagnostic/diagnostic-form.tsx`, `src/app/audit/[slug]/page.tsx`, possibly `src/app/admin/audits/page.tsx`
+## Estimated work: 1-2 days across 3 PRs with manual audit funnel verification each
 
-## Verification
-
-```bash
-npx tsc --noEmit
-npm run build
-```
-
-Then run the verify skill on the audit funnel: form submit → diagnostic generation → shareable report.
-
-## Commit message
+## Commit message (per-phase)
 
 ```
-refactor: collapse 10 audit routes into 3 (audits, audits/[id]/generate, audits/[id]/share)
+refactor(audit): phase A — collapse diagnostic-* into audit-generate-diagnostic
+refactor(audit): phase B — merge audit-form/save/load into /api/audits CRUD
+refactor(audit): phase C — move approve/report under /api/audits/[id]/*
 ```

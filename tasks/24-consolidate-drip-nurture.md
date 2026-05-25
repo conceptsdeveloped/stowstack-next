@@ -1,56 +1,54 @@
 # Task 24: Consolidate parallel drip + nurture sequence systems
 
-## Problem
+## Status: DEFERRED — bigger than initial estimate
 
-Two parallel sequence systems exist, both with active code and crons:
+When I read both systems carefully, they have diverged substantially:
 
-- **drip_sequences** (`api/drip-sequences/route.ts`, `api/cron/process-drips/route.ts`)
-- **drip_sequence_templates** (used by `facility-creatives`, `cron/process-drips`)
-- **nurture_sequences** + **nurture_enrollments** + **nurture_messages** (`api/nurture-sequences/route.ts`, `api/cron/process-nurture/route.ts`)
+### drip_sequences (older system)
 
-5 models, 2 cron jobs, 2 API routes — all doing the same thing.
+- Single table keyed on `facility_id` (one drip per facility)
+- Hardcoded SEQUENCES in `src/lib/drip-sequences.ts` (post_audit, recovery)
+- Funnel-based custom templates via `drip_sequence_templates` table — keyed by `(facility_id, variation_id)` for ad-variation-specific drips
+- `process-drips` cron at `src/app/api/cron/process-drips/route.ts` handles SMS + email via separate code paths (`send-template`, `sms-send`)
+- Wired to: `audit-approve/route.ts:244` (creates drip on audit approval), `facility-creatives/route.ts:695-828` (syncs funnel config to drip templates)
 
-## Decision required (before starting)
+### nurture_sequences (newer system)
 
-Which system to keep:
-- **Keep nurture_*** (newer, 3-table normalized: sequences/enrollments/messages — cleaner data model)
-- **Keep drip_*** (older but template-driven via drip_sequence_templates)
+- 3-table normalized (sequences / enrollments / messages)
+- Hardcoded SEQUENCE_TEMPLATES with full email bodies + SMS bodies
+- Has templates for: landing_page_abandon, reservation_abandon, post_move_in, win_back
+- **Missing**: post_audit and recovery templates that drip provides
+- Wired to: `nurture-sequences/route.ts`, `cron/process-nurture/route.ts`
 
-Recommendation: **Keep `nurture_*`** — 3-table model is more flexible, and the drip system has a hard-coded SEQUENCES object in the route file rather than DB-driven templates.
+### Why the merge is non-trivial
 
-## Steps
+1. Drip's `post_audit` and `recovery` templates aren't in nurture — need to be ported with full body content
+2. Drip's funnel-based variation templates (`facility_id + variation_id` key) have no equivalent in nurture — need new nurture template structure
+3. In-flight drip enrollments (keyed on facility_id) need migration to nurture_enrollments (keyed on enrollment_id)
+4. `audit-approve` flow is on the critical lead-nurture path — breaking it loses post-audit follow-ups
+5. `facility-creatives` syncs funnel configs to drip templates — needs nurture equivalent
+6. `src/lib/drip-sequences.ts` exports `SEQUENCES` and `DripStep` type used by cron
 
-1. Confirm decision with Blake on which system to keep.
-2. Find all consumer code of the losing system (grep imports and DB calls).
-3. Migrate each consumer to the surviving system's API.
-4. Delete the losing system's models from `prisma/schema.prisma`.
-5. Delete the losing system's API routes + cron route.
-6. Update `vercel.json` to remove the deleted cron entry.
-7. Verify: `npx prisma validate && npx prisma generate && npx tsc --noEmit && npm run build`.
-8. **Do not run `prisma db push`.** Tables can be dropped manually later once production has migrated.
+## Steps when executing
 
-## Files affected (approx)
+1. Port `post_audit` and `recovery` from `lib/drip-sequences.ts` into nurture's `SEQUENCE_TEMPLATES` with full body content
+2. Add a funnel-variation template type to nurture (or accept that facility-creatives stays on drip for now)
+3. Refactor `audit-approve/route.ts:244-249` to call nurture's `action=enroll` endpoint
+4. Refactor `facility-creatives/route.ts:695-828` to use nurture templates (or keep drip system specifically for this case)
+5. Update `cron/process-drips` to also handle nurture enrollments, OR migrate all enrollments before deleting drip
+6. Remove `drip_sequences` + `drip_sequence_templates` models from schema
+7. Delete `api/drip-sequences/route.ts`, `cron/process-drips/route.ts`, `lib/drip-sequences.ts`
+8. Remove cron entry from `vercel.json`
+9. Verify build + manually test audit-approve email flow end-to-end (use verify skill)
 
-- `prisma/schema.prisma` — remove 2-3 models
-- `src/app/api/drip-sequences/route.ts` OR `src/app/api/nurture-sequences/route.ts` — delete
-- `src/app/api/cron/process-drips/route.ts` OR `process-nurture/route.ts` — delete
-- `vercel.json` — remove one cron entry
-- Any consumer that imports the losing system
+## Estimated work: 2-3 focused hours, requires manual verification of post-audit email send
 
-## Verification
-
-```bash
-npx prisma validate
-npx prisma generate
-npx tsc --noEmit
-npm run build
-```
-
-## Commit message
+## Commit message (when executed)
 
 ```
 refactor: consolidate drip + nurture into single sequence system
 
-Removed parallel sequence system. Code unification only — DB tables for
-removed models remain in production until manual drop after migration.
+Ported post_audit + recovery templates from drip to nurture.
+Migrated audit-approve and facility-creatives consumers.
+Removed drip system (lib + routes + models + cron).
 ```

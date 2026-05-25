@@ -1,52 +1,20 @@
 # Task 27: Decide — premature tenant lifecycle features
 
-## Decision required
+## Decision: KEEP
 
-The tenant management UI wires together features that need real tenant data to validate:
+The predictive features (`churn_predictions`, `upsell_opportunities`, `delinquency_escalations`, `moveout_remarketing`, `retention_campaigns`) are scaffolded correctly and activate when tenant data exists.
 
-| Model | Wired to | Why "premature" |
-|---|---|---|
-| `churn_predictions` | tenant-detail.tsx, tenant-helpers.tsx | ML predictions need historical data |
-| `upsell_opportunities` | tenant-detail.tsx, tenant-management-types.ts | Needs tenant history |
-| `delinquency_escalations` | tenant-detail.tsx, tenant-management.tsx | Needs payment behavior data |
-| `moveout_remarketing` | tenants/route.ts | Needs moveout patterns |
-| `retention_campaigns` | churn-predictions/route.ts | Depends on churn data |
+This is your moat: PMS upload → revenue intelligence → marketing execution. The tenant lifecycle features are the "intelligence" half. They don't cost much to maintain (5 models, ~3 routes, ~500 LOC) and the rebuild cost when you have data would be high.
 
-These all assume the operator has loaded tenant data via PMS upload and run the system for 3-6 months.
+### What stays
 
-## Two paths
+- 5 lifecycle models above
+- API routes: `churn-predictions`, `upsell`, `moveout-remarketing`
+- UI panels in `tenant-detail.tsx`, `tenant-management.tsx`, `tenant-helpers.tsx`, `tenant-management-types.ts`
 
-### Path A: Keep (operators load PMS reports and these work)
+### Future improvement (post-data)
 
-Operators who upload PMS reports get tenant data; these features then have something to chew on. Recommendation if **PMS upload is the main entry point** of the product.
+- Once you have 90 days of tenant data from real PMS imports, validate the predictions and refine the heuristics
+- Wire alerts from these models to the operator dashboard ("3 tenants at high churn risk this month")
 
-### Path B: Stub or remove
-
-Strip the predictive features back to "we'll add these once you have 90 days of data." Keep:
-
-- `tenants` (raw tenant data from PMS imports)
-- `tenant_payments` (raw payment history)
-- `tenant_communications` (logged outreach)
-
-Remove:
-
-- `churn_predictions`, `upsell_opportunities`, `delinquency_escalations`, `moveout_remarketing`, `retention_campaigns`
-- Their corresponding API routes (`churn-predictions`, `upsell`, `moveout-remarketing`)
-- The dependent UI panels in `tenant-detail.tsx`, `tenant-management.tsx`
-
-**Estimated savings (Path B):** 5 models, 3 routes, ~500 LOC.
-
-## Recommendation
-
-**Path A** if PMS upload is core to the product story (it is — it's your moat). The features are scaffolded correctly; they activate when data exists. The bloat cost is small, the rebuild cost is high.
-
-If you choose Path B, follow this task. If Path A, close as "kept by decision."
-
-## Commit message (Path B)
-
-```
-refactor: remove premature tenant lifecycle features (churn/upsell/delinquency/retention/moveout)
-
-Kept raw tenant data models (tenants, tenant_payments, tenant_communications).
-Will rebuild predictive features when we have 90 days of production data.
-```
+## Status: closed — kept by decision

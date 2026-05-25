@@ -6,22 +6,29 @@ Each task is self-contained per the execution rules in `CLAUDE.md`. Run one at a
 
 ## Tasks
 
-| # | Task | Risk | Reversible |
+| # | Task | Status | Risk |
 |---|---|---|---|
-| 24 | Consolidate parallel drip + nurture sequence systems | Medium | Yes (git) until DB push |
-| 25 | Collapse audit-* API routes (10 → 3) | Medium | Yes (git) |
-| 26 | Decide: keep or kill partner/referral program | High | Yes (git) until DB push |
-| 27 | Decide: keep or kill premature tenant lifecycle features | High | Yes (git) until DB push |
+| 24 | Consolidate parallel drip + nurture sequence systems | **DEFERRED** — bigger than estimated, requires manual flow verification | Medium |
+| 25 | Collapse audit-* API routes (10 → 3) | **DEFERRED** — high risk, split into 3 phases | High |
+| 26 | Decide: keep or kill partner/referral program | **CLOSED — KEEP** (CLAUDE.md lists management cos as buyers) | — |
+| 27 | Decide: keep or kill premature tenant lifecycle features | **CLOSED — KEEP** (tied to PMS moat) | — |
 
-## What was already done in the QA pass (no task file needed)
+## What was already done in the QA pass + bloat reduction
 
-- Deleted 29 unreferenced files (29 components/lib files)
-- Auto-fixed 12 lint warnings
-- Removed dead `signTempToken()` and `enrollLead()` functions
-- Wave 1 deletes: `commit_*`, `dev_handoffs`, `deployment_tags`, `betapad_notes`, `ab_tests`, `ab_test_events` models + their API routes + cron policy
+- 29 unreferenced files deleted (components + lib)
+- 9 Prisma models removed (commit_*, dev_handoffs, deployment_tags, betapad_notes, ab_tests, ab_test_events)
+- 8 dead API route directories removed
+- 4 unused npm dependencies uninstalled (@clerk/themes, @stripe/stripe-js, @supabase/*)
+- 12 lint warnings auto-fixed
+- betapad_notes removed from data-retention cron policies
+- ab_tests back-relation removed from facilities model
 
-## Notes for execution
+Committed as `2a5eb19`.
+
+## Notes for executing the deferred tasks
 
 - Schema model removals stage in `prisma/schema.prisma` only. **Never run `prisma db push` without explicit user approval** — that drops production tables irreversibly.
 - After each schema change: `npx prisma validate && npx prisma generate && npx tsc --noEmit && npm run build`
-- Don't touch Angelo's domain: ad platform integrations (Meta/Google/TikTok), video/image generation, audience-sync, facility-creatives, google-ads-lab.
+- For Task 24, manually verify post-audit follow-up email is still sent after audit approval
+- For Task 25, manually run the audit funnel end-to-end after each phase
+- Don't touch Angelo's domain: ad platform integrations (Meta/Google/TikTok), video/image generation, audience-sync, facility-creatives ad sections, google-ads-lab
