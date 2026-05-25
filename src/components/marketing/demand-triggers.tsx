@@ -69,38 +69,38 @@ export default function DemandTriggers() {
       ref={ref}
       id="demand-triggers"
       aria-label="Storage demand triggers we target with Meta ads"
-      className="relative"
-      style={{ background: "var(--color-dark)" }}
+      className="section"
+      style={{ background: "var(--color-light)" }}
     >
-      <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-16 sm:py-20 lg:py-24">
+      <div className="section-content">
+        {/* Heading */}
         <div
-          className={`max-w-3xl mx-auto text-center mb-14 transition-all duration-700 ${
+          className={`max-w-3xl mx-auto text-center mb-14 sm:mb-16 transition-all duration-700 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
           }`}
         >
           <h2
-            className="font-semibold mb-4"
+            className="font-semibold"
             style={{
-              fontFamily: "var(--serif)",
-              fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)",
+              fontSize: "var(--text-section-head)",
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-heading)",
               letterSpacing: "-0.03em",
               lineHeight: 1.15,
-              color: "var(--color-light)",
             }}
           >
             We understand storage demand because we see these triggers in our
             own facilities every week.
           </h2>
           <p
-            className="mx-auto"
+            className="mt-5 mx-auto"
             style={{
-              color: "var(--color-light)",
-              opacity: 0.65,
-              lineHeight: 1.6,
+              color: "var(--text-secondary)",
               fontSize: "var(--text-body)",
-              maxWidth: "60ch",
+              lineHeight: "var(--leading-normal)",
+              maxWidth: "62ch",
             }}
           >
             This is not abstract persona work. It is lived operational
@@ -109,49 +109,59 @@ export default function DemandTriggers() {
           </p>
         </div>
 
+        {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {TRIGGERS.map((trigger, i) => {
             const Icon = trigger.icon;
             return (
               <div
                 key={trigger.title}
-                className={`relative rounded-2xl border p-6 transition-all duration-500 ${
+                className={`group relative rounded-2xl border p-6 transition-all duration-500 hover:-translate-y-0.5 ${
                   isVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-4"
                 }`}
                 style={{
-                  borderColor: "rgba(120,140,93,0.18)",
-                  background: "rgba(120,140,93,0.04)",
+                  borderColor: "var(--border-subtle)",
+                  background: "var(--color-light-gray)",
                   transitionDelay: `${150 + i * 60}ms`,
                 }}
               >
+                {/* Icon tile */}
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-colors"
                   style={{
-                    background: "rgba(120,140,93,0.14)",
-                    border: "1px solid rgba(120,140,93,0.3)",
+                    background: "color-mix(in srgb, var(--color-green) 12%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--color-green) 25%, transparent)",
                   }}
                 >
-                  <Icon size={20} style={{ color: "var(--color-green)" }} />
+                  <Icon
+                    size={20}
+                    strokeWidth={1.75}
+                    style={{ color: "var(--color-green)" }}
+                  />
                 </div>
+
+                {/* Title */}
                 <h3
                   className="font-semibold mb-2"
                   style={{
-                    color: "var(--color-light)",
+                    color: "var(--text-primary)",
                     fontFamily: "var(--font-heading)",
                     fontSize: "1.0625rem",
                     letterSpacing: "-0.01em",
+                    lineHeight: 1.3,
                   }}
                 >
                   {trigger.title}
                 </h3>
+
+                {/* Body */}
                 <p
-                  className="leading-relaxed"
                   style={{
-                    color: "var(--color-light)",
-                    opacity: 0.6,
+                    color: "var(--text-secondary)",
                     fontSize: "0.875rem",
+                    lineHeight: 1.55,
                   }}
                 >
                   {trigger.body}
