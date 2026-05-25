@@ -178,7 +178,7 @@ Most facilities we audit are leaving money on the table with incomplete Google p
 </p>
 
 <p style="margin:0 0 16px;">
-StorageAds handles the full stack &mdash; local SEO, paid ads, retargeting, and reputation management &mdash; so you can focus on running the facility.
+StorageAds runs your ads, your Google listing, your retargeting, and your reputation &mdash; so you can run the facility.
 </p>
 
 ${ctaButton("See What StorageAds Can Do", auditLink)}
