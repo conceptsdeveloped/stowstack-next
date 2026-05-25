@@ -42,32 +42,34 @@ const DemandTriggers = dynamic(
 const Footer = dynamic(() => import("@/components/marketing/footer"));
 
 /* ───────────────────────────────────────────────────────────────────────────
- * Homepage IA — Product-first sequence (per Blake's reorder request)
+ * Homepage IA — Product-first SaaS conversion sequence
  *
  *  Scroll  §   Component               Role
  *  ─────  ──  ──────────────────────   ──────────────────────────────────────
- *    1    —   <Hero />                 Hook + primary CTA (lean per spec)
+ *    1    —   <Hero />                 Hook + primary CTA
  *    2    01  <HowItWorks />           How the product works (start here)
  *    —    —   <SolutionVisuals />      Pipeline + Feature highlight cards
- *    —    —   <DemandTriggers />       9 demand moments (operator cred, dark)
  *    3    02  <SystemOverview />       The system — 6 parts wired together
  *    —    —   <CapabilitiesSection />  Full platform capabilities grid
  *    4    03  <FourWayComparison />    StorageAds vs StorageRankers / Adverank / SpareFoot
  *    —    —   <BeforeAfterSection />   Before/after broken-workflow pairs
- *    5    04  <InactionTimeline />     Cost of inaction (6-month pain)
- *    6    05  <ProblemStatement />     The underlying problem
+ *    5    04  <ProblemStatement />     The underlying problem
  *    —    —   <BecauseLetterboard />   Pain refrain (split-flap)
+ *    6    05  <InactionTimeline />     Cost of inaction (problem amplifier)
  *    7    06  <Results />              Operator case studies + ROI math
  *    —    —   <LiveStatsSection />     §00 NUMBERS industry/forecast strip
  *    —    —   <StatsBar />             4 hero-stat counters
  *    —    —   <ROISection />           90-day performance snapshot
  *    —    —   <MobileLiveTickerSection /> Mobile-only live activity ticker
+ *    —    —   <DemandTriggers />       9 demand moments — operator credibility
+ *                                       interlude right before pricing
  *    8    07  <QuickCalculator />      Revenue calculator (surfaces $749)
  *    9    08  <Faq />                  Objection handling (8 Q+A pairs)
  *   10    09  <CTASection />           Final CTA (audit form + Cal.com)
  *
- * Operator-credibility slot is covered by the Hero trust badge +
- * footer "Built by an operator" line.
+ * SaaS flow: product → differentiator → problem/pain → proof → operator
+ * credibility → price → objections → close. Operator-cred sits late in
+ * the funnel as a final reassurance, not high-up filler.
  * ───────────────────────────────────────────────────────────────────────────
  */
 
@@ -101,7 +103,7 @@ function SolutionVisuals() {
             className="text-sm mt-1 mx-auto"
             style={{ color: "var(--text-secondary)", maxWidth: "480px" }}
           >
-            First click to signed lease. Every step tracked. Every dollar accounted for.
+            Demand generation, custom landing pages, embedded rentals — and the receipts that prove which ads filled which units.
           </p>
         </div>
         <FeatureHighlights isVisible={isVisible} />
@@ -135,13 +137,13 @@ function BeforeAfterSection() {
               color: "var(--color-dark)",
             }}
           >
-            Stop guessing. Start knowing.
+            Stop waiting. Start filling.
           </h2>
           <p
             className="text-sm mt-1 mx-auto"
             style={{ color: "var(--text-secondary)", maxWidth: "420px" }}
           >
-            See how StorageAds replaces every broken workflow.
+            How StorageAds replaces the workflows operators are still running by hand.
           </p>
         </div>
         <BeforeAfterComparison isVisible={isVisible} />
@@ -241,16 +243,12 @@ export default function HomePage() {
     <>
       <Nav />
       <main id="main-content">
-        {/* Hero (lean: H1, subhead, 2 CTAs, 1 trust badge) */}
+        {/* Hero */}
         <Hero />
 
         {/* §01 — How it works (starts the page, per Blake) */}
         <HowItWorks />
         <SolutionVisuals />
-
-        {/* Demand triggers — operator-credibility interlude before the system.
-            "We see these triggers in our own facilities every week." */}
-        <DemandTriggers />
 
         {/* §02 — The system (6 parts wired together) */}
         <SystemOverview />
@@ -260,12 +258,12 @@ export default function HomePage() {
         <FourWayComparison />
         <BeforeAfterSection />
 
-        {/* §04 — Cost of inaction */}
-        <InactionTimeline />
-
-        {/* §05 — The underlying problem */}
+        {/* §04 — The underlying problem */}
         <ProblemStatement />
         <BecauseLetterboard />
+
+        {/* §05 — Cost of inaction (problem amplifier, follows the refrain) */}
+        <InactionTimeline />
 
         {/* §06 — Proof / Angelo numbers (demoted from above-the-fold) */}
         <Results />
@@ -274,7 +272,11 @@ export default function HomePage() {
         <ROISection />
         <MobileLiveTickerSection />
 
-        {/* Slot 7 (Operator credibility) — covered by Hero badge + Footer */}
+        {/* Demand triggers — operator-credibility / market knowledge.
+            Moved from after SolutionVisuals (was too high up) to right
+            before pricing so it acts as the final "why us — we live this
+            market every week" reassurance before the conversion ask. */}
+        <DemandTriggers />
 
         {/* §07 — Pricing (partial fit; QuickCalculator surfaces $749) */}
         <QuickCalculator />
