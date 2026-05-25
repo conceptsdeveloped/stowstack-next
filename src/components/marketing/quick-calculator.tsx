@@ -12,26 +12,31 @@ export default function QuickCalculator() {
   const [occupancy, setOccupancy] = useState(78);
 
   const avgRate = 130;
+  const avgTenureMonths = 14;
   const vacantUnits = Math.round(totalUnits * (1 - occupancy / 100));
   const monthlyLoss = vacantUnits * avgRate;
   const annualLoss = monthlyLoss * 12;
-  const storageadsCost = 999;
+  const storageadsCost = 749;
+  const adSpendFloor = 1000;
   // Scale projected move-ins with vacant units (roughly 15-25% of vacants recoverable)
   const projectedMoveIns = Math.max(2, Math.min(30, Math.round(vacantUnits * 0.2)));
   const projectedRecovery = projectedMoveIns * avgRate;
+  const annualRevenueLift = projectedMoveIns * 12 * avgRate * avgTenureMonths;
+  const annualAllInCost = (storageadsCost + adSpendFloor) * 12;
   const roi =
-    storageadsCost + 1500 > 0
-      ? Math.round((projectedRecovery / (storageadsCost + 1500)) * 10) / 10
+    annualAllInCost > 0
+      ? Math.round((annualRevenueLift / annualAllInCost) * 10) / 10
       : 0;
 
   return (
     <section
+      id="calculator"
       aria-label="Quick revenue calculator"
       className="section relative overflow-hidden"
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="06" kicker="REVENUE CALCULATOR" right={<SectionMeta text="LEDGER · LIVE" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="07" kicker="REVENUE CALCULATOR" right={<SectionMeta text="LEDGER · LIVE" />} style={{ marginBottom: 28 }} />
         <div
           className={`transition-all duration-700 ${
             isVisible
@@ -171,8 +176,8 @@ export default function QuickCalculator() {
                     className="text-xs mt-1"
                     style={{ color: "var(--text-tertiary)" }}
                   >
-                    ${projectedRecovery.toLocaleString()}/mo recovered · {roi}x
-                    revenue multiple on Growth plan
+                    ${projectedRecovery.toLocaleString()}/mo recovered ·{" "}
+                    {roi}x annual return on System plan (at {avgTenureMonths}-mo avg tenure)
                   </p>
                 </div>
 
@@ -180,7 +185,7 @@ export default function QuickCalculator() {
                   className="text-[10px] text-center leading-relaxed"
                   style={{ color: "var(--text-tertiary)" }}
                 >
-                  Assumes ${avgRate}/mo avg unit rate · $999/mo Growth plan · $1,500/mo ad spend · ~20% vacancy recovery rate
+                  Assumes ${avgRate}/mo avg unit rate · ${storageadsCost}/mo System plan · ${adSpendFloor}/mo ad spend floor · ~20% vacancy recovery rate
                 </p>
 
                 <a
