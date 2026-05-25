@@ -1710,6 +1710,26 @@ model changelog_entries {
   @@index([published_at(sort: Desc)], map: "idx_changelog_published")
 }
 
+// Roadmap 10 phase 2 (revised): audit log of every PMS-tenant → partial_lead
+// match attempt. Includes ambiguous cases that surface in admin review.
+model lead_match_attempts {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String        @db.Uuid
+  partial_lead_id   String?       @db.Uuid
+  facility_id       String        @db.Uuid
+  match_method      String        @db.VarChar(32) // "phone_exact" | "email_exact" | "name_last4_phone" | "no_match"
+  confidence        Float
+  status            String        @db.VarChar(16) // "matched" | "ambiguous" | "no_match" | "rejected"
+  candidates        Json?         @default("[]")
+  reviewed_at       DateTime?     @db.Timestamptz(6)
+  reviewed_by       String?       @db.VarChar(64)
+  attempted_at      DateTime      @default(now()) @db.Timestamptz(6)
+
+  @@index([tenant_id, attempted_at(sort: Desc)], map: "idx_lead_match_tenant")
+  @@index([facility_id, status], map: "idx_lead_match_facility_status")
+  @@index([status, attempted_at(sort: Desc)], map: "idx_lead_match_status")
+}
+
 // Roadmap 10 phase 1 (revised): append-only status history for partial_leads.
 // partial_leads only carries current lead_status; this table preserves every
 // transition so the attribution chain can answer "when did this lead become a

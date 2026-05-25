@@ -14,6 +14,7 @@ import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidUuid } from "@/lib/validation";
 import { enrollIfMovedOut } from "@/lib/moveout-trigger";
+import { attemptAndPersistLeadMatch } from "@/lib/lead-matching";
 
 export async function OPTIONS() {
   return v1CorsResponse();
@@ -135,6 +136,7 @@ export async function POST(request: NextRequest) {
   try {
     let imported = 0;
     let enrolled = 0;
+    let matched = 0;
     const errors: { name: string; error: string }[] = [];
 
     for (const t of tenantList) {
@@ -177,13 +179,40 @@ export async function POST(request: NextRequest) {
             // Enrollment failure is non-fatal; import already succeeded.
           }
         }
+
+        // Attribution: when an active tenant lands via PMS import, try to
+        // match them to a partial_lead and close the loop. Skip already
+        // moved-out tenants (no inquiry-to-move-in flow).
+        if (
+          inserted.length &&
+          (t.status === "active" || !t.status) &&
+          t.moveInDate
+        ) {
+          try {
+            const matchResult = await attemptAndPersistLeadMatch(
+              db,
+              {
+                id: inserted[0].id,
+                facility_id: fId,
+                name: t.name,
+                email: t.email,
+                phone: t.phone,
+                move_in_date: t.moveInDate,
+              },
+              { changedBy: `api_key:${apiKey.id}` },
+            );
+            if (matchResult.linked) matched++;
+          } catch {
+            // Match failure is non-fatal; import already succeeded.
+          }
+        }
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : "Unknown error";
         errors.push({ name: t.name, error: message });
       }
     }
 
-    return v1Json({ imported, enrolled, total: tenantList.length, errors });
+    return v1Json({ imported, enrolled, matched, total: tenantList.length, errors });
   } catch {
     return v1Error("Failed to import tenants", 500);
   }
