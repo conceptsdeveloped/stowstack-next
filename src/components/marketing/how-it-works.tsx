@@ -5,8 +5,8 @@ import { useInView } from "./use-in-view";
 const STEPS = [
   {
     number: "01",
-    title: "We create demand.",
-    body: "Meta ads reach people before they search. Google PPC captures people already looking. Retargeting brings back the ones who left. Most operators only do one of these. We run all three.",
+    title: "We bring you renters.",
+    body: "Meta ads reach people before they search. Google captures the ones already looking. Retargeting brings back the ones who left. Most operators only do one of these. We run all three.",
   },
   {
     number: "02",
@@ -28,7 +28,7 @@ const STEPS = [
   {
     number: "04",
     title: "We tell you exactly which ad produced which move-in.",
-    body: "Cost per reservation. Cost per move-in. Conversion rate by campaign, ad, audience, keyword, and creative. Not clicks. Not impressions. Revenue.",
+    body: "Cost per reservation. Cost per move-in. Reservation rate by campaign, ad, keyword, and creative. Not clicks. Not likes. Move-ins.",
   },
 ];
 
@@ -54,15 +54,14 @@ export default function HowItWorks() {
             className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            From ad impression to signed lease. One system. Full visibility.
+            From ad click to signed lease. One system. You see what&apos;s working.
           </h2>
           <p
             className="mt-4 mx-auto max-w-2xl"
             style={{ color: "var(--text-secondary)" }}
           >
-            Every step connects. The ad drives the click, the landing page
-            converts it, the rental flow closes it, and attribution tells you
-            which ad deserves the credit.
+            Every step connects. The ad gets the click, the landing page books
+            the unit, and the dashboard tells you which ad filled it.
           </p>
         </div>
 

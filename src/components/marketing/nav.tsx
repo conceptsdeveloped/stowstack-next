@@ -646,7 +646,7 @@ export default function Nav() {
                 fontFamily: "var(--font-heading)",
               }}
             >
-              Marketing automation for self-storage
+              Built by storage operators
             </p>
             <p
               className="text-[11px] mt-0.5"

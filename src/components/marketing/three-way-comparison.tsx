@@ -17,9 +17,9 @@ const ROWS = [
     storageads: "Embedded on your branded page",
   },
   {
-    label: "Attribution",
+    label: "What You Can See",
     diy: '"We got some calls this month"',
-    agency: "Clicks and impressions (40% may be existing tenants)",
+    agency: "Clicks and likes (40% may be existing tenants)",
     storageads: "Cost per move-in by specific ad",
   },
   {
@@ -87,14 +87,14 @@ export default function ThreeWayComparison() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Doing It Yourself vs. Hiring an Agency vs.{" "}
-            <span style={{ color: "var(--color-gold)" }}>Using a Demand Engine</span>
+            Doing it yourself. Hiring an agency. Or{" "}
+            <span style={{ color: "var(--color-gold)" }}>plugging in a system.</span>
           </h2>
           <p
             className="mt-4 text-lg"
             style={{ color: "var(--text-secondary)" }}
           >
-            Three approaches. Only one fills units and proves it.
+            Three options. One fills units and shows you how.
           </p>
         </div>
 

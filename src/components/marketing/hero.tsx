@@ -137,17 +137,17 @@ const STATS = [
 ];
 
 const CAPABILITIES = [
-  { icon: Megaphone, label: "Meta & Google Ads", desc: "Full-funnel campaigns across platforms", color: "var(--color-blue)" },
-  { icon: FileText, label: "Landing Pages", desc: "Ad-specific, conversion-optimized", color: "var(--color-gold)" },
-  { icon: Target, label: "Full Attribution", desc: "Ad → page → reservation → move-in", color: "var(--color-green)" },
-  { icon: Zap, label: "storEDGE Integration", desc: "Embedded rental & reservation flow", color: "#8a70b0" },
-  { icon: BarChart3, label: "Revenue Analytics", desc: "ROAS by creative & campaign", color: "var(--color-gold)" },
-  { icon: Eye, label: "A/B Testing", desc: "Revenue-based winner selection", color: "var(--color-blue)" },
-  { icon: Sparkles, label: "AI Creative Studio", desc: "Generate ads, copy & pages", color: "var(--color-green)" },
-  { icon: Activity, label: "Live Monitoring", desc: "Real-time performance alerts", color: "#8a70b0" },
+  { icon: Megaphone, label: "Meta & Google Ads", desc: "Both ad platforms, one operator", color: "var(--color-blue)" },
+  { icon: FileText, label: "Landing Pages", desc: "One page per ad, built for the reserve button", color: "var(--color-gold)" },
+  { icon: Target, label: "Ad → Move-in", desc: "Every move-in traced to the ad that produced it", color: "var(--color-green)" },
+  { icon: Zap, label: "storEDGE Integration", desc: "Reserve right on your branded page", color: "#8a70b0" },
+  { icon: BarChart3, label: "What It Cost", desc: "What you spent. What each move-in cost.", color: "var(--color-gold)" },
+  { icon: Eye, label: "A/B Testing", desc: "Winners picked by move-ins, not clicks", color: "var(--color-blue)" },
+  { icon: Sparkles, label: "AI Creative Studio", desc: "Ad copy, headlines, and pages, drafted for you", color: "var(--color-green)" },
+  { icon: Activity, label: "Live Monitoring", desc: "Real-time alerts on what's filling units", color: "#8a70b0" },
 ];
 
-const TYPEWRITER_WORDS = ["Fill units.", "Prove ROAS.", "Kill bad spend.", "Track every move-in.", "Win your zip code."];
+const TYPEWRITER_WORDS = ["Fill units.", "Stop guessing.", "Kill bad spend.", "Track every move-in.", "Win your zip code."];
 
 const NOTIFICATION_FEED = [
   { text: "New move-in: Climate Control 10x10", time: "2m", color: "var(--color-blue)", icon: "🎯" },
@@ -165,17 +165,17 @@ const PIPELINE_STEPS = [
 ];
 
 const FEATURE_HIGHLIGHTS = [
-  { icon: LineChart, title: "Revenue Attribution", stat: "35x ROAS", desc: "Track every dollar from ad impression to signed lease. Know exactly which campaigns produce move-ins." },
-  { icon: FileText, title: "Smart Landing Pages", stat: "8.7% CVR", desc: "Custom pages per ad with embedded storEDGE rental. No more generic website sends." },
-  { icon: Sparkles, title: "AI Creative Engine", stat: "4x faster", desc: "Generate ad copy, headlines, and page variants. Test winners automatically by revenue." },
-  { icon: PieChart, title: "Occupancy Intelligence", stat: "Live data", desc: "Market-wide occupancy and pricing intelligence scraped from every competitor in your radius." },
+  { icon: LineChart, title: "Ad → Move-in", stat: "35x return", desc: "We tie every move-in to the ad that produced it. You see what's filling the place." },
+  { icon: FileText, title: "Smart Landing Pages", stat: "8.7% reserve rate", desc: "One page per ad. Your facility, your rates, the reserve button. No more sending people to a generic website." },
+  { icon: Sparkles, title: "AI Creative Studio", stat: "4x faster", desc: "Ad copy, headlines, and page variants drafted for you. Winners picked by what filled units." },
+  { icon: PieChart, title: "Occupancy Intelligence", stat: "Live data", desc: "What every facility in your trade area is charging and how full they are. Scraped daily." },
 ];
 
 const BEFORE_AFTER = [
-  { before: "Vanity metrics (clicks, impressions)", after: "Revenue attribution per ad" },
-  { before: "Generic website as landing page", after: "Custom LP per campaign" },
-  { before: "Monthly agency PDF report", after: "Real-time live dashboard" },
-  { before: "Guessing which ads work", after: "Move-in level tracking" },
+  { before: "Clicks and likes (and a monthly PDF)", after: "Move-ins per ad, per campaign" },
+  { before: "Generic website as landing page", after: "One page per ad, built for the reserve button" },
+  { before: "Monthly agency PDF report", after: "One dashboard. Live numbers." },
+  { before: "Guessing which ads work", after: "You see what filled the units" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -367,7 +367,7 @@ function LiveFeed({ isVisible }: { isVisible: boolean }) {
    ═══════════════════════════════════════════ */
 
 function DashboardMockup({ isVisible }: { isVisible: boolean }) {
-  const tabs = ["Overview", "Campaigns", "Pages", "Attribution"];
+  const tabs = ["Overview", "Campaigns", "Pages", "Move-ins"];
   const [activeTab, setActiveTab] = useAutoTab(tabs.length, 4000, isVisible);
   const { ref: tiltRef, tilt } = useMouseTilt(isVisible);
 
@@ -467,7 +467,7 @@ function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                   {/* Chart */}
                   <div className="relative rounded-xl border overflow-hidden transition-all duration-600" style={{ borderColor: "var(--border-subtle)", background: "var(--color-light)", transitionDelay: "800ms", opacity: isVisible ? 1 : 0 }}>
                     <div className="flex items-center justify-between px-3 pt-2">
-                      <span className="text-[10px] sm:text-[11px] font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>Revenue Attribution</span>
+                      <span className="text-[10px] sm:text-[11px] font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)" }}>Revenue by Ad Source</span>
                       <div className="flex gap-2">
                         {[{ l: "Meta", c: "var(--color-blue)" }, { l: "Google", c: "var(--color-gold)" }, { l: "Organic", c: "var(--color-green)" }].map((leg) => (
                           <span key={leg.l} className="flex items-center gap-0.5 text-[8px]" style={{ color: "var(--text-tertiary)" }}>
@@ -967,7 +967,7 @@ function ROITeaser({ isVisible }: { isVisible: boolean }) {
 
         {/* Visual bar */}
         <div className="mt-4 pt-4 border-t flex items-center gap-3" style={{ borderColor: "var(--border-subtle)" }}>
-          <span className="text-[11px] font-semibold flex-shrink-0" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>ROAS</span>
+          <span className="text-[11px] font-semibold flex-shrink-0" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>Return</span>
           <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: "var(--border-subtle)" }}>
             <div
               className="h-full rounded-full transition-all duration-1500"
@@ -1002,7 +1002,7 @@ export default function Hero() {
   const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
-    <section id="hero" aria-label="StorageAds: full-funnel demand engine for self-storage" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
+    <section id="hero" aria-label="StorageAds: the marketing system we built for our own facilities" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
       <HeroStyles />
       <DotGrid />
 
@@ -1063,7 +1063,7 @@ export default function Hero() {
                 {[
                   { icon: Layers, text: "storEDGE integrated" },
                   { icon: Globe, text: "Tested on our own facilities first" },
-                  { icon: Star, text: "Full-funnel attribution" },
+                  { icon: Star, text: "Every ad → every move-in" },
                 ].map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
@@ -1124,7 +1124,7 @@ export default function Hero() {
               Everything you need to fill units
             </h2>
             <p className="text-sm mt-1 mx-auto" style={{ color: "var(--text-secondary)", maxWidth: "480px" }}>
-              From the first impression to the signed lease: every step tracked, every dollar accounted for.
+              Ad → page → reservation → move-in. Every step tracked. Every dollar accounted for.
             </p>
           </div>
           <FeatureHighlights isVisible={featVisible} />
@@ -1160,7 +1160,7 @@ export default function Hero() {
               className="text-lg sm:text-xl font-semibold"
               style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}
             >
-              Full platform capabilities
+              Everything in one place
             </h2>
           </div>
           <CapabilitiesGrid isVisible={capsVisible} />

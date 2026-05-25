@@ -111,9 +111,9 @@ export default function CTASection() {
             className="mt-4 max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary)" }}
           >
-            Get a free facility audit. We&apos;ll look at your current digital
-            presence, ad spend, landing pages, rental flow, and competitive
-            landscape: then show you exactly where you&apos;re losing move-ins.
+            Get a free facility audit. We&apos;ll look at your Google listing,
+            your ads, your website, your rental flow, and what your competitors
+            are doing — then show you where you&apos;re leaking move-ins.
           </p>
           <p
             className="mt-2"

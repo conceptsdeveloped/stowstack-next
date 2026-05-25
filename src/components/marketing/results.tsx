@@ -118,14 +118,14 @@ export default function Results() {
             Growth tier produces 5-10 incremental move-ins per month, you&apos;re
             generating $6,000-18,000 in annualized revenue from a $1,500/mo
             investment. That&apos;s a 4-12x return before the system even starts
-            optimizing.
+            tightening up.
           </p>
           <p
             className="text-sm leading-relaxed mt-4"
             style={{ color: "var(--text-secondary)" }}
           >
-            As A/B testing and attribution data compound over 6+ months, cost
-            per move-in drops and conversion rate climbs. The ROI only gets
+            As A/B testing and move-in data compound over 6+ months, cost
+            per move-in drops and the reserve rate climbs. The math only gets
             better with time.
           </p>
         </div>

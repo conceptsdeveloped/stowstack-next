@@ -15,8 +15,8 @@ const PROBLEMS = [
   },
   {
     heading: "You can't tell what's working.",
-    body: "Which ad produced that move-in last Tuesday? Which campaign is actually driving revenue? Which headline converts better? You don't know. Your agency doesn't know either. They're optimizing for clicks, not leases.",
-    highlight: "optimizing for clicks, not leases",
+    body: "Which ad produced that move-in last Tuesday? Which campaign actually filled the unit? Which headline brought the renter in? You don't know. Your agency doesn't know either. They're chasing clicks, not leases.",
+    highlight: "chasing clicks, not leases",
   },
 ];
 
@@ -52,8 +52,8 @@ export default function ProblemStatement() {
               fontSize: "var(--text-body)",
             }}
           >
-            National occupancy is at 77%. Google CPCs are up 45%. Up to 90% of
-            lead conversions go unattributed. Fewer than 5% of independent
+            National occupancy is at 77%. Google CPCs are up 45%. Most operators
+            can&apos;t tell which ads filled which units. Fewer than 5% of independent
             operators run Meta ads — yet Meta CPCs are 75–95% cheaper than Google.
           </p>
           <p

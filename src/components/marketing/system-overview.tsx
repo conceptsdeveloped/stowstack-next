@@ -3,89 +3,89 @@
 import { useState } from "react";
 import { useInView } from "./use-in-view";
 
-const COMPONENTS = [
+const PARTS = [
   {
-    id: "intelligence",
+    id: "market",
     number: "01",
-    title: "Demand Intelligence",
+    title: "Your market, mapped",
     summary:
-      "We analyze your market, competitors, pricing, occupancy, and demographics to find where demand exists and how to capture it.",
+      "We pull your competitors, their pricing, their reviews, and your trade area. You see what they're charging on the units you're competing for.",
     detail: [
       "Competitor pricing and review tracking",
-      "Census demographics and renter data",
-      "Search volume estimation for your area",
+      "Census demographics for your trade area",
+      "Search volume for storage in your zip code",
     ],
   },
   {
-    id: "engine",
+    id: "ads",
     number: "02",
-    title: "Ad Engine",
+    title: "Meta and Google ads",
     summary:
-      "Meta ads create new demand. Google PPC captures search intent. Retargeting brings back visitors. All three channels, managed together.",
+      "Meta ads reach renters before they search. Google captures the ones already looking. Retargeting brings back the ones who left. One operator running all three.",
     detail: [
-      "Facebook + Instagram ad campaigns",
-      "Google Search and Display PPC",
-      "Multi-window retargeting sequences",
+      "Facebook and Instagram campaigns",
+      "Google Search and Display",
+      "Retargeting across both",
     ],
   },
   {
     id: "pages",
     number: "03",
-    title: "Landing Pages",
+    title: "Landing pages built for the ad",
     summary:
-      "Every ad gets its own page with its own headline, offer, and tracking. Not your homepage. A conversion-optimized page built for that specific audience.",
+      "Each ad gets its own page. Your facility. Your rates. Your offer. Built around your storEDGE reserve button so the renter books on your branded page.",
     detail: [
-      "Ad-specific URLs with unique offers",
-      "8.7% average conversion rate",
-      "Mobile-first, fast-loading design",
+      "One page per ad, with the offer that ad promised",
+      "8.7% average reservation rate",
+      "Fast on mobile, built for the reserve button",
     ],
   },
   {
-    id: "conversion",
+    id: "reserve",
     number: "04",
-    title: "Conversion Flow",
+    title: "Reserve right on the page",
     summary:
-      "Embedded storEDGE rental functionality. The customer reserves on YOUR branded page: no redirect, no friction. They stay on your site the entire time.",
+      "storEDGE handles the unit, the rate, the reservation. The renter never leaves your page. The reservation lands in your storEDGE the same as a walk-in.",
     detail: [
-      "Embedded reservation and move-in flow",
-      "Customer stays on your branded page",
-      "Real-time unit availability and pricing",
+      "Embedded storEDGE reservation widget",
+      "Renter stays on your branded page",
+      "Live unit availability and pricing",
     ],
   },
   {
-    id: "attribution",
+    id: "tracking",
     number: "05",
-    title: "Attribution",
+    title: "Ad → move-in tracking",
     summary:
-      "Every move-in traces to the specific ad that produced it. Cost per reservation. Cost per move-in. ROAS by creative. Revenue, not clicks.",
+      "Every move-in traces back to the ad that produced it. What you spent. What you got. What each move-in cost. Numbers, not adjectives.",
     detail: [
-      "Ad \u2192 page \u2192 reservation \u2192 move-in tracking",
+      "Click → page → reservation → move-in",
       "Cost per move-in by campaign",
-      "ROAS by creative and audience",
+      "Return on ad spend by creative",
     ],
   },
   {
-    id: "optimize",
+    id: "compound",
     number: "06",
-    title: "Optimization Loop",
+    title: "Gets sharper every month",
     summary:
-      "A/B testing on headlines, offers, and layouts. Winners are picked by actual move-in behavior. The system gets smarter every month.",
+      "A/B tests on headlines, offers, and pages. Winners get picked by move-ins, not clicks. The system you turn on this month is better six months from now.",
     detail: [
-      "Revenue-based A/B testing",
-      "Creative performance scoring",
+      "Move-in based A/B testing",
+      "Creative scored by what filled units",
       "Compounding returns over time",
     ],
   },
 ];
 
-export default function DemandEngineVisual() {
+export default function SystemOverview() {
   const { ref, isVisible } = useInView();
   const [activeId, setActiveId] = useState<string | null>(null);
 
   return (
     <section
-      id="demand-engine"
-      aria-label="The six components of the StorageAds demand engine"
+      id="system"
+      aria-label="The six parts of the StorageAds system"
       className="section"
       style={{ background: "var(--color-light)" }}
     >
@@ -101,8 +101,8 @@ export default function DemandEngineVisual() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            One engine. Six capabilities.{" "}
-            <span style={{ color: "var(--color-gold)" }}>Every move-in attributed.</span>
+            One system. Six parts.{" "}
+            <span style={{ color: "var(--color-gold)" }}>Every move-in tracked.</span>
           </h2>
           <p
             className="mt-4"
@@ -111,16 +111,16 @@ export default function DemandEngineVisual() {
               fontSize: "var(--text-body)",
             }}
           >
-            Ads, pages, attribution, optimization: all connected. Not an
-            agency guessing on your behalf. A system that shows you what&apos;s working and what isn&apos;t.
+            Ads, pages, the reserve button, the tracking. All connected. Not an
+            agency guessing on your behalf. A system that shows you what&apos;s filling units and what isn&apos;t.
           </p>
         </div>
 
         <div className="space-y-0">
-          {COMPONENTS.map((comp, i) => {
-            const isActive = activeId === comp.id;
+          {PARTS.map((part, i) => {
+            const isActive = activeId === part.id;
             return (
-              <div key={comp.id}>
+              <div key={part.id}>
                 {/* Divider */}
                 <div
                   className={`h-px transition-all duration-700 ${
@@ -133,7 +133,7 @@ export default function DemandEngineVisual() {
                 />
 
                 <button
-                  onClick={() => setActiveId(isActive ? null : comp.id)}
+                  onClick={() => setActiveId(isActive ? null : part.id)}
                   aria-expanded={isActive}
                   className={`w-full text-left py-8 transition-all duration-500 cursor-pointer ${
                     isVisible
@@ -147,7 +147,7 @@ export default function DemandEngineVisual() {
                       className="text-sm font-semibold tabular-nums flex-shrink-0"
                       style={{ color: "var(--color-gold)", fontFamily: "var(--font-heading)" }}
                     >
-                      {comp.number}
+                      {part.number}
                     </span>
                     <div className="flex-1">
                       <div className="flex items-baseline justify-between gap-4">
@@ -158,13 +158,13 @@ export default function DemandEngineVisual() {
                             color: "var(--text-primary)",
                           }}
                         >
-                          {comp.title}
+                          {part.title}
                         </h3>
                         <span
                           className="text-sm flex-shrink-0 hidden md:block"
                           style={{ color: "var(--text-tertiary)" }}
                         >
-                          {isActive ? "\u2212" : "+"}
+                          {isActive ? "−" : "+"}
                         </span>
                       </div>
                       <p
@@ -174,7 +174,7 @@ export default function DemandEngineVisual() {
                           maxWidth: "580px",
                         }}
                       >
-                        {comp.summary}
+                        {part.summary}
                       </p>
 
                       {/* Expandable detail */}
@@ -186,7 +186,7 @@ export default function DemandEngineVisual() {
                         }}
                       >
                         <ul className="mt-4 space-y-2">
-                          {comp.detail.map((item, j) => (
+                          {part.detail.map((item, j) => (
                             <li
                               key={j}
                               className="flex items-center gap-3 text-sm"

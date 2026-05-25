@@ -92,8 +92,7 @@ export default function InactionTimeline() {
             className="mt-4 text-lg mx-auto"
             style={{ color: "var(--text-secondary)" }}
           >
-            Here&apos;s what happens over 6 months when you don&apos;t have a
-            demand engine.
+            Here&apos;s what happens over 6 months when nothing changes.
           </p>
         </div>
 

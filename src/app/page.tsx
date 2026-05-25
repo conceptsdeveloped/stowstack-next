@@ -3,8 +3,8 @@ import Hero from "@/components/marketing/hero";
 import ProblemStatement from "@/components/marketing/problem-statement";
 import Nav from "@/components/marketing/nav";
 
-const DemandEngineVisual = dynamic(
-  () => import("@/components/marketing/demand-engine-visual"),
+const SystemOverview = dynamic(
+  () => import("@/components/marketing/system-overview"),
 );
 const HowItWorks = dynamic(
   () => import("@/components/marketing/how-it-works"),
@@ -31,7 +31,7 @@ export default function HomePage() {
       <main id="main-content">
         <Hero />
         <ProblemStatement />
-        <DemandEngineVisual />
+        <SystemOverview />
         <HowItWorks />
         <ThreeWayComparison />
         <InactionTimeline />
