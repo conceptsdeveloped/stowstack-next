@@ -169,6 +169,7 @@ model call_logs {
   created_at            DateTime              @default(now()) @db.Timestamptz(6)
   facilities            facilities            @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   call_tracking_numbers call_tracking_numbers @relation(fields: [tracking_number_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  partial_leads         partial_leads[]
   updated_at            DateTime              @updatedAt @db.Timestamptz(6)
 
   @@index([created_at(sort: Desc)], map: "idx_call_logs_created")
@@ -1107,9 +1108,19 @@ model partial_leads {
   status_updated_at   DateTime?      @db.Timestamptz(6)
   lead_notes          String?
   deleted_at          DateTime?      @db.Timestamptz(6)
+  // Roadmap 10 phase 1 (revised): attribution scaffold
+  visitor_id          String?        @db.VarChar(64)
+  source_channel      String?        @db.VarChar(32)
+  source_subchannel   String?        @db.VarChar(64)
+  call_log_id         String?        @db.Uuid
+  matched_tenant_id   String?        @db.Uuid
+  audit_submission_id String?        @db.Uuid
   facilities            facilities?            @relation(fields: [facility_id], references: [id], onUpdate: NoAction)
   landing_pages         landing_pages?         @relation(fields: [landing_page_id], references: [id], onUpdate: NoAction)
   nurture_enrollments   nurture_enrollments[]
+  call_logs             call_logs?             @relation(fields: [call_log_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  matched_tenant        tenants?               @relation("LeadTenantMatch", fields: [matched_tenant_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  status_events         lead_status_events[]
 
   @@index([created_at(sort: Desc)], map: "idx_partial_leads_created")
   @@index([email], map: "idx_partial_leads_email")
@@ -1120,6 +1131,9 @@ model partial_leads {
   @@index([recovery_status, next_recovery_at], map: "idx_partial_leads_recovery")
   @@index([session_id], map: "idx_partial_leads_session")
   @@index([utm_campaign], map: "idx_partial_leads_utm_campaign")
+  @@index([visitor_id], map: "idx_partial_leads_visitor")
+  @@index([matched_tenant_id], map: "idx_partial_leads_matched_tenant")
+  @@index([call_log_id], map: "idx_partial_leads_call_log")
 }
 
 model places_data {
@@ -1426,6 +1440,7 @@ model tenants {
   tenant_communications                                          tenant_communications[]
   tenant_payments                                                tenant_payments[]
   tenant_sensitivity_features                                    tenant_sensitivity_features[]
+  matched_from_leads                                             partial_leads[]           @relation("LeadTenantMatch")
   facilities                                                     facilities                @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   nurture_enrollments                                            nurture_enrollments[]
   upsell_opportunities                                           upsell_opportunities[]
@@ -1693,6 +1708,27 @@ model changelog_entries {
   created_at   DateTime  @default(now()) @db.Timestamptz(6)
 
   @@index([published_at(sort: Desc)], map: "idx_changelog_published")
+}
+
+// Roadmap 10 phase 1 (revised): append-only status history for partial_leads.
+// partial_leads only carries current lead_status; this table preserves every
+// transition so the attribution chain can answer "when did this lead become a
+// qualified inquiry / tour_booked / moved_in?"
+model lead_status_events {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  partial_lead_id  String        @db.Uuid
+  from_status      String?       @db.VarChar(32)
+  to_status        String        @db.VarChar(32)
+  changed_at       DateTime      @default(now()) @db.Timestamptz(6)
+  changed_by       String?       @db.VarChar(64) // admin email, "system", "cron:<name>", etc.
+  source           String?       @db.VarChar(32) // "phone_call" | "chat" | "form" | "pms_import" | "manual"
+  source_ref_id    String?       @db.Uuid        // pointer into call_logs / tenants / etc. depending on source
+  notes            String?
+
+  partial_leads    partial_leads @relation(fields: [partial_lead_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([partial_lead_id, changed_at(sort: Desc)], map: "idx_lead_status_events_lead")
+  @@index([to_status, changed_at(sort: Desc)], map: "idx_lead_status_events_status")
 }
 
 // Roadmap 08 phase 2: weekly snapshot of price-sensitivity features per active
