@@ -122,17 +122,20 @@ export function LiveMovesMini() {
 
 export function LiveAttrMini() {
   const N = 90;
-  const [pts, setPts] = useState<number[]>(() => {
-    const arr: number[] = [];
-    let v = 92;
-    for (let i = 0; i < N; i++) {
-      v += (Math.random() - 0.5) * 0.6 + (92 - v) * 0.04;
-      arr.push(v);
-    }
-    return arr;
-  });
+  // Deterministic flat seed so SSR and first client render match.
+  // Populated with random-walk history on mount, then drifts every 900ms.
+  const [pts, setPts] = useState<number[]>(() => Array.from({ length: N }, () => 92));
 
   useEffect(() => {
+    setPts(() => {
+      const arr: number[] = [];
+      let v = 92;
+      for (let i = 0; i < N; i++) {
+        v += (Math.random() - 0.5) * 0.6 + (92 - v) * 0.04;
+        arr.push(v);
+      }
+      return arr;
+    });
     const id = setInterval(() => {
       setPts((prev) => {
         const last = prev[prev.length - 1];

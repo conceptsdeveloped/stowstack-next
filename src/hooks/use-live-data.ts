@@ -62,12 +62,24 @@ export type ClockState = {
 };
 
 export function useClock(): ClockState {
-  const [now, setNow] = useState(() => new Date());
+  // Start as null so SSR and first client render produce identical placeholder
+  // markup; populate after mount to avoid hydration mismatch on the live clock.
+  const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
+    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
   const pad = (n: number) => String(n).padStart(2, "0");
+  if (!now) {
+    return {
+      date: new Date(0),
+      hms: "--:--:--",
+      hm: "--:--",
+      ymd: "--/--/--",
+      tz: "CT",
+    };
+  }
   return {
     date: now,
     hms: `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`,
@@ -158,10 +170,11 @@ function genMoveEvent(): MoveEvent {
 }
 
 export function useMovesTapeSynthetic(size = 10): MoveEvent[] {
-  const [events, setEvents] = useState<MoveEvent[]>(() =>
-    Array.from({ length: size }).map(() => genMoveEvent()),
-  );
+  // Empty on SSR/first-client-render so markup matches; seed and stream
+  // after mount. Prevents Math.random/Date.now hydration mismatch.
+  const [events, setEvents] = useState<MoveEvent[]>([]);
   useEffect(() => {
+    setEvents(Array.from({ length: size }).map(() => genMoveEvent()));
     const id = setInterval(() => {
       setEvents((prev) => [genMoveEvent(), ...prev].slice(0, size));
     }, 3800);
@@ -175,7 +188,9 @@ export function useMovesTapeSynthetic(size = 10): MoveEvent[] {
 export type SpendTickerItem = { fac: string; val: string; pct: string; dir: "▲" | "▼" };
 
 export function useSpendTicker(): SpendTickerItem[] {
-  const [items] = useState<SpendTickerItem[]>(() => {
+  // Empty on SSR/first-client-render so markup matches; populate after mount.
+  const [items, setItems] = useState<SpendTickerItem[]>([]);
+  useEffect(() => {
     const chunks: SpendTickerItem[] = [];
     for (let i = 0; i < 36; i++) {
       const f = FACILITIES[i % FACILITIES.length];
@@ -184,8 +199,8 @@ export function useSpendTicker(): SpendTickerItem[] {
       const dir: "▲" | "▼" = Number(pct) >= 0 ? "▲" : "▼";
       chunks.push({ fac: f.id, val: `$${dollars}`, pct: `${pct}%`, dir });
     }
-    return chunks;
-  });
+    setItems(chunks);
+  }, []);
   return items;
 }
 
