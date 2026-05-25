@@ -11,6 +11,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { enrollIfMovedOut } from "@/lib/moveout-trigger";
+import { markTenantChurned } from "@/lib/retention-outcomes";
 
 // Convert BigInt values to numbers in raw query results
 function serializeBigInts(obj: unknown): unknown {
@@ -475,6 +476,7 @@ export async function PATCH(req: NextRequest) {
           `;
           for (const tid of ids) {
             await enrollIfMovedOut(tx, tid);
+            await markTenantChurned(tx, tid);
           }
         }, { maxWait: 10000, timeout: 30000 });
         return jsonResponse({ updated: ids.length }, 200, origin);
@@ -550,6 +552,7 @@ export async function PATCH(req: NextRequest) {
 
         if (updated.length) {
           await enrollIfMovedOut(tx, id);
+          await markTenantChurned(tx, id);
         }
 
         return updated;

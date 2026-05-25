@@ -15,6 +15,7 @@ import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidUuid } from "@/lib/validation";
 import { enrollIfMovedOut } from "@/lib/moveout-trigger";
 import { attemptAndPersistLeadMatch } from "@/lib/lead-matching";
+import { markTenantChurned } from "@/lib/retention-outcomes";
 
 export async function OPTIONS() {
   return v1CorsResponse();
@@ -178,6 +179,11 @@ export async function POST(request: NextRequest) {
           } catch {
             // Enrollment failure is non-fatal; import already succeeded.
           }
+          try {
+            await markTenantChurned(db, inserted[0].id);
+          } catch {
+            // Outcome tracking failure is non-fatal.
+          }
         }
 
         // Attribution: when an active tenant lands via PMS import, try to
@@ -291,6 +297,11 @@ export async function PATCH(request: NextRequest) {
         enrolled = result.enrolled;
       } catch {
         // Enrollment failure is non-fatal; update already succeeded.
+      }
+      try {
+        await markTenantChurned(db, id);
+      } catch {
+        // Outcome tracking failure is non-fatal.
       }
     }
 
