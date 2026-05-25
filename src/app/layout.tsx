@@ -1,38 +1,22 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Inter, JetBrains_Mono, Archivo } from "next/font/google";
+import { Manrope } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
 import Analytics from "@/components/analytics";
 import TweaksPanel from "@/components/mono/tweaks-panel";
 import "./globals.css";
 
-// JetBrains Mono is the primary voice across the product.
-// Inter is the humanist-sans escape valve for the rare moments where
-// full monospace would read too harsh or technical — the Anthropic
-// principle of finding the happy medium.
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains",
+// Single typeface: Manrope variable font (weights 200–800). Replaces the
+// prior JetBrains Mono + Inter + Archivo stack. Hierarchy comes from
+// size/weight/case/tracking — not from switching families.
+// Three legacy CSS variables (--font-jetbrains, --font-inter, --font-archivo)
+// remain in globals.css aliased to --font-manrope so the 125+ inline
+// MONO.mono / MONO.serif refs in components resolve to Manrope unchanged.
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-// Archivo — serif/display-sans for headlines under the NULL//TRACE theme.
-// Used sparingly (section titles, hero display number). Mono handles everything else.
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -141,7 +125,7 @@ export default function RootLayout({
       <html
         lang="en"
         data-palette="paper"
-        className={`${jetbrainsMono.variable} ${inter.variable} ${archivo.variable} antialiased`}
+        className={`${manrope.variable} antialiased`}
       >
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />

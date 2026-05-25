@@ -31,9 +31,16 @@
   --hue-b: #c99018;         /* ochre */
   --hue-c: #4a6b2e;         /* olive — POSITIVE slot */
   --hue-d: #5e3880;         /* plum */
-  /* Type families */
-  --mono: var(--font-jetbrains), 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
-  --serif: var(--font-archivo), 'Archivo', 'Neue Haas Grotesk', 'Helvetica Neue', system-ui, sans-serif;
+  /* Type families — single voice: Manrope variable. Both --mono and
+     --serif resolve to Manrope so the 125+ MONO.mono / MONO.serif inline
+     refs in components keep working without per-component edits. */
+  --mono: var(--font-manrope), 'Manrope', system-ui, -apple-system, sans-serif;
+  --serif: var(--font-manrope), 'Manrope', system-ui, -apple-system, sans-serif;
+  /* Back-compat aliases — anything still pointing at the old next/font
+     variables resolves to Manrope. */
+  --font-jetbrains: var(--font-manrope);
+  --font-inter: var(--font-manrope);
+  --font-archivo: var(--font-manrope);
 }
 
 :root[data-palette="oxblood"] {
@@ -127,15 +134,15 @@
   background: var(--bg) !important;
   color: var(--text);
   font-family: var(--mono);
-  font-size: 13px;
-  letter-spacing: 0.01em;
+  font-size: 15px;          /* bumped from 13 — proportional Manrope at 13 reads tiny */
+  line-height: 1.6;         /* body 1.6 per brand spec */
+  letter-spacing: 0;        /* drop the mono 0.01em — Manrope is well-tracked already */
   transition: background 300ms, color 300ms;
 }
 
 /* ─── TYPOGRAPHY ENFORCEMENT ───
-   Stylesheet !important beats regular inline style per CSS spec. We
-   target headings with max specificity + !important so inline
-   fontFamily on h-tags collapses into Archivo. */
+   All h-tags collapse to Manrope (--serif aliased to Manrope). Inline
+   fontFamily on h-tags loses to this stylesheet rule via !important. */
 .urbit-landing h1,
 .urbit-landing h2,
 .urbit-landing h3,
@@ -144,9 +151,9 @@
 .urbit-landing h6 {
   font-family: var(--serif) !important;
   letter-spacing: -0.03em !important;
-  line-height: 1.02 !important;
+  line-height: 1.2 !important;            /* heading 1.2 per brand spec */
   color: var(--text-accent) !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;            /* bump 600→700 — Manrope display weight */
 }
 .urbit-landing p,
 .urbit-landing li,
@@ -160,6 +167,15 @@
 .urbit-landing td,
 .urbit-landing th {
   font-family: var(--mono);
+}
+
+/* UI elements within urbit-landing — tighter line-height than body */
+.urbit-landing button,
+.urbit-landing input,
+.urbit-landing select,
+.urbit-landing textarea,
+.urbit-landing label {
+  line-height: 1.4;
 }
 
 /* ─── PALETTE-COLOR ENFORCEMENT OVER TAILWIND UTILITY CLASSES ───
@@ -390,20 +406,21 @@
   --color-success: var(--hue-c);
 
   /* ── Typography ──
-     One voice. JetBrains Mono is the primary typeface across the product —
-     display, body, chrome, data. Hierarchy comes from size/weight/opacity/
-     case/tracking, not from switching families. Inter is the humanist-sans
-     escape valve (via var(--font-warm)) for moments where full monospace
-     would read too harsh or technical — long-form editorial body,
-     emotional set-pieces. Default is mono; use --font-warm only when
-     earned. */
-  --font-primary: var(--font-jetbrains), "JetBrains Mono", "SF Mono", "Menlo", monospace;
-  --font-warm: var(--font-inter), Inter, -apple-system, system-ui, sans-serif;
+     Single typeface: Manrope variable (weights 200–800). Replaces the prior
+     JetBrains Mono + Inter + Archivo stack. Hierarchy comes from
+     size/weight/case/tracking, not from switching families. No italic —
+     Manrope ships without italic glyphs; emphasis is carried by weight. */
+  --font-primary: var(--font-manrope), "Manrope", system-ui, -apple-system, sans-serif;
+  --font-warm: var(--font-primary);
   --font-heading: var(--font-primary);
   --font-body: var(--font-primary);
   --font-ad-headline: var(--font-primary);
   --font-ad-body: var(--font-primary);
   --font-display: var(--font-primary);
+  /* Legacy aliases for any older inline refs that survived the merge. */
+  --font-poppins: var(--font-primary);
+  --font-lora: var(--font-primary);
+  --font-mono: var(--font-primary);
 
   /* Typography scale */
   --text-hero: clamp(2.5rem, 8vw, 3.5rem);
@@ -414,10 +431,13 @@
   --text-small: clamp(0.8125rem, 2vw, 0.875rem);
   --text-stat: clamp(1.75rem, 5vw, 2.25rem);
 
-  /* Line heights */
-  --leading-tight: 1.15;
-  --leading-snug: 1.2;
-  --leading-normal: 1.6;
+  /* Line heights — body 1.6 · headings 1.2 · UI 1.4 */
+  --leading-display: 1.2;   /* hero / oversized headings */
+  --leading-tight: 1.2;     /* h1–h6 default */
+  --leading-snug: 1.3;      /* small headings, dense UI */
+  --leading-ui: 1.4;        /* buttons, inputs, labels */
+  --leading-body: 1.6;      /* body copy */
+  --leading-normal: 1.6;    /* alias of --leading-body */
   --leading-relaxed: 1.65;
 
   /* Letter spacing */
@@ -499,7 +519,7 @@
   --hover-bg: rgba(0, 0, 0, 0.04);
   --active-bg: rgba(0, 0, 0, 0.06);
   --r: 4px;
-  --font: var(--font-jetbrains), "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  --font: var(--font-manrope), "Manrope", system-ui, -apple-system, sans-serif;
   /* Terminal ANSI palette — used sparingly, only for semantic meaning */
   --t-red: #FF3B30;
   --t-green: #28CD41;
@@ -1347,9 +1367,9 @@ body {
   --border-subtle: #1B2A3D;
   --border-medium: #1B2A3D;
 
-  /* Typography → bold sans-serif */
-  --font-heading: var(--font-inter), "Inter", "Helvetica Neue", Arial, sans-serif;
-  --font-body: var(--font-inter), "Inter", "Helvetica Neue", Arial, sans-serif;
+  /* Typography → Manrope (formerly Inter) */
+  --font-heading: var(--font-manrope), "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --font-body: var(--font-manrope), "Manrope", "Helvetica Neue", Arial, sans-serif;
   --font-display: var(--font-heading);
   --font-ad-headline: var(--font-heading);
   --font-ad-body: var(--font-body);
@@ -1484,4 +1504,18 @@ body {
 /* Sand-toned alternating section backgrounds */
 .neo-brutalist section:nth-child(even) {
   background: #F0ECE3;
+}
+
+/* ═══════════════════════════════════════════
+   NO ITALIC — Manrope ships without italic glyphs.
+   Neutralize anything that would otherwise trigger browser-synthesized
+   faux italic (em / i / cite tags, Tailwind's .italic utility, and inline
+   fontStyle: "italic" we can reach via the universal selector with !important
+   on Tailwind's utility). Emphasis is carried by weight changes.
+   ═══════════════════════════════════════════ */
+em,
+i,
+cite,
+.italic {
+  font-style: normal !important;
 }

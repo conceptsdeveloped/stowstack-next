@@ -348,11 +348,14 @@ export function BarMeter({
   );
 }
 
-/* ─── Display — serif/display headline ─── */
+/* ─── Display — Manrope display headline ───
+   The `italic` prop is accepted for back-compat but ignored — Manrope has
+   no italic glyphs, and browser-synthesized italic looks rough. Emphasis
+   is carried by weight (700+) and size. */
 export function Display({
   children,
   size = 64,
-  italic,
+  italic: _italic,
   style,
 }: {
   children: ReactNode;
@@ -360,14 +363,14 @@ export function Display({
   italic?: boolean;
   style?: CSSProperties;
 }) {
+  void _italic;
   return (
     <span
       style={{
         fontFamily: MONO.serif,
         fontSize: size,
-        fontWeight: 600,
-        fontStyle: italic ? "italic" : "normal",
-        lineHeight: 0.98,
+        fontWeight: 700,
+        lineHeight: 1.05,
         color: MONO.textAccent,
         letterSpacing: "-0.03em",
         ...style,

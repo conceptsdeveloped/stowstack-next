@@ -29,7 +29,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand */}
           <div>
-            <p className="text-lg mb-2" style={{ fontFamily: "var(--font-heading)", fontWeight: 600, letterSpacing: "-0.5px" }}>
+            <p className="text-lg mb-2" style={{ fontFamily: "var(--font-heading)", fontWeight: 700, letterSpacing: "-0.5px" }}>
               <span style={{ color: "var(--color-dark)" }}>storageads</span>
             </p>
             <p

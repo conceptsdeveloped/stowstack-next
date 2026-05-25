@@ -94,9 +94,21 @@ Anthropic-inspired warm palette. CSS custom properties defined in `src/app/globa
 **Error only:** `--color-red` (#B04A3A) — NEVER for CTAs or decorative use
 **Dashboard surfaces:** `--color-dark-surface` (#1e1d1b) for admin/partner dashboards
 
-**Typography:** Poppins (headings, 500-600 max) + Lora (body, 400). No other fonts. No weight below 400 or above 600.
+**Typography:** Manrope variable font (Google Fonts, weights 200–800) for everything — marketing, admin, partner, portal, ad mockups. No second font.
 
-**Logo:** `storageads` — all one color, `--color-dark` on light surfaces, `--color-light` on dark surfaces. Poppins 600, lowercase, no icon. (The old two-tone "storage" + gold "ads" treatment is retired.)
+- **Body / paragraphs:** weight 400, line-height 1.6
+- **UI (buttons, inputs, labels, captions):** weight 500–600, line-height 1.4
+- **Headings (h1–h6):** weight 600–700, line-height 1.2, letter-spacing -0.03em
+- **Display / hero / `<Display>` component:** weight 700–800, line-height 1.05–1.2
+- **Emphasis:** use weight changes (font-medium / font-semibold / font-bold). **Never use italic** — Manrope has no true italic glyphs. globals.css forces `em`, `i`, `cite`, and Tailwind's `.italic` utility to `font-style: normal`; the `Display` component's `italic` prop is accepted but ignored.
+
+CSS variable mapping (so the 125+ inline `MONO.mono` / `MONO.serif` / `var(--font-jetbrains)` / `var(--font-archivo)` / `var(--font-inter)` refs in components all resolve to Manrope without per-file edits): `--mono`, `--serif`, `--font-jetbrains`, `--font-inter`, `--font-archivo`, `--font-primary`, `--font-warm`, `--font-heading`, `--font-body`, `--font-display`, `--font-mono-family`, `--font` (admin scope), and legacy `--font-poppins` / `--font-lora` are all aliased to `--font-manrope`.
+
+Line-height tokens: `--leading-body` (1.6), `--leading-tight` (1.2), `--leading-snug` (1.3), `--leading-ui` (1.4), `--leading-display` (1.2).
+
+**Note on NULL//TRACE layout:** The editorial chrome (`§ 00 · NUMBERS` headers, status bar, live monitor panels, sparklines, ticker tape) was designed around monospace — numeric columns may not align as tightly with Manrope. Layout was intentionally kept; if alignment matters in a future tweak, swap individual data cells to `font-variant-numeric: tabular-nums` or `font-family: ui-monospace`.
+
+**Logo:** `storageads` (`storageads/attr` in the mono nav). Manrope 700, lowercase, no icon. Color treatment palette-aware via `MONO.textAccent` and `MONO.accent` — on paper palette the "ads" portion renders brick red, on oxblood it's gold, etc.
 
 **Rules:**
 - Never use pure #000 or #fff — always brand tokens
