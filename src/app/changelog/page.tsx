@@ -53,7 +53,7 @@ const ENTRIES: ChangelogEntry[] = [
     id: "5",
     date: "2026-03-24",
     type: "feature",
-    title: "Full-funnel attribution",
+    title: "Ad-to-move-in tracking",
     description: "storEDGE embed integration with complete tracking from ad click → landing page → reservation → move-in. Every dollar accounted for.",
   },
 ];

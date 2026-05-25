@@ -209,9 +209,9 @@ export default function CalculatorPage() {
                 sub="per month"
               />
               <StatCard
-                label="ROAS"
+                label="Return on ad spend"
                 value={`${outputs.roas.toFixed(1)}x`}
-                sub="return on ad spend"
+                sub="per dollar spent"
               />
               <StatCard
                 label="Annual Impact"

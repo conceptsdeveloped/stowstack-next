@@ -32,7 +32,7 @@ const FEATURES: ComparisonFeature[] = [
   { category: "Attribution", feature: "Cost per click tracking", storageads: true, competitor: true },
   { category: "Attribution", feature: "Cost per lead tracking", storageads: true, competitor: true },
   { category: "Attribution", feature: "Cost per move-in tracking", storageads: true, competitor: false },
-  { category: "Attribution", feature: "Full-funnel ad-to-lease attribution", storageads: true, competitor: false },
+  { category: "Attribution", feature: "Ad-to-move-in tracking", storageads: true, competitor: false },
   { category: "Pricing", feature: "Transparent per-facility pricing", storageads: true, competitor: false },
   { category: "Pricing", feature: "No long-term contracts", storageads: true, competitor: false },
   { category: "Pricing", feature: "No setup fees", storageads: true, competitor: false },

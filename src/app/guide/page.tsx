@@ -164,7 +164,7 @@ export default function GuidePage() {
             className="text-sm font-semibold tracking-tight"
             style={{ color: "var(--text-primary)" }}
           >
-            Stow<span style={{ color: "var(--accent)" }}>Stack</span>
+            storage<span style={{ color: "var(--accent)" }}>ads</span>
           </span>
           <span
             className="text-xs ml-1"
