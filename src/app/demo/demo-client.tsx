@@ -209,7 +209,7 @@ export default function DemoDashboardClient() {
           <KpiCard icon={DollarSign} label="Total Ad Spend" value={totalSpend} prefix="$" change={`Month ${activeMonth + 1}`} />
           <KpiCard icon={Users} label="Total Leads" value={totalLeads} change={`${current.leads} this month`} />
           <KpiCard icon={Target} label="Total Move-Ins" value={totalMoveIns} change={`${current.moveIns} this month`} isAccent />
-          <KpiCard icon={TrendingUp} label="Current ROAS" value={current.roas} suffix="x" change={current.roas >= 3 ? "Strong" : "Building"} isAccent />
+          <KpiCard icon={TrendingUp} label="Current Return" value={current.roas} suffix="x" change={current.roas >= 3 ? "Strong" : "Building"} isAccent />
         </div>
 
         {/* Charts */}
@@ -250,7 +250,7 @@ export default function DemoDashboardClient() {
                 -${(visibleData[0].cpl - visibleData[visibleData.length - 1].cpl).toFixed(0)} reduction
               </span>
             </div>
-            <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>CPL decreases as Pixel data matures and audiences sharpen</p>
+            <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>Cost per lead drops as the system learns which renters actually rent</p>
             <ResponsiveChart mobileHeight={180} desktopHeight={220}>
               <BarChart data={visibleData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />

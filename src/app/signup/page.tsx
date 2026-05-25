@@ -40,7 +40,7 @@ const PLANS: PlanInfo[] = [
     features: [
       "Up to 50 facilities",
       "All Launch features",
-      "A/B testing & optimization",
+      "A/B testing on what fills units",
       "Priority support",
       "Custom landing pages",
     ],

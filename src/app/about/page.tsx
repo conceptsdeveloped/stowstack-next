@@ -99,10 +99,10 @@ export default function AboutPage() {
           </p>
 
           <p>
-            Not a generic marketing platform. Not something designed for
-            e-commerce and retrofitted for storage. A system built specifically
-            for the way storage operators think about their business:
-            move-ins, occupancy, and revenue.
+            Not a generic marketing tool. Not something built for e-commerce
+            and bolted onto storage. A system built specifically for the way
+            storage operators think about their business: move-ins, occupancy,
+            and revenue.
           </p>
 
           {/* Divider */}
@@ -163,8 +163,8 @@ export default function AboutPage() {
               fontFamily: "var(--font-heading)",
             }}
           >
-            This isn&apos;t a marketing agency. It&apos;s a demand engine built
-            by someone who signs the same checks you do.
+            This isn&apos;t a marketing agency. It&apos;s the system I built
+            for my own facilities, by someone who signs the same checks you do.
           </p>
 
           {/* Sign-off */}
