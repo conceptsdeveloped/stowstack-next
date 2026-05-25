@@ -43,3 +43,7 @@ next-env.d.ts
 # clerk configuration (can include secrets)
 /.clerk/
 .env*.local
+
+# generated PDFs (sourced from sibling .md files — regenerate, don't commit)
+/OVERVIEW.pdf
+/WHITEPAPER.pdf

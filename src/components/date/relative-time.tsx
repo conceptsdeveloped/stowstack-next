@@ -21,10 +21,13 @@ export function RelativeTime({ date, timezone: tzOverride }: RelativeTimeProps) 
   const { timezone: autoTz } = useTimezone();
   const tz = tzOverride || autoTz;
   const d = useMemo(() => typeof date === 'string' ? new Date(date) : date, [date]);
-  const [now, setNow] = useState(() => new Date());
+  // Start as null so SSR + first client render produce matching markup;
+  // populate after mount so the relative timestamp doesn't desync against
+  // server-rendered HTML (causes hydration mismatches in feeds/lists).
+  const [now, setNow] = useState<Date | null>(null);
 
-  // Auto-update for recent timestamps (< 1 hour old)
   useEffect(() => {
+    setNow(new Date());
     const diffMs = Date.now() - d.getTime();
     if (diffMs < 60 * 60 * 1000) {
       const interval = setInterval(() => setNow(new Date()), 60_000);
@@ -32,7 +35,7 @@ export function RelativeTime({ date, timezone: tzOverride }: RelativeTimeProps) 
     }
   }, [d]);
 
-  const relative = formatRelativeTime(d, now, tz);
+  const relative = now ? formatRelativeTime(d, now, tz) : '';
   const absolute = formatDateTimeTz(d, tz);
 
   return (

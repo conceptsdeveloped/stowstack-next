@@ -36,8 +36,8 @@
   --accent-dim: #8a2f1e;
   --accent-soft: #e8c2b0;
   --hue-a: #1f5a6b;         /* deep teal */
-  --hue-b: #c99018;         /* ochre */
-  --hue-c: #4a6b2e;         /* olive — POSITIVE slot */
+  --hue-b: #B58B3F;         /* brand sienna gold — matches --brand-gold so hero §00·NUMBERS INDUSTRY cards harmonize with the logo "ads" treatment on the paper (default) palette */
+  --hue-c: #4a6b2e;         /* olive — POSITIVE slot, used for FORECAST cards */
   --hue-d: #5e3880;         /* plum */
   /* Type families — single voice: Manrope variable. Both --mono and
      --serif resolve to Manrope so the 125+ MONO.mono / MONO.serif inline
