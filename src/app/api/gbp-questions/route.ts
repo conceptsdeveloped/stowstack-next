@@ -215,9 +215,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "gbp-questions");
   if (limited) return limited;
 
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
-
   try {
     const body = await req.json();
     const action = req.nextUrl.searchParams.get("action");
@@ -226,6 +223,9 @@ export async function POST(req: NextRequest) {
       const { facilityId } = body;
       if (!facilityId)
         return errorResponse("facilityId required", 400, origin);
+
+      const denied = await requireFacilityAccess(req, facilityId);
+      if (denied) return denied;
 
       const connection = await db.gbp_connections.findFirst({
         where: { facility_id: facilityId, status: "connected" },
@@ -249,6 +249,14 @@ export async function POST(req: NextRequest) {
       const { questionId } = body;
       if (!questionId)
         return errorResponse("questionId required", 400, origin);
+
+      const existing = await db.gbp_questions.findUnique({
+        where: { id: questionId },
+        select: { facility_id: true },
+      });
+      if (!existing) return errorResponse("Not found", 404, origin);
+      const denied = await requireFacilityAccess(req, existing.facility_id);
+      if (denied) return denied;
 
       const question = await db.gbp_questions.findUnique({
         where: { id: questionId },
@@ -276,6 +284,14 @@ export async function POST(req: NextRequest) {
           400,
           origin
         );
+
+      const existing = await db.gbp_questions.findUnique({
+        where: { id: questionId },
+        select: { facility_id: true },
+      });
+      if (!existing) return errorResponse("Not found", 404, origin);
+      const denied = await requireFacilityAccess(req, existing.facility_id);
+      if (denied) return denied;
 
       const question = await db.gbp_questions.findUnique({
         where: { id: questionId },
@@ -323,6 +339,9 @@ export async function POST(req: NextRequest) {
       const { facilityId } = body;
       if (!facilityId)
         return errorResponse("facilityId required", 400, origin);
+
+      const denied = await requireFacilityAccess(req, facilityId);
+      if (denied) return denied;
 
       const pending = await db.gbp_questions.findMany({
         where: { facility_id: facilityId, answer_status: "pending" },

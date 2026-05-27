@@ -318,9 +318,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "gbp-reviews");
   if (limited) return limited;
 
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
-
   try {
     const body = await req.json();
     const action = req.nextUrl.searchParams.get("action");
@@ -329,6 +326,9 @@ export async function POST(req: NextRequest) {
       const { facilityId } = body;
       if (!facilityId)
         return errorResponse("facilityId required", 400, origin);
+
+      const denied = await requireFacilityAccess(req, facilityId);
+      if (denied) return denied;
 
       const connection = await db.gbp_connections.findFirst({
         where: { facility_id: facilityId, status: "connected" },
@@ -355,6 +355,14 @@ export async function POST(req: NextRequest) {
     if (action === "generate-response") {
       const { reviewId } = body;
       if (!reviewId) return errorResponse("reviewId required", 400, origin);
+
+      const existing = await db.gbp_reviews.findUnique({
+        where: { id: reviewId },
+        select: { facility_id: true },
+      });
+      if (!existing) return errorResponse("Not found", 404, origin);
+      const denied = await requireFacilityAccess(req, existing.facility_id);
+      if (denied) return denied;
 
       const review = await db.gbp_reviews.findUnique({
         where: { id: reviewId },
@@ -386,6 +394,14 @@ export async function POST(req: NextRequest) {
           400,
           origin
         );
+
+      const existing = await db.gbp_reviews.findUnique({
+        where: { id: reviewId },
+        select: { facility_id: true },
+      });
+      if (!existing) return errorResponse("Not found", 404, origin);
+      const denied = await requireFacilityAccess(req, existing.facility_id);
+      if (denied) return denied;
 
       const review = await db.gbp_reviews.findUnique({
         where: { id: reviewId },
@@ -424,6 +440,9 @@ export async function POST(req: NextRequest) {
       if (!facilityId)
         return errorResponse("facilityId required", 400, origin);
 
+      const denied = await requireFacilityAccess(req, facilityId);
+      if (denied) return denied;
+
       const pending = await db.gbp_reviews.findMany({
         where: { facility_id: facilityId, response_status: "pending" },
         include: { facilities: { select: { name: true } } },
@@ -461,12 +480,18 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const origin = getOrigin(req);
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
 
   try {
     const { id, aiDraft, responseStatus } = await req.json();
     if (!id) return errorResponse("id required", 400, origin);
+
+    const existingReview = await db.gbp_reviews.findUnique({
+      where: { id },
+      select: { facility_id: true },
+    });
+    if (!existingReview) return errorResponse("Not found", 404, origin);
+    const denied = await requireFacilityAccess(req, existingReview.facility_id);
+    if (denied) return denied;
 
     const data: Record<string, unknown> = {};
     if (aiDraft !== undefined) data.ai_draft = aiDraft;

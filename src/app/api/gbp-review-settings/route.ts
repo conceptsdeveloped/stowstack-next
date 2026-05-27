@@ -53,13 +53,14 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "gbp-review-settings");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
 
   try {
     const { facilityId, autoRespond, autoRespondMinRating, responseTone } =
       await req.json();
     if (!facilityId) return errorResponse("Missing facilityId", 400, origin);
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     const conn = await db.gbp_connections.findUnique({
       where: { facility_id: facilityId },

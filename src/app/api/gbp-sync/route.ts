@@ -266,12 +266,13 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "gbp-sync");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
 
   try {
     const { facilityId, type, locationId, locationName } = await req.json();
     if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     // Handle location selection for multi-location accounts
     if (type === "select-location") {
@@ -375,12 +376,13 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "gbp-sync");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
 
   try {
     const { facilityId, syncConfig } = await req.json();
     if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     const existing = await db.gbp_connections.findUnique({
       where: { facility_id: facilityId },

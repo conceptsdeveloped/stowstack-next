@@ -6,7 +6,6 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
   requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
@@ -60,8 +59,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "utm-links");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req))
-    return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await req.json();
@@ -83,6 +80,9 @@ export async function POST(req: NextRequest) {
         origin
       );
     }
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     const shortCode = generateShortCode();
     const link = await db.utm_links.create({
@@ -121,14 +121,20 @@ export async function DELETE(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "utm-links");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req))
-    return errorResponse("Unauthorized", 401, origin);
 
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
   if (!id) return errorResponse("id required", 400, origin);
 
   try {
+    const existing = await db.utm_links.findUnique({
+      where: { id },
+      select: { facility_id: true },
+    });
+    if (!existing) return errorResponse("Not found", 404, origin);
+    const denied = await requireFacilityAccess(req, existing.facility_id);
+    if (denied) return denied;
+
     await db.utm_links.delete({ where: { id } });
     return jsonResponse({ success: true }, 200, origin);
   } catch {

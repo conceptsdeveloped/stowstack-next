@@ -41,8 +41,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "facility-assets");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
 
   try {
     const body = await req.json();
@@ -50,6 +48,9 @@ export async function POST(req: NextRequest) {
     if (!facilityId || !url) {
       return errorResponse("facilityId and url required", 400, origin);
     }
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     const asset = await db.assets.create({
       data: {
@@ -71,13 +72,19 @@ export async function DELETE(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "facility-assets");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
 
   try {
     const body = await req.json();
     const { assetId } = body || {};
     if (!assetId) return errorResponse("assetId required", 400, origin);
+
+    const existing = await db.assets.findUnique({
+      where: { id: assetId },
+      select: { facility_id: true },
+    });
+    if (!existing) return errorResponse("Not found", 404, origin);
+    const denied = await requireFacilityAccess(req, existing.facility_id);
+    if (denied) return denied;
 
     await db.assets.delete({ where: { id: assetId } });
 

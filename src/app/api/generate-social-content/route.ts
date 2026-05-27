@@ -37,9 +37,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "generate-social-content");
   if (limited) return limited;
 
-  const authErr = await requireFacilityAccess(req);
-  if (authErr) return authErr;
-
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return errorResponse("Server configuration error: missing API key", 500, origin);
@@ -71,6 +68,9 @@ export async function POST(req: NextRequest) {
   if (!facilityId) {
     return errorResponse("facilityId required", 400, origin);
   }
+
+  const denied = await requireFacilityAccess(req, facilityId);
+  if (denied) return denied;
 
   try {
     const [facility, snapshot, units, specials, _intel] = await Promise.all([
