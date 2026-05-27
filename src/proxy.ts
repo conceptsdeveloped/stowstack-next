@@ -96,7 +96,7 @@ function isCsrfExempt(req: NextRequest): boolean {
   return false;
 }
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   // Sentry route context for all requests
   Sentry.setTag("route", request.nextUrl.pathname);
   Sentry.setTag("method", request.method);

@@ -45,7 +45,7 @@ No test framework is configured. Verify changes with `npm run build` (runs TypeS
 
 ### Authentication — Four Independent Systems
 
-1. **Clerk** — Middleware at `src/middleware.ts` wraps all routes but marks everything as public. Clerk is not actively enforcing auth on any route; each system gates itself. Keeping Clerk as-is.
+1. **Clerk** — Proxy at `src/proxy.ts` (Next 16 renamed the `middleware` file convention to `proxy`) wraps all routes but marks everything as public. Clerk is not actively enforcing auth on any route; each system gates itself. Keeping Clerk as-is.
 2. **Admin key** — `X-Admin-Key` header checked against `ADMIN_SECRET` env var. Used by all `/admin` pages and most `/api/admin-*` routes. Helper: `requireAdminKey()` from `src/lib/api-helpers.ts`. Multiple admins (Blake + Angelo are founders).
 3. **Client portal** — Email + access code login. Access codes are generated when a lead status changes to `client_signed`. Session stored in localStorage. Portal pages at `/portal`.
 4. **Partner/org sessions** — Email + password + org slug login via `POST /api/organizations`. Session tokens (prefixed `ss_`) stored in `org_sessions` table, 30-day expiry. Helper: `getSession()` from `src/lib/session-auth.ts`. Partner pages at `/partner`. Partners = both resellers and referral partners.
