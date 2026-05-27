@@ -1,0 +1,127 @@
+{
+  "command": "ux-audit",
+  "timestamp": "2026-05-26T18:00:00Z",
+  "surface": "Demo dashboard (/demo) — src/app/demo/page.tsx + demo-client.tsx",
+  "findings": [
+    {
+      "lens": "FRAME",
+      "severity": "Critical",
+      "title": "Design system violation: rounded corners everywhere in a zero-radius aesthetic",
+      "principle": "NULL//TRACE — zero border-radius is a brand-mandatory constraint",
+      "evidence": "23 instances of rounded-lg, rounded-xl, and rounded-full across demo-client.tsx. The design brief specifies zero border-radius. Rounded corners make this look like a generic SaaS template, not the editorial aesthetic the rest of the site uses.",
+      "fix": "Replace all rounded-lg/rounded-xl with rounded-none (or remove the class). Replace rounded-full on the play button and scrubber dots with rounded-none or a small exception (rounded-sm at most for the play button if needed for affordance)."
+    },
+    {
+      "lens": "FRAME",
+      "severity": "Critical",
+      "title": "Gold color used extensively despite being banned from the design system",
+      "principle": "Design system — sienna gold is banned except in the logo two-tone split",
+      "evidence": "Charts use var(--color-gold) for stroke, fill, and gradient stops (lines 232-234, 240, 262). The CLAUDE.md explicitly states: 'Sienna gold is banned. Do not use #B58B3F, --color-gold... anywhere.' Chart accent should use --color-dark on light or --accent token.",
+      "fix": "Replace all var(--color-gold) references in charts with var(--accent) or var(--color-dark). Use the semantic accent token which resolves correctly per palette."
+    },
+    {
+      "lens": "FRAME",
+      "severity": "High",
+      "title": "No sales-call mode: demo serves two use cases identically",
+      "principle": "Lean UX — surface must serve both stated user flows",
+      "evidence": "CLAUDE.md states the demo page is 'used for both self-serve demos AND live sales call demos.' Currently there is no way to suppress the top CTA banner, hide the bottom conversion block, or enter a presentation mode. During a live call, the 'Get this for your facility' header CTA and bottom audit CTA compete with the sales rep's narrative.",
+      "fix": "Add a ?mode=sales query param that hides the self-serve CTAs and demo banner, letting the sales rep control the narrative. Or add a simple toggle/keyboard shortcut (e.g., press P for presentation mode)."
+    },
+    {
+      "lens": "DISCOVER",
+      "severity": "High",
+      "title": "Scrubber play/pause affordance is unclear without labels",
+      "principle": "Norman — perceived affordance; controls must be self-describing",
+      "evidence": "The timeline scrubber (lines 184-205) has a play button and 6 unlabeled colored bars. There is no text like 'Play the 6-month story' or 'Scrub through months.' A first-time visitor or a sales prospect may not understand this is interactive. The month labels only appear below as 'Month X of 6' after clicking.",
+      "fix": "Add a label next to the play button: 'Watch the 6-month campaign' or similar. Add month abbreviations (Oct, Nov, Dec...) below each scrubber segment."
+    },
+    {
+      "lens": "DISCOVER",
+      "severity": "Medium",
+      "title": "Welcome banner computes numbers inline — hard to update or customize",
+      "principle": "Maintainability + demo flexibility",
+      "evidence": "Lines 175-179 compute total move-ins and cost-per-move-in inline with template literals and reduce calls. If data changes, the banner could show stale or incorrect summary text. Also, the banner says '6-Month Campaign Summary' but the scrubber defaults to month 6 — so the user sees the end state before they scrub, removing the reveal.",
+      "fix": "Default activeMonth to 0 so the scrubber starts at the beginning and the user watches the story unfold. Compute summary stats from the MONTHS constant once at module level."
+    },
+    {
+      "lens": "SCAN",
+      "severity": "High",
+      "title": "KPI card 'Current Return' labeled as ROAS — banned term",
+      "principle": "Copy voice — ROAS is on the do-not-use list",
+      "evidence": "The monthly breakdown table header says 'ROAS' (line 398). The copy-voice.md bans: ROAS, CPL, CPMI. The chart title also says 'Cost per lead trend' which uses CPL in the tooltip (line 259). Operators do not think in ROAS.",
+      "fix": "Rename 'ROAS' column to 'Return' or 'What You Got Back.' Rename CPL tooltip to 'Cost per Lead' (acceptable in deep product pages) or 'Cost per call/inquiry.' Change the KPI suffix from 'x' to 'x return' for clarity."
+    },
+    {
+      "lens": "SCAN",
+      "severity": "Medium",
+      "title": "Campaign intelligence section uses marketing jargon operators won't know",
+      "principle": "Copy voice — no MBA words, operator-to-operator",
+      "evidence": "'Top Performing Audience' shows values like 'Lookalike 1% -- Move-In Converters', 'Life Event -- Recently Moved', 'Broad + Advantage+ Optimization'. These are Meta Ads Manager terms. The operator doesn't know what a lookalike audience is. The copy voice says: 'Customers buy the outcome, not the mechanism.'",
+      "fix": "Translate audience names into operator language: 'People like your best tenants', 'People who just moved nearby', 'Visitors who came back to your site.' Or remove the audience section entirely and replace with something the operator cares about (e.g., 'Which ad filled the most units')."
+    },
+    {
+      "lens": "SCAN",
+      "severity": "Medium",
+      "title": "Unit mix table 'MRR' column uses SaaS terminology",
+      "principle": "Copy voice — operators think in monthly rent, not MRR",
+      "evidence": "Line 363: column header 'MRR' (Monthly Recurring Revenue) is a SaaS/investor term. Operators say 'monthly rent' or 'revenue added.'",
+      "fix": "Rename 'MRR' to 'Rent Added' or 'New Revenue/mo.'"
+    },
+    {
+      "lens": "ACT",
+      "severity": "High",
+      "title": "Default state shows all 6 months — no discovery arc",
+      "principle": "Progressive disclosure; the scrubber story is wasted if the end state is shown first",
+      "evidence": "activeMonth initializes to 5 (line 102), so the page loads with all data visible. The occupancy chart, KPIs, and monthly table all show the final compounded state. The play button and scrubber have nothing left to reveal. The entire 'watch the campaign compound' narrative collapses.",
+      "fix": "Initialize activeMonth to 0. Show month 1 data on load. The play button then has a full 6-month story to tell. This also makes the welcome banner's 'Watch the campaign compound month over month' copy actually true."
+    },
+    {
+      "lens": "ACT",
+      "severity": "Medium",
+      "title": "Header CTA links to /#cta which may not exist or may scroll incorrectly",
+      "principle": "Fitts's Law — CTA must land the user at the conversion point",
+      "evidence": "Both the header CTA (line 159) and bottom CTA (line 439) link to '/#cta'. If the homepage anchor #cta doesn't exist or the homepage restructures, the user lands at the top of the homepage with no context. The bottom CTA says 'Get your free facility audit' but links to the homepage rather than /audit-tool directly.",
+      "fix": "Link the bottom CTA directly to /audit-tool (the actual audit entry point). For the header CTA, consider linking to a Cal.com booking embed or the audit tool rather than a homepage anchor."
+    },
+    {
+      "lens": "ACT",
+      "severity": "Medium",
+      "title": "Mobile CTA hidden — no conversion path on small screens",
+      "principle": "Every viewport must have a conversion path",
+      "evidence": "Line 159: the header 'Get this for your facility' button has className='hidden sm:flex'. Below 640px, the only CTA is at the very bottom of a long scrolling page. A sales prospect on mobile has no persistent conversion affordance.",
+      "fix": "Add a sticky bottom bar on mobile with a compact CTA, or make the header CTA visible at all breakpoints (possibly as an icon-only button on mobile)."
+    },
+    {
+      "lens": "READ",
+      "severity": "Medium",
+      "title": "Metadata description inconsistent — Twitter says 'real data', OG says 'simulated data'",
+      "principle": "Consistency — mixed signals about whether data is real or fake",
+      "evidence": "page.tsx line 12: OG description says 'simulated data for a fictional facility.' Line 16: Twitter description says 'real data.' These contradict each other and 'real data' is misleading.",
+      "fix": "Make both descriptions say 'simulated data' to match the demo banner disclaimer."
+    },
+    {
+      "lens": "RECOVER",
+      "severity": "High",
+      "title": "No loading state — charts flash/pop on hydration",
+      "principle": "Nielsen — visibility of system status; avoid layout shift",
+      "evidence": "The component is a client component that renders immediately with static data. However, ResponsiveChart uses a useState + useEffect pattern for isMobile detection, meaning the initial SSR render may use the wrong height (defaults to false = desktop). On mobile, the chart will render at desktop height then snap to mobile height on hydration. The useAnimatedNumber hook also starts at 0 and animates up, but there is no skeleton or placeholder — numbers pop from 0.",
+      "fix": "Add a brief skeleton/shimmer state for the first paint. Or use CSS container queries instead of JS media queries in ResponsiveChart to avoid the hydration mismatch. For KPI numbers, consider starting the animation only when the card enters the viewport (IntersectionObserver)."
+    },
+    {
+      "lens": "RECOVER",
+      "severity": "Medium",
+      "title": "No error boundary or fallback if Recharts fails to render",
+      "principle": "Defensive UI — charts are the most fragile part of the page",
+      "evidence": "If Recharts throws (e.g., SSR mismatch, missing data point, library version conflict), the entire page crashes with a white screen. There is no ErrorBoundary wrapping the chart sections.",
+      "fix": "Wrap chart sections in a React ErrorBoundary that shows a static fallback (e.g., the key numbers in plain text) if the chart fails."
+    },
+    {
+      "lens": "READ",
+      "severity": "Cosmetic",
+      "title": "Lead feed uses first-name-last-initial format — feels fake",
+      "principle": "Verisimilitude — demo data should feel real enough to be credible",
+      "evidence": "Names like 'Sarah M.', 'David K.', 'Jennifer L.' follow the exact same pattern. Real PMS data shows full names or just first names. The uniform 'FirstName L.' pattern signals fake data immediately to an operator who looks at their own PMS reports daily.",
+      "fix": "Mix formats: some full first names only ('Sarah'), some with last name ('David Kim'), some with unit number only ('Unit 214 — new lead'). Match what operators actually see in their gate logs."
+    }
+  ]
+}

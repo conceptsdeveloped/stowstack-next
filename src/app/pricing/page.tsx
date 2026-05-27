@@ -550,7 +550,7 @@ export default function PricingPage() {
                 </p>
 
                 <Link
-                  href="/#cta"
+                  href="#cta"
                   className="text-center text-sm font-medium rounded-md py-3 px-4 transition-colors"
                   style={{
                     background: tier.isRecommended
@@ -894,7 +894,7 @@ export default function PricingPage() {
               ))}
             </ul>
             <Link
-              href="/#cta"
+              href="#cta"
               className="btn-primary inline-flex items-center justify-center"
             >
               Talk to us about the portfolio
@@ -1022,9 +1022,14 @@ export default function PricingPage() {
             tool live, and tell you what we&apos;d do if it were ours.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/#cta" className="btn-primary inline-block text-center">
+            <a
+              href={process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary inline-block text-center"
+            >
               Book a call
-            </Link>
+            </a>
             <Link
               href="/audit-tool"
               className="inline-block text-center px-6 py-3 rounded-md text-sm font-medium"

@@ -1,0 +1,138 @@
+{
+  "command": "ux-audit",
+  "timestamp": "2026-05-26T15:00:00Z",
+  "surface": "/pricing page",
+  "findings": [
+    {
+      "id": 1,
+      "severity": "Critical",
+      "lens": "ACT",
+      "title": "All tier CTAs navigate away from /pricing to /#cta on the homepage",
+      "evidence": "Every tier card CTA is `<Link href=\"/#cta\">`. Clicking 'Start with System' leaves the pricing page entirely, navigating to the homepage CTA section. The operator loses context — they chose a tier, then land on a generic 'Book a call' form with no tier pre-selected. The bottom-of-page 'Book a call' CTA also links to /#cta. The pricing page has its own #cta section but the links prepend '/' so they route to the homepage.",
+      "fix": "Change tier card CTAs to href=\"#cta\" (no leading slash) so they scroll to the pricing page's own CTA section. Pass the selected tier name as a query param or state so the CTA form can pre-fill it. Alternatively, embed the Cal.com booking widget directly on the pricing page's #cta section."
+    },
+    {
+      "id": 2,
+      "severity": "Critical",
+      "lens": "RECOVER",
+      "title": "No tier selection state survives the CTA click — operator choice is lost",
+      "evidence": "Operator reads three tiers, picks System, clicks 'Start with System', lands on /#cta with no indication which tier they chose. There is no form, no checkout, no Stripe session, no tier parameter. The conversion funnel has a gap between 'I chose this' and 'someone knows I chose this.'",
+      "fix": "At minimum, pass ?tier=system in the CTA href so the receiving form can acknowledge it. Better: build a lightweight intake form on the pricing page itself (name, email, facility count, tier) that creates a lead record and books the call in one step."
+    },
+    {
+      "id": 3,
+      "severity": "High",
+      "lens": "FRAME",
+      "title": "Signal tier excluded from calculator — operator can't model the cheapest option",
+      "evidence": "PricingCalculator only offers 'system' and 'compound' as tier options. Signal ($299) is absent. The operator considering the entry tier has no way to run their own numbers. This is the tier most likely to need a payback proof because skepticism is highest at the low end.",
+      "fix": "Add Signal ($299) to the TIER_FEE and TIER_LABEL maps in pricing-calculator.tsx. Adjust the grid to three columns or keep two columns with a third option."
+    },
+    {
+      "id": 4,
+      "severity": "High",
+      "lens": "READ",
+      "title": "FAQ contradicts tier card on System commitment length",
+      "evidence": "The System tier card says bestFor includes 'without hiring an agency' but says nothing about a six-month commitment. The FAQ answer for 'Do I have to commit?' says 'System is six months because the site build is included.' The Signal tier card says 'Month-to-month' but the FAQ says 'Signal and Compound are month-to-month' — note Compound is month-to-month in the FAQ but the most expensive tier. This contradiction will erode trust with skeptical operators.",
+      "fix": "Add commitment length to each tier card directly — either in the priceNote, the bestFor text, or a dedicated line item. Make the FAQ consistent: if System is 6 months, say so on the card. If Compound is month-to-month, confirm that in the bestFor."
+    },
+    {
+      "id": 5,
+      "severity": "High",
+      "lens": "SCAN",
+      "title": "Page is extremely long — seven major sections below the fold before the CTA",
+      "evidence": "The page stacks: hero, founding frame, tier cards, calculator, competitor teardowns (4 cards + StorageAds card), comparison table (12 rows), enterprise section, 'not in the bill' section, FAQ (6 items), and final CTA. On desktop this is roughly 8-10 viewport heights. An operator who arrives from a referral and scrolls past the tier cards may never reach the CTA.",
+      "fix": "Add a sticky bottom bar or floating CTA on mobile that says 'Book a call' after the operator scrolls past the tier cards. Consider collapsing the competitor section behind an accordion or moving it to a separate /compare page. The comparison table is the weakest section for conversion — operators who need it are already comparing, and the table requires horizontal scroll on mobile."
+    },
+    {
+      "id": 6,
+      "severity": "High",
+      "lens": "SCAN",
+      "title": "Comparison table requires horizontal scroll and has no sticky first column",
+      "evidence": "The table has minWidth 1040px. On mobile (or even a 13\" laptop), horizontal scrolling is required. The 'What you get' label column scrolls off-screen, making it impossible to know which row you're reading. The disclaimer text even acknowledges this: 'Scroll the table if you're on your phone.'",
+      "fix": "Make the first column (feature labels) sticky with position: sticky; left: 0 and a background color so it stays visible during horizontal scroll. On mobile, consider a stacked card layout instead of a table."
+    },
+    {
+      "id": 7,
+      "severity": "Medium",
+      "lens": "FRAME",
+      "title": "Hero value prop repeats in the competitor section heading",
+      "evidence": "Hero body: 'Half the price of an agency. Everything the cheap tools leave out.' Competitor section h2: 'Half the price of the agency. Everything the cheap tools leave out.' Nearly identical copy used twice reduces impact of both instances.",
+      "fix": "Differentiate the competitor section headline. The hero earns the claim; the competitor section should prove it. Something like 'Here's exactly what each one charges — and what they leave out.'"
+    },
+    {
+      "id": 8,
+      "severity": "Medium",
+      "lens": "READ",
+      "title": "Tier names (Signal, System, Compound) are abstract — operator can't self-select in 5 seconds",
+      "evidence": "The tier names are brand-poetic but don't tell an operator which one is for them without reading the tagline and bestFor text. An operator scanning sees three unfamiliar nouns and three prices. Compare to straightforward names like 'Starter / Pro / Enterprise' that self-sort.",
+      "fix": "Keep the brand names but add a one-line descriptor directly under or beside each name — e.g., 'Signal — Test one channel' / 'System — The full thing' / 'Compound — White-glove'. The taglines do this but they're styled too subtly to scan."
+    },
+    {
+      "id": 9,
+      "severity": "Medium",
+      "lens": "ACT",
+      "title": "Tier card CTA buttons are not actual buttons — they're styled Links",
+      "evidence": "The tier CTAs are <Link> elements styled to look like buttons. They have no hover state defined inline (relying on transition-colors but no :hover style). On mobile, they have no min-height ensuring a 44px touch target — the py-3 gives roughly 42-44px depending on font rendering, which is borderline.",
+      "fix": "Ensure minimum 48px touch target height on mobile (py-3.5 or min-h-[48px]). Add explicit hover styles or use the btn-primary class which already has hover states defined."
+    },
+    {
+      "id": 10,
+      "severity": "Medium",
+      "lens": "SCAN",
+      "title": "Enterprise section buried below comparison table — portfolio operators will not find it",
+      "evidence": "A management company operator (10+ facilities) must scroll past three individual tier cards, a calculator, four competitor teardowns, and a 12-row comparison table before reaching the Enterprise section. These operators are the highest-value leads.",
+      "fix": "Add a lightweight 'Managing 10+ facilities?' callout banner directly below the tier cards, linking to the enterprise section or directly to the CTA. One line, one link."
+    },
+    {
+      "id": 11,
+      "severity": "Medium",
+      "lens": "READ",
+      "title": "Calculator CTA copy is too long for a button",
+      "evidence": "'Book a call to walk through your numbers' is 8 words. On mobile at full width this works, but it reads as a sentence, not a CTA. The operator has just seen their payback math — the button should close, not explain.",
+      "fix": "Shorten to 'Book a call' or 'Let's walk through this'. The context is already set by the calculator output."
+    },
+    {
+      "id": 12,
+      "severity": "Medium",
+      "lens": "FRAME",
+      "title": "Calculator assumes all move-ins are 'extra' — inflates perceived ROI",
+      "evidence": "The slider label says 'Extra move-ins / month per facility' and defaults to 8. At $150 rent and 14-month tenure, this shows $201,600/yr in captured rent for a single facility. An operator who currently gets 15 move-ins/mo organically will question whether 8 'extra' is realistic from ads alone. The default is aggressive.",
+      "fix": "Lower the default to 4-5 extra move-ins (more believable for a single facility). Add a note: 'Our average facility sees 6-10 additional move-ins per month in the first 90 days' or whatever the real number is. Credibility over excitement."
+    },
+    {
+      "id": 13,
+      "severity": "Cosmetic",
+      "lens": "SCAN",
+      "title": "Rounded Tailwind classes are dead code — overridden by urbit-landing CSS reset",
+      "evidence": "The page uses rounded-xl, rounded-2xl, rounded-full, and rounded-md extensively (12+ instances). The body has class urbit-landing, and globals.css forces border-radius: 0 !important on all elements except .btn-primary and .btn-secondary. Every rounded class is overridden and does nothing.",
+      "fix": "Remove the dead rounded-* classes from the pricing page markup for clarity. They create false expectations about the rendered appearance when reading the code."
+    },
+    {
+      "id": 14,
+      "severity": "Cosmetic",
+      "lens": "READ",
+      "title": "Founding facility badge uses rounded-full — inconsistent with NULL//TRACE zero-radius aesthetic",
+      "evidence": "The 'Founding facility pricing' pill badge and the 'Most operators pick this' badge both use rounded-full. Due to the urbit-landing reset, these render as sharp rectangles anyway, but the intent was a pill shape that contradicts the design system.",
+      "fix": "No visual fix needed (CSS already handles it), but align the code intent with the design system by removing rounded-full."
+    },
+    {
+      "id": 15,
+      "severity": "Cosmetic",
+      "lens": "READ",
+      "title": "'A/B testing' in System tier features may read as jargon to operators",
+      "evidence": "System tier includes 'A/B testing on ads and pages.' Copy-voice.md says to avoid marketing jargon and write for 'the guy who just got off the phone with a tenant about a gate code.' A/B testing is marketer-speak.",
+      "fix": "Rewrite to operator language: 'We test different versions and keep what works' or 'Ad and page variations — we run both, keep the winner.'"
+    }
+  ],
+  "severity_counts": {
+    "critical": 2,
+    "high": 4,
+    "medium": 6,
+    "cosmetic": 3
+  },
+  "strategic_moves": [
+    "Fix the CTA routing immediately — every tier CTA currently navigates away from /pricing to the homepage, breaking the conversion funnel. Change href='/#cta' to href='#cta' and embed a booking widget or lightweight form directly on the pricing page so the operator never leaves.",
+    "Add Signal to the pricing calculator and lower the default move-in slider to 4-5. The calculator is the strongest conversion tool on the page, but it currently excludes the entry tier and inflates expectations. Credible math converts skeptical operators; aggressive math repels them.",
+    "Add a sticky mobile CTA bar that appears after the operator scrolls past the tier cards. The page is 8+ viewports long. Without a persistent CTA, every scroll past the cards is a leak in the funnel."
+  ]
+}

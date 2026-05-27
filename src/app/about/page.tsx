@@ -35,6 +35,7 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center gap-3">
           <Link
             href="/"
+            aria-label="Back to homepage"
             className="p-2 -ml-2 transition-colors"
             style={{ color: "var(--text-tertiary)" }}
           >
@@ -69,8 +70,7 @@ export default function AboutPage() {
             letterSpacing: "var(--tracking-tight)",
           }}
         >
-          Built by an operator.{" "}
-          <span style={{ color: "var(--color-gold)" }}>For operators.</span>
+          Built by an operator. For operators.
         </h1>
 
         <div
@@ -124,8 +124,8 @@ export default function AboutPage() {
           <p>
             The results changed how I run marketing entirely. I cut spend that
             looked good on paper but wasn&apos;t converting. I doubled down on
-            what actually worked. My cost per move-in dropped. My confidence in
-            every marketing dollar went up.
+            what actually worked. More units filled for less money. Every dollar
+            accounted for.
           </p>
 
           <p style={{ color: "var(--text-primary)", fontWeight: 500 }}>
@@ -164,7 +164,7 @@ export default function AboutPage() {
             }}
           >
             This isn&apos;t a marketing agency. It&apos;s the system I built
-            for my own facilities, by someone who signs the same checks you do.
+            for my own facilities. I sign the same checks you do.
           </p>
 
           {/* Sign-off */}
@@ -182,23 +182,17 @@ export default function AboutPage() {
               className="text-sm"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Founder, StorageAds.com
-            </p>
-            <p
-              className="text-sm"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              Storage operator &amp; founder
+              Founder &amp; Operator, StorageAds
             </p>
           </div>
         </div>
 
         {/* CTA */}
         <div
-          className="mt-16 rounded-lg p-8 text-center"
+          className="mt-16 p-8 text-center"
           style={{
-            background: "rgba(181,139,63,0.06)",
-            border: "1px solid var(--color-gold)",
+            background: "var(--bg-alt)",
+            border: "1px solid var(--line)",
           }}
         >
           <p

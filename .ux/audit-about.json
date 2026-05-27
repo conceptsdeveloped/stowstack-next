@@ -1,0 +1,126 @@
+{
+  "command": "ux-audit",
+  "timestamp": "2026-05-26T18:00:00Z",
+  "surface": "About page (src/app/about/page.tsx)",
+  "findings": [
+    {
+      "lens": "RECOVER",
+      "severity": "Critical",
+      "title": "CTA links to /diagnostic which does not exist",
+      "principle": "Norman — error prevention; links must resolve",
+      "evidence": "Line 219: <Link href=\"/diagnostic\"> but no src/app/diagnostic/ route exists. No src/app/audit-tool/ either. Click produces a 404.",
+      "fix": "Create the /diagnostic route or point the CTA to an existing page (e.g., /audit-tool, Cal.com booking link, or homepage #cta)."
+    },
+    {
+      "lens": "FRAME",
+      "severity": "High",
+      "title": "CTA box uses rounded-lg, violating NULL//TRACE zero-radius rule",
+      "principle": "Design system consistency — NULL//TRACE aesthetic requires border-radius: 0",
+      "evidence": "Line 198: className=\"mt-16 rounded-lg p-8 text-center\". The .urbit-landing zero-radius override does not apply because the about page does not have the urbit-landing class.",
+      "fix": "Remove rounded-lg. Either add the urbit-landing class to the page wrapper or use rounded-none explicitly."
+    },
+    {
+      "lens": "FRAME",
+      "severity": "High",
+      "title": "Gold accent used for headline and CTA border despite design system ban",
+      "principle": "Design system — sienna gold is banned per CLAUDE.md; only --brand-gold on logo 'ads' is exempt",
+      "evidence": "Line 73: <span style={{ color: 'var(--color-gold)' }}>For operators.</span> and line 201: border: '1px solid var(--color-gold)'. CLAUDE.md states: 'Sienna gold is banned. Do not use --color-gold anywhere.'",
+      "fix": "Replace gold headline accent with --text-primary or --color-dark. Replace CTA border with var(--border-subtle) or var(--color-dark). The logo 'ads' span on line 51 is the only valid gold usage (--brand-gold)."
+    },
+    {
+      "lens": "DISCOVER",
+      "severity": "High",
+      "title": "No photo, no team, no proof of operator identity",
+      "principle": "Norman — discoverability; 'built by an operator' claim needs evidence",
+      "evidence": "The page is 100% text. No headshot of Blake, no photo of a facility, no portfolio details. The operator-credibility claim is unsupported visually.",
+      "fix": "Add a photo of Blake (ideally at a facility). Mention the number of facilities or years operating. Even one concrete detail ('I run [X] facilities in [state]') adds proof."
+    },
+    {
+      "lens": "SCAN",
+      "severity": "High",
+      "title": "Sign-off has redundant role lines",
+      "principle": "Krug — omit needless words",
+      "evidence": "Lines 185-190: 'Founder, StorageAds.com' followed by 'Storage operator & founder'. Both say 'founder'. Redundant.",
+      "fix": "Collapse to a single line: 'Founder & operator, StorageAds.com' or just 'Founder, StorageAds'."
+    },
+    {
+      "lens": "SCAN",
+      "severity": "Medium",
+      "title": "No visual break between story sections — wall of text",
+      "principle": "Krug — scanning; visual hierarchy must guide the eye",
+      "evidence": "Three story sections separated only by 1px hairline dividers. On mobile, this reads as one unbroken essay. No pull quotes, no callout boxes, no visual anchors between dividers.",
+      "fix": "Add a bold pull quote or a single-stat callout between sections to break the wall and reward scanners."
+    },
+    {
+      "lens": "ACT",
+      "severity": "Medium",
+      "title": "Only one CTA at the very bottom of a long scroll",
+      "principle": "Fitts's law — action must be reachable when intent peaks",
+      "evidence": "The single CTA is after ~800 words of story. An operator who is convinced at paragraph 3 has to scroll to the bottom to act.",
+      "fix": "Add a soft inline CTA or sticky bottom bar after the first divider section ('Want to see your numbers? Get a free audit')."
+    },
+    {
+      "lens": "READ",
+      "severity": "Medium",
+      "title": "'cost per move-in' used as a phrase in body copy",
+      "principle": "Copy voice guide — 'cost-per-move-in' is banned as a hero phrase in customer-facing copy",
+      "evidence": "Line 127: 'My cost per move-in dropped.' The copy-voice.md says: 'Cost-per-move-in (as a hero phrase)' is on the do-not-use list.",
+      "fix": "Rewrite to operator language: 'What I paid per new tenant dropped.' or 'Each move-in cost me less.'"
+    },
+    {
+      "lens": "READ",
+      "severity": "Medium",
+      "title": "Closing paragraph has awkward syntax",
+      "principle": "Copy voice — one idea per sentence, concrete over abstract",
+      "evidence": "Line 166-168: 'It's the system I built for my own facilities, by someone who signs the same checks you do.' The 'by someone' clause dangles — the subject of 'it's the system I built' is already first-person, then switches to third-person 'someone'.",
+      "fix": "Rewrite: 'This isn't a marketing agency. I built this for my own facilities. I sign the same checks you do.'"
+    },
+    {
+      "lens": "READ",
+      "severity": "Medium",
+      "title": "Meta description uses 'cost-per-move-in' phrasing indirectly and title says 'StorageAds' not 'storageads'",
+      "principle": "Copy voice — consistent brand naming",
+      "evidence": "Line 6: title says 'About StorageAds' with camel case. The brand per CLAUDE.md is lowercase 'storageads'. Minor but inconsistent with the nav rendering on line 50-51.",
+      "fix": "Use 'storageads' (lowercase) in metadata title, or establish that title-case is acceptable in meta tags specifically."
+    },
+    {
+      "lens": "FRAME",
+      "severity": "Medium",
+      "title": "CTA says 'free facility audit' but copy says 'free diagnostic' — terminology mismatch",
+      "principle": "Lean UX — consistent naming for the conversion artifact",
+      "evidence": "Line 216: 'Get a free diagnostic' but line 219: 'Get your free facility audit'. Also href is /diagnostic. Three terms for one thing: diagnostic, audit, facility audit.",
+      "fix": "Pick one term and use it everywhere. The frame doc calls it 'audit'. Use 'free audit' consistently."
+    },
+    {
+      "lens": "SCAN",
+      "severity": "Cosmetic",
+      "title": "Nav breadcrumb style ('/ About') looks unfinished",
+      "principle": "Visual hierarchy — breadcrumbs need intentional styling",
+      "evidence": "Line 57: A plain '/ About' span in tertiary color next to the logo. No structured breadcrumb pattern — just a text slash.",
+      "fix": "Use a proper separator (a thin vertical bar or a styled slash) or drop the breadcrumb entirely — the back arrow already signals navigation."
+    },
+    {
+      "lens": "RECOVER",
+      "severity": "Cosmetic",
+      "title": "No skip-to-content link for keyboard/screen reader users",
+      "principle": "WCAG 2.1 AA — bypass blocks",
+      "evidence": "The page has a sticky header but no skip link to jump to the article content.",
+      "fix": "Add a visually hidden skip link as the first focusable element: <a href='#content' class='sr-only focus:not-sr-only'>Skip to content</a>."
+    },
+    {
+      "lens": "RECOVER",
+      "severity": "Cosmetic",
+      "title": "Back arrow has no accessible label",
+      "principle": "WCAG 2.1 AA — link purpose",
+      "evidence": "Line 37-41: The ArrowLeft icon link has no aria-label or visible text. Screen readers announce it as an empty link.",
+      "fix": "Add aria-label='Back to home' to the Link component."
+    }
+  ],
+  "severity_counts": { "critical": 1, "high": 4, "medium": 6, "cosmetic": 3 },
+  "dominant_lens": "FRAME",
+  "strategic_moves": [
+    "Fix the dead /diagnostic CTA immediately — it is the only conversion path and it 404s.",
+    "Add a photo of Blake and one concrete operator detail (number of facilities, location) to substantiate the 'built by an operator' claim.",
+    "Strip all --color-gold usage except the logo 'ads' span to align with the design system ban — use contrast-based (dark/light) accent instead."
+  ]
+}
