@@ -3,6 +3,7 @@
 import { MONO, Label, Dot, Display } from "@/components/mono";
 import { useClock } from "@/hooks/use-live-data";
 
+import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
@@ -29,6 +30,9 @@ import {
   Settings,
   LayoutDashboard,
   Star,
+  Play,
+  Pause,
+  RotateCw,
 } from "lucide-react";
 import { useInView } from "./use-in-view";
 import { SplitFlap as SplitFlapComponent } from "./split-flap";
@@ -163,6 +167,66 @@ function useMouseTilt(enabled: boolean) {
   return { ref, tilt };
 }
 
+// Smoothly interpolates between value transitions. Re-targeting mid-tween
+// picks up from the current displayed value (held in a ref so the effect
+// stays target-driven and we don't infinite-loop on the value dep). Honors
+// prefers-reduced-motion by bypassing the tween and returning `target`
+// directly — no setState-in-effect required for the reduced path.
+function useTweenedNumber(target: number, durationMs = 700) {
+  const [value, setValue] = useState(target);
+  const valueRef = useRef(target);
+  const rafRef = useRef<number>(0);
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    if (reduced) {
+      // Make sure no in-flight animation overrides the snap-to value.
+      cancelAnimationFrame(rafRef.current);
+      valueRef.current = target;
+      return;
+    }
+    const from = valueRef.current;
+    if (from === target) return;
+    const start = performance.now();
+    cancelAnimationFrame(rafRef.current);
+    function tick(now: number) {
+      const elapsed = now - start;
+      const p = Math.min(elapsed / durationMs, 1);
+      // easeOutCubic — fast start, gentle finish
+      const eased = 1 - Math.pow(1 - p, 3);
+      const next = from + (target - from) * eased;
+      valueRef.current = next;
+      setValue(next);
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, durationMs, reduced]);
+  // Reduced-motion users skip the tween entirely; they get the latest target
+  // at every render. Keeps the snap synchronous without setState-in-effect.
+  return reduced ? target : value;
+}
+
+// Live boolean for whether the ref is currently in the viewport. Unlike
+// useInView (one-shot, sticks at true), this flips back to false when the
+// element scrolls out — used to pause demo playback when off-screen so we
+// don't burn CPU and so users returning to the dashboard see a coherent
+// state, not whatever frame they happened to land on.
+function useLiveInViewport<T extends Element>(threshold = 0.2) {
+  const ref = useRef<T>(null);
+  const [present, setPresent] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setPresent(entry.isIntersecting),
+      { threshold },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, present };
+}
+
 function useStaggeredReveal(count: number, active: boolean, baseDelay = 0, stagger = 80) {
   const [revealed, setRevealed] = useState<boolean[]>(new Array(count).fill(false));
   useEffect(() => {
@@ -180,21 +244,21 @@ function useStaggeredReveal(count: number, active: boolean, baseDelay = 0, stagg
    ═══════════════════════════════════════════ */
 
 const STATS = [
-  { value: 34, prefix: "", suffix: "", label: "Move-ins (90 days)", decimals: 0, icon: TrendingUp },
-  { value: 41, prefix: "$", suffix: "", label: "Cost per move-in", decimals: 0, icon: DollarSign },
-  { value: 8.7, prefix: "", suffix: "%", label: "LP conversion rate", decimals: 1, icon: MousePointerClick },
+  { value: 34, prefix: "", suffix: "", label: "Move-ins, 90 days", decimals: 0, icon: TrendingUp },
+  { value: 84, prefix: "", suffix: "%", label: "Occupancy, one quarter", decimals: 0, icon: DollarSign },
+  { value: 8.7, prefix: "", suffix: "%", label: "Page conversion rate", decimals: 1, icon: MousePointerClick },
   { value: 35, prefix: "", suffix: "x", label: "Return on ad spend", decimals: 0, icon: BarChart3 },
 ];
 
 const CAPABILITIES = [
-  { icon: Megaphone, label: "Meta & Google Ads", desc: "Both channels, run by an operator who fills units", color: "var(--color-blue)" },
-  { icon: FileText, label: "Landing Pages", desc: "One page per ad, with the offer that ad promised", color: "var(--color-dark)" },
-  { icon: Target, label: "Move-in Tracking", desc: "Ad → page → reservation → move-in", color: "var(--color-green)" },
-  { icon: Zap, label: "storEDGE Integration", desc: "Renter never leaves your branded page", color: "#8a70b0" },
-  { icon: BarChart3, label: "Revenue Reporting", desc: "What you spent. What you got. What each one cost.", color: "var(--color-dark)" },
-  { icon: Eye, label: "A/B Testing", desc: "Winners picked by move-ins, not clicks", color: "var(--color-blue)" },
-  { icon: Sparkles, label: "AI Creative Studio", desc: "Generate ad copy, headlines, and page variants", color: "var(--color-green)" },
-  { icon: Activity, label: "Live Monitoring", desc: "Real-time performance alerts", color: "#8a70b0" },
+  { icon: Sparkles, label: "Ad Creator", desc: "Generate Meta and Google ads from facility data. Copy, headlines, creative.", color: "var(--color-blue)" },
+  { icon: Megaphone, label: "Publishing Manager", desc: "Publish to Meta and Google from one dashboard.", color: "var(--color-dark)" },
+  { icon: FileText, label: "Landing Pages", desc: "Dedicated page per campaign. storEDGE rental flow embedded.", color: "var(--color-green)" },
+  { icon: Search, label: "Market Intelligence", desc: "Competitor pricing, reviews, positioning, and trade area analysis.", color: "#8a70b0" },
+  { icon: Target, label: "Organic Capture", desc: "Google Business Profile, review management, walk-in attribution.", color: "var(--color-dark)" },
+  { icon: BarChart3, label: "Reservation Conversion", desc: "Automated follow-up. Reservation-to-move-in tracking and recovery.", color: "var(--color-blue)" },
+  { icon: Eye, label: "A/B Testing", desc: "Headlines, offers, and pages tested by move-in outcome.", color: "var(--color-green)" },
+  { icon: Activity, label: "Revenue Intelligence", desc: "Rate optimization, ancillary revenue, tax advantages, occupancy modeling.", color: "#8a70b0" },
 ];
 
 const PIPELINE_STEPS = [
@@ -205,25 +269,25 @@ const PIPELINE_STEPS = [
 ];
 
 const TYPEWRITER_WORDS = [
-  "Fill units.",
-  "Hold occupancy.",
-  "Beat the REIT in your zip code.",
-  "Skip the SpareFoot tax.",
-  "First leads in 7 days.",
+  "34 move-ins in 90 days.",
+  "71% to 84% occupancy in one quarter.",
+  "8.7% landing page conversion.",
+  "$41 per move-in, all in.",
+  "Tested on our own portfolio first.",
 ];
 
 const FEATURE_HIGHLIGHTS = [
-  { icon: TrendingUp, title: "Predictable move-ins", stat: "30–60 day ramp", desc: "Meta and Google demand generation tuned to your zip code, unit mix, and seasonality. Built to fill units — not to look busy." },
-  { icon: FileText, title: "Smart landing pages", stat: "8.7% CVR", desc: "Custom pages per ad with embedded storEDGE rental. No more generic website sends." },
-  { icon: Layers, title: "Two paths", stat: "DIY or managed", desc: "Run the platform yourself, or hand it to our team. Same software, same playbook — just who's at the wheel." },
-  { icon: LineChart, title: "Move-in receipts", stat: "35x ROAS", desc: "Every move-in tied to the ad that produced it. So you can audit every dollar — and kill what isn't working." },
+  { icon: Search, title: "Facility audit and market map", stat: "Intelligence", desc: "Competitor pricing, review gaps, trade area positioning. See the field before you deploy capital." },
+  { icon: Sparkles, title: "Ad creation and publishing", stat: "Execution", desc: "Meta and Google ads built from facility data and published from one dashboard. Creative studio included." },
+  { icon: FileText, title: "Landing pages with embedded rental", stat: "Conversion", desc: "Dedicated page per campaign. storEDGE reservation flow built in. Renter never leaves your brand." },
+  { icon: Layers, title: "Self-serve or fully managed", stat: "Deployment", desc: "Operate the system directly or deploy our team. Same infrastructure either way." },
 ];
 
 const BEFORE_AFTER = [
-  { before: "Waiting on the next walk-in", after: "Demand generated on schedule" },
-  { before: "Generic website as landing page", after: "Custom LP per campaign" },
-  { before: "Renting demand from SpareFoot", after: "Owning every lead you create" },
-  { before: "Watching the REIT down the road fill first", after: "Showing up in their feed instead" },
+  { before: "No paid acquisition system", after: "Meta and Google ads deployed in your trade area" },
+  { before: "No competitive intelligence", after: "Market map with pricing, reviews, and positioning" },
+  { before: "No dedicated landing pages", after: "Branded page per campaign with embedded storEDGE" },
+  { before: "No reservation follow-through", after: "Automated conversion from reservation to move-in" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -255,6 +319,11 @@ function HeroStyles() {
       @keyframes hero-card-lift{0%{box-shadow:0 1px 3px rgba(0,0,0,0.04)}100%{box-shadow:0 8px 24px rgba(0,0,0,0.08)}}
       @keyframes hero-ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
       @keyframes hero-badge-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+      /* Tiny "value just changed" pulse — used on the demo dashboard's
+         stat values so each month tick reads as a live update, not a
+         silent re-render. */
+      @keyframes hero-value-flash{0%{color:var(--accent);transform:translateY(-1px)}60%{transform:translateY(0)}100%{color:var(--color-dark);transform:translateY(0)}}
+      @keyframes hero-cta-pulse{0%,100%{box-shadow:0 0 0 0 var(--accent-glow)}50%{box-shadow:0 0 0 6px transparent}}
       .stat-cell{padding:16px 12px 18px}
       @media (min-width:480px){.stat-cell{padding:20px 16px 22px}}
       @media (min-width:768px){.stat-cell{padding:22px 20px 24px}}
@@ -409,6 +478,18 @@ const DASHBOARD_ROWS = [
   { campaign: "Midway — Climate retarget", channel: "Meta", spend: 298, clicks: 89, reservations: 5, moveIns: 4, cpm: 74, trend: "down" as const },
 ];
 
+// 6-month campaign progression — mirrors /demo data so the hero dashboard
+// can scrub through the same story the full demo tells. Compounds month over
+// month: spend climbs slowly, CPM drops as the system learns.
+const HERO_DEMO_MONTHS = [
+  { label: "Oct 2025", short: "Oct", spend: 1800, leads: 42, moveIns: 8,  cpm: 225, occupancy: 68, rowScale: 0.62, trend: "flat" as const },
+  { label: "Nov 2025", short: "Nov", spend: 2100, leads: 58, moveIns: 12, cpm: 175, occupancy: 73, rowScale: 0.74, trend: "down" as const },
+  { label: "Dec 2025", short: "Dec", spend: 2100, leads: 51, moveIns: 10, cpm: 210, occupancy: 76, rowScale: 0.81, trend: "flat" as const },
+  { label: "Jan 2026", short: "Jan", spend: 2400, leads: 67, moveIns: 15, cpm: 160, occupancy: 80, rowScale: 0.90, trend: "down" as const },
+  { label: "Feb 2026", short: "Feb", spend: 2400, leads: 74, moveIns: 18, cpm: 133, occupancy: 85, rowScale: 0.96, trend: "down" as const },
+  { label: "Mar 2026", short: "Mar", spend: 2800, leads: 89, moveIns: 22, cpm: 127, occupancy: 89, rowScale: 1.00, trend: "down" as const },
+];
+
 const CHANNEL_DOT: Record<string, string> = {
   Meta: "var(--color-dark)",
   Google: "var(--color-blue)",
@@ -420,18 +501,139 @@ const CHANNEL_DOT: Record<string, string> = {
 // large y — i.e. cost was higher 30 days ago and is lower now.
 const SPARKLINE_PATH = "M0 4 C8 5, 16 6, 24 8 S40 11, 48 13 S64 15, 72 16 S88 17, 96 18";
 
+// Playback cadence constants — pulled out so the demo's rhythm is easy
+// to tune in one place rather than hunting through JSX.
+const HERO_DEMO_TICK_MS = 1400;
+const HERO_DEMO_AUTOSTART_DELAY_MS = 1100;
+const HERO_DEMO_LAST_INDEX = HERO_DEMO_MONTHS.length - 1;
+
 export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
   const { ref: tiltRef, tilt } = useMouseTilt(isVisible);
-  const avgCpm = useRevealCountUp(91, isVisible, 800);
+  // Live in-viewport signal — used to pause auto-play when the hero
+  // scrolls off-screen so we don't burn CPU running a setInterval no one
+  // can see, and users returning to the page get a fresh start.
+  const { ref: presenceRef, present } = useLiveInViewport<HTMLDivElement>(0.2);
+
+  // Interactive 6-month playback. Mirrors the /demo page's scrubber so the
+  // hero proves the product is real — you can press play and watch the
+  // metrics compound in front of you.
+  //
+  // Initial state is the FINAL month: SSR / no-JS / reduced-motion users see
+  // the best numbers up front, the same way a typical SaaS hero shows its
+  // strongest metric. Auto-play rewinds to month 0 and walks forward.
+  const [activeMonth, setActiveMonth] = useState(HERO_DEMO_LAST_INDEX);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const reduced = useReducedMotion();
+
+  // Auto-start playback the first time the hero becomes visible. Skip if
+  // the user has touched the controls (don't fight them) or prefers
+  // reduced motion (let them scrub manually instead).
+  useEffect(() => {
+    if (!isVisible || reduced || hasUserInteracted) return;
+    const start = setTimeout(() => {
+      setActiveMonth(0);
+      setIsPlaying(true);
+    }, HERO_DEMO_AUTOSTART_DELAY_MS);
+    return () => clearTimeout(start);
+  }, [isVisible, reduced, hasUserInteracted]);
+
+  // Effective playback gate — combines user intent (isPlaying) with
+  // courtesy pauses (hover, off-screen). Keeps state minimal and avoids
+  // an explosion of "if isPlaying && !isHovered && present" checks.
+  const shouldPlay = isPlaying && !isHovered && present;
+
+  useEffect(() => {
+    if (!shouldPlay) return;
+    const tick = setInterval(() => {
+      setActiveMonth((prev) => {
+        if (prev >= HERO_DEMO_LAST_INDEX) {
+          setIsPlaying(false);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, HERO_DEMO_TICK_MS);
+    return () => clearInterval(tick);
+  }, [shouldPlay]);
+
+  const current = HERO_DEMO_MONTHS[activeMonth];
+  const cumulative = HERO_DEMO_MONTHS.slice(0, activeMonth + 1);
+  const totalSpend = cumulative.reduce((s, m) => s + m.spend, 0);
+  const totalMoveIns = cumulative.reduce((s, m) => s + m.moveIns, 0);
+  const avgCpm = current.cpm;
+  const isAtEnd = activeMonth >= HERO_DEMO_LAST_INDEX;
+
+  // Tweened display values — animate smoothly between months so the
+  // dashboard reads as a live system, not a snapping mock.
+  const tSpend = useTweenedNumber(totalSpend);
+  const tMoveIns = useTweenedNumber(totalMoveIns);
+  const tCpm = useTweenedNumber(avgCpm);
+  const tCpmDelta = useTweenedNumber(
+    activeMonth > 0 ? HERO_DEMO_MONTHS[0].cpm - avgCpm : 0,
+  );
+
+  function handleTogglePlay() {
+    setHasUserInteracted(true);
+    if (isAtEnd && !isPlaying) {
+      setActiveMonth(0);
+      setIsPlaying(true);
+      return;
+    }
+    setIsPlaying((p) => !p);
+  }
+
+  function handleScrubTo(i: number) {
+    setHasUserInteracted(true);
+    setIsPlaying(false);
+    setActiveMonth(i);
+  }
+
+  // Keyboard scrubbing — ← / → step months, Home / End jump to bounds,
+  // Space / Enter toggle play. Wired on the scrubber container so it only
+  // captures when the user has focused that region.
+  function handleKey(e: React.KeyboardEvent<HTMLDivElement>) {
+    switch (e.key) {
+      case "ArrowLeft":
+        e.preventDefault();
+        handleScrubTo(Math.max(0, activeMonth - 1));
+        break;
+      case "ArrowRight":
+        e.preventDefault();
+        handleScrubTo(Math.min(HERO_DEMO_LAST_INDEX, activeMonth + 1));
+        break;
+      case "Home":
+        e.preventDefault();
+        handleScrubTo(0);
+        break;
+      case "End":
+        e.preventDefault();
+        handleScrubTo(HERO_DEMO_LAST_INDEX);
+        break;
+      case " ":
+      case "Enter":
+        // Only intercept when focus is on the scrubber row itself, not
+        // a button child (buttons already handle Space/Enter natively).
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+          handleTogglePlay();
+        }
+        break;
+    }
+  }
 
   return (
     <div
+      ref={presenceRef}
       className="relative w-full transition-all duration-[400ms]"
       style={{
         transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? "translateY(0)" : "translateY(4px)",
       }}
+      role="region"
+      aria-label="Interactive 6-month campaign demo for a sample storage facility"
     >
       {/* Neutral glow — replaces the old gold halo */}
       <div
@@ -446,6 +648,8 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
       <div ref={tiltRef} style={{ perspective: "1400px" }}>
         <div
           className="w-full rounded-2xl overflow-hidden border bg-[var(--color-light)] transition-transform duration-300"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           style={{
             borderColor: "rgba(0,0,0,0.08)",
             boxShadow: "0 10px 30px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)",
@@ -513,11 +717,14 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                   >
                     Campaign performance
                   </h3>
-                  <p className="text-[10px] sm:text-[11px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
-                    Last 30 days
+                  <p className="text-[10px] sm:text-[11px] mt-0.5 tabular-nums" style={{ color: "var(--text-tertiary)" }}>
+                    {current.label} · Month {activeMonth + 1} of {HERO_DEMO_MONTHS.length}
                   </p>
                 </div>
-                {/* Sparkline */}
+                {/* Sparkline — progressively draws as months play. The
+                    path's total length is ~140; we mask it with a dash
+                    offset proportional to (1 - activeMonth/last) so each
+                    tick extends the line a bit further. */}
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] uppercase tracking-wide" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>
                     Cost / move-in
@@ -532,20 +739,151 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                       fill="none"
                       style={{
                         strokeDasharray: 140,
-                        strokeDashoffset: isVisible ? 0 : 140,
-                        transition: "stroke-dashoffset 1.4s cubic-bezier(0.16,1,0.3,1) 300ms",
+                        strokeDashoffset: isVisible
+                          ? 140 -
+                            140 *
+                              ((activeMonth + 1) / HERO_DEMO_MONTHS.length)
+                          : 140,
+                        transition:
+                          "stroke-dashoffset 700ms cubic-bezier(0.16,1,0.3,1)",
                       }}
                     />
                   </svg>
                 </div>
               </div>
 
-              {/* Stat strip */}
-              <div className="grid grid-cols-3 gap-2 px-4 sm:px-5 mt-2">
+              {/* Interactive playback — scrubber + play/restart toggle.
+                  Lives between the header and the stat strip so it reads
+                  as a chrome control, not chart data.
+
+                  Keyboard: focus the row and use ← / → to scrub, Home /
+                  End to jump to bounds, Space / Enter to toggle play. */}
+              <div
+                className="px-4 sm:px-5 mt-1 mb-2 flex items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)] rounded-md"
+                tabIndex={0}
+                role="group"
+                aria-label="Campaign month scrubber. Use arrow keys to navigate, space to play."
+                onKeyDown={handleKey}
+              >
+                <button
+                  type="button"
+                  onClick={handleTogglePlay}
+                  className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)]"
+                  style={{
+                    background: "var(--color-dark)",
+                    color: "var(--color-light)",
+                  }}
+                  aria-label={
+                    isPlaying
+                      ? "Pause campaign playback"
+                      : isAtEnd
+                      ? "Replay campaign from month 1"
+                      : "Play campaign from current month"
+                  }
+                  aria-pressed={isPlaying}
+                >
+                  {isPlaying ? (
+                    <Pause size={11} />
+                  ) : isAtEnd ? (
+                    <RotateCw size={11} />
+                  ) : (
+                    <Play size={11} className="ml-px" />
+                  )}
+                </button>
+                <div
+                  className="flex-1 flex items-center gap-1"
+                  role="presentation"
+                >
+                  {HERO_DEMO_MONTHS.map((m, i) => {
+                    const isActive = i === activeMonth;
+                    const isReached = i <= activeMonth;
+                    return (
+                      <button
+                        key={m.label}
+                        type="button"
+                        onClick={() => handleScrubTo(i)}
+                        className="flex-1 h-1.5 rounded-full transition-all cursor-pointer hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)]"
+                        style={{
+                          background: isReached
+                            ? "var(--color-dark)"
+                            : "var(--border-subtle)",
+                          transform: isActive ? "scaleY(1.5)" : "scaleY(1)",
+                        }}
+                        aria-label={`Jump to ${m.label}`}
+                        aria-current={isActive ? "true" : undefined}
+                        title={m.label}
+                      />
+                    );
+                  })}
+                </div>
+                <span
+                  className="text-[10px] font-semibold tabular-nums flex-shrink-0 hidden sm:inline"
+                  style={{
+                    color: shouldPlay ? "var(--color-dark)" : "var(--text-tertiary)",
+                    fontFamily: "var(--font-heading)",
+                    letterSpacing: "0.04em",
+                  }}
+                  aria-hidden="true"
+                >
+                  {shouldPlay ? (
+                    <span className="inline-flex items-center gap-1">
+                      <span
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{
+                          background: "var(--color-green)",
+                          animation: "hero-live-dot 1.2s ease-in-out infinite",
+                        }}
+                      />
+                      LIVE
+                    </span>
+                  ) : isPlaying && (isHovered || !present) ? (
+                    "PAUSED"
+                  ) : (
+                    current.short.toUpperCase()
+                  )}
+                </span>
+              </div>
+
+              {/* Stat strip — values drive off the active month and animate
+                  smoothly between them via useTweenedNumber so the whole
+                  panel reads as a live system, not a static mock.
+
+                  aria-live="polite" lets screen reader users hear updates
+                  without interrupting their flow. Numbers are rounded for
+                  display because mid-tween fractional dollars would be
+                  noisy ("$1,847.32 → $1,847.65"). */}
+              <div
+                className="grid grid-cols-3 gap-2 px-4 sm:px-5 mt-2"
+                role="group"
+                aria-label={`Campaign totals through ${current.label}`}
+                aria-live="polite"
+                aria-atomic="false"
+              >
                 {[
-                  { label: "Total spend", value: "$2,180", delta: null },
-                  { label: "Move-ins", value: "24", delta: null },
-                  { label: "Avg cost / move-in", value: `$${avgCpm}`, delta: "−18% vs prior 30d", deltaColor: "var(--color-green)" },
+                  {
+                    label: "Total spend",
+                    value: `$${Math.round(tSpend).toLocaleString()}`,
+                    delta: `Through ${current.short}`,
+                    deltaColor: "var(--text-tertiary)",
+                  },
+                  {
+                    label: "Move-ins",
+                    value: `${Math.round(tMoveIns)}`,
+                    delta: `+${current.moveIns} this month`,
+                    deltaColor: "var(--color-green)",
+                  },
+                  {
+                    label: "Avg cost / move-in",
+                    value: `$${Math.round(tCpm)}`,
+                    delta:
+                      activeMonth > 0
+                        ? `−$${Math.round(tCpmDelta)} vs Oct`
+                        : "Starting point",
+                    deltaColor:
+                      activeMonth > 0
+                        ? "var(--color-green)"
+                        : "var(--text-tertiary)",
+                  },
                 ].map((s, i) => (
                   <div
                     key={s.label}
@@ -553,23 +891,44 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                     style={{
                       borderColor: "var(--border-subtle)",
                       background: "var(--color-light)",
-                      transition: "opacity 600ms cubic-bezier(0.16,1,0.3,1), transform 600ms cubic-bezier(0.16,1,0.3,1)",
+                      transition:
+                        "opacity 600ms cubic-bezier(0.16,1,0.3,1), transform 600ms cubic-bezier(0.16,1,0.3,1)",
                       transitionDelay: `${200 + i * 80}ms`,
                       opacity: isVisible ? 1 : 0,
                       transform: isVisible ? "translateY(0)" : "translateY(6px)",
                     }}
                   >
-                    <div className="text-[9px] sm:text-[10px] uppercase tracking-wide" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>
+                    <div
+                      className="text-[9px] sm:text-[10px] uppercase tracking-wide"
+                      style={{
+                        color: "var(--text-tertiary)",
+                        fontFamily: "var(--font-heading)",
+                      }}
+                    >
                       {s.label}
                     </div>
+                    {/* key={activeMonth} forces a remount each tick, which
+                        re-triggers the hero-value-flash animation — a tiny
+                        "value just updated" pulse without manual timers. */}
                     <div
+                      key={`${s.label}-${activeMonth}`}
                       className="text-base sm:text-lg font-semibold mt-1 tabular-nums"
-                      style={{ color: "var(--color-dark)", fontFamily: "var(--font-heading)", lineHeight: 1 }}
+                      style={{
+                        color: "var(--color-dark)",
+                        fontFamily: "var(--font-heading)",
+                        lineHeight: 1,
+                        animation: reduced
+                          ? undefined
+                          : "hero-value-flash 700ms ease-out",
+                      }}
                     >
                       {s.value}
                     </div>
                     {s.delta && (
-                      <div className="text-[9px] sm:text-[10px] mt-1 font-medium" style={{ color: s.deltaColor }}>
+                      <div
+                        className="text-[9px] sm:text-[10px] mt-1 font-medium"
+                        style={{ color: s.deltaColor }}
+                      >
                         {s.delta}
                       </div>
                     )}
@@ -581,7 +940,10 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
               <div className="px-4 sm:px-5 pt-4 pb-4 sm:pb-5 flex-1 min-w-0">
                 <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--border-subtle)" }}>
                   <table className="w-full text-left" style={{ borderCollapse: "collapse" }}>
-                    <caption className="sr-only">Campaign performance for the last 30 days</caption>
+                    <caption className="sr-only">
+                      Campaign performance for {current.label}, month{" "}
+                      {activeMonth + 1} of {HERO_DEMO_MONTHS.length}
+                    </caption>
                     <thead>
                       <tr style={{ background: "var(--color-light-gray)" }}>
                         {["Campaign", "Spend", "Clicks", "Res.", "Move-ins", "Cost / MI"].map((h, i) => (
@@ -597,54 +959,121 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {DASHBOARD_ROWS.map((row, i) => (
-                        <tr
-                          key={row.campaign}
-                          style={{
-                            borderTop: "1px solid var(--border-subtle)",
-                            transition: "opacity 500ms ease-out, transform 500ms ease-out",
-                            transitionDelay: `${450 + i * 70}ms`,
-                            opacity: isVisible ? 1 : 0,
-                            transform: isVisible ? "translateY(0)" : "translateY(4px)",
-                          }}
-                        >
-                          <td className="px-2.5 sm:px-3 py-2 text-[10px] sm:text-[11px]" style={{ color: "var(--color-dark)" }}>
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span
-                                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                                style={{ background: CHANNEL_DOT[row.channel] || "var(--color-dark)" }}
-                                aria-label={`${row.channel} channel`}
-                              />
-                              <span className="font-medium truncate">{row.campaign}</span>
-                            </div>
-                          </td>
-                          <td className="px-2.5 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                            ${row.spend.toLocaleString()}
-                          </td>
-                          <td className="px-2.5 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                            {row.clicks}
-                          </td>
-                          <td className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums" style={{ color: "var(--text-secondary)" }}>
-                            {row.reservations}
-                          </td>
-                          <td className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums font-medium" style={{ color: "var(--color-dark)" }}>
-                            {row.moveIns}
-                          </td>
-                          <td className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums" style={{ color: "var(--color-dark)" }}>
-                            <span className="inline-flex items-center gap-1">
-                              <span className="font-semibold">${row.cpm}</span>
-                              {row.trend === "down" && (
-                                <svg width="9" height="9" viewBox="0 0 8 8" aria-label="trending down">
-                                  <path d="M4 1V7M4 7L1.5 4.5M4 7L6.5 4.5" stroke="var(--color-green)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                                </svg>
-                              )}
-                              {row.trend === "flat" && (
-                                <span className="w-2 h-px" style={{ background: "var(--text-tertiary)" }} aria-label="flat" />
-                              )}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {DASHBOARD_ROWS.map((row, i) => {
+                        // DASHBOARD_ROWS represent the final-month state.
+                        // Scale volume by rowScale and CPM inversely by the
+                        // ratio of current vs. final-month CPM so earlier
+                        // months show higher CPMs and lower volume.
+                        const scale = current.rowScale;
+                        const cpmMul =
+                          current.cpm /
+                          HERO_DEMO_MONTHS[HERO_DEMO_MONTHS.length - 1].cpm;
+                        const dynSpend = Math.round(row.spend * scale);
+                        const dynClicks = Math.round(row.clicks * scale);
+                        const dynRes = Math.max(
+                          1,
+                          Math.round(row.reservations * scale),
+                        );
+                        const dynMoveIns = Math.max(
+                          1,
+                          Math.round(row.moveIns * scale),
+                        );
+                        const dynCpm = Math.round(row.cpm * cpmMul);
+                        // No prior month → no trend; otherwise inherit the
+                        // baked-in improving story.
+                        const dynTrend = activeMonth === 0 ? "flat" : row.trend;
+                        return (
+                          <tr
+                            key={row.campaign}
+                            style={{
+                              borderTop: "1px solid var(--border-subtle)",
+                              transition:
+                                "opacity 500ms ease-out, transform 500ms ease-out",
+                              transitionDelay: `${450 + i * 70}ms`,
+                              opacity: isVisible ? 1 : 0,
+                              transform: isVisible
+                                ? "translateY(0)"
+                                : "translateY(4px)",
+                            }}
+                          >
+                            <td
+                              className="px-2.5 sm:px-3 py-2 text-[10px] sm:text-[11px]"
+                              style={{ color: "var(--color-dark)" }}
+                            >
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span
+                                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                  style={{
+                                    background:
+                                      CHANNEL_DOT[row.channel] ||
+                                      "var(--color-dark)",
+                                  }}
+                                  aria-label={`${row.channel} channel`}
+                                />
+                                <span className="font-medium truncate">
+                                  {row.campaign}
+                                </span>
+                              </div>
+                            </td>
+                            <td
+                              className="px-2.5 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums transition-colors duration-500"
+                              style={{ color: "var(--text-secondary)" }}
+                            >
+                              ${dynSpend.toLocaleString()}
+                            </td>
+                            <td
+                              className="px-2.5 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums transition-colors duration-500"
+                              style={{ color: "var(--text-secondary)" }}
+                            >
+                              {dynClicks}
+                            </td>
+                            <td
+                              className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums transition-colors duration-500"
+                              style={{ color: "var(--text-secondary)" }}
+                            >
+                              {dynRes}
+                            </td>
+                            <td
+                              className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums font-medium transition-colors duration-500"
+                              style={{ color: "var(--color-dark)" }}
+                            >
+                              {dynMoveIns}
+                            </td>
+                            <td
+                              className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums"
+                              style={{ color: "var(--color-dark)" }}
+                            >
+                              <span className="inline-flex items-center gap-1">
+                                <span className="font-semibold">${dynCpm}</span>
+                                {dynTrend === "down" && (
+                                  <svg
+                                    width="9"
+                                    height="9"
+                                    viewBox="0 0 8 8"
+                                    aria-label="trending down"
+                                  >
+                                    <path
+                                      d="M4 1V7M4 7L1.5 4.5M4 7L6.5 4.5"
+                                      stroke="var(--color-green)"
+                                      strokeWidth="1.3"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      fill="none"
+                                    />
+                                  </svg>
+                                )}
+                                {dynTrend === "flat" && (
+                                  <span
+                                    className="w-2 h-px"
+                                    style={{ background: "var(--text-tertiary)" }}
+                                    aria-label="flat"
+                                  />
+                                )}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -652,6 +1081,65 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Demo footer — small caption that turns the playback into a
+          path to the full /demo page. Auto-play proves the dashboard is
+          real; this link lets the curious go deeper. Left caption tells
+          the user the dashboard is interactive; right link draws the eye
+          (subtle accent pulse) once playback completes. */}
+      <div className="mt-3 flex items-center justify-center gap-3 text-[11px]">
+        <span
+          className="inline-flex items-center gap-1.5"
+          style={{
+            color: "var(--text-tertiary)",
+            fontFamily: "var(--font-heading)",
+          }}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full"
+            style={{
+              background: shouldPlay
+                ? "var(--color-green)"
+                : "var(--border-medium)",
+              animation: shouldPlay
+                ? "hero-live-dot 1.2s ease-in-out infinite"
+                : undefined,
+            }}
+            aria-hidden="true"
+          />
+          {shouldPlay
+            ? "Playing — hover to pause"
+            : isAtEnd
+            ? "Demo complete — see the full version"
+            : reduced
+            ? "Interactive — use the scrubber"
+            : "Interactive — press play"}
+        </span>
+        <span style={{ color: "var(--border-medium)" }} aria-hidden="true">
+          ·
+        </span>
+        <Link
+          href="/demo"
+          className="inline-flex items-center gap-1 font-semibold rounded-md px-1.5 py-0.5 transition-all hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)]"
+          style={{
+            color: "var(--color-dark)",
+            fontFamily: "var(--font-heading)",
+            // Pulse only when playback has truly stopped at the end —
+            // not during the final tick when isPlaying is still true.
+            background:
+              isAtEnd && !isPlaying && !reduced
+                ? "var(--accent-glow)"
+                : undefined,
+            animation:
+              isAtEnd && !isPlaying && !reduced
+                ? "hero-cta-pulse 2.4s ease-in-out infinite"
+                : undefined,
+          }}
+        >
+          Open the full demo
+          <ArrowUpRight size={11} />
+        </Link>
       </div>
 
       {/* Floating channel pills — desktop only. Recolored to charcoal /
@@ -808,6 +1296,7 @@ export function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
             }}
             onMouseEnter={() => setHoveredIdx(i)}
             onMouseLeave={() => setHoveredIdx(null)}
+            onClick={() => setHoveredIdx((prev) => (prev === i ? null : i))}
           >
             {/* Icon */}
             <div
@@ -847,7 +1336,7 @@ export function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
               {feat.desc}
             </p>
 
-            {/* Hover arrow */}
+            {/* Arrow — always visible on touch devices, hover-only on pointer */}
             <div
               className="absolute top-4 right-4 transition-all duration-300"
               style={{
@@ -1601,7 +2090,7 @@ export default function Hero() {
                 fontFamily: "var(--font-heading)",
               }}
             >
-              Predictable move-ins for independent storage
+              REIT-grade marketing for independent storage
             </p>
 
             {/* Headline — the equation. The eyebrow above does the promise
@@ -1621,8 +2110,8 @@ export default function Hero() {
                   on narrow viewports the H1 breaks cleanly between the two
                   halves (e.g. iPhone 17 Pro Max ~440px / Safari) rather than
                   stranding the "=" or "out." on a line of their own. */}
-              Ad&nbsp;spend&nbsp;in{" "}
-              <span className="whitespace-nowrap">= move-ins&nbsp;out.</span>
+              Ad&nbsp;spend&nbsp;in.{" "}
+              <span className="whitespace-nowrap">Move-ins&nbsp;out.</span>
             </h1>
 
             {/* Typewriter */}
@@ -1631,65 +2120,25 @@ export default function Hero() {
               <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
             </div>
 
-            {/* Subheadline — REIT-infrastructure narrative. Names the
-                category, explains the parity move, ties StorageAds to the
-                equation in the H1. */}
+            {/* Subheadline — operator voice. One paragraph that explains
+                the value without corporate jargon. */}
             <p
-              className={`mt-2 sm:mt-2.5 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              className={`mt-2 sm:mt-3 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
                 color: "var(--text-secondary)",
                 lineHeight: 1.5,
-                transitionDelay: "350ms",
+                transitionDelay: "300ms",
                 maxWidth: "460px",
                 textWrap: "pretty",
               }}
             >
-              The REITs operate marketing teams and proprietary tools built around that equation. It&apos;s not a secret, and it&apos;s not new. StorageAds is that infrastructure, productized for independent operators to take control of their occupancy rates through proactive marketing and demand generation.
+              The same equation Public Storage, Extra Space, and CubeSmart have run on for years. StorageAds is that infrastructure &mdash; ads, landing pages, facility auditing, organic capture, reservation conversion &mdash; built for independent operators and tested on our own portfolio.
             </p>
 
-            {/* Capability strip — parallel cadence ("One platform. One
-                operator. Self-serve or fully managed.") makes the offer
-                tangible without bloating the subhead. */}
-            <p
-              className={`mt-3 text-[13px] sm:text-sm font-medium transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{
-                color: "var(--color-dark)",
-                lineHeight: 1.5,
-                transitionDelay: "425ms",
-                maxWidth: "460px",
-                textWrap: "pretty",
-                fontFamily: "var(--font-heading)",
-              }}
-            >
-              Meta and Google paid tenant acquisition. Dedicated landing pages with storEDGE rental embedded. One platform. One operator. Self-serve or fully managed.
-            </p>
-
-            {/* Pipeline flow — shows the Ad → Page → Reserve → Move-in journey */}
-            <div className="mt-4 mb-4 sm:mt-5 sm:mb-5">
-              <PipelineFlow isVisible={isVisible} />
-            </div>
-
-            {/* Pre-CTA bridge — friendly transition from the system to the
-                action. Keeps the audit CTA feeling like a natural next step,
-                not a pop. */}
-            <p
-              className={`mb-2 sm:mb-3 text-sm font-semibold transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{
-                color: "var(--color-dark)",
-                fontFamily: "var(--font-heading)",
-                transitionDelay: "475ms",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              See what we can do for your facility.
-            </p>
-
-            {/* CTAs — both use design-system classes (.btn-primary +
-                .btn-secondary) so they share identical shape, font,
-                padding, mobile width behavior. Only fill differs. */}
-            <div className={`flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-2 sm:gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "500ms" }}>
+            {/* CTAs */}
+            <div className={`mt-5 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-2 sm:gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "400ms" }}>
               <a href="#cta" className="btn-primary group">
-                Get your free facility audit — instant results
+                Request a facility audit
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
               <a
@@ -1698,40 +2147,33 @@ export default function Hero() {
                 rel="noopener noreferrer"
                 className="btn-secondary group"
               >
-                Book a call to review with our team
+                Schedule a walkthrough
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
             </div>
 
-            {/* Reassurance — answers the "what does this cost me to try?"
-                anxiety immediately under the CTAs. Echoes Blake's
-                "= 100% free" framing. */}
-            <p
-              className={`mt-2 sm:mt-3 text-[11px] sm:text-xs font-medium transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{
-                color: "var(--text-tertiary)",
-                fontFamily: "var(--font-heading)",
-                transitionDelay: "600ms",
-                letterSpacing: "0.02em",
-              }}
-            >
-              Both options ={" "}
-              <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>100% free</span>
-              . No card. No contracts.
-            </p>
-
-            {/* Trust signals — three badges. Identity (operator-built),
-                integration (storEDGE), validation (own-portfolio testing). */}
-            <div className={`mt-3 sm:mt-4 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "650ms" }}>
+            {/* Reassurance + trust strip */}
+            <div className={`mt-3 sm:mt-4 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ transitionDelay: "450ms" }}>
+              <p
+                className="text-[11px] sm:text-xs font-medium mb-2.5"
+                style={{
+                  color: "var(--text-tertiary)",
+                  fontFamily: "var(--font-heading)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                No contracts.{" "}
+                <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>Cancel anytime.</span>
+              </p>
               <div className="flex items-center gap-x-3 gap-y-1.5 sm:gap-4 justify-center lg:justify-start flex-wrap">
                 {[
-                  { icon: Star, text: "Built by storage operators, for storage operators" },
-                  { icon: Layers, text: "storEDGE integrated" },
+                  { icon: Star, text: "Built by operators, for operators" },
+                  { icon: Layers, text: "storEDGE rental embedded" },
                   { icon: Globe, text: "Tested on our own facilities first" },
                 ].map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
-                    <div key={badge.text} className="flex items-center gap-1.5 text-[11px] sm:text-xs transition-all duration-500" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${750 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
+                    <div key={badge.text} className="flex items-center gap-1.5 text-[11px] sm:text-xs transition-all duration-500" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${500 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
                       <BadgeIcon size={12} style={{ color: "var(--color-gold)", opacity: 0.7 }} />
                       {badge.text}
                     </div>
@@ -1741,19 +2183,140 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* ── Right column — Dashboard ── */}
-          {/* Dense desktop UI with 3D tilt + horizontal-scroll tabs. Not
-              suited to <lg; MobileLiveTicker below (at slot 6) carries the
-              mobile signal. */}
+          {/* ── Right column — Dashboard (desktop) ── */}
           <div className="hidden lg:block">
             <DashboardMockup isVisible={isVisible} />
+          </div>
+
+          {/* ── Mobile dashboard proof ── */}
+          {/* Condensed stat snapshot so mobile visitors see the same "this
+              is real software" signal the desktop dashboard delivers. Shows
+              the final-month numbers from the same HERO_DEMO_MONTHS data. */}
+          <div
+            className={`lg:hidden w-full transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+            style={{ transitionDelay: "700ms" }}
+          >
+            <div
+              className="border overflow-hidden"
+              style={{
+                borderColor: "var(--line-dim)",
+                background: "var(--bg-alt)",
+              }}
+            >
+              {/* Header bar */}
+              <div
+                className="flex items-center justify-between px-4 py-2.5 border-b"
+                style={{ borderColor: "var(--line-dim)", background: "var(--bg)" }}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-5 h-5 flex items-center justify-center"
+                    style={{ background: "var(--bg-ink)", border: "1px solid var(--line)" }}
+                  >
+                    <span className="text-[8px] font-bold" style={{ color: "var(--bg)", fontFamily: "var(--mono)" }}>SA</span>
+                  </div>
+                  <span className="text-[11px] font-semibold" style={{ color: "var(--text)", fontFamily: "var(--mono)" }}>
+                    Midway Self Storage — 6 months
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="w-1.5 h-1.5"
+                    style={{ background: "var(--hue-c)", borderRadius: "50%" }}
+                  />
+                  <span className="text-[10px] font-medium" style={{ color: "var(--text-dim)", fontFamily: "var(--mono)" }}>
+                    Our facility
+                  </span>
+                </div>
+              </div>
+
+              {/* Stat grid — mirrors final month of HERO_DEMO_MONTHS */}
+              <div className="grid grid-cols-2 sm:grid-cols-4">
+                {[
+                  { label: "Move-ins", value: "85", delta: "+85 from zero", deltaColor: "var(--hue-c)" },
+                  { label: "Cost / move-in", value: "$127", delta: "−$98 from month 1", deltaColor: "var(--hue-c)" },
+                  { label: "Occupancy", value: "89%", delta: "+21 pts", deltaColor: "var(--hue-c)" },
+                  { label: "Total spend", value: "$13.8k", delta: "6 months", deltaColor: "var(--text-faint)" },
+                ].map((s, i) => (
+                  <div
+                    key={s.label}
+                    className="px-4 py-3 border-b sm:border-r last:border-r-0"
+                    style={{
+                      borderColor: "var(--line-dim)",
+                      borderRight: i % 2 === 0 ? "1px solid var(--line-dim)" : undefined,
+                    }}
+                  >
+                    <div className="text-[10px] uppercase tracking-wide" style={{ color: "var(--text-faint)", fontFamily: "var(--mono)" }}>
+                      {s.label}
+                    </div>
+                    <div className="text-lg font-semibold mt-0.5 tabular-nums" style={{ color: "var(--text)", fontFamily: "var(--mono)" }}>
+                      {s.value}
+                    </div>
+                    <div className="text-[10px] mt-0.5 font-medium" style={{ color: s.deltaColor }}>
+                      {s.delta}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mini campaign table — 2 rows to prove it's real data */}
+              <div className="px-4 py-3">
+                <table className="w-full text-left" style={{ borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      {["Campaign", "Move-ins", "Cost/MI"].map((h) => (
+                        <th
+                          key={h}
+                          className="text-[9px] uppercase tracking-wide pb-2 font-semibold"
+                          style={{ color: "var(--text-faint)", fontFamily: "var(--mono)" }}
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { name: "Two Paws — 10x10 Climate", mi: "9", cpm: "$94" },
+                      { name: "Midway — Drive-up", mi: "7", cpm: "$87" },
+                    ].map((row) => (
+                      <tr key={row.name} style={{ borderTop: "1px solid var(--line-dim)" }}>
+                        <td className="py-2 text-[11px] font-medium" style={{ color: "var(--text)" }}>
+                          <span className="truncate block max-w-[180px]">{row.name}</span>
+                        </td>
+                        <td className="py-2 text-[11px] tabular-nums font-semibold" style={{ color: "var(--text)" }}>
+                          {row.mi}
+                        </td>
+                        <td className="py-2 text-[11px] tabular-nums" style={{ color: "var(--text-dim)" }}>
+                          {row.cpm}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Footer link */}
+              <div className="px-4 py-2.5 border-t flex items-center justify-between" style={{ borderColor: "var(--line-dim)" }}>
+                <span className="text-[10px]" style={{ color: "var(--text-faint)", fontFamily: "var(--mono)" }}>
+                  From our own facilities — Midway &amp; Two Paws
+                </span>
+                <Link
+                  href="/demo"
+                  className="text-[10px] font-semibold flex items-center gap-1"
+                  style={{ color: "var(--text)", fontFamily: "var(--mono)" }}
+                >
+                  Full demo <ArrowUpRight size={10} />
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
       <div className={`flex justify-center pb-3 sm:pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
-        <a href="#problem" className="flex flex-col items-center gap-1 group" aria-label="Scroll to learn more">
+        <a href="#how-it-works" className="flex flex-col items-center gap-1 group" aria-label="Scroll to learn more">
           <span className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>Learn more</span>
           <ChevronDown size={16} style={{ color: "var(--text-tertiary)", animation: "hero-scroll-bounce 2s ease-in-out infinite" }} />
         </a>

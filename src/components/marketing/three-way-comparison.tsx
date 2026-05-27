@@ -92,7 +92,7 @@ export default function ThreeWayComparison() {
           number="03"
           kicker="VS THE ALTERNATIVES"
           right={<SectionMeta text="MATRIX · 3×10" />}
-          style={{ marginBottom: 28 }}
+          style={{ marginBottom: 24 }}
         />
         <div
           className={`max-w-3xl mx-auto text-center mb-10 transition-all duration-700 ${

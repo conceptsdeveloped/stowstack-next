@@ -15,36 +15,36 @@ import { useInView } from "./use-in-view";
 
 const FAQS: { q: string; a: string }[] = [
   {
-    q: "Is this an agency?",
-    a: "No. An agency runs your ads under their brand and keeps the campaigns, landing pages, and creative in their accounts. StorageAds is software you sign up for — the ads, the pages, the tracking, everything lives in your dashboard. If you leave, the ad accounts and pages are still yours.",
+    q: "We're not running any ads right now.",
+    a: "Most independent operators aren't. The system is built for that starting point. Market mapping, ad creation, publishing, landing pages, and conversion tracking deploy from zero in the first week.",
   },
   {
-    q: "Do I have to know anything about marketing?",
-    a: "No. The system is built so you don't. You tell us about the facility, we run the ads and build the pages, and the dashboard tells you what's filling units. If you want to dig in, the data's all there. If you don't, the move-in count is the number that matters.",
+    q: "What does the system include?",
+    a: "Market intelligence. Ad creation and publishing to Meta and Google. Dedicated landing pages with storEDGE rental embedded. Retargeting. A/B testing scored by move-in outcome. Reservation-to-move-in conversion. Revenue intelligence. Organic capture. One dashboard.",
   },
   {
-    q: "How fast does it work?",
-    a: "First leads inside seven days. Move-ins start landing in the second or third week as the campaigns gather data and the retargeting fires on the visitors who didn't reserve the first time.",
+    q: "Do we need marketing experience to operate it?",
+    a: "No. The Ad Creator generates campaigns from your facility data. The Publishing Manager deploys them. The system handles targeting, bidding, and creative rotation. Operators approve and monitor.",
   },
   {
-    q: "What if I'm already running ads with someone else?",
-    a: "We'll audit what's there before we touch anything. If your current setup is producing move-ins, we'll tell you. If it's burning cash on clicks that don't convert, you'll have the proof in writing. No contract to leave them, no commitment to start with us.",
+    q: "What is the deployment timeline?",
+    a: "Ads live in the first week. Move-ins begin in weeks two through three as the campaigns accumulate data and retargeting activates. Performance benchmarks are established by month three.",
   },
   {
-    q: "Why is the cost per move-in so low compared to SpareFoot?",
-    a: "Because you're buying ads at media-cost, not paying a finder's fee. SpareFoot takes two months of rent per move-in, forever. We charge a flat fee and the ad spend goes to Meta and Google at cost. On a $150/mo unit at 10 move-ins per month, the math isn't close.",
+    q: "How does the AI Creative Studio work?",
+    a: "It generates ad copy, headlines, and landing page variants from your facility data — unit types, pricing, location, competitive positioning. You review and publish. New creative on demand without a retainer.",
   },
   {
-    q: "Does it work for one facility or do I need a portfolio?",
-    a: "One is fine. The system was built on a single facility (Two Paws in Paw Paw) and is run live on two of ours. There's a separate enterprise tier for ten or more, but everything below that is per-facility pricing.",
+    q: "Single-facility operators?",
+    a: "The system was built on a single facility and runs on our own portfolio. One facility is the primary use case. Enterprise tiers exist for ten or more.",
   },
   {
-    q: "What happens to my storEDGE setup?",
-    a: "Nothing changes. The landing pages embed the storEDGE reservation widget, so the renter books on your branded page and the reservation lands in storEDGE the same as a walk-in. Rates, availability, payment — all stays in your existing system.",
+    q: "storEDGE integration.",
+    a: "Landing pages embed the storEDGE reservation widget. The renter books on your branded page. The reservation appears in storEDGE identically to a walk-in. Rates, availability, and payment processing remain in your existing system.",
   },
   {
-    q: "What if it doesn't work?",
-    a: "If your move-in count hasn't moved in the right direction by the end of month three, month four is on us. No invoice. No fine print. We eat it.",
+    q: "Performance guarantee.",
+    a: "If move-in volume has not improved by the end of month three, month four is complimentary. We deploy this system on our own facilities. Our interests are aligned.",
   },
 ];
 
@@ -64,11 +64,11 @@ export default function FAQ() {
           number="08"
           kicker="QUESTIONS"
           right={<SectionMeta text={`${FAQS.length} ANSWERS`} />}
-          style={{ marginBottom: 28 }}
+          style={{ marginBottom: 24 }}
         />
 
         <div
-          className={`max-w-3xl mx-auto text-center mb-12 transition-all duration-700 ${
+          className={`max-w-3xl mx-auto text-center mb-10 transition-all duration-700 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
@@ -76,7 +76,7 @@ export default function FAQ() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            The stuff operators actually ask.
+            Common questions from operators.
           </h2>
           <p className="mt-4 mx-auto max-w-xl" style={{ color: "var(--text-secondary)" }}>
             If yours isn&apos;t here, email{" "}
@@ -108,7 +108,9 @@ export default function FAQ() {
               >
                 <button
                   type="button"
+                  id={`faq-btn-${i}`}
                   aria-expanded={isOpen}
+                  aria-controls={`faq-panel-${i}`}
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="w-full flex items-start justify-between gap-6 text-left py-5 transition-colors hover:bg-[var(--color-light-gray)]/30 cursor-pointer"
                 >
@@ -120,12 +122,17 @@ export default function FAQ() {
                   </h3>
                   <span
                     className="flex-shrink-0 w-6 h-6 flex items-center justify-center mt-1"
+                    aria-hidden="true"
                     style={{ color: "var(--text-tertiary)" }}
                   >
                     {isOpen ? <Minus size={16} /> : <Plus size={16} />}
                   </span>
                 </button>
                 <div
+                  id={`faq-panel-${i}`}
+                  role="region"
+                  aria-labelledby={`faq-btn-${i}`}
+                  aria-hidden={!isOpen}
                   className="overflow-hidden transition-all duration-300"
                   style={{
                     maxHeight: isOpen ? 400 : 0,

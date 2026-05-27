@@ -121,14 +121,19 @@
    from .admin-theme so admin keeps its own treatment.
    ═══════════════════════════════════════════ */
 
-.urbit-landing:not(.admin-theme) *,
-.urbit-landing:not(.admin-theme) *::before,
-.urbit-landing:not(.admin-theme) *::after {
+.urbit-landing:not(.admin-theme) *:not(.btn-primary):not(.btn-secondary):not(.input-field),
+.urbit-landing:not(.admin-theme) *:not(.btn-primary):not(.btn-secondary):not(.input-field)::before,
+.urbit-landing:not(.admin-theme) *:not(.btn-primary):not(.btn-secondary):not(.input-field)::after {
   border-radius: 0 !important;
 }
 
-.urbit-landing :where(aside, header, main, section, article, div, button, a, span, p, figure, img) {
+.urbit-landing :where(aside, header, main, section, article, div, span, p, figure, img) {
   box-shadow: none !important;
+}
+/* Restore box-shadow on interactive elements so hover/focus states read */
+.urbit-landing :where(button, a).btn-primary,
+.urbit-landing :where(button, a).btn-secondary {
+  box-shadow: unset;
 }
 
 /* Kill gradient backgrounds on marketing — flat ink on flat paper */
@@ -303,8 +308,18 @@
 .urbit-landing input:focus,
 .urbit-landing textarea:focus,
 .urbit-landing select:focus {
-  outline: none;
   border-color: var(--accent) !important;
+}
+.urbit-landing input:focus-visible,
+.urbit-landing textarea:focus-visible,
+.urbit-landing select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.urbit-landing input:focus:not(:focus-visible),
+.urbit-landing textarea:focus:not(:focus-visible),
+.urbit-landing select:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* Section backgrounds — force palette bg, not hard-coded light/white */
@@ -325,7 +340,7 @@
 
 /* Section-content max width: tighter per handoff (1320px, not 1200px) */
 .urbit-landing .section-content {
-  max-width: 1320px;
+  max-width: 1280px;
 }
 
 /* Card / panel inline styles use bg-[var(--color-light-gray)] and
@@ -941,7 +956,7 @@ body {
      .btn-secondary's 1px outline, so dual-CTA pairs render at
      identical heights. */
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background var(--duration-fast) ease,
               transform 100ms ease;
@@ -979,7 +994,7 @@ body {
   font-weight: 500;
   font-size: 15px;
   border: 1px solid var(--color-dark);
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background var(--duration-fast) ease,
               color var(--duration-fast) ease,
@@ -1015,7 +1030,7 @@ body {
   font-size: 16px;
   font-family: var(--font-body);
   color: var(--color-dark);
-  border-radius: 8px;
+  border-radius: 4px;
   -webkit-appearance: none;
   appearance: none;
   outline: none;
@@ -1325,7 +1340,7 @@ body {
   font-family: var(--font-heading);
   font-weight: 500;
   font-size: 13px;
-  border-radius: 4px;
+  border-radius: 4px !important;
   /* Transparent border to match .btn-secondary's 1px outline width
      and keep dual-CTA pairs identical in height on the marketing site. */
   border: 1px solid transparent;
@@ -1345,7 +1360,7 @@ body {
   font-family: var(--font-heading);
   font-weight: 500;
   font-size: 13px;
-  border-radius: 4px;
+  border-radius: 4px !important;
   border: 1px solid var(--text);
   letter-spacing: 0;
 }

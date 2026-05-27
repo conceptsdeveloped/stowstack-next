@@ -36,13 +36,13 @@ export default function Footer() {
               className="text-sm"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Prove which ads produce move-ins.
+              REIT-grade marketing infrastructure for independent operators.
             </p>
             <p
               className="text-xs mt-4 italic"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Built by an operator. Tested at my own facilities first.
+              Deployed on our own portfolio before any client engagement.
             </p>
           </div>
 
@@ -57,18 +57,18 @@ export default function Footer() {
             >
               Navigation
             </p>
-            <div className="space-y-2">
+            <nav aria-label="Footer navigation" className="space-y-2">
               {FOOTER_LINKS.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   className="block text-sm transition-colors"
-                  style={{ color: "var(--text-tertiary)" }}
+                  style={{ color: "var(--text-dim)" }}
                 >
                   {link.label}
                 </a>
               ))}
-            </div>
+            </nav>
           </div>
 
           {/* Contact & Legal */}

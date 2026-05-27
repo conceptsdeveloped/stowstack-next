@@ -110,7 +110,7 @@ export default function FourWayComparison() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="03" kicker="VS THE ALTERNATIVES" right={<SectionMeta text="MATRIX · 4×8" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="03" kicker="VS THE ALTERNATIVES" right={<SectionMeta text="MATRIX · 4×8" />} style={{ marginBottom: 24 }} />
 
         <div
           className={`max-w-3xl mx-auto text-center mb-12 transition-all duration-700 ${

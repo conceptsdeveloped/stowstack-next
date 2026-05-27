@@ -36,7 +36,7 @@ export default function QuickCalculator() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="07" kicker="REVENUE CALCULATOR" right={<SectionMeta text="LEDGER · LIVE" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="07" kicker="REVENUE CALCULATOR" right={<SectionMeta text="LEDGER · LIVE" />} style={{ marginBottom: 24 }} />
         <div
           className={`transition-all duration-700 ${
             isVisible
@@ -44,15 +44,12 @@ export default function QuickCalculator() {
               : "opacity-0 translate-y-4"
           }`}
         >
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/20 text-[var(--color-gold)] text-sm font-medium mb-4">
-              <Calculator size={14} /> Quick Revenue Calculator
-            </div>
+          <div className="text-center mb-10">
             <h2
               className="font-semibold"
               style={{ fontSize: "var(--text-section-head)" }}
             >
-              See What You&apos;re Losing in 10 Seconds
+              Vacancy cost analysis.
             </h2>
           </div>
 
@@ -62,6 +59,7 @@ export default function QuickCalculator() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label
+                      htmlFor="slider-total-units"
                       className="text-sm font-medium"
                       style={{ color: "var(--text-secondary)" }}
                     >
@@ -78,7 +76,12 @@ export default function QuickCalculator() {
                     step={10}
                     value={totalUnits}
                     onChange={(e) => setTotalUnits(Number(e.target.value))}
+                    id="slider-total-units"
                     aria-label="Total units"
+                    aria-valuenow={totalUnits}
+                    aria-valuemin={20}
+                    aria-valuemax={600}
+                    aria-valuetext={`${totalUnits} units`}
                     className="w-full accent-[var(--color-gold)] h-2"
                   />
                   <div className="flex justify-between mt-1">
@@ -100,6 +103,7 @@ export default function QuickCalculator() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label
+                      htmlFor="slider-occupancy"
                       className="text-sm font-medium"
                       style={{ color: "var(--text-secondary)" }}
                     >
@@ -120,7 +124,12 @@ export default function QuickCalculator() {
                     step={1}
                     value={occupancy}
                     onChange={(e) => setOccupancy(Number(e.target.value))}
+                    id="slider-occupancy"
                     aria-label="Current occupancy percentage"
+                    aria-valuenow={occupancy}
+                    aria-valuemin={40}
+                    aria-valuemax={99}
+                    aria-valuetext={`${occupancy}% occupancy`}
                     className="w-full accent-[var(--color-gold)] h-2"
                   />
                   <div className="flex justify-between mt-1">
@@ -166,7 +175,7 @@ export default function QuickCalculator() {
                     className="text-xs uppercase text-[var(--color-gold)] mb-1"
                     style={{ letterSpacing: "var(--tracking-wide)" }}
                   >
-                    StorageAds Projection
+                    With StorageAds
                   </p>
                   <p className="text-3xl font-semibold text-[var(--color-gold)]">
                     {projectedMoveIns}{" "}
@@ -192,7 +201,7 @@ export default function QuickCalculator() {
                   href="#cta"
                   className="btn-primary flex items-center justify-center gap-2 text-sm"
                 >
-                  See the Full Breakdown <ArrowRight size={14} />
+                  Request facility audit <ArrowRight size={14} />
                 </a>
               </div>
             </div>

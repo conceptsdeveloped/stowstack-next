@@ -184,6 +184,7 @@ export default function Nav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
   const scrollProgress = useScrollProgress();
   const activeSection = useActiveSection([
     "how-it-works",
@@ -193,7 +194,11 @@ export default function Nav() {
 
   useScrollLock(isMenuOpen);
 
-  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+  const closeMenu = useCallback(() => {
+    setIsMenuOpen(false);
+    // Return focus to hamburger button on close
+    hamburgerRef.current?.focus();
+  }, []);
 
   useSwipeToClose(menuRef, isMenuOpen, closeMenu);
 
@@ -213,13 +218,49 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* Close on escape */
+  /* Close on escape — returns focus to hamburger via closeMenu */
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape" && isMenuOpen) setIsMenuOpen(false);
+      if (e.key === "Escape" && isMenuOpen) closeMenu();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isMenuOpen, closeMenu]);
+
+  /* Focus trap — keep Tab within the mobile menu panel */
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const panel = menuRef.current;
+    if (!panel) return;
+
+    // Focus the first interactive element on open
+    const focusable = panel.querySelectorAll<HTMLElement>(
+      'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    }
+
+    function trapFocus(e: KeyboardEvent) {
+      if (e.key !== "Tab" || !panel) return;
+      const items = panel.querySelectorAll<HTMLElement>(
+        'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+      );
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", trapFocus);
+    return () => document.removeEventListener("keydown", trapFocus);
   }, [isMenuOpen]);
 
   const handleLinkClick = useCallback(() => {
@@ -265,7 +306,7 @@ export default function Nav() {
           }}
         />
 
-        <div className="max-w-[1200px] mx-auto h-full flex items-center justify-between px-4 sm:px-6">
+        <div className="max-w-[1280px] mx-auto h-full flex items-center justify-between px-4 sm:px-6">
           {/* Logo + LIVE tag */}
           <div className="flex items-center gap-3 relative z-10">
             <Link href="/" className="hover:opacity-80 transition-opacity">
@@ -351,7 +392,7 @@ export default function Nav() {
               }}
               className="hover:[background:var(--bg-hi)]"
             >
-              Book Call
+              Book a Call
             </a>
 
             <a
@@ -374,12 +415,13 @@ export default function Nav() {
                 transition: "all 120ms",
               }}
             >
-              Get Audit →
+              Request Audit →
             </a>
           </div>
 
           {/* ── Animated hamburger button (min 44x44 touch target) ── */}
           <button
+            ref={hamburgerRef}
             className="lg:hidden relative flex items-center justify-center -mr-1"
             onClick={toggleMenu}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -655,12 +697,11 @@ export default function Nav() {
                 fontFamily: "var(--font-heading)",
                 background: "var(--color-gold)",
                 color: "var(--color-light)",
-                borderRadius: "8px",
                 WebkitTapHighlightColor: "transparent",
                 touchAction: "manipulation",
               }}
             >
-              Get a Free Audit
+              Request Audit
               <ArrowRight size={18} />
             </a>
           </div>

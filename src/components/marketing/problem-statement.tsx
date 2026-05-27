@@ -5,19 +5,19 @@ import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 
 const PROBLEMS = [
   {
-    heading: "Every ad goes to the same page.",
-    body: 'Your Google ads, your Facebook ads, your retargeting: all of it dumps traffic onto your homepage or a generic storEDGE rental page. A customer searching "climate controlled storage in Paw Paw" lands on the same page as someone clicking a "first month free" ad. Different intent: same dead-end experience.',
-    highlight: "same dead-end experience",
+    heading: "Average tenant lifetime value: $1,820.",
+    body: "14-month average tenure at $130/month. Acquisition cost on the StorageAds system: $41. The return profile on every incremental move-in is 44:1. This is the math the REITs run on. It works the same for 150 units as it does for 15,000.",
+    highlight: "44:1",
   },
   {
-    heading: "Your rental flow lives on someone else's page.",
-    body: "When a customer finally decides to reserve, they get bounced to an off-brand system page that looks nothing like your facility. You lose trust. You lose conversions. You lose move-ins you already paid to attract.",
-    highlight: "lose move-ins you already paid to attract",
+    heading: "Revenue leakage compounds monthly.",
+    body: "Reservations that don't convert. Competitors you haven't priced against. Reviews unanswered. Organic search uncaptured. Retargeting not deployed. Each one is a source of lost revenue that the system identifies and closes.",
+    highlight: "identifies and closes",
   },
   {
-    heading: "You can't tell what's working.",
-    body: "Which ad produced that move-in last Tuesday? Which campaign actually filled the unit? Which headline brought the renter in? You don't know. Your agency doesn't know either. They're chasing clicks, not leases.",
-    highlight: "chasing clicks, not leases",
+    heading: "The infrastructure gap between REITs and independents is a strategy gap.",
+    body: "Public Storage operates a marketing team, a creative studio, competitive intelligence, and dedicated landing pages per campaign. StorageAds delivers the same capabilities in a single system deployed to your facility.",
+    highlight: "same capabilities",
   },
 ];
 
@@ -32,7 +32,7 @@ export default function ProblemStatement() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="text-container">
-        <SectionHeader number="04" kicker="THE PROBLEM" right={<SectionMeta text="TRUTH · 4" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="04" kicker="THE PROBLEM" right={<SectionMeta text="TRUTH · 4" />} style={{ marginBottom: 24 }} />
         {/* Section headline */}
         <div
           className={`text-center mb-16 transition-all duration-700 ${
@@ -45,8 +45,7 @@ export default function ProblemStatement() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            You&apos;re spending money on ads. You have no idea which ones are
-            filling units.
+            The economics are simple. The infrastructure to act on them hasn&apos;t existed for independents. Until now.
           </h2>
           <p
             className="mt-6 mx-auto"

@@ -91,7 +91,7 @@ export default function SystemOverview() {
       className="section"
       style={{ background: "var(--color-light)" }}
     >
-      <div className="section-content"><SectionHeader number="02" kicker="THE SYSTEM" right={<SectionMeta text="COMPONENTS · 6" />} style={{ marginBottom: 28 }} /></div>
+      <div className="section-content"><SectionHeader number="02" kicker="THE SYSTEM" right={<SectionMeta text="COMPONENTS · 6" />} style={{ marginBottom: 24 }} /></div>
       <div ref={ref} className="text-container">
         <div
           className={`max-w-3xl mx-auto text-center mb-16 transition-all duration-700 ${

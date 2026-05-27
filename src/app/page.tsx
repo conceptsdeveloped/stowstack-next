@@ -2,13 +2,10 @@
 
 import dynamic from "next/dynamic";
 import Hero, {
-  MobileLiveTicker,
   BecauseLetterboard,
-  FeatureHighlights,
   CapabilitiesGrid,
   BeforeAfterComparison,
   LiveStatsStrip,
-  ROITeaser,
   StatsBar,
 } from "@/components/marketing/hero";
 import ProblemStatement from "@/components/marketing/problem-statement";
@@ -42,75 +39,28 @@ const DemandTriggers = dynamic(
 const Footer = dynamic(() => import("@/components/marketing/footer"));
 
 /* ───────────────────────────────────────────────────────────────────────────
- * Homepage IA — Product-first SaaS conversion sequence
+ * Homepage IA — Product-first SaaS conversion sequence (consolidated)
  *
- *  Scroll  §   Component               Role
- *  ─────  ──  ──────────────────────   ──────────────────────────────────────
- *    1    —   <Hero />                 Hook + primary CTA
- *    2    01  <HowItWorks />           How the product works (start here)
- *    —    —   <SolutionVisuals />      Pipeline + Feature highlight cards
- *    3    02  <SystemOverview />       The system — 6 parts wired together
- *    —    —   <CapabilitiesSection />  Full platform capabilities grid
- *    4    03  <FourWayComparison />    StorageAds vs StorageRankers / Adverank / SpareFoot
- *    —    —   <BeforeAfterSection />   Before/after broken-workflow pairs
- *    5    04  <ProblemStatement />     The underlying problem
- *    —    —   <BecauseLetterboard />   Pain refrain (split-flap)
- *    6    05  <InactionTimeline />     Cost of inaction (problem amplifier)
- *    7    06  <Results />              Operator case studies + ROI math
- *    —    —   <LiveStatsSection />     §00 NUMBERS industry/forecast strip
- *    —    —   <StatsBar />             4 hero-stat counters
- *    —    —   <ROISection />           90-day performance snapshot
- *    —    —   <MobileLiveTickerSection /> Mobile-only live activity ticker
- *    —    —   <DemandTriggers />       9 demand moments — operator credibility
- *                                       interlude right before pricing
- *    8    07  <QuickCalculator />      Revenue calculator (surfaces $749)
- *    9    08  <Faq />                  Objection handling (8 Q+A pairs)
- *   10    09  <CTASection />           Final CTA (audit form + Cal.com)
- *
- * SaaS flow: product → differentiator → problem/pain → proof → operator
- * credibility → price → objections → close. Operator-cred sits late in
- * the funnel as a final reassurance, not high-up filler.
+ *  §   Component               Role
+ *  ──  ──────────────────────   ──────────────────────────────────────
+ *  —   <Hero />                 Hook + primary CTA + mobile dashboard proof
+ *  01  <HowItWorks />           Steps + pipeline flow + feature highlights
+ *  02  <SystemOverview />       The system — 6 parts wired together
+ *  —   <CapabilitiesSection />  Full platform capabilities grid
+ *  03  <FourWayComparison />    StorageAds vs alternatives
+ *  —   <BeforeAfterSection />   Before/after broken-workflow pairs
+ *  04  <ProblemStatement />     The underlying problem
+ *  —   <BecauseLetterboard />   Pain refrain (split-flap)
+ *  05  <InactionTimeline />     Cost of inaction
+ *  06  <Results />              Proof — case studies + stats + StatsBar
+ *  —   <LiveStatsSection />     Industry/forecast numbers
+ *  —   <StatsBar />             4 hero-stat counters
+ *  —   <DemandTriggers />       Operator-credibility interlude
+ *  07  <QuickCalculator />      Revenue calculator (surfaces $749)
+ *  08  <FAQ />                  Objection handling (8 Q+A pairs)
+ *  09  <CTASection />           Final CTA (4-field audit form + Cal.com)
  * ───────────────────────────────────────────────────────────────────────────
  */
-
-/* ─── Slot 3 visuals — feature highlight cards.
-       The pipeline flow + dashboard mockup that used to render here are
-       now restored to Angelo's hero block above. ─── */
-function SolutionVisuals() {
-  const { ref, isVisible } = useInView(0.08);
-  return (
-    <section
-      ref={ref}
-      aria-label="How the StorageAds system flows from ad to lease"
-      className="relative border-t"
-      style={{ borderColor: "var(--border-subtle)" }}
-    >
-      <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-12 sm:py-16">
-        <div
-          className={`text-center mb-6 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-        >
-          <h2
-            className="text-lg sm:text-xl font-semibold"
-            style={{
-              fontFamily: "var(--serif)",
-              letterSpacing: "-0.03em",
-              color: "var(--color-dark)",
-            }}
-          >
-            Everything you need to fill units.
-          </h2>
-          <p
-            className="text-sm mt-1 mx-auto"
-            style={{ color: "var(--text-secondary)", maxWidth: "480px" }}
-          >
-            Demand generation, custom landing pages, embedded rentals — and the receipts that prove which ads filled which units.
-          </p>
-        </div>
-        <FeatureHighlights isVisible={isVisible} />
-      </div>
-    </section>
-  );
-}
 
 /* ─── Slot 4 — before/after extension ─── */
 function BeforeAfterSection() {
@@ -203,41 +153,6 @@ function LiveStatsSection() {
   );
 }
 
-/* ─── Slot 6 — 90-day ROI snapshot ─── */
-function ROISection() {
-  const { ref, isVisible } = useInView(0.1);
-  return (
-    <section
-      ref={ref}
-      aria-label="90-day performance snapshot"
-      className="relative border-t"
-      style={{ borderColor: "var(--border-subtle)" }}
-    >
-      <div className="max-w-[1280px] mx-auto px-5 sm:px-8 lg:px-14 py-12 sm:py-16">
-        <ROITeaser isVisible={isVisible} />
-      </div>
-    </section>
-  );
-}
-
-/* ─── Slot 6 — mobile ticker (hidden on desktop — MobileLiveTicker
-       itself is `sm:hidden`; wrapping section matches so it doesn't
-       reserve vertical space on desktop). ─── */
-function MobileLiveTickerSection() {
-  const { ref, isVisible } = useInView(0.05);
-  return (
-    <section
-      ref={ref}
-      aria-label="Live activity ticker"
-      className="relative sm:hidden"
-    >
-      <div className="max-w-[1280px] mx-auto px-5 py-6">
-        <MobileLiveTicker isVisible={isVisible} />
-      </div>
-    </section>
-  );
-}
-
 export default function HomePage() {
   return (
     <>
@@ -246,9 +161,8 @@ export default function HomePage() {
         {/* Hero */}
         <Hero />
 
-        {/* §01 — How it works (starts the page, per Blake) */}
+        {/* §01 — How it works + feature highlights (merged) */}
         <HowItWorks />
-        <SolutionVisuals />
 
         {/* §02 — The system (6 parts wired together) */}
         <SystemOverview />
@@ -265,12 +179,10 @@ export default function HomePage() {
         {/* §05 — Cost of inaction (problem amplifier, follows the refrain) */}
         <InactionTimeline />
 
-        {/* §06 — Proof / Angelo numbers (demoted from above-the-fold) */}
+        {/* §06 — Proof (Results + stats + ROI consolidated) */}
         <Results />
         <LiveStatsSection />
         <StatsBar />
-        <ROISection />
-        <MobileLiveTickerSection />
 
         {/* Demand triggers — operator-credibility / market knowledge.
             Moved from after SolutionVisuals (was too high up) to right

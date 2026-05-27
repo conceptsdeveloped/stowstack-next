@@ -9,36 +9,41 @@ import { useInView } from "./use-in-view";
 const CALCOM_SLUG = "storageads/30min";
 
 const TRUST_SIGNALS = [
-  { icon: Shield, text: "No contracts required" },
-  { icon: Clock, text: "First leads within 7 days" },
-  { icon: Wrench, text: "Built and run by a storage operator" },
+  { icon: Shield, text: "No long-term contracts" },
+  { icon: Clock, text: "Deployed in the first week" },
+  { icon: Wrench, text: "Operator-built, operator-tested" },
   { icon: Zap, text: "storEDGE integrated" },
 ];
 
-const OCCUPANCY_OPTIONS = [
-  "Below 60%",
-  "60-75%",
-  "75-85%",
-  "85-95%",
-  "Above 95%",
-];
 
 export default function CTASection() {
   const { ref, isVisible } = useInView();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [calLoaded, setCalLoaded] = useState(false);
+  const [calFailed, setCalFailed] = useState(false);
   const [mobileTab, setMobileTab] = useState<"audit" | "call">("audit");
   const calContainerRef = useRef<HTMLDivElement>(null);
 
-  // Load Cal.com embed script
+  // Load Cal.com embed script with 8s timeout fallback
   useEffect(() => {
-    if (calLoaded) return;
+    if (calLoaded || calFailed) return;
+
+    const timeoutId = setTimeout(() => {
+      if (!calLoaded) setCalFailed(true);
+    }, 8000);
 
     const script = document.createElement("script");
     script.src = "https://app.cal.com/embed/embed.js";
     script.async = true;
+    script.onerror = () => {
+      clearTimeout(timeoutId);
+      setCalFailed(true);
+    };
     script.onload = () => {
+      clearTimeout(timeoutId);
       // @ts-expect-error Cal is injected globally by the embed script
       if (window.Cal) {
         // @ts-expect-error Cal is injected globally
@@ -56,34 +61,98 @@ export default function CTASection() {
           hideEventTypeDetails: false,
         });
         setCalLoaded(true);
+      } else {
+        setCalFailed(true);
       }
     };
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup is intentionally omitted — Cal.com attaches globally once
+      clearTimeout(timeoutId);
     };
-  }, [calLoaded]);
+  }, [calLoaded, calFailed]);
+
+  function validateField(name: string, value: string) {
+    if (name === "email" && value) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return "Please enter a valid email address.";
+      }
+    }
+    if (["name", "email", "facilityName", "location"].includes(name) && !value.trim()) {
+      return "This field is required.";
+    }
+    return "";
+  }
+
+  function handleBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+    setFieldErrors((prev) => ({ ...prev, [name]: error }));
+  }
+
+  function handleFieldChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name } = e.target;
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  }
 
   async function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    // Idempotency: prevent double-submit (mobile double-tap, bounce, etc.)
+    if (isSubmitting || isSubmitted) return;
+
     setIsSubmitting(true);
+    setSubmitError(null);
 
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
+    const data = Object.fromEntries(formData) as Record<string, string>;
+
+    // Honeypot: real users leave this hidden field empty. Bots fill every
+    // input. If filled, drop the submission silently with a fake "success"
+    // so bots don't get feedback to iterate.
+    if (data.website_url && data.website_url.trim() !== "") {
+      setIsSubmitted(true);
+      setIsSubmitting(false);
+      return;
+    }
+    delete data.website_url;
+
+    // 20s timeout so a hung network never leaves the user stuck on "Sending..."
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     try {
       const res = await fetch("/api/audit-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        signal: controller.signal,
       });
       if (res.ok) {
         setIsSubmitted(true);
+      } else if (res.status === 429) {
+        setSubmitError(
+          "Too many requests from your network. Please wait a minute and try again."
+        );
+      } else {
+        const payload = await res.json().catch(() => null);
+        setSubmitError(
+          payload?.error ||
+            "We couldn't send your audit request. Please try again or email blake@storageads.com."
+        );
       }
-    } catch {
-      // Silently handle - user can retry
+    } catch (err) {
+      const aborted =
+        err instanceof DOMException && err.name === "AbortError";
+      setSubmitError(
+        aborted
+          ? "The request took too long. Please check your connection and try again."
+          : "Network error — please check your connection and try again."
+      );
     } finally {
+      clearTimeout(timeoutId);
       setIsSubmitting(false);
     }
   }
@@ -96,9 +165,9 @@ export default function CTASection() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="09" kicker="FREE AUDIT" right={<SectionMeta text="STEP · FINAL" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="09" kicker="FREE AUDIT" right={<SectionMeta text="STEP · FINAL" />} style={{ marginBottom: 24 }} />
         <div
-          className={`text-center mb-12 transition-all duration-700 ${
+          className={`text-center mb-10 transition-all duration-700 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
@@ -108,22 +177,20 @@ export default function CTASection() {
             className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Your ads are going to the wrong page. Let&apos;s fix that.
+            Request a facility audit.
           </h2>
           <p
             className="mt-4 max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary)" }}
           >
-            Get a free facility audit. We look at your Google listing, your ads,
-            your website, your rental flow, and what your competitors are doing.
-            Then we show you where you&apos;re leaking move-ins.
+            Competitive positioning, revenue leakage analysis, and a deployment
+            plan for your facility. Complimentary.
           </p>
           <p
             className="mt-2"
             style={{ color: "var(--text-tertiary)" }}
           >
-            No contracts. No commitment. Just a clear picture of what&apos;s
-            costing you move-ins.
+            No commitment required.
           </p>
         </div>
 
@@ -167,37 +234,15 @@ export default function CTASection() {
             }`}
           >
             <h3 className="text-lg font-semibold text-[var(--color-dark)] mb-6">
-              Tell us about your facility.
+              Facility information.
             </h3>
 
-            {/* Deep Diagnostic CTA — escalation to the longer-form audit */}
-            <a
-              href="/diagnostic"
-              className="mb-6 flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-[var(--color-dark)] hover:text-[var(--color-light)] group"
-              style={{
-                borderColor: "var(--color-dark)",
-                background: "var(--color-light)",
-              }}
-            >
-              <div
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg group-hover:bg-[var(--color-light)] group-hover:text-[var(--color-dark)]"
-                style={{ background: "var(--color-dark)", color: "var(--color-light)" }}
-              >
-                <Zap size={18} />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold" style={{ color: "var(--color-dark)" }}>
-                  Want the deep diagnostic instead?
-                </p>
-                <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
-                  5-minute form. Instant scored audit with benchmarks and an action plan.
-                </p>
-              </div>
-              <ArrowRight size={16} className="shrink-0" />
-            </a>
-
             {isSubmitted ? (
-              <div className="text-center py-12">
+              <div
+                className="text-center py-12"
+                role="status"
+                aria-live="polite"
+              >
                 <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
                   <Check size={32} className="text-green-400" />
                 </div>
@@ -205,113 +250,152 @@ export default function CTASection() {
                   Audit requested
                 </h4>
                 <p style={{ color: "var(--text-secondary)" }}>
-                  We&apos;ll get back to you within 24 hours with your
-                  facility audit.
+                  You&apos;ll hear from me within 24 hours with the numbers.
+                </p>
+                <p
+                  className="text-sm mt-4"
+                  style={{ color: "var(--text-tertiary)" }}
+                >
+                  Don&apos;t want to wait?{" "}
+                  <a
+                    href={`https://cal.com/${CALCOM_SLUG}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline font-medium"
+                    style={{ color: "var(--color-dark)" }}
+                  >
+                    Just book a call right now
+                  </a>
+                  .
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleFormSubmit} className="space-y-5" role="form" aria-label="Free facility audit request">
+              <form
+                onSubmit={handleFormSubmit}
+                className="space-y-5"
+                aria-label="Free facility audit request"
+                noValidate={false}
+              >
+                {/* Honeypot — visually hidden, but accessible to bots that
+                    auto-fill every input. Tab-skipped and aria-hidden so it
+                    never reaches real users or assistive tech. */}
                 <input
-                  name="name"
-                  placeholder="Your name"
-                  required
-                  aria-required="true"
-                  aria-label="Your name"
-                  className="input-field"
+                  type="text"
+                  name="website_url"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    left: "-10000px",
+                    width: 1,
+                    height: 1,
+                    opacity: 0,
+                    pointerEvents: "none",
+                  }}
                 />
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Email address"
-                  required
-                  aria-required="true"
-                  aria-label="Email address"
-                  className="input-field"
-                />
-                <input
-                  name="phone"
-                  type="tel"
-                  placeholder="Phone number (optional)"
-                  aria-label="Phone number (optional)"
-                  className="input-field"
-                />
-                <input
-                  name="facilityName"
-                  placeholder="Facility name"
-                  required
-                  aria-required="true"
-                  aria-label="Facility name"
-                  className="input-field"
-                />
-                <input
-                  name="location"
-                  placeholder="Facility location (city, state)"
-                  required
-                  aria-required="true"
-                  aria-label="Facility location (city, state)"
-                  className="input-field"
-                />
-                <input
-                  name="totalUnits"
-                  placeholder="Number of units (approximate)"
-                  aria-label="Number of units (approximate)"
-                  className="input-field"
-                />
-                <select
-                  name="occupancyRange"
-                  className="input-field"
-                  defaultValue=""
-                  aria-label="Current occupancy range"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
-                  <option value="" disabled>
-                    Current occupancy range
-                  </option>
-                  {OCCUPANCY_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  name="runningAds"
-                  className="input-field"
-                  defaultValue=""
-                  aria-label="Are you currently running paid ads?"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
-                  <option value="" disabled>
-                    Are you currently running paid ads?
-                  </option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                  <option value="not-sure">Not sure</option>
-                </select>
-                <textarea
-                  name="biggestChallenge"
-                  placeholder="What is your biggest challenge right now?"
-                  rows={3}
-                  aria-label="What is your biggest challenge right now?"
-                  className="input-field resize-none"
-                  style={{ borderBottom: "1px solid var(--border-medium)" }}
-                />
-                <input
-                  name="howHeard"
-                  placeholder="How did you hear about StorageAds? (optional)"
-                  aria-label="How did you hear about StorageAds? (optional)"
-                  className="input-field"
-                />
+                <div>
+                  <input
+                    name="name"
+                    placeholder="Your name"
+                    required
+                    autoComplete="name"
+                    autoCapitalize="words"
+                    aria-required="true"
+                    aria-label="Your name"
+                    aria-invalid={!!fieldErrors.name}
+                    aria-describedby={fieldErrors.name ? "name-error" : undefined}
+                    onBlur={handleBlur}
+                    onChange={handleFieldChange}
+                    className="input-field"
+                  />
+                  {fieldErrors.name && (
+                    <p id="name-error" className="text-xs mt-1" style={{ color: "var(--accent)" }}>{fieldErrors.name}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    name="email"
+                    type="email"
+                    inputMode="email"
+                    placeholder="Email address"
+                    required
+                    autoComplete="email"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    aria-required="true"
+                    aria-label="Email address"
+                    aria-invalid={!!fieldErrors.email}
+                    aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                    onBlur={handleBlur}
+                    onChange={handleFieldChange}
+                    className="input-field"
+                  />
+                  {fieldErrors.email && (
+                    <p id="email-error" className="text-xs mt-1" style={{ color: "var(--accent)" }}>{fieldErrors.email}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    name="facilityName"
+                    placeholder="Facility name"
+                    required
+                    autoComplete="organization"
+                    autoCapitalize="words"
+                    aria-required="true"
+                    aria-label="Facility name"
+                    aria-invalid={!!fieldErrors.facilityName}
+                    aria-describedby={fieldErrors.facilityName ? "facilityName-error" : undefined}
+                    onBlur={handleBlur}
+                    onChange={handleFieldChange}
+                    className="input-field"
+                  />
+                  {fieldErrors.facilityName && (
+                    <p id="facilityName-error" className="text-xs mt-1" style={{ color: "var(--accent)" }}>{fieldErrors.facilityName}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    name="location"
+                    placeholder="Facility location (city, state)"
+                    required
+                    autoComplete="address-level2"
+                    autoCapitalize="words"
+                    aria-required="true"
+                    aria-label="Facility location (city, state)"
+                    aria-invalid={!!fieldErrors.location}
+                    aria-describedby={fieldErrors.location ? "location-error" : undefined}
+                    onBlur={handleBlur}
+                    onChange={handleFieldChange}
+                    className="input-field"
+                  />
+                  {fieldErrors.location && (
+                    <p id="location-error" className="text-xs mt-1" style={{ color: "var(--accent)" }}>{fieldErrors.location}</p>
+                  )}
+                </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
                   className="btn-primary w-full"
                 >
-                  {isSubmitting ? "Sending..." : "Get My Free Audit"}
+                  {isSubmitting ? "Submitting..." : "Request audit"}
                 </button>
 
+                {submitError && (
+                  <p
+                    role="alert"
+                    aria-live="assertive"
+                    className="text-sm text-center"
+                    style={{ color: "var(--color-red)" }}
+                  >
+                    {submitError}
+                  </p>
+                )}
+
                 <div className="flex flex-wrap gap-4 justify-center pt-2">
-                  {["Response within 24 hours.", "Free — no credit card required.", "Takes 2 minutes."].map(
+                  {["Response within 24 hours.", "Complimentary.", "No commitment."].map(
                     (text) => (
                       <p
                         key={text}
@@ -324,6 +408,32 @@ export default function CTASection() {
                     )
                   )}
                 </div>
+
+                {/* Diagnostic upsell — below the form so it doesn't compete */}
+                <a
+                  href="/diagnostic"
+                  className="flex items-center gap-3 border p-4 transition-colors hover:bg-[var(--color-dark)] hover:text-[var(--color-light)] group"
+                  style={{
+                    borderColor: "var(--border-subtle)",
+                    background: "var(--color-light)",
+                  }}
+                >
+                  <div
+                    className="flex h-9 w-9 shrink-0 items-center justify-center group-hover:bg-[var(--color-light)] group-hover:text-[var(--color-dark)]"
+                    style={{ background: "var(--color-dark)", color: "var(--color-light)" }}
+                  >
+                    <Zap size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold" style={{ color: "var(--color-dark)" }}>
+                      Full diagnostic with industry benchmarks
+                    </p>
+                    <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+                      Scored diagnostic across 8 categories. Industry benchmarks. Instant.
+                    </p>
+                  </div>
+                  <ArrowRight size={14} className="shrink-0" />
+                </a>
               </form>
             )}
           </div>
@@ -341,15 +451,15 @@ export default function CTASection() {
             <div className="flex items-center gap-3 mb-3">
               <Calendar size={20} style={{ color: "var(--accent)" }} />
               <h3 className="text-lg font-semibold text-[var(--color-dark)]">
-                Book with me anytime
+                Schedule a walkthrough
               </h3>
             </div>
             <p
               className="mb-6"
               style={{ color: "var(--text-secondary)" }}
             >
-              30-minute strategy call. Operator to operator. No pitch deck.
-              No account executives. Just Blake walking through your situation.
+              30-minute system walkthrough. Your facility&apos;s market map,
+              competitive audit, and deployment plan. Direct with the founding team.
             </p>
 
             {/* Cal.com inline embed container */}
@@ -360,7 +470,7 @@ export default function CTASection() {
               style={{ minHeight: 550 }}
             >
               {/* Cal.com embed script injects the booking UI here */}
-              {!calLoaded && (
+              {!calLoaded && !calFailed && (
                 <div className="flex flex-col items-center justify-center gap-4 py-16 animate-pulse">
                   <div className="w-14 h-14 rounded-full bg-[var(--color-dark)]/5 flex items-center justify-center">
                     <Calendar size={24} style={{ color: "var(--text-tertiary)" }} />
@@ -375,6 +485,23 @@ export default function CTASection() {
                   <p className="text-xs mt-2" style={{ color: "var(--text-tertiary)" }}>
                     Loading calendar...
                   </p>
+                </div>
+              )}
+              {calFailed && !calLoaded && (
+                <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+                  <Calendar size={32} style={{ color: "var(--text-tertiary)" }} />
+                  <p className="text-sm font-medium" style={{ color: "var(--color-dark)" }}>
+                    Calendar couldn&apos;t load.
+                  </p>
+                  <a
+                    href={`https://cal.com/${CALCOM_SLUG}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold transition-colors"
+                    style={{ color: "var(--color-dark)" }}
+                  >
+                    Book directly on Cal.com <ArrowRight size={14} />
+                  </a>
                 </div>
               )}
             </div>
@@ -401,6 +528,7 @@ export default function CTASection() {
                   >
                     <Icon
                       size={16}
+                      aria-hidden="true"
                       style={{ color: "var(--text-tertiary)" }}
                     />
                     <span

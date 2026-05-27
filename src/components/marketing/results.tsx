@@ -40,7 +40,7 @@ export default function Results() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="06" kicker="RESULTS" right={<SectionMeta text="CASE STUDIES" />} style={{ marginBottom: 28 }} />
+        <SectionHeader number="06" kicker="RESULTS" right={<SectionMeta text="CASE STUDIES" />} style={{ marginBottom: 24 }} />
         <div
           className={`text-center transition-all duration-700 ${
             isVisible
