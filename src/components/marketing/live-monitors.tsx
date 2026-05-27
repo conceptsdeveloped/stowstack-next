@@ -118,7 +118,7 @@ export function LiveMovesMini() {
   );
 }
 
-/* ─── Attribution 90D sparkline ─── */
+/* ─── Tracked move-ins, 90D sparkline ─── */
 
 export function LiveAttrMini() {
   const N = 90;
@@ -175,7 +175,7 @@ export function LiveAttrMini() {
 
   return (
     <Panel
-      label="ATTRIBUTION · 90D"
+      label="TRACKED MOVE-INS · 90D"
       right={<Val color={MONO.textAccent}>{last.toFixed(1)}%</Val>}
     >
       <div style={{ padding: "10px 10px 8px" }}>

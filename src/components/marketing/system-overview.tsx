@@ -114,7 +114,7 @@ export default function SystemOverview() {
               fontSize: "var(--text-body)",
             }}
           >
-            Ads, pages, the reserve button, and the receipts — all wired together. Not an agency guessing on your behalf. A system that fills units and shows its work.
+            Market intelligence, ads, pages, the reserve flow, and reservation conversion. One platform, wired together, that fills units and shows its work.
           </p>
         </div>
 

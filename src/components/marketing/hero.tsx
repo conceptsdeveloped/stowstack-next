@@ -250,15 +250,19 @@ const STATS = [
   { value: 35, prefix: "", suffix: "x", label: "Return on ad spend", decimals: 0, icon: BarChart3 },
 ];
 
+// Ordered to mirror the funnel: see the field, run ads, convert,
+// capture organic, optimize, increase per-tenant revenue. Market
+// intelligence leads because that's where Blake says every audit
+// actually starts.
 const CAPABILITIES = [
+  { icon: Search, label: "Market Intelligence", desc: "Competitor pricing, reviews, positioning, and trade area analysis. See the field before you spend a dollar.", color: "#8a70b0" },
   { icon: Sparkles, label: "Ad Creator", desc: "Generate Meta and Google ads from facility data. Copy, headlines, creative.", color: "var(--color-blue)" },
-  { icon: Megaphone, label: "Publishing Manager", desc: "Publish to Meta and Google from one dashboard.", color: "var(--color-dark)" },
-  { icon: FileText, label: "Landing Pages", desc: "Dedicated page per campaign. storEDGE rental flow embedded.", color: "var(--color-green)" },
-  { icon: Search, label: "Market Intelligence", desc: "Competitor pricing, reviews, positioning, and trade area analysis.", color: "#8a70b0" },
-  { icon: Target, label: "Organic Capture", desc: "Google Business Profile, review management, walk-in attribution.", color: "var(--color-dark)" },
-  { icon: BarChart3, label: "Reservation Conversion", desc: "Automated follow-up. Reservation-to-move-in tracking and recovery.", color: "var(--color-blue)" },
-  { icon: Eye, label: "A/B Testing", desc: "Headlines, offers, and pages tested by move-in outcome.", color: "var(--color-green)" },
-  { icon: Activity, label: "Revenue Intelligence", desc: "Rate optimization, ancillary revenue, tax advantages, occupancy modeling.", color: "#8a70b0" },
+  { icon: Megaphone, label: "Publishing Manager", desc: "Publish to Meta and Google from one dashboard. Both channels, side by side.", color: "var(--color-dark)" },
+  { icon: FileText, label: "Landing Pages", desc: "Dedicated page per campaign. storEDGE rental flow embedded so the renter books on your branded page.", color: "var(--color-green)" },
+  { icon: Target, label: "Organic Capture", desc: "Google Business Profile, review management, walk-in capture. The leads you already get, organized.", color: "var(--color-dark)" },
+  { icon: BarChart3, label: "Reservation Conversion", desc: "Automated follow-up. Reservation-to-move-in recovery. Stop leaking revenue at the bottom of the funnel.", color: "var(--color-blue)" },
+  { icon: Eye, label: "A/B Testing", desc: "Headlines, offers, and pages scored by move-ins, not clicks.", color: "var(--color-green)" },
+  { icon: Activity, label: "Revenue Intelligence", desc: "Rate optimization, ancillary revenue, tax advantages, occupancy modeling. Increase the lifetime value of every tenant.", color: "#8a70b0" },
 ];
 
 const PIPELINE_STEPS = [
@@ -268,12 +272,15 @@ const PIPELINE_STEPS = [
   { icon: Target, label: "Move-in", sublabel: "Signed lease" },
 ];
 
+// Mix of proof points (numbers from Blake's portfolio) and system framing
+// (create / capture / recapture, REIT-grade tools, reach 100%). Keeps the
+// hook from reading as a single dimension.
 const TYPEWRITER_WORDS = [
+  "Create demand. Capture demand. Recapture demand.",
   "34 move-ins in 90 days.",
-  "71% to 84% occupancy in one quarter.",
-  "8.7% landing page conversion.",
-  "$41 per move-in, all in.",
-  "Tested on our own portfolio first.",
+  "REIT-grade tools to reach 100% occupancy.",
+  "71% to 84% in one quarter.",
+  "Stop leaking revenue at every step of the funnel.",
 ];
 
 const FEATURE_HIGHLIGHTS = [
@@ -472,41 +479,41 @@ function StatItem({ stat, active, delay }: { stat: (typeof STATS)[0]; active: bo
 // Demo data — designed to match the public stats on the rest of the site so
 // the numbers reconcile between hero, ROI, and funnel sections.
 const DASHBOARD_ROWS = [
-  { campaign: "Two Paws — 10x10 Climate", channel: "Meta", spend: 847, clicks: 312, reservations: 14, moveIns: 9, cpm: 94, trend: "down" as const },
-  { campaign: "Midway — Drive-up", channel: "Google", spend: 612, clicks: 198, reservations: 11, moveIns: 7, cpm: 87, trend: "down" as const },
-  { campaign: "Two Paws — Boat / RV", channel: "Meta", spend: 423, clicks: 156, reservations: 6, moveIns: 4, cpm: 106, trend: "flat" as const },
-  { campaign: "Midway — Climate retarget", channel: "Meta", spend: 298, clicks: 89, reservations: 5, moveIns: 4, cpm: 74, trend: "down" as const },
+  { campaign: "Two Paws · 10x10 Climate", channel: "Meta", spend: 847, clicks: 312, reservations: 14, moveIns: 9, cpm: 94, trend: "down" as const },
+  { campaign: "Midway · Drive-up", channel: "Google", spend: 612, clicks: 198, reservations: 11, moveIns: 7, cpm: 87, trend: "down" as const },
+  { campaign: "Two Paws · Boat / RV", channel: "Meta", spend: 423, clicks: 156, reservations: 6, moveIns: 4, cpm: 106, trend: "flat" as const },
+  { campaign: "Midway · Climate retarget", channel: "Meta", spend: 298, clicks: 89, reservations: 5, moveIns: 4, cpm: 74, trend: "down" as const },
 ];
 
 // 6-month campaign progression — mirrors /demo data so the hero dashboard
 // can scrub through the same story the full demo tells. Compounds month over
 // month: spend climbs slowly, CPM drops as the system learns.
-// topAudience + topCreative feed the "Campaign intelligence" preview tile
-// so each month surfaces a different audience and creative pairing.
 const HERO_DEMO_MONTHS = [
-  { label: "Oct 2025", short: "Oct", spend: 1800, leads: 42, moveIns: 8,  cpm: 225, occupancy: 68, rowScale: 0.62, trend: "flat" as const, topAudience: "Lookalike 1%",      topCreative: "Your Stuff Deserves Better" },
-  { label: "Nov 2025", short: "Nov", spend: 2100, leads: 58, moveIns: 12, cpm: 175, occupancy: 73, rowScale: 0.74, trend: "down" as const, topAudience: "Recently Moved",    topCreative: "Unit Size Guide" },
-  { label: "Dec 2025", short: "Dec", spend: 2100, leads: 51, moveIns: 10, cpm: 210, occupancy: 76, rowScale: 0.81, trend: "flat" as const, topAudience: "14-Day Retarget",   topCreative: "Holiday Declutter" },
-  { label: "Jan 2026", short: "Jan", spend: 2400, leads: 67, moveIns: 15, cpm: 160, occupancy: 80, rowScale: 0.90, trend: "down" as const, topAudience: "Phone Call LAL",    topCreative: "$1 First Month" },
-  { label: "Feb 2026", short: "Feb", spend: 2400, leads: 74, moveIns: 18, cpm: 133, occupancy: 85, rowScale: 0.96, trend: "down" as const, topAudience: "Life Event",        topCreative: "Move-In in 10 Minutes" },
+  { label: "Oct 2025", short: "Oct", spend: 1800, leads: 42, moveIns: 8,  cpm: 225, occupancy: 68, rowScale: 0.62, trend: "flat" as const, topAudience: "Lookalike 1%", topCreative: "Your Stuff Deserves Better" },
+  { label: "Nov 2025", short: "Nov", spend: 2100, leads: 58, moveIns: 12, cpm: 175, occupancy: 73, rowScale: 0.74, trend: "down" as const, topAudience: "Recently Moved", topCreative: "Unit Size Guide" },
+  { label: "Dec 2025", short: "Dec", spend: 2100, leads: 51, moveIns: 10, cpm: 210, occupancy: 76, rowScale: 0.81, trend: "flat" as const, topAudience: "14-Day Retarget", topCreative: "Holiday Declutter" },
+  { label: "Jan 2026", short: "Jan", spend: 2400, leads: 67, moveIns: 15, cpm: 160, occupancy: 80, rowScale: 0.90, trend: "down" as const, topAudience: "Phone Call LAL", topCreative: "$1 First Month" },
+  { label: "Feb 2026", short: "Feb", spend: 2400, leads: 74, moveIns: 18, cpm: 133, occupancy: 85, rowScale: 0.96, trend: "down" as const, topAudience: "Life Event", topCreative: "Move-In in 10 Minutes" },
   { label: "Mar 2026", short: "Mar", spend: 2800, leads: 89, moveIns: 22, cpm: 127, occupancy: 89, rowScale: 1.00, trend: "down" as const, topAudience: "Broad + Advantage+", topCreative: "Customer Testimonial Reel" },
 ];
 const HERO_DEMO_STARTING_OCCUPANCY = 64;
 
-// Mini lead-feed window for the "Lead activity" preview tile. Two leads
-// are shown at a time, sliding as months advance (modulo wraps the list).
+// Mini lead feed for the "Lead activity" preview tile. We surface a sliding
+// window of two leads based on the active month, so as playback advances
+// the most-recent leads cycle. Names + units + sources are static; the
+// recency tag and ordering shift.
 const HERO_DEMO_LEADS = [
-  { name: "Sarah M.",    unit: "10x10 Standard", status: "moved_in" as const },
-  { name: "David K.",    unit: "10x15 Drive-up", status: "tour"     as const },
-  { name: "Jennifer L.", unit: "5x10 Climate",   status: "moved_in" as const },
-  { name: "Mike R.",     unit: "10x20 Drive-up", status: "new"      as const },
-  { name: "Amanda T.",   unit: "10x10 Standard", status: "moved_in" as const },
-  { name: "Chris B.",    unit: "10x30 Vehicle",  status: "new"      as const },
+  { name: "Sarah M.",   unit: "10x10 Standard", status: "moved_in" as const },
+  { name: "David K.",   unit: "10x15 Drive-up", status: "tour"     as const },
+  { name: "Jennifer L.",unit: "5x10 Climate",   status: "moved_in" as const },
+  { name: "Mike R.",    unit: "10x20 Drive-up", status: "new"      as const },
+  { name: "Amanda T.",  unit: "10x10 Standard", status: "moved_in" as const },
+  { name: "Chris B.",   unit: "10x30 Vehicle",  status: "new"      as const },
 ];
 const HERO_DEMO_LEAD_STATUS: Record<string, { label: string; color: string }> = {
-  new:      { label: "New",     color: "var(--color-blue)" },
-  tour:     { label: "Tour",    color: "#8a70b0" },
-  moved_in: { label: "Move-in", color: "var(--color-green)" },
+  new:      { label: "New",      color: "var(--color-blue)" },
+  tour:     { label: "Tour",     color: "#8a70b0" },
+  moved_in: { label: "Move-in",  color: "var(--color-green)" },
 };
 
 const CHANNEL_DOT: Record<string, string> = {
@@ -1107,7 +1114,9 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
           Each tile is driven by the same activeMonth playback state, so
           they all move in lockstep with the main dashboard. Desktop-only
           (the mobile proof panel handles the same job on small viewports).
-          Each tile is a Link to /demo so any click opens the real thing. */}
+
+          Each tile is a Link to /demo so a click on any module takes the
+          curious user into the real thing. */}
       <DemoPreviewStrip
         activeMonth={activeMonth}
         cumulative={cumulative}
@@ -1140,12 +1149,12 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
             aria-hidden="true"
           />
           {shouldPlay
-            ? "Playing — hover to pause"
+            ? "Playing · hover to pause"
             : isAtEnd
-            ? "Demo complete — see the full version"
+            ? "Demo complete · see the full version"
             : reduced
-            ? "Interactive — use the scrubber"
-            : "Interactive — press play"}
+            ? "Interactive · use the scrubber"
+            : "Interactive · press play"}
         </span>
         <span style={{ color: "var(--border-medium)" }} aria-hidden="true">
           ·
@@ -1227,32 +1236,33 @@ function DemoPreviewStrip({
   cumulative,
   current,
 }: DemoPreviewStripProps) {
-  // Occupancy curve points — starts at HERO_DEMO_STARTING_OCCUPANCY and
+  // Occupancy curve points — starts at HERO_DEMO_STARTING_OCCUPANCY,
   // walks through each completed month. Mapped into a 100×30 SVG box.
-  const occW = 100;
-  const occH = 30;
-  const occMin = HERO_DEMO_STARTING_OCCUPANCY - 4;
-  const occMax = 95;
-  const occRange = occMax - occMin;
   const occPoints = [
     HERO_DEMO_STARTING_OCCUPANCY,
     ...cumulative.map((m) => m.occupancy),
   ];
-  const occCoords = occPoints.map((v, i) => {
-    const x = (i / HERO_DEMO_MONTHS.length) * occW;
-    const y = occH - ((v - occMin) / occRange) * occH;
-    return [x, y] as const;
-  });
+  const occMin = HERO_DEMO_STARTING_OCCUPANCY - 4;
+  const occMax = 95;
+  const occRange = occMax - occMin;
+  const occW = 100;
+  const occH = 30;
+  const occCoords = occPoints
+    .map((v, i) => {
+      const x = (i / (HERO_DEMO_MONTHS.length)) * occW;
+      const y = occH - ((v - occMin) / occRange) * occH;
+      return [x, y];
+    });
   const occLine = occCoords
     .map((c, i) => `${i === 0 ? "M" : "L"} ${c[0].toFixed(1)} ${c[1].toFixed(1)}`)
     .join(" ");
-  const lastOcc = occCoords[occCoords.length - 1];
+  const lastOccCoord = occCoords[occCoords.length - 1];
   const occFill =
     occLine +
-    ` L ${lastOcc[0].toFixed(1)} ${occH} L 0 ${occH} Z`;
+    ` L ${lastOccCoord[0].toFixed(1)} ${occH} L 0 ${occH} Z`;
 
-  // Lead feed window — two leads cycle as months advance. Modulo wraps
-  // so every month surfaces a different pair.
+  // Lead feed window — two most-recent leads cycle as months advance.
+  // Modulo wraps so every month surfaces a different pair.
   const leadStart = activeMonth % HERO_DEMO_LEADS.length;
   const visibleLeads = [
     HERO_DEMO_LEADS[leadStart],
@@ -1285,15 +1295,21 @@ function DemoPreviewStrip({
             strokeWidth="1.4"
             strokeLinecap="round"
             strokeLinejoin="round"
+            style={{
+              transition: "d 600ms cubic-bezier(0.16,1,0.3,1)",
+            }}
           />
-          <circle
-            cx={lastOcc[0]}
-            cy={lastOcc[1]}
-            r="1.6"
-            fill="var(--color-green)"
-            stroke="var(--color-light)"
-            strokeWidth="0.8"
-          />
+          {/* Marker on the latest point */}
+          {lastOccCoord && (
+            <circle
+              cx={lastOccCoord[0]}
+              cy={lastOccCoord[1]}
+              r="1.6"
+              fill="var(--color-green)"
+              stroke="var(--color-light)"
+              strokeWidth="0.8"
+            />
+          )}
         </svg>
       ),
     },
@@ -1310,10 +1326,7 @@ function DemoPreviewStrip({
                 key={`${activeMonth}-${i}-${lead.name}`}
                 className="flex items-center gap-1.5 text-[10px]"
                 style={{
-                  animation:
-                    i === 0
-                      ? "hero-value-flash 700ms ease-out"
-                      : undefined,
+                  animation: i === 0 ? "hero-value-flash 700ms ease-out" : undefined,
                 }}
               >
                 <span
@@ -1328,7 +1341,7 @@ function DemoPreviewStrip({
                   {lead.name}
                 </span>
                 <span
-                  className="text-[9px] font-semibold uppercase flex-shrink-0"
+                  className="text-[9px] font-semibold uppercase tracking-wide flex-shrink-0"
                   style={{ color: status.color, letterSpacing: "0.04em" }}
                 >
                   {status.label}
@@ -1342,12 +1355,12 @@ function DemoPreviewStrip({
     {
       key: "intel",
       label: "Campaign intelligence",
-      sub: `Top audience: ${current.topAudience}`,
+      sub: `Top: ${current.topAudience}`,
       visual: (
         <div className="pt-0.5">
           <div
             key={`intel-aud-${activeMonth}`}
-            className="text-[10px] font-semibold truncate"
+            className="text-[10px] font-medium truncate"
             style={{
               color: "var(--color-dark)",
               animation: "hero-value-flash 700ms ease-out",
@@ -1360,6 +1373,7 @@ function DemoPreviewStrip({
             className="text-[10px] mt-0.5 truncate"
             style={{
               color: "var(--text-secondary)",
+              fontStyle: "normal",
               animation: "hero-value-flash 700ms ease-out",
             }}
           >
@@ -1386,7 +1400,7 @@ function DemoPreviewStrip({
         >
           <div className="flex items-center justify-between mb-1.5">
             <span
-              className="text-[9px] uppercase font-semibold"
+              className="text-[9px] uppercase tracking-wide font-semibold"
               style={{
                 color: "var(--text-tertiary)",
                 fontFamily: "var(--font-heading)",
@@ -1399,12 +1413,11 @@ function DemoPreviewStrip({
               size={10}
               className="opacity-30 group-hover:opacity-100 transition-opacity"
               style={{ color: "var(--text-secondary)" }}
-              aria-hidden="true"
             />
           </div>
           <div className="min-h-[42px]">{tile.visual}</div>
           <div
-            className="text-[10px] mt-1.5 font-medium tabular-nums truncate"
+            className="text-[10px] mt-1.5 font-medium tabular-nums"
             style={{ color: "var(--text-secondary)" }}
           >
             {tile.sub}
@@ -1835,7 +1848,7 @@ export function ROITeaser({ isVisible }: { isVisible: boolean }) {
 
   const stats = [
     { label: "Ad Spend", value: `$${adSpend.toLocaleString()}`, sub: "per month", color: "var(--color-blue)" },
-    { label: "Move-ins", value: String(moveIns), sub: "attributed", color: "var(--color-green)" },
+    { label: "Move-ins", value: String(moveIns), sub: "this quarter", color: "var(--color-green)" },
     { label: "Cost / Move-in", value: `$${costPerMI}`, sub: "average", color: "var(--accent)" },
     { label: "Revenue", value: `$${revenue.toLocaleString()}`, sub: "90 days", color: "var(--color-green)" },
   ];
@@ -2188,9 +2201,9 @@ export function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       key: "y1-spend",
       rawValue: 10_000_000,
       format: "money",
-      label: "Spend tracked goal",
+      label: "Ad spend goal",
       caption:
-        "attributable ad spend StorageAds will route through the platform by EOY. Every dollar tied to a move-in or audited away.",
+        "ad spend StorageAds will route through the platform by EOY. Every dollar working a slot in the funnel, not sitting in a vendor's queue.",
       hue: MONO.hueC,
       context: "FORECAST · YEAR 1",
     },
@@ -2208,9 +2221,9 @@ export function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       key: "y1-moveins",
       rawValue: 10_000,
       format: "count",
-      label: "Move-ins attributed",
+      label: "Move-ins generated",
       caption:
-        "leases tied to specific creatives, channels, and pages — not last-click guesses or vendor reports.",
+        "signed leases generated by StorageAds campaigns. Operators pay for outcomes, not vendor reports.",
       hue: MONO.hueC,
       context: "FORECAST · YEAR 1",
     },
@@ -2303,7 +2316,7 @@ export default function Hero() {
   const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
 
   return (
-    <section id="hero" aria-label="StorageAds: predictable move-ins for independent storage — ad spend in, move-ins out" className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
+    <section id="hero" aria-label="StorageAds: predictable move-ins for independent storage. Ad spend in. Move-ins out." className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
       <HeroStyles />
       <DotGrid />
       <HeroStatusStrip />
@@ -2358,19 +2371,19 @@ export default function Hero() {
               <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
             </div>
 
-            {/* Subheadline — operator voice. One paragraph that explains
-                the value without corporate jargon. */}
+            {/* Subheadline — operator voice. Productized REIT system, full
+                funnel, demand-engine framing. No em-dashes (Blake rule). */}
             <p
               className={`mt-2 sm:mt-3 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
                 color: "var(--text-secondary)",
                 lineHeight: 1.5,
                 transitionDelay: "300ms",
-                maxWidth: "460px",
+                maxWidth: "480px",
                 textWrap: "pretty",
               }}
             >
-              The same equation Public Storage, Extra Space, and CubeSmart have run on for years. StorageAds is that infrastructure &mdash; ads, landing pages, facility auditing, organic capture, reservation conversion &mdash; built for independent operators and tested on our own portfolio.
+              The equation Public Storage, Extra Space, and U-Haul have run on for years. StorageAds productizes that infrastructure for independent operators: a demand engine that creates, captures, and recaptures every renter in your trade area. Market intelligence, paid acquisition, landing pages, reservation conversion, and the audit work to find where you&apos;re leaking revenue. Tested on our own portfolio first.
             </p>
 
             {/* CTAs */}
@@ -2454,7 +2467,7 @@ export default function Hero() {
                     <span className="text-[8px] font-bold" style={{ color: "var(--bg)", fontFamily: "var(--mono)" }}>SA</span>
                   </div>
                   <span className="text-[11px] font-semibold" style={{ color: "var(--text)", fontFamily: "var(--mono)" }}>
-                    Midway Self Storage — 6 months
+                    Midway Self Storage · 6 months
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -2515,8 +2528,8 @@ export default function Hero() {
                   </thead>
                   <tbody>
                     {[
-                      { name: "Two Paws — 10x10 Climate", mi: "9", cpm: "$94" },
-                      { name: "Midway — Drive-up", mi: "7", cpm: "$87" },
+                      { name: "Two Paws · 10x10 Climate", mi: "9", cpm: "$94" },
+                      { name: "Midway · Drive-up", mi: "7", cpm: "$87" },
                     ].map((row) => (
                       <tr key={row.name} style={{ borderTop: "1px solid var(--line-dim)" }}>
                         <td className="py-2 text-[11px] font-medium" style={{ color: "var(--text)" }}>
@@ -2537,7 +2550,7 @@ export default function Hero() {
               {/* Footer link */}
               <div className="px-4 py-2.5 border-t flex items-center justify-between" style={{ borderColor: "var(--line-dim)" }}>
                 <span className="text-[10px]" style={{ color: "var(--text-faint)", fontFamily: "var(--mono)" }}>
-                  From our own facilities — Midway &amp; Two Paws
+                  From our own facilities · Midway &amp; Two Paws
                 </span>
                 <Link
                   href="/demo"

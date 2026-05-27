@@ -29,7 +29,7 @@ const ROWS = [
     storageads: "Embedded on your branded page",
   },
   {
-    label: "Attribution",
+    label: "Move-in Visibility",
     diy: '"We got some calls this month"',
     agency: "Clicks and impressions (40% may be existing tenants)",
     storageads: "Cost per move-in by specific ad",
@@ -47,10 +47,10 @@ const ROWS = [
     storageads: "Tests pages, offers, creative on revenue",
   },
   {
-    label: "Reporting",
+    label: "Reporting Cadence",
     diy: "Nothing",
     agency: "Monthly PDF of vanity metrics",
-    storageads: "Real-time: leads → reservations → move-ins",
+    storageads: "Real-time: leads to reservations to move-ins",
   },
   {
     label: "Who Builds It",

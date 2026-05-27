@@ -67,7 +67,7 @@ export default function Results() {
             }}
           >
             Two facilities. Real campaigns. Numbers pulled directly from
-            storEDGE plus our attribution layer. No case-study polish.
+            storEDGE and the StorageAds reporting layer. No case-study polish.
           </p>
         </div>
 
