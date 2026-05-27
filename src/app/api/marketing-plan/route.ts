@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import * as Sentry from "@sentry/nextjs";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, requireFacilityAccess } from "@/lib/api-helpers";
 import { getBrandContextForCopy } from "@/lib/brand-doctrine";
 import { getCreativeContext } from "@/lib/creative";
 import { getStyleDirectives } from "@/lib/style-references";
@@ -117,12 +117,13 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   const url = new URL(req.url);
   const facilityId = url.searchParams.get("facilityId");
   if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+  const authErr = await requireFacilityAccess(req, facilityId);
+  if (authErr) return authErr;
 
   try {
     const plan = await db.marketing_plans.findFirst({
@@ -142,13 +143,13 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "marketing-plan");
   if (limited) return limited;
 
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
-
   try {
     const body = await req.json();
     const { facilityId, playbooks } = body || {};
     if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+    const authErr = await requireFacilityAccess(req, facilityId);
+    if (authErr) return authErr;
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return errorResponse("ANTHROPIC_API_KEY not configured", 500, origin);

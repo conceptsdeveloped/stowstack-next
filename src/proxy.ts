@@ -69,6 +69,7 @@ const isPublicRoute = createRouteMatcher([
   "/portal(.*)",
   "/partner(.*)",
   "/admin(.*)",
+  "/manage(.*)",
 ]);
 
 // Detect whether Clerk keys are production keys (pk_live_) vs dev/test keys (pk_test_)
@@ -90,9 +91,16 @@ function isCsrfExempt(req: NextRequest): boolean {
   if (path === "/api/consumer-lead") return true;
   if (path === "/api/diagnostic-intake") return true;
   if (path === "/api/facility-lookup") return true;
+  // Owner /manage entry points — unauthenticated until they mint a session.
+  // Protected by Origin allowlist (verifyCsrfOrigin) inside each route.
+  if (path === "/api/manage/unlock") return true;
+  if (path === "/api/manage/scratch") return true;
   if (req.headers.get("x-admin-key")) return true;
   if (req.headers.get("authorization")?.startsWith("Bearer ")) return true;
   if (req.headers.get("x-org-token")) return true;
+  // Owner /manage tools carry a facility-scoped token here (same model as the
+  // admin key / org token above). The token itself authorizes the request.
+  if (req.headers.get("x-manage-token")) return true;
   return false;
 }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import type { ContextDoc, MarketingPlan } from "./types"
+import { authHeaders } from "@/lib/facility-auth"
 
 export function useFacilityOverviewData(facilityId: string, adminKey: string) {
   const [contextDocs, setContextDocs] = useState<ContextDoc[]>([])
@@ -17,10 +18,10 @@ export function useFacilityOverviewData(facilityId: string, adminKey: string) {
     try {
       const [ctxRes, planRes] = await Promise.all([
         fetch(`/api/facility-context?facilityId=${facilityId}`, {
-          headers: { "X-Admin-Key": adminKey },
+          headers: authHeaders(adminKey),
         }),
         fetch(`/api/marketing-plan?facilityId=${facilityId}`, {
-          headers: { "X-Admin-Key": adminKey },
+          headers: authHeaders(adminKey),
         }),
       ])
 
@@ -46,7 +47,7 @@ export function useFacilityOverviewData(facilityId: string, adminKey: string) {
   // Try to fetch market intel competitor count
   useEffect(() => {
     fetch(`/api/market-intel?facilityId=${facilityId}`, {
-      headers: { "X-Admin-Key": adminKey },
+      headers: authHeaders(adminKey),
     })
       .then((r) => r.json())
       .then((data) => {
