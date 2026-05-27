@@ -4,7 +4,7 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -38,11 +38,12 @@ export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "revenue-intelligence");
   if (limited) return limited;
   const origin = getOrigin(request);
-  const denied = await requireAdminKey(request);
-  if (denied) return denied;
 
   const facilityId = request.nextUrl.searchParams.get("facilityId");
   if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+  const denied = await requireFacilityAccess(request, facilityId);
+  if (denied) return denied;
 
   try {
     const [units, snapshots, tenantRates, revenueHistoryRaw, agingRows] =
