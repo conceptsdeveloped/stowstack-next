@@ -81,14 +81,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { deleted_at: _omit, google_rating, ...rest } = facility;
   return jsonResponse(
     {
       token,
       facility: {
-        ...rest,
+        id: facility.id,
+        name: facility.name,
+        contact_name: facility.contact_name,
+        contact_email: facility.contact_email,
+        contact_phone: facility.contact_phone,
+        website: facility.website,
+        google_address: facility.google_address,
+        occupancy_range: facility.occupancy_range,
+        total_units: facility.total_units,
+        biggest_issue: facility.biggest_issue,
+        notes: facility.notes,
+        review_count: facility.review_count,
+        google_phone: facility.google_phone,
+        google_maps_url: facility.google_maps_url,
         // Prisma Decimal -> number for the client
-        google_rating: google_rating != null ? Number(google_rating) : null,
+        google_rating:
+          facility.google_rating != null ? Number(facility.google_rating) : null,
       },
     },
     200,
