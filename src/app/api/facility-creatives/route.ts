@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import * as Sentry from "@sentry/nextjs";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, requireFacilityAccess } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
 import { getBrandContextForCopy } from "@/lib/brand-doctrine";
 import { getStyleDirectives } from "@/lib/style-references";
@@ -512,7 +512,7 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   const url = new URL(req.url);
@@ -541,7 +541,7 @@ export async function POST(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   try {
@@ -688,7 +688,7 @@ export async function PATCH(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   try {
@@ -880,7 +880,7 @@ export async function DELETE(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   try {

@@ -5,7 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "google-ads-keywords");
   if (limited) return limited;
 
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

@@ -5,7 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -164,7 +164,7 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "gbp-insights");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   const facilityId = req.nextUrl.searchParams.get("facilityId");
@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "gbp-insights");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   try {

@@ -5,7 +5,7 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { getBrandContextForCopy } from "@/lib/brand-doctrine";
 import { getCreativeContext } from "@/lib/creative";
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "generate-social-content");
   if (limited) return limited;
 
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

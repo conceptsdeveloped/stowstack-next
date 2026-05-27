@@ -5,7 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { funnelConfigToDripSteps } from "@/lib/drip-sequences";
 
@@ -18,7 +18,7 @@ export async function OPTIONS(req: NextRequest) {
 /* ── GET: List funnels (by facility) or get single funnel ── */
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
-  const denied = await requireAdminKey(req);
+  const denied = await requireFacilityAccess(req);
   if (denied) return denied;
 
   const { searchParams } = new URL(req.url);
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
 /* ── POST: Create a new funnel ── */
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
-  const denied = await requireAdminKey(req);
+  const denied = await requireFacilityAccess(req);
   if (denied) return denied;
 
   try {
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
 /* ── PATCH: Update funnel ── */
 export async function PATCH(req: NextRequest) {
   const origin = getOrigin(req);
-  const denied = await requireAdminKey(req);
+  const denied = await requireFacilityAccess(req);
   if (denied) return denied;
 
   try {
@@ -274,7 +274,7 @@ export async function PATCH(req: NextRequest) {
 /* ── DELETE: Delete a funnel ── */
 export async function DELETE(req: NextRequest) {
   const origin = getOrigin(req);
-  const denied = await requireAdminKey(req);
+  const denied = await requireFacilityAccess(req);
   if (denied) return denied;
 
   try {

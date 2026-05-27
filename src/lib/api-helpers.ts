@@ -153,15 +153,21 @@ export function getOrigin(req: NextRequest): string | null {
  */
 export async function requireFacilityAccess(
   req: NextRequest,
-  facilityId: string | null | undefined
+  facilityId?: string | null
 ): Promise<NextResponse | null> {
   // Admin fast path (shared ADMIN_SECRET).
   if (isAdminRequest(req)) return null;
 
+  // When facilityId isn't passed explicitly (e.g. GET handlers), fall back to
+  // the ?facilityId= query param so the guard can be a 1:1 swap. Body-based
+  // handlers (POST/PATCH/DELETE) must still pass it explicitly after parsing.
+  const targetFacilityId =
+    facilityId ?? req.nextUrl.searchParams.get("facilityId") ?? undefined;
+
   // Manage session must be present, valid, and scoped to THIS facility.
   const { getManageScope, manageScopeAllows } = await import("@/lib/manage-session");
   const scope = getManageScope(req);
-  if (manageScopeAllows(scope, facilityId)) {
+  if (manageScopeAllows(scope, targetFacilityId)) {
     Sentry.addBreadcrumb({
       category: "auth",
       message: `Manage session authorized for facility ${facilityId}`,
