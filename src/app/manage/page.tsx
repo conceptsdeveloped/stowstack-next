@@ -21,7 +21,7 @@ export default function ManageEntryPage() {
   const [location, setLocation] = useState("");
   const [email, setEmail] = useState("");
 
-  async function submitCode(e: React.FormEvent) {
+  async function submitCode(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
@@ -45,7 +45,7 @@ export default function ManageEntryPage() {
     }
   }
 
-  async function submitScratch(e: React.FormEvent) {
+  async function submitScratch(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
