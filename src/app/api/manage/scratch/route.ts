@@ -34,10 +34,14 @@ export async function POST(req: NextRequest) {
   const csrf = verifyCsrfOrigin(req);
   if (csrf) return csrf;
 
-  const inviteSecret = process.env.MANAGE_INVITE_CODE;
+  // Preferred gate is MANAGE_INVITE_CODE. TEMPORARY: fall back to ADMIN_SECRET
+  // when it isn't set, so the flow works on environments where MANAGE_INVITE_CODE
+  // hasn't propagated yet. Restore MANAGE_INVITE_CODE-only before launch.
+  const inviteSecret =
+    process.env.MANAGE_INVITE_CODE || process.env.ADMIN_SECRET || null;
   if (!inviteSecret) {
     return errorResponse(
-      "Start-from-scratch is not enabled (missing MANAGE_INVITE_CODE)",
+      "Start-from-scratch is not enabled (set MANAGE_INVITE_CODE or ADMIN_SECRET)",
       503,
       origin
     );
