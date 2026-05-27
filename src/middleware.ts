@@ -84,6 +84,12 @@ function isCsrfExempt(req: NextRequest): boolean {
   if (path.startsWith("/api/call-webhook")) return true;
   if (path.startsWith("/api/cron/")) return true;
   if (path.startsWith("/api/v1/")) return true;
+  // Public, unauthenticated lead-capture endpoints. No session to protect
+  // via CSRF; abuse is bounded by per-IP rate limits at the route level.
+  if (path === "/api/audit-form") return true;
+  if (path === "/api/consumer-lead") return true;
+  if (path === "/api/diagnostic-intake") return true;
+  if (path === "/api/facility-lookup") return true;
   if (req.headers.get("x-admin-key")) return true;
   if (req.headers.get("authorization")?.startsWith("Bearer ")) return true;
   if (req.headers.get("x-org-token")) return true;

@@ -232,8 +232,10 @@ export default function AuditToolPage() {
   const [auditScore, setAuditScore] = useState<AuditScore | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [captureEmail, setCaptureEmail] = useState("");
+  const [captureWebsite, setCaptureWebsite] = useState(""); // honeypot
   const [captureSubmitted, setCaptureSubmitted] = useState(false);
   const [captureLoading, setCaptureLoading] = useState(false);
+  const [captureError, setCaptureError] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -608,10 +610,22 @@ export default function AuditToolPage() {
                     <form
                       onSubmit={async (e) => {
                         e.preventDefault();
-                        if (!captureEmail.trim()) return;
+                        if (!captureEmail.trim() || captureLoading || captureSubmitted) return;
+
+                        // Honeypot: bots fill every input; humans never see this
+                        if (captureWebsite.trim() !== "") {
+                          setCaptureSubmitted(true);
+                          return;
+                        }
+
                         setCaptureLoading(true);
+                        setCaptureError(null);
+
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
                         try {
-                          await fetch("/api/consumer-lead", {
+                          const res = await fetch("/api/consumer-lead", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -622,23 +636,65 @@ export default function AuditToolPage() {
                               placeId: result?.placeId,
                               auditScore: auditScore?.overall,
                             }),
+                            signal: controller.signal,
                           });
-                          setCaptureSubmitted(true);
-                        } catch {
-                          // Fall back to homepage CTA
-                          window.location.href = "/#cta";
+                          if (res.ok) {
+                            setCaptureSubmitted(true);
+                          } else if (res.status === 429) {
+                            setCaptureError(
+                              "Too many requests. Please wait a minute and try again."
+                            );
+                          } else {
+                            const payload = await res.json().catch(() => null);
+                            setCaptureError(
+                              payload?.error ||
+                                "Couldn't send. Please try again or email blake@storageads.com."
+                            );
+                          }
+                        } catch (err) {
+                          const aborted =
+                            err instanceof DOMException && err.name === "AbortError";
+                          setCaptureError(
+                            aborted
+                              ? "Request timed out. Please check your connection."
+                              : "Network error. Please try again."
+                          );
                         } finally {
+                          clearTimeout(timeoutId);
                           setCaptureLoading(false);
                         }
                       }}
                       className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
                     >
+                      {/* Honeypot */}
+                      <input
+                        type="text"
+                        name="website_url"
+                        value={captureWebsite}
+                        onChange={(e) => setCaptureWebsite(e.target.value)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        aria-hidden="true"
+                        style={{
+                          position: "absolute",
+                          left: "-10000px",
+                          width: 1,
+                          height: 1,
+                          opacity: 0,
+                          pointerEvents: "none",
+                        }}
+                      />
                       <input
                         type="email"
+                        inputMode="email"
                         required
                         placeholder="Your work email"
                         value={captureEmail}
                         onChange={(e) => setCaptureEmail(e.target.value)}
+                        autoComplete="email"
+                        autoCapitalize="off"
+                        autoCorrect="off"
+                        spellCheck={false}
                         aria-label="Your email address"
                         className="flex-1 px-4 py-3 rounded-xl border text-sm"
                         style={{
@@ -662,6 +718,16 @@ export default function AuditToolPage() {
                         )}
                       </button>
                     </form>
+                  )}
+                  {captureError && !captureSubmitted && (
+                    <p
+                      role="alert"
+                      aria-live="assertive"
+                      className="mt-3 text-sm text-center"
+                      style={{ color: "var(--color-error)" }}
+                    >
+                      {captureError}
+                    </p>
                   )}
                 </div>
               </div>

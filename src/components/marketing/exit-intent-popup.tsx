@@ -11,8 +11,10 @@ interface ExitIntentPopupProps {
 export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupProps) {
   const [show, setShow] = useState(false);
   const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleMouseLeave = useCallback((e: MouseEvent) => {
     if (e.clientY <= 5 && !show && !submitted) {
@@ -41,10 +43,23 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || submitting) return;
+    if (!email || submitting || submitted) return;
+
+    // Honeypot — bot fills website field; fake success and exit
+    if (website.trim() !== "") {
+      setSubmitted(true);
+      setTimeout(dismiss, 3000);
+      return;
+    }
+
     setSubmitting(true);
+    setError(null);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     try {
-      await fetch("/api/consumer-lead", {
+      const res = await fetch("/api/consumer-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53,12 +68,27 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
           source: "exit_intent",
           utm_source: "exit_intent",
         }),
+        signal: controller.signal,
       });
-      setSubmitted(true);
-      setTimeout(dismiss, 3000);
-    } catch {
-      // silently fail
+      if (res.ok) {
+        setSubmitted(true);
+        setTimeout(dismiss, 3000);
+      } else if (res.status === 429) {
+        setError("Too many requests. Please try again in a minute.");
+      } else {
+        const payload = await res.json().catch(() => null);
+        setError(payload?.error || "Couldn't send. Please try again.");
+      }
+    } catch (err) {
+      const aborted =
+        err instanceof DOMException && err.name === "AbortError";
+      setError(
+        aborted
+          ? "Request timed out. Please check your connection."
+          : "Network error. Please try again."
+      );
     } finally {
+      clearTimeout(timeoutId);
       setSubmitting(false);
     }
   }
@@ -100,7 +130,7 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
           <>
             <p
               className="text-sm font-medium uppercase tracking-wider mb-2"
-              style={{ color: "var(--color-gold)" }}
+              style={{ color: "var(--text-tertiary)" }}
             >
               Before you go
             </p>
@@ -120,14 +150,37 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
             </p>
 
             <form onSubmit={handleSubmit} className="flex gap-2">
+              {/* Honeypot */}
+              <input
+                type="text"
+                name="website_url"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  left: "-10000px",
+                  width: 1,
+                  height: 1,
+                  opacity: 0,
+                  pointerEvents: "none",
+                }}
+              />
               <input
                 type="email"
+                inputMode="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@facility.com"
                 required
+                autoComplete="email"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
                 aria-label="Your email address"
-                className="flex-1 rounded-lg border px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--color-gold)]"
+                className="flex-1 rounded-lg border px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--color-dark)]"
                 style={{
                   borderColor: "var(--color-light-gray)",
                   background: "var(--color-light)",
@@ -139,14 +192,25 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
                 disabled={submitting}
                 className="flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-colors disabled:opacity-60"
                 style={{
-                  background: "var(--color-gold)",
+                  background: "var(--color-dark)",
                   color: "var(--color-light)",
                 }}
               >
-                Send
-                <ArrowRight className="h-4 w-4" />
+                {submitting ? "Sending…" : "Send"}
+                {!submitting && <ArrowRight className="h-4 w-4" />}
               </button>
             </form>
+
+            {error && (
+              <p
+                role="alert"
+                aria-live="assertive"
+                className="mt-3 text-xs text-center"
+                style={{ color: "var(--color-red)" }}
+              >
+                {error}
+              </p>
+            )}
 
             <p className="mt-4 text-xs text-center" style={{ color: "var(--color-mid-gray)" }}>
               No spam. Just your audit results and one follow-up.
