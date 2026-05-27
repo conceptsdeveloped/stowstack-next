@@ -112,8 +112,6 @@ export async function GET(req: NextRequest) {
 /* ── POST: Create a new funnel ── */
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
-  const denied = await requireFacilityAccess(req);
-  if (denied) return denied;
 
   try {
     const body = await req.json();
@@ -123,6 +121,9 @@ export async function POST(req: NextRequest) {
     if (!facilityId || !name) {
       return errorResponse("facilityId and name are required", 400, origin);
     }
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     // Create the funnel
     const funnel = await db.funnels.create({
@@ -178,8 +179,6 @@ export async function POST(req: NextRequest) {
 /* ── PATCH: Update funnel ── */
 export async function PATCH(req: NextRequest) {
   const origin = getOrigin(req);
-  const denied = await requireFacilityAccess(req);
-  if (denied) return denied;
 
   try {
     const body = await req.json();
@@ -189,6 +188,9 @@ export async function PATCH(req: NextRequest) {
 
     const existing = await db.funnels.findUnique({ where: { id } });
     if (!existing) return errorResponse("Funnel not found", 404, origin);
+
+    const denied = await requireFacilityAccess(req, existing.facility_id);
+    if (denied) return denied;
 
     const data: Record<string, unknown> = {};
     if (name !== undefined) data.name = name;
@@ -274,13 +276,20 @@ export async function PATCH(req: NextRequest) {
 /* ── DELETE: Delete a funnel ── */
 export async function DELETE(req: NextRequest) {
   const origin = getOrigin(req);
-  const denied = await requireFacilityAccess(req);
-  if (denied) return denied;
 
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     if (!id) return errorResponse("id is required", 400, origin);
+
+    const existing = await db.funnels.findUnique({
+      where: { id },
+      select: { facility_id: true },
+    });
+    if (!existing) return errorResponse("Funnel not found", 404, origin);
+
+    const denied = await requireFacilityAccess(req, existing.facility_id);
+    if (denied) return denied;
 
     // Cascade handles children (ad_variations, landing_pages, etc.)
     await db.funnels.delete({ where: { id } });
