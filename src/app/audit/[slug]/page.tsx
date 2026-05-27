@@ -1219,7 +1219,7 @@ export default async function SharedAuditPage({
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <a
-                  href="https://calendly.com/blake-storageads/facility-audit"
+                  href={process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--accent)] text-[var(--color-light)] text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors"

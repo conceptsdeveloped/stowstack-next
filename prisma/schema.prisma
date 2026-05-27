@@ -429,6 +429,7 @@ model facilities {
   access_code                  String?                        @unique @db.VarChar(16)
   form_notes                   String?
   lead_score                   Int?
+  shared_audit_slug            String?                        @db.VarChar(120)
   updated_at                   DateTime                       @updatedAt @default(now()) @db.Timestamptz(6)
   organization_id              String?                        @db.Uuid
   baseline_occupancy           Float?

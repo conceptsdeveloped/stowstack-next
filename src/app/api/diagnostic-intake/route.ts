@@ -10,6 +10,9 @@ import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidEmail, escapeHtml } from "@/lib/validation";
 
+// DB write + notification email + internal audit trigger
+export const maxDuration = 30;
+
 /**
  * Maps form responses (question-answer pairs) to DiagnosticInput format
  * expected by the audit-generate-diagnostic endpoint.
@@ -239,8 +242,42 @@ export async function POST(req: NextRequest) {
       "Plenty of leads, not enough are converting to move-ins":
         "competitive-pressure",
       "Both — not enough leads AND they're not converting": "filling-units",
+      "Revenue per unit is too low": "revenue",
+      "Operations are stretched thin": "operations",
+      "Not sure where to start": "filling-units",
       "Not sure": "filling-units",
     };
+
+    // Lead scoring — prioritize follow-up based on diagnostic responses
+    const urgencyRaw = responses?.["How soon are you looking to take action?"] || "";
+    const aggressivenessRaw = responses?.["How aggressive are you willing to be if the audit shows changes are needed?"] || "";
+    const adSpendRaw = responses?.["What is your approximate total monthly marketing / ad spend?"] || "";
+    const marketingMgmtRaw = responses?.["Who manages your marketing / ads?"] || "";
+
+    let leadScore = 0;
+    // Urgency signals
+    if (urgencyRaw.includes("Immediately") || urgencyRaw.includes("This week")) leadScore += 30;
+    else if (urgencyRaw.includes("30 days") || urgencyRaw.includes("This month")) leadScore += 20;
+    else if (urgencyRaw.includes("90 days") || urgencyRaw.includes("This quarter")) leadScore += 10;
+
+    // Aggressiveness signals
+    if (aggressivenessRaw.includes("Very aggressive") || aggressivenessRaw.includes("Whatever it takes")) leadScore += 20;
+    else if (aggressivenessRaw.includes("Moderately") || aggressivenessRaw.includes("Willing")) leadScore += 12;
+
+    // Occupancy distress — lower occupancy = higher urgency
+    if (["Under 50%", "50–59%", "60–69%"].includes(occupancyRaw)) leadScore += 20;
+    else if (["70–79%"].includes(occupancyRaw)) leadScore += 10;
+
+    // Has budget or willing to spend
+    if (adSpendRaw.includes("$1,000") || adSpendRaw.includes("$2,500") || adSpendRaw.includes("$5,000")) leadScore += 15;
+    else if (adSpendRaw.includes("$500")) leadScore += 8;
+
+    // Nobody managing marketing = high need
+    if (marketingMgmtRaw.includes("Nobody") || marketingMgmtRaw.includes("not actively")) leadScore += 15;
+    else if (marketingMgmtRaw.includes("myself")) leadScore += 8;
+
+    // Cap at 100
+    leadScore = Math.min(100, leadScore);
 
     // Create facility record
     const facility = await db.facilities.create({
@@ -254,12 +291,18 @@ export async function POST(req: NextRequest) {
         occupancy_range: occupancyMap[occupancyRaw] || "60-75",
         total_units: unitCountMap[totalUnitsRaw] || "100-300",
         biggest_issue: issueMap[biggestIssueRaw] || "filling-units",
+        lead_score: leadScore,
         status: "intake",
         pipeline_status: "diagnostic_submitted",
         notes: JSON.stringify({
           source: "diagnostic_form",
           submittedAt: new Date().toISOString(),
+          leadScore,
           responses: responses || body,
+          diagnosticJson: mapResponsesToDiagnosticInput(
+            { facilityName, facilityAddress: facilityAddress || "", contactName: contactName || "", contactEmail, contactPhone: contactPhone || "", websiteUrl: websiteUrl || "" },
+            responses || {}
+          ),
         }),
       },
     });
@@ -276,7 +319,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           from: "StorageAds <notifications@storageads.com>",
           to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-          subject: `New Diagnostic Submission: ${escapeHtml(facilityName)}`,
+          subject: `[Score: ${leadScore}] New Diagnostic: ${escapeHtml(facilityName)}`,
           html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <h2 style="margin: 0 0 12px; color: #1a1a1a;">New Diagnostic Form Submission</h2>
@@ -287,6 +330,9 @@ export async function POST(req: NextRequest) {
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Occupancy</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(occupancyRaw || "N/A")}</td></tr>
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Units</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(totalUnitsRaw || "N/A")}</td></tr>
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Issue</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(biggestIssueRaw || "N/A")}</td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Lead Score</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${leadScore}/100</strong></td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Urgency</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(urgencyRaw || "N/A")}</td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Aggressiveness</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(aggressivenessRaw || "N/A")}</td></tr>
               </table>
               <p style="margin-top: 20px;">
                 <a href="https://storageads.com/admin/audits" style="display: inline-block; padding: 12px 24px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Generate Audit</a>

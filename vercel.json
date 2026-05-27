@@ -21,7 +21,8 @@
     { "path": "/api/cron/generate-noi-reports", "schedule": "0 12 * * 5" },
     { "path": "/api/cron/weekly-synthesis", "schedule": "0 10 * * 0" },
     { "path": "/api/cron/process-synthesis-queue", "schedule": "0 12 * * *" },
-    { "path": "/api/cron/process-pms-uploads", "schedule": "0 * * * *" }
+    { "path": "/api/cron/process-pms-uploads", "schedule": "0 * * * *" },
+    { "path": "/api/cron/retry-diagnostic-audits", "schedule": "30 * * * *" }
   ],
   "headers": [
     {

@@ -11,6 +11,9 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
+// Claude API call needs 30-60s for full diagnostic audit generation
+export const maxDuration = 120;
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -1010,6 +1013,7 @@ export async function POST(req: NextRequest) {
           where: { id: facilityId },
           data: {
             pipeline_status: "audit_generated",
+            shared_audit_slug: slug,
             updated_at: new Date(),
           },
         });

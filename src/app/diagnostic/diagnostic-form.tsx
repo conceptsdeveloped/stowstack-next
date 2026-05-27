@@ -460,9 +460,10 @@ export function DiagnosticForm() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="max-w-md text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ background: "rgba(34, 197, 94, 0.1)" }}>
             <svg
-              className="w-10 h-10 text-emerald-400"
+              className="w-10 h-10"
+              style={{ color: "#4ade80" }}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -493,7 +494,8 @@ export function DiagnosticForm() {
           </p>
           <Link
             href="/"
-            className="inline-flex px-6 py-2.5 rounded-lg bg-[var(--accent)] text-white font-medium hover:opacity-90 transition-opacity"
+            className="inline-flex px-6 py-2.5 font-medium transition-opacity hover:opacity-90"
+            style={{ background: "var(--accent)", color: "#ffffff", borderRadius: "8px" }}
           >
             Back to StorageAds
           </Link>
@@ -838,7 +840,12 @@ export function DiagnosticForm() {
               type="button"
               onClick={() => setStep(step + 1)}
               disabled={!canAdvance()}
-              className="px-6 py-2.5 rounded-lg text-sm font-medium bg-[var(--accent)] text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 text-sm font-medium transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                background: "var(--accent)",
+                color: "#ffffff",
+                borderRadius: "8px",
+              }}
             >
               Next
             </button>
@@ -847,7 +854,13 @@ export function DiagnosticForm() {
               type="button"
               onClick={handleSubmit}
               disabled={submitting}
-              className="px-6 py-2.5 rounded-lg text-sm font-medium bg-emerald-500 text-white hover:bg-emerald-600 transition-colors disabled:opacity-50"
+              className="px-6 py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
+              style={{
+                background: submitting ? "#6b7280" : "#22c55e",
+                color: "#ffffff",
+                borderRadius: "8px",
+                cursor: submitting ? "not-allowed" : "pointer",
+              }}
             >
               {submitting ? "Submitting..." : "Submit Diagnostic"}
             </button>
