@@ -481,14 +481,33 @@ const DASHBOARD_ROWS = [
 // 6-month campaign progression — mirrors /demo data so the hero dashboard
 // can scrub through the same story the full demo tells. Compounds month over
 // month: spend climbs slowly, CPM drops as the system learns.
+// topAudience + topCreative feed the "Campaign intelligence" preview tile
+// so each month surfaces a different audience and creative pairing.
 const HERO_DEMO_MONTHS = [
-  { label: "Oct 2025", short: "Oct", spend: 1800, leads: 42, moveIns: 8,  cpm: 225, occupancy: 68, rowScale: 0.62, trend: "flat" as const },
-  { label: "Nov 2025", short: "Nov", spend: 2100, leads: 58, moveIns: 12, cpm: 175, occupancy: 73, rowScale: 0.74, trend: "down" as const },
-  { label: "Dec 2025", short: "Dec", spend: 2100, leads: 51, moveIns: 10, cpm: 210, occupancy: 76, rowScale: 0.81, trend: "flat" as const },
-  { label: "Jan 2026", short: "Jan", spend: 2400, leads: 67, moveIns: 15, cpm: 160, occupancy: 80, rowScale: 0.90, trend: "down" as const },
-  { label: "Feb 2026", short: "Feb", spend: 2400, leads: 74, moveIns: 18, cpm: 133, occupancy: 85, rowScale: 0.96, trend: "down" as const },
-  { label: "Mar 2026", short: "Mar", spend: 2800, leads: 89, moveIns: 22, cpm: 127, occupancy: 89, rowScale: 1.00, trend: "down" as const },
+  { label: "Oct 2025", short: "Oct", spend: 1800, leads: 42, moveIns: 8,  cpm: 225, occupancy: 68, rowScale: 0.62, trend: "flat" as const, topAudience: "Lookalike 1%",      topCreative: "Your Stuff Deserves Better" },
+  { label: "Nov 2025", short: "Nov", spend: 2100, leads: 58, moveIns: 12, cpm: 175, occupancy: 73, rowScale: 0.74, trend: "down" as const, topAudience: "Recently Moved",    topCreative: "Unit Size Guide" },
+  { label: "Dec 2025", short: "Dec", spend: 2100, leads: 51, moveIns: 10, cpm: 210, occupancy: 76, rowScale: 0.81, trend: "flat" as const, topAudience: "14-Day Retarget",   topCreative: "Holiday Declutter" },
+  { label: "Jan 2026", short: "Jan", spend: 2400, leads: 67, moveIns: 15, cpm: 160, occupancy: 80, rowScale: 0.90, trend: "down" as const, topAudience: "Phone Call LAL",    topCreative: "$1 First Month" },
+  { label: "Feb 2026", short: "Feb", spend: 2400, leads: 74, moveIns: 18, cpm: 133, occupancy: 85, rowScale: 0.96, trend: "down" as const, topAudience: "Life Event",        topCreative: "Move-In in 10 Minutes" },
+  { label: "Mar 2026", short: "Mar", spend: 2800, leads: 89, moveIns: 22, cpm: 127, occupancy: 89, rowScale: 1.00, trend: "down" as const, topAudience: "Broad + Advantage+", topCreative: "Customer Testimonial Reel" },
 ];
+const HERO_DEMO_STARTING_OCCUPANCY = 64;
+
+// Mini lead-feed window for the "Lead activity" preview tile. Two leads
+// are shown at a time, sliding as months advance (modulo wraps the list).
+const HERO_DEMO_LEADS = [
+  { name: "Sarah M.",    unit: "10x10 Standard", status: "moved_in" as const },
+  { name: "David K.",    unit: "10x15 Drive-up", status: "tour"     as const },
+  { name: "Jennifer L.", unit: "5x10 Climate",   status: "moved_in" as const },
+  { name: "Mike R.",     unit: "10x20 Drive-up", status: "new"      as const },
+  { name: "Amanda T.",   unit: "10x10 Standard", status: "moved_in" as const },
+  { name: "Chris B.",    unit: "10x30 Vehicle",  status: "new"      as const },
+];
+const HERO_DEMO_LEAD_STATUS: Record<string, { label: string; color: string }> = {
+  new:      { label: "New",     color: "var(--color-blue)" },
+  tour:     { label: "Tour",    color: "#8a70b0" },
+  moved_in: { label: "Move-in", color: "var(--color-green)" },
+};
 
 const CHANNEL_DOT: Record<string, string> = {
   Meta: "var(--color-dark)",
@@ -1083,6 +1102,18 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
         </div>
       </div>
 
+      {/* Module preview strip — three small live tiles that hint at the
+          breadth of the full /demo page beyond the campaign table above.
+          Each tile is driven by the same activeMonth playback state, so
+          they all move in lockstep with the main dashboard. Desktop-only
+          (the mobile proof panel handles the same job on small viewports).
+          Each tile is a Link to /demo so any click opens the real thing. */}
+      <DemoPreviewStrip
+        activeMonth={activeMonth}
+        cumulative={cumulative}
+        current={current}
+      />
+
       {/* Demo footer — small caption that turns the playback into a
           path to the full /demo page. Auto-play proves the dashboard is
           real; this link lets the curious go deeper. Left caption tells
@@ -1173,6 +1204,213 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   DEMO PREVIEW STRIP
+   Three live mini-modules under the main dashboard hinting at the
+   breadth of the /demo page: occupancy curve, live lead feed, and
+   campaign intelligence. All driven by the same playback state so the
+   whole panel moves in lockstep. Click any tile to open /demo.
+   ═══════════════════════════════════════════ */
+
+type DemoPreviewStripProps = {
+  activeMonth: number;
+  cumulative: (typeof HERO_DEMO_MONTHS)[number][];
+  current: (typeof HERO_DEMO_MONTHS)[number];
+};
+
+function DemoPreviewStrip({
+  activeMonth,
+  cumulative,
+  current,
+}: DemoPreviewStripProps) {
+  // Occupancy curve points — starts at HERO_DEMO_STARTING_OCCUPANCY and
+  // walks through each completed month. Mapped into a 100×30 SVG box.
+  const occW = 100;
+  const occH = 30;
+  const occMin = HERO_DEMO_STARTING_OCCUPANCY - 4;
+  const occMax = 95;
+  const occRange = occMax - occMin;
+  const occPoints = [
+    HERO_DEMO_STARTING_OCCUPANCY,
+    ...cumulative.map((m) => m.occupancy),
+  ];
+  const occCoords = occPoints.map((v, i) => {
+    const x = (i / HERO_DEMO_MONTHS.length) * occW;
+    const y = occH - ((v - occMin) / occRange) * occH;
+    return [x, y] as const;
+  });
+  const occLine = occCoords
+    .map((c, i) => `${i === 0 ? "M" : "L"} ${c[0].toFixed(1)} ${c[1].toFixed(1)}`)
+    .join(" ");
+  const lastOcc = occCoords[occCoords.length - 1];
+  const occFill =
+    occLine +
+    ` L ${lastOcc[0].toFixed(1)} ${occH} L 0 ${occH} Z`;
+
+  // Lead feed window — two leads cycle as months advance. Modulo wraps
+  // so every month surfaces a different pair.
+  const leadStart = activeMonth % HERO_DEMO_LEADS.length;
+  const visibleLeads = [
+    HERO_DEMO_LEADS[leadStart],
+    HERO_DEMO_LEADS[(leadStart + 1) % HERO_DEMO_LEADS.length],
+  ];
+
+  const tiles = [
+    {
+      key: "occupancy",
+      label: "Occupancy",
+      sub: `${HERO_DEMO_STARTING_OCCUPANCY}% → ${current.occupancy}%`,
+      visual: (
+        <svg
+          viewBox={`0 0 ${occW} ${occH}`}
+          preserveAspectRatio="none"
+          className="w-full h-7"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="hero-occ-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-green)" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="var(--color-green)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={occFill} fill="url(#hero-occ-fill)" />
+          <path
+            d={occLine}
+            fill="none"
+            stroke="var(--color-green)"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle
+            cx={lastOcc[0]}
+            cy={lastOcc[1]}
+            r="1.6"
+            fill="var(--color-green)"
+            stroke="var(--color-light)"
+            strokeWidth="0.8"
+          />
+        </svg>
+      ),
+    },
+    {
+      key: "leads",
+      label: "Live lead feed",
+      sub: `${current.leads} this month`,
+      visual: (
+        <div className="space-y-1 pt-0.5">
+          {visibleLeads.map((lead, i) => {
+            const status = HERO_DEMO_LEAD_STATUS[lead.status];
+            return (
+              <div
+                key={`${activeMonth}-${i}-${lead.name}`}
+                className="flex items-center gap-1.5 text-[10px]"
+                style={{
+                  animation:
+                    i === 0
+                      ? "hero-value-flash 700ms ease-out"
+                      : undefined,
+                }}
+              >
+                <span
+                  className="w-1 h-1 rounded-full flex-shrink-0"
+                  style={{ background: status.color }}
+                  aria-hidden="true"
+                />
+                <span
+                  className="font-medium truncate flex-1"
+                  style={{ color: "var(--color-dark)" }}
+                >
+                  {lead.name}
+                </span>
+                <span
+                  className="text-[9px] font-semibold uppercase flex-shrink-0"
+                  style={{ color: status.color, letterSpacing: "0.04em" }}
+                >
+                  {status.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      ),
+    },
+    {
+      key: "intel",
+      label: "Campaign intelligence",
+      sub: `Top audience: ${current.topAudience}`,
+      visual: (
+        <div className="pt-0.5">
+          <div
+            key={`intel-aud-${activeMonth}`}
+            className="text-[10px] font-semibold truncate"
+            style={{
+              color: "var(--color-dark)",
+              animation: "hero-value-flash 700ms ease-out",
+            }}
+          >
+            {current.topAudience}
+          </div>
+          <div
+            key={`intel-cre-${activeMonth}`}
+            className="text-[10px] mt-0.5 truncate"
+            style={{
+              color: "var(--text-secondary)",
+              animation: "hero-value-flash 700ms ease-out",
+            }}
+          >
+            “{current.topCreative}”
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div
+      className="hidden lg:grid mt-3 grid-cols-3 gap-2"
+      role="list"
+      aria-label="More dashboard modules in the full demo"
+    >
+      {tiles.map((tile) => (
+        <Link
+          key={tile.key}
+          href="/demo"
+          role="listitem"
+          className="group block rounded-xl border bg-[var(--color-light)] p-3 transition-all hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)]"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span
+              className="text-[9px] uppercase font-semibold"
+              style={{
+                color: "var(--text-tertiary)",
+                fontFamily: "var(--font-heading)",
+                letterSpacing: "0.06em",
+              }}
+            >
+              {tile.label}
+            </span>
+            <ArrowUpRight
+              size={10}
+              className="opacity-30 group-hover:opacity-100 transition-opacity"
+              style={{ color: "var(--text-secondary)" }}
+              aria-hidden="true"
+            />
+          </div>
+          <div className="min-h-[42px]">{tile.visual}</div>
+          <div
+            className="text-[10px] mt-1.5 font-medium tabular-nums truncate"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {tile.sub}
+          </div>
+        </Link>
+      ))}
     </div>
   );
 }
