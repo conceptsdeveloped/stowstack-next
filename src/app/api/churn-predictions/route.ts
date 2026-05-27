@@ -7,6 +7,7 @@ import {
   corsResponse,
   getOrigin,
   isAdminRequest,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -37,12 +38,13 @@ export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
-  if (!isAdminRequest(request))
-    return errorResponse("Unauthorized", 401, origin);
 
   const facilityId = request.nextUrl.searchParams.get("facilityId");
   const riskLevel = request.nextUrl.searchParams.get("riskLevel");
   const resource = request.nextUrl.searchParams.get("resource");
+
+  const denied = await requireFacilityAccess(request, facilityId);
+  if (denied) return denied;
 
   try {
     if (resource === "campaigns") {
