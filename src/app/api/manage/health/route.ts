@@ -18,11 +18,21 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  // Which secret the scratch route will actually compare the typed code
+  // against — mirrors the gate logic in /api/manage/scratch.
+  const scratchGateSource = process.env.MANAGE_INVITE_CODE
+    ? "MANAGE_INVITE_CODE"
+    : process.env.ADMIN_SECRET
+      ? "ADMIN_SECRET (fallback)"
+      : "none";
+
   return jsonResponse(
     {
       ok: true,
       vercelEnv: process.env.VERCEL_ENV ?? null,
       commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
+      // The field that tells you WHICH value to type into the invite box:
+      scratchGateSource,
       hasInviteCode: Boolean(process.env.MANAGE_INVITE_CODE),
       hasSessionSecret: Boolean(process.env.MANAGE_SESSION_SECRET),
       hasAdminSecretFallback: Boolean(process.env.ADMIN_SECRET),
