@@ -47,3 +47,12 @@ next-env.d.ts
 # generated PDFs (sourced from sibling .md files — regenerate, don't commit)
 /OVERVIEW.pdf
 /WHITEPAPER.pdf
+
+# /ux-* skill outputs — regenerated on every run, not source
+/.ux/last-*.json
+
+# Prospect data and sales artifacts — sensitive, kept local only
+/leads/
+
+# Marketing brochure workspace — kept local. Untrack with `!path` if needed.
+/marketing/
