@@ -122,6 +122,52 @@ export function getOrigin(req: NextRequest): string | null {
 }
 
 /**
+ * Facility-scoped authorization for owner-facing /manage tools.
+ *
+ * Returns null (authorized) when EITHER:
+ *  - the request carries a valid admin key (founders/VAs — full access), OR
+ *  - the request carries a valid manage session whose scope includes the
+ *    specific `facilityId` being accessed.
+ *
+ * Otherwise returns an error response. This is the single guard that lets the
+ * existing facility components be reused by owners without leaking one
+ * facility's data to another: an owner can only ever touch facilities their
+ * signed session was issued for.
+ *
+ * Usage in a route:
+ *   const denied = await requireFacilityAccess(req, facilityId);
+ *   if (denied) return denied;
+ */
+export async function requireFacilityAccess(
+  req: NextRequest,
+  facilityId: string | null | undefined
+): Promise<NextResponse | null> {
+  // Admin fast path (shared ADMIN_SECRET).
+  if (isAdminRequest(req)) return null;
+
+  // Manage session must be present, valid, and scoped to THIS facility.
+  const { getManageScope, manageScopeAllows } = await import("@/lib/manage-session");
+  const scope = getManageScope(req);
+  if (manageScopeAllows(scope, facilityId)) {
+    Sentry.addBreadcrumb({
+      category: "auth",
+      message: `Manage session authorized for facility ${facilityId}`,
+      level: "info",
+    });
+    return null;
+  }
+
+  // Fall back to per-admin key validation (async) before refusing.
+  const providedKey = req.headers.get("x-admin-key");
+  if (providedKey?.startsWith("sa_adm_")) {
+    const adminCheck = await requireAdminKey(req);
+    if (adminCheck === null) return null;
+  }
+
+  return errorResponse("Unauthorized", 401, req.headers.get("origin"));
+}
+
+/**
  * Dual auth: accepts admin key header OR valid Clerk session with admin/VA role.
  * Returns null if authorized, or an error response if not.
  * Use this as a drop-in replacement for requireAdminKey() when you want
