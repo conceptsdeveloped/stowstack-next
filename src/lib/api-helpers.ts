@@ -34,6 +34,19 @@ export function verifyCsrfOrigin(req: NextRequest): NextResponse | null {
   // No origin header = non-browser request (cron, webhook, server-to-server) — allow
   if (!origin) return null;
   if (ALLOWED_ORIGINS.includes(origin)) return null;
+  // Same-origin requests are always safe for CSRF: the browser only sets an
+  // Origin matching the host it sent the request to. Comparing the Origin's
+  // host to the request Host covers Vercel preview domains and any custom
+  // domain without hardcoding each deployment URL. Cross-site requests have a
+  // different Origin host and are still rejected below.
+  try {
+    const originHost = new URL(origin).host;
+    const reqHost =
+      req.headers.get("x-forwarded-host") || req.headers.get("host");
+    if (reqHost && originHost === reqHost) return null;
+  } catch {
+    /* malformed Origin — fall through to reject */
+  }
   return errorResponse("Forbidden: invalid origin", 403, origin);
 }
 
