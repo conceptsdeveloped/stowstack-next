@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { setManageToken } from "@/lib/facility-auth";
 
 type Mode = "code" | "scratch";
 
@@ -36,7 +35,7 @@ export default function ManageEntryPage() {
         setError(data?.error || "That code didn't work. Double-check it and try again.");
         return;
       }
-      setManageToken(data.token);
+      // Session is set as an httpOnly cookie by the route; nothing to store.
       router.push("/manage/dashboard");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -65,7 +64,7 @@ export default function ManageEntryPage() {
         setError(data?.error || "Couldn't create your workspace. Check your invite code.");
         return;
       }
-      setManageToken(data.token);
+      // Session is set as an httpOnly cookie by the route; nothing to store.
       router.push("/manage/dashboard");
     } catch {
       setError("Something went wrong. Please try again.");
