@@ -298,12 +298,14 @@ export default function Nav() {
             : "1px solid transparent",
         }}
       >
-        {/* Scroll progress bar */}
+        {/* Scroll progress bar — was var(--color-gold) which CLAUDE.md bans
+            outside the logo "ads" letters. Charcoal at 0.6 opacity reads as
+            a quiet system indicator, not a brand accent. */}
         <div
           className="absolute bottom-0 left-0 h-[2px] transition-opacity duration-300"
           style={{
             width: `${scrollProgress * 100}%`,
-            background: "var(--color-gold)",
+            background: "var(--color-dark)",
             opacity: isScrolled ? 0.6 : 0,
             willChange: "width",
           }}
@@ -351,7 +353,7 @@ export default function Nav() {
                   className="nav-desktop-link relative px-3 py-2 text-sm font-medium transition-colors"
                   style={{
                     color: isActive
-                      ? "var(--color-gold)"
+                      ? "var(--color-dark)"
                       : "var(--color-muted)",
                     fontFamily: "var(--font-heading)",
                   }}
@@ -360,7 +362,7 @@ export default function Nav() {
                   <span
                     className="nav-desktop-underline absolute bottom-0.5 left-3 right-3 h-[1.5px] origin-left transition-transform duration-200"
                     style={{
-                      background: "var(--color-gold)",
+                      background: "var(--color-dark)",
                       transform: isActive ? "scaleX(1)" : "scaleX(0)",
                     }}
                   />
@@ -553,7 +555,7 @@ export default function Nav() {
                       minHeight: "48px",
                       padding: "12px 14px",
                       background: isActive
-                        ? "var(--color-gold-light)"
+                        ? "var(--color-light-gray)"
                         : "transparent",
                       transform: isMenuOpen
                         ? "translate3d(0, 0, 0)"
@@ -570,7 +572,7 @@ export default function Nav() {
                       className="w-[6px] h-[6px] rounded-full flex-shrink-0 transition-colors duration-200"
                       style={{
                         background: isActive
-                          ? "var(--color-gold)"
+                          ? "var(--color-dark)"
                           : "var(--color-mid-gray)",
                       }}
                     />
@@ -578,9 +580,8 @@ export default function Nav() {
                       className="text-[17px] font-medium transition-colors duration-200"
                       style={{
                         fontFamily: "var(--font-heading)",
-                        color: isActive
-                          ? "var(--color-gold)"
-                          : "var(--color-dark)",
+                        color: "var(--color-dark)",
+                        fontWeight: isActive ? 700 : 500,
                       }}
                     >
                       {link.label}
@@ -679,8 +680,8 @@ export default function Nav() {
                 padding: "14px 20px",
                 fontSize: "16px",
                 fontFamily: "var(--font-heading)",
-                color: "var(--color-gold)",
-                border: "1.5px solid var(--color-gold)",
+                color: "var(--color-dark)",
+                border: "1.5px solid var(--color-dark)",
                 background: "transparent",
                 WebkitTapHighlightColor: "transparent",
                 touchAction: "manipulation",
@@ -698,7 +699,7 @@ export default function Nav() {
                 padding: "14px 20px",
                 fontSize: "16px",
                 fontFamily: "var(--font-heading)",
-                background: "var(--color-gold)",
+                background: "var(--color-dark)",
                 color: "var(--color-light)",
                 WebkitTapHighlightColor: "transparent",
                 touchAction: "manipulation",

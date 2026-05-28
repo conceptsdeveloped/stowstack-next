@@ -3,6 +3,7 @@
 import { Check, Minus } from "lucide-react";
 import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 import { useInView } from "./use-in-view";
+import Cite from "./cite";
 
 /**
  * Four-column vendor comparison. Replaces the older DIY-vs-Agency-vs-Us
@@ -133,6 +134,14 @@ export default function FourWayComparison() {
           >
             Three categories of marketing software you could buy today.
             None of them runs the whole funnel from ad to signed lease.
+          </p>
+          <p
+            className="mt-3 text-sm mx-auto max-w-2xl"
+            style={{ color: "var(--text-tertiary)" }}
+          >
+            Closing the 5-point gap to the 92.6% REIT band
+            <Cite n={[1, 2]} /> takes the whole system. Picking one slice
+            below leaves the rest uncovered.
           </p>
         </div>
 

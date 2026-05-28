@@ -4,55 +4,73 @@ import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 
 import { ArrowRight, TrendingDown, AlertTriangle } from "lucide-react";
 import { useInView } from "./use-in-view";
+import Cite from "./cite";
 
-const MONTHS = [
+type MonthEvent = {
+  month: number;
+  title: string;
+  detail: string;
+  loss: number;
+  cumulative: number;
+  severity: string;
+  /** Source ids to cite next to the title where the event references market data. */
+  cite?: number[];
+};
+
+const MONTHS: MonthEvent[] = [
   {
     month: 1,
     title: "3 vacant units",
-    detail: "$450/mo walking out the door",
+    detail: "$450 a month walking out the door. National occupancy sits at 82.2%; the REIT band runs 92.6%. The gap starts here.",
     loss: 450,
     cumulative: 450,
     severity: "bg-red-400/60",
+    cite: [1, 2],
   },
   {
     month: 2,
     title: "Competitor launches Google Ads",
-    detail: "They're now capturing search demand you're invisible to",
+    detail: "The REIT down the road is part of a $250M+ digital marketing machine. You're outspent roughly 1,000-to-1 on search. They capture the demand you're invisible to.",
     loss: 600,
     cumulative: 1050,
     severity: "bg-red-400/70",
+    cite: [6],
   },
   {
     month: 3,
     title: "5 move-outs, 2 move-ins",
-    detail: "Net loss of 3 units: now 6 vacant",
+    detail: "Net loss of 3 units, now 6 vacant. Tenant length of stay averages 19 months; every empty unit is a $2,470 lifetime-value hole until you re-fill it.",
     loss: 900,
     cumulative: 1950,
     severity: "bg-red-500/70",
+    cite: [5],
   },
   {
     month: 4,
-    title: "2 more move-outs, summer starts",
-    detail: "Now 8 vacant. Your competitors fill up. You don\u2019t.",
+    title: "2 more move-outs, summer demand peaks",
+    detail: "57% of renters cite \"not enough space at home\" as the trigger. The peak demand window is open. Your competitors fill up. You don't.",
     loss: 1200,
     cumulative: 3150,
     severity: "bg-red-500/80",
+    cite: [5],
   },
   {
     month: 5,
     title: "8 vacant units",
-    detail: "$1,200/mo lost: competitor raises rates (you can't)",
+    detail: "$1,200 a month lost. National web rate is $119; the REIT raises street rate to $133 because demand says they can. You can't, because your funnel doesn't show what's selling.",
     loss: 1200,
     cumulative: 4350,
     severity: "bg-red-500/90",
+    cite: [3],
   },
   {
     month: 6,
-    title: "10 vacant — occupancy below 80%",
-    detail: "Rate cuts attract short-term tenants who churn. Revenue spiral.",
+    title: "10 vacant, occupancy below 80%",
+    detail: "Rate cuts attract short-term tenants who churn. The REIT keeps lifting rates. Asking-rate spread widens against you. Revenue spiral.",
     loss: 1500,
     cumulative: 5850,
     severity: "bg-red-600",
+    cite: [3],
   },
 ];
 
@@ -126,7 +144,10 @@ export default function InactionTimeline() {
                 <div className="flex-1 min-w-0 bg-[var(--color-light-gray)] backdrop-blur-sm border border-[var(--border-subtle)] rounded-xl p-2.5 sm:p-4 hover:border-red-500/20 transition-colors">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-4">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-[13px] sm:text-base text-[var(--color-dark)] leading-snug">{m.title}</h3>
+                      <h3 className="font-semibold text-[13px] sm:text-base text-[var(--color-dark)] leading-snug">
+                        {m.title}
+                        {m.cite && <Cite n={m.cite} />}
+                      </h3>
                       <p
                         className="text-[11px] sm:text-sm mt-1 leading-snug"
                         style={{ color: "var(--text-secondary)" }}
@@ -215,6 +236,15 @@ export default function InactionTimeline() {
               : "opacity-0 translate-y-4"
           }`}
         >
+          <p
+            className="text-sm sm:text-base mb-4 mx-auto"
+            style={{ color: "var(--text-secondary)", maxWidth: "62ch" }}
+          >
+            Scale it up. At a 500-unit facility, running 5 points below the
+            REIT benchmark<Cite n={[1, 2]} /> trades around $72,000 a year of
+            revenue, and around $1.3M of asset value at a 5.5% cap<Cite n={3} />,
+            for the wait.
+          </p>
           <p className="text-base sm:text-lg font-medium mb-4" style={{ color: "var(--text-secondary)" }}>
             The math isn&apos;t complicated. Inaction is the most expensive
             option.

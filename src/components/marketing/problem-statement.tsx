@@ -2,12 +2,28 @@
 
 import { useInView } from "./use-in-view";
 import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
+import Cite from "./cite";
 
-const PROBLEMS = [
+type Problem = {
+  heading: string;
+  body: string;
+  highlight: string;
+  /** Optional source ids to cite at the end of the heading. */
+  cite?: number[];
+};
+
+const PROBLEMS: Problem[] = [
   {
-    heading: "Average tenant lifetime value: $1,820.",
-    body: "14-month average tenure at $130/month. Acquisition cost on the StorageAds system: $41. The return profile on every incremental move-in is 44:1. This is the math the REITs run on. It works the same for 150 units as it does for 15,000.",
-    highlight: "44:1",
+    heading: "The REIT-to-independent occupancy gap is 5+ points.",
+    body: "Extra Space ran 92.6% same-store occupancy in Q4 2025. The independent average sits at 87.2% across a panel of 70,000+ properties. At a 500-unit facility, that gap is around $72,000 a year in revenue you're not collecting, and around $1.3M of asset value at a 5.5% cap. The gap closes with marketing infrastructure, not a renovation, a new sign, or a better location.",
+    highlight: "$72,000 a year",
+    cite: [1, 2, 3],
+  },
+  {
+    heading: "Independents are outspent 1,000-to-1 on Google search.",
+    body: "The top REITs spend $250M+ a year on digital marketing and handle 85% of customer interactions digitally. The independent down the road is competing for the same renter with no paid acquisition, a default rental page, and a Google Business Profile no one is tending. The good news: Google weighs proximity and review recency over brand size in local search. The lever exists. Most operators just aren't pulling it.",
+    highlight: "1,000-to-1",
+    cite: [6],
   },
   {
     heading: "Revenue leakage compounds monthly.",
@@ -15,9 +31,10 @@ const PROBLEMS = [
     highlight: "identifies and closes",
   },
   {
-    heading: "The infrastructure gap between REITs and independents is a strategy gap.",
-    body: "Public Storage operates a marketing team, a creative studio, competitive intelligence, and dedicated landing pages per campaign. StorageAds delivers the same capabilities in a single system deployed to your facility.",
-    highlight: "same capabilities",
+    heading: "The economics still work at independent scale.",
+    body: "Average tenant lifetime value: $1,820 at 14 months and $130 a month. Acquisition cost on the StorageAds system: $41. The return profile on every incremental move-in is 44-to-1. That's the same math the REITs run on. It works the same for 150 units as it does for 15,000.",
+    highlight: "44-to-1",
+    cite: [3],
   },
 ];
 
@@ -54,9 +71,11 @@ export default function ProblemStatement() {
               fontSize: "var(--text-body)",
             }}
           >
-            National occupancy is at 77%. Google CPCs are up 45%. Most operators
-            can&apos;t tell which ads filled which units. Fewer than 5% of independent
-            operators run Meta ads — yet Meta CPCs are 75–95% cheaper than Google.
+            REITs hit 92.6% occupancy<Cite n={1} />. Independents average
+            87.2%<Cite n={2} />. The gap is worth around $72,000 a year at a
+            500-unit facility, and around $1.3M in asset value at a 5.5% cap
+            <Cite n={3} />. Most operators can&apos;t tell which ads filled
+            which units. Most aren&apos;t running ads at all.
           </p>
           <p
             className="mt-4 font-medium"
@@ -97,6 +116,7 @@ export default function ProblemStatement() {
                   }}
                 >
                   {problem.heading}
+                  {problem.cite && <Cite n={problem.cite} />}
                 </h3>
                 <p
                   style={{

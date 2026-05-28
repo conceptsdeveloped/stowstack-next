@@ -36,6 +36,9 @@ const FAQ = dynamic(() => import("@/components/marketing/faq"));
 const DemandTriggers = dynamic(
   () => import("@/components/marketing/demand-triggers"),
 );
+const SourcesNote = dynamic(
+  () => import("@/components/marketing/sources-note"),
+);
 const Footer = dynamic(() => import("@/components/marketing/footer"));
 // Sticky mobile CTA — mounts client-side after the page becomes interactive.
 // 80% of homepage traffic is FB-IAB on iPhone-class devices, where the user
@@ -205,6 +208,10 @@ export default function HomePage() {
 
         {/* §09 — Final CTA */}
         <CTASection />
+
+        {/* Source disclosure for every market stat cited above. Sits inside
+            <main> so it's part of the page content, not chrome. */}
+        <SourcesNote />
       </main>
       <Footer />
       {/* Mobile-only sticky CTA. Hides itself when the audit form (§09)

@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Check, Shield, Clock, Wrench, Zap, Calendar } from "lucide-react";
 import { useInView } from "./use-in-view";
 import { CAL_BOOKING_URL, CAL_EMBED_SLUG } from "@/lib/booking";
+import Cite from "./cite";
 
 const TRUST_SIGNALS = [
   { icon: Shield, text: "No long-term contracts" },
@@ -236,8 +237,9 @@ export default function CTASection() {
             className="mt-4 max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary)" }}
           >
-            Competitive positioning, revenue leakage analysis, and a deployment
-            plan for your facility. Complimentary.
+            Where you sit against the 92.6% REIT band<Cite n={[1, 2]} />.
+            Where revenue&apos;s leaking. What it takes to close the gap at
+            your facility. Complimentary.
           </p>
           <p
             className="mt-2"

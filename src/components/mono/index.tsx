@@ -58,9 +58,10 @@ export const PALETTES: {
 ];
 
 /* ─── Label — tiny uppercase mono caption ─── */
-export function Label({ children, color, style }: { children: ReactNode; color?: string; style?: CSSProperties }) {
+export function Label({ children, color, style, className }: { children: ReactNode; color?: string; style?: CSSProperties; className?: string }) {
   return (
     <span
+      className={className}
       style={{
         fontFamily: MONO.mono,
         fontSize: 10,

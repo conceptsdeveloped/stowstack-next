@@ -37,6 +37,7 @@ import {
 import { useInView } from "./use-in-view";
 import { SplitFlap as SplitFlapComponent } from "./split-flap";
 import { CAL_BOOKING_URL } from "@/lib/booking";
+import Cite from "./cite";
 
 const CALCOM_URL = CAL_BOOKING_URL;
 
@@ -109,9 +110,16 @@ function useFlashOnChange<T>(value: T, ms = 600) {
 }
 
 function useTypewriter(words: string[], active: boolean, typingSpeed = 80, pauseMs = 2200) {
-  const [display, setDisplay] = useState("");
+  // Initial state shows words[0] fully typed. Previously the typewriter
+  // started at "" and the user saw a lone blinking cursor floating in a
+  // void below the H1 for the first ~80ms + IntersectionObserver delay
+  // (often 200-500ms). On mobile that void was ~56px of reserved height
+  // and looked like a broken page. Pre-typed initial state means the first
+  // paint has real text; the effect's first run sees charIdx === word.length
+  // and schedules the pause → delete cycle naturally.
+  const [display, setDisplay] = useState(words[0] ?? "");
   const [wordIdx, setWordIdx] = useState(0);
-  const [charIdx, setCharIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(words[0]?.length ?? 0);
   const [isDeleting, setIsDeleting] = useState(false);
   useEffect(() => {
     if (!active) return;
@@ -277,10 +285,11 @@ const PIPELINE_STEPS = [
 // hook from reading as a single dimension.
 const TYPEWRITER_WORDS = [
   "Create demand. Capture demand. Recapture demand.",
+  "Close the 5-point gap to the REIT band.",
   "34 move-ins in 90 days.",
   "REIT-grade tools to reach 100% occupancy.",
   "71% to 84% in one quarter.",
-  "Stop leaking revenue at every step of the funnel.",
+  "Stop leaking $72,000 a year to the REIT down the road.",
 ];
 
 const FEATURE_HIGHLIGHTS = [
@@ -2000,6 +2009,18 @@ function HeroStatusStrip() {
             MARKETING INFRASTRUCTURE · BUILT FOR SELF-STORAGE
           </span>
         </Label>
+        {/* Center benchmark tile — desktop only. Surfaces the REIT-vs-independent
+            occupancy gap (the central thesis) as a live read on the strip. The
+            ¹ ² ref links into the SourcesNote block at the page bottom. */}
+        <Label
+          className="hidden lg:inline-flex"
+          style={{ color: MONO.textDim, alignItems: "center", gap: 6 }}
+        >
+          <span style={{ color: MONO.accent }}>OCC GAP</span>
+          <span style={{ color: MONO.text, fontWeight: 600 }}>5 PTS</span>
+          <span>· REIT 92.6 / IND 87.2</span>
+          <Cite n={[1, 2]} />
+        </Label>
         <Label style={{ color: MONO.textDim }}>
           {/* Mobile: REV date only. Tablet+: full timestamp + compliance tag. */}
           <span className="sm:hidden">REV {clock.ymd}</span>
@@ -2030,6 +2051,13 @@ type StatCard = {
   hue: string;
   delta?: string;
   context?: string;
+  // Optional suffix appended after the animated number, e.g. " pts" for the
+  // REIT-vs-independent occupancy gap card. Keeps the existing animation
+  // path (integer rawValue, Math.round per tick) intact.
+  suffix?: string;
+  // Optional source ids appended to the caption as a superscript footnote
+  // ref. Wires the inline stat to the SourcesNote block at page bottom.
+  cites?: number[];
 };
 
 function formatCount(n: number): string {
@@ -2054,7 +2082,8 @@ function StatCell({
   const animated = useRevealCountUp(card.rawValue, isVisible, 1800);
   const flashing = useFlashOnChange(card.rawValue);
   const display =
-    card.format === "money" ? `$${formatCount(animated)}` : formatCount(animated);
+    (card.format === "money" ? `$${formatCount(animated)}` : formatCount(animated)) +
+    (card.suffix ?? "");
 
   return (
     <div
@@ -2159,6 +2188,7 @@ function StatCell({
         }}
       >
         {card.caption}
+        {card.cites && <Cite n={card.cites} />}
       </span>
     </div>
   );
@@ -2175,37 +2205,42 @@ export function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
   //   INDUSTRY (public, sourced) → hueB
   //   FORECAST (year-one targets) → hueC
   const cards: StatCard[] = [
-    // ─── INDUSTRY · 2026 ─────────────────────────────────────────────
-    // Sourced public figures — Blake to confirm final values + citations.
+    // ─── INDUSTRY · 2025 ─────────────────────────────────────────────
+    // Sourced public figures, attributed inline. Full source list lives in
+    // the <SourcesNote /> block before the footer so operators can verify.
     {
-      key: "market",
-      rawValue: 50_000_000_000,
+      key: "asset-class",
+      rawValue: 432_000_000_000,
       format: "money",
-      label: "US storage market",
+      label: "U.S. storage asset class",
       caption:
-        "the US self-storage industry by annual revenue (Self Storage Association, 2026). Marketing is the slowest part of it to modernize.",
+        "Total value of U.S. self-storage real estate. NOI growth has beat inflation by 190 basis points a year since 2008.",
       hue: MONO.hueB,
-      context: "INDUSTRY · 2026",
+      context: "INDUSTRY · 2025",
+      cites: [4, 9],
     },
     {
-      key: "industry-facilities",
-      rawValue: 52_000,
+      key: "occupancy-gap",
+      rawValue: 5,
       format: "count",
-      label: "Facilities nationwide",
+      suffix: " pts",
+      label: "Occupancy gap",
       caption:
-        "independent + REIT self-storage facilities in the US (SpareFoot industry data). Most still buy ads on faith.",
+        "REITs run 92.6% same-store occupancy. Independents average 87.2%. The space between is the lever, and it closes with marketing, not location.",
       hue: MONO.hueB,
-      context: "INDUSTRY · 2026",
+      context: "INDUSTRY · 2025",
+      cites: [1, 2],
     },
     {
-      key: "agency-cpa",
-      rawValue: 200,
+      key: "revenue-in-the-building",
+      rawValue: 72_000,
       format: "money",
-      label: "Typical agency CPA",
+      label: "Revenue in the building",
       caption:
-        "what self-storage operators pay traditional agencies per move-in. We optimize for fewer, better clicks instead.",
+        "What a 500-unit facility leaves in the building at the typical occupancy gap, $120 a unit. Roughly $1.3M in asset value at a 5.5% cap.",
       hue: MONO.hueB,
       context: "INDUSTRY · BENCHMARK",
+      cites: [3],
     },
 
     // ─── FORECAST · YEAR 1 ───────────────────────────────────────────
@@ -2335,12 +2370,14 @@ export default function Hero() {
       <HeroStatusStrip />
 
       {/* ── Hero content ── */}
-      {/* The HeroStatusStrip now sits in normal flow (was a position:relative
-          + negative-margin hack that overlapped this content). With layout
-          and visual position aligned, mobile no longer needs pt-14 to
-          compensate — pt-7 gives a clean breathing band under the strip and
-          frees vertical space for above-the-fold CTAs on iPhone 17 Pro Max. */}
-      <div ref={ref} className="relative w-full pt-7 sm:pt-12 lg:pt-20 pb-6 sm:pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
+      {/* Mobile rhythm tuned for FB IAB on iPhone 17 Pro Max: viewport is
+          ~820px raw, but the FB chrome chews ~170px so the effective
+          above-the-fold is ~650px. Every reclaimed pixel pushes the trust
+          line + dashboard proof higher. pt-5 (20px) is a deliberate, tight
+          breathing band — the strip's bottom border already creates a clear
+          edge so we don't need extra cushion. sm:+ keeps the editorial
+          generosity on larger surfaces. */}
+      <div ref={ref} className="relative w-full pt-5 sm:pt-12 lg:pt-20 pb-6 sm:pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
         <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-6 sm:gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
 
           {/* ── Left column ── */}
@@ -2386,11 +2423,14 @@ export default function Hero() {
                 wrapped 2nd line overflowed onto the body paragraph below.
                 sm:+ stays single-line where the phrases fit. */}
             <div
-              className={`mt-2 sm:mt-3 min-h-14 sm:min-h-8 leading-snug transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              className={`mt-2 sm:mt-3 min-h-7 sm:min-h-8 leading-snug transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ transitionDelay: "200ms" }}
             >
               <span className="text-lg sm:text-xl font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--serif)", letterSpacing: "-0.03em" }}>{typedText}</span>
-              <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
+              {/* Cursor: was var(--color-gold); CLAUDE.md bans sienna gold
+                  everywhere except the logo "ads" letters (var(--brand-gold)).
+                  Charcoal matches the editorial monochrome palette. */}
+              <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-dark)", animation: "hero-pulse 1s ease-in-out infinite" }} />
             </div>
 
             {/* Subheadline — operator voice. Productized REIT system, full
@@ -2424,7 +2464,7 @@ export default function Hero() {
                 textWrap: "pretty",
               }}
             >
-              The equation Public Storage, Extra Space, and U-Haul have run on for years. StorageAds productizes that infrastructure for independent operators: a demand engine that creates, captures, and recaptures every renter in your trade area. Market intelligence, paid acquisition, landing pages, reservation conversion, and the audit work to find where you&apos;re leaking revenue. Tested on our own portfolio first.
+              The equation Public Storage, Extra Space, and U-Haul have run on to hit 92.6% same-store occupancy<Cite n={1} />. StorageAds productizes that infrastructure for independent operators: a system that creates, captures, and recaptures every renter in your trade area. Market intelligence, paid acquisition, landing pages, reservation conversion, and the audit work to find where you&apos;re leaking revenue. Tested on our own portfolio first.
             </p>
 
             {/* CTAs */}
@@ -2458,16 +2498,21 @@ export default function Hero() {
                 <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>Cancel anytime.</span>
               </p>
               <div className="flex items-center gap-x-3 gap-y-1.5 sm:gap-4 justify-center lg:justify-start flex-wrap">
-                {[
-                  { icon: Star, text: "Built by operators, for operators" },
-                  { icon: Layers, text: "storEDGE rental embedded" },
-                  { icon: Globe, text: "Tested on our own facilities first" },
-                ].map((badge, i) => {
+                {([
+                  { icon: Star, text: "Built by operators, for operators", mobile: true },
+                  { icon: Layers, text: "storEDGE rental embedded", mobile: false },
+                  { icon: Globe, text: "Benchmarked against the 92.6% REIT band", cites: [1, 2], mobile: false },
+                  { icon: TrendingUp, text: "Tested on our own facilities first", mobile: false },
+                ] as Array<{ icon: typeof Star; text: string; cites?: number[]; mobile: boolean }>).map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
-                    <div key={badge.text} className="flex items-center gap-1.5 text-[11px] sm:text-xs transition-all duration-500" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${500 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
-                      <BadgeIcon size={12} style={{ color: "var(--color-gold)", opacity: 0.7 }} />
+                    <div key={badge.text} className={`${badge.mobile ? "flex" : "hidden sm:flex"} items-center gap-1.5 text-[11px] sm:text-xs transition-all duration-500`} style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${500 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
+                      {/* Icon: was var(--color-gold) at 0.7 opacity; CLAUDE.md
+                          bans gold accents. Matching the text color keeps the
+                          row reading as a quiet editorial bullet. */}
+                      <BadgeIcon size={12} style={{ color: "var(--text-tertiary)", opacity: 0.85 }} />
                       {badge.text}
+                      {badge.cites && <Cite n={badge.cites} />}
                     </div>
                   );
                 })}
@@ -2606,8 +2651,11 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className={`flex justify-center pb-3 sm:pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
+      {/* Scroll indicator — hidden on mobile. iPhone users in FB IAB already
+          have a "swipe up to scroll" affordance built into the OS chrome,
+          and the extra row eats ~40px of above-the-fold real estate without
+          delivering signal that's not already implied. Desktop keeps it. */}
+      <div className={`hidden sm:flex justify-center pb-3 sm:pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
         <a href="#how-it-works" className="flex flex-col items-center gap-1 group" aria-label="Scroll to learn more">
           <span className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>Learn more</span>
           <ChevronDown size={16} style={{ color: "var(--text-tertiary)", animation: "hero-scroll-bounce 2s ease-in-out infinite" }} />

@@ -12,6 +12,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useInView } from "./use-in-view";
+import Cite from "./cite";
 
 const TRIGGERS = [
   {
@@ -107,6 +108,94 @@ export default function DemandTriggers() {
             intelligence. Meta lets us put your facility in front of these
             prospects before they ever open Google.
           </p>
+        </div>
+
+        {/* Demand mix strip — sourced from SSA Demand Study. Multi-select
+            responses, which is why the numbers sum to more than 100%. Anchors
+            the trigger grid below in real renter-reported reasons, not
+            persona work. */}
+        <div
+          className={`mb-10 sm:mb-14 transition-all duration-700 ${
+            isVisible
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4"
+          }`}
+          style={{
+            border: "1px solid var(--border-subtle)",
+            background: "var(--color-light-gray)",
+            transitionDelay: "120ms",
+          }}
+        >
+          <div
+            className="flex items-center justify-between px-4 py-2.5"
+            style={{
+              borderBottom: "1px solid var(--border-subtle)",
+              background: "var(--color-light)",
+            }}
+          >
+            <p
+              className="text-[11px] font-semibold uppercase"
+              style={{
+                color: "var(--color-dark)",
+                letterSpacing: "var(--tracking-wide)",
+                fontFamily: "var(--font-heading)",
+              }}
+            >
+              Why renters get a unit
+            </p>
+            <p
+              className="text-[10px]"
+              style={{
+                color: "var(--text-tertiary)",
+                fontFamily: "var(--font-heading)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Multi-select · n = 6 · SSA Demand Study<Cite n={5} />
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+            {[
+              { pct: "57%", label: "Not enough space at home" },
+              { pct: "45%", label: "Downsizing or decluttering" },
+              { pct: "34%", label: "During a move" },
+              { pct: "30%", label: "Change in household size" },
+              { pct: "15%", label: "Home renovation" },
+              { pct: "5%", label: "Business and e-commerce" },
+            ].map((row, i, arr) => (
+              <div
+                key={row.label}
+                className="px-4 py-4"
+                style={{
+                  borderRight:
+                    i < arr.length - 1
+                      ? "1px solid var(--border-subtle)"
+                      : undefined,
+                  borderBottom: "1px solid var(--border-subtle)",
+                }}
+              >
+                <p
+                  className="text-xl sm:text-2xl font-semibold"
+                  style={{
+                    color: "var(--color-dark)",
+                    fontFamily: "var(--font-heading)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {row.pct}
+                </p>
+                <p
+                  className="text-[11px] mt-1 leading-snug"
+                  style={{
+                    color: "var(--text-secondary)",
+                    fontFamily: "var(--font-heading)",
+                  }}
+                >
+                  {row.label}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Grid */}
