@@ -10,6 +10,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -209,7 +210,7 @@ export async function POST(req: NextRequest) {
               </ul>
               <p>I would love to walk you through the findings on a quick call. <strong>Pick a time that works for you:</strong></p>
               <p style="margin: 20px 0;">
-                <a href="https://calendly.com/blake-storageads/facility-audit" style="display: inline-block; padding: 12px 24px; background: #9E7A36; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Book a 20-Minute Walkthrough</a>
+                <a href="${CAL_BOOKING_URL}" style="display: inline-block; padding: 12px 24px; background: #9E7A36; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Book a 20-Minute Walkthrough</a>
               </p>
               <p>The report link is active for 90 days. If you have any questions before we talk, just reply to this email.</p>
               <p style="margin-top: 24px;">

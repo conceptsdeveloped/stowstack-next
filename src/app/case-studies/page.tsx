@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CASE_STUDIES } from "@/types/case-study";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
 export const metadata: Metadata = {
   title: "Case Studies — StorageAds",
@@ -26,13 +27,15 @@ export default function CaseStudiesIndexPage() {
           <Link href="/" className="text-lg font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
             <span>storage</span><span style={{ color: "var(--color-gold)" }}>ads</span>
           </Link>
-          <Link
-            href="/demo"
+          <a
+            href={CAL_BOOKING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium"
             style={{ fontFamily: "var(--font-heading)", color: "#fff", backgroundColor: "var(--color-gold)" }}
           >
             Book a Call
-          </Link>
+          </a>
         </div>
       </header>
 

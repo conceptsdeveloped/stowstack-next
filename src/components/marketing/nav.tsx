@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { Dot, Label, MONO } from "@/components/mono";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
 /* ── Link configuration ── */
 const SECTION_LINKS = [
@@ -21,8 +22,7 @@ const PAGE_LINKS = [
 
 const ALL_DESKTOP_LINKS = [...SECTION_LINKS, ...PAGE_LINKS];
 
-const CALCOM_URL =
-  process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min";
+const CALCOM_URL = CAL_BOOKING_URL;
 
 /* ── Active section hook ── */
 function useActiveSection(sectionIds: string[]) {

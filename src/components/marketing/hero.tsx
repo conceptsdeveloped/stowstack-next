@@ -36,9 +36,9 @@ import {
 } from "lucide-react";
 import { useInView } from "./use-in-view";
 import { SplitFlap as SplitFlapComponent } from "./split-flap";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
-const CALCOM_URL =
-  process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min";
+const CALCOM_URL = CAL_BOOKING_URL;
 
 /* ═══════════════════════════════════════════
    HOOKS
@@ -375,9 +375,14 @@ function DotGrid() {
         </defs>
         <rect width="100%" height="100%" fill="url(#hero-dots)" />
       </svg>
-      <div className="absolute w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full" style={{ top: "10%", left: "5%", background: "radial-gradient(circle, var(--accent-glow), transparent 70%)", animation: "hero-orb-drift 12s ease-in-out infinite alternate" }} />
-      <div className="absolute w-[250px] h-[250px] sm:w-[400px] sm:h-[400px] rounded-full" style={{ bottom: "5%", right: "0%", background: "radial-gradient(circle, var(--color-blue-light), transparent 70%)", animation: "hero-orb-drift 10s ease-in-out infinite alternate-reverse" }} />
-      <div className="absolute w-[200px] h-[200px] rounded-full" style={{ top: "40%", right: "20%", background: "radial-gradient(circle, var(--color-green-light), transparent 70%)", animation: "hero-orb-drift 14s ease-in-out infinite alternate" }} />
+      {/* Three infinite radial-gradient orbs. Hidden on mobile (`hidden sm:block`)
+          because they're a measurable perf hit in the Facebook in-app browser
+          on iPhone-class devices — three full-screen blurred gradients
+          compositing 24/7 stutters the scroll on the very segment that's 80%
+          of homepage traffic. Desktop keeps the ambient feel. */}
+      <div className="hidden sm:block absolute w-[500px] h-[500px] rounded-full" style={{ top: "10%", left: "5%", background: "radial-gradient(circle, var(--accent-glow), transparent 70%)", animation: "hero-orb-drift 12s ease-in-out infinite alternate" }} />
+      <div className="hidden sm:block absolute w-[400px] h-[400px] rounded-full" style={{ bottom: "5%", right: "0%", background: "radial-gradient(circle, var(--color-blue-light), transparent 70%)", animation: "hero-orb-drift 10s ease-in-out infinite alternate-reverse" }} />
+      <div className="hidden sm:block absolute w-[200px] h-[200px] rounded-full" style={{ top: "40%", right: "20%", background: "radial-gradient(circle, var(--color-green-light), transparent 70%)", animation: "hero-orb-drift 14s ease-in-out infinite alternate" }} />
     </div>
   );
 }
@@ -2389,9 +2394,28 @@ export default function Hero() {
             </div>
 
             {/* Subheadline — operator voice. Productized REIT system, full
-                funnel, demand-engine framing. No em-dashes (Blake rule). */}
+                funnel, demand-engine framing. No em-dashes (Blake rule).
+
+                Mobile gets a 20-word version because the 80% of traffic
+                arriving via the Facebook in-app browser on iPhone-class
+                devices has ~720px of usable height. The long paragraph ate
+                ~180px on mobile and pushed the CTAs to the bottom edge of
+                the fold. Full version still renders on sm:+ where there's
+                room for the REIT framing + capability list. */}
             <p
-              className={`mt-2 sm:mt-3 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              className={`sm:hidden mt-2 text-[15px] transition-all duration-1000 mx-auto ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              style={{
+                color: "var(--text-secondary)",
+                lineHeight: 1.5,
+                transitionDelay: "300ms",
+                maxWidth: "480px",
+                textWrap: "pretty",
+              }}
+            >
+              The REIT marketing playbook, productized for independent operators. Tested on our own facilities first.
+            </p>
+            <p
+              className={`hidden sm:block mt-3 text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
                 color: "var(--text-secondary)",
                 lineHeight: 1.5,

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Check, Minus } from "lucide-react";
 import PricingCalculator from "@/components/marketing/pricing-calculator";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -1023,7 +1024,7 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href={process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min"}
+              href={CAL_BOOKING_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary inline-block text-center"

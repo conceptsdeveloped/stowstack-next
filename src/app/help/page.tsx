@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Mail, Phone, MessageCircle, ChevronDown } from "lucide-react";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
 interface FaqItem {
   question: string;
@@ -101,11 +102,13 @@ export default function HelpPage() {
         {/* Contact options */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
           {[
-            { icon: Mail, label: "Email", value: "blake@storageads.com", href: "mailto:blake@storageads.com" },
-            { icon: Phone, label: "Call", value: "Book a call", href: "/demo" },
-            { icon: MessageCircle, label: "Chat", value: "Coming soon", href: undefined },
+            { icon: Mail, label: "Email", value: "blake@storageads.com", href: "mailto:blake@storageads.com", external: false },
+            { icon: Phone, label: "Call", value: "Book a call", href: CAL_BOOKING_URL, external: true },
+            { icon: MessageCircle, label: "Chat", value: "Coming soon", href: undefined, external: false },
           ].map((item) => {
             const Icon = item.icon;
+            const linkClass = "text-xs";
+            const linkStyle = { fontFamily: "var(--font-body)", color: "var(--color-gold)" };
             return (
               <div
                 key={item.label}
@@ -117,9 +120,15 @@ export default function HelpPage() {
                   {item.label}
                 </p>
                 {item.href ? (
-                  <Link href={item.href} className="text-xs" style={{ fontFamily: "var(--font-body)", color: "var(--color-gold)" }}>
-                    {item.value}
-                  </Link>
+                  item.external ? (
+                    <a href={item.href} target="_blank" rel="noopener noreferrer" className={linkClass} style={linkStyle}>
+                      {item.value}
+                    </a>
+                  ) : (
+                    <Link href={item.href} className={linkClass} style={linkStyle}>
+                      {item.value}
+                    </Link>
+                  )
                 ) : (
                   <span className="text-xs" style={{ fontFamily: "var(--font-body)", color: "var(--color-mid-gray)" }}>
                     {item.value}

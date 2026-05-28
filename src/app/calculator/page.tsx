@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ArrowRight, Share2, Check } from "lucide-react";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
 interface CalculatorInputs {
   totalUnits: number;
@@ -122,14 +123,16 @@ export default function CalculatorPage() {
           <Link href="/" className="text-lg font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
             <span>storage</span><span style={{ color: "var(--color-gold)" }}>ads</span>
           </Link>
-          <Link
-            href="/demo"
+          <a
+            href={CAL_BOOKING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium"
             style={{ fontFamily: "var(--font-heading)", color: "#fff", backgroundColor: "var(--color-gold)" }}
           >
             Book a Call
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </a>
         </div>
       </header>
 
@@ -234,14 +237,16 @@ export default function CalculatorPage() {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
-              <Link
-                href="/demo"
+              <a
+                href={CAL_BOOKING_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-medium"
                 style={{ fontFamily: "var(--font-heading)", color: "#fff", backgroundColor: "var(--color-gold)" }}
               >
                 Book a Call with Blake
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </a>
               <button
                 type="button"
                 onClick={handleShare}

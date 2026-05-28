@@ -1,6 +1,7 @@
 import { Mail } from "lucide-react";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
-const FOOTER_LINKS = [
+const FOOTER_LINKS: Array<{ label: string; href: string; external?: boolean }> = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Pricing", href: "/pricing" },
   { label: "Free Diagnostic", href: "/diagnostic" },
@@ -8,7 +9,7 @@ const FOOTER_LINKS = [
   { label: "Blog", href: "/blog" },
   { label: "Insights", href: "/insights" },
   { label: "Demo", href: "/demo" },
-  { label: "Book a Call", href: "#cta" },
+  { label: "Book a Call", href: CAL_BOOKING_URL, external: true },
 ];
 
 const LEGAL_LINKS = [
@@ -62,6 +63,9 @@ export default function Footer() {
                 <a
                   key={link.label}
                   href={link.href}
+                  {...(link.external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
                   className="block text-sm transition-colors"
                   style={{ color: "var(--text-dim)" }}
                 >

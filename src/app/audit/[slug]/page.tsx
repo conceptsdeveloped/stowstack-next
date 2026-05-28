@@ -36,6 +36,7 @@ import {
   Flame,
   Calendar,
 } from "lucide-react";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -1219,7 +1220,7 @@ export default async function SharedAuditPage({
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <a
-                  href={process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min"}
+                  href={CAL_BOOKING_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--accent)] text-[var(--color-light)] text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors"
@@ -1262,7 +1263,7 @@ export default async function SharedAuditPage({
               </p>
             </div>
             <a
-              href={process.env.NEXT_PUBLIC_CALCOM_LINK || "https://cal.com/storageads/30min"}
+              href={CAL_BOOKING_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-lg bg-[var(--accent)] text-[var(--color-light)] text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors shrink-0"

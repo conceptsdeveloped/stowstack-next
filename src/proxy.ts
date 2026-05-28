@@ -17,13 +17,13 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const cspDirectives = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://connect.facebook.net https://cdnjs.cloudflare.com https://*.clerk.accounts.dev`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://connect.facebook.net https://cdnjs.cloudflare.com https://*.clerk.accounts.dev https://cal.com https://*.cal.com`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https://*.stripe.com https://*.googleapis.com https://*.gstatic.com https://img.clerk.com https://*.fal.media https://*.vercel-storage.com",
   "media-src 'self' blob: https://*.fal.media https://*.vercel-storage.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://api.stripe.com https://*.sentry.io https://*.upstash.io https://*.clerk.com https://*.clerk.accounts.dev https://*.facebook.com https://*.fal.media https://*.fal.run",
-  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+  "connect-src 'self' https://api.stripe.com https://*.sentry.io https://*.upstash.io https://*.clerk.com https://*.clerk.accounts.dev https://*.facebook.com https://*.fal.media https://*.fal.run https://cal.com https://*.cal.com",
+  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://cal.com https://*.cal.com",
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",

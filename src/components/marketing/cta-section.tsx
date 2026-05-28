@@ -5,8 +5,7 @@ import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Check, Shield, Clock, Wrench, Zap, Calendar } from "lucide-react";
 import { useInView } from "./use-in-view";
-
-const CALCOM_SLUG = "storageads/30min";
+import { CAL_BOOKING_URL, CAL_EMBED_SLUG } from "@/lib/booking";
 
 const TRUST_SIGNALS = [
   { icon: Shield, text: "No long-term contracts" },
@@ -26,46 +25,100 @@ export default function CTASection() {
   const [calFailed, setCalFailed] = useState(false);
   const [mobileTab, setMobileTab] = useState<"audit" | "call">("audit");
   const calContainerRef = useRef<HTMLDivElement>(null);
+  const calInitRef = useRef(false);
 
-  // Load Cal.com embed script with 8s timeout fallback
+  // Initialize Cal.com embed using the official snippet pattern.
+  // The snippet defines window.Cal as a queue, then loads the embed script,
+  // which drains the queue. Loading embed.js directly does NOT define the
+  // global — calls would no-op and the embed never mounts.
+  // 8s timeout fallback for slow networks or blocked CDN.
+  // calInitRef guards against React strict-mode double-mount calling
+  // Cal("inline", ...) twice (which makes the SDK warn).
   useEffect(() => {
-    if (calLoaded || calFailed) return;
+    if (calLoaded || calFailed || calInitRef.current) return;
+    calInitRef.current = true;
 
+    type CalFn = ((...args: unknown[]) => void) & {
+      loaded?: boolean;
+      ns?: Record<string, unknown>;
+      q?: unknown[];
+    };
+    const w = window as unknown as { Cal?: CalFn };
+
+    let timedOut = false;
     const timeoutId = setTimeout(() => {
-      if (!calLoaded) setCalFailed(true);
+      timedOut = true;
+      setCalFailed(true);
     }, 8000);
 
-    const script = document.createElement("script");
-    script.src = "https://app.cal.com/embed/embed.js";
-    script.async = true;
-    script.onerror = () => {
+    try {
+      // Official Cal embed snippet (lazy-loads the script on first call).
+      (function (C: { Cal?: CalFn; document: Document }, A: string, L: string) {
+        const p = (a: CalFn, ar: unknown[]) => {
+          (a.q = a.q || []).push(ar);
+        };
+        const d = C.document;
+        const baseFn = ((...args: unknown[]) => {
+          const cal = C.Cal as CalFn;
+          if (!cal.loaded) {
+            cal.ns = {};
+            cal.q = cal.q || [];
+            const s = d.createElement("script");
+            s.src = A;
+            s.onerror = () => setCalFailed(true);
+            d.head.appendChild(s);
+            cal.loaded = true;
+          }
+          if (args[0] === L) {
+            const api: CalFn = ((...inner: unknown[]) => {
+              p(api, inner);
+            }) as CalFn;
+            const namespace = args[1];
+            api.q = api.q || [];
+            if (typeof namespace === "string") {
+              cal.ns = cal.ns || {};
+              cal.ns[namespace] = cal.ns[namespace] || api;
+              p(cal.ns[namespace] as CalFn, args);
+              p(cal, ["initNamespace", namespace]);
+            } else {
+              p(cal, args);
+            }
+            return;
+          }
+          p(cal, args);
+        }) as CalFn;
+        C.Cal = C.Cal || baseFn;
+      })(w as { Cal?: CalFn; document: Document }, "https://app.cal.com/embed/embed.js", "init");
+
+      const cal = w.Cal!;
+      cal("init", { origin: "https://cal.com" });
+      cal("inline", {
+        calLink: CAL_EMBED_SLUG,
+        elementOrSelector: "#cal-embed",
+        config: { theme: "light", layout: "month_view" },
+      });
+      cal("ui", {
+        theme: "light",
+        styles: { branding: { brandColor: "#141413" } },
+        hideEventTypeDetails: false,
+      });
+
+      // Watch for the iframe getting mounted by embed.js to flip loaded state.
+      const container = document.querySelector("#cal-embed");
+      if (container) {
+        const observer = new MutationObserver(() => {
+          if (container.querySelector("iframe")) {
+            clearTimeout(timeoutId);
+            if (!timedOut) setCalLoaded(true);
+            observer.disconnect();
+          }
+        });
+        observer.observe(container, { childList: true, subtree: true });
+      }
+    } catch {
       clearTimeout(timeoutId);
       setCalFailed(true);
-    };
-    script.onload = () => {
-      clearTimeout(timeoutId);
-      // @ts-expect-error Cal is injected globally by the embed script
-      if (window.Cal) {
-        // @ts-expect-error Cal is injected globally
-        window.Cal("init", { origin: "https://cal.com" });
-        // @ts-expect-error Cal is injected globally
-        window.Cal("inline", {
-          calLink: CALCOM_SLUG,
-          elementOrSelector: "#cal-embed",
-          config: { theme: "light", layout: "month_view" },
-        });
-        // @ts-expect-error Cal is injected globally
-        window.Cal("ui", {
-          theme: "light",
-          styles: { branding: { brandColor: "#141413" } },
-          hideEventTypeDetails: false,
-        });
-        setCalLoaded(true);
-      } else {
-        setCalFailed(true);
-      }
-    };
-    document.head.appendChild(script);
+    }
 
     return () => {
       clearTimeout(timeoutId);
@@ -258,7 +311,7 @@ export default function CTASection() {
                 >
                   Don&apos;t want to wait?{" "}
                   <a
-                    href={`https://cal.com/${CALCOM_SLUG}`}
+                    href={CAL_BOOKING_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline font-medium"
@@ -494,7 +547,7 @@ export default function CTASection() {
                     Calendar couldn&apos;t load.
                   </p>
                   <a
-                    href={`https://cal.com/${CALCOM_SLUG}`}
+                    href={CAL_BOOKING_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-sm font-semibold transition-colors"
@@ -508,7 +561,7 @@ export default function CTASection() {
 
             {/* Fallback direct link */}
             <a
-              href={`https://cal.com/${CALCOM_SLUG}`}
+              href={CAL_BOOKING_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 mt-4 text-sm font-medium transition-colors hover:text-[var(--color-dark)]"
