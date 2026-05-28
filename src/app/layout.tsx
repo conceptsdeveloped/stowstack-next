@@ -126,6 +126,11 @@ export default function RootLayout({
         lang="en"
         data-palette="paper"
         className={`${manrope.variable} antialiased`}
+        // The inline head script stamps data-iab="fb|ig|tiktok|line|none"
+        // before paint. That mutation creates a server/client attribute
+        // mismatch which React would otherwise warn about — suppress is
+        // the documented Next.js pattern for inline-script html mutations.
+        suppressHydrationWarning
       >
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -134,6 +139,19 @@ export default function RootLayout({
           <link rel="dns-prefetch" href="https://maps.googleapis.com" />
           <link rel="dns-prefetch" href="https://places.googleapis.com" />
           <link rel="manifest" href="/manifest.json" />
+          {/* In-app browser detection — stamps data-iab on <html> before paint
+              so styles/components can branch on it without a flash of
+              wrong-layout. 80% of homepage traffic is Facebook/Instagram IAB
+              on iPhone-class devices and we want CSS-level control without
+              a hydration round-trip. UA sniffing is fine here because:
+              (1) it's progressive enhancement — nothing breaks if it's wrong,
+              (2) the IAB UA strings (FBAN/FBAV/Instagram) are stable and
+              under Meta's control, (3) we never branch behavior on it. */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var u=navigator.userAgent||'';var iab='none';if(/FBAN|FBAV/.test(u))iab='fb';else if(/Instagram/.test(u))iab='ig';else if(/TikTok|musical_ly/.test(u))iab='tiktok';else if(/Line\\//.test(u))iab='line';document.documentElement.setAttribute('data-iab',iab);}catch(e){}})();`,
+            }}
+          />
           <script
             dangerouslySetInnerHTML={{
               __html: `

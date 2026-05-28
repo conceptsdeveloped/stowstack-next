@@ -1274,6 +1274,30 @@ body {
   transform: scaleX(1) !important;
 }
 
+/* ── In-app browser overrides ──
+   `data-iab` is set by an inline head script before paint. Used to fine-tune
+   layout for the 80% of homepage traffic arriving via Facebook/Instagram
+   in-app browsers on iPhone-class devices. We never branch behavior on
+   this; it is purely cosmetic spacing and conversion-priority tweaks. */
+html[data-iab="fb"] body,
+html[data-iab="ig"] body,
+html[data-iab="tiktok"] body {
+  /* Reserve room at the bottom of the document so the sticky mobile CTA
+     and the footer never both land on the iPhone home indicator at the
+     same time. 88px = button height + safe-area + breathing. Applied to
+     the body (not main) so the footer slides above the sticky bar. */
+  padding-bottom: 88px;
+}
+
+@media (min-width: 1024px) {
+  /* Desktop has no sticky CTA — drop the reservation. */
+  html[data-iab="fb"] body,
+  html[data-iab="ig"] body,
+  html[data-iab="tiktok"] body {
+    padding-bottom: 0;
+  }
+}
+
 /* ── Safe area insets for notched devices ── */
 .safe-top    { padding-top:    env(safe-area-inset-top); }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }

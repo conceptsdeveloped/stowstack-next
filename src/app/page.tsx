@@ -37,6 +37,13 @@ const DemandTriggers = dynamic(
   () => import("@/components/marketing/demand-triggers"),
 );
 const Footer = dynamic(() => import("@/components/marketing/footer"));
+// Sticky mobile CTA — mounts client-side after the page becomes interactive.
+// 80% of homepage traffic is FB-IAB on iPhone-class devices, where the user
+// almost never scrolls back up to convert. Always-on bottom button.
+const StickyMobileCTA = dynamic(
+  () => import("@/components/marketing/sticky-mobile-cta"),
+  { ssr: false },
+);
 
 /* ───────────────────────────────────────────────────────────────────────────
  * Homepage IA — Product-first SaaS conversion sequence (consolidated)
@@ -200,6 +207,9 @@ export default function HomePage() {
         <CTASection />
       </main>
       <Footer />
+      {/* Mobile-only sticky CTA. Hides itself when the audit form (§09)
+          enters the viewport so it doesn't sit on top of the form fields. */}
+      <StickyMobileCTA />
     </>
   );
 }
