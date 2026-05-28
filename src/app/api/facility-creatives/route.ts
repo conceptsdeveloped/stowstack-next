@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import * as Sentry from "@sentry/nextjs";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, requireFacilityAccess } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
 import { getBrandContextForCopy } from "@/lib/brand-doctrine";
 import { getStyleDirectives } from "@/lib/style-references";
@@ -512,7 +512,7 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   const url = new URL(req.url);
@@ -541,13 +541,14 @@ export async function POST(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   try {
     const body = await req.json();
     const facilityId = body?.facilityId;
     if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return errorResponse("Missing ANTHROPIC_API_KEY", 500, origin);
@@ -688,13 +689,19 @@ export async function PATCH(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   try {
     const body = await req.json();
     const { variationId, status, feedback, content_json, funnel_config, deploy } = body || {};
     if (!variationId) return errorResponse("variationId required", 400, origin);
+
+    const existing = await db.ad_variations.findUnique({
+      where: { id: variationId },
+      select: { facility_id: true },
+    });
+    if (!existing) return errorResponse("Not found", 404, origin);
+    const denied = await requireFacilityAccess(req, existing.facility_id);
+    if (denied) return denied;
 
     const VALID = ["draft", "review", "approved", "published", "rejected"];
     if (status && !VALID.includes(status)) return errorResponse("Invalid status", 400, origin);
@@ -880,13 +887,19 @@ export async function DELETE(req: NextRequest) {
   if (limited) return limited;
 
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   try {
     const body = await req.json();
     const { variationId } = body || {};
     if (!variationId) return errorResponse("variationId required", 400, origin);
+
+    const existing = await db.ad_variations.findUnique({
+      where: { id: variationId },
+      select: { facility_id: true },
+    });
+    if (!existing) return errorResponse("Not found", 404, origin);
+    const denied = await requireFacilityAccess(req, existing.facility_id);
+    if (denied) return denied;
 
     await db.ad_variations.delete({ where: { id: variationId } });
     return jsonResponse({ success: true }, 200, origin);

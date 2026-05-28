@@ -5,7 +5,7 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { scrapeWebsite } from "@/lib/scrape-website";
 import { scrapeSparefoot, scrapeSelfStorage } from "@/lib/aggregator-scrape";
@@ -132,11 +132,12 @@ export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
   if (limited) return limited;
   const origin = getOrigin(request);
-  const denied = await requireAdminKey(request);
-  if (denied) return denied;
 
   const facilityId = request.nextUrl.searchParams.get("facilityId");
   if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+  const denied = await requireFacilityAccess(request, facilityId);
+  if (denied) return denied;
 
   try {
     const rows = await db.$queryRaw<Record<string, unknown>[]>`SELECT * FROM facility_market_intel WHERE facility_id = ${facilityId}::uuid`;
@@ -152,13 +153,20 @@ export async function POST(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
   if (limited) return limited;
   const origin = getOrigin(request);
-  const denied = await requireAdminKey(request);
+
+  let body: { facilityId?: string; force?: boolean };
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse("Invalid JSON body", 400, origin);
+  }
+  const { facilityId, force } = body || {};
+  if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+  const denied = await requireFacilityAccess(request, facilityId);
   if (denied) return denied;
 
   try {
-    const body = await request.json();
-    const { facilityId, force } = body || {};
-    if (!facilityId) return errorResponse("facilityId required", 400, origin);
 
     // Staleness check — return cached data if < 30 days old
     if (!force) {
@@ -445,14 +453,20 @@ export async function PATCH(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "market-intel");
   if (limited) return limited;
   const origin = getOrigin(request);
-  const denied = await requireAdminKey(request);
+
+  let body: { facilityId?: string; manual_notes?: string; operator_overrides?: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse("Invalid JSON body", 400, origin);
+  }
+  const { facilityId, manual_notes, operator_overrides } = body || {};
+  if (!facilityId) return errorResponse("facilityId required", 400, origin);
+
+  const denied = await requireFacilityAccess(request, facilityId);
   if (denied) return denied;
 
   try {
-    const body = await request.json();
-    const { facilityId, manual_notes, operator_overrides } = body || {};
-    if (!facilityId) return errorResponse("facilityId required", 400, origin);
-
     const manualNotesVal = manual_notes ?? null;
     const operatorOverridesVal = operator_overrides ? JSON.stringify(operator_overrides) : null;
     const intelRows = await db.$queryRaw<Record<string, unknown>[]>`INSERT INTO facility_market_intel (facility_id, manual_notes, operator_overrides)

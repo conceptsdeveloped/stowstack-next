@@ -6,7 +6,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -51,7 +51,8 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "tenants");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
+  const denied = await requireFacilityAccess(req);
+  if (denied) return denied;
 
   try {
     const facilityId = req.nextUrl.searchParams.get("facilityId");
@@ -257,7 +258,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "tenants");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await req.json();
@@ -265,6 +265,8 @@ export async function POST(req: NextRequest) {
 
     if (action === "auto_escalate") {
       const { facilityId } = body;
+      const escalateDenied = await requireFacilityAccess(req, facilityId);
+      if (escalateDenied) return escalateDenied;
       const escalateFacilityFilter = facilityId
         ? Prisma.sql`AND t.facility_id = ${facilityId}::uuid`
         : Prisma.empty;
@@ -352,6 +354,9 @@ export async function POST(req: NextRequest) {
           origin,
         );
 
+      const bulkDenied = await requireFacilityAccess(req, facility_id);
+      if (bulkDenied) return bulkDenied;
+
       let imported = 0;
       let skipped = 0;
       const errors: Array<{
@@ -422,6 +427,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const createDenied = await requireFacilityAccess(req, facility_id);
+    if (createDenied) return createDenied;
+
     const rows = await db.$queryRaw<unknown[]>`
       INSERT INTO tenants (facility_id, external_id, name, email, phone, unit_number, unit_size, unit_type,
         monthly_rate, move_in_date, autopay_enabled, has_insurance, insurance_monthly, balance, status)
@@ -451,13 +459,24 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "tenants");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await req.json();
     const { id, ids, action, ...updates } = body;
 
     if (Array.isArray(ids) && ids.length > 0) {
+      // Authorize every facility represented in the batch.
+      const idTenants = await db.tenants.findMany({
+        where: { id: { in: ids } },
+        select: { facility_id: true },
+      });
+      if (idTenants.length === 0) return errorResponse("Not found", 404, origin);
+      const idFacilityIds = [...new Set(idTenants.map((t) => t.facility_id))];
+      for (const fid of idFacilityIds) {
+        const batchDenied = await requireFacilityAccess(req, fid);
+        if (batchDenied) return batchDenied;
+      }
+
       if (action === "batch_status") {
         const { status: batchStatus } = updates;
         await db.$executeRaw`
@@ -499,6 +518,14 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (!id) return errorResponse("id or ids required", 400, origin);
+
+    const existingTenant = await db.tenants.findUnique({
+      where: { id },
+      select: { facility_id: true },
+    });
+    if (!existingTenant) return errorResponse("Not found", 404, origin);
+    const idDenied = await requireFacilityAccess(req, existingTenant.facility_id);
+    if (idDenied) return idDenied;
 
     if (action === "record_payment") {
       const { amount, payment_date, due_date, method } = updates;
