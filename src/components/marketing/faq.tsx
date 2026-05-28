@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, Minus } from "lucide-react";
 import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 import { useInView } from "./use-in-view";
+import Cite from "./cite";
 
 /**
  * Homepage FAQ. The questions are phrased the way an operator would
@@ -13,7 +14,14 @@ import { useInView } from "./use-in-view";
  * book a call.
  */
 
-const FAQS: { q: string; a: string }[] = [
+type FaqEntry = {
+  q: string;
+  a: string;
+  /** Optional source ids appended at the end of the answer as superscript footnotes. */
+  cite?: number[];
+};
+
+const FAQS: FaqEntry[] = [
   {
     q: "We're not running any ads right now.",
     a: "Most independent operators aren't. The system is built for that starting point. Market mapping, ad creation, publishing, landing pages, and conversion tracking deploy from zero in the first week.",
@@ -32,7 +40,22 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How does the AI Creative Studio work?",
-    a: "It generates ad copy, headlines, and landing page variants from your facility data — unit types, pricing, location, competitive positioning. You review and publish. New creative on demand without a retainer.",
+    a: "It generates ad copy, headlines, and landing page variants from your facility data: unit types, pricing, location, competitive positioning. You review and publish. New creative on demand without a retainer.",
+  },
+  {
+    q: "We already get plenty of walk-ins and Google traffic.",
+    a: "Good. That puts you ahead of most independents. The catch is Google's local algorithm weights proximity and review recency over brand size, which is the one place independents can outrank REIT locations. If you're not actively managing Google Business Profile, reviews, and retargeting the visitors you already get, you're sitting on the lever that costs the REITs $250M a year to operate at scale. The audit shows you which side of that gap you're on.",
+    cite: [6],
+  },
+  {
+    q: "We're in Texas (or Florida, or a Sun Belt metro). The market is rough.",
+    a: "It is. San Antonio added roughly 656,000 square feet of new supply in 2026. Houston added 430,000. National supply growth is still slowing to 1.5% a year through 2027, but the oversupplied metros are absorbing first. You can't make new supply disappear. You can control how your facility prices against competitors, how fast you respond to leads, how your reviews read, and how the page performs at 11pm on a Sunday. That's the lever, and it's what the system runs.",
+    cite: [10],
+  },
+  {
+    q: "California passed SB 709. Should we worry about ECRI legislation?",
+    a: "If you're in California, yes: SB 709 caps annual existing-customer rate increases at the lower of 5% + CPI or 10% as of January 2026. Twenty-four states introduced storage pricing bills in 2025. The NYC Department of Consumer and Worker Protection has an active case against Extra Space over the bait-and-switch ECRI playbook. The era of low introductory rate plus aggressive ECRI is closing. Operators who can't run real demand generation get squeezed first. The system is built so new-customer acquisition is your durable lever, not pricing tactics regulators are killing.",
+    cite: [7, 8],
   },
   {
     q: "Single-facility operators?",
@@ -147,6 +170,7 @@ export default function FAQ() {
                     }}
                   >
                     {faq.a}
+                    {faq.cite && <Cite n={faq.cite} />}
                   </p>
                 </div>
               </div>

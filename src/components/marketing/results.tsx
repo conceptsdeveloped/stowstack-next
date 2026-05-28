@@ -3,8 +3,17 @@
 import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 
 import { useInView } from "./use-in-view";
+import Cite from "./cite";
 
-const CASE_STUDIES = [
+type CaseStudy = {
+  name: string;
+  context: string;
+  stats: { value: string; label: string }[];
+  /** Benchmark line shown below the stat grid. Anchors the result against the REIT band. */
+  benchmark?: { text: string; cites: number[] };
+};
+
+const CASE_STUDIES: CaseStudy[] = [
   {
     name: "Midway Self Storage: Cassopolis, MI",
     context:
@@ -15,6 +24,10 @@ const CASE_STUDIES = [
       { value: "71% → 84%", label: "occupancy in one quarter" },
       { value: "35x", label: "return on ad spend" },
     ],
+    benchmark: {
+      text: "84% lands above the 87.2% independent average and inside reach of the 92.6% REIT band. One quarter, one facility, no new units built.",
+      cites: [1, 2],
+    },
   },
   {
     name: "Lakeshore Storage: South Haven, MI",
@@ -26,6 +39,10 @@ const CASE_STUDIES = [
       { value: "74%", label: "winter occupancy (vs 60% prior year)" },
       { value: "8.7%", label: "LP conversion (vs 2.1% homepage)" },
     ],
+    benchmark: {
+      text: "+14 points of winter occupancy in a market where the national web rate dropped 4.71% YoY. Demand was there. The funnel just had to reach it.",
+      cites: [3],
+    },
   },
 ];
 
@@ -99,8 +116,12 @@ export default function Results() {
                 {study.stats.map((stat) => (
                   <div key={stat.label} className="text-center">
                     <p
-                      className="text-2xl font-semibold text-[var(--color-gold)]"
-                      style={{ fontFamily: "var(--font-mono-family)" }}
+                      className="text-2xl font-semibold"
+                      style={{
+                        fontFamily: "var(--font-mono-family)",
+                        color: "var(--color-dark)",
+                        fontFeatureSettings: '"tnum" 1',
+                      }}
                     >
                       {stat.value}
                     </p>
@@ -113,6 +134,33 @@ export default function Results() {
                   </div>
                 ))}
               </div>
+
+              {study.benchmark && (
+                <div
+                  className="mt-5 pt-4 text-xs"
+                  style={{
+                    borderTop: "1px solid var(--border-subtle)",
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  <span
+                    className="inline-block mr-2 px-1.5 py-0.5 text-[9px] uppercase font-semibold"
+                    style={{
+                      letterSpacing: "var(--tracking-wide)",
+                      background: "var(--color-light)",
+                      border: "1px solid var(--border-subtle)",
+                      color: "var(--text-tertiary)",
+                      fontFamily: "var(--font-heading)",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    Benchmark
+                  </span>
+                  {study.benchmark.text}
+                  <Cite n={study.benchmark.cites} />
+                </div>
+              )}
             </div>
           ))}
         </div>
