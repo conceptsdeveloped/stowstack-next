@@ -1960,40 +1960,48 @@ export function ROITeaser({ isVisible }: { isVisible: boolean }) {
 function HeroStatusStrip() {
   const clock = useClock();
   return (
+    // Sit directly under the fixed nav. Previous version used a
+    // position:relative + top + negative-margin trick which offsets the box
+    // visually but not in layout — that caused the H1 eyebrow below to render
+    // ON TOP of the strip's bottom border on iPhone 17 Pro Max. Using plain
+    // marginTop keeps layout and visual positions aligned, and adding the
+    // safe-area inset ensures the strip clears the dynamic island / notch.
     <div
       style={{
-        position: "relative",
-        top: "var(--nav-height)",
-        marginTop: "calc(var(--nav-height) * -1)",
-        paddingTop: "var(--nav-height)",
+        marginTop:
+          "calc(var(--nav-height) + env(safe-area-inset-top, 0px))",
+        borderBottom: `1px solid ${MONO.line}`,
+        borderTop: `1px solid ${MONO.line}`,
       }}
     >
       <div
+        className="max-w-[1320px] mx-auto px-5 sm:px-8 lg:px-14"
         style={{
-          borderBottom: `1px solid ${MONO.line}`,
-          borderTop: `1px solid ${MONO.line}`,
+          padding: "8px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 12,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
         }}
       >
-        <div
-          className="max-w-[1320px] mx-auto px-5 sm:px-8 lg:px-14"
-          style={{
-            padding: "8px 20px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 12,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-          }}
-        >
-          <Label style={{ color: MONO.accent, fontWeight: 500 }}>
-            <Dot live color={MONO.accent} style={{ marginRight: 8, verticalAlign: "middle" }} />
+        <Label style={{ color: MONO.accent, fontWeight: 500 }}>
+          <Dot live color={MONO.accent} style={{ marginRight: 8, verticalAlign: "middle" }} />
+          {/* On mobile the right-side REV/clock/SOC2 line eats half the row,
+              so we drop the second clause until sm:+ to keep the row clean. */}
+          <span className="sm:hidden">MARKETING INFRASTRUCTURE</span>
+          <span className="hidden sm:inline">
             MARKETING INFRASTRUCTURE · BUILT FOR SELF-STORAGE
-          </Label>
-          <Label style={{ color: MONO.textDim }}>
+          </span>
+        </Label>
+        <Label style={{ color: MONO.textDim }}>
+          {/* Mobile: REV date only. Tablet+: full timestamp + compliance tag. */}
+          <span className="sm:hidden">REV {clock.ymd}</span>
+          <span className="hidden sm:inline">
             REV {clock.ymd} · {clock.hms} {clock.tz} · SOC2
-          </Label>
-        </div>
+          </span>
+        </Label>
       </div>
     </div>
   );
@@ -2322,11 +2330,12 @@ export default function Hero() {
       <HeroStatusStrip />
 
       {/* ── Hero content ── */}
-      {/* pt was pt-10 mobile but the H1 ended up clashing visually with the
-          status strip on iPhone 17 Pro Max. Bumped to pt-14 to restore a
-          clear breathing band between the strip and the headline while
-          keeping the page condensed overall. */}
-      <div ref={ref} className="relative w-full pt-14 sm:pt-20 lg:pt-24 pb-6 sm:pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
+      {/* The HeroStatusStrip now sits in normal flow (was a position:relative
+          + negative-margin hack that overlapped this content). With layout
+          and visual position aligned, mobile no longer needs pt-14 to
+          compensate — pt-7 gives a clean breathing band under the strip and
+          frees vertical space for above-the-fold CTAs on iPhone 17 Pro Max. */}
+      <div ref={ref} className="relative w-full pt-7 sm:pt-12 lg:pt-20 pb-6 sm:pb-10 lg:pb-14 px-5 sm:px-8 lg:px-14">
         <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-6 sm:gap-8 lg:gap-14 items-center max-w-[1280px] mx-auto">
 
           {/* ── Left column ── */}
@@ -2365,8 +2374,16 @@ export default function Hero() {
               <span className="whitespace-nowrap">Move-ins&nbsp;out.</span>
             </h1>
 
-            {/* Typewriter */}
-            <div className={`mt-2 sm:mt-3 h-7 sm:h-8 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "200ms" }}>
+            {/* Typewriter — reserves 2 lines on mobile because the longest
+                phrases ("Create demand. Capture demand. Recapture demand.",
+                "Stop leaking revenue at every step of the funnel.") wrap on
+                iPhone-class widths. Previously h-7 clipped to 28px and the
+                wrapped 2nd line overflowed onto the body paragraph below.
+                sm:+ stays single-line where the phrases fit. */}
+            <div
+              className={`mt-2 sm:mt-3 min-h-14 sm:min-h-8 leading-snug transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              style={{ transitionDelay: "200ms" }}
+            >
               <span className="text-lg sm:text-xl font-semibold" style={{ color: "var(--color-dark)", fontFamily: "var(--serif)", letterSpacing: "-0.03em" }}>{typedText}</span>
               <span className="inline-block w-0.5 h-5 ml-0.5 align-middle rounded-full" style={{ background: "var(--color-gold)", animation: "hero-pulse 1s ease-in-out infinite" }} />
             </div>

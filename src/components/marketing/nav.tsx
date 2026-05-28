@@ -279,7 +279,10 @@ export default function Nav() {
         className="fixed top-0 left-0 right-0 transition-all duration-300"
         style={{
           zIndex: "var(--z-nav)",
-          height: "var(--nav-height)",
+          // Grow the bar by the safe-area inset so the logo row keeps its full
+          // 64px on iPhones with a dynamic island / notch. With box-sizing:
+          // border-box, the inner paddingTop would otherwise eat the nav.
+          height: "calc(var(--nav-height) + env(safe-area-inset-top, 0px))",
           paddingTop: "env(safe-area-inset-top, 0px)",
           background: isScrolled
             ? "rgba(250, 249, 245, 0.92)"
