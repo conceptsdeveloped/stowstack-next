@@ -12,6 +12,10 @@ For investor, acquirer, due-diligence, partnership, or whitepaper-adjacent copy,
 
 If unsure which register applies, ask before drafting.
 
+## Market Data
+
+For any customer-facing copy, audit-tool insights, blog content, ads, or investor materials that reference self-storage market conditions, occupancy benchmarks, pricing trends, regulatory context, or the acquisition environment, read [.claude/market-data-2026.md](.claude/market-data-2026.md) before drafting. Never fabricate market stats — pull from that file or our own data.
+
 ## Build & Development Commands
 
 ```bash

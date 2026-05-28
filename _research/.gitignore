@@ -1,0 +1,4 @@
+# Growth ops research workspace — not part of the StorageAds codebase
+# Excludes all research, drafts, datasets, and weekly briefings from version control
+*
+!.gitignore
