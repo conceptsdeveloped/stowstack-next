@@ -5,7 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { scrapeWebsite } from "@/lib/scrape-website";
 import { applyRateLimit } from "@/lib/with-rate-limit";
@@ -21,12 +21,14 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "scrape-website");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   const body = await req.json().catch(() => null);
   const url = body?.url?.trim();
   const facilityId = body?.facilityId;
   const force = body?.force === true;
+
+  const denied = await requireFacilityAccess(req, facilityId);
+  if (denied) return denied;
 
   if (!url) return errorResponse("url is required", 400, origin);
 

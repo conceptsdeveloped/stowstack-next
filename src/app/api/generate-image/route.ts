@@ -8,7 +8,8 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
+  requireManageOrAdmin,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { getCreativeContext } from "@/lib/creative";
 import { getBrandContextForVisual } from "@/lib/brand-doctrine";
@@ -340,7 +341,8 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
+  const denied = await requireManageOrAdmin(req);
+  if (denied) return denied;
 
   const templates = Object.entries(IMAGE_TEMPLATES).map(([id, t]) => ({
     id,
@@ -365,8 +367,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "generate-image");
   if (limited) return limited;
 
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
-
   try {
     const body = await req.json();
     const { templateId, facilityId, customNotes, promptOverride, aspect, copyContext } =
@@ -379,6 +379,9 @@ export async function POST(req: NextRequest) {
         origin,
       );
     }
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     const template = IMAGE_TEMPLATES[templateId];
     if (!template) return errorResponse("Invalid template", 400, origin);

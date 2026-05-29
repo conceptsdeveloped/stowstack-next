@@ -212,3 +212,29 @@ export async function requireFacilityAccess(
 
   return errorResponse("Unauthorized", 401, req.headers.get("origin"));
 }
+
+/**
+ * Guard for resources that are NOT facility-scoped but should still be
+ * available to signed-in owners — e.g. global template lists, the shared
+ * style-reference library, stock imagery. Authorizes when the request carries
+ * a valid admin key OR any valid manage session (no specific facility match
+ * required). Use requireFacilityAccess instead whenever the data belongs to a
+ * particular facility.
+ */
+export async function requireManageOrAdmin(
+  req: NextRequest
+): Promise<NextResponse | null> {
+  if (isAdminRequest(req)) return null;
+
+  const { getManageScope } = await import("@/lib/manage-session");
+  const scope = getManageScope(req);
+  if (scope && scope.facilityIds.length > 0) return null;
+
+  const providedKey = req.headers.get("x-admin-key");
+  if (providedKey?.startsWith("sa_adm_")) {
+    const adminCheck = await requireAdminKey(req);
+    if (adminCheck === null) return null;
+  }
+
+  return errorResponse("Unauthorized", 401, req.headers.get("origin"));
+}

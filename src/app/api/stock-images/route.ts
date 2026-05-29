@@ -4,7 +4,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
+  requireManageOrAdmin,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -80,7 +80,8 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "stock-images");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
+  const denied = await requireManageOrAdmin(req);
+  if (denied) return denied;
 
   const category = req.nextUrl.searchParams.get("category");
   const searchQuery = req.nextUrl.searchParams.get("query");
