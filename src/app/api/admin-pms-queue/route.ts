@@ -79,6 +79,11 @@ export async function GET(req: NextRequest) {
 
 /**
  * PATCH — Update a PMS report upload status, notes, etc.
+ *
+ * Admin-only by design. Unlike GET (facility-scoped so an owner can see the
+ * status of reports they uploaded), processing a report — marking it processed,
+ * recording processed_by — is an internal back-office action handled by
+ * founders/VAs, not facility owners. Owners do not get write access here.
  */
 export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-pms-queue");

@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
@@ -6,11 +6,27 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
-  isAdminRequest,
+  requireAdminKey,
   requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+
+/**
+ * Guard a churn-predictions write to the facility it touches:
+ *  - facility-scoped op (facilityId present) → admins pass; owners need a
+ *    manage session scoped to that facility.
+ *  - global / cross-facility op (facilityId null/undefined) → admins only.
+ * Passing a truthy facilityId means requireFacilityAccess does NOT fall back to
+ * the ?facilityId= query param, so a query param can't widen a body-scoped op.
+ */
+async function guardChurnWrite(
+  req: NextRequest,
+  facilityId: string | null | undefined
+): Promise<NextResponse | null> {
+  if (facilityId) return requireFacilityAccess(req, facilityId);
+  return requireAdminKey(req);
+}
 
 function serializeBigInts(obj: unknown): unknown {
   if (obj === null || obj === undefined) return obj;
@@ -273,8 +289,6 @@ export async function POST(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
-  if (!isAdminRequest(request))
-    return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await request.json();
@@ -284,6 +298,10 @@ export async function POST(request: NextRequest) {
       const { facility_id, name, trigger_risk_level, sequence_steps } = body;
       if (!name || !sequence_steps)
         return errorResponse("name and sequence_steps required", 400, origin);
+
+      // A facility-less campaign is global (spans every facility) → admin only.
+      const denied = await guardChurnWrite(request, facility_id ?? null);
+      if (denied) return denied;
 
       const rows = await db.$queryRaw<Record<string, unknown>[]>`
         INSERT INTO retention_campaigns (facility_id, name, trigger_risk_level, sequence_steps)
@@ -304,6 +322,14 @@ export async function POST(request: NextRequest) {
       if (campaignRows.length === 0)
         return errorResponse("Campaign not found", 404, origin);
       const campaign = campaignRows[0];
+
+      // Scope to the campaign's facility; a global campaign enrolls across every
+      // facility → admin only.
+      const denied = await guardChurnWrite(
+        request,
+        (campaign.facility_id as string | null) ?? null
+      );
+      if (denied) return denied;
 
       const triggerLevel = String(campaign.trigger_risk_level || "high");
       const riskLevels =
@@ -336,6 +362,12 @@ export async function POST(request: NextRequest) {
 
     // Run churn scoring
     const { facilityId } = body;
+
+    // Facility-scoped scoring is open to that facility's owner; scoring across
+    // every facility (no facilityId) is admin only.
+    const denied = await guardChurnWrite(request, facilityId ?? null);
+    if (denied) return denied;
+
     const scoringFacilityFilter = facilityId
       ? Prisma.sql`AND facility_id = ${facilityId}::uuid`
       : Prisma.empty;
@@ -380,8 +412,6 @@ export async function PATCH(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
-  if (!isAdminRequest(request))
-    return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await request.json();
@@ -394,6 +424,11 @@ export async function PATCH(request: NextRequest) {
     } = body;
 
     if (Array.isArray(ids) && ids.length > 0) {
+      // Batch ops act on arbitrary prediction ids that may span facilities →
+      // admin only.
+      const denied = await requireAdminKey(request);
+      if (denied) return denied;
+
       if (action === "batch_enroll" && campaign_id) {
         await db.$executeRaw`
           UPDATE churn_predictions SET retention_campaign_id = ${campaign_id}::uuid, retention_status = 'enrolled'
@@ -432,6 +467,21 @@ export async function PATCH(request: NextRequest) {
 
     if (!id) return errorResponse("id or ids required", 400, origin);
 
+    if (action === "toggle_campaign" || action === "update_campaign") {
+      // Scope campaign mutations to the campaign's facility; global campaigns
+      // (no facility) are admin only.
+      const campaignRows = await db.$queryRaw<Record<string, unknown>[]>`
+        SELECT facility_id FROM retention_campaigns WHERE id = ${id}::uuid
+      `;
+      if (campaignRows.length === 0)
+        return errorResponse("Campaign not found", 404, origin);
+      const denied = await guardChurnWrite(
+        request,
+        (campaignRows[0].facility_id as string | null) ?? null
+      );
+      if (denied) return denied;
+    }
+
     if (action === "toggle_campaign") {
       const rows = await db.$queryRaw<Record<string, unknown>[]>`
         UPDATE retention_campaigns SET active = NOT active, updated_at = NOW() WHERE id = ${id}::uuid RETURNING *
@@ -458,6 +508,18 @@ export async function PATCH(request: NextRequest) {
       return jsonResponse({ campaign: rows[0] }, 200, origin);
     }
 
+    // Single prediction status update: scope to the prediction's facility.
+    const predRows = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT facility_id FROM churn_predictions WHERE id = ${id}::uuid
+    `;
+    if (predRows.length === 0)
+      return errorResponse("Prediction not found", 404, origin);
+    const predDenied = await guardChurnWrite(
+      request,
+      (predRows[0].facility_id as string | null) ?? null
+    );
+    if (predDenied) return predDenied;
+
     const rows = await db.$queryRaw<Record<string, unknown>[]>`
       UPDATE churn_predictions SET retention_status = ${retention_status} WHERE id = ${id}::uuid RETURNING *
     `;
@@ -473,13 +535,24 @@ export async function DELETE(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
-  if (!isAdminRequest(request))
-    return errorResponse("Unauthorized", 401, origin);
 
   const id = request.nextUrl.searchParams.get("id");
   if (!id) return errorResponse("id required", 400, origin);
 
   try {
+    // Scope the delete to the campaign's facility; global campaigns are admin
+    // only.
+    const campaignRows = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT facility_id FROM retention_campaigns WHERE id = ${id}::uuid
+    `;
+    if (campaignRows.length === 0)
+      return errorResponse("Campaign not found", 404, origin);
+    const denied = await guardChurnWrite(
+      request,
+      (campaignRows[0].facility_id as string | null) ?? null
+    );
+    if (denied) return denied;
+
     await db.$executeRaw`
       UPDATE churn_predictions SET retention_campaign_id = NULL WHERE retention_campaign_id = ${id}::uuid
     `;
