@@ -22,9 +22,6 @@ const HowItWorks = dynamic(
 const FourWayComparison = dynamic(
   () => import("@/components/marketing/four-way-comparison"),
 );
-const InactionTimeline = dynamic(
-  () => import("@/components/marketing/inaction-timeline"),
-);
 const QuickCalculator = dynamic(
   () => import("@/components/marketing/quick-calculator"),
 );
@@ -61,7 +58,7 @@ const StickyMobileCTA = dynamic(
  *  —   <BeforeAfterSection />   Before/after broken-workflow pairs
  *  04  <ProblemStatement />     The underlying problem
  *  —   <BecauseLetterboard />   Pain refrain (split-flap)
- *  05  <InactionTimeline />     Cost of inaction
+ *  —   <InactionTimeline />     Cost of inaction → moved to its own page (/cost-of-inaction)
  *  06  <Results />              Proof — case studies + stats + StatsBar
  *  —   <LiveStatsSection />     Industry/forecast numbers
  *  —   <StatsBar />             4 hero-stat counters
@@ -185,9 +182,6 @@ export default function HomePage() {
         {/* §04 — The underlying problem */}
         <ProblemStatement />
         <BecauseLetterboard />
-
-        {/* §05 — Cost of inaction (problem amplifier, follows the refrain) */}
-        <InactionTimeline />
 
         {/* §06 — Proof (Results + stats + ROI consolidated) */}
         <Results />
