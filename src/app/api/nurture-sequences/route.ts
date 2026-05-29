@@ -6,7 +6,7 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "nurture-sequences");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   const url = new URL(req.url);
@@ -152,8 +152,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "nurture-sequences");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   let body: Record<string, unknown>;
   try {
@@ -170,6 +168,8 @@ export async function POST(req: NextRequest) {
         facilityId?: string;
         templateKey?: string;
       };
+      const denied = await requireFacilityAccess(req, facilityId);
+      if (denied) return denied;
       const template = templateKey ? SEQUENCE_TEMPLATES[templateKey] : null;
       if (!template) {
         return errorResponse(`Unknown template: ${templateKey}`, 400, origin);
@@ -197,6 +197,8 @@ export async function POST(req: NextRequest) {
           origin
         );
       }
+      const denied = await requireFacilityAccess(req, facilityId);
+      if (denied) return denied;
 
       const rows = await db.$queryRaw<Array<Record<string, unknown>>>`
         INSERT INTO nurture_sequences (facility_id, name, trigger_type, steps, status)
@@ -241,6 +243,8 @@ export async function POST(req: NextRequest) {
           origin
         );
       }
+      const denied = await requireFacilityAccess(req, facilityId);
+      if (denied) return denied;
 
       const seqRows = await db.$queryRaw<
         Array<{ id: string; steps: unknown }>
@@ -292,8 +296,6 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "nurture-sequences");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   let body: Record<string, unknown>;
   try {
@@ -312,6 +314,26 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
+    if (patchAction === "update_sequence") {
+      const { sequenceId } = body as { sequenceId?: string };
+      const targetSeqId = sequenceId || enrollmentId;
+      const existingSeq = await db.nurture_sequences.findUnique({
+        where: { id: targetSeqId },
+        select: { facility_id: true },
+      });
+      if (!existingSeq) return errorResponse("Not found", 404, origin);
+      const denied = await requireFacilityAccess(req, existingSeq.facility_id);
+      if (denied) return denied;
+    } else {
+      const existing = await db.nurture_enrollments.findUnique({
+        where: { id: enrollmentId },
+        select: { facility_id: true },
+      });
+      if (!existing) return errorResponse("Not found", 404, origin);
+      const denied = await requireFacilityAccess(req, existing.facility_id);
+      if (denied) return denied;
+    }
+
     if (patchAction === "pause") {
       await db.$executeRaw`
         UPDATE nurture_enrollments SET status = 'paused', next_send_at = NULL WHERE id = ${enrollmentId}::uuid
@@ -424,8 +446,6 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
@@ -437,8 +457,22 @@ export async function DELETE(req: NextRequest) {
 
   try {
     if (type === "enrollment") {
+      const existing = await db.nurture_enrollments.findUnique({
+        where: { id },
+        select: { facility_id: true },
+      });
+      if (!existing) return errorResponse("Not found", 404, origin);
+      const denied = await requireFacilityAccess(req, existing.facility_id);
+      if (denied) return denied;
       await db.$executeRaw`DELETE FROM nurture_enrollments WHERE id = ${id}::uuid`;
     } else {
+      const existing = await db.nurture_sequences.findUnique({
+        where: { id },
+        select: { facility_id: true },
+      });
+      if (!existing) return errorResponse("Not found", 404, origin);
+      const denied = await requireFacilityAccess(req, existing.facility_id);
+      if (denied) return denied;
       await db.$executeRaw`DELETE FROM nurture_sequences WHERE id = ${id}::uuid`;
     }
 

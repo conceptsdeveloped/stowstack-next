@@ -5,7 +5,7 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -30,8 +30,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "publish-social");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   let body: Record<string, unknown>;
   try {
@@ -44,6 +42,14 @@ export async function POST(req: NextRequest) {
   if (!postId) {
     return errorResponse("postId required", 400, origin);
   }
+
+  const existing = await db.social_posts.findUnique({
+    where: { id: postId },
+    select: { facility_id: true },
+  });
+  if (!existing) return errorResponse("Not found", 404, origin);
+  const denied = await requireFacilityAccess(req, existing.facility_id);
+  if (denied) return denied;
 
   try {
     const postRows = await db.$queryRaw<Array<SocialPost>>`

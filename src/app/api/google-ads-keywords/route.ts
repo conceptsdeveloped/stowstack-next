@@ -5,7 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -50,9 +50,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API, "google-ads-keywords");
   if (limited) return limited;
 
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
-
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey)
     return errorResponse("ANTHROPIC_API_KEY not configured", 500, origin);
@@ -61,6 +58,9 @@ export async function POST(req: NextRequest) {
     const { facilityId } = await req.json();
     if (!facilityId)
       return errorResponse("facilityId required", 400, origin);
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     const facility = await db.facilities.findUnique({
       where: { id: facilityId },

@@ -7,7 +7,8 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
+  requireManageOrAdmin,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { getBrandContextForVideo } from "@/lib/brand-doctrine";
 import { getStyleDirectives } from "@/lib/style-references";
@@ -447,7 +448,8 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
+  const denied = await requireManageOrAdmin(req);
+  if (denied) return denied;
 
   const templates = Object.entries(VIDEO_TEMPLATES).map(([id, t]) => ({
     id,
@@ -469,7 +471,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await req.json();
@@ -490,6 +491,9 @@ export async function POST(req: NextRequest) {
         origin,
       );
     }
+
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     const template = VIDEO_TEMPLATES[templateId];
     if (!template) return errorResponse("Invalid template", 400, origin);
