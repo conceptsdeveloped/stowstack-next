@@ -36,7 +36,7 @@ export default function QuickCalculator() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="07" kicker="REVENUE CALCULATOR" right={<SectionMeta text="LEDGER · LIVE" />} style={{ marginBottom: 24 }} />
+        <SectionHeader number="06" kicker="REVENUE CALCULATOR" right={<SectionMeta text="LEDGER · LIVE" />} style={{ marginBottom: 24 }} />
         <div
           className={`transition-all duration-700 ${
             isVisible

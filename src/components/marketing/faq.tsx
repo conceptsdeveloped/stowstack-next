@@ -84,7 +84,7 @@ export default function FAQ() {
     >
       <div ref={ref} className="section-content">
         <SectionHeader
-          number="08"
+          number="07"
           kicker="QUESTIONS"
           right={<SectionMeta text={`${FAQS.length} ANSWERS`} />}
           style={{ marginBottom: 24 }}
