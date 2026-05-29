@@ -26,7 +26,7 @@ export function SectionHeader({
   italic,
   style,
 }: {
-  number: string | number;
+  number?: string | number;
   kicker: string;
   right?: ReactNode;
   headline?: ReactNode;
@@ -34,7 +34,12 @@ export function SectionHeader({
   italic?: boolean;
   style?: CSSProperties;
 }) {
-  const n = typeof number === "number" ? String(number).padStart(2, "0") : number;
+  const n =
+    number == null
+      ? null
+      : typeof number === "number"
+        ? String(number).padStart(2, "0")
+        : number;
   return (
     <div style={style}>
       <div
@@ -49,7 +54,9 @@ export function SectionHeader({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
-          <Label style={{ color: MONO.accent, fontWeight: 500 }}>§ {n}</Label>
+          {n != null && (
+            <Label style={{ color: MONO.accent, fontWeight: 500 }}>§ {n}</Label>
+          )}
           <Label style={{ color: MONO.textDim }}>{kicker}</Label>
         </div>
         {right && <div>{right}</div>}

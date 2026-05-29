@@ -59,13 +59,13 @@ const StickyMobileCTA = dynamic(
  *  04  <ProblemStatement />     The underlying problem
  *  —   <BecauseLetterboard />   Pain refrain (split-flap)
  *  —   <InactionTimeline />     Cost of inaction → moved to its own page (/cost-of-inaction)
- *  06  <Results />              Proof — case studies + stats + StatsBar
+ *  05  <Results />              Proof — case studies + stats + StatsBar
  *  —   <LiveStatsSection />     Industry/forecast numbers
  *  —   <StatsBar />             4 hero-stat counters
  *  —   <DemandTriggers />       Operator-credibility interlude
- *  07  <QuickCalculator />      Revenue calculator (surfaces $749)
- *  08  <FAQ />                  Objection handling (8 Q+A pairs)
- *  09  <CTASection />           Final CTA (4-field audit form + Cal.com)
+ *  06  <QuickCalculator />      Revenue calculator (surfaces $749)
+ *  07  <FAQ />                  Objection handling (8 Q+A pairs)
+ *  08  <CTASection />           Final CTA (4-field audit form + Cal.com)
  * ───────────────────────────────────────────────────────────────────────────
  */
 
@@ -183,7 +183,7 @@ export default function HomePage() {
         <ProblemStatement />
         <BecauseLetterboard />
 
-        {/* §06 — Proof (Results + stats + ROI consolidated) */}
+        {/* §05 — Proof (Results + stats + ROI consolidated) */}
         <Results />
         <LiveStatsSection />
         <StatsBar />
@@ -194,13 +194,13 @@ export default function HomePage() {
             market every week" reassurance before the conversion ask. */}
         <DemandTriggers />
 
-        {/* §07 — Pricing (partial fit; QuickCalculator surfaces $749) */}
+        {/* §06 — Pricing (partial fit; QuickCalculator surfaces $749) */}
         <QuickCalculator />
 
-        {/* §08 — FAQ */}
+        {/* §07 — FAQ */}
         <FAQ />
 
-        {/* §09 — Final CTA */}
+        {/* §08 — Final CTA */}
         <CTASection />
 
         {/* Source disclosure for every market stat cited above. Sits inside
@@ -208,7 +208,7 @@ export default function HomePage() {
         <SourcesNote />
       </main>
       <Footer />
-      {/* Mobile-only sticky CTA. Hides itself when the audit form (§09)
+      {/* Mobile-only sticky CTA. Hides itself when the audit form (§08)
           enters the viewport so it doesn't sit on top of the form fields. */}
       <StickyMobileCTA />
     </>

@@ -219,7 +219,7 @@ export default function CTASection() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="09" kicker="FREE AUDIT" right={<SectionMeta text="STEP · FINAL" />} style={{ marginBottom: 24 }} />
+        <SectionHeader number="08" kicker="FREE AUDIT" right={<SectionMeta text="STEP · FINAL" />} style={{ marginBottom: 24 }} />
         <div
           className={`text-center mb-10 transition-all duration-700 ${
             isVisible
