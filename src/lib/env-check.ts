@@ -21,7 +21,16 @@ const REQUIRED_FOR_FEATURES: Record<string, string[]> = {
 export function validateEnv() {
   const missing = REQUIRED_VARS.filter((v) => !process.env[v]);
 
-  if (missing.length > 0 && process.env.NODE_ENV === "production") {
+  // Only hard-fail on a *real* production deploy. Vercel runs preview and
+  // development deployments with NODE_ENV=production as well, so a missing
+  // non-critical var (KV/CRON) would otherwise 500 the entire preview at
+  // startup via the instrumentation hook. Gate on VERCEL_ENV when present;
+  // fall back to NODE_ENV for non-Vercel production hosts.
+  const isRealProd =
+    process.env.VERCEL_ENV === "production" ||
+    (!process.env.VERCEL_ENV && process.env.NODE_ENV === "production");
+
+  if (missing.length > 0 && isRealProd) {
     console.error(`[FATAL] Missing required environment variables: ${missing.join(", ")}`);
     throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
   }
