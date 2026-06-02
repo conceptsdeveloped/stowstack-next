@@ -698,10 +698,12 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
           }}
         >
           <div className="flex">
-            {/* Sidebar */}
+            {/* Sidebar — shown on all breakpoints (was hidden sm:flex) so the
+                mobile dashboard reads as the real app, matching desktop.
+                Slightly narrower on phones to leave room for the table. */}
             <div
-              className="hidden sm:flex flex-col items-center py-4 gap-2 flex-shrink-0"
-              style={{ width: "52px", background: "var(--color-dark)" }}
+              className="flex flex-col items-center py-4 gap-2 flex-shrink-0 w-11 sm:w-[52px]"
+              style={{ background: "var(--color-dark)" }}
               aria-hidden="true"
             >
               <div
@@ -979,7 +981,13 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
               {/* Table */}
               <div className="px-4 sm:px-5 pt-4 pb-4 sm:pb-5 flex-1 min-w-0">
                 <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--border-subtle)" }}>
-                  <table className="w-full text-left" style={{ borderCollapse: "collapse" }}>
+                  {/* Horizontal scroll on phones: the full 6-column table
+                      can't shrink to a sub-300px content area without going
+                      illegible, so on narrow screens it scrolls inside the
+                      card while the card stays within the page margins.
+                      sm:min-w-0 drops the floor once there's room. */}
+                  <div className="overflow-x-auto">
+                  <table className="w-full text-left min-w-[360px] sm:min-w-0" style={{ borderCollapse: "collapse" }}>
                     <caption className="sr-only">
                       Campaign performance for {current.label}, month{" "}
                       {activeMonth + 1} of {HERO_DEMO_MONTHS.length}
@@ -990,7 +998,7 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                           <th
                             key={h}
                             scope="col"
-                            className={`text-[9px] sm:text-[10px] uppercase tracking-wide px-2.5 sm:px-3 py-2 font-semibold ${i > 0 ? "text-right tabular-nums" : ""} ${i > 2 ? "hidden sm:table-cell" : ""}`}
+                            className={`text-[9px] sm:text-[10px] uppercase tracking-wide px-2 sm:px-3 py-2 font-semibold ${i > 0 ? "text-right tabular-nums" : ""}`}
                             style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}
                           >
                             {h}
@@ -1037,7 +1045,7 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                             }}
                           >
                             <td
-                              className="px-2.5 sm:px-3 py-2 text-[10px] sm:text-[11px]"
+                              className="px-2 sm:px-3 py-2 text-[10px] sm:text-[11px]"
                               style={{ color: "var(--color-dark)" }}
                             >
                               <div className="flex items-center gap-1.5 min-w-0">
@@ -1056,31 +1064,31 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                               </div>
                             </td>
                             <td
-                              className="px-2.5 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums transition-colors duration-500"
+                              className="px-2 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums transition-colors duration-500"
                               style={{ color: "var(--text-secondary)" }}
                             >
                               ${dynSpend.toLocaleString()}
                             </td>
                             <td
-                              className="px-2.5 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums transition-colors duration-500"
+                              className="px-2 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums transition-colors duration-500"
                               style={{ color: "var(--text-secondary)" }}
                             >
                               {dynClicks}
                             </td>
                             <td
-                              className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums transition-colors duration-500"
+                              className="px-2 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums transition-colors duration-500"
                               style={{ color: "var(--text-secondary)" }}
                             >
                               {dynRes}
                             </td>
                             <td
-                              className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums font-medium transition-colors duration-500"
+                              className="px-2 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums font-medium transition-colors duration-500"
                               style={{ color: "var(--color-dark)" }}
                             >
                               {dynMoveIns}
                             </td>
                             <td
-                              className="hidden sm:table-cell px-3 py-2 text-right text-[11px] tabular-nums"
+                              className="px-2 sm:px-3 py-2 text-right text-[10px] sm:text-[11px] tabular-nums"
                               style={{ color: "var(--color-dark)" }}
                             >
                               <span className="inline-flex items-center gap-1">
@@ -1116,6 +1124,7 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                       })}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2436,26 +2445,15 @@ export default function Hero() {
             {/* Subheadline — operator voice. Productized REIT system, full
                 funnel, demand-engine framing. No em-dashes (Blake rule).
 
-                Mobile gets a 20-word version because the 80% of traffic
-                arriving via the Facebook in-app browser on iPhone-class
-                devices has ~720px of usable height. The long paragraph ate
-                ~180px on mobile and pushed the CTAs to the bottom edge of
-                the fold. Full version still renders on sm:+ where there's
-                room for the REIT framing + capability list. */}
+                Unified hero: the full paragraph now renders on every
+                breakpoint (was previously a 20-word mobile-only variant +
+                hidden sm:block full version). Per the desktop-parity
+                decision, mobile gets the same REIT framing + capability
+                list as desktop. Slightly smaller type (text-[15px]) and a
+                tighter top margin on mobile keep it readable without
+                eating the fold. */}
             <p
-              className={`sm:hidden mt-2 text-[15px] transition-all duration-1000 mx-auto ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{
-                color: "var(--text-secondary)",
-                lineHeight: 1.5,
-                transitionDelay: "300ms",
-                maxWidth: "480px",
-                textWrap: "pretty",
-              }}
-            >
-              The REIT marketing playbook, productized for independent operators. Tested on our own facilities first.
-            </p>
-            <p
-              className={`hidden sm:block mt-3 text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              className={`mt-2 sm:mt-3 text-[15px] sm:text-base transition-all duration-1000 mx-auto lg:mx-0 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
                 color: "var(--text-secondary)",
                 lineHeight: 1.5,
@@ -2499,14 +2497,14 @@ export default function Hero() {
               </p>
               <div className="flex items-center gap-x-3 gap-y-1.5 sm:gap-4 justify-center lg:justify-start flex-wrap">
                 {([
-                  { icon: Star, text: "Built by operators, for operators", mobile: true },
-                  { icon: Layers, text: "storEDGE rental embedded", mobile: false },
-                  { icon: Globe, text: "Benchmarked against the 92.6% REIT band", cites: [1, 2], mobile: false },
-                  { icon: TrendingUp, text: "Tested on our own facilities first", mobile: false },
-                ] as Array<{ icon: typeof Star; text: string; cites?: number[]; mobile: boolean }>).map((badge, i) => {
+                  { icon: Star, text: "Built by operators, for operators" },
+                  { icon: Layers, text: "storEDGE rental embedded" },
+                  { icon: Globe, text: "Benchmarked against the 92.6% REIT band", cites: [1, 2] },
+                  { icon: TrendingUp, text: "Tested on our own facilities first" },
+                ] as Array<{ icon: typeof Star; text: string; cites?: number[] }>).map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
-                    <div key={badge.text} className={`${badge.mobile ? "flex" : "hidden sm:flex"} items-center gap-1.5 text-[11px] sm:text-xs transition-all duration-500`} style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${500 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
+                    <div key={badge.text} className={`flex items-center gap-1.5 text-[11px] sm:text-xs transition-all duration-500`} style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${500 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
                       {/* Icon: was var(--color-gold) at 0.7 opacity; CLAUDE.md
                           bans gold accents. Matching the text color keeps the
                           row reading as a quiet editorial bullet. */}
@@ -2520,133 +2518,19 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* ── Right column — Dashboard (desktop) ── */}
-          <div className="hidden lg:block">
+          {/* ── Right column — Dashboard ──
+              Shown on every breakpoint now (was hidden lg:block). On mobile
+              it stacks under the copy/CTAs in the single-column grid. The
+              full interactive panel renders — sidebar, play/scrub controls,
+              and the full campaign table — per the desktop-parity decision.
+              Only the decorative floating labels (Meta Ads / storEDGE …) and
+              the 3 side preview tiles stay desktop-only (see hidden lg:* in
+              DashboardMockup / DemoPreviewStrip): they're absolutely
+              positioned and would spill into the page margins on a phone.
+              This block also replaces the old condensed static mobile proof
+              card, which is now redundant. */}
+          <div className="w-full min-w-0">
             <DashboardMockup isVisible={isVisible} />
-          </div>
-
-          {/* ── Mobile dashboard proof ── */}
-          {/* Condensed stat snapshot so mobile visitors see the same "this
-              is real software" signal the desktop dashboard delivers. Shows
-              the final-month numbers from the same HERO_DEMO_MONTHS data. */}
-          <div
-            className={`lg:hidden w-full transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-            style={{ transitionDelay: "700ms" }}
-          >
-            <div
-              className="border overflow-hidden"
-              style={{
-                borderColor: "var(--line-dim)",
-                background: "var(--bg-alt)",
-              }}
-            >
-              {/* Header bar */}
-              <div
-                className="flex items-center justify-between px-4 py-2.5 border-b"
-                style={{ borderColor: "var(--line-dim)", background: "var(--bg)" }}
-              >
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-5 h-5 flex items-center justify-center"
-                    style={{ background: "var(--bg-ink)", border: "1px solid var(--line)" }}
-                  >
-                    <span className="text-[8px] font-bold" style={{ color: "var(--bg)", fontFamily: "var(--mono)" }}>SA</span>
-                  </div>
-                  <span className="text-[11px] font-semibold" style={{ color: "var(--text)", fontFamily: "var(--mono)" }}>
-                    Midway Self Storage · 6 months
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className="w-1.5 h-1.5"
-                    style={{ background: "var(--hue-c)", borderRadius: "50%" }}
-                  />
-                  <span className="text-[10px] font-medium" style={{ color: "var(--text-dim)", fontFamily: "var(--mono)" }}>
-                    Our facility
-                  </span>
-                </div>
-              </div>
-
-              {/* Stat grid — mirrors final month of HERO_DEMO_MONTHS */}
-              <div className="grid grid-cols-2 sm:grid-cols-4">
-                {[
-                  { label: "Move-ins", value: "85", delta: "+85 from zero", deltaColor: "var(--hue-c)" },
-                  { label: "Cost / move-in", value: "$127", delta: "−$98 from month 1", deltaColor: "var(--hue-c)" },
-                  { label: "Occupancy", value: "89%", delta: "+21 pts", deltaColor: "var(--hue-c)" },
-                  { label: "Total spend", value: "$13.8k", delta: "6 months", deltaColor: "var(--text-faint)" },
-                ].map((s, i) => (
-                  <div
-                    key={s.label}
-                    className="px-4 py-3 border-b sm:border-r last:border-r-0"
-                    style={{
-                      borderColor: "var(--line-dim)",
-                      borderRight: i % 2 === 0 ? "1px solid var(--line-dim)" : undefined,
-                    }}
-                  >
-                    <div className="text-[10px] uppercase tracking-wide" style={{ color: "var(--text-faint)", fontFamily: "var(--mono)" }}>
-                      {s.label}
-                    </div>
-                    <div className="text-lg font-semibold mt-0.5 tabular-nums" style={{ color: "var(--text)", fontFamily: "var(--mono)" }}>
-                      {s.value}
-                    </div>
-                    <div className="text-[10px] mt-0.5 font-medium" style={{ color: s.deltaColor }}>
-                      {s.delta}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Mini campaign table — 2 rows to prove it's real data */}
-              <div className="px-4 py-3">
-                <table className="w-full text-left" style={{ borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr>
-                      {["Campaign", "Move-ins", "Cost/MI"].map((h) => (
-                        <th
-                          key={h}
-                          className="text-[9px] uppercase tracking-wide pb-2 font-semibold"
-                          style={{ color: "var(--text-faint)", fontFamily: "var(--mono)" }}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { name: "Two Paws · 10x10 Climate", mi: "9", cpm: "$94" },
-                      { name: "Midway · Drive-up", mi: "7", cpm: "$87" },
-                    ].map((row) => (
-                      <tr key={row.name} style={{ borderTop: "1px solid var(--line-dim)" }}>
-                        <td className="py-2 text-[11px] font-medium" style={{ color: "var(--text)" }}>
-                          <span className="truncate block max-w-[180px]">{row.name}</span>
-                        </td>
-                        <td className="py-2 text-[11px] tabular-nums font-semibold" style={{ color: "var(--text)" }}>
-                          {row.mi}
-                        </td>
-                        <td className="py-2 text-[11px] tabular-nums" style={{ color: "var(--text-dim)" }}>
-                          {row.cpm}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Footer link */}
-              <div className="px-4 py-2.5 border-t flex items-center justify-between" style={{ borderColor: "var(--line-dim)" }}>
-                <span className="text-[10px]" style={{ color: "var(--text-faint)", fontFamily: "var(--mono)" }}>
-                  From our own facilities · Midway &amp; Two Paws
-                </span>
-                <Link
-                  href="/demo"
-                  className="text-[10px] font-semibold flex items-center gap-1"
-                  style={{ color: "var(--text)", fontFamily: "var(--mono)" }}
-                >
-                  Full demo <ArrowUpRight size={10} />
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </div>
