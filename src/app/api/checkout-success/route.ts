@@ -8,6 +8,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
+  captureRouteError,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -87,7 +88,8 @@ export async function GET(req: NextRequest) {
       200,
       origin,
     );
-  } catch {
+  } catch (err) {
+    captureRouteError(err, "checkout-success");
     return errorResponse("Failed to retrieve session details", 500, origin);
   }
 }

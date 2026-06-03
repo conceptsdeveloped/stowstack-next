@@ -5,6 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
+  captureRouteError,
 } from "@/lib/api-helpers";
 import { getSession } from "@/lib/session-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
@@ -124,7 +125,8 @@ export async function GET(req: NextRequest) {
       200,
       origin
     );
-  } catch {
+  } catch (err) {
+    captureRouteError(err, "subscription-usage");
     return errorResponse("Failed to fetch usage data", 500, origin);
   }
 }

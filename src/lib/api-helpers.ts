@@ -66,6 +66,26 @@ export function errorResponse(
   );
 }
 
+/**
+ * Report a caught server error to Sentry, tagged with the route name.
+ *
+ * Route handlers that catch their own errors and return a 500 never reach the
+ * `onRequestError` instrumentation hook (that fires only for *unhandled*
+ * errors), so without an explicit capture the failure is invisible in
+ * production. Call this in the catch block before returning the error
+ * response. Sensitive headers are scrubbed in sentry.server.config's beforeSend.
+ */
+export function captureRouteError(
+  error: unknown,
+  route: string,
+  context?: Record<string, unknown>
+): void {
+  Sentry.captureException(error, {
+    tags: { route },
+    ...(context ? { extra: context } : {}),
+  });
+}
+
 export function safeCompare(a: string, b: string): boolean {
   if (!a || !b) return false;
   // Hash both values to normalize length before comparison,

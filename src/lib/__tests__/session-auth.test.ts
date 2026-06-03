@@ -8,6 +8,10 @@ import { getSession, createSession, destroySession } from "../session-auth";
 
 const mockDb = vi.mocked(db);
 
+// getSession rejects tokens under 10 chars (after the "Bearer " prefix) before
+// hitting the DB, so test tokens must clear that length floor.
+const VALID_TOKEN = "ss_abcdef0123456789abcdef0123456789";
+
 function makeSessionRow(overrides: Record<string, unknown> = {}) {
   return {
     session_id: "sess-1",
@@ -45,7 +49,7 @@ describe("getSession", () => {
 
   it("returns session for valid Bearer ss_ token", async () => {
     const req = createMockRequest("/api/test", {
-      headers: { authorization: "Bearer ss_abc123" },
+      headers: { authorization: `Bearer ${VALID_TOKEN}` },
     });
     const session = await getSession(req);
     expect(session).not.toBeNull();
@@ -55,7 +59,7 @@ describe("getSession", () => {
 
   it("returns session for x-org-token with ss_ prefix", async () => {
     const req = createMockRequest("/api/test", {
-      headers: { "x-org-token": "ss_abc123" },
+      headers: { "x-org-token": VALID_TOKEN },
     });
     const session = await getSession(req);
     expect(session).not.toBeNull();
@@ -82,7 +86,7 @@ describe("getSession", () => {
       makeSessionRow({ stripe_customer_id: null }),
     ]);
     const req = createMockRequest("/api/test", {
-      headers: { authorization: "Bearer ss_abc" },
+      headers: { authorization: `Bearer ${VALID_TOKEN}` },
     });
     const session = await getSession(req);
     expect(session!.organization.hasStripe).toBe(false);

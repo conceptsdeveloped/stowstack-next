@@ -26,14 +26,14 @@ describe("getCorsHeaders", () => {
     expect(headers["Access-Control-Allow-Origin"]).toBe("https://storageads.com");
   });
 
-  it("falls back to first allowed origin for unknown origins", () => {
+  it("omits Access-Control-Allow-Origin for unknown origins", () => {
     const headers = getCorsHeaders("https://evil.com");
-    expect(headers["Access-Control-Allow-Origin"]).toBe("https://storageads.com");
+    expect(headers["Access-Control-Allow-Origin"]).toBeUndefined();
   });
 
-  it("falls back to first allowed origin when origin is null", () => {
+  it("omits Access-Control-Allow-Origin when origin is null", () => {
     const headers = getCorsHeaders(null);
-    expect(headers["Access-Control-Allow-Origin"]).toBe("https://storageads.com");
+    expect(headers["Access-Control-Allow-Origin"]).toBeUndefined();
   });
 
   it("includes required CORS methods and headers", () => {
@@ -41,7 +41,7 @@ describe("getCorsHeaders", () => {
     expect(headers["Access-Control-Allow-Methods"]).toContain("GET");
     expect(headers["Access-Control-Allow-Methods"]).toContain("POST");
     expect(headers["Access-Control-Allow-Headers"]).toContain("Authorization");
-    expect(headers["Access-Control-Allow-Headers"]).toContain("X-Admin-Key");
+    expect(headers["Access-Control-Allow-Headers"]).toContain("X-Org-Token");
   });
 });
 
@@ -126,16 +126,16 @@ describe("requireAdminKey", () => {
     process.env.ADMIN_SECRET = "test-admin-secret-key";
   });
 
-  it("returns null (pass) for valid admin key", () => {
+  it("returns null (pass) for valid admin key", async () => {
     const req = createAdminRequest("/api/test");
-    expect(requireAdminKey(req)).toBeNull();
+    expect(await requireAdminKey(req)).toBeNull();
   });
 
   it("returns 401 error response for invalid admin key", async () => {
     const req = createMockRequest("/api/test", {
       headers: { "x-admin-key": "wrong" },
     });
-    const res = requireAdminKey(req);
+    const res = await requireAdminKey(req);
     expect(res).not.toBeNull();
     expect(res!.status).toBe(401);
     const body = await res!.json();

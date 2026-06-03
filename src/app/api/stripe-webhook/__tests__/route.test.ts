@@ -14,13 +14,18 @@ vi.mock("@/lib/stripe", () => ({
   getStripe: vi.fn(),
 }));
 
-// Mock db with Prisma model methods
-vi.mock("@/lib/db", () => ({
-  db: {
+// Mock db with Prisma model methods.
+// Checkout + subscription-deleted handlers run their writes inside
+// db.$transaction(tx => ...), so $transaction must invoke the callback with
+// the same mock object — that way assertions on db.organizations.create etc.
+// still observe the calls made via `tx`.
+vi.mock("@/lib/db", () => {
+  const db = {
     organizations: {
       findFirst: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
     },
     org_users: {
       create: vi.fn(),
@@ -30,8 +35,10 @@ vi.mock("@/lib/db", () => ({
     },
     $queryRaw: vi.fn(),
     $executeRaw: vi.fn(),
-  },
-}));
+    $transaction: vi.fn(async (cb) => cb(db)),
+  };
+  return { db };
+});
 
 import { POST } from "../route";
 import { stripe } from "@/lib/stripe";
@@ -182,15 +189,12 @@ describe("POST /api/stripe-webhook", () => {
         }) as never
       );
 
-      mockDb.organizations.findFirst.mockResolvedValue({
-        id: "org-1",
-      } as never);
-      mockDb.organizations.update.mockResolvedValue({} as never);
+      mockDb.organizations.updateMany.mockResolvedValue({ count: 1 } as never);
 
       const res = await POST(createWebhookRequest());
       expect(res.status).toBe(200);
-      expect(mockDb.organizations.update).toHaveBeenCalledWith({
-        where: { id: "org-1" },
+      expect(mockDb.organizations.updateMany).toHaveBeenCalledWith({
+        where: { stripe_customer_id: "cus_123" },
         data: { subscription_status: "active", plan: "growth" },
       });
     });
@@ -204,14 +208,11 @@ describe("POST /api/stripe-webhook", () => {
         }) as never
       );
 
-      mockDb.organizations.findFirst.mockResolvedValue({
-        id: "org-1",
-      } as never);
-      mockDb.organizations.update.mockResolvedValue({} as never);
+      mockDb.organizations.updateMany.mockResolvedValue({ count: 1 } as never);
 
       await POST(createWebhookRequest());
-      expect(mockDb.organizations.update).toHaveBeenCalledWith({
-        where: { id: "org-1" },
+      expect(mockDb.organizations.updateMany).toHaveBeenCalledWith({
+        where: { stripe_customer_id: "cus_123" },
         data: { subscription_status: "trialing" },
       });
     });
@@ -264,15 +265,12 @@ describe("POST /api/stripe-webhook", () => {
         }) as never
       );
 
-      mockDb.organizations.findFirst.mockResolvedValue({
-        id: "org-1",
-      } as never);
-      mockDb.organizations.update.mockResolvedValue({} as never);
+      mockDb.organizations.updateMany.mockResolvedValue({ count: 1 } as never);
 
       const res = await POST(createWebhookRequest());
       expect(res.status).toBe(200);
-      expect(mockDb.organizations.update).toHaveBeenCalledWith({
-        where: { id: "org-1" },
+      expect(mockDb.organizations.updateMany).toHaveBeenCalledWith({
+        where: { stripe_customer_id: "cus_123" },
         data: { subscription_status: "past_due" },
       });
     });
@@ -286,16 +284,12 @@ describe("POST /api/stripe-webhook", () => {
         }) as never
       );
 
-      mockDb.organizations.findFirst.mockResolvedValue({
-        id: "org-1",
-        subscription_status: "past_due",
-      } as never);
-      mockDb.organizations.update.mockResolvedValue({} as never);
+      mockDb.organizations.updateMany.mockResolvedValue({ count: 1 } as never);
 
       const res = await POST(createWebhookRequest());
       expect(res.status).toBe(200);
-      expect(mockDb.organizations.update).toHaveBeenCalledWith({
-        where: { id: "org-1" },
+      expect(mockDb.organizations.updateMany).toHaveBeenCalledWith({
+        where: { stripe_customer_id: "cus_123", subscription_status: "past_due" },
         data: { subscription_status: "active" },
       });
     });

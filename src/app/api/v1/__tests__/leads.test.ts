@@ -21,6 +21,13 @@ const validApiKey = {
   revoked: false,
 };
 
+// Routes validate id/facilityId with isValidUuid() before any DB work, so
+// request ids must be well-formed UUIDs. The mocked DB layer ignores the
+// actual value — these just have to pass the format check.
+const FACILITY_ID = "11111111-1111-1111-1111-111111111111";
+const LEAD_ID = "44444444-4444-4444-4444-444444444444";
+const LEAD_ID_OTHER = "55555555-5555-5555-5555-555555555555";
+
 describe("GET /api/v1/leads", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -28,7 +35,6 @@ describe("GET /api/v1/leads", () => {
     mockDb.$queryRaw
       .mockResolvedValueOnce([validApiKey]) // requireApiAuth
       .mockResolvedValue([]); // actual data queries
-    mockDb.$queryRawUnsafe.mockResolvedValue([]);
     mockDb.$executeRaw.mockResolvedValue(0);
   });
 
@@ -57,8 +63,6 @@ describe("GET /api/v1/leads", () => {
     mockDb.$queryRaw.mockReset();
     mockDb.$queryRaw
       .mockResolvedValueOnce([validApiKey]) // auth
-      .mockResolvedValue([]); // fallback
-    mockDb.$queryRawUnsafe
       .mockResolvedValueOnce(mockLeads) // leads query
       .mockResolvedValueOnce([{ total: 1 }]); // count query
     mockDb.$executeRaw.mockResolvedValue(0);
@@ -80,7 +84,10 @@ describe("GET /api/v1/leads", () => {
       .mockResolvedValueOnce([mockLead]); // lead query
     mockDb.$executeRaw.mockResolvedValue(0);
 
-    const req = createBearerRequest("/api/v1/leads?id=lead-1", "sk_live_test");
+    const req = createBearerRequest(
+      `/api/v1/leads?id=${LEAD_ID}`,
+      "sk_live_test"
+    );
     const res = await GET(req);
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -95,7 +102,7 @@ describe("GET /api/v1/leads", () => {
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/leads?id=nonexistent",
+      `/api/v1/leads?id=${LEAD_ID_OTHER}`,
       "sk_live_test"
     );
     const res = await GET(req);
@@ -125,7 +132,7 @@ describe("POST /api/v1/leads", () => {
   it("returns 400 when no contact info provided", async () => {
     const req = createBearerRequest("/api/v1/leads", "sk_live_test", {
       method: "POST",
-      body: { facilityId: "fac-1" },
+      body: { facilityId: FACILITY_ID },
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
@@ -135,12 +142,12 @@ describe("POST /api/v1/leads", () => {
     mockDb.$queryRaw.mockReset();
     mockDb.$queryRaw
       .mockResolvedValueOnce([validApiKey]) // auth
-      .mockResolvedValueOnce([{ id: "fac-1", organization_id: "org-OTHER" }]); // facility lookup
+      .mockResolvedValueOnce([{ id: FACILITY_ID, organization_id: "org-OTHER" }]); // facility lookup
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest("/api/v1/leads", "sk_live_test", {
       method: "POST",
-      body: { facilityId: "fac-1", name: "John" },
+      body: { facilityId: FACILITY_ID, name: "John" },
     });
     const res = await POST(req);
     expect(res.status).toBe(404);
@@ -151,13 +158,13 @@ describe("POST /api/v1/leads", () => {
     mockDb.$queryRaw.mockReset();
     mockDb.$queryRaw
       .mockResolvedValueOnce([validApiKey]) // auth
-      .mockResolvedValueOnce([{ id: "fac-1", organization_id: "org-1" }]) // facility
+      .mockResolvedValueOnce([{ id: FACILITY_ID, organization_id: "org-1" }]) // facility
       .mockResolvedValueOnce([newLead]); // insert returning
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest("/api/v1/leads", "sk_live_test", {
       method: "POST",
-      body: { facilityId: "fac-1", name: "John", email: "john@test.com" },
+      body: { facilityId: FACILITY_ID, name: "John", email: "john@test.com" },
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
@@ -170,8 +177,10 @@ describe("PATCH /api/v1/leads", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockDb.$queryRaw.mockReset();
-    mockDb.$queryRaw.mockResolvedValueOnce([validApiKey]); // auth
-    mockDb.$queryRawUnsafe.mockResolvedValue([]);
+    // call 1 = auth; the org-scoped UPDATE ... RETURNING defaults to [] (not found)
+    mockDb.$queryRaw
+      .mockResolvedValueOnce([validApiKey])
+      .mockResolvedValue([]);
     mockDb.$executeRaw.mockResolvedValue(0);
   });
 
@@ -185,9 +194,8 @@ describe("PATCH /api/v1/leads", () => {
   });
 
   it("returns 404 when lead not found (wrong org)", async () => {
-    mockDb.$queryRawUnsafe.mockResolvedValue([]); // no matching lead
     const req = createBearerRequest(
-      "/api/v1/leads?id=lead-1",
+      `/api/v1/leads?id=${LEAD_ID}`,
       "sk_live_test",
       {
         method: "PATCH",
@@ -200,10 +208,14 @@ describe("PATCH /api/v1/leads", () => {
 
   it("updates lead and returns it", async () => {
     const updated = { id: "lead-1", lead_status: "contacted" };
-    mockDb.$queryRawUnsafe.mockResolvedValue([updated]);
+    mockDb.$queryRaw.mockReset();
+    mockDb.$queryRaw
+      .mockResolvedValueOnce([validApiKey]) // auth
+      .mockResolvedValueOnce([updated]); // org-scoped UPDATE ... RETURNING
+    mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/leads?id=lead-1",
+      `/api/v1/leads?id=${LEAD_ID}`,
       "sk_live_test",
       {
         method: "PATCH",

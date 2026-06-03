@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { getSession } from "@/lib/session-auth";
-import { jsonResponse, errorResponse, getOrigin, corsResponse, verifyCsrfOrigin } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, verifyCsrfOrigin, captureRouteError } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     return jsonResponse({ url: portalSession.url }, 200, origin);
   } catch (err) {
     console.error("Billing portal error:", err);
+    captureRouteError(err, "create-billing-portal");
     return errorResponse("Failed to create billing portal session", 500, origin);
   }
 }

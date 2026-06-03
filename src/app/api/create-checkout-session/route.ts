@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, captureRouteError } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -96,6 +96,7 @@ export async function POST(req: NextRequest) {
     return jsonResponse({ url: checkoutSession.url }, 200, origin);
   } catch (err) {
     console.error("Checkout session error:", err);
+    captureRouteError(err, "create-checkout-session");
     return errorResponse("Failed to create checkout session", 500, origin);
   }
 }

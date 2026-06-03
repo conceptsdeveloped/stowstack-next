@@ -16,6 +16,13 @@ const validApiKey = {
   revoked: false,
 };
 
+// Routes validate id/facilityId with isValidUuid() before any DB work, so
+// request ids must be well-formed UUIDs. The mocked DB layer ignores the
+// actual value — these just have to pass the format check.
+const FACILITY_ID = "11111111-1111-1111-1111-111111111111";
+const TENANT_ID = "22222222-2222-2222-2222-222222222222";
+const TENANT_ID_OTHER = "33333333-3333-3333-3333-333333333333";
+
 describe("GET /api/v1/tenants", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -40,7 +47,7 @@ describe("GET /api/v1/tenants", () => {
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/tenants?facilityId=fac-1",
+      `/api/v1/tenants?facilityId=${FACILITY_ID}`,
       "sk_live_test"
     );
     const res = await GET(req);
@@ -63,7 +70,7 @@ describe("GET /api/v1/tenants", () => {
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/tenants?id=t-1",
+      `/api/v1/tenants?id=${TENANT_ID}`,
       "sk_live_test"
     );
     const res = await GET(req);
@@ -81,7 +88,7 @@ describe("GET /api/v1/tenants", () => {
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/tenants?id=t-other",
+      `/api/v1/tenants?id=${TENANT_ID_OTHER}`,
       "sk_live_test"
     );
     const res = await GET(req);
@@ -93,11 +100,11 @@ describe("GET /api/v1/tenants", () => {
     mockDb.$queryRaw.mockReset();
     mockDb.$queryRaw
       .mockResolvedValueOnce([validApiKey]) // auth
-      .mockResolvedValueOnce([{ id: "fac-1", organization_id: "org-OTHER" }]); // requireOrgFacility
+      .mockResolvedValueOnce([{ id: FACILITY_ID, organization_id: "org-OTHER" }]); // requireOrgFacility
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/tenants?facilityId=fac-1",
+      `/api/v1/tenants?facilityId=${FACILITY_ID}`,
       "sk_live_test"
     );
     const res = await GET(req);
@@ -109,13 +116,13 @@ describe("GET /api/v1/tenants", () => {
     mockDb.$queryRaw.mockReset();
     mockDb.$queryRaw
       .mockResolvedValueOnce([validApiKey]) // auth
-      .mockResolvedValueOnce([{ id: "fac-1", organization_id: "org-1" }]) // requireOrgFacility
+      .mockResolvedValueOnce([{ id: FACILITY_ID, organization_id: "org-1" }]) // requireOrgFacility
       .mockResolvedValueOnce(mockTenants) // tenants
       .mockResolvedValueOnce([{ total: 1 }]); // count
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/tenants?facilityId=fac-1",
+      `/api/v1/tenants?facilityId=${FACILITY_ID}`,
       "sk_live_test"
     );
     const res = await GET(req);
@@ -137,7 +144,7 @@ describe("POST /api/v1/tenants", () => {
   it("returns 400 when facilityId or tenants[] missing", async () => {
     const req = createBearerRequest("/api/v1/tenants", "sk_live_test", {
       method: "POST",
-      body: { facilityId: "fac-1" },
+      body: { facilityId: FACILITY_ID },
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
@@ -145,13 +152,13 @@ describe("POST /api/v1/tenants", () => {
 
   it("returns 404 when facility belongs to different org", async () => {
     mockDb.$queryRaw.mockResolvedValueOnce([
-      { id: "fac-1", organization_id: "org-OTHER" },
+      { id: FACILITY_ID, organization_id: "org-OTHER" },
     ]);
 
     const req = createBearerRequest("/api/v1/tenants", "sk_live_test", {
       method: "POST",
       body: {
-        facilityId: "fac-1",
+        facilityId: FACILITY_ID,
         tenants: [{ name: "Jane" }],
       },
     });
@@ -161,14 +168,14 @@ describe("POST /api/v1/tenants", () => {
 
   it("imports tenants for valid facility", async () => {
     mockDb.$queryRaw
-      .mockResolvedValueOnce([{ id: "fac-1", organization_id: "org-1" }]) // requireOrgFacility
+      .mockResolvedValueOnce([{ id: FACILITY_ID, organization_id: "org-1" }]) // requireOrgFacility
       .mockResolvedValueOnce([{ id: "t-1" }]) // tenant insert
       .mockResolvedValueOnce([{ id: "t-2" }]); // tenant insert
 
     const req = createBearerRequest("/api/v1/tenants", "sk_live_test", {
       method: "POST",
       body: {
-        facilityId: "fac-1",
+        facilityId: FACILITY_ID,
         tenants: [
           { name: "Jane", unitNumber: "A1" },
           { name: "Bob", unitNumber: "B2" },
@@ -187,8 +194,10 @@ describe("PATCH /api/v1/tenants", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockDb.$queryRaw.mockReset();
-    mockDb.$queryRaw.mockResolvedValueOnce([validApiKey]); // auth
-    mockDb.$queryRawUnsafe.mockResolvedValue([]);
+    // call 1 = auth; the org-scoped UPDATE ... RETURNING defaults to [] (not found)
+    mockDb.$queryRaw
+      .mockResolvedValueOnce([validApiKey])
+      .mockResolvedValue([]);
     mockDb.$executeRaw.mockResolvedValue(0);
   });
 
@@ -202,9 +211,8 @@ describe("PATCH /api/v1/tenants", () => {
   });
 
   it("returns 404 when tenant not in org (org-scoped UPDATE)", async () => {
-    mockDb.$queryRawUnsafe.mockResolvedValue([]);
     const req = createBearerRequest(
-      "/api/v1/tenants?id=t-other",
+      `/api/v1/tenants?id=${TENANT_ID_OTHER}`,
       "sk_live_test",
       {
         method: "PATCH",
@@ -216,11 +224,15 @@ describe("PATCH /api/v1/tenants", () => {
   });
 
   it("updates and returns tenant", async () => {
-    const updated = { id: "t-1", name: "Jane Updated" };
-    mockDb.$queryRawUnsafe.mockResolvedValue([updated]);
+    const updated = { id: TENANT_ID, name: "Jane Updated" };
+    mockDb.$queryRaw.mockReset();
+    mockDb.$queryRaw
+      .mockResolvedValueOnce([validApiKey]) // auth
+      .mockResolvedValueOnce([updated]); // org-scoped UPDATE ... RETURNING
+    mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/tenants?id=t-1",
+      `/api/v1/tenants?id=${TENANT_ID}`,
       "sk_live_test",
       {
         method: "PATCH",

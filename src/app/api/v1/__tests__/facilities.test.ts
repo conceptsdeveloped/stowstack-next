@@ -20,6 +20,11 @@ const validApiKey = {
   revoked: false,
 };
 
+// Routes validate id with isValidUuid() before any DB work, so request ids
+// must be well-formed UUIDs. The mocked DB layer ignores the actual value.
+const FACILITY_ID = "11111111-1111-1111-1111-111111111111";
+const FACILITY_ID_OTHER = "66666666-6666-6666-6666-666666666666";
+
 describe("GET /api/v1/facilities", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -74,7 +79,7 @@ describe("GET /api/v1/facilities", () => {
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/facilities?id=fac-1",
+      `/api/v1/facilities?id=${FACILITY_ID}`,
       "sk_live_test"
     );
     const res = await GET(req);
@@ -91,7 +96,7 @@ describe("GET /api/v1/facilities", () => {
     mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/facilities?id=fac-other",
+      `/api/v1/facilities?id=${FACILITY_ID_OTHER}`,
       "sk_live_test"
     );
     const res = await GET(req);
@@ -135,8 +140,10 @@ describe("PATCH /api/v1/facilities", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockDb.$queryRaw.mockReset();
-    mockDb.$queryRaw.mockResolvedValueOnce([validApiKey]); // auth
-    mockDb.$queryRawUnsafe.mockResolvedValue([]);
+    // call 1 = auth; the org-scoped UPDATE ... RETURNING defaults to [] (not found)
+    mockDb.$queryRaw
+      .mockResolvedValueOnce([validApiKey])
+      .mockResolvedValue([]);
     mockDb.$executeRaw.mockResolvedValue(0);
   });
 
@@ -150,9 +157,8 @@ describe("PATCH /api/v1/facilities", () => {
   });
 
   it("returns 404 when facility not found (org scoped UPDATE)", async () => {
-    mockDb.$queryRawUnsafe.mockResolvedValue([]); // no matching row
     const req = createBearerRequest(
-      "/api/v1/facilities?id=fac-other",
+      `/api/v1/facilities?id=${FACILITY_ID_OTHER}`,
       "sk_live_test",
       {
         method: "PATCH",
@@ -165,10 +171,14 @@ describe("PATCH /api/v1/facilities", () => {
 
   it("updates and returns facility", async () => {
     const updated = { id: "fac-1", name: "Updated Storage" };
-    mockDb.$queryRawUnsafe.mockResolvedValue([updated]);
+    mockDb.$queryRaw.mockReset();
+    mockDb.$queryRaw
+      .mockResolvedValueOnce([validApiKey]) // auth
+      .mockResolvedValueOnce([updated]); // org-scoped UPDATE ... RETURNING
+    mockDb.$executeRaw.mockResolvedValue(0);
 
     const req = createBearerRequest(
-      "/api/v1/facilities?id=fac-1",
+      `/api/v1/facilities?id=${FACILITY_ID}`,
       "sk_live_test",
       {
         method: "PATCH",

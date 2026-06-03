@@ -4,6 +4,7 @@ import { stripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { captureRouteError } from "@/lib/api-helpers";
 
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.WEBHOOK, "wh-stripe-webhook");
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
     }
   } catch (err) {
     console.error(`Webhook handler error for ${event.type}:`, err);
+    captureRouteError(err, "stripe-webhook", { eventType: event.type });
     return NextResponse.json({ error: "Handler failed" }, { status: 500 });
   }
 
