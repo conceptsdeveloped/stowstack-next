@@ -810,7 +810,9 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                 <button
                   type="button"
                   onClick={handleTogglePlay}
-                  className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)]"
+                  /* w-9 h-9 (36px) on mobile for a comfortable touch target;
+                     sm:w-7 sm:h-7 keeps the original 28px on desktop. */
+                  className="w-9 h-9 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all cursor-pointer hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)]"
                   style={{
                     background: "var(--color-dark)",
                     color: "var(--color-light)",
@@ -844,17 +846,26 @@ export function DashboardMockup({ isVisible }: { isVisible: boolean }) {
                         key={m.label}
                         type="button"
                         onClick={() => handleScrubTo(i)}
-                        className="flex-1 h-1.5 rounded-full transition-all cursor-pointer hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)]"
-                        style={{
-                          background: isReached
-                            ? "var(--color-dark)"
-                            : "var(--border-subtle)",
-                          transform: isActive ? "scaleY(1.5)" : "scaleY(1)",
-                        }}
+                        // py-2.5 -my-2.5 expands the touch zone to ~26px tall
+                        // on mobile without changing the row height; sm:py-0
+                        // sm:my-0 restores the original thin desktop hit area.
+                        // The visual bar lives in the inner <span> so the hit
+                        // padding never paints.
+                        className="flex-1 flex items-center py-2.5 -my-2.5 sm:py-0 sm:my-0 rounded-full cursor-pointer transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-dark)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-light)]"
                         aria-label={`Jump to ${m.label}`}
                         aria-current={isActive ? "true" : undefined}
                         title={m.label}
-                      />
+                      >
+                        <span
+                          className="block w-full h-1.5 rounded-full transition-all"
+                          style={{
+                            background: isReached
+                              ? "var(--color-dark)"
+                              : "var(--border-subtle)",
+                            transform: isActive ? "scaleY(1.5)" : "scaleY(1)",
+                          }}
+                        />
+                      </button>
                     );
                   })}
                 </div>
@@ -1697,12 +1708,24 @@ export function BeforeAfterComparison({ isVisible }: { isVisible: boolean }) {
 export function CapabilitiesGrid({ isVisible }: { isVisible: boolean }) {
   const revealed = useStaggeredReveal(CAPABILITIES.length, isVisible, 200, 80);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  // On touch devices (no hover) reveal every description by default — the
+  // hover-to-expand affordance is unreachable on a phone, so mobile users
+  // would otherwise never see this copy.
+  const [canHover, setCanHover] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: hover)");
+    const apply = () => setCanHover(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {CAPABILITIES.map((cap, i) => {
         const Icon = cap.icon;
         const isActive = activeIdx === i;
+        const showDesc = isActive || !canHover;
         return (
           <div
             key={cap.label}
@@ -1732,11 +1755,13 @@ export function CapabilitiesGrid({ isVisible }: { isVisible: boolean }) {
               {cap.label}
             </div>
             <div
-              className="text-[10px] mt-0.5 leading-snug transition-all duration-300 overflow-hidden"
+              className="text-[11px] sm:text-[10px] mt-0.5 leading-snug transition-all duration-300 overflow-hidden"
               style={{
                 color: "var(--text-tertiary)",
-                maxHeight: isActive ? "40px" : "0px",
-                opacity: isActive ? 1 : 0,
+                // Desktop hover: 40px (original). Touch: 160px so multi-line
+                // descriptions aren't clipped now that they're always shown.
+                maxHeight: showDesc ? (canHover ? "40px" : "160px") : "0px",
+                opacity: showDesc ? 1 : 0,
               }}
             >
               {cap.desc}
