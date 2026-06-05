@@ -15,6 +15,12 @@ interface RateLimitResult {
   allowed: boolean;
   remaining: number;
   resetAt: number;
+  /**
+   * True when the limiter could not actually run (Redis unset or erroring) and
+   * therefore "allowed" by default. Fail-open callers ignore this; fail-closed
+   * callers (applyRateLimitStrict) treat it as a reject in production.
+   */
+  degraded?: boolean;
 }
 
 /**
@@ -32,7 +38,7 @@ export async function checkRateLimit(
   const r = getRedis();
   if (!r) {
     // No Redis configured — allow all (fail-open in dev)
-    return { allowed: true, remaining: maxAttempts, resetAt: 0 };
+    return { allowed: true, remaining: maxAttempts, resetAt: 0, degraded: true };
   }
 
   const redisKey = `rl:${key}`;
@@ -66,7 +72,7 @@ export async function checkRateLimit(
     };
   } catch {
     // Redis failure — fail-open to avoid blocking legitimate users
-    return { allowed: true, remaining: maxAttempts, resetAt: 0 };
+    return { allowed: true, remaining: maxAttempts, resetAt: 0, degraded: true };
   }
 }
 

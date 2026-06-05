@@ -7,7 +7,7 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
-import { applyRateLimit } from "@/lib/with-rate-limit";
+import { applyRateLimitStrict } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
@@ -63,7 +63,7 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API_HOURLY, "analyze-map");
+  const limited = await applyRateLimitStrict(req, RATE_LIMIT_TIERS.EXPENSIVE_API_HOURLY, "analyze-map");
   if (limited) return limited;
 
   const origin = getOrigin(req);
@@ -73,6 +73,12 @@ export async function POST(req: NextRequest) {
 
   if (!image || !mimeType) {
     return errorResponse("Missing image data or mimeType", 400, origin);
+  }
+
+  // Cap the base64 image to bound the (billed) Anthropic vision call. ~10MB of
+  // base64 ≈ a ~7MB image, well above any real storEDGE screenshot.
+  if (typeof image !== "string" || image.length > 10_000_000) {
+    return errorResponse("Image too large (max ~7MB)", 413, origin);
   }
 
   if (
