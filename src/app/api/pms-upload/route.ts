@@ -5,6 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
+  isAdminRequest,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -53,6 +54,23 @@ export async function POST(req: NextRequest) {
 
     if (!facility) {
       return errorResponse("No facility found for this email", 404, origin);
+    }
+
+    // Authorization: a matching contact_email is not proof of control. Require an
+    // admin key, or a portal access code belonging to a client of this facility,
+    // before writing PMS data to it.
+    if (!isAdminRequest(req)) {
+      const accessCode =
+        typeof body.accessCode === "string" ? body.accessCode.trim() : "";
+      const authorizedClient = accessCode
+        ? await db.clients.findFirst({
+            where: { access_code: accessCode, facility_id: facility.id },
+            select: { id: true },
+          })
+        : null;
+      if (!authorizedClient) {
+        return errorResponse("Unauthorized", 401, origin);
+      }
     }
 
     const report = await db.pms_reports.create({

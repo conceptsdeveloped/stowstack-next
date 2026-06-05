@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
-import { applyRateLimit } from "@/lib/with-rate-limit";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, isAdminRequest } from "@/lib/api-helpers";
+import { getSession } from "@/lib/session-auth";
+import { applyRateLimitStrict } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 async function findPlaceId(facilityName: string, location: string, apiKey: string): Promise<string | null> {
@@ -63,7 +64,7 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXTERNAL_API_HOURLY, "facility-lookup");
+  const limited = await applyRateLimitStrict(req, RATE_LIMIT_TIERS.EXTERNAL_API_HOURLY, "facility-lookup");
   if (limited) return limited;
 
   const origin = getOrigin(req);
@@ -78,6 +79,29 @@ export async function POST(req: NextRequest) {
 
     if (!facilityName?.trim() || !location?.trim()) {
       return errorResponse("facilityName and location are required", 400, origin);
+    }
+
+    // If a facilityId is supplied, the result is written into that facility's row
+    // and its Places assets are replaced. Require ownership — admin key, or an org
+    // session whose org owns the facility — before any billed lookup or write.
+    // The public (no-facilityId) read path used by the audit tool stays open.
+    if (facilityId) {
+      const admin = isAdminRequest(req);
+      if (!admin) {
+        const session = await getSession(req);
+        const owned = session
+          ? await db.facilities.findFirst({
+              where: {
+                id: facilityId,
+                organization_id: session.user.organization_id,
+              },
+              select: { id: true },
+            })
+          : null;
+        if (!owned) {
+          return errorResponse("Forbidden", 403, origin);
+        }
+      }
     }
 
     const placeId = await findPlaceId(facilityName.trim(), location.trim(), apiKey);
@@ -96,7 +120,7 @@ export async function POST(req: NextRequest) {
 
     const place = await getPlaceDetails(placeId, apiKey);
 
-    const rawPhotos = (place.photos || []).slice(0, 10);
+    const rawPhotos = (place.photos || []).slice(0, 5);
     const photos = await Promise.all(
       rawPhotos.map(
         async (

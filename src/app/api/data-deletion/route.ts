@@ -10,6 +10,7 @@ import {
 import { Resend } from "resend";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { escapeHtml } from "@/lib/validation";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -381,7 +382,7 @@ function buildUserConfirmationEmail(name: string, requestId: string) {
         <span style="font-weight: 700; font-size: 18px; color: #141413;">Storage<span style="color: #B58B3F;">Ads</span></span>
       </div>
       <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #141413;">Data Deletion Request Received</h2>
-      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${escapeHtml(name)},</p>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         We have received your data deletion request. Here's what happens next:
       </p>
@@ -415,9 +416,9 @@ function buildAdminNotificationEmail(
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 32px;">
       <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">New Data Deletion Request</h2>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Name:</strong> ${name || "Not provided"}</p>
-      <p><strong>Reason:</strong> ${reason || "Not provided"}</p>
+      <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+      <p><strong>Name:</strong> ${name ? escapeHtml(name) : "Not provided"}</p>
+      <p><strong>Reason:</strong> ${reason ? escapeHtml(reason) : "Not provided"}</p>
       <p><strong>Request ID:</strong> ${requestId}</p>
       <h3 style="margin-top: 16px;">Data Found:</h3>
       <ul>${dataLines || "<li>No matching records found</li>"}</ul>
@@ -435,7 +436,7 @@ function buildAcknowledgmentEmail(name: string, requestId: string) {
         <span style="font-weight: 700; font-size: 18px; color: #141413;">Storage<span style="color: #B58B3F;">Ads</span></span>
       </div>
       <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #141413;">Deletion Request Acknowledged</h2>
-      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${escapeHtml(name)},</p>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         Your data deletion request (ID: <span style="color: #B58B3F; font-family: monospace;">${requestId}</span>) has been acknowledged and is being processed.
       </p>
@@ -456,7 +457,7 @@ function buildCompletionEmail(name: string, requestId: string) {
         <span style="font-weight: 700; font-size: 18px; color: #141413;">Storage<span style="color: #B58B3F;">Ads</span></span>
       </div>
       <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #22C55E;">Data Deletion Complete</h2>
-      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${name},</p>
+      <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${escapeHtml(name)},</p>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         Your data deletion request (ID: <span style="color: #B58B3F; font-family: monospace;">${requestId}</span>) has been completed.
       </p>
