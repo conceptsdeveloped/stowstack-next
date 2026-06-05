@@ -1,6 +1,8 @@
 # StorageAds Brand & Marketing Doctrine
 
 > This document is the canonical reference for all creative output and product design. It governs two distinct contexts — **Generated Marketing Content** (ads, landing pages, videos, and campaigns produced for facility clients) and **StorageAds Product** (the platform UI, product marketing, sales materials, and brand identity of StorageAds itself). Both contexts share foundational philosophy but diverge in application. Every section clearly marks which context it applies to. This is not a suggestion — it is doctrine.
+>
+> **For message hierarchy and differentiation, defer to [.claude/positioning.md](.claude/positioning.md).** That file is the single source of truth for what we lead with: the hero is marketing infrastructure that turns ad spend into move-ins, the product is the full acquisition funnel, and attribution is the measurement layer underneath it — proof the system works, never the reason to buy. Where this document and positioning.md disagree about what to lead with or how to differentiate, positioning.md wins.
 
 ---
 
@@ -177,7 +179,7 @@ The premium domain is the backbone of the entire system:
 | **Conversion-optimized landing pages** | No nav menu, no about page, no distractions. Offer → unit → price → storEDGE embed → reserve. Purpose-built for one action. |
 | **Edge-served performance** | Next.js static generation + Vercel CDN = sub-100ms page loads. Google data: 53% of mobile users abandon pages over 3 seconds. StorageAds pages load in under 1. |
 | **Infinite scalability** | `/paw-paw/spring-special`, `/abc-storage/summer-deal` — one template, dynamic routes, facility configs. Add a client → add a config → pages exist instantly. No domains, no DNS, no SSL provisioning. |
-| **Full-journey attribution** | One domain = one Meta Pixel, one Google tag, one CAPI instance. No cross-domain tracking loss. The pixel sees: ad click → page view → form fill → reservation start → reservation complete. This is how we report **cost per move-in** — the metric that closes deals. |
+| **Clean measurement underneath the funnel** | One domain = one Meta Pixel, one Google tag, one CAPI instance. No cross-domain tracking loss. The system sees the whole path: ad click → page view → form fill → reservation start → reservation complete. This is the measurement layer that lets us prove the funnel works and cut what doesn't. It is support for the pitch, not the pitch (see positioning.md). |
 
 ### D. One Codebase, One Product (The Next.js Advantage)
 
@@ -242,17 +244,19 @@ StorageAds is a SaaS product, not a website with side projects bolted on.
 **Google Ads**
 - Search intent is the highest-quality signal in all of digital marketing. Someone Googling "10x10 storage unit Paw Paw MI" is ready to act. Match that intent with specificity: exact unit, exact price, exact location.
 - Landing page quality score is driven by relevance, load speed, and mobile experience. StorageAds pages are built to max this out.
-- Performance Max campaigns should feed conversion data back via enhanced conversions. The full-funnel attribution StorageAds provides is a structural advantage here.
+- Performance Max campaigns should feed conversion data back via enhanced conversions. Tying each move-in back to the ad that produced it feeds that loop with real outcomes, which is a structural advantage here.
 
 **SMS (Twilio)**
 - SMS is a trust channel. Abuse it and you lose it. Every message must provide value: a specific offer, a reservation confirmation, a follow-up on expressed interest.
 - Timing matters: business hours only, never more than 2 messages without a response, always include opt-out.
 - Personalization is required. "Hi [Name], the 10×10 at $89/mo you looked at is still available" > "Don't miss our storage deals!"
 
-### Attribution & Measurement Doctrine
+### Measurement Doctrine (Internal Reporting)
 
-- **Cost per move-in is the only metric that matters to the client.** Everything else — impressions, clicks, CTR, CPM, CPC — is internal optimization data. The client report leads with cost per move-in.
-- **Full-funnel tracking is the product's moat.** Ad click → page view → form fill → reservation start → reservation complete. If any step in this chain breaks, fix it before doing anything else.
+> Measurement is how we prove the funnel works and decide what to optimize. It is the proof, not the pitch. The product is the full acquisition system (see positioning.md); the moat is the operator-built version of that system, not the tracking itself. None of the language below is how we *sell* — it is how we *report* and *optimize*.
+
+- **Move-ins are the result that matters to the client.** Everything else — impressions, clicks, CTR, CPM, CPC — is internal optimization data. The client report leads with move-ins and what each one cost, framed as outcomes ("which ads brought paying tenants"), not as a measurement product.
+- **End-to-end tracking is the measurement layer, not the moat.** Ad click → page view → form fill → reservation start → reservation complete. If any step in this chain breaks, fix it before doing anything else — a broken chain means we can't prove the funnel or optimize it. But we win on the full system and the operator-built angle, never on owning a tracking term.
 - **Never report vanity metrics as success.** 10,000 impressions means nothing. 500 clicks means nothing. 12 move-ins at $43 each means everything.
 
 ### Conversion Rate Optimization (Perpetual)
@@ -271,11 +275,11 @@ When building new features for StorageAds, every design decision must be filtere
 
 1. **Does this reduce the distance between ad click and move-in?** If it adds steps, adds load time, or adds complexity to the user journey, it must justify its existence with measurable conversion benefit.
 
-2. **Does this generate data we can use for attribution?** Every touchpoint should fire an event. Every event should connect to the funnel. If a feature creates a dead zone in tracking, redesign it.
+2. **Does this generate the data that proves the funnel works?** Every touchpoint should fire an event. Every event should connect to the funnel so we can tie move-ins back to the ads that produced them and optimize. If a feature creates a dead zone in measurement, redesign it.
 
 3. **Does this scale across all facilities with zero marginal effort?** If adding a new client requires manual work beyond entering their config data, the feature isn't platform-ready.
 
-4. **Does this make the product more defensible?** Features that deepen the attribution moat, increase switching costs, or create compounding data advantages are prioritized over features that look impressive but don't compound.
+4. **Does this make the product more defensible?** Features that deepen the full acquisition system, increase switching costs, or create compounding data advantages are prioritized over features that look impressive but don't compound. The moat is the operator-built system end to end, not the measurement layer alone.
 
 5. **Does the output meet the aesthetic standard?** If this feature generates creative — does it pass the Porsche test? If it generates UI — does it meet the Anthropic/Dieter Rams standard? If it generates video — does it follow the Kubrick/A24 motion doctrine?
 
@@ -322,9 +326,9 @@ When building new features for StorageAds, every design decision must be filtere
 | Optimize for clicks and impressions | Optimize for cost per move-in |
 | Generic ad creative ("Storage units available!") | Specific, pre-qualifying creative (unit size, price, location, offer — all in the ad) |
 | Clip-art-and-stock-photo creative quality | Porsche/Kubrick-level visual standard — every ad could hang in a portfolio |
-| Cross-domain tracking nightmares | Single-domain full-funnel attribution |
+| Cross-domain tracking nightmares | Nothing falls through the cracks between the ad and the rented unit |
 | Separate ad platform, website, booking system, analytics | One integrated platform: create → publish → track → report |
-| Monthly PDF reports with vanity metrics | Real-time attribution: ad spend in → move-ins out |
+| Monthly PDF reports with vanity metrics | You see what you spent and which ads brought paying tenants |
 | Generic SaaS dashboard UI | Anthropic/Dieter Rams-level product design — the tool itself is a differentiator |
 
 ---

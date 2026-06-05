@@ -1,5 +1,7 @@
 ## Copy & Voice — Read Before Writing Anything Customer-Facing
 
+> Positioning is canonical and lives in [.claude/positioning.md](.claude/positioning.md). Read it first. This file governs how the customer voice *sounds*; positioning.md governs *what we lead with* (the hero, the funnel pillars, attribution's demoted role).
+
 ### Who we're writing to
 
 The reader is an independent self-storage operator. One to five facilities. They own the place or manage it for the owner. They are 35–65, busy, smart, and skeptical. They've been pitched by agencies before and didn't like it. They know they should be marketing more than they are. They feel slightly guilty about it. They know the REITs (Public Storage, Extra Space, CubeSmart) are doing this at a level they can't match alone.
@@ -23,6 +25,14 @@ What they DO NOT care about, and what we must stop leading with:
 - Our technical architecture
 
 The technical depth is real and lives in the whitepaper. It is the proof, not the pitch. Customers buy the outcome, not the mechanism.
+
+### What we lead with instead (the funnel is the product)
+
+The product is the full customer-acquisition system, and that is what copy weights. Map the market and competitors. Run Meta to reach renters before they search and Google to catch the ones already looking. Send them to a per-ad landing page with the storEDGE rental flow built in. Convert reservations into move-ins. Audit the facility, add ancillary revenue, work the tax advantages, push toward 100% occupancy. Self-serve or fully managed, same system. A tenant is worth thousands over their stay, and most of that demand goes uncaptured because nobody in the industry markets right. That is the pitch.
+
+### Don't claim we're "the only ones who do X"
+
+Never frame differentiation as owning a measurement term — no "the only ones who do attribution right," "nobody else tracks move-ins," "the only platform that closes the loop." We win on the full system and the operator-built angle, not on a tracking word. The competitor we displace is the operator's inaction, not another vendor's reporting.
 
 ### The frame we lead with
 

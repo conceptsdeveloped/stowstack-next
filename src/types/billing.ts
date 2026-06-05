@@ -77,7 +77,7 @@ export const PLANS: Plan[] = [
     features: [
       'Custom landing pages',
       'storEDGE embed integration',
-      'Full-funnel attribution',
+      'Every move-in tied to the ad that drove it',
       'A/B testing',
       'Lead capture forms',
     ],

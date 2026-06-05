@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Voice & Copy
 
+**Positioning is canonical.** Before any copy in any register, read [.claude/positioning.md](.claude/positioning.md). It is the single source of truth for what StorageAds is, what we lead with, and how we differentiate. The hero is marketing infrastructure that turns ad spend into move-ins; the product is the full acquisition funnel; attribution is the measurement layer underneath it, never the pitch. If a voice doc or prompt conflicts with positioning.md on message hierarchy or differentiation, positioning.md wins.
+
 For customer-facing copy (website, landing pages, cold emails, ads, in-app text), read [.claude/copy-voice.md](.claude/copy-voice.md) before writing.
 
 For investor, acquirer, due-diligence, partnership, or whitepaper-adjacent copy, read [.claude/pitch-voice.md](.claude/pitch-voice.md) before writing.

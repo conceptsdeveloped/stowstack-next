@@ -1,12 +1,16 @@
 # StorageAds — Brand Voice Guidelines
 
 > Generated 2026-05-27 from `.claude/copy-voice.md`, `.claude/pitch-voice.md`, `.claude/blake-copy-raw.md`, and project `CLAUDE.md`. These guidelines are LLM-readable — load them via `/brand-voice:enforce-voice` before drafting any customer- or investor-facing copy.
+>
+> **Message hierarchy is canonical in [.claude/positioning.md](.claude/positioning.md) — read it first.** The hero is marketing infrastructure that turns ad spend into move-ins; the product is the full acquisition funnel; attribution is the measurement layer underneath it, never the lede or the differentiator. These guidelines govern voice and register; positioning.md governs what we lead with.
 
 ---
 
 ## 1. The Company in One Line
 
 StorageAds is the marketing infrastructure that independent self-storage operators (1–50 facilities) use to fill units the way the REITs do — built by an operator, sold to operators, priced per facility per month, no agency retainer, no PMS lock-in.
+
+It is the full customer-acquisition funnel, not just ad management: market mapping, Meta + Google acquisition, per-ad landing pages with the storEDGE rental flow, reservation-to-move-in conversion, facility audit, and ancillary revenue, run self-serve or fully managed. Attribution — tying each move-in back to the ad that produced it — is the measurement layer that proves the funnel and guides optimization. It is support, never the headline. (Full hierarchy: `.claude/positioning.md`.)
 
 ## 2. Two Registers — Pick One Before You Write
 

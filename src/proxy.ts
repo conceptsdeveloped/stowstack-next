@@ -90,6 +90,12 @@ function isCsrfExempt(req: NextRequest): boolean {
   if (path === "/api/consumer-lead") return true;
   if (path === "/api/diagnostic-intake") return true;
   if (path === "/api/facility-lookup") return true;
+  // Public, pre-authentication portal login endpoints (email → 4-digit code →
+  // verify). These authenticate via email + code in the request body, not via
+  // an ambient session cookie, so CSRF protection is moot; abuse is bounded by
+  // per-IP + per-email rate limits at the route level.
+  if (path === "/api/resend-access-code") return true;
+  if (path === "/api/client-data") return true;
   if (req.headers.get("x-admin-key")) return true;
   if (req.headers.get("authorization")?.startsWith("Bearer ")) return true;
   if (req.headers.get("x-org-token")) return true;
