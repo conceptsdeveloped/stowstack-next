@@ -1,15 +1,15 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
   requireAdminKey,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { authenticatePortalRequest } from "@/lib/portal-auth";
 
 const PLAN_PRICES: Record<string, number> = {
   launch: 499,
@@ -282,34 +282,26 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "client-invoices");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const isAdmin = isAdminRequest(req);
 
   try {
-    const url = new URL(req.url);
-    const clientId = url.searchParams.get("clientId");
-    const accessCode = url.searchParams.get("accessCode");
-    const email = url.searchParams.get("email");
+    // Fail-closed auth: an unauthenticated request must never reach the query.
+    // Admins may list all invoices (optionally narrowed by clientId); a client is
+    // scoped to their own facility.
+    const scope = await authenticatePortalRequest(req);
+    if (scope instanceof NextResponse) return scope;
 
     let facilityId: string | null = null;
-
-    if (clientId && isAdmin) {
-      const client = await db.clients.findUnique({
-        where: { id: clientId },
-        select: { facility_id: true },
-      });
-      if (client) {
-        facilityId = client.facility_id;
-      }
-    } else if (accessCode && email) {
-      const client = await db.clients.findFirst({
-        where: {
-          access_code: accessCode,
-          email: { equals: email.trim(), mode: "insensitive" },
-        },
-        select: { facility_id: true },
-      });
-      if (client) {
-        facilityId = client.facility_id;
+    if (scope.kind === "client") {
+      facilityId = scope.facilityId;
+    } else {
+      // Admin god-mode: optional clientId narrows to one facility, else list all.
+      const clientId = new URL(req.url).searchParams.get("clientId");
+      if (clientId) {
+        const client = await db.clients.findUnique({
+          where: { id: clientId },
+          select: { facility_id: true },
+        });
+        facilityId = client?.facility_id ?? null;
       }
     }
 

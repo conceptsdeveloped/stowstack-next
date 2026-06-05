@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { authenticatePortalRequest } from "@/lib/portal-auth";
 
 const CLIENT_VISIBLE_TYPES = [
   "lead_created",
@@ -46,30 +47,24 @@ export async function GET(req: NextRequest) {
 
   try {
     const url = new URL(req.url);
-    const accessCode = url.searchParams.get("accessCode");
-    const email = url.searchParams.get("email");
-    const facilityIdParam = url.searchParams.get("facilityId");
     const since = url.searchParams.get("since");
     const limitParam = url.searchParams.get("limit");
 
-    let resolvedFacilityId = facilityIdParam;
+    // Fail-closed auth: resolve the facility from a verified identity, never from
+    // a caller-supplied facilityId. Admins target a facility explicitly; clients
+    // are pinned to the facility their access code resolves to.
+    const scope = await authenticatePortalRequest(req);
+    if (scope instanceof NextResponse) return scope;
 
-    if (!resolvedFacilityId && accessCode && email) {
-      const client = await db.clients.findFirst({
-        where: {
-          access_code: accessCode,
-          email: { equals: email.trim(), mode: "insensitive" },
-        },
-        select: { facility_id: true },
-      });
-      if (!client) {
-        return errorResponse("Unauthorized", 401, origin);
+    let resolvedFacilityId: string;
+    if (scope.kind === "admin") {
+      const facilityIdParam = url.searchParams.get("facilityId");
+      if (!facilityIdParam) {
+        return errorResponse("facilityId required", 400, origin);
       }
-      resolvedFacilityId = client.facility_id;
-    }
-
-    if (!resolvedFacilityId) {
-      return errorResponse("Missing facility identifier", 400, origin);
+      resolvedFacilityId = facilityIdParam;
+    } else {
+      resolvedFacilityId = scope.facilityId;
     }
 
     const maxRows = Math.min(parseInt(limitParam || "30") || 30, 100);
