@@ -175,10 +175,52 @@ function isSafeUrl(urlStr: string): boolean {
       h.endsWith(".local")
     )
       return false;
+    // Numeric/encoded IPv4 (e.g. http://2130706433 == 127.0.0.1) and raw IPv6
+    // literals can smuggle an internal target past the string checks above.
+    if (/^\d+$/.test(h) || /^0x[0-9a-f]+$/i.test(h)) return false;
+    if (h.includes(":")) return false;
     return true;
   } catch {
     return false;
   }
+}
+
+const MAX_REDIRECTS = 4;
+
+/**
+ * Follow redirects manually, re-validating every hop with isSafeUrl. fetch's
+ * redirect:"follow" does NOT re-check the destination, so a scraped site could
+ * 30x-redirect to 169.254.169.254 / localhost / an internal host and bypass the
+ * SSRF guard. Here each Location is resolved and re-validated before we follow.
+ */
+async function fetchSafeRedirects(
+  url: string,
+  headers: Record<string, string>,
+  timeoutMs: number,
+): Promise<Response> {
+  let currentUrl = url;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    if (!isSafeUrl(currentUrl)) {
+      throw new Error("Blocked URL (SSRF guard)");
+    }
+    const res = await fetch(currentUrl, {
+      headers,
+      redirect: "manual",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get("location");
+      if (!location) return res;
+      try {
+        currentUrl = new URL(location, currentUrl).href;
+      } catch {
+        throw new Error("Invalid redirect location");
+      }
+      continue;
+    }
+    return res;
+  }
+  throw new Error("Too many redirects");
 }
 
 async function fetchWithRetry(
@@ -189,11 +231,7 @@ async function fetchWithRetry(
 ): Promise<Response> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const res = await fetch(url, {
-        headers,
-        redirect: "follow",
-        signal: AbortSignal.timeout(timeoutMs),
-      });
+      const res = await fetchSafeRedirects(url, headers, timeoutMs);
       if (res.ok || attempt === retries) return res;
       await new Promise((r) => setTimeout(r, 2000));
     } catch (err) {
