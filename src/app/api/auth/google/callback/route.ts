@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { verifyOAuthState } from "@/lib/oauth-state";
 
 export const maxDuration = 15;
 
@@ -40,15 +41,11 @@ export async function GET(request: NextRequest) {
     return redirectError("google_ads", "Missing authorization code");
   }
 
-  let facilityId: string;
-  try {
-    const parsed = JSON.parse(
-      Buffer.from(state, "base64url").toString()
-    );
-    facilityId = parsed.facilityId;
-  } catch {
+  const parsed = verifyOAuthState<{ facilityId?: string }>(state);
+  if (!parsed?.facilityId) {
     return redirectError("google_ads", "Invalid state parameter");
   }
+  const facilityId = parsed.facilityId;
 
   const clientId = process.env.GOOGLE_ADS_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_ADS_CLIENT_SECRET;

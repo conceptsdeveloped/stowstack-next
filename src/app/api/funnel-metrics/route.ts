@@ -170,6 +170,12 @@ export async function GET(req: NextRequest) {
 /* ── POST: Record a funnel stage event ── */
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
+  // Match the GET sibling's gate: this writes funnel_stage_metrics keyed by a
+  // caller-supplied funnelId, so it must not be reachable unauthenticated. If
+  // public funnel-stage tracking is added later, route it through the public
+  // tracking pattern (FK-validated funnelId + rate limit), not this admin path.
+  const denied = await requireAdminKey(req);
+  if (denied) return denied;
 
   try {
     const body = await req.json();

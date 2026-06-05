@@ -9,6 +9,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { signOAuthState } from "@/lib/oauth-state";
 
 function getOAuthUrl(platform: string, facilityId: string): string | null {
   const baseUrl =
@@ -20,9 +21,7 @@ function getOAuthUrl(platform: string, facilityId: string): string | null {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
 
-  const state = Buffer.from(JSON.stringify({ facilityId, platform })).toString(
-    "base64url"
-  );
+  const state = signOAuthState({ facilityId, platform });
 
   if (platform === "meta") {
     const appId = process.env.META_APP_ID;

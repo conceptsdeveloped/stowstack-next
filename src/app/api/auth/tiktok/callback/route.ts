@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { verifyOAuthState } from "@/lib/oauth-state";
 
 export const maxDuration = 15;
 
@@ -41,15 +42,11 @@ export async function GET(request: NextRequest) {
     return redirectError("Missing authorization code");
   }
 
-  let facilityId: string;
-  try {
-    const parsed = JSON.parse(
-      Buffer.from(state, "base64url").toString()
-    );
-    facilityId = parsed.facilityId;
-  } catch {
+  const parsed = verifyOAuthState<{ facilityId?: string }>(state);
+  if (!parsed?.facilityId) {
     return redirectError("Invalid state parameter");
   }
+  const facilityId = parsed.facilityId;
 
   const clientKey = process.env.TIKTOK_CLIENT_KEY;
   const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
