@@ -7,7 +7,7 @@ import {
   corsResponse,
   getCorsHeaders,
 } from "@/lib/api-helpers";
-import { applyRateLimit } from "@/lib/with-rate-limit";
+import { applyRateLimitStrict } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 export const maxDuration = 60;
@@ -98,12 +98,17 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
 
-  const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.EXPENSIVE_API_HOURLY, "diagnostic-analyze");
+  const limited = await applyRateLimitStrict(req, RATE_LIMIT_TIERS.EXPENSIVE_API_HOURLY, "diagnostic-analyze");
   if (limited) return limited;
 
   const body = await req.json().catch(() => null);
   if (!body?.formData) {
     return errorResponse("Missing form data", 400, origin);
+  }
+
+  // Bound the (billed) Anthropic call: reject oversized form payloads.
+  if (typeof body.formData !== "string" || body.formData.length > 50_000) {
+    return errorResponse("Form data too large", 413, origin);
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

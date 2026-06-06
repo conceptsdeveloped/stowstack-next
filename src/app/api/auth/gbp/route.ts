@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { signOAuthState } from "@/lib/oauth-state";
 
 /**
  * GET /api/auth/gbp
@@ -44,10 +45,9 @@ export async function GET(req: NextRequest) {
 
   const redirectUri = `${baseUrl}/api/auth/gbp/callback`;
 
-  // Encode facility ID in state parameter
-  const state = Buffer.from(
-    JSON.stringify({ facilityId })
-  ).toString("base64url");
+  // Sign the facility id into the OAuth state so the callback can verify it was
+  // issued by us and not forged to target another tenant's facility.
+  const state = signOAuthState({ facilityId });
 
   const scopes = [
     "https://www.googleapis.com/auth/business.manage",

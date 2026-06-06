@@ -6,8 +6,10 @@ import * as Sentry from "@sentry/nextjs";
 const ALLOWED_ORIGINS = [
   "https://storageads.com",
   "https://www.storageads.com",
-  "http://localhost:5173",
-  "http://localhost:3000",
+  // Localhost dev origins are allowed only outside production.
+  ...(process.env.NODE_ENV === "production"
+    ? []
+    : ["http://localhost:5173", "http://localhost:3000"]),
 ];
 
 export function getCorsHeaders(origin: string | null): Record<string, string> {
