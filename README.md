@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StorageAds
 
-## Getting Started
+Marketing automation SaaS for the self-storage industry. Turns ad spend into move-ins across the full acquisition funnel, with attribution as the measurement layer underneath.
 
-First, run the development server:
+**Status:** Pre-launch (alpha testing on Blake's own portfolio). Domain: [storageads.com](https://storageads.com). Deploys straight to production on Vercel — no staging.
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · Prisma 5 (PostgreSQL/Neon) · Tailwind CSS 4 · Clerk · Stripe · Resend · Anthropic Claude API · Upstash Redis · Twilio · Sentry · Vercel Blob.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Copy `.env.example` to `.env.local` and fill in the required keys.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Common commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev          # Dev server
+npm run build        # Production build (prisma generate && next build)
+npm run typecheck    # tsc --noEmit
+npm run test         # Vitest
+npm run lint         # ESLint
+npm run db:push      # Push Prisma schema to the DB
+npx prisma generate  # Regenerate Prisma client
+```
 
-## Learn More
+> Never run `prisma db push` / migrations against production without explicit approval — it can drop tables. `npm run lint:safety` guards against `--accept-data-loss`.
 
-To learn more about Next.js, take a look at the following resources:
+## Documentation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **[CLAUDE.md](CLAUDE.md)** — architecture, auth systems, API patterns, integrations, build priorities. Start here.
+- **[.claude/positioning.md](.claude/positioning.md)** — canonical positioning (source of truth for what StorageAds is and how it's sold).
+- **[.claude/design-system.md](.claude/design-system.md)** — palette, typography, and visual rules.
+- **[.claude/copy-voice.md](.claude/copy-voice.md)** / **[pitch-voice.md](.claude/pitch-voice.md)** — voice for customer- vs investor-facing copy.
+- **[tasks/README.md](tasks/README.md)** — remediation task list and execution rules.

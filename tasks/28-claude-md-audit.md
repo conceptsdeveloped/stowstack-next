@@ -2,7 +2,7 @@
 
 **Generated:** 2026-05-28
 **Audit scope:** Every claim in `CLAUDE.md` (214 lines) verified against the repo as of commit `c3ebc34`.
-**Status:** Planning doc. Do NOT one-shot. Each action item below is atomic and intended to spawn its own task file (or be batched in small, verifiable groups).
+**Status:** ✅ **APPLIED 2026-06-06.** Clusters A–E executed against the live repo (facts re-verified first — notably the build script no longer runs `migrate deploy`, and the Enterprise tier does exist alongside Signal/System/Compound). Design System extracted to `.claude/design-system.md`; execution rules moved to `tasks/README.md`; `README.md` boilerplate replaced. Decisions (Cluster D) applied with the recommended defaults documented below: gold banned except the logo lockup; `lucide-react` is the sanctioned icon library; Twilio still "not set up yet" (no CSP/proxy entry). This doc is retained as the audit record. The original planning text follows.
 
 ---
 
