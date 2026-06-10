@@ -125,7 +125,7 @@ export default function StickyMobileCTA() {
           }}
           data-analytics="sticky-mobile-cta"
         >
-          Request a facility audit
+          Get your free facility audit
           <ArrowRight size={16} className="shrink-0" />
         </a>
       </div>

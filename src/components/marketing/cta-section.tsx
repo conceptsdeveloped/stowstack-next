@@ -10,9 +10,9 @@ import Cite from "./cite";
 
 const TRUST_SIGNALS = [
   { icon: Shield, text: "No long-term contracts" },
-  { icon: Clock, text: "Deployed in the first week" },
-  { icon: Wrench, text: "Operator-built, operator-tested" },
-  { icon: Zap, text: "storEDGE integrated" },
+  { icon: Clock, text: "Live in your first week" },
+  { icon: Wrench, text: "Built and tested on our own facilities" },
+  { icon: Zap, text: "storEDGE built in" },
 ];
 
 
@@ -231,21 +231,22 @@ export default function CTASection() {
             className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Request a facility audit.
+            Get your free facility audit.
           </h2>
           <p
             className="mt-4 max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary)" }}
           >
-            Where you sit against the 92.6% REIT band<Cite n={[1, 2]} />.
-            Where revenue&apos;s leaking. What it takes to close the gap at
-            your facility. Complimentary.
+            Where you sit against the REITs&apos; 92.6% occupancy
+            <Cite n={[1, 2]} />. Where revenue&apos;s leaking. What it takes
+            to close the gap at your facility. Free, and yours to keep either
+            way.
           </p>
           <p
             className="mt-2"
             style={{ color: "var(--text-tertiary)" }}
           >
-            No commitment required.
+            No commitment. No sales deck.
           </p>
         </div>
 
@@ -450,7 +451,7 @@ export default function CTASection() {
                 )}
 
                 <div className="flex flex-wrap gap-4 justify-center pt-2">
-                  {["Response within 24 hours.", "Complimentary.", "No commitment."].map(
+                  {["Response within 24 hours.", "Free.", "No commitment."].map(
                     (text) => (
                       <p
                         key={text}
@@ -481,10 +482,10 @@ export default function CTASection() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold" style={{ color: "var(--color-dark)" }}>
-                      Full diagnostic with industry benchmarks
+                      Want numbers right now? Run the instant diagnostic
                     </p>
                     <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
-                      Scored diagnostic across 8 categories. Industry benchmarks. Instant.
+                      Scored across 8 categories against industry benchmarks. No waiting.
                     </p>
                   </div>
                   <ArrowRight size={14} className="shrink-0" />
@@ -506,15 +507,16 @@ export default function CTASection() {
             <div className="flex items-center gap-3 mb-3">
               <Calendar size={20} style={{ color: "var(--accent)" }} />
               <h3 className="text-lg font-semibold text-[var(--color-dark)]">
-                Schedule a walkthrough
+                Book a 30-minute walkthrough
               </h3>
             </div>
             <p
               className="mb-6"
               style={{ color: "var(--text-secondary)" }}
             >
-              30-minute system walkthrough. Your facility&apos;s market map,
-              competitive audit, and deployment plan. Direct with the founding team.
+              Thirty minutes. Your market map, your competitors, and what the
+              system would do at your facility. You talk to the founders, not
+              a sales rep.
             </p>
 
             {/* Cal.com inline embed container */}

@@ -115,7 +115,7 @@ function CapabilitiesSection() {
   return (
     <section
       ref={ref}
-      aria-label="Full platform capabilities"
+      aria-label="Everything in the system: capabilities grid"
       className="relative border-t"
       style={{ borderColor: "var(--border-subtle)" }}
     >
@@ -131,7 +131,7 @@ function CapabilitiesSection() {
               color: "var(--color-dark)",
             }}
           >
-            Full platform capabilities
+            Everything in the system
           </h2>
         </div>
         <CapabilitiesGrid isVisible={isVisible} />

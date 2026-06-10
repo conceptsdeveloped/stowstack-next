@@ -8,30 +8,30 @@ import { useInView } from "./use-in-view";
 const STEPS = [
   {
     number: "01",
-    title: "Market intelligence.",
-    body: "The system maps your trade area: competitor facilities, their pricing, their reviews, their positioning. Competitive intelligence updates automatically. You see the field before you deploy.",
+    title: "Your market, mapped.",
+    body: "We map your trade area: every competitor, their pricing, their reviews, their positioning. It updates automatically. You see the field before you spend a dollar.",
   },
   {
     number: "02",
-    title: "Ad creation and deployment.",
-    body: "The Ad Creator generates Meta and Google campaigns from your facility data. The Publishing Manager deploys them. Meta reaches renters before they search. Google captures active intent. Retargeting recovers unconverted visitors.",
+    title: "Ads on Meta and Google.",
+    body: "The Ad Creator builds Meta and Google campaigns from your facility data. The Publishing Manager puts them live. Meta reaches renters before they search. Google catches the ones already looking. Retargeting brings back the ones who left.",
     examples: [
       "[your-facility].storageads.com/climate-pawpaw: climate-controlled search campaign",
       "[your-facility].storageads.com/10x10-offer: first-month-free Meta campaign",
       "[your-facility].storageads.com/finish-your-rental: retargeting campaign",
     ],
     kicker:
-      "Dedicated page per campaign. 8.7% conversion against 2.1% industry average on generic pages.",
+      "A page for every ad. 8.7% of visitors reserve, against a 2.1% industry average on generic pages.",
   },
   {
     number: "03",
-    title: "Conversion infrastructure.",
-    body: "Each campaign receives a dedicated landing page with the storEDGE reservation flow embedded. The renter books on your branded page. The reservation appears in storEDGE identically to a walk-in. No redirects. No brand fragmentation.",
+    title: "The renter books on your page.",
+    body: "Every campaign gets its own landing page with your storEDGE reserve flow built in. The renter books on your page, under your brand. The reservation lands in storEDGE the same as a walk-in. No redirects. No third-party directory.",
   },
   {
     number: "04",
-    title: "Performance visibility.",
-    body: "Every ad dollar traced to its outcome. Campaign performance, A/B test results, reservation-to-move-in conversion, and revenue impact — visible in one dashboard. Decisions made on data, not instinct.",
+    title: "You see what's working.",
+    body: "Every ad dollar tied to the unit it filled. What you spent, what you got, what each move-in cost. One dashboard. No mystery.",
   },
 ];
 
@@ -58,15 +58,15 @@ export default function HowItWorks() {
             className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            System architecture.
+            From ad dollar to signed lease.
           </h2>
           <p
             className="mt-4 mx-auto max-w-2xl"
             style={{ color: "var(--text-secondary)" }}
           >
-            Market intelligence, ad creation, publishing, landing pages, storEDGE
-            integration, and conversion tracking. One system from market analysis
-            to signed lease.
+            Market intelligence, ads, landing pages, the storEDGE reserve flow,
+            and follow-up that turns reservations into move-ins. One system,
+            start to finish.
           </p>
 
           {/* Pipeline flow — Ad → Page → Reserve → Move-in */}
@@ -172,7 +172,8 @@ export default function HowItWorks() {
             className="text-sm text-center mx-auto mb-6"
             style={{ color: "var(--text-secondary)", maxWidth: "480px" }}
           >
-            Ad creation. Publishing. Landing pages. Market intelligence. Organic capture. Reservation conversion. A/B testing. Revenue intelligence.
+            Everything the REITs staff a marketing department for, in one
+            dashboard.
           </p>
           <FeatureHighlights isVisible={isVisible} />
         </div>

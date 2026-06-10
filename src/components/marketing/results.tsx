@@ -20,7 +20,7 @@ const CASE_STUDIES: CaseStudy[] = [
       "A 247-unit facility at 71% occupancy with no paid ads and a default storEDGE rental page. StorageAds launched a Meta campaign with 3 ad-specific landing pages targeting climate-controlled, vehicle storage, and first-month-free audiences.",
     stats: [
       { value: "34", label: "move-ins in 90 days" },
-      { value: "$41", label: "cost per move-in" },
+      { value: "$41", label: "per move-in" },
       { value: "71% → 84%", label: "occupancy in one quarter" },
       { value: "35x", label: "return on ad spend" },
     ],
@@ -35,12 +35,12 @@ const CASE_STUDIES: CaseStudy[] = [
       "A seasonal market with 60% winter occupancy. StorageAds ran targeted campaigns for boat/RV storage and temperature-sensitive items during the fall shoulder season.",
     stats: [
       { value: "22", label: "move-ins in 60 days" },
-      { value: "$38", label: "cost per move-in" },
+      { value: "$38", label: "per move-in" },
       { value: "74%", label: "winter occupancy (vs 60% prior year)" },
-      { value: "8.7%", label: "LP conversion (vs 2.1% homepage)" },
+      { value: "8.7%", label: "of page visitors reserved (vs 2.1% industry)" },
     ],
     benchmark: {
-      text: "+14 points of winter occupancy in a market where the national web rate dropped 4.71% YoY. Demand was there. The funnel just had to reach it.",
+      text: "+14 points of winter occupancy in a market where the national web rate dropped 4.71% YoY. The renters were there. The system just had to reach them.",
       cites: [3],
     },
   },
@@ -178,22 +178,21 @@ export default function Results() {
             className="text-sm leading-relaxed"
             style={{ color: "var(--text-secondary)" }}
           >
-            <strong className="text-[var(--color-dark)]">Here&apos;s the math.</strong> A
-            single move-in at a typical facility is worth $100-150/mo in
-            recurring revenue. At a 12-month average tenant stay, that&apos;s
-            $1,200-1,800 in lifetime value per move-in. If StorageAds&apos;s
-            Growth tier produces 5-10 incremental move-ins per month, you&apos;re
-            generating $6,000-18,000 in annualized revenue from a $1,500/mo
-            investment. That&apos;s a 4-12x return before the system even starts
-            tightening up.
+            <strong className="text-[var(--color-dark)]">Here&apos;s the math.</strong>{" "}
+            A move-in at a typical facility pays $130 a month and stays 14
+            months. That&apos;s about $1,820 per move-in. Five to ten extra
+            move-ins a month adds $9,000-18,000 in future rent every month.
+            The System tier plus a typical ad budget runs about $1,750 a
+            month. That&apos;s 5-10x before the system even starts tightening
+            up.
           </p>
           <p
             className="text-sm leading-relaxed mt-4"
             style={{ color: "var(--text-secondary)" }}
           >
-            As A/B testing and move-in data compound over 6+ months, cost
-            per move-in drops and the reserve rate climbs. The math only gets
-            better with time.
+            And it compounds. As the move-in data stacks up over six months,
+            what you pay for each move-in drops and the reserve rate climbs.
+            The math only gets better with time.
           </p>
         </div>
       </div>

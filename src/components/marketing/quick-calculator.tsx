@@ -49,7 +49,7 @@ export default function QuickCalculator() {
               className="font-semibold"
               style={{ fontSize: "var(--text-section-head)" }}
             >
-              Vacancy cost analysis.
+              What your empty units cost you.
             </h2>
           </div>
 
@@ -65,7 +65,7 @@ export default function QuickCalculator() {
                     >
                       Total Units
                     </label>
-                    <span className="text-sm font-semibold text-[var(--color-gold)]">
+                    <span className="text-sm font-semibold text-[var(--text)]">
                       {totalUnits}
                     </span>
                   </div>
@@ -82,7 +82,7 @@ export default function QuickCalculator() {
                     aria-valuemin={20}
                     aria-valuemax={600}
                     aria-valuetext={`${totalUnits} units`}
-                    className="w-full accent-[var(--color-gold)] h-2"
+                    className="w-full accent-[var(--accent)] h-2"
                   />
                   <div className="flex justify-between mt-1">
                     <span
@@ -111,7 +111,7 @@ export default function QuickCalculator() {
                     </label>
                     <span
                       className={`text-sm font-semibold ${
-                        occupancy < 85 ? "text-red-400" : "text-[var(--color-gold)]"
+                        occupancy < 85 ? "text-red-400" : "text-[var(--text)]"
                       }`}
                     >
                       {occupancy}%
@@ -130,7 +130,7 @@ export default function QuickCalculator() {
                     aria-valuemin={40}
                     aria-valuemax={99}
                     aria-valuetext={`${occupancy}% occupancy`}
-                    className="w-full accent-[var(--color-gold)] h-2"
+                    className="w-full accent-[var(--accent)] h-2"
                   />
                   <div className="flex justify-between mt-1">
                     <span
@@ -170,14 +170,14 @@ export default function QuickCalculator() {
                   </p>
                 </div>
 
-                <div className="bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/20 rounded-xl p-4 text-center">
+                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
                   <p
-                    className="text-xs uppercase text-[var(--color-gold)] mb-1"
+                    className="text-xs uppercase text-green-500 mb-1"
                     style={{ letterSpacing: "var(--tracking-wide)" }}
                   >
                     With StorageAds
                   </p>
-                  <p className="text-3xl font-semibold text-[var(--color-gold)]">
+                  <p className="text-3xl font-semibold text-green-500">
                     {projectedMoveIns}{" "}
                     <span className="text-lg font-medium">move-ins/mo</span>
                   </p>
@@ -201,7 +201,7 @@ export default function QuickCalculator() {
                   href="#cta"
                   className="btn-primary flex items-center justify-center gap-2 text-sm"
                 >
-                  Request facility audit <ArrowRight size={14} />
+                  Get your free facility audit <ArrowRight size={14} />
                 </a>
               </div>
             </div>

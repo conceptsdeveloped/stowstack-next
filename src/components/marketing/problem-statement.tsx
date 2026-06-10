@@ -21,18 +21,18 @@ const PROBLEMS: Problem[] = [
   },
   {
     heading: "Independents are outspent 1,000-to-1 on Google search.",
-    body: "The top REITs spend $250M+ a year on digital marketing and handle 85% of customer interactions digitally. The independent down the road is competing for the same renter with no paid acquisition, a default rental page, and a Google Business Profile no one is tending. The good news: Google weighs proximity and review recency over brand size in local search. The lever exists. Most operators just aren't pulling it.",
+    body: "The top REITs spend $250M+ a year on digital marketing and handle 85% of customer interactions digitally. The independent down the road is competing for the same renter with no ads running, a default rental page, and a Google Business Profile no one is tending. The good news: Google weighs proximity and review recency over brand size in local search. The lever exists. Most operators just aren't pulling it.",
     highlight: "1,000-to-1",
     cite: [6],
   },
   {
     heading: "Revenue leakage compounds monthly.",
-    body: "Reservations that don't convert. Competitors you haven't priced against. Reviews unanswered. Organic search uncaptured. Retargeting not deployed. Each one is a source of lost revenue that the system identifies and closes.",
-    highlight: "identifies and closes",
+    body: "Reservations that never move in. Competitors you haven't priced against. Reviews unanswered. Google traffic uncaptured. Visitors who leave and never come back. Each one is money leaking out of the building. The system finds the leaks and plugs them.",
+    highlight: "finds the leaks and plugs them",
   },
   {
     heading: "The economics still work at independent scale.",
-    body: "Average tenant lifetime value: $1,820 at 14 months and $130 a month. Acquisition cost on the StorageAds system: $41. The return profile on every incremental move-in is 44-to-1. That's the same math the REITs run on. It works the same for 150 units as it does for 15,000.",
+    body: "A storage tenant is worth $1,820 over an average 14-month stay at $130 a month. Landing that tenant on the StorageAds system costs $41. That's 44-to-1 on every extra move-in, the same math the REITs run on. It works the same for 150 units as it does for 15,000.",
     highlight: "44-to-1",
     cite: [3],
   },
@@ -164,8 +164,8 @@ export default function ProblemStatement() {
             className="text-xl font-semibold"
             style={{ color: "var(--accent)" }}
           >
-            You&apos;re not paying for marketing. You&apos;re paying for
-            guesswork.
+            Every month you wait, the REIT down the road fills the units you
+            didn&apos;t.
           </p>
         </div>
       </div>

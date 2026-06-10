@@ -18,7 +18,6 @@ import {
   DollarSign,
   Sparkles,
   Layers,
-  Globe,
   Activity,
   ChevronDown,
   Smartphone,
@@ -266,11 +265,11 @@ const CAPABILITIES = [
   { icon: Search, label: "Market Intelligence", desc: "Competitor pricing, reviews, positioning, and trade area analysis. See the field before you spend a dollar.", color: "#8a70b0" },
   { icon: Sparkles, label: "Ad Creator", desc: "Generate Meta and Google ads from facility data. Copy, headlines, creative.", color: "var(--color-blue)" },
   { icon: Megaphone, label: "Publishing Manager", desc: "Publish to Meta and Google from one dashboard. Both channels, side by side.", color: "var(--color-dark)" },
-  { icon: FileText, label: "Landing Pages", desc: "Dedicated page per campaign. storEDGE rental flow embedded so the renter books on your branded page.", color: "var(--color-green)" },
+  { icon: FileText, label: "Landing Pages", desc: "A page for every campaign. storEDGE rental flow embedded so the renter books on your branded page.", color: "var(--color-green)" },
   { icon: Target, label: "Organic Capture", desc: "Google Business Profile, review management, walk-in capture. The leads you already get, organized.", color: "var(--color-dark)" },
-  { icon: BarChart3, label: "Reservation Conversion", desc: "Automated follow-up. Reservation-to-move-in recovery. Stop leaking revenue at the bottom of the funnel.", color: "var(--color-blue)" },
+  { icon: BarChart3, label: "Reservation Conversion", desc: "Automated follow-up that turns reservations into move-ins. Stop leaking revenue at the last step.", color: "var(--color-blue)" },
   { icon: Eye, label: "A/B Testing", desc: "Headlines, offers, and pages scored by move-ins, not clicks.", color: "var(--color-green)" },
-  { icon: Activity, label: "Revenue Intelligence", desc: "Rate optimization, ancillary revenue, tax advantages, occupancy modeling. Increase the lifetime value of every tenant.", color: "#8a70b0" },
+  { icon: Activity, label: "Revenue Intelligence", desc: "Rate moves, ancillary revenue, tax advantages, occupancy modeling. Every tenant worth more.", color: "#8a70b0" },
 ];
 
 const PIPELINE_STEPS = [
@@ -282,28 +281,27 @@ const PIPELINE_STEPS = [
 
 // Mix of proof points (numbers from Blake's portfolio) and system framing
 // (create / capture / recapture, REIT-grade tools, reach 100%). Keeps the
-// hook from reading as a single dimension.
+// hook from reading as a single dimension. Leads with the hardest number.
 const TYPEWRITER_WORDS = [
-  "Create demand. Capture demand. Recapture demand.",
-  "Close the 5-point gap to the REIT band.",
   "34 move-ins in 90 days.",
+  "71% to 84% occupancy in one quarter.",
+  "Create demand. Capture demand. Recapture demand.",
   "REIT-grade tools to reach 100% occupancy.",
-  "71% to 84% in one quarter.",
   "Stop leaking $72,000 a year to the REIT down the road.",
 ];
 
 const FEATURE_HIGHLIGHTS = [
-  { icon: Search, title: "Facility audit and market map", stat: "Intelligence", desc: "Competitor pricing, review gaps, trade area positioning. See the field before you deploy capital." },
-  { icon: Sparkles, title: "Ad creation and publishing", stat: "Execution", desc: "Meta and Google ads built from facility data and published from one dashboard. Creative studio included." },
-  { icon: FileText, title: "Landing pages with embedded rental", stat: "Conversion", desc: "Dedicated page per campaign. storEDGE reservation flow built in. Renter never leaves your brand." },
-  { icon: Layers, title: "Self-serve or fully managed", stat: "Deployment", desc: "Operate the system directly or deploy our team. Same infrastructure either way." },
+  { icon: Search, title: "Facility audit and market map", stat: "Map", desc: "Competitor pricing, review gaps, trade area positioning. See the field before you spend a dollar." },
+  { icon: Sparkles, title: "Ad creation and publishing", stat: "Launch", desc: "Meta and Google ads built from your facility data and published from one dashboard. Creative studio included." },
+  { icon: FileText, title: "Landing pages with embedded rental", stat: "Convert", desc: "A page for every campaign. storEDGE reserve flow built in. The renter never leaves your brand." },
+  { icon: Layers, title: "Self-serve or fully managed", stat: "Run", desc: "Run it yourself or have us run it. Same system either way." },
 ];
 
 const BEFORE_AFTER = [
-  { before: "No paid acquisition system", after: "Meta and Google ads deployed in your trade area" },
-  { before: "No competitive intelligence", after: "Market map with pricing, reviews, and positioning" },
-  { before: "No dedicated landing pages", after: "Branded page per campaign with embedded storEDGE" },
-  { before: "No reservation follow-through", after: "Automated conversion from reservation to move-in" },
+  { before: "No ads running", after: "Meta and Google ads live in your trade area" },
+  { before: "No idea what competitors charge", after: "Market map with pricing, reviews, and positioning" },
+  { before: "Every ad dumps onto the homepage", after: "A branded page per campaign with storEDGE built in" },
+  { before: "Reservations that never move in", after: "Automated follow-up from reservation to signed lease" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -323,7 +321,6 @@ function HeroStyles() {
       @keyframes hero-gradient-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
       @keyframes hero-scroll-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
       @keyframes hero-pipeline-flow{0%{width:0}100%{width:100%}}
-      @keyframes hero-border-glow{0%,100%{box-shadow:0 0 0 1px rgba(181,139,63,0.08),0 20px 50px rgba(0,0,0,0.07)}50%{box-shadow:0 0 0 1px rgba(181,139,63,0.2),0 20px 60px rgba(181,139,63,0.08),0 40px 100px rgba(0,0,0,0.04)}}
       @keyframes hero-blur-in{0%{opacity:0;filter:blur(8px);transform:translateY(16px)}100%{opacity:1;filter:blur(0);transform:translateY(0)}}
       @keyframes hero-scale-in{0%{opacity:0;transform:scale(0.85)}100%{opacity:1;transform:scale(1)}}
       @keyframes hero-slide-right{0%{opacity:0;transform:translateX(-24px)}100%{opacity:1;transform:translateX(0)}}
@@ -343,18 +340,6 @@ function HeroStyles() {
       .stat-cell{padding:16px 12px 18px}
       @media (min-width:480px){.stat-cell{padding:20px 16px 22px}}
       @media (min-width:768px){.stat-cell{padding:22px 20px 24px}}
-      /* "proves" gradient text. Defined here (not inline) so the
-         .urbit-landing [style*="linear-gradient"] kill-switch in
-         globals.css doesn't strip it. */
-      .hero-proves-gradient{
-        background-image:linear-gradient(135deg,var(--accent),var(--color-blue),var(--accent-hover));
-        background-size:200% 200%;
-        -webkit-background-clip:text;
-        background-clip:text;
-        color:transparent;
-        -webkit-text-fill-color:transparent;
-        animation:hero-gradient-shift 3s ease-in-out infinite;
-      }
       /* Scoped reduce-motion override — kills hero's looping animations
          (float, pulse, shimmer, gradient shift, scroll bounce) while
          leaving fade-in transitions intact at a much shorter duration. */
@@ -420,10 +405,13 @@ export function PipelineFlow({ isVisible }: { isVisible: boolean }) {
       <div className="flex items-center justify-between max-w-sm mx-auto lg:mx-0 relative">
         {/* Connecting line */}
         <div className="absolute top-5 left-[10%] right-[10%] h-[2px]" style={{ background: "var(--border-subtle)" }}>
+          {/* Solid accent — inline gradients are stripped by the
+              .urbit-landing [style*="linear-gradient"] kill-switch in
+              globals.css, which left this progress line invisible. */}
           <div
             className="h-full rounded-full"
             style={{
-              background: "linear-gradient(90deg, var(--accent), var(--color-green))",
+              background: "var(--accent)",
               width: activeStep >= 3 ? "100%" : activeStep >= 0 ? `${(activeStep + 1) * 33}%` : "0%",
               transition: "width 0.6s cubic-bezier(0.16,1,0.3,1)",
             }}
@@ -1569,15 +1557,12 @@ export function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
             key={feat.title}
             className="relative rounded-2xl border p-5 transition-all duration-500 cursor-default group"
             style={{
-              borderColor: isHovered ? "var(--accent)" : "var(--border-subtle)",
+              borderColor: isHovered ? "var(--line-hi)" : "var(--border-subtle)",
               background: "var(--bg-alt)",
               opacity: revealed[i] ? 1 : 0,
               transform: revealed[i]
                 ? isHovered ? "translateY(-4px)" : "translateY(0)"
                 : "translateY(20px) scale(0.95)",
-              boxShadow: isHovered
-                ? "0 12px 32px rgba(0,0,0,0.08), 0 0 0 1px rgba(181,139,63,0.1)"
-                : "0 1px 3px rgba(0,0,0,0.04)",
             }}
             onMouseEnter={() => setHoveredIdx(i)}
             onMouseLeave={() => setHoveredIdx(null)}
@@ -1587,20 +1572,22 @@ export function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-500"
               style={{
-                background: isHovered ? "rgba(181,139,63,0.12)" : "rgba(181,139,63,0.06)",
-                border: "1px solid rgba(181,139,63,0.15)",
+                background: isHovered
+                  ? "color-mix(in srgb, var(--text) 10%, transparent)"
+                  : "color-mix(in srgb, var(--text) 5%, transparent)",
+                border: "1px solid var(--border-medium)",
                 transform: isHovered ? "scale(1.1) rotate(-3deg)" : "scale(1)",
               }}
             >
-              <Icon size={18} style={{ color: "var(--color-gold)" }} />
+              <Icon size={18} style={{ color: "var(--text)" }} />
             </div>
 
             {/* Stat badge */}
             <div
               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold mb-2 transition-all duration-300"
               style={{
-                background: "rgba(181,139,63,0.08)",
-                color: "var(--color-gold)",
+                background: "var(--bg-hi)",
+                color: "var(--text-dim)",
                 fontFamily: "var(--font-heading)",
                 transform: isHovered ? "translateX(2px)" : "translateX(0)",
               }}
@@ -1629,7 +1616,7 @@ export function FeatureHighlights({ isVisible }: { isVisible: boolean }) {
                 transform: isHovered ? "translate(0, 0)" : "translate(-4px, 4px)",
               }}
             >
-              <ArrowUpRight size={14} style={{ color: "var(--color-gold)" }} />
+              <ArrowUpRight size={14} style={{ color: "var(--text)" }} />
             </div>
           </div>
         );
@@ -1731,7 +1718,7 @@ export function CapabilitiesGrid({ isVisible }: { isVisible: boolean }) {
             key={cap.label}
             className="relative rounded-xl border p-3 sm:p-4 transition-all duration-400 cursor-default"
             style={{
-              borderColor: isActive ? "rgba(181,139,63,0.3)" : "var(--border-subtle)",
+              borderColor: isActive ? "var(--line-hi)" : "var(--border-subtle)",
               background: isActive ? "var(--bg-elevated)" : "transparent",
               opacity: revealed[i] ? 1 : 0,
               transform: revealed[i]
@@ -2285,7 +2272,7 @@ export function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       format: "money",
       label: "Ad spend goal",
       caption:
-        "ad spend StorageAds will route through the platform by EOY. Every dollar working a slot in the funnel, not sitting in a vendor's queue.",
+        "ad spend StorageAds will put to work by EOY. Every dollar buying move-ins, not sitting in a vendor's queue.",
       hue: MONO.hueC,
       context: "FORECAST · YEAR 1",
     },
@@ -2295,7 +2282,7 @@ export function LiveStatsStrip({ isVisible }: { isVisible: boolean }) {
       format: "count",
       label: "Facilities goal",
       caption:
-        "operators live on the platform by EOY. Partner operators carry the growth.",
+        "operators live on the system by EOY. Partner operators carry the growth.",
       hue: MONO.hueC,
       context: "FORECAST · YEAR 1",
     },
@@ -2426,7 +2413,7 @@ export default function Hero() {
                 fontFamily: "var(--font-heading)",
               }}
             >
-              REIT-grade marketing for independent storage
+              REIT-grade marketing for independents
             </p>
 
             {/* Headline — the equation. The eyebrow above does the promise
@@ -2434,8 +2421,8 @@ export default function Hero() {
             <h1
               className={`font-semibold transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{
-                fontSize: "clamp(1.75rem, 5.5vw, 3.25rem)",
-                lineHeight: 1.1,
+                fontSize: "clamp(2rem, 6vw, 3.5rem)",
+                lineHeight: 1.08,
                 letterSpacing: "-0.03em",
                 fontFamily: "var(--serif)",
                 textWrap: "balance",
@@ -2487,13 +2474,13 @@ export default function Hero() {
                 textWrap: "pretty",
               }}
             >
-              The equation Public Storage, Extra Space, and U-Haul have run on to hit 92.6% same-store occupancy<Cite n={1} />. StorageAds productizes that infrastructure for independent operators: a system that creates, captures, and recaptures every renter in your trade area. Market intelligence, paid acquisition, landing pages, reservation conversion, and the audit work to find where you&apos;re leaking revenue. Tested on our own portfolio first.
+              Public Storage and Extra Space run this exact machine to hit 92.6% occupancy<Cite n={1} />. We built the same system for our own facilities, then turned it into software you can plug in. Meta and Google ads, a landing page per ad, reservations that become signed leases, and an audit that finds where you&apos;re leaking revenue.
             </p>
 
             {/* CTAs */}
             <div className={`mt-5 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-2 sm:gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "400ms" }}>
               <a href="#cta" className="btn-primary group">
-                Request a facility audit
+                Get your free facility audit
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
               <a
@@ -2502,7 +2489,7 @@ export default function Hero() {
                 rel="noopener noreferrer"
                 className="btn-secondary group"
               >
-                Schedule a walkthrough
+                Book a 30-minute walkthrough
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
               </a>
             </div>
@@ -2522,10 +2509,9 @@ export default function Hero() {
               </p>
               <div className="flex items-center gap-x-3 gap-y-1.5 sm:gap-4 justify-center lg:justify-start flex-wrap">
                 {([
-                  { icon: Star, text: "Built by operators, for operators" },
-                  { icon: Layers, text: "storEDGE rental embedded" },
-                  { icon: Globe, text: "Benchmarked against the 92.6% REIT band", cites: [1, 2] },
-                  { icon: TrendingUp, text: "Tested on our own facilities first" },
+                  { icon: Star, text: "Built and tested on our own facilities" },
+                  { icon: Layers, text: "storEDGE rental built in" },
+                  { icon: TrendingUp, text: "Ads live in your first week" },
                 ] as Array<{ icon: typeof Star; text: string; cites?: number[] }>).map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (

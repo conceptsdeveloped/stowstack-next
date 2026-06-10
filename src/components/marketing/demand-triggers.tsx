@@ -23,27 +23,27 @@ const TRIGGERS = [
   {
     icon: Heart,
     title: "Divorce & Life Disruption",
-    body: "Urgent belongings management with high intent. These prospects convert fast if your campaign reaches them first.",
+    body: "Someone needs their stuff out of the house this week. They rent fast, and the first facility in front of them usually wins.",
   },
   {
     icon: Home,
     title: "Downsizing",
-    body: "Transitioning to smaller space. Overflow storage is mandatory, not optional. High LTV tenants.",
+    body: "Moving to a smaller place means the overflow has to go somewhere. These tenants stay for years.",
   },
   {
     icon: Package,
     title: "Estate Cleanouts",
-    body: "Sorting inherited belongings. Temporary but high-volume. Often invisible to agencies that do not understand the demand cycle.",
+    body: "Sorting a family member's belongings takes months. Big units, real urgency. Agencies miss this demand because they've never run a facility.",
   },
   {
     icon: Hammer,
     title: "Remodeling & Renovation",
-    body: "Home projects require clearing rooms. Predictable seasonal demand we target proactively with pre-season campaigns.",
+    body: "Clearing rooms for a home project. Predictable and seasonal, so we run the campaigns before the season hits.",
   },
   {
     icon: Building2,
     title: "Business Overflow",
-    body: "Contractors, e-commerce sellers, small businesses needing inventory staging. Commercial tenants with longer lease durations.",
+    body: "Contractors, e-commerce sellers, and small businesses that need somewhere to stage inventory. Commercial tenants stay longer and pay on time.",
   },
   {
     icon: GraduationCap,
@@ -53,7 +53,7 @@ const TRIGGERS = [
   {
     icon: Car,
     title: "Vehicle / RV / Boat Storage",
-    body: "Seasonal vehicle storage with premium rates. We have built and operated heated indoor storage for this vertical.",
+    body: "Seasonal vehicle storage at premium rates. We built and operate heated indoor vehicle storage ourselves.",
   },
   {
     icon: Calendar,
@@ -104,9 +104,9 @@ export default function DemandTriggers() {
               maxWidth: "62ch",
             }}
           >
-            This is not abstract persona work. It is lived operational
-            intelligence. Meta lets us put your facility in front of these
-            prospects before they ever open Google.
+            This isn&apos;t persona research from an agency deck. It&apos;s
+            what we see at our own gates every week. Meta puts your facility
+            in front of these renters before they ever open Google.
           </p>
         </div>
 
