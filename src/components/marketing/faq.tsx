@@ -24,19 +24,19 @@ type FaqEntry = {
 const FAQS: FaqEntry[] = [
   {
     q: "We're not running any ads right now.",
-    a: "Most independent operators aren't. The system is built for that starting point. Market mapping, ad creation, publishing, landing pages, and conversion tracking deploy from zero in the first week.",
+    a: "Most independent operators aren't. The system is built for that starting point. Market mapping, ads, landing pages, and follow-up all deploy from zero in the first week.",
   },
   {
     q: "What does the system include?",
     a: "Market intelligence. Ad creation and publishing to Meta and Google. Dedicated landing pages with storEDGE rental embedded. Retargeting. A/B testing scored by move-in outcome. Reservation-to-move-in conversion. Revenue intelligence. Organic capture. One dashboard.",
   },
   {
-    q: "Do we need marketing experience to operate it?",
-    a: "No. The Ad Creator generates campaigns from your facility data. The Publishing Manager deploys them. The system handles targeting, bidding, and creative rotation. Operators approve and monitor.",
+    q: "Do we need marketing experience to run it?",
+    a: "No. The Ad Creator builds campaigns from your facility data. The Publishing Manager puts them live. The system handles targeting, bidding, and creative rotation. You approve and watch the numbers.",
   },
   {
-    q: "What is the deployment timeline?",
-    a: "Ads live in the first week. Move-ins begin in weeks two through three as the campaigns accumulate data and retargeting activates. Performance benchmarks are established by month three.",
+    q: "How fast is it live?",
+    a: "Ads are live in the first week. Move-ins start in weeks two through three as the campaigns gather data and retargeting kicks in. By month three you have a real baseline.",
   },
   {
     q: "How does the AI Creative Studio work?",
@@ -58,16 +58,16 @@ const FAQS: FaqEntry[] = [
     cite: [7, 8],
   },
   {
-    q: "Single-facility operators?",
-    a: "The system was built on a single facility and runs on our own portfolio. One facility is the primary use case. Enterprise tiers exist for ten or more.",
+    q: "We only have one facility. Is this for us?",
+    a: "Yes. The system was built on a single facility and runs on our own portfolio. One facility is the primary use case. Enterprise tiers exist for ten or more.",
   },
   {
-    q: "storEDGE integration.",
-    a: "Landing pages embed the storEDGE reservation widget. The renter books on your branded page. The reservation appears in storEDGE identically to a walk-in. Rates, availability, and payment processing remain in your existing system.",
+    q: "How does the storEDGE integration work?",
+    a: "Landing pages embed the storEDGE reservation widget. The renter books on your branded page, and the reservation lands in storEDGE the same as a walk-in. Rates, availability, and payments stay in your existing system.",
   },
   {
-    q: "Performance guarantee.",
-    a: "If move-in volume has not improved by the end of month three, month four is complimentary. We deploy this system on our own facilities. Our interests are aligned.",
+    q: "What if it doesn't work?",
+    a: "If move-ins haven't improved by the end of month three, month four is free. We run this same system on our own facilities. We're in the same boat.",
   },
 ];
 

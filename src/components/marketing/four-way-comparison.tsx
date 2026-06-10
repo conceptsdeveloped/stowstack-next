@@ -45,7 +45,7 @@ const ROWS: Row[] = [
   },
   {
     capability: "Custom landing page per campaign",
-    detail: "Each ad sends to its own page with its own offer — not your homepage",
+    detail: "Each ad sends to its own page with its own offer, not your homepage",
     values: ["yes", "partial", "no", "no"],
   },
   {
@@ -54,13 +54,13 @@ const ROWS: Row[] = [
     values: ["yes", "no", "no", "no"],
   },
   {
-    capability: "Cost per move-in tracked to the ad",
-    detail: "Not clicks. Not impressions. The actual unit that got rented",
+    capability: "Every move-in tracked back to its ad",
+    detail: "Not clicks. Not leads. The actual unit that got rented",
     values: ["yes", "no", "partial", "no"],
   },
   {
     capability: "You own the leads",
-    detail: "Tenants are yours from day one — not rented or resold",
+    detail: "Tenants are yours from day one, not rented or resold",
     values: ["yes", "yes", "yes", "no"],
   },
   {
@@ -133,7 +133,7 @@ export default function FourWayComparison() {
             style={{ color: "var(--text-secondary)" }}
           >
             Three categories of marketing software you could buy today.
-            None of them runs the whole funnel from ad to signed lease.
+            None of them takes a renter all the way from ad to signed lease.
           </p>
           <p
             className="mt-3 text-sm mx-auto max-w-2xl"

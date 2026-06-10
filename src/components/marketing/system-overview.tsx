@@ -23,7 +23,7 @@ const PARTS = [
     number: "02",
     title: "Meta and Google ads",
     summary:
-      "Meta ads reach renters before they search. Google captures the ones already looking. Retargeting brings back the ones who left. One operator running all three.",
+      "Meta ads reach renters before they search. Google captures the ones already looking. Retargeting brings back the ones who left. All three from one dashboard.",
     detail: [
       "Facebook and Instagram campaigns",
       "Google Search and Display",
@@ -62,8 +62,8 @@ const PARTS = [
       "Every move-in traces back to the ad that produced it. What you spent. What you got. What each move-in cost. Numbers, not adjectives.",
     detail: [
       "Click → page → reservation → move-in",
-      "Cost per move-in by campaign",
-      "Return on ad spend by creative",
+      "What each move-in cost, by campaign",
+      "What you got back, by ad",
     ],
   },
   {
@@ -114,7 +114,7 @@ export default function SystemOverview() {
               fontSize: "var(--text-body)",
             }}
           >
-            Market intelligence, ads, pages, the reserve flow, and reservation conversion. One platform, wired together, that fills units and shows its work.
+            Market intelligence, ads, pages, the reserve flow, and reservation follow-up. One system, wired together, that fills units and shows its work.
           </p>
         </div>
 
