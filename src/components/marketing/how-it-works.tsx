@@ -4,6 +4,7 @@ import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 import { PipelineFlow, FeatureHighlights } from "./hero";
 
 import { useInView } from "./use-in-view";
+import { RevealText } from "./motion";
 
 const STEPS = [
   {
@@ -58,7 +59,7 @@ export default function HowItWorks() {
             className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            From ad dollar to signed lease.
+            <RevealText>From ad dollar to signed lease.</RevealText>
           </h2>
           <p
             className="mt-4 mx-auto max-w-2xl"
@@ -166,7 +167,7 @@ export default function HowItWorks() {
               letterSpacing: "-0.03em",
             }}
           >
-            Capabilities.
+            <RevealText>Capabilities.</RevealText>
           </h3>
           <p
             className="text-sm text-center mx-auto mb-6"

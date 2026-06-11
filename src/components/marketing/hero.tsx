@@ -37,6 +37,7 @@ import { useInView } from "./use-in-view";
 import { SplitFlap as SplitFlapComponent } from "./split-flap";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 import Cite from "./cite";
+import { MagneticButton } from "./motion";
 
 const CALCOM_URL = CAL_BOOKING_URL;
 
@@ -337,6 +338,27 @@ function HeroStyles() {
          silent re-render. */
       @keyframes hero-value-flash{0%{color:var(--accent);transform:translateY(-1px)}60%{transform:translateY(0)}100%{color:var(--color-dark);transform:translateY(0)}}
       @keyframes hero-cta-pulse{0%,100%{box-shadow:0 0 0 0 var(--accent-glow)}50%{box-shadow:0 0 0 6px transparent}}
+      /* Facelift — headline marker, CTA glint, trust-chip reveal/hover */
+      @keyframes hero-underline-draw{to{stroke-dashoffset:0}}
+      @keyframes hero-sheen{0%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(420%) skewX(-18deg)}}
+      @keyframes hero-fade-in{from{opacity:0}to{opacity:1}}
+      /* Hand-drawn marker that strokes under the headline payoff on reveal.
+         non-scaling-stroke keeps the line a constant weight despite the
+         preserveAspectRatio:none horizontal stretch to the word width. */
+      .hero-underline{position:absolute;left:-1.5%;right:-1.5%;bottom:-0.08em;width:103%;height:0.3em;pointer-events:none;overflow:visible}
+      .hero-underline path{fill:none;stroke:var(--text-accent);stroke-width:3;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1}
+      .hero-underline.is-in path{animation:hero-underline-draw 0.8s cubic-bezier(0.65,0,0.35,1) forwards;animation-delay:0.5s}
+      /* Trust chips: opacity-only staggered fade (keyframe doesn't touch
+         transform, so the :hover lift transition stays free to run). */
+      .hero-trust-chip{opacity:0;transition:transform 0.22s ease,border-color 0.22s ease}
+      .hero-trust-chip.is-in{animation:hero-fade-in 0.5s ease forwards;animation-delay:var(--d,0ms)}
+      .hero-trust-chip:hover{transform:translateY(-2px);border-color:var(--text-faint)!important}
+      /* Primary CTA: light glint sweeps across on hover + a 1px lift. */
+      .hero-cta{position:relative;overflow:hidden}
+      .hero-cta::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent 0%,rgba(250,249,245,0.22) 50%,transparent 100%);transform:translateX(-160%) skewX(-18deg);pointer-events:none}
+      .hero-cta:hover::after{animation:hero-sheen 0.85s ease}
+      .hero-cta:hover{transform:translateY(-1px)}
+      .hero-cta:active{transform:translateY(0) scale(0.98)}
       .stat-cell{padding:16px 12px 18px}
       @media (min-width:480px){.stat-cell{padding:20px 16px 22px}}
       @media (min-width:768px){.stat-cell{padding:22px 20px 24px}}
@@ -2383,6 +2405,9 @@ export function StatsBar() {
 export default function Hero() {
   const { ref, isVisible } = useInView(0.02);
   const typedText = useTypewriter(TYPEWRITER_WORDS, isVisible);
+  // Subtle pointer parallax on the dashboard proof (desktop only — touch
+  // devices never fire mousemove, and the hook no-ops under reduced motion).
+  const { ref: dashTiltRef, tilt: dashTiltValue } = useMouseTilt(isVisible);
 
   return (
     <section id="hero" aria-label="StorageAds: predictable move-ins for independent storage. Ad spend in. Move-ins out." className="relative overflow-hidden" style={{ background: "var(--color-light)" }}>
@@ -2406,15 +2431,28 @@ export default function Hero() {
             {/* Eyebrow — names the audience + outcome promise so the H1
                 stays the punchy equation. SaaS hierarchy: who-it's-for first,
                 hook second, explanation third. */}
-            <p
-              className={`text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em] mb-2 sm:mb-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{
-                color: "var(--text-tertiary)",
-                fontFamily: "var(--font-heading)",
-              }}
+            <div
+              className={`flex justify-center lg:justify-start mb-3 sm:mb-4 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
-              REIT-grade marketing for independents
-            </p>
+              <span
+                className="inline-flex items-center gap-2 px-2.5 py-1.5"
+                style={{
+                  border: `1px solid ${MONO.line}`,
+                  background: "var(--bg-alt)",
+                }}
+              >
+                <Dot live color={MONO.accent} />
+                <span
+                  className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.16em]"
+                  style={{
+                    color: "var(--text-secondary)",
+                    fontFamily: "var(--font-heading)",
+                  }}
+                >
+                  REIT-grade marketing for independents
+                </span>
+              </span>
+            </div>
 
             {/* Headline — the equation. The eyebrow above does the promise
                 framing so this can stay the punchy hook. */}
@@ -2434,7 +2472,17 @@ export default function Hero() {
                   halves (e.g. iPhone 17 Pro Max ~440px / Safari) rather than
                   stranding the "=" or "out." on a line of their own. */}
               Ad&nbsp;spend&nbsp;in.{" "}
-              <span className="whitespace-nowrap">Move-ins&nbsp;out.</span>
+              <span className="whitespace-nowrap relative inline-block">
+                Move-ins&nbsp;out.
+                <svg
+                  className={`hero-underline ${isVisible ? "is-in" : ""}`}
+                  viewBox="0 0 300 12"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path pathLength={1} d="M3 8.5 C 70 3.5, 130 3, 185 6 S 255 9.5, 297 4.5" />
+                </svg>
+              </span>
             </h1>
 
             {/* Typewriter — reserves 2 lines on mobile because the longest
@@ -2479,10 +2527,15 @@ export default function Hero() {
 
             {/* CTAs */}
             <div className={`mt-5 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center lg:items-start gap-2 sm:gap-3 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`} style={{ transitionDelay: "400ms" }}>
-              <a href="#cta" className="btn-primary group">
+              <MagneticButton
+                href="#cta"
+                className="btn-primary group hero-cta"
+                strength={0.35}
+                style={{ transition: "transform 0.35s var(--ease-dramatic), background var(--duration-fast) ease" }}
+              >
                 Get your free facility audit
                 <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
-              </a>
+              </MagneticButton>
               <a
                 href={CALCOM_URL}
                 target="_blank"
@@ -2515,11 +2568,23 @@ export default function Hero() {
                 ] as Array<{ icon: typeof Star; text: string; cites?: number[] }>).map((badge, i) => {
                   const BadgeIcon = badge.icon;
                   return (
-                    <div key={badge.text} className={`flex items-center gap-1.5 text-[11px] sm:text-xs transition-all duration-500`} style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", transitionDelay: `${500 + i * 100}ms`, opacity: isVisible ? 1 : 0 }}>
+                    <div
+                      key={badge.text}
+                      className={`hero-trust-chip flex items-center gap-1.5 text-[11px] sm:text-xs px-2.5 py-1.5 ${isVisible ? "is-in" : ""}`}
+                      style={{
+                        color: "var(--text-tertiary)",
+                        fontFamily: "var(--font-heading)",
+                        border: `1px solid ${MONO.line}`,
+                        background: "var(--bg-alt)",
+                        // Staggered reveal delay consumed by the .is-in fade
+                        // keyframe; kept off `transform` so :hover lift is free.
+                        ["--d" as string]: `${450 + i * 90}ms`,
+                      }}
+                    >
                       {/* Icon: was var(--color-gold) at 0.7 opacity; CLAUDE.md
                           bans gold accents. Matching the text color keeps the
                           row reading as a quiet editorial bullet. */}
-                      <BadgeIcon size={12} style={{ color: "var(--text-tertiary)", opacity: 0.85 }} />
+                      <BadgeIcon size={12} style={{ color: "var(--text-secondary)", opacity: 0.9 }} />
                       {badge.text}
                       {badge.cites && <Cite n={badge.cites} />}
                     </div>
@@ -2540,7 +2605,16 @@ export default function Hero() {
               positioned and would spill into the page margins on a phone.
               This block also replaces the old condensed static mobile proof
               card, which is now redundant. */}
-          <div className="w-full min-w-0">
+          <div
+            ref={dashTiltRef}
+            className="w-full min-w-0"
+            style={{
+              transform: `perspective(1600px) rotateX(${dashTiltValue.x}deg) rotateY(${dashTiltValue.y}deg)`,
+              transition: "transform 0.4s cubic-bezier(0.16,1,0.3,1)",
+              transformStyle: "preserve-3d",
+              willChange: "transform",
+            }}
+          >
             <DashboardMockup isVisible={isVisible} />
           </div>
         </div>

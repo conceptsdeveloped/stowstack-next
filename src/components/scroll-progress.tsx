@@ -39,10 +39,14 @@ export default function ScrollProgress() {
         top: 0,
         left: 0,
         width: "100%",
-        height: "2px",
-        background: "var(--color-gold)",
+        height: "2.5px",
+        // Was var(--color-gold) — sienna gold is banned outside the logo
+        // (design-system.md). The brick accent threads the same color as the
+        // live status dots and reads as an intentional, loud read of progress.
+        background: "var(--accent)",
         transformOrigin: "left",
         transform: "scaleX(0)",
+        willChange: "transform",
         pointerEvents: "none",
         zIndex: 9999,
       }}

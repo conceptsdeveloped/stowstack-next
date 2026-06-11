@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useInView } from "./use-in-view";
 import Cite from "./cite";
+import { RevealText } from "./motion";
 
 const TRIGGERS = [
   {
@@ -92,8 +93,7 @@ export default function DemandTriggers() {
               lineHeight: 1.15,
             }}
           >
-            We understand storage demand because we see these triggers in our
-            own facilities every week.
+            <RevealText>We understand storage demand because we see these triggers in our own facilities every week.</RevealText>
           </h2>
           <p
             className="mt-5 mx-auto"

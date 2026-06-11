@@ -7,6 +7,7 @@ import { ArrowRight, Check, Shield, Clock, Wrench, Zap, Calendar } from "lucide-
 import { useInView } from "./use-in-view";
 import { CAL_BOOKING_URL, CAL_EMBED_SLUG } from "@/lib/booking";
 import Cite from "./cite";
+import { RevealText } from "./motion";
 
 const TRUST_SIGNALS = [
   { icon: Shield, text: "No long-term contracts" },
@@ -231,7 +232,7 @@ export default function CTASection() {
             className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Get your free facility audit.
+            <RevealText>Get your free facility audit.</RevealText>
           </h2>
           <p
             className="mt-4 max-w-2xl mx-auto"

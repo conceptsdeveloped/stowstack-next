@@ -5,6 +5,7 @@ import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 import { useState } from "react";
 import { Calculator, ArrowRight } from "lucide-react";
 import { useInView } from "./use-in-view";
+import { RevealText } from "./motion";
 
 export default function QuickCalculator() {
   const { ref, isVisible } = useInView(0.15);
@@ -49,7 +50,7 @@ export default function QuickCalculator() {
               className="font-semibold"
               style={{ fontSize: "var(--text-section-head)" }}
             >
-              What your empty units cost you.
+              <RevealText>What your empty units cost you.</RevealText>
             </h2>
           </div>
 

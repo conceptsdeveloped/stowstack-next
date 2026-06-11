@@ -4,6 +4,7 @@ import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 
 import { useInView } from "./use-in-view";
 import Cite from "./cite";
+import { RevealText } from "./motion";
 
 type CaseStudy = {
   name: string;
@@ -70,7 +71,7 @@ export default function Results() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            We tested it on our own facilities first. Here&apos;s what happened.
+            <RevealText>We tested it on our own facilities first. Here&apos;s what happened.</RevealText>
           </h2>
           <p
             className="mt-5 mx-auto"

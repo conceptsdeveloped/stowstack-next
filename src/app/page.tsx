@@ -12,6 +12,7 @@ import ProblemStatement from "@/components/marketing/problem-statement";
 import Nav from "@/components/marketing/nav";
 import { LiveMonitorTriptych } from "@/components/marketing/live-monitors";
 import { useInView } from "@/components/marketing/use-in-view";
+import { RevealText } from "@/components/marketing/motion";
 
 const SystemOverview = dynamic(
   () => import("@/components/marketing/system-overview"),
@@ -94,7 +95,7 @@ function BeforeAfterSection() {
               color: "var(--color-dark)",
             }}
           >
-            Stop waiting. Start filling.
+            <RevealText>Stop waiting. Start filling.</RevealText>
           </h2>
           <p
             className="text-sm mt-1 mx-auto"
@@ -131,7 +132,7 @@ function CapabilitiesSection() {
               color: "var(--color-dark)",
             }}
           >
-            Everything in the system
+            <RevealText>Everything in the system</RevealText>
           </h2>
         </div>
         <CapabilitiesGrid isVisible={isVisible} />

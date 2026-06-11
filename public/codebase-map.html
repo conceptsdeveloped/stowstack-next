@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>StorageAds v2 — Codebase Map</title>
+<style>
+:root {
+  --bg: #faf7f1; --panel: #ffffff; --ink: #2b2620; --muted: #7a7164;
+  --line: #e6dfd2; --line-soft: #efe9dd; --accent: #8a6d1f;
+  --green: #2e7d4f; --green-bg: #e7f3ea; --green-line: #bcdcc6;
+  --yellow: #9a6b07; --yellow-bg: #fcf3d9; --yellow-line: #ecd9a0;
+  --red: #b3402e; --red-bg: #fbe7e1; --red-line: #efc4b8;
+  --gray: #6b6b6b; --gray-bg: #efedea; --gray-line: #d8d4cc;
+  --people: #4a5d80; --people-bg: #eaeef6;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 16px 20px 60px; }
+
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16px; padding: 14px 0 10px; border-bottom: 2px solid var(--line); }
+header.top h1 { font-size: 19px; margin: 0; letter-spacing: -0.01em; }
+header.top .meta { color: var(--muted); font-size: 12px; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-left: auto; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.dot.green { background: var(--green); } .dot.yellow { background: var(--yellow); }
+.dot.red { background: var(--red); } .dot.gray { background: var(--gray); }
+
+nav.tabs { display: flex; gap: 6px; margin: 14px 0 0; }
+nav.tabs button { font: inherit; font-weight: 600; padding: 9px 16px; border: 1px solid var(--line); border-bottom: none;
+  border-radius: 8px 8px 0 0; background: var(--line-soft); color: var(--muted); cursor: pointer; }
+nav.tabs button.on { background: var(--panel); color: var(--ink); border-color: var(--line); position: relative; top: 1px; }
+.view { display: none; background: var(--panel); border: 1px solid var(--line); border-radius: 0 10px 10px 10px; padding: 18px; }
+.view.on { display: block; }
+.intro { color: var(--muted); font-size: 13px; margin: 0 0 14px; max-width: 70em; }
+
+/* status tints */
+.s-green  { background: var(--green-bg);  border-color: var(--green-line) !important; }
+.s-yellow { background: var(--yellow-bg); border-color: var(--yellow-line) !important; }
+.s-red    { background: var(--red-bg);    border-color: var(--red-line) !important; }
+.s-gray   { background: var(--gray-bg);   border-color: var(--gray-line) !important; }
+.s-people { background: var(--people-bg); border-color: #c6d0e2 !important; }
+
+/* ── machine ── */
+.story { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.story button { font: inherit; font-size: 12.5px; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--bg); cursor: pointer; color: var(--ink); }
+.story button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.machine-split { display: flex; gap: 16px; align-items: flex-start; }
+#machineCanvas { position: relative; flex: 1 1 auto; min-width: 0; }
+#machineCanvas svg.wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.zone { position: relative; z-index: 1; border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px 12px; margin-bottom: 14px; background: transparent; }
+.zone h3 { margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.zone .zblurb { font-size: 12px; color: var(--muted); margin: 0 0 9px; }
+.znodes { display: flex; flex-wrap: wrap; gap: 8px; }
+.mnode { border: 1.5px solid; border-radius: 8px; padding: 7px 10px; cursor: pointer; min-width: 118px; max-width: 195px; position: relative; z-index: 1; }
+.mnode .nhead { display: flex; align-items: center; gap: 6px; font-weight: 650; font-size: 13px; }
+.mnode .nsub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.mnode.sel { outline: 2.5px solid var(--ink); outline-offset: 1px; }
+.mnode.fade { opacity: 0.3; }
+path.wire { fill: none; stroke: #c8bfae; stroke-width: 1.3; opacity: 0.45; }
+path.wire.hot { stroke: var(--ink); stroke-width: 2; opacity: 0.95; }
+path.wire.fade { opacity: 0.08; }
+.wires-off path.wire { opacity: 0; } .wires-off path.wire.hot { opacity: 0.95; }
+.mside { flex: 0 0 320px; position: sticky; top: 12px; }
+.wiretoggle { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 10px; user-select: none; }
+
+/* card panel (shared by machine + building) */
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 14px 15px; background: var(--bg); font-size: 13px; }
+.card h4 { margin: 0 0 2px; font-size: 15px; display: flex; align-items: center; gap: 7px; }
+.card .pill { font-size: 11px; font-weight: 650; padding: 2px 9px; border-radius: 999px; border: 1.5px solid; }
+.card .path { font: 11.5px ui-monospace, Menlo, monospace; color: var(--muted); margin: 2px 0 10px; word-break: break-all; }
+.card dt { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-top: 10px; }
+.card dd { margin: 2px 0 0; }
+.card .talks li { margin: 3px 0; }
+.card .hint { color: var(--muted); font-size: 12.5px; }
+
+/* ── building ── */
+.build-split { display: flex; gap: 16px; align-items: flex-start; }
+.tree { flex: 1 1 auto; min-width: 0; }
+.treebar { margin-bottom: 9px; display: flex; gap: 8px; }
+.treebar button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; }
+.trow { display: flex; align-items: center; gap: 7px; padding: 4px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; }
+.trow:hover { background: var(--line-soft); }
+.trow.sel { background: var(--yellow-bg); border-color: var(--yellow-line); }
+.trow .chev { width: 13px; flex: none; text-align: center; color: var(--muted); font-size: 10px; }
+.trow .tname { font: 13px ui-monospace, Menlo, monospace; font-weight: 500; white-space: nowrap; }
+.trow .tname.isdir { font-weight: 700; }
+.trow .tdesc { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.trow .tmeta { margin-left: auto; color: var(--muted); font-size: 11px; flex: none; }
+.tkids { margin-left: 19px; border-left: 1px solid var(--line-soft); padding-left: 4px; }
+.tkids.hide { display: none; }
+.bside { flex: 0 0 340px; position: sticky; top: 12px; }
+
+/* ── roadmap ── */
+.progress-wrap { margin-bottom: 6px; }
+.progress-top { display: flex; justify-content: space-between; align-items: baseline; }
+.progress-top b { font-size: 26px; }
+.pbar { height: 16px; border-radius: 999px; background: var(--line-soft); overflow: hidden; display: flex; border: 1px solid var(--line); }
+.pbar .seg-done { background: var(--green); } .pbar .seg-part { background: var(--yellow); }
+.pnote { color: var(--muted); font-size: 12px; margin-top: 5px; }
+.statchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; }
+.statchips span { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px; font-size: 12.5px; color: var(--muted); }
+.statchips b { color: var(--ink); font-size: 14px; margin-right: 4px; }
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .cols { grid-template-columns: 1fr; } .machine-split, .build-split { flex-direction: column; } .mside, .bside { position: static; flex: none; width: 100%; } }
+.col h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 10px; display: flex; align-items: center; gap: 7px; }
+.col .count { color: var(--muted); font-weight: 500; }
+.fcard { border: 1.5px solid; border-radius: 9px; padding: 10px 12px; margin-bottom: 10px; }
+.fcard .ftitle { font-weight: 650; font-size: 13.5px; }
+.fcard .fphase { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 3px; }
+.fcard .feli5 { font-size: 12.5px; margin-top: 4px; }
+.fcard .fnote { font-size: 12px; color: var(--muted); margin-top: 6px; border-top: 1px dashed var(--line); padding-top: 6px; }
+.fcard .fsize { float: right; font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; margin-left: 8px; }
+.warnbox { background: var(--red-bg); border: 1px solid var(--red-line); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
+
+/* glossary terms */
+.term { border-bottom: 1.5px dotted var(--accent); cursor: help; position: relative; }
+.term::after { content: attr(data-def); position: absolute; left: 0; bottom: calc(100% + 6px); z-index: 50;
+  background: var(--ink); color: #fdfbf7; font-size: 12px; line-height: 1.45; padding: 8px 11px; border-radius: 8px;
+  width: 260px; max-width: 70vw; display: none; font-weight: 400; white-space: normal; }
+.term:hover::after, .term.open::after { display: block; }
+
+footer.foot { margin-top: 26px; color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 14px; }
+footer.foot code { background: var(--line-soft); padding: 1px 6px; border-radius: 5px; font-size: 12px; }
+
+/* zone built/partial/missing tallies */
+.zone h3 { display: flex; align-items: center; gap: 8px; }
+.zcounts { margin-left: auto; display: flex; gap: 9px; letter-spacing: 0; font-weight: 600; }
+.zcounts span { display: inline-flex; align-items: center; gap: 3px; }
+.zcounts .dot { width: 8px; height: 8px; }
+
+/* tree search */
+.treebar input { flex: 1; min-width: 120px; font: inherit; font-size: 13px; padding: 4px 11px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.treebar input:focus { outline: 2px solid var(--yellow-line); }
+
+/* next-up + history chart */
+.nextbox { background: var(--yellow-bg); border: 1px solid var(--yellow-line); border-radius: 8px; padding: 9px 13px; margin: 12px 0 0; font-size: 13px; }
+.nextbox .dot { width: 8px; height: 8px; }
+.histwrap { margin: 12px 0 2px; }
+.histchart { display: block; width: 100%; height: 90px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+.histlegend { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+
+/* tooltip flipped at the right edge */
+.term.flip::after { left: auto; right: 0; }
+
+/* small screens */
+@media (max-width: 700px) {
+  .wrap { padding: 10px 12px 50px; }
+  header.top h1 { font-size: 16px; }
+  .legend { font-size: 11px; gap: 8px; margin-left: 0; }
+  nav.tabs button { padding: 8px 10px; font-size: 13px; }
+  .trow .tdesc { display: none; }
+  .mnode { min-width: 100px; max-width: 165px; }
+  .story button { font-size: 11.5px; padding: 5px 9px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>StorageAds v2 — Codebase Map</h1>
+    <span class="meta">generated Jun 11, 2026, 1:35 PM · main @ a54aba7 (2026-06-11) + uncommitted changes</span>
+    <div class="legend">
+      <span><span class="dot green"></span> built &amp; working</span>
+      <span><span class="dot yellow"></span> built, untested / partial</span>
+      <span><span class="dot red"></span> not built yet</span>
+      <span><span class="dot gray"></span> outside company</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="on" data-view="machine">🔌 The Machine</button>
+    <button data-view="building">🏢 The Building</button>
+    <button data-view="roadmap">🗺️ The Roadmap</button>
+  </nav>
+
+  <section class="view on" id="view-machine">
+    <p class="intro">The whole system as connected boxes — <b>including the parts that don’t exist yet (red)</b>, so you can see the shape of the finished machine. Click a numbered step to light up that part of the story, or click any box for its plain-English card. Dotted-underlined words have definitions — hover or tap them.</p>
+    <div class="story" id="story"></div>
+    <label class="wiretoggle"><input type="checkbox" id="wiretoggle" checked> show all wires (uncheck to see wires only for what you select)</label>
+    <div class="machine-split">
+      <div id="machineCanvas"></div>
+      <aside class="mside" id="machinePanel"></aside>
+    </div>
+  </section>
+
+  <section class="view" id="view-building">
+    <p class="intro">The actual folders and files on disk right now. Click any row for its card: what it is, what it does, an everyday analogy, and what would break without it. Folders show the <b>worst</b> color found inside them.</p>
+    <div class="build-split">
+      <div class="tree-outer" style="flex:1 1 auto; min-width:0">
+        <div class="treebar"><input id="treeSearch" type="search" placeholder="Search files… (try: stripe, vault, alarm)"><button id="expandAll">expand all</button><button id="collapseAll">collapse all</button></div>
+        <div class="tree" id="tree"></div>
+      </div>
+      <aside class="bside" id="treePanel"></aside>
+    </div>
+  </section>
+
+  <section class="view" id="view-roadmap"></section>
+
+  <footer class="foot">
+    <b>Regenerate this map:</b> <code>npm run map</code> (one-shot) · <code>npm run map:watch</code> (auto-rebuilds + serves at <code>http://localhost:4321</code> with live reload).
+    <b>Update progress:</b> edit <code>roadmap.json</code> (statuses: <code>done</code> / <code>partial</code> / <code>todo</code>), then regenerate.
+    <b>Describe a new file:</b> add a card to the <code>KB</code> object in <code>tools/generate-map.js</code>.
+  </footer>
+</div>
+<script>window.__MAP_DATA__ = {"generatedAt":"Jun 11, 2026, 1:35 PM","git":{"branch":"main","commit":"a54aba7","commitDate":"2026-06-11","dirty":true},"stats":{"routes":[{"url":"/api/health","file":"app/api/health/route.ts","methods":["GET"]},{"url":"/api/inngest","file":"app/api/inngest/route.ts","methods":["GET","POST","PUT"]},{"url":"/api/stripe/webhook","file":"app/api/stripe/webhook/route.ts","methods":["POST"]}],"pages":[{"url":"/dashboard","file":"app/(dashboard)/dashboard/page.tsx"},{"url":"/","file":"app/page.tsx"}],"models":["Facility"],"testFiles":10,"testCount":56,"jobs":0,"loc":6599,"files":88,"deps":16,"devDeps":11},"tree":[{"name":".claude","path":".claude","type":"dir","children":[{"name":"launch.json","path":".claude/launch.json","type":"file","loc":18,"kb":{"status":"green","what":"Dev-server launch list for Claude Code’s preview.","does":"Tells the preview tool how to start this project’s two servers: the Next.js app (port 3000) and this map’s live watcher (port 4321).","analogy":"The ignition instructions taped inside the garage.","ifGone":"Previews would ask to be reconfigured; nothing in the product changes."},"status":"green"}],"kb":{"status":"green","what":"Claude Code session settings (dev tooling, not product).","does":"Local configuration for AI coding sessions in this repo.","analogy":"Sticky notes on the contractor’s clipboard.","ifGone":"Nothing — tooling recreates what it needs."},"status":"green","fileCount":1},{"name":".github","path":".github","type":"dir","children":[{"name":"workflows","path":".github/workflows","type":"dir","children":[{"name":"ci.yml","path":".github/workflows/ci.yml","type":"file","loc":54,"kb":{"status":"green","what":"The CI robot’s instructions. CI = continuous integration, a robot re-checking everything on every push.","does":"On every push/PR: type-check, 56 tests, production build, lint, boot-smoke. 7-for-7 green so far.","analogy":"The inspector’s checklist, run on every change.","ifGone":"Broken code could merge unnoticed."},"status":"green"}],"kb":{"status":"green","what":"The CI robot’s instruction files.","does":"Each file here is a job GitHub runs automatically. There’s one: ci.yml.","analogy":"The inspector’s standing orders.","ifGone":"No automatic checks on pushes or pull requests."},"status":"green","fileCount":1}],"kb":{"status":"green","what":"GitHub’s special folder.","does":"Holds the instructions GitHub itself reads — here, the CI robot’s checklist.","analogy":"The mailbox the inspector checks for orders.","ifGone":"The CI robot would stop running checks on pushes."},"status":"green","fileCount":1},{"name":"app","path":"app","type":"dir","children":[{"name":"(dashboard)","path":"app/(dashboard)","type":"dir","children":[{"name":"dashboard","path":"app/(dashboard)/dashboard","type":"dir","children":[{"name":"page.tsx","path":"app/(dashboard)/dashboard/page.tsx","type":"file","loc":38,"kb":{"status":"yellow","what":"The dashboard page — living proof of the whole tenancy chain.","does":"Asks who you are → which company → counts that company’s facilities through the vault → shows the number in a card. YELLOW: only ever run against a simulated database.","analogy":"The control room — currently wired to a flight simulator, not the plane.","ifGone":"No dashboard, and the wiring-proof test (tripwire 8) goes red."},"status":"yellow"}],"kb":{"what":"A folder.","does":"Groups the files inside it.","analogy":"A drawer.","ifGone":"Its contents would go with it."},"status":"yellow","fileCount":1},{"name":"layout.tsx","path":"app/(dashboard)/layout.tsx","type":"file","loc":29,"kb":{"status":"yellow","what":"The members-only wrapper around dashboard pages.","does":"Scopes Clerk (the sign-in provider) to just this area and bounces signed-out visitors home. NOTE: this is UX, not the real wall — the real wall is at the data (requireOrg + orgDb).","analogy":"The velvet rope into the back office.","ifGone":"Signed-out users would see dashboard shells (but still zero data — the vault would refuse them)."},"status":"yellow"}],"kb":{"what":"A folder.","does":"Groups the files inside it.","analogy":"A drawer.","ifGone":"Its contents would go with it."},"status":"yellow","fileCount":2},{"name":"api","path":"app/api","type":"dir","children":[{"name":"health","path":"app/api/health","type":"dir","children":[{"name":"route.ts","path":"app/api/health/route.ts","type":"file","loc":8,"kb":{"status":"green","what":"The pulse check. An API route is a URL the app answers on — a door into the building.","does":"Answers {status:\"ok\"} so uptime monitors (and the smoke test) can verify the app is alive.","analogy":"The \"yes, we’re open\" phone line.","ifGone":"Uptime monitoring and the smoke test lose their target."},"status":"green"}],"kb":{"what":"A folder.","does":"Groups the files inside it.","analogy":"A drawer.","ifGone":"Its contents would go with it."},"status":"green","fileCount":1},{"name":"inngest","path":"app/api/inngest","type":"dir","children":[{"name":"route.ts","path":"app/api/inngest/route.ts","type":"file","loc":7,"kb":{"status":"yellow","what":"The background-jobs door.","does":"The endpoint Inngest (the jobs service) calls to run registered jobs. Verified live; the registry behind it is empty so far.","analogy":"The loading dock for the conveyor belt.","ifGone":"Background jobs could never be triggered (none exist yet, so nothing would visibly change today)."},"status":"yellow"}],"kb":{"what":"A folder.","does":"Groups the files inside it.","analogy":"A drawer.","ifGone":"Its contents would go with it."},"status":"yellow","fileCount":1},{"name":"stripe","path":"app/api/stripe","type":"dir","children":[{"name":"webhook","path":"app/api/stripe/webhook","type":"dir","children":[{"name":"route.ts","path":"app/api/stripe/webhook/route.ts","type":"file","loc":35,"kb":{"status":"yellow","what":"The money door. A webhook is a doorbell another company rings to tell your app something happened.","does":"Stripe rings it when someone pays. It verifies Stripe’s cryptographic signature FOR REAL (fakes get a 400), then deliberately answers \"error, retry later\" — so no payment event is ever silently swallowed before billing exists.","analogy":"A mail slot that checks the courier’s ID, then returns every package marked \"redeliver — we’re not ready\".","ifGone":"Payment events would have no door at all; Stripe’s retries would eventually give up and billing data would be lost."},"status":"yellow"}],"kb":{"what":"A folder.","does":"Groups the files inside it.","analogy":"A drawer.","ifGone":"Its contents would go with it."},"status":"yellow","fileCount":1}],"kb":{"what":"A folder.","does":"Groups the files inside it.","analogy":"A drawer.","ifGone":"Its contents would go with it."},"status":"yellow","fileCount":1}],"kb":{"what":"A folder.","does":"Groups the files inside it.","analogy":"A drawer.","ifGone":"Its contents would go with it."},"status":"yellow","fileCount":3},{"name":"error.tsx","path":"app/error.tsx","type":"file","loc":30,"kb":{"status":"green","what":"The \"something broke\" page (per-page errors).","does":"Catches page crashes, reports them to Sentry (when keyed), and shows a recovery screen instead of a blank page.","analogy":"The \"temporarily closed, staff notified\" sign.","ifGone":"Page crashes would surface as raw broken screens, unreported."},"status":"green"},{"name":"global-error.tsx","path":"app/global-error.tsx","type":"file","loc":33,"kb":{"status":"green","what":"The last-resort crash page.","does":"Catches crashes in the outermost shell itself — the error page for when even the error page’s home is broken.","analogy":"The fire escape.","ifGone":"A root-level crash would render nothing at all."},"status":"green"},{"name":"globals.css","path":"app/globals.css","type":"file","loc":65,"kb":{"status":"green","what":"The single home of every color and font token.","does":"Defines the warm, light-only palette as CSS variables. There is deliberately no tailwind.config — this file is the only token source.","analogy":"The paint-chip card the whole building was painted from.","ifGone":"Every page goes unstyled; the design system loses its source of truth."},"status":"green"},{"name":"layout.tsx","path":"app/layout.tsx","type":"file","loc":22,"kb":{"status":"green","what":"The outermost page shell.","does":"Sets the font (Manrope), loads global styles, and deliberately contains NO sign-in code — public pages must work with zero keys.","analogy":"The building’s frame and lobby — same for every room.","ifGone":"No page could render; the whole site is wrapped by this."},"status":"green"},{"name":"not-found.tsx","path":"app/not-found.tsx","type":"file","loc":17,"kb":{"status":"green","what":"The friendly 404 page.","does":"Shown when a URL doesn’t exist; styled with the design tokens.","analogy":"The \"wrong door\" sign.","ifGone":"Visitors would see the framework’s bare default 404."},"status":"green"},{"name":"page.tsx","path":"app/page.tsx","type":"file","loc":23,"kb":{"status":"green","what":"The public home page.","does":"The marketing landing: headline (\"…turns ad spend into move-ins\"), one button to the dashboard. No sign-in, no keys needed.","analogy":"The storefront window.","ifGone":"Visitors hitting the root URL would get a 404. The smoke test would fail."},"status":"green"}],"kb":{"status":null,"what":"The web pages and API routes — everything a browser can reach.","does":"Holds the home page, the dashboard, and the three service doors (health, jobs, Stripe). Pages stay thin; real rules live in lib/.","analogy":"The rooms customers walk through, plus three service entrances.","ifGone":"The site would have no pages and no doors — nothing to visit."},"status":"yellow","fileCount":11},{"name":"components","path":"components","type":"dir","children":[{"name":"brand","path":"components/brand","type":"dir","children":[{"name":"logo.tsx","path":"components/brand/logo.tsx","type":"file","loc":13,"kb":{"status":"yellow","what":"New file — no plain-English card written for it yet.","does":"It appeared after the map’s knowledge base was last updated. YELLOW until described and verified: open it, then add a card in tools/generate-map.js (the KB object).","analogy":"An unlabeled box that showed up in the warehouse.","ifGone":"Unknown — that’s exactly why it deserves a label."},"status":"yellow"}],"kb":{"status":"green","what":"Brand-specific visuals.","does":"The StorageAds logo component — the only place the gold accent color is allowed.","analogy":"The sign above the door.","ifGone":"No logo; pages importing it would fail to build."},"status":"green","fileCount":1},{"name":"ui","path":"components/ui","type":"dir","children":[{"name":"button.tsx","path":"components/ui/button.tsx","type":"file","loc":53,"kb":{"status":"green","what":"A design-system part: button.","does":"A reusable styled component from the catalog.","analogy":"A catalog furniture piece.","ifGone":"Screens using it fail to build."},"status":"green"},{"name":"card.tsx","path":"components/ui/card.tsx","type":"file","loc":41,"kb":{"status":"green","what":"A design-system part: card.","does":"A reusable styled component from the catalog.","analogy":"A catalog furniture piece.","ifGone":"Screens using it fail to build."},"status":"green"}],"kb":{"status":"green","what":"Generic UI parts (button, card).","does":"shadcn-style components, deliberately only the two the app actually uses.","analogy":"The chairs and tables in the catalog.","ifGone":"Pages using Button/Card would fail to build."},"status":"green","fileCount":2}],"kb":{"status":"green","what":"The design system: reusable visual parts.","does":"Button, card, and the brand logo, all using one set of colors/fonts defined in app/globals.css.","analogy":"A small, strict furniture catalog — every room is furnished from it.","ifGone":"Every screen would style itself differently; the brand would drift instantly."},"status":"green","fileCount":3},{"name":"docs","path":"docs","type":"dir","children":[{"name":"build-log","path":"docs/build-log","type":"dir","children":[{"name":"00-plan.md","path":"docs/build-log/00-plan.md","type":"file","loc":80,"kb":{"status":"green","what":"Build-log record.","does":"Part of the captured proof of the framework build (plan, sweep, or final report).","analogy":"A page in the inspection binder.","ifGone":"Proof lost; code unaffected."},"status":"green"},{"name":"100-supervised-tier.md","path":"docs/build-log/100-supervised-tier.md","type":"file","loc":88,"kb":{"status":"green","what":"Build-log record.","does":"Part of the captured proof of the framework build (plan, sweep, or final report).","analogy":"A page in the inspection binder.","ifGone":"Proof lost; code unaffected."},"status":"green"},{"name":"98-mutation-sweep.md","path":"docs/build-log/98-mutation-sweep.md","type":"file","loc":355,"kb":{"status":"green","what":"Build-log record.","does":"Part of the captured proof of the framework build (plan, sweep, or final report).","analogy":"A page in the inspection binder.","ifGone":"Proof lost; code unaffected."},"status":"green"},{"name":"99-final.md","path":"docs/build-log/99-final.md","type":"file","loc":127,"kb":{"status":"green","what":"Build-log record.","does":"Part of the captured proof of the framework build (plan, sweep, or final report).","analogy":"A page in the inspection binder.","ifGone":"Proof lost; code unaffected."},"status":"green"},{"name":"step-01.md","path":"docs/build-log/step-01.md","type":"file","loc":73,"kb":{"status":"green","what":"Inspection report for build step 1.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-02.md","path":"docs/build-log/step-02.md","type":"file","loc":39,"kb":{"status":"green","what":"Inspection report for build step 2.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-03.md","path":"docs/build-log/step-03.md","type":"file","loc":45,"kb":{"status":"green","what":"Inspection report for build step 3.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-04.md","path":"docs/build-log/step-04.md","type":"file","loc":43,"kb":{"status":"green","what":"Inspection report for build step 4.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-05.md","path":"docs/build-log/step-05.md","type":"file","loc":36,"kb":{"status":"green","what":"Inspection report for build step 5.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-06.md","path":"docs/build-log/step-06.md","type":"file","loc":41,"kb":{"status":"green","what":"Inspection report for build step 6.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-07.md","path":"docs/build-log/step-07.md","type":"file","loc":53,"kb":{"status":"green","what":"Inspection report for build step 7.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-08.md","path":"docs/build-log/step-08.md","type":"file","loc":38,"kb":{"status":"green","what":"Inspection report for build step 8.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-09.md","path":"docs/build-log/step-09.md","type":"file","loc":43,"kb":{"status":"green","what":"Inspection report for build step 9.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-10.md","path":"docs/build-log/step-10.md","type":"file","loc":42,"kb":{"status":"green","what":"Inspection report for build step 10.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-11.md","path":"docs/build-log/step-11.md","type":"file","loc":47,"kb":{"status":"green","what":"Inspection report for build step 11.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-12.md","path":"docs/build-log/step-12.md","type":"file","loc":48,"kb":{"status":"green","what":"Inspection report for build step 12.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-13.md","path":"docs/build-log/step-13.md","type":"file","loc":48,"kb":{"status":"green","what":"Inspection report for build step 13.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"},{"name":"step-14.md","path":"docs/build-log/step-14.md","type":"file","loc":48,"kb":{"status":"green","what":"Inspection report for build step 14.","does":"Captured terminal output proving this step’s gate ran green and its alarm was tripped red then restored.","analogy":"A notarized inspection report.","ifGone":"Proof for this step is lost (code unaffected)."},"status":"green"}],"kb":{"status":"green","what":"Captured proof of the framework build.","does":"One file per build step with verbatim terminal output: the gate run, and each alarm deliberately tripped (red) then restored (green).","analogy":"Notarized inspection reports, one per construction phase.","ifGone":"You would have to take the build’s word for it."},"status":"green","fileCount":18},{"name":"decisions","path":"docs/decisions","type":"dir","children":[{"name":"0001-stack.md","path":"docs/decisions/0001-stack.md","type":"file","loc":157,"kb":{"status":"green","what":"Decision record: the locked tech stack.","does":"Next 16.2.9 exact, Prisma 5.22, Clerk, Stripe, Inngest… no substitutions without a new decision.","analogy":"The signed supplier contract.","ifGone":"Stack choices would drift session to session."},"status":"green"},{"name":"0002-architecture.md","path":"docs/decisions/0002-architecture.md","type":"file","loc":381,"kb":{"status":"green","what":"THE architecture spec the framework was built from.","does":"The binding document: tripwire table, build order, env contract. The MISSION executed exactly this.","analogy":"The stamped blueprints.","ifGone":"The \"why\" behind every boundary would be lost."},"status":"green"}],"kb":{"status":"green","what":"Decision records (ADRs).","does":"0001 locks the tech stack; 0002 is the binding architecture spec the framework was built from.","analogy":"The signed contracts.","ifGone":"Future sessions would re-litigate settled decisions."},"status":"green","fileCount":2},{"name":"map-history.json","path":"docs/map-history.json","type":"file","loc":0,"kb":{"status":"green","what":"The map’s memory: one progress snapshot per day.","does":"Each time the map is generated on a new day (or numbers change), a line with the date, % complete, file/line/test counts gets saved here. Powers the progress-over-time chart in the Roadmap tab.","analogy":"Pencil marks on the door frame as the kid grows.","ifGone":"The growth chart resets and starts over from today."},"status":"green"},{"name":"V2-STATUS.md","path":"docs/V2-STATUS.md","type":"file","loc":95,"kb":{"status":"green","what":"The honest status report (where this map’s facts come from).","does":"ELI5 tour, what’s DONE with confidence levels, what’s NOT BUILT, and the ordered roadmap.","analogy":"The straight-talk memo on the fridge.","ifGone":"You’d lose the single honest summary of where things stand."},"status":"green"}],"kb":{"status":"green","what":"The paper trail.","does":"Decision records, the honest status report, and the build log proving every step with captured terminal output.","analogy":"The binder of permits and notarized inspection reports.","ifGone":"The code would still run, but every claim about it would be unverifiable."},"status":"green","fileCount":22},{"name":"lib","path":"lib","type":"dir","children":[{"name":"inngest","path":"lib/inngest","type":"dir","children":[{"name":"client.ts","path":"lib/inngest/client.ts","type":"file","loc":6,"kb":{"status":"green","what":"The jobs-service client.","does":"One Inngest client, id \"storageads-v2\". Everything durable (publishing, syncs, token refresh) will run through it.","analogy":"The conveyor belt’s motor.","ifGone":"No background jobs could be defined or served."},"status":"green"},{"name":"functions.ts","path":"lib/inngest/functions.ts","type":"file","loc":10,"kb":{"status":"yellow","what":"The job registry — currently empty on purpose.","does":"Every background job must be created here and pushed into the functions array; a job not in this array never fires. Also the only sanctioned non-session place an OrgId may be (re)validated.","analogy":"The conveyor belt’s job board, blank so far.","ifGone":"The jobs door would serve an empty list (today: no visible change; later: all jobs stop)."},"status":"yellow"}],"kb":{"status":"yellow","what":"Background-jobs plumbing (Inngest).","does":"Defines the jobs client and the registry of durable jobs. The registry is intentionally empty today.","analogy":"An installed, running conveyor belt with nothing on it yet.","ifGone":"No way to run slow work (ad publishing, data syncs) outside a page request."},"status":"yellow","fileCount":2},{"name":"server","path":"lib/server","type":"dir","children":[{"name":"billing.ts","path":"lib/server/billing.ts","type":"file","loc":14,"kb":{"status":"yellow","what":"The billing desk — deliberately unbuilt.","does":"Receives verified Stripe events and throws \"unimplemented: slice 2\". The webhook converts that into \"retry later\", so events queue at Stripe instead of being lost. The ONE sanctioned incompleteness in the repo.","analogy":"A staffed mail desk whose only stamp says \"redeliver\".","ifGone":"The webhook would have nothing to delegate to; replacing this with real handling IS the billing feature."},"status":"yellow"},{"name":"orgDb.ts","path":"lib/server/orgDb.ts","type":"file","loc":37,"kb":{"status":"green","what":"The ONLY door to tenant data (the vault).","does":"orgDb(orgId).facility.findMany/count/create… — every call routed through scope.ts. Zero spread operators allowed in this file (the boundary alarm checks for the literal \"...\" token!). Tripwire 2.","analogy":"The single teller window. There is no side window.","ifGone":"Pages would have to query the database directly — exactly the unguardable mess v1 was."},"status":"green"},{"name":"scope.ts","path":"lib/server/scope.ts","type":"file","loc":57,"kb":{"status":"green","what":"The pure tenancy core — the vault’s rulebook.","does":"Defines the branded OrgId (only parseOrgId can mint one) and the two scope functions that stamp orgId onto every query LAST, so a hostile caller’s value always loses. Proven by attack tests (tripwire 1).","analogy":"The rule card taped inside the teller window: \"stamp the customer’s ID on everything, your stamp wins\".","ifGone":"The vault would have no rules — tenant isolation gone. Highest-value file in the repo."},"status":"green"}],"kb":{"status":null,"what":"Server-only back office: the tenancy vault and the billing desk.","does":"Code in here can never be shipped to a browser, so secrets and data rules stay server-side.","analogy":"The staff-only corridor.","ifGone":"The vault and billing logic would vanish — customer data isolation gone."},"status":"yellow","fileCount":3},{"name":"ai.ts","path":"lib/ai.ts","type":"file","loc":98,"kb":{"status":"yellow","what":"The press office — the ONLY place the app can talk to Claude (the AI).","does":"One exported function, generate(): asks Claude, screens the reply against a blocklist (no \"guaranteed\", no \"firearms\", …), and withholds unsafe text. An unscreened path is not just discouraged — it does not exist to call. YELLOW: never run against the live Claude API (no key yet).","analogy":"Every quote goes past the editor before publication; reporters cannot be reached directly.","ifGone":"No AI copywriting — and if rebuilt carelessly, unscreened AI text could reach customers."},"status":"yellow"},{"name":"auth.ts","path":"lib/auth.ts","type":"file","loc":21,"kb":{"status":"yellow","what":"The one place a session becomes a company ID.","does":"requireOrg() asks Clerk \"who is signed in, which organization\" and mints the validated OrgId that the vault demands. Fails closed: no session → error, never a silent pass. YELLOW: a real sign-in has never been performed (no Clerk keys yet).","analogy":"The ID checker who issues the teller-window ticket.","ifGone":"Nothing could produce a valid OrgId — every dashboard/data page would refuse to serve (which is exactly the fail-closed design)."},"status":"yellow"},{"name":"db.ts","path":"lib/db.ts","type":"file","loc":22,"kb":{"status":"green","what":"The one database client (singleton — created once, shared everywhere).","does":"Opens the (future) Postgres connection via Prisma. PROHIBITION: tenant data may never be queried through this directly — only via the vault (orgDb).","analogy":"The master key to the filing cabinet, kept in one drawer, used only by the teller.","ifGone":"No database access at all."},"status":"green"},{"name":"env.ts","path":"lib/env.ts","type":"file","loc":60,"kb":{"status":"green","what":"The single typed config source.","does":"Every environment variable (a setting/secret supplied from outside the code) is declared here, ALL optional — so the app builds with zero keys. Tripwire 4 pins that.","analogy":"The labeled breaker panel — every wire in the building is named here.","ifGone":"Config reads would scatter through the code, and the offline-build guarantee would rot."},"status":"green"},{"name":"rate-limit.ts","path":"lib/rate-limit.ts","type":"file","loc":37,"kb":{"status":"yellow","what":"The velvet rope for future public forms.","does":"Counts requests per visitor via Upstash (a hosted counter service) and says ok/too-many. FAILS OPEN by contract: if the counter is down or unconfigured, traffic flows — the rope must never become a locked door. YELLOW: never run against live Upstash; nothing calls it yet.","analogy":"A velvet rope, not a fire door.","ifGone":"Future public forms would have no bot protection."},"status":"yellow"},{"name":"stripe.ts","path":"lib/stripe.ts","type":"file","loc":22,"kb":{"status":"green","what":"The one Stripe import.","does":"Lazily creates the Stripe client only when a key exists, so keyless machines and offline builds never construct one.","analogy":"The cash register, installed but only unlocked when the till key arrives.","ifGone":"The money door could not verify signatures; billing work would have no client."},"status":"green"},{"name":"utils.ts","path":"lib/utils.ts","type":"file","loc":7,"kb":{"status":"green","what":"The cn() class-name combiner.","does":"Tiny helper that merges Tailwind CSS classes correctly. Used by every component.","analogy":"The glue gun in the furniture shop.","ifGone":"Components would fail to build until restored."},"status":"green"}],"kb":{"status":null,"what":"The back office — all the real business rules.","does":"Every decision (who are you, whose data, what may the AI say, is this payment real) is made here, never inside pages.","analogy":"The office behind the showroom. The showroom (app/) just displays what this office decides.","ifGone":"Pages would still render but nothing would be enforced — no vault, no auth, no screening."},"status":"yellow","fileCount":12},{"name":"prisma","path":"prisma","type":"dir","children":[{"name":"schema.prisma","path":"prisma/schema.prisma","type":"file","loc":32,"kb":{"status":"yellow","what":"The database blueprint file.","does":"Defines the Facility table (id, orgId, name, city, state…). Every tenant table must carry orgId and get a vault entry — the boundary alarm enforces that pairing. YELLOW: no real database is connected; no migration (the script that turns blueprint into actual tables) has ever run.","analogy":"One drawer’s blueprint, cabinet still in the showroom.","ifGone":"Prisma could not generate its client; data code stops compiling."},"status":"yellow"}],"kb":{"status":"yellow","what":"The database blueprint.","does":"schema.prisma defines the tables. Prisma (an ORM — a translator letting TypeScript talk to the database) generates a typed client from it.","analogy":"The filing-cabinet blueprint. One drawer designed; the cabinet itself is not plugged in yet (no live database).","ifGone":"No table definitions — the app could not talk to any database at all."},"status":"yellow","fileCount":1},{"name":"public","path":"public","type":"dir","children":[],"kb":{"status":"green","what":"Static files served exactly as-is (favicon, images).","does":"Anything dropped here is reachable at the site root with zero processing. Currently empty.","analogy":"The rack of free flyers by the front door.","ifGone":"Nothing today (it’s empty); later, images and favicons would go missing."},"status":"green","fileCount":0},{"name":"tests","path":"tests","type":"dir","children":[{"name":"e2e","path":"tests/e2e","type":"dir","children":[{"name":"smoke.spec.ts","path":"tests/e2e/smoke.spec.ts","type":"file","loc":25,"kb":{"status":"green","what":"The boot test.","does":"Against the real production build: home page shows \"move-ins\", /api/health answers ok, headers present.","analogy":"Turn the key, listen to the engine.","ifGone":"No proof the assembled car actually starts."},"status":"green"}],"kb":{"status":"green","what":"Smoke test of the real built app.","does":"Builds the production app, boots it on port 3105, and checks the home page, health endpoint, and headers actually respond.","analogy":"Turning the key in the actual car, not the simulator.","ifGone":"A build could pass all unit checks yet fail to boot, and nothing would notice."},"status":"green","fileCount":1},{"name":"helpers","path":"tests/helpers","type":"dir","children":[{"name":"auth-mock.ts","path":"tests/helpers/auth-mock.ts","type":"file","loc":25,"kb":{"status":"green","what":"The fake sign-in session for tests.","does":"Pretends a user from org_test is signed in.","analogy":"A prop ID badge.","ifGone":"Dashboard tests would need real Clerk keys."},"status":"green"},{"name":"mock-db.ts","path":"tests/helpers/mock-db.ts","type":"file","loc":29,"kb":{"status":"green","what":"The fake filing cabinet for tests.","does":"Records what queries the vault makes so tests can inspect them.","analogy":"A cardboard cabinet with a camera inside.","ifGone":"Vault tests would need a real database."},"status":"green"},{"name":"render-rsc.ts","path":"tests/helpers/render-rsc.ts","type":"file","loc":13,"kb":{"status":"green","what":"Tiny server-page renderer for tests.","does":"Renders a server component to plain HTML so tests can read it.","analogy":"A photo booth for pages.","ifGone":"Page tests could not inspect output."},"status":"green"},{"name":"request.ts","path":"tests/helpers/request.ts","type":"file","loc":17,"kb":{"status":"green","what":"Request builder for webhook tests.","does":"Constructs signed/unsigned HTTP requests to feed the money door.","analogy":"A parcel-wrapping station for test packages.","ifGone":"Webhook tests get verbose and fragile."},"status":"green"}],"kb":{"status":"green","what":"Stand-ins used by tests.","does":"A fake database, a fake sign-in session, a tiny page renderer, and a request builder — so tests run with zero real services.","analogy":"Crash-test dummies.","ifGone":"Most unit tests could not run offline anymore."},"status":"green","fileCount":4},{"name":"unit","path":"tests/unit","type":"dir","children":[{"name":"ai-safety.test.ts","path":"tests/unit/ai-safety.test.ts","type":"file","loc":76,"kb":{"status":"green","what":"Alarm on the press office (tripwire 3).","does":"Asserts the screen catches blocklisted terms, generate() withholds unsafe text, and no unscreened text path is exported anywhere.","analogy":"Slipping a forbidden quote to the editor to prove it gets caught.","ifGone":"Unscreened AI output could ship without anything noticing."},"status":"green"},{"name":"boundaries.test.ts","path":"tests/unit/boundaries.test.ts","type":"file","loc":151,"kb":{"status":"green","what":"THE meta-alarm: scans the source code itself (tripwire 5).","does":"Fails the build if anyone imports the DB outside the vault, calls the AI SDK outside the press office, reads config off-register, creates middleware.ts, or adds a tenant table without a vault entry.","analogy":"An alarm wired to the alarm wiring.","ifGone":"Every other boundary becomes a polite suggestion."},"status":"green"},{"name":"dashboard-page.test.ts","path":"tests/unit/dashboard-page.test.ts","type":"file","loc":46,"kb":{"status":"green","what":"Alarm on the dashboard wiring (tripwire 8).","does":"Renders the real dashboard with a fake session + fake DB and asserts the count came through the whole chain (a hardcoded number fails it).","analogy":"Reading the gauge while feeding the simulator a known value.","ifGone":"The wiring proof could be quietly replaced with a painted-on number."},"status":"green"},{"name":"env.test.ts","path":"tests/unit/env.test.ts","type":"file","loc":26,"kb":{"status":"green","what":"Alarm on the offline-build guarantee (tripwire 4).","does":"Proves the config parser succeeds with a completely empty environment.","analogy":"Testing that the building opens even when every key hook is empty.","ifGone":"A \"required\" key could sneak in and break keyless builds."},"status":"green"},{"name":"orgDb.test.ts","path":"tests/unit/orgDb.test.ts","type":"file","loc":61,"kb":{"status":"green","what":"Alarm on the vault door (tripwire 2).","does":"Calls the REAL orgDb facade against a fake database and asserts the attacker’s org id never reaches it.","analogy":"The same burglar, now testing the window itself.","ifGone":"The facade could drift from the rulebook unnoticed."},"status":"green"},{"name":"proxy-headers.test.ts","path":"tests/unit/proxy-headers.test.ts","type":"file","loc":27,"kb":{"status":"green","what":"Alarm on the front-desk stamp (tripwire 9).","does":"Invokes the real front desk offline and asserts all three security headers are present on every branch.","analogy":"Checking every letter actually got stamped.","ifGone":"Headers could vanish from a branch unnoticed."},"status":"green"},{"name":"rate-limit.test.ts","path":"tests/unit/rate-limit.test.ts","type":"file","loc":67,"kb":{"status":"green","what":"Alarm on the velvet rope (tripwire 6).","does":"Proves it fails OPEN when unconfigured/down, and counts correctly when simulated-live.","analogy":"Checking the rope can’t become a locked fire door.","ifGone":"The fail-open contract could silently invert."},"status":"green"},{"name":"scope.test.ts","path":"tests/unit/scope.test.ts","type":"file","loc":69,"kb":{"status":"green","what":"Alarm on the vault rulebook (tripwire 1).","does":"Attacks scopeFind/scopeCreate: a hostile where.orgId must always lose to the session’s.","analogy":"A burglar hired to test the teller daily.","ifGone":"The core isolation rule could silently regress."},"status":"green"},{"name":"stripe-webhook.test.ts","path":"tests/unit/stripe-webhook.test.ts","type":"file","loc":93,"kb":{"status":"green","what":"Alarm on the money door (tripwire 7).","does":"Uses Stripe’s own test-signing tool: fake signatures get 400, real events get an explicit 500 (\"retry later\"), never a false \"received\".","analogy":"Mailing yourself a fake-courier package to prove it bounces.","ifGone":"The door could start silently swallowing payment events."},"status":"green"}],"kb":{"status":"green","what":"Fast checks of the rules (no real network, no real DB).","does":"Attack-style tests for the vault, AI screen, money door, headers, env contract, and the source-code boundary scan.","analogy":"Fire drills run indoors, daily.","ifGone":"The nine tripwires protecting the architecture would all go silent."},"status":"green","fileCount":9}],"kb":{"status":"green","what":"The alarm system: every automated check.","does":"56 unit checks + a 3-check smoke test that boots the real built app. Includes an alarm on the alarm wiring itself (boundaries).","analogy":"Motion sensors on every door, plus an inspector who tests the sensors.","ifGone":"Nothing would catch a broken guarantee — changes would be on the honor system."},"status":"green","fileCount":14},{"name":"tools","path":"tools","type":"dir","children":[{"name":"generate-map.js","path":"tools/generate-map.js","type":"file","loc":1410,"kb":{"status":"green","what":"The script that builds this map.","does":"Scans the repo, reads roadmap.json, and writes docs/codebase-map.html. --watch serves it live on port 4321.","analogy":"The cartographer.","ifGone":"The map could no longer be regenerated."},"status":"green"}],"kb":{"status":"green","what":"Personal dev tools (NOT product code).","does":"Currently: this map generator.","analogy":"Your own toolbox in the garage — customers never see it.","ifGone":"No map; the product itself would be unaffected."},"status":"green","fileCount":1},{"name":".env.example","path":".env.example","type":"file","loc":0,"kb":{"status":"green","what":"The blank key ring.","does":"Lists every secret key the app could use (all blank), each annotated with who reads it. Copy to .env.local and fill in only what you use.","analogy":"A labeled pegboard of empty key hooks.","ifGone":"You’d have to read source code to learn which keys exist."},"status":"green"},{"name":".gitignore","path":".gitignore","type":"file","loc":19,"kb":{"status":"green","what":"The do-not-photograph list.","does":"Tells git which files never get saved to history (secrets, build output, node_modules).","analogy":"The list of things the security camera must blur.","ifGone":"Secrets and junk would end up in git history — very hard to undo."},"status":"green"},{"name":".nvmrc","path":".nvmrc","type":"file","loc":2,"kb":{"status":"green","what":"The Node version pin.","does":"Says exactly which Node.js version (20) this repo expects.","analogy":"The voltage label on the appliance.","ifGone":"Different machines could run different Node versions and hit weird bugs."},"status":"green"},{"name":"AGENTS.md","path":"AGENTS.md","type":"file","loc":141,"kb":{"status":"green","what":"House rules for AI coding sessions.","does":"Session contract and folder conventions every agent must follow.","analogy":"The employee handbook.","ifGone":"Future AI sessions would improvise conventions."},"status":"green"},{"name":"components.json","path":"components.json","type":"file","loc":22,"kb":{"status":"green","what":"shadcn component-generator settings.","does":"Tells the component CLI where styles and aliases live when adding new UI parts.","analogy":"The furniture catalog’s order form defaults.","ifGone":"Adding new shadcn components would need manual wiring."},"status":"green"},{"name":"eslint.config.mjs","path":"eslint.config.mjs","type":"file","loc":57,"kb":{"status":"green","what":"Code-style linter rules.","does":"Automatic nitpicker that flags suspicious patterns before they ship.","analogy":"The proofreader.","ifGone":"npm run lint stops working; style drifts."},"status":"green"},{"name":"instrumentation-client.ts","path":"instrumentation-client.ts","type":"file","loc":23,"kb":{"status":"yellow","what":"Browser crash reporting + visitor analytics (Sentry + PostHog), dormant.","does":"The ONLY browser-analytics home. Both turn on the moment their keys exist; until then, no-ops.","analogy":"The lobby camera, not yet plugged in.","ifGone":"No browser error reports or product analytics, ever."},"status":"yellow"},{"name":"instrumentation.ts","path":"instrumentation.ts","type":"file","loc":25,"kb":{"status":"yellow","what":"Server-side crash reporting (Sentry), dormant.","does":"When a SENTRY_DSN key is added, server errors start reporting automatically. With no key it does nothing, on purpose.","analogy":"A smoke detector on the wall, batteries not inserted yet.","ifGone":"No server crash reports once keys are added."},"status":"yellow"},{"name":"MISSION.md","path":"MISSION.md","type":"file","loc":249,"kb":{"status":"green","what":"The signed work order for the framework build (now executed).","does":"Defined the autonomous build: steps, gates, drills, HALT rules. Kept as a historical record.","analogy":"The construction work order, stamped COMPLETE.","ifGone":"History lost; nothing operational breaks."},"status":"green"},{"name":"next-env.d.ts","path":"next-env.d.ts","type":"file","loc":7,"kb":{"status":"green","what":"Auto-generated Next.js type glue.","does":"Makes TypeScript aware of Next.js types. Regenerated by the framework; never hand-edited.","analogy":"A factory-installed adapter.","ifGone":"Next.js regenerates it on the next build."},"status":"green"},{"name":"next.config.ts","path":"next.config.ts","type":"file","loc":17,"kb":{"status":"green","what":"Next.js settings.","does":"Framework configuration: strict mode on, workspace root pinned.","analogy":"The thermostat panel for the framework.","ifGone":"Builds could misbehave (wrong root, looser checks)."},"status":"green"},{"name":"package-lock.json","path":"package-lock.json","type":"file","loc":0,"kb":{"status":"green","what":"The exact-version receipt (auto-generated).","does":"Pins every library (and their libraries) to exact versions so installs are identical everywhere.","analogy":"The itemized receipt behind the bill of materials.","ifGone":"Installs could silently pick newer versions and behave differently per machine."},"status":"green"},{"name":"package.json","path":"package.json","type":"file","loc":52,"kb":{"status":"green","what":"The parts list and command menu.","does":"Every third-party library the app uses, plus the npm commands (dev, build, test, map…).","analogy":"Bill of materials + the row of labeled switches.","ifGone":"npm would not know what to install or run — the project would not start."},"status":"green"},{"name":"playwright.config.ts","path":"playwright.config.ts","type":"file","loc":20,"kb":{"status":"green","what":"Smoke-test runner settings.","does":"Boots the production build on port 3105 (never 3000, so it can’t accidentally test some other app you have running).","analogy":"The road-test route sheet.","ifGone":"npm run test:e2e would not know how to boot and probe the app."},"status":"green"},{"name":"postcss.config.mjs","path":"postcss.config.mjs","type":"file","loc":10,"kb":{"status":"green","what":"CSS build plumbing for Tailwind 4.","does":"Lets the styling system compile.","analogy":"The paint mixer.","ifGone":"Styles would stop compiling — unstyled pages."},"status":"green"},{"name":"proxy.ts","path":"proxy.ts","type":"file","loc":37,"kb":{"status":"green","what":"The front desk: runs before EVERY request.","does":"This is middleware (code that runs before any page). Activates Clerk’s badge reader when keys exist, and stamps three browser-protection headers on every response, both branches, always.","analogy":"The badge reader and stamp at the front desk — nobody gets past without the stamp.","ifGone":"Security headers vanish site-wide and Clerk’s session layer never engages. Tripwire 9 would go red."},"status":"green"},{"name":"README.md","path":"README.md","type":"file","loc":51,"kb":{"status":"green","what":"The front-door note for humans.","does":"What this repo is and how to run it, plus the CI badge.","analogy":"The welcome plaque.","ifGone":"Nothing breaks; newcomers start confused."},"status":"green"},{"name":"roadmap.json","path":"roadmap.json","type":"file","loc":250,"kb":{"status":"green","what":"The progress tracker data (feeds this map’s Roadmap tab).","does":"Every feature with a status: done / partial / todo. Edit it, run npm run map, and the Roadmap view updates.","analogy":"The whiteboard of sticky notes, in file form.","ifGone":"The Roadmap tab would show a warning and no cards."},"status":"green"},{"name":"tsconfig.json","path":"tsconfig.json","type":"file","loc":44,"kb":{"status":"green","what":"TypeScript strictness settings.","does":"Turns on the strictest type checking, so whole bug classes fail at compile time.","analogy":"The building code the type-inspector enforces.","ifGone":"Type checking would loosen — silent bugs get through."},"status":"green"},{"name":"tsconfig.tsbuildinfo","path":"tsconfig.tsbuildinfo","type":"file","loc":0,"kb":{"status":"yellow","what":"New file — no plain-English card written for it yet.","does":"It appeared after the map’s knowledge base was last updated. YELLOW until described and verified: open it, then add a card in tools/generate-map.js (the KB object).","analogy":"An unlabeled box that showed up in the warehouse.","ifGone":"Unknown — that’s exactly why it deserves a label."},"status":"yellow"},{"name":"ULTRACODE.md","path":"ULTRACODE.md","type":"file","loc":586,"kb":{"status":"green","what":"The build doctrine.","does":"How features get built here: small verified slices, schema→vault→logic→screen→test, never one giant prompt.","analogy":"The construction manual.","ifGone":"Build discipline would erode slice by slice."},"status":"green"},{"name":"vitest.config.ts","path":"vitest.config.ts","type":"file","loc":16,"kb":{"status":"green","what":"Unit-test runner settings.","does":"Where tests live, and that @/ means the repo root.","analogy":"The fire-drill schedule.","ifGone":"npm run test could not find or run the checks."},"status":"green"}],"machine":{"zones":[{"id":"people","label":"People","blurb":"The two humans in the story."},{"id":"frontend","label":"Frontend — what users see","blurb":"Pages rendered in the browser. Thin on purpose: they display decisions, they don’t make them."},{"id":"gate","label":"The front desk","blurb":"Runs before EVERY request to any page or door below."},{"id":"api","label":"API routes — the waiters taking orders","blurb":"The doors other software knocks on. v1 had 172 of these; v2 has three, each guarded by a tested alarm."},{"id":"office","label":"Back office (lib/) — where rules are enforced","blurb":"All real logic. Pages and doors call into here; nothing here trusts the caller."},{"id":"data","label":"Database — the filing cabinet","blurb":"What gets remembered. Reached ONLY through the vault, never directly."},{"id":"external","label":"Outside companies we plug into","blurb":"Gray = we don’t control it. The little dot shows the state of OUR plug into them."}],"nodes":[{"id":"renter","zone":"people","label":"Renter","sub":"needs a storage unit","status":"people","eli5":"A person with too much stuff. They click an ad, land on a page, and (one day) reserve a unit. They never sign in to StorageAds — they’re your customer’s customer."},{"id":"operator","zone":"people","label":"Operator","sub":"your paying customer","status":"people","eli5":"A self-storage facility owner. They sign up, pay, connect their facility, launch ads, and watch the dashboard prove which ads produce move-ins."},{"id":"home","zone":"frontend","label":"Home page","sub":"public storefront","status":"green","file":"app/page.tsx","eli5":"The public marketing page. Works with zero keys configured. Headline promise: ad spend → move-ins.","why":"Built, styled with the design system, verified by the smoke test on every push."},{"id":"signup","zone":"frontend","label":"Sign-up & onboarding","sub":"become a customer","feature":"signup-onboarding","eli5":"Where an operator creates an account and their company, then gets walked through setup.","why":"Not built. Clerk (the sign-in company) is wired underneath, but there is no sign-up flow, no organization creation, no onboarding. Phase 1.","status":"red"},{"id":"facility-screens","zone":"frontend","label":"Facility screens","sub":"add/edit facilities","feature":"facility-mgmt","eli5":"Screens to add facilities, units, and prices. The vault below already supports storing them; no screen calls it yet.","why":"Not built — Phase 1.","status":"red"},{"id":"dashboard","zone":"frontend","label":"Dashboard","sub":"the control room","feature":"dashboard-wiring","file":"app/(dashboard)/dashboard/page.tsx","eli5":"The operator’s control room. Today it proves the whole security chain end-to-end by showing one number: your facility count, fetched through the vault.","why":"YELLOW: fully wired and tested — but only ever against a simulated database. The real-database hop has never run (no database connected).","status":"yellow"},{"id":"landing","zone":"frontend","label":"Ad landing pages","sub":"one page per ad","feature":"landing-pages","eli5":"Fast pages renters land on after clicking an ad — one per ad, with AI-written copy (screened) and the reservation flow embedded. Half the product.","why":"Not built — Phase 3.","status":"red"},{"id":"reservation","zone":"frontend","label":"Reservation flow","sub":"renter books a unit","feature":"storedge-integration","eli5":"The embedded \"pick a unit, reserve it\" flow on each landing page, powered by storEDGE.","why":"Not built — part of the storEDGE integration, Phase 2.","status":"red"},{"id":"frontdesk","zone":"gate","label":"proxy.ts — front desk","sub":"badge reader + stamp","status":"green","file":"proxy.ts","eli5":"Middleware that runs before every single request: engages Clerk’s badge reader (when keys exist) and stamps three browser-protection headers on every response. It talks to everything below, so no lines are drawn for it.","why":"Built and proven: verified live, in unit tests (tripwire 9), and on the production build in CI."},{"id":"health","zone":"api","label":"/api/health","sub":"pulse check","status":"green","file":"app/api/health/route.ts","eli5":"Answers {status:\"ok\"} so monitors know the app is alive.","why":"Built, verified live and by the smoke test."},{"id":"inngest-door","zone":"api","label":"/api/inngest","sub":"jobs loading dock","status":"yellow","file":"app/api/inngest/route.ts","eli5":"The door the jobs service (Inngest) knocks on to run background work.","why":"YELLOW: the door answers correctly (verified live in dev) but the job registry behind it is intentionally empty — plumbing only."},{"id":"stripe-webhook","zone":"api","label":"/api/stripe/webhook","sub":"the money door","status":"yellow","file":"app/api/stripe/webhook/route.ts","eli5":"The webhook Stripe rings when someone pays. Checks Stripe’s cryptographic signature for real; fakes get rejected.","why":"YELLOW overall: signature check is built & proven (tripwire 7), but it deliberately answers \"error, retry later\" to real events until billing is built — so payment events queue at Stripe instead of being lost."},{"id":"attribution-capture","zone":"api","label":"Click capture","sub":"records ad click IDs","feature":"attribution","eli5":"The door that records WHICH ad click brought a renter (Meta’s fbclid / Google’s gclid codes) the moment they land.","why":"Not built — Phase 4.","status":"red"},{"id":"auth","zone":"office","label":"requireOrg()","sub":"ID checker","feature":"clerk-scaffolding","file":"lib/auth.ts","eli5":"The one place a sign-in session becomes a validated company ID (OrgId). No session → refused. Nothing else in the repo can mint that ID.","why":"YELLOW: fail-closed path proven live; a real sign-in has never happened (no Clerk keys yet).","status":"yellow"},{"id":"vault","zone":"office","label":"orgDb — the vault","sub":"one teller window","status":"green","file":"lib/server/orgDb.ts","eli5":"The ONLY door to customer data. Every query gets the customer’s ID stamped on it, and the stamp always wins — even against a malicious request. There is no side window.","why":"GREEN: proven by attack-style tests and a 16-mutation sabotage sweep — every alarm fired."},{"id":"ai","zone":"office","label":"lib/ai.ts — press office","sub":"screened AI writer","feature":"ai-boundary","file":"lib/ai.ts","eli5":"The only place the app can ask Claude to write text. Output is screened against a blocklist before anyone sees it; an unscreened path doesn’t exist to call.","why":"YELLOW: logic fully proven with a simulated AI; never run against the live Claude API (no key on this machine).","status":"yellow"},{"id":"billing","zone":"office","label":"Billing desk","sub":"handles \"they paid\"","feature":"billing-checkout","file":"lib/server/billing.ts","eli5":"Where verified payment events get processed: provision the account, record the subscription.","why":"RED (by design): the desk currently returns every package \"redeliver later\". Building this IS the Phase-1 billing feature.","status":"red"},{"id":"jobs","zone":"office","label":"Job registry","sub":"the conveyor belt","feature":"jobs-plumbing","file":"lib/inngest/functions.ts","eli5":"Slow work (publishing ads, nightly syncs) runs here instead of making a webpage wait. The belt is on; the job board is blank.","why":"YELLOW: plumbing verified live; zero jobs registered yet.","status":"yellow"},{"id":"ratelimit","zone":"office","label":"Rate limiter","sub":"velvet rope","feature":"rate-limiter","file":"lib/rate-limit.ts","eli5":"Counts requests per visitor so bots can’t spam future public forms. If the counting service is down, traffic flows (fail open) — the rope never becomes a locked door.","why":"YELLOW: logic proven with a simulated network; never run live, nothing calls it yet.","status":"yellow"},{"id":"storedge-client","zone":"office","label":"storEDGE client","sub":"talks to their software","feature":"storedge-integration","eli5":"The translator that syncs units/prices from the operator’s storage software, powers the reservation flow, and pulls move-in data back. The heart of the product.","why":"RED: zero exists — and it’s blocked on Storable granting API access (the paperwork item). Phase 2.","status":"red"},{"id":"attribution-engine","zone":"office","label":"Attribution matcher","sub":"click → move-in","feature":"attribution","eli5":"Connects the dots: this click became this reservation became this move-in — then reports the win back to Meta/Google so their targeting gets smarter.","why":"RED: not built. The product’s whole differentiator. Phase 4.","status":"red"},{"id":"ads-publisher","zone":"office","label":"Ads publisher","sub":"creates campaigns","feature":"ads-publishing","eli5":"Creates and manages Meta/Google ad campaigns from inside StorageAds, using Nango for the account-connection handshake (OAuth).","why":"RED: not built; also blocked on Meta app review + Google developer token. Phase 5.","status":"red"},{"id":"facility-table","zone":"data","label":"Facility drawer","sub":"the one designed table","status":"yellow","file":"prisma/schema.prisma","eli5":"The blueprint for storing facilities (name, city, state, owner company). Every row carries the owner’s orgId.","why":"YELLOW: the drawer is designed and the vault guards it, but the cabinet is unplugged — no real database connected, no migration ever run."},{"id":"leads-tables","zone":"data","label":"Leads · Reservations · Move-ins","sub":"the attribution chain","feature":"attribution","eli5":"The drawers that will remember each renter’s journey: clicked → reserved → moved in.","why":"RED: these tables don’t exist yet — designed carefully in Phase 4 (identity matching is fiddly).","status":"red"},{"id":"safety-log","zone":"data","label":"AI safety log","sub":"blocked-output records","feature":"landing-pages","eli5":"A drawer recording every time the AI screen blocked something, written by the press office itself so it can never be forgotten.","why":"RED: arrives with the first real AI caller (the landing-page generator), per the contract pinned in lib/ai.ts.","status":"red"},{"id":"clerk","zone":"external","label":"Clerk","sub":"sign-in company","status":"gray","plug":"yellow","eli5":"Handles accounts, passwords, and organizations so we never store passwords ourselves.","why":"Plug YELLOW: fully wired (badge reader + ID checker), but no keys yet — a real sign-in has never happened."},{"id":"stripe","zone":"external","label":"Stripe","sub":"payments","status":"gray","plug":"yellow","eli5":"Moves the money: checkout, subscriptions, invoices.","why":"Plug YELLOW: the doorbell is verified with real cryptography, but no products/prices/checkout exist and events are deliberately returned."},{"id":"neon","zone":"external","label":"Neon","sub":"hosted Postgres DB","status":"gray","plug":"red","eli5":"The actual filing cabinet in the cloud — a hosted Postgres database.","why":"Plug RED: no instance created, no migration run. First item in Phase 0."},{"id":"anthropic","zone":"external","label":"Anthropic (Claude)","sub":"the AI writer","status":"gray","plug":"yellow","eli5":"The AI that will write ad and landing-page copy — always through the press office screen.","why":"Plug YELLOW: boundary built & tested with a simulated AI; no API key, never called live."},{"id":"inngest-cloud","zone":"external","label":"Inngest","sub":"background-jobs service","status":"gray","plug":"yellow","eli5":"The service that reliably runs and retries background jobs.","why":"Plug YELLOW: endpoint verified live in dev; no cloud keys, zero jobs."},{"id":"upstash","zone":"external","label":"Upstash","sub":"request counter","status":"gray","plug":"yellow","eli5":"A tiny hosted counter (Redis) used to rate limit public forms.","why":"Plug YELLOW: limiter logic proven; never run against the live service."},{"id":"sentry","zone":"external","label":"Sentry","sub":"crash alerts","status":"gray","plug":"yellow","eli5":"Emails you the stack trace when the app crashes for a real user.","why":"Plug YELLOW: wired in both server and browser, dormant until a key is added."},{"id":"posthog","zone":"external","label":"PostHog","sub":"visitor analytics","status":"gray","plug":"yellow","eli5":"Counts visitors and what they do, so you can see if the funnel works.","why":"Plug YELLOW: wired, dormant until a key is added."},{"id":"meta","zone":"external","label":"Meta Ads","sub":"Facebook/Instagram ads","status":"gray","plug":"red","eli5":"Where the ads run. Sends clicks (with fbclid codes) in; receives \"this click converted\" events back.","why":"Plug RED: zero integration exists. App review (weeks!) hasn’t been started — paperwork item."},{"id":"google","zone":"external","label":"Google Ads","sub":"search ads","status":"gray","plug":"red","eli5":"The other ad platform. Sends clicks (gclid codes) in; receives conversion events back.","why":"Plug RED: zero integration; developer token not applied for — paperwork item."},{"id":"storedge","zone":"external","label":"storEDGE (Storable)","sub":"facility management software","status":"gray","plug":"red","eli5":"The software operators already run their facilities on. Source of truth for units, prices, reservations, and move-ins.","why":"Plug RED: zero integration, and API access must be granted by Storable — the longest pole in the whole plan."},{"id":"nango","zone":"external","label":"Nango","sub":"OAuth handshake tool","status":"gray","plug":"red","eli5":"The chosen tool for the \"connect your ad account\" handshake so we don’t hand-roll OAuth.","why":"Plug RED: not installed yet — arrives with ads publishing, Phase 5."},{"id":"resend","zone":"external","label":"Resend","sub":"email sender","status":"gray","plug":"red","eli5":"Sends the app’s emails (receipts, alerts).","why":"Plug RED: not installed — deferred until the first feature that needs email."}],"edges":[{"from":"operator","to":"home","label":"visits"},{"from":"operator","to":"signup","label":"creates account"},{"from":"operator","to":"dashboard","label":"checks results"},{"from":"signup","to":"clerk","label":"account + org created in"},{"from":"signup","to":"stripe","label":"pays via checkout"},{"from":"stripe","to":"stripe-webhook","label":"rings \"they paid\""},{"from":"stripe-webhook","to":"billing","label":"hands verified event to"},{"from":"facility-screens","to":"vault","label":"saves facilities via"},{"from":"dashboard","to":"auth","label":"who is this?"},{"from":"auth","to":"clerk","label":"asks the session"},{"from":"dashboard","to":"vault","label":"reads data via"},{"from":"vault","to":"facility-table","label":"org-stamped queries"},{"from":"vault","to":"leads-tables","label":"org-stamped queries"},{"from":"facility-table","to":"neon","label":"lives in"},{"from":"leads-tables","to":"neon","label":"lives in"},{"from":"safety-log","to":"neon","label":"lives in"},{"from":"renter","to":"meta","label":"sees & clicks ad"},{"from":"renter","to":"google","label":"sees & clicks ad"},{"from":"meta","to":"landing","label":"click arrives (fbclid)"},{"from":"google","to":"landing","label":"click arrives (gclid)"},{"from":"landing","to":"attribution-capture","label":"reports the click ID"},{"from":"attribution-capture","to":"leads-tables","label":"records the lead"},{"from":"landing","to":"reservation","label":"embeds"},{"from":"reservation","to":"storedge","label":"books the unit in"},{"from":"storedge","to":"storedge-client","label":"move-in data back"},{"from":"jobs","to":"storedge-client","label":"runs syncs via"},{"from":"storedge-client","to":"leads-tables","label":"completes the chain"},{"from":"attribution-engine","to":"leads-tables","label":"matches click→move-in"},{"from":"attribution-engine","to":"meta","label":"reports conversions"},{"from":"attribution-engine","to":"google","label":"reports conversions"},{"from":"ai","to":"anthropic","label":"asks for copy"},{"from":"ai","to":"landing","label":"writes screened copy for"},{"from":"ai","to":"safety-log","label":"records blocked outputs"},{"from":"inngest-cloud","to":"inngest-door","label":"knocks to run jobs"},{"from":"inngest-door","to":"jobs","label":"executes registry"},{"from":"ads-publisher","to":"nango","label":"connects accounts via"},{"from":"nango","to":"meta","label":"authorized access"},{"from":"nango","to":"google","label":"authorized access"},{"from":"ratelimit","to":"upstash","label":"counts requests in"}],"story":[{"label":"1. Operator signs up & pays","nodes":["operator","home","signup","clerk","stripe","stripe-webhook","billing"]},{"label":"2. Connects their facility","nodes":["operator","facility-screens","vault","facility-table","neon","storedge","storedge-client"]},{"label":"3. Ads go live","nodes":["ads-publisher","nango","meta","google","ai","anthropic","landing"]},{"label":"4. A renter clicks an ad","nodes":["renter","meta","google","landing","attribution-capture","leads-tables"]},{"label":"5. They reserve a unit","nodes":["landing","reservation","storedge","storedge-client","jobs","leads-tables"]},{"label":"6. Dashboard proves which ad paid","nodes":["attribution-engine","leads-tables","meta","google","dashboard","auth","vault","operator"]}]},"roadmap":{"error":null,"updated":"2026-06-11","features":[{"id":"tenancy-vault","title":"Tenant data isolation (the vault)","phase":"Foundation","status":"done","weight":2,"eli5":"Every customer's data is locked to their own company. Even a hostile request asking for someone else's data gets silently corrected to its own.","note":"Proven by attack-style tests and a 16-mutation sabotage sweep (docs/build-log/98-mutation-sweep.md): every protection was deliberately broken and every alarm went red."},{"id":"boundary-alarms","title":"Boundary alarm system","phase":"Foundation","status":"done","weight":1,"eli5":"A test that reads the source code itself and fails the build if anyone sneaks around the vault, the AI screen, or the config rules.","note":"tests/unit/boundaries.test.ts. Caught real mistakes twice during the build."},{"id":"offline-build","title":"Offline-build guarantee","phase":"Foundation","status":"done","weight":1,"eli5":"The whole app builds, tests, and boots with zero secret keys configured, so a missing account can never block development.","note":"CI builds with no keys; re-proven with a completely empty environment."},{"id":"stripe-front-door","title":"Stripe webhook front door","phase":"Foundation","status":"done","weight":1,"eli5":"The door where Stripe rings the doorbell to say 'they paid'. It checks Stripe's cryptographic ID for real, and rejects fakes.","note":"By design it answers 'error, retry later' to genuine events until billing is built (see billing-checkout) — so no payment event is ever silently lost."},{"id":"security-headers","title":"Security headers on every response","phase":"Foundation","status":"done","weight":1,"eli5":"Three standard browser-protection headers stamped on every single page and API answer.","note":"Verified live, in unit tests, and on the production build in CI."},{"id":"design-system","title":"Design system (small on purpose)","phase":"Foundation","status":"done","weight":1,"eli5":"One place that defines the brand's colors and fonts, plus a button, a card, and the logo. Every future screen is built from these parts.","note":"Warm light-only palette; tokens live in app/globals.css."},{"id":"ci-pipeline","title":"CI robot on GitHub","phase":"Foundation","status":"done","weight":1,"eli5":"A robot that re-runs every check (types, 56 tests, build, lint, boot test) every time code is pushed.","note":"7 consecutive green runs including a merged proof PR."},{"id":"health-endpoint","title":"Health endpoint","phase":"Foundation","status":"done","weight":1,"eli5":"A URL that answers 'ok' so an uptime monitor can tell at a glance whether the site is alive.","note":"/api/health — verified live."},{"id":"ai-boundary","title":"AI safety boundary","phase":"Foundation","status":"partial","weight":1,"eli5":"The one and only place the app can ask Claude (the AI) to write text. Everything it writes is screened against a blocklist before anyone sees it.","note":"YELLOW because: logic fully tested with a simulated AI, but it has never been run against the live Claude API — no API key on this machine yet."},{"id":"clerk-scaffolding","title":"Sign-in scaffolding (Clerk)","phase":"Foundation","status":"partial","weight":1,"eli5":"The dashboard area is wired for sign-in. With no keys configured it safely bounces visitors back to the home page instead of erroring.","note":"YELLOW because: the locked-out path is proven, but a real sign-in has never been performed — no Clerk keys yet."},{"id":"dashboard-wiring","title":"Dashboard wiring page","phase":"Foundation","status":"partial","weight":1,"eli5":"One page that exercises the whole chain: who are you → which company → vault → count facilities → show it in a card.","note":"YELLOW because: works with a simulated database; the final hop to a REAL database has never run — no database is connected."},{"id":"jobs-plumbing","title":"Background jobs plumbing (Inngest)","phase":"Foundation","status":"partial","weight":1,"eli5":"A conveyor belt for slow work (publishing ads, syncing data) so web pages never have to wait on it. The belt runs; nothing is on it yet.","note":"YELLOW because: the endpoint answers correctly (verified live) but the job registry is intentionally empty — zero jobs exist."},{"id":"rate-limiter","title":"Rate limiter","phase":"Foundation","status":"partial","weight":1,"eli5":"A velvet rope for future public forms so bots can't spam them. If the rope service is ever down, traffic flows instead of the site going down.","note":"YELLOW because: logic proven with a simulated network; never run against live Upstash, and nothing calls it yet."},{"id":"observability","title":"Crash reporting + analytics (Sentry, PostHog)","phase":"Foundation","status":"partial","weight":1,"eli5":"Smoke detectors (crash alerts) and a visitor counter, installed and wired.","note":"YELLOW because: wired but dormant — no keys configured, so nothing is actually being recorded yet."},{"id":"paperwork-access","title":"⚠ Paperwork: API access requests (do these first)","phase":"Phase 0 — Connect utilities","status":"todo","weight":1,"eli5":"Three permission slips from outside companies, each of which can take WEEKS: storEDGE/Storable API access, Meta Marketing API app review, Google Ads developer token.","note":"Zero engineering needed — these are forms and waiting. They are the long poles for Phases 2 and 5, so they should be filed before any more code is written."},{"id":"connect-utilities","title":"Connect the utilities (real DB + real sign-in)","phase":"Phase 0 — Connect utilities","status":"todo","weight":1,"eli5":"Create the real Neon database, run the first migration, add Clerk dev keys, and watch one real sign-in and one real dashboard read happen.","note":"Hours of work. Turns 'proven with simulators' into 'proven for real'. Everything after assumes it."},{"id":"signup-onboarding","title":"Operator sign-up & onboarding","phase":"Phase 1 — Sign up & pay","status":"todo","weight":3,"eli5":"A storage operator can create an account, create their company, and get walked through setup.","note":"Clerk organizations + onboarding flow. First half of the first revenue-capable milestone."},{"id":"billing-checkout","title":"Billing: checkout + webhook handling","phase":"Phase 1 — Sign up & pay","status":"todo","weight":3,"eli5":"The operator can actually PAY: Stripe products and checkout, and the webhook door starts processing 'they paid' events instead of returning them.","note":"Replaces the deliberate 'unimplemented' throw in lib/server/billing.ts. Stripe test mode = low risk."},{"id":"facility-mgmt","title":"Facility management screens","phase":"Phase 1 — Sign up & pay","status":"todo","weight":2,"eli5":"Screens to add and edit facilities, units, and pricing. The vault already supports it; no screen calls it yet.","note":"The Facility table exists in the schema; this builds the UI on top."},{"id":"storedge-integration","title":"storEDGE integration (the heart)","phase":"Phase 2 — storEDGE","status":"todo","weight":5,"eli5":"Talk to the operator's storage-management software: sync units and prices, embed the 'reserve a unit' flow, and pull move-in data back.","note":"⚠ HIGHEST EXTERNAL RISK — blocked entirely on Storable granting API access (see paperwork-access). Build the sync as background jobs so it retries itself. Until move-in data flows, attribution can't close the loop."},{"id":"landing-pages","title":"Landing page generator","phase":"Phase 3 — Landing pages","status":"todo","weight":3,"eli5":"One fast, conversion-focused page per ad, with the reservation flow embedded and AI-written copy that goes through the safety screen.","note":"The customer-visible half of the product. Page shell + copy generation can start before storEDGE is live. The AI safety-event log table lands here too."},{"id":"attribution","title":"Attribution pipeline (the differentiator)","phase":"Phase 4 — Attribution","status":"todo","weight":5,"eli5":"Prove which ad caused which move-in: capture the click ID when someone lands, follow it through reservation to move-in, and report the win back to Meta and Google.","note":"Depends on storEDGE + landing pages. ⚠ Fiddly: matching a click to a reservation to a move-in always has edge cases — design the data model carefully before coding."},{"id":"ads-publishing","title":"Ads publishing (Meta + Google)","phase":"Phase 5 — Ads publishing","status":"todo","weight":5,"eli5":"Connect the operator's ad accounts (via Nango, the 'connect your account' handshake tool) and create real campaigns from inside StorageAds.","note":"⚠ Blocked on Meta app review + Google developer token (see paperwork-access). Until approved, operators can still run ads manually pointed at their landing pages — so the product is useful before this lands."},{"id":"lead-gen-funnel","title":"Public lead-gen funnel","phase":"Phase 6 — Polish & operate","status":"todo","weight":2,"eli5":"The public 'get a free audit' funnel that captures prospects who aren't customers yet. v1 had one; it was deliberately discarded and will be rebuilt on this framework.","note":"Rebuild has not started."},{"id":"email-notifications","title":"Email notifications (Resend)","phase":"Phase 6 — Polish & operate","status":"todo","weight":1,"eli5":"The app can send emails (receipts, alerts, weekly summaries).","note":"Resend is the chosen tool; not installed yet — deferred until the first feature that needs it."},{"id":"analytics-charts","title":"Analytics dashboards & charts","phase":"Phase 6 — Polish & operate","status":"todo","weight":1,"eli5":"Pretty graphs in the dashboard showing spend, leads, reservations, and move-ins over time.","note":"Recharts intentionally not installed yet."},{"id":"admin-area","title":"Admin area","phase":"Phase 6 — Polish & operate","status":"todo","weight":1,"eli5":"A back room where YOU (not customers) can see every account and help people.","note":"Deliberately cut from the framework build; arrives when operating real customers demands it."}],"percent":25},"glossary":{"API route":"A URL your app listens on so browsers and other software can talk to it — a door into the building.","endpoint":"A specific URL an app answers on. Same idea as an API route.","webhook":"A doorbell another company rings to tell your app something happened (e.g. Stripe ringing \"they paid\").","middleware":"Code that runs before every request reaches any page — like a front desk everyone passes.","ORM":"A translator that lets your code talk to the database in TypeScript instead of raw database language. Here: Prisma.","migration":"The script that turns the database blueprint into actual tables in the real database.","schema":"The blueprint describing what data is stored and its shape (tables, columns).","multi-tenant":"Many customers share one app, and each must only ever see their own data.","tenant":"One customer-company inside a shared app. Tenant data = that customer’s private data.","OAuth":"The \"connect your account\" handshake that lets one app act on another (e.g. posting ads to your Meta account) without sharing your password.","CI":"Continuous integration — a robot (here: GitHub Actions) that re-runs every check on every push.","environment variable":"A setting or secret supplied from OUTSIDE the code (like a key under the mat the app checks at startup).","singleton":"Something created exactly once and shared everywhere, instead of many copies.","rate limit":"A cap on how many requests one visitor can make, so bots can’t spam.","smoke test":"A quick \"does it even turn on\" check of the real built app.","mutation sweep":"Deliberately sabotaging each protection to prove its alarm actually goes off, then undoing it.","tripwire":"A test wired to a specific guarantee, proven to go red when that guarantee is broken.","fail open":"When a helper service is down, allow traffic through rather than taking the site down.","fail closed":"When sign-in can’t be verified, refuse entry rather than guessing.","attribution":"Proving which ad caused which sale (here: which click became a move-in).","SDK":"A company’s official code library for talking to their service.","session":"The signed-in state a user carries between pages (who you are, which company).","repo":"Repository — this project’s folder, with its full history, tracked by git.","webhook secret":"The shared password used to verify a doorbell ring really came from the company it claims.","production build":"The optimized, real version of the app — what users get, vs. the dev version."},"history":[{"date":"2026-06-11","percent":25,"files":88,"loc":6599,"checks":56,"routes":3,"models":1,"jobs":0}]};</script>
+<script>
+var D = window.__MAP_DATA__;
+var SMETA = {
+  green:  { label: 'Built & working',          cls: 'green'  },
+  yellow: { label: 'Built, but untested or partial', cls: 'yellow' },
+  red:    { label: 'Not built yet',            cls: 'red'    },
+  gray:   { label: 'Outside company',          cls: 'gray'   },
+  people: { label: 'A person (not software)',  cls: 'gray'   }
+};
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function plural(n, word) {
+  return n.toLocaleString() + ' ' + word + (n === 1 ? '' : 's');
+}
+
+// Wrap glossary terms (first occurrence per text) in tooltip spans.
+var GLOSS = Object.keys(D.glossary).map(function (k) { return { term: k, def: D.glossary[k] }; })
+  .sort(function (a, b) { return b.term.length - a.term.length; });
+
+function rich(text) {
+  var s = esc(text);
+  var subs = [];
+  for (var i = 0; i < GLOSS.length; i++) {
+    var g = GLOSS[i];
+    var safe = g.term.replace(/[.*+?^$()\[\]{}|\\]/g, '\\$&');
+    var re = new RegExp('(^|[^\\w@-])(' + safe + 's?)(?![\\w-])', 'i');
+    if (re.test(s)) {
+      subs.push(g);
+      var idx = subs.length - 1;
+      s = s.replace(re, function (_m, pre, word) { return pre + '@@' + idx + '|' + word + '@@'; });
+    }
+  }
+  s = s.replace(/@@(\d+)\|([^@]+)@@/g, function (_m, i2, word) {
+    return '<span class="term" data-def="' + esc(subs[+i2].def) + '">' + word + '</span>';
+  });
+  return s;
+}
+
+function dotHtml(status) {
+  var cls = (SMETA[status] || SMETA.gray).cls;
+  return '<span class="dot ' + cls + '"></span>';
+}
+function pillHtml(status) {
+  var m = SMETA[status] || SMETA.gray;
+  return '<span class="pill s-' + status + '" style="color:var(--' + m.cls + ')">' + m.label + '</span>';
+}
+
+// ── tabs ──
+var tabs = document.querySelectorAll('nav.tabs button');
+tabs.forEach(function (b) {
+  b.addEventListener('click', function () {
+    tabs.forEach(function (x) { x.classList.toggle('on', x === b); });
+    document.querySelectorAll('.view').forEach(function (v) {
+      v.classList.toggle('on', v.id === 'view-' + b.dataset.view);
+    });
+    if (b.dataset.view === 'machine') requestAnimationFrame(drawWires);
+  });
+});
+
+// ── THE MACHINE ──
+var M = D.machine;
+var nodeById = {};
+M.nodes.forEach(function (n) { nodeById[n.id] = n; });
+var msel = null;       // selected (pinned) node id
+var mhover = null;     // hovered node id — preview highlight when nothing is pinned
+var storySel = null;   // selected story step index
+
+function renderMachine() {
+  var c = document.getElementById('machineCanvas');
+  var h = '<svg class="wires"><defs>' +
+    '<marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#c8bfae"/></marker>' +
+    '<marker id="arrH" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2b2620"/></marker>' +
+    '</defs></svg>';
+  M.zones.forEach(function (z) {
+    var zn = M.nodes.filter(function (n) { return n.zone === z.id; });
+    var counts = { green: 0, yellow: 0, red: 0 };
+    zn.forEach(function (n) { var s = n.plug || n.status; if (counts[s] !== undefined) counts[s]++; });
+    var zc = '';
+    ['green', 'yellow', 'red'].forEach(function (k) { if (counts[k]) zc += '<span><i class="dot ' + k + '"></i>' + counts[k] + '</span>'; });
+    h += '<div class="zone"><h3>' + esc(z.label) + (zc ? '<span class="zcounts">' + zc + '</span>' : '') + '</h3><p class="zblurb">' + rich(z.blurb) + '</p><div class="znodes">';
+    zn.forEach(function (n) {
+      var dot = n.status === 'people' ? '👤' : dotHtml(n.plug || n.status);
+      h += '<div class="mnode s-' + n.status + '" data-id="' + n.id + '"><div class="nhead">' + dot + '<span>' + esc(n.label) + '</span></div><div class="nsub">' + esc(n.sub) + '</div></div>';
+    });
+    h += '</div></div>';
+  });
+  c.innerHTML = h;
+  c.addEventListener('click', function (e) {
+    var el = e.target.closest('.mnode');
+    if (!el) return;
+    selectMachine(el.dataset.id === msel ? null : el.dataset.id);
+  });
+  // hover = preview highlight; only when nothing is pinned (click) or storied
+  c.addEventListener('mouseover', function (e) {
+    var el = e.target.closest('.mnode');
+    if (!el || msel || storySel !== null) return;
+    mhover = el.dataset.id;
+    applyHighlight();
+  });
+  c.addEventListener('mouseout', function () {
+    if (!mhover) return;
+    mhover = null;
+    if (!msel && storySel === null) applyHighlight();
+  });
+
+  var strip = document.getElementById('story');
+  var sh = '';
+  M.story.forEach(function (s, i) {
+    sh += '<button data-i="' + i + '">' + esc(s.label) + '</button>';
+  });
+  strip.innerHTML = sh;
+  strip.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    storySel = storySel === +b.dataset.i ? null : +b.dataset.i;
+    msel = null;
+    applyHighlight();
+    renderMachinePanel();
+  });
+
+  document.getElementById('wiretoggle').addEventListener('change', function (e) {
+    document.getElementById('machineCanvas').classList.toggle('wires-off', !e.target.checked);
+  });
+}
+
+function selectMachine(id) {
+  msel = id;
+  storySel = null;
+  applyHighlight();
+  renderMachinePanel();
+}
+
+function applyHighlight() {
+  var active = msel || (storySel === null ? mhover : null);
+  var hotNodes = null; // null = nothing selected/hovered, everything normal
+  if (active) {
+    hotNodes = {};
+    hotNodes[active] = 1;
+    M.edges.forEach(function (e) {
+      if (e.from === active) hotNodes[e.to] = 1;
+      if (e.to === active) hotNodes[e.from] = 1;
+    });
+  } else if (storySel !== null) {
+    hotNodes = {};
+    M.story[storySel].nodes.forEach(function (id) { hotNodes[id] = 1; });
+  }
+  document.querySelectorAll('#story button').forEach(function (b) {
+    b.classList.toggle('on', storySel !== null && +b.dataset.i === storySel);
+  });
+  document.querySelectorAll('.mnode').forEach(function (el) {
+    el.classList.toggle('sel', el.dataset.id === msel);
+    el.classList.toggle('fade', hotNodes !== null && !hotNodes[el.dataset.id]);
+  });
+  document.querySelectorAll('path.wire').forEach(function (p) {
+    var hot = false, fade = false;
+    if (active) { hot = p.dataset.from === active || p.dataset.to === active; fade = !hot; }
+    else if (hotNodes !== null) { hot = !!(hotNodes[p.dataset.from] && hotNodes[p.dataset.to]); fade = !hot; }
+    p.classList.toggle('hot', hot);
+    p.classList.toggle('fade', fade);
+    p.setAttribute('marker-end', hot ? 'url(#arrH)' : 'url(#arr)');
+  });
+}
+
+function drawWires() {
+  var c = document.getElementById('machineCanvas');
+  var svg = c.querySelector('svg.wires');
+  if (!svg || c.offsetParent === null) return;
+  var cr = c.getBoundingClientRect();
+  var paths = '';
+  M.edges.forEach(function (e) {
+    var a = c.querySelector('.mnode[data-id="' + e.from + '"]');
+    var b = c.querySelector('.mnode[data-id="' + e.to + '"]');
+    if (!a || !b) return;
+    var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+    var x1, y1, x2, y2, d;
+    if (rb.top >= ra.bottom - 2) {
+      x1 = ra.left - cr.left + ra.width / 2; y1 = ra.bottom - cr.top;
+      x2 = rb.left - cr.left + rb.width / 2; y2 = rb.top - cr.top;
+      d = 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + (y1 + (y2 - y1) * 0.45) + ' ' + x2 + ',' + (y2 - (y2 - y1) * 0.45) + ' ' + x2 + ',' + y2;
+    } else if (ra.top >= rb.bottom - 2) {
+      x1 = ra.left - cr.left + ra.width / 2; y1 = ra.top - cr.top;
+      x2 = rb.left - cr.left + rb.width / 2; y2 = rb.bottom - cr.top;
+      d = 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + (y1 - (y1 - y2) * 0.45) + ' ' + x2 + ',' + (y2 + (y1 - y2) * 0.45) + ' ' + x2 + ',' + y2;
+    } else {
+      var leftToRight = rb.left >= ra.right;
+      x1 = leftToRight ? ra.right - cr.left : ra.left - cr.left; y1 = ra.top - cr.top + ra.height / 2;
+      x2 = leftToRight ? rb.left - cr.left : rb.right - cr.left; y2 = rb.top - cr.top + rb.height / 2;
+      var mx = (x1 + x2) / 2;
+      d = 'M' + x1 + ',' + y1 + ' C' + mx + ',' + y1 + ' ' + mx + ',' + y2 + ' ' + x2 + ',' + y2;
+    }
+    paths += '<path class="wire" data-from="' + e.from + '" data-to="' + e.to + '" marker-end="url(#arr)" d="' + d + '"/>';
+  });
+  var defs = svg.querySelector('defs').outerHTML;
+  svg.setAttribute('width', c.clientWidth);
+  svg.setAttribute('height', c.scrollHeight);
+  svg.innerHTML = defs + paths;
+  applyHighlight();
+}
+
+function renderMachinePanel() {
+  var p = document.getElementById('machinePanel');
+  if (storySel !== null) {
+    var s = M.story[storySel];
+    var inv = s.nodes.map(function (id) {
+      var n = nodeById[id];
+      return '<li>' + dotHtml(n.plug || n.status) + ' <b>' + esc(n.label) + '</b> — ' + esc(n.sub) + '</li>';
+    }).join('');
+    p.innerHTML = '<div class="card"><h4>' + esc(s.label) + '</h4>' +
+      '<dt>This step involves</dt><dd><ul class="talks">' + inv + '</ul></dd>' +
+      '<dd class="hint" style="margin-top:10px">Highlighted boxes and dark lines show this step’s path. Red boxes = the parts of this step that don’t exist yet. Click any box for its full card.</dd></div>';
+    return;
+  }
+  if (!msel) {
+    p.innerHTML = '<div class="card"><h4>The Machine</h4><dd class="hint">This is the whole system as one diagram — including the parts that don’t exist yet (red), so you can see the shape of the finished product.</dd>' +
+      '<dt>How to read it</dt><dd class="hint">Each box is one part. Lines = "talks to". Click a box for its plain-English card, or click a numbered step above to light up that part of the story.</dd>' +
+      '<dt>The honest summary</dt><dd class="hint">' + rich('The chassis, brakes, and airbags are real and tested (green). The car has no engine yet (red): no database connected, no sign-ups, no billing, no storEDGE, no ads, no landing pages, no attribution.') + '</dd></div>';
+    return;
+  }
+  var n = nodeById[msel];
+  var talks = [];
+  M.edges.forEach(function (e) {
+    if (e.from === n.id) { var t = nodeById[e.to]; talks.push('<li>→ <b>' + esc(t.label) + '</b> <span class="hint">(' + esc(e.label) + ')</span></li>'); }
+    if (e.to === n.id) { var f = nodeById[e.from]; talks.push('<li>← <b>' + esc(f.label) + '</b> <span class="hint">(' + esc(e.label) + ')</span></li>'); }
+  });
+  var h = '<div class="card"><h4>' + (n.status === 'people' ? '👤' : dotHtml(n.plug || n.status)) + esc(n.label) + '</h4>';
+  h += '<div style="margin:4px 0 2px">' + pillHtml(n.status === 'gray' ? 'gray' : n.status) + (n.plug ? ' <span class="hint">our plug into it:</span> ' + pillHtml(n.plug) : '') + '</div>';
+  if (n.file) h += '<div class="path">' + esc(n.file) + '</div>';
+  h += '<dt>What it is</dt><dd>' + rich(n.eli5) + '</dd>';
+  if (n.why) h += '<dt>Why this color</dt><dd>' + rich(n.why) + '</dd>';
+  h += '<dt>Talks to</dt><dd><ul class="talks">' + (talks.join('') || '<li class="hint">Everything — or see its card text.</li>') + '</ul></dd>';
+  h += '</div>';
+  p.innerHTML = h;
+}
+
+// ── THE BUILDING ──
+var byPath = {};
+function treeHtml(nodes) {
+  var h = '';
+  nodes.forEach(function (n) {
+    byPath[n.path] = n;
+    var isDir = n.type === 'dir';
+    var meta = isDir ? plural(n.fileCount, 'file') : (n.loc ? plural(n.loc, 'line') : '');
+    h += '<div class="titem" data-path="' + esc(n.path) + '">' +
+      '<div class="trow" data-path="' + esc(n.path) + '">' +
+      '<span class="chev">' + (isDir ? '▸' : '·') + '</span>' +
+      dotHtml(n.status) +
+      '<span class="tname' + (isDir ? ' isdir' : '') + '">' + esc(n.name) + (isDir ? '/' : '') + '</span>' +
+      '<span class="tdesc">' + esc(n.kb.what) + '</span>' +
+      '<span class="tmeta">' + meta + '</span>' +
+      '</div>';
+    if (isDir) h += '<div class="tkids hide">' + treeHtml(n.children) + '</div>';
+    h += '</div>';
+  });
+  return h;
+}
+
+function renderTree() {
+  var t = document.getElementById('tree');
+  t.innerHTML = treeHtml(D.tree);
+  t.addEventListener('click', function (e) {
+    var row = e.target.closest('.trow');
+    if (!row) return;
+    var n = byPath[row.dataset.path];
+    t.querySelectorAll('.trow.sel').forEach(function (x) { x.classList.remove('sel'); });
+    row.classList.add('sel');
+    if (n.type === 'dir') {
+      var kids = row.parentElement.querySelector('.tkids');
+      var nowHidden = kids.classList.toggle('hide');
+      row.querySelector('.chev').textContent = nowHidden ? '▸' : '▾';
+    }
+    renderTreePanel(n);
+  });
+  document.getElementById('expandAll').addEventListener('click', function () { setAllKids(false); });
+  document.getElementById('collapseAll').addEventListener('click', function () { setAllKids(true); });
+  document.getElementById('treeSearch').addEventListener('input', function (e) { applyFilter(e.target.value); });
+}
+
+// Filter the tree by name/path/description; matches stay visible with their
+// parents expanded. Clearing the box collapses everything back down.
+function applyFilter(q) {
+  q = q.trim().toLowerCase();
+  var items = document.querySelectorAll('#tree .titem');
+  if (!q) {
+    items.forEach(function (it) { it.style.display = ''; });
+    setAllKids(true);
+    return;
+  }
+  var show = {};
+  function mark(nodes) {
+    var any = false;
+    nodes.forEach(function (n) {
+      var hay = (n.name + ' ' + n.path + ' ' + (n.kb && n.kb.what || '')).toLowerCase();
+      var self = hay.indexOf(q) >= 0;
+      var kid = n.children ? mark(n.children) : false;
+      if (self || kid) { show[n.path] = 1; any = true; }
+    });
+    return any;
+  }
+  mark(D.tree);
+  items.forEach(function (it) { it.style.display = show[it.dataset.path] ? '' : 'none'; });
+  setAllKids(false);
+}
+function setAllKids(hide) {
+  document.querySelectorAll('#tree .tkids').forEach(function (k) { k.classList.toggle('hide', hide); });
+  document.querySelectorAll('#tree .trow .chev').forEach(function (c) {
+    if (c.textContent !== '·') c.textContent = hide ? '▸' : '▾';
+  });
+}
+
+function renderTreePanel(n) {
+  var p = document.getElementById('treePanel');
+  if (!n) {
+    p.innerHTML = '<div class="card"><h4>The Building</h4><dd class="hint">The actual folders and files on disk, with a plain-English card for each. Click any row. Yellow rows marked "new file" are things the map doesn’t know yet — a nudge to label them.</dd></div>';
+    return;
+  }
+  var meta = n.type === 'dir' ? plural(n.fileCount, 'file') + ' inside' : (n.loc ? plural(n.loc, 'line') : '');
+  var h = '<div class="card"><h4>' + dotHtml(n.status) + esc(n.name) + (n.type === 'dir' ? '/' : '') + '</h4>';
+  h += '<div style="margin:4px 0 2px">' + pillHtml(n.status) + '</div>';
+  h += '<div class="path">' + esc(n.path) + (meta ? ' · ' + meta : '') + '</div>';
+  h += '<dt>What it is</dt><dd>' + rich(n.kb.what) + '</dd>';
+  h += '<dt>What it does</dt><dd>' + rich(n.kb.does) + '</dd>';
+  h += '<dt>Everyday analogy</dt><dd>' + rich(n.kb.analogy) + '</dd>';
+  h += '<dt>If it disappeared</dt><dd>' + rich(n.kb.ifGone) + '</dd>';
+  h += '</div>';
+  p.innerHTML = h;
+}
+
+// ── THE ROADMAP ──
+function renderRoadmap() {
+  var v = document.getElementById('view-roadmap');
+  var r = D.roadmap;
+  var h = '';
+  if (r.error) h += '<div class="warnbox"><b>Roadmap data problem:</b> ' + esc(r.error) + ' Fix it and run <code>npm run map</code>.</div>';
+
+  var doneW = 0, partW = 0, totW = 0;
+  r.features.forEach(function (f) {
+    var w = +f.weight > 0 ? +f.weight : 1;
+    totW += w;
+    if (f.status === 'done') doneW += w;
+    if (f.status === 'partial') partW += w / 2;
+  });
+  var dPct = totW ? (doneW / totW) * 100 : 0;
+  var pPct = totW ? (partW / totW) * 100 : 0;
+
+  h += '<div class="progress-wrap"><div class="progress-top"><span>Toward a fully functional product</span><b>' + r.percent + '%</b></div>' +
+    '<div class="pbar"><div class="seg-done" style="width:' + dPct.toFixed(1) + '%"></div><div class="seg-part" style="width:' + pPct.toFixed(1) + '%"></div></div>' +
+    '<div class="pnote">Weighted by effort (a big missing piece counts more than a small finished one). Green = done, yellow sliver = partial credit for built-but-unproven pieces. Update <code>roadmap.json</code> statuses, then run <code>npm run map</code>.' + (r.updated ? ' Statuses last reviewed: ' + esc(r.updated) + '.' : '') + '</div></div>';
+
+  h += nextUpBox(r);
+  h += historyChart();
+
+  var s = D.stats;
+  h += '<div class="statchips">' +
+    '<span><b>' + s.files + '</b> files</span>' +
+    '<span><b>' + s.loc.toLocaleString() + '</b> lines (excl. lockfile)</span>' +
+    '<span><b>' + s.testCount + '</b> automated checks in <b>' + s.testFiles + '</b> files</span>' +
+    '<span><b>' + s.routes.length + '</b> ' + rich('API routes') + ' <span style="opacity:.7">(v1 had 172)</span></span>' +
+    '<span><b>' + s.pages.length + '</b> pages</span>' +
+    '<span><b>' + s.models.length + '</b> database tables designed</span>' +
+    '<span><b>' + s.jobs + '</b> background jobs</span>' +
+    '<span><b>' + s.deps + '</b> libraries</span>' +
+    '</div>';
+
+  var cols = [
+    { key: 'done', title: 'DONE', cls: 'green', hint: 'built AND proven by tests' },
+    { key: 'partial', title: 'IN PROGRESS / UNPROVEN', cls: 'yellow', hint: 'built but untested live, or deliberately partial' },
+    { key: 'todo', title: 'NOT BUILT', cls: 'red', hint: 'doesn’t exist yet' }
+  ];
+  h += '<div class="cols">';
+  cols.forEach(function (c) {
+    var feats = r.features.filter(function (f) { return f.status === c.key; });
+    h += '<div class="col"><h3><span class="dot ' + c.cls + '"></span>' + c.title + ' <span class="count">(' + feats.length + ') — ' + c.hint + '</span></h3>';
+    feats.forEach(function (f) {
+      var w = +f.weight > 0 ? +f.weight : 1;
+      var size = w >= 4 ? 'XL job' : w === 3 ? 'L job' : w === 2 ? 'M job' : 'S job';
+      h += '<div class="fcard s-' + (c.key === 'done' ? 'green' : c.key === 'partial' ? 'yellow' : 'red') + '">' +
+        '<span class="fsize">' + size + '</span>' +
+        '<div class="fphase">' + esc(f.phase || '') + '</div>' +
+        '<div class="ftitle">' + esc(f.title) + '</div>' +
+        '<div class="feli5">' + rich(f.eli5 || '') + '</div>' +
+        (f.note ? '<div class="fnote">' + rich(f.note) + '</div>' : '') +
+        '</div>';
+    });
+    h += '</div>';
+  });
+  h += '</div>';
+  v.innerHTML = h;
+}
+
+// The first phase (in roadmap order) that still has unfinished work, with its
+// open items — so "what do I do next?" has a one-line answer.
+function nextUpBox(r) {
+  var phases = [];
+  var byPhase = {};
+  r.features.forEach(function (f) {
+    var p = f.phase || 'Unphased';
+    if (!byPhase[p]) { byPhase[p] = []; phases.push(p); }
+    byPhase[p].push(f);
+  });
+  // Prefer the first phase with actual NOT-BUILT work; yellow (built-but-
+  // unproven) items usually get proven as a side effect of that work.
+  var target = null;
+  var earlierPartials = 0;
+  for (var i = 0; i < phases.length; i++) {
+    var fs2 = byPhase[phases[i]];
+    var todos = fs2.filter(function (f) { return f.status === 'todo'; });
+    if (todos.length) { target = { phase: phases[i], items: todos }; break; }
+    earlierPartials += fs2.filter(function (f) { return f.status === 'partial'; }).length;
+  }
+  if (!target) {
+    for (var j = 0; j < phases.length; j++) {
+      var parts = byPhase[phases[j]].filter(function (f) { return f.status === 'partial'; });
+      if (parts.length) { target = { phase: phases[j], items: parts, proveOnly: true }; earlierPartials = 0; break; }
+    }
+  }
+  if (!target) return '<div class="nextbox">🎉 <b>Everything on the roadmap is done.</b> Add the next phase to roadmap.json.</div>';
+  var items = target.items.map(function (f) {
+    return '<span class="dot ' + (f.status === 'partial' ? 'yellow' : 'red') + '"></span> ' + esc(f.title);
+  }).join(' &nbsp;·&nbsp; ');
+  return '<div class="nextbox">👉 <b>Next up — ' + esc(target.phase) + (target.proveOnly ? ' (prove these for real)' : '') + ':</b> ' + items +
+    (earlierPartials ? ' <span class="hint">(+ ' + earlierPartials + ' yellow item' + (earlierPartials === 1 ? '' : 's') + ' from earlier phases get proven for real along the way)</span>' : '') +
+    '</div>';
+}
+
+// Progress-over-time line chart from docs/map-history.json (one point per day
+// the numbers changed). Green = % complete; faint = lines of code.
+function historyChart() {
+  var H = D.history || [];
+  if (H.length < 2) {
+    return '<div class="pnote" style="margin-bottom:10px">📈 The progress-over-time chart appears once the map has snapshots from two different days (saved automatically in <code>docs/map-history.json</code> each time you regenerate).</div>';
+  }
+  var w = 600, ch = 90, p = 8;
+  var maxLoc = 1;
+  H.forEach(function (s) { if (s.loc > maxLoc) maxLoc = s.loc; });
+  function x(i) { return (p + (w - 2 * p) * i / (H.length - 1)).toFixed(1); }
+  function yPct(v) { return (ch - p - (ch - 2 * p) * v / 100).toFixed(1); }
+  function yLoc(v) { return (ch - p - (ch - 2 * p) * v / maxLoc).toFixed(1); }
+  var pcts = '', locs = '', dots = '';
+  H.forEach(function (s, i) {
+    pcts += x(i) + ',' + yPct(s.percent) + ' ';
+    locs += x(i) + ',' + yLoc(s.loc) + ' ';
+    dots += '<circle cx="' + x(i) + '" cy="' + yPct(s.percent) + '" r="2.5" fill="#2e7d4f"><title>' + esc(s.date) + ': ' + s.percent + '% · ' + s.loc.toLocaleString() + ' lines · ' + s.checks + ' checks</title></circle>';
+  });
+  var first = H[0], lastS = H[H.length - 1];
+  return '<div class="histwrap">' +
+    '<svg class="histchart" viewBox="0 0 ' + w + ' ' + ch + '" preserveAspectRatio="none">' +
+    '<polyline points="' + locs.trim() + '" fill="none" stroke="#d8d4cc" stroke-width="1.5"/>' +
+    '<polyline points="' + pcts.trim() + '" fill="none" stroke="#2e7d4f" stroke-width="2"/>' +
+    dots + '</svg>' +
+    '<div class="histlegend">' + esc(first.date) + ' → ' + esc(lastS.date) +
+    ' &nbsp;·&nbsp; <span style="color:#2e7d4f">━ % complete (now ' + lastS.percent + '%)</span>' +
+    ' &nbsp;·&nbsp; <span>━ lines of code (now ' + lastS.loc.toLocaleString() + ')</span>' +
+    ' &nbsp;·&nbsp; hover the dots for each day’s numbers</div></div>';
+}
+
+// ── glossary tap support + misc ──
+// Flip a tooltip to right-aligned when it would spill past the viewport edge.
+function flipTerm(t) {
+  t.classList.toggle('flip', t.getBoundingClientRect().left + 280 > window.innerWidth);
+}
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('.term');
+  document.querySelectorAll('.term.open').forEach(function (x) { if (x !== t) x.classList.remove('open'); });
+  if (t) { flipTerm(t); t.classList.toggle('open'); }
+});
+document.addEventListener('mouseover', function (e) {
+  var t = e.target.closest('.term');
+  if (t) flipTerm(t);
+});
+
+var rt;
+window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(drawWires, 150); });
+
+renderMachine();
+renderTree();
+renderRoadmap();
+renderMachinePanel();
+renderTreePanel(null);
+requestAnimationFrame(drawWires);
+</script>
+</body>
+</html>

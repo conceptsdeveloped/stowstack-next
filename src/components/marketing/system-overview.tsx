@@ -4,6 +4,7 @@ import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 
 import { useState } from "react";
 import { useInView } from "./use-in-view";
+import { RevealText } from "./motion";
 
 const PARTS = [
   {
@@ -104,8 +105,10 @@ export default function SystemOverview() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            One system. Six parts.{" "}
-            <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>Built to fill units.</span>
+            <RevealText>One system. Six parts.</RevealText>{" "}
+            <span style={{ color: "var(--color-dark)", fontWeight: 700 }}>
+              <RevealText start={180}>Built to fill units.</RevealText>
+            </span>
           </h2>
           <p
             className="mt-4"
