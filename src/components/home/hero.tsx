@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { m, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import { m, useInView, useReducedMotion } from "framer-motion";
 import { DashboardMockup } from "@/components/marketing/hero";
 import Cite from "@/components/marketing/cite";
 import { CAL_BOOKING_URL } from "@/lib/booking";
@@ -55,8 +55,10 @@ function Enter({
 }
 
 export default function HomeHero() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const demoRef = useRef<HTMLDivElement>(null);
+  // Drives the demo's autoplay gate the same way the old hero did
+  // (useInView 0.02): playback arms once the panel is actually seen.
+  const demoInView = useInView(demoRef, { once: true, amount: 0.05 });
 
   return (
     <section
@@ -192,7 +194,10 @@ export default function HomeHero() {
 
           {/* Product truth — the interactive demo, framed */}
           <Enter delay={0.38} className="lg:col-span-7 min-w-0">
-            <div style={{ border: "1px solid var(--line)", background: "var(--bg-alt)" }}>
+            {/* Keeps the document outline contiguous: the reused demo
+                mockup renders its own h3 ("Campaign performance"). */}
+            <h2 className="sr-only">Interactive campaign demo</h2>
+            <div ref={demoRef} style={{ border: "1px solid var(--line)", background: "var(--bg-alt)" }}>
               <div
                 className="flex items-center justify-between gap-3"
                 style={{ padding: "7px 12px", borderBottom: "1px solid var(--line)" }}
@@ -222,7 +227,7 @@ export default function HomeHero() {
                 </span>
               </div>
               <div style={{ padding: "clamp(8px, 1.5vw, 14px)" }}>
-                <DashboardMockup isVisible={mounted} />
+                <DashboardMockup isVisible={demoInView} />
               </div>
             </div>
           </Enter>

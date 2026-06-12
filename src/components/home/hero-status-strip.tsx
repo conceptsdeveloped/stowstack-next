@@ -12,9 +12,12 @@ import Cite from "@/components/marketing/cite";
 function useClock() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
-    setNow(new Date());
+    const raf = requestAnimationFrame(() => setNow(new Date()));
     const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(t);
+    };
   }, []);
   const pad = (n: number) => String(n).padStart(2, "0");
   return {

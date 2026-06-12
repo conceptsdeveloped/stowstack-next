@@ -1,8 +1,9 @@
 "use client";
 
-import { m, useReducedMotion } from "framer-motion";
+import { m, useInView, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { DUR, EASE, STAGGER, VIEWPORT } from "@/lib/motion";
+import { DUR, EASE, STAGGER } from "@/lib/motion";
 
 type HeadingTag = "h1" | "h2" | "h3" | "p" | "div";
 
@@ -10,12 +11,14 @@ type HeadingTag = "h1" | "h2" | "h3" | "p" | "div";
  * Line-by-line masked headline reveal: each line sits in an
  * overflow-hidden container and translates up from 112%.
  *
+ * One useInView observer on the heading drives every line via the
+ * `animate` prop (fires once, -90px margin — mirrors lib/motion
+ * VIEWPORT). `onLoad` plays immediately instead (hero entrance).
+ * Reduced motion renders the finished state.
+ *
  * `lines` is explicit — the designer owns the line breaks. On narrow
  * screens a long line may wrap inside its own mask; the reveal still
  * reads correctly.
- *
- * `onLoad` plays the reveal immediately (hero entrance) instead of on
- * scroll. Reduced motion renders the finished state.
  */
 export function MaskedText({
   lines,
@@ -39,12 +42,20 @@ export function MaskedText({
   lineStyle?: CSSProperties | ((index: number) => CSSProperties);
 }) {
   const reduce = useReducedMotion();
+  const ref = useRef<HTMLElement | null>(null);
+  const inView = useInView(ref, { once: true, margin: "-90px" });
+  const play = onLoad || inView;
 
   const resolveLineStyle = (i: number): CSSProperties | undefined =>
     typeof lineStyle === "function" ? lineStyle(i) : lineStyle;
 
+  // Callback ref keeps the dynamic Tag union happy across h1/h2/h3/p/div.
+  const setRef = (el: HTMLElement | null) => {
+    ref.current = el;
+  };
+
   return (
-    <Tag className={className} style={style}>
+    <Tag ref={setRef} className={className} style={style}>
       {lines.map((line, i) => (
         <span
           key={i}
@@ -62,9 +73,7 @@ export function MaskedText({
             <m.span
               style={{ display: "block", willChange: "transform", ...resolveLineStyle(i) }}
               initial={{ y: "112%" }}
-              {...(onLoad
-                ? { animate: { y: "0%" } }
-                : { whileInView: { y: "0%" }, viewport: VIEWPORT })}
+              animate={play ? { y: "0%" } : undefined}
               transition={{ duration, ease: EASE.out, delay: delay + i * stagger }}
             >
               {line}

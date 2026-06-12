@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { m, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { m, useMotionValue, useTransform, type MotionValue } from "framer-motion";
 import { LOOP_STAGES, DEMO, microLabel } from "./data";
 import AdCard, { DoorsIllustration } from "./ad-card";
 import { ReservePanel } from "./page-frame";
@@ -23,6 +23,42 @@ import LedgerFinale from "./ledger-finale";
  * lives on static wrapper divs so animated y/scale never collide with
  * the centering transform.
  */
+
+/**
+ * Scroll progress through the tall wrapper, measured fresh from
+ * getBoundingClientRect on every scroll frame. (framer's useScroll
+ * caches target offsets, which go stale here: the dynamically imported
+ * sections above this one change the wrapper's document position after
+ * mount.)
+ */
+function useStickyProgress(ref: React.RefObject<HTMLDivElement | null>): MotionValue<number> {
+  const p = useMotionValue(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const rect = el.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      p.set(total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0);
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [ref, p]);
+  return p;
+}
 
 /** Static absolute-centering shell for each canvas artifact. */
 function Centered({
@@ -49,14 +85,11 @@ function Centered({
 
 export default function LoopPinned() {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: p } = useScroll({
-    target: wrapperRef,
-    offset: ["start start", "end end"],
-  });
+  const p = useStickyProgress(wrapperRef);
 
-  /* Stage 1 — standalone ad */
-  const adOpacity = useTransform(p, [0, 0.02, 0.2, 0.28], [0, 1, 1, 0]);
-  const adScale = useTransform(p, [0, 0.06, 0.2, 0.28], [0.94, 1, 1, 0.84]);
+  /* Stage 1 — standalone ad (present from frame zero) */
+  const adOpacity = useTransform(p, [0.2, 0.28], [1, 0]);
+  const adScale = useTransform(p, [0.2, 0.28], [1, 0.84]);
   const adY = useTransform(p, [0.2, 0.28], ["0%", "-14%"]);
 
   /* Stage 2/3 — page frame */

@@ -871,7 +871,11 @@ body {
   line-height: var(--leading-normal);
   color: var(--color-dark);
   background: var(--color-light);
-  overflow-x: hidden;
+  /* Horizontal clipping lives in the layered `html, body { overflow-x:
+     clip }` rule further down. An un-layered `overflow-x: hidden` here
+     would override it and force body into `overflow: hidden auto`,
+     which creates a scroll container and silently breaks every
+     position:sticky descendant (the pinned homepage scene). */
 }
 
 ::selection {
@@ -1797,4 +1801,10 @@ cite,
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
+}
+
+/* ── Anchor landing — in-page links clear the fixed nav ── */
+.urbit-landing section[id],
+.urbit-landing [id^="source-"] {
+  scroll-margin-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 8px);
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useReducedMotion } from "framer-motion";
-import Cite from "@/components/marketing/cite";
 import { Reveal } from "@/components/motion/reveal";
 import SectionFrame from "./section-frame";
 import LoopPinned from "./loop/pinned";

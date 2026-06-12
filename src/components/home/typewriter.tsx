@@ -33,8 +33,9 @@ export default function Typewriter({
 
   useEffect(() => {
     if (reduce) {
-      setText(TYPEWRITER_WORDS[0]);
-      return;
+      // Reset asynchronously (lint: no sync setState in effect body).
+      const id = setTimeout(() => setText(TYPEWRITER_WORDS[0]), 0);
+      return () => clearTimeout(id);
     }
     let word = 0;
     let pos = TYPEWRITER_WORDS[0].length;
