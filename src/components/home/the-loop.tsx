@@ -91,7 +91,7 @@ export default function TheLoop() {
             {LOOP_KICKER}
           </p>
           <p className="mt-3" style={{ fontSize: 12, color: "var(--text-faint)" }}>
-            Example pages from live campaign patterns:{" "}
+            Example pages, one per campaign:{" "}
             <span style={{ fontFamily: "var(--mono)", fontSize: 11 }}>
               [your-facility].storageads.com/climate-pawpaw
             </span>
