@@ -101,6 +101,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async redirects() {
+    return [
+      // Convenience shortcut to the admin changelog. Stays behind the admin
+      // gate (the destination is under /admin) — not a public page.
+      {
+        source: "/changelog",
+        destination: "/admin/changelog",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {
