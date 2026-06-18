@@ -1,97 +1,76 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { useAdminFetch } from "@/hooks/use-admin-fetch";
+import { useState, useCallback, useMemo } from "react";
+import { useAdminFetch, adminFetch } from "@/hooks/use-admin-fetch";
 import {
   GitCommit,
   Sparkles,
   Bug,
   Wrench,
-  RefreshCw,
   Search,
   Filter,
-  ChevronDown,
   AlertCircle,
-  ExternalLink,
-  Copy,
   Check,
   X,
-  Users,
+  Plus,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
-   TYPES
+   TYPES — matches the changelog_entries model and /api/changelog,
+   the surviving manual-changelog system the partner page also reads.
+   (The old git-commit "sync" API was removed in the bloat-reduction
+   cleanup; this page now manages entries directly.)
    ═══════════════════════════════════════════ */
 
 interface ChangelogEntry {
   id: string;
-  commitHash: string;
   title: string;
-  description: string;
-  type: "feature" | "fix" | "improvement";
-  date: string;
-  devName: string;
-  devNote: string;
-  subject: string;
+  body: string;
+  category: string | null;
+  published_at: string | null;
+  created_at: string | null;
 }
 
-interface ChangelogResponse {
-  entries: ChangelogEntry[];
-  total: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
-  developers: string[];
-  typeCounts: {
-    feature: number;
-    fix: number;
-    improvement: number;
-    all: number;
-  };
-}
+type Category = "feature" | "improvement" | "fix";
 
 /* ═══════════════════════════════════════════
-   CONSTANTS
+   CONSTANTS — category vocabulary shared with the partner changelog
    ═══════════════════════════════════════════ */
 
-const TYPE_CONFIG: Record<
-  string,
-  {
-    bg: string;
-    text: string;
-    icon: typeof GitCommit;
-    label: string;
-  }
+const CATEGORY_CONFIG: Record<
+  Category,
+  { bg: string; text: string; icon: typeof GitCommit; label: string }
 > = {
   feature: {
-    bg: "rgba(120,140,93,0.12)",
-    text: "var(--color-green)",
+    bg: "rgba(181,139,63,0.1)",
+    text: "var(--color-gold)",
     icon: Sparkles,
     label: "Feature",
   },
-  fix: {
-    bg: "rgba(176,74,58,0.1)",
-    text: "var(--color-red)",
-    icon: Bug,
-    label: "Fix",
-  },
   improvement: {
-    bg: "rgba(181,139,63,0.1)",
-    text: "var(--color-gold)",
+    bg: "rgba(106,155,204,0.12)",
+    text: "var(--color-blue)",
     icon: Wrench,
     label: "Improvement",
+  },
+  fix: {
+    bg: "rgba(120,140,93,0.12)",
+    text: "var(--color-green)",
+    icon: Bug,
+    label: "Fix",
   },
 };
 
 const TYPE_FILTERS = [
   { key: "all", label: "All", icon: GitCommit },
   { key: "feature", label: "Features", icon: Sparkles },
-  { key: "fix", label: "Fixes", icon: Bug },
   { key: "improvement", label: "Improvements", icon: Wrench },
+  { key: "fix", label: "Fixes", icon: Bug },
 ] as const;
 
-const GITHUB_REPO = "conceptsdeveloped/storageads";
-const PAGE_SIZE = 50;
+function normalizeCategory(c: string | null): Category {
+  return c === "feature" || c === "fix" ? c : "improvement";
+}
 
 /* ═══════════════════════════════════════════
    UTILITY: Group entries by date
@@ -104,7 +83,9 @@ function groupByDate(
   const orderedKeys: string[] = [];
 
   for (const entry of entries) {
-    const dateKey = new Date(entry.date).toLocaleDateString("en-US", {
+    const dateKey = new Date(
+      entry.published_at || entry.created_at || ""
+    ).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -130,7 +111,7 @@ function ChangelogSkeleton() {
         <div key={gi}>
           <div className="h-4 w-32 rounded bg-[var(--color-dark)]/5 mb-4 animate-pulse" />
           <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => (
+            {Array.from({ length: 2 }).map((_, i) => (
               <div
                 key={i}
                 className="rounded-xl border p-5 animate-pulse"
@@ -144,7 +125,6 @@ function ChangelogSkeleton() {
                   <div className="flex-1 space-y-2">
                     <div className="h-4 w-2/3 rounded bg-[var(--color-dark)]/5" />
                     <div className="h-3 w-full rounded bg-[var(--color-dark)]/5" />
-                    <div className="h-3 w-1/3 rounded bg-[var(--color-dark)]/5" />
                   </div>
                 </div>
               </div>
@@ -157,199 +137,32 @@ function ChangelogSkeleton() {
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENT: Commit hash copy button
+   COMPONENT: Status banner
    ═══════════════════════════════════════════ */
 
-function CopyHash({ hash }: { hash: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(hash).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }, [hash]);
-
-  return (
-    <button
-      type="button"
-      onClick={handleCopy}
-      className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-mono transition-colors hover:bg-[var(--color-light-gray)]"
-      style={{ color: "var(--color-mid-gray)" }}
-      title={`Copy commit hash: ${hash}`}
-      aria-label={`Copy commit hash ${hash.slice(0, 7)}`}
-    >
-      {hash.slice(0, 7)}
-      {copied ? (
-        <Check size={10} style={{ color: "var(--color-green)" }} />
-      ) : (
-        <Copy size={10} />
-      )}
-    </button>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   COMPONENT: Developer filter dropdown
-   ═══════════════════════════════════════════ */
-
-function DevFilterDropdown({
-  developers,
-  selected,
-  onSelect,
-}: {
-  developers: string[];
-  selected: string;
-  onSelect: (dev: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close on outside click
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false);
-      }
-    }
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [open]);
-
-  // Close on Escape
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    if (open) {
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-    }
-  }, [open]);
-
-  if (developers.length === 0) return null;
-
-  return (
-    <div ref={dropdownRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
-        style={{
-          backgroundColor: selected
-            ? "var(--color-gold)"
-            : "var(--color-light-gray)",
-          color: selected ? "var(--color-light)" : "var(--color-mid-gray)",
-        }}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-label="Filter by developer"
-      >
-        <Users size={12} />
-        {selected || "Developer"}
-        <ChevronDown
-          size={10}
-          className={`transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {open && (
-        <div
-          className="absolute right-0 top-full mt-1 z-20 min-w-[180px] rounded-lg border shadow-lg overflow-hidden"
-          style={{
-            backgroundColor: "var(--bg-elevated)",
-            borderColor: "var(--border-subtle)",
-          }}
-          role="listbox"
-          aria-label="Developer options"
-        >
-          <button
-            type="button"
-            onClick={() => {
-              onSelect("");
-              setOpen(false);
-            }}
-            className="w-full text-left px-3 py-2 text-xs transition-colors hover:bg-[var(--color-light-gray)]"
-            style={{
-              color: !selected
-                ? "var(--color-gold)"
-                : "var(--color-body-text)",
-              fontWeight: !selected ? 600 : 400,
-            }}
-            role="option"
-            aria-selected={!selected}
-          >
-            All Developers
-          </button>
-          {developers.map((dev) => (
-            <button
-              key={dev}
-              type="button"
-              onClick={() => {
-                onSelect(dev);
-                setOpen(false);
-              }}
-              className="w-full text-left px-3 py-2 text-xs transition-colors hover:bg-[var(--color-light-gray)]"
-              style={{
-                color:
-                  selected === dev
-                    ? "var(--color-gold)"
-                    : "var(--color-body-text)",
-                fontWeight: selected === dev ? 600 : 400,
-              }}
-              role="option"
-              aria-selected={selected === dev}
-            >
-              {dev}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   COMPONENT: Sync status banner
-   ═══════════════════════════════════════════ */
-
-function SyncBanner({
+function StatusBanner({
   result,
+  isError,
   onDismiss,
 }: {
   result: string;
+  isError: boolean;
   onDismiss: () => void;
 }) {
-  const isError =
-    result.toLowerCase().includes("fail") ||
-    result.toLowerCase().includes("error");
-
   return (
     <div
-      className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm animate-in fade-in"
+      className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm"
       style={{
         backgroundColor: isError
           ? "var(--color-red-light)"
           : "var(--color-green-light)",
-        borderColor: isError
-          ? "rgba(176,74,58,0.2)"
-          : "rgba(120,140,93,0.2)",
+        borderColor: isError ? "rgba(176,74,58,0.2)" : "rgba(120,140,93,0.2)",
         color: isError ? "var(--color-red)" : "var(--color-green)",
       }}
       role="alert"
     >
       <div className="flex items-center gap-2">
-        {isError ? (
-          <AlertCircle size={14} />
-        ) : (
-          <Check size={14} />
-        )}
+        {isError ? <AlertCircle size={14} /> : <Check size={14} />}
         <span>{result}</span>
       </div>
       <button
@@ -365,15 +178,166 @@ function SyncBanner({
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENT: Single changelog entry card
+   COMPONENT: Create-entry form
+   ═══════════════════════════════════════════ */
+
+function CreateEntryForm({
+  onCreated,
+  onError,
+  onClose,
+}: {
+  onCreated: (msg: string) => void;
+  onError: (msg: string) => void;
+  onClose: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [category, setCategory] = useState<Category>("improvement");
+  const [submitting, setSubmitting] = useState(false);
+
+  const canSubmit = title.trim().length > 0 && body.trim().length > 0 && !submitting;
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!canSubmit) return;
+      setSubmitting(true);
+      try {
+        await adminFetch("/api/changelog", {
+          method: "POST",
+          body: JSON.stringify({ title: title.trim(), body: body.trim(), category }),
+        });
+        onCreated("Entry published");
+        onClose();
+      } catch (err) {
+        onError(
+          err instanceof Error ? err.message : "Failed to publish entry"
+        );
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [canSubmit, title, body, category, onCreated, onError, onClose]
+  );
+
+  const fieldStyle: React.CSSProperties = {
+    backgroundColor: "var(--bg-elevated)",
+    borderColor: "var(--border-subtle)",
+    color: "var(--color-dark)",
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-xl border p-4 sm:p-5 space-y-4"
+      style={{
+        backgroundColor: "var(--bg-elevated)",
+        borderColor: "var(--border-subtle)",
+      }}
+      aria-label="Create changelog entry"
+    >
+      <div>
+        <label
+          htmlFor="cl-title"
+          className="block text-xs font-medium mb-1"
+          style={{ color: "var(--color-body-text)" }}
+        >
+          Title
+        </label>
+        <input
+          id="cl-title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="What changed?"
+          maxLength={140}
+          required
+          className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[var(--color-gold)]"
+          style={fieldStyle}
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="cl-body"
+          className="block text-xs font-medium mb-1"
+          style={{ color: "var(--color-body-text)" }}
+        >
+          Details
+        </label>
+        <textarea
+          id="cl-body"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          placeholder="A sentence or two on what it does for operators."
+          rows={3}
+          required
+          className="w-full rounded-lg border px-3 py-2 text-sm outline-none resize-y focus:border-[var(--color-gold)]"
+          style={fieldStyle}
+        />
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <label
+            htmlFor="cl-category"
+            className="block text-xs font-medium mb-1"
+            style={{ color: "var(--color-body-text)" }}
+          >
+            Category
+          </label>
+          <select
+            id="cl-category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value as Category)}
+            className="rounded-lg border px-3 py-2 text-sm outline-none focus:border-[var(--color-gold)]"
+            style={fieldStyle}
+          >
+            <option value="feature">Feature</option>
+            <option value="improvement">Improvement</option>
+            <option value="fix">Fix</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{
+              backgroundColor: "var(--color-light-gray)",
+              color: "var(--color-body-text)",
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+            style={{
+              backgroundColor: "var(--color-gold)",
+              color: "var(--color-light)",
+              opacity: canSubmit ? 1 : 0.6,
+              cursor: canSubmit ? "pointer" : "not-allowed",
+            }}
+          >
+            {submitting ? "Publishing..." : "Publish entry"}
+          </button>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENT: Single entry card
    ═══════════════════════════════════════════ */
 
 function EntryCard({ entry }: { entry: ChangelogEntry }) {
-  const config = TYPE_CONFIG[entry.type] || TYPE_CONFIG.improvement;
+  const config = CATEGORY_CONFIG[normalizeCategory(entry.category)];
   const Icon = config.icon;
-  const [expanded, setExpanded] = useState(false);
-
-  const githubUrl = `https://github.com/${GITHUB_REPO}/commit/${entry.commitHash}`;
+  const dateStr = entry.published_at || entry.created_at;
 
   return (
     <div
@@ -384,7 +348,6 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
       }}
     >
       <div className="flex items-start gap-3">
-        {/* Type icon */}
         <div
           className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
           style={{ backgroundColor: config.bg }}
@@ -393,9 +356,7 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
           <Icon size={14} style={{ color: config.text }} />
         </div>
 
-        {/* Content */}
         <div className="flex-1 min-w-0">
-          {/* Title + badge row */}
           <div className="flex items-start gap-2 mb-1 flex-wrap">
             <h3
               className="text-sm font-medium leading-snug"
@@ -411,71 +372,28 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
             </span>
           </div>
 
-          {/* Technical description (expandable) */}
-          {entry.description && (
-            <div className="mt-1">
-              <p
-                className={`text-xs leading-relaxed ${expanded ? "" : "line-clamp-2"}`}
-                style={{ color: "var(--color-body-text)" }}
-              >
-                {entry.description}
-              </p>
-              {entry.description.length > 160 && (
-                <button
-                  type="button"
-                  onClick={() => setExpanded(!expanded)}
-                  className="text-[10px] font-medium mt-1 transition-colors"
-                  style={{ color: "var(--color-gold)" }}
-                >
-                  {expanded ? "Show less" : "Show more"}
-                </button>
-              )}
-            </div>
+          {entry.body && (
+            <p
+              className="text-xs leading-relaxed mt-1"
+              style={{ color: "var(--color-body-text)" }}
+            >
+              {entry.body}
+            </p>
           )}
 
-          {/* Developer note */}
-          {entry.devNote && (
+          {dateStr && (
             <div
-              className="mt-2 rounded-lg px-3 py-2 text-xs italic"
-              style={{
-                backgroundColor: "var(--color-gold-light)",
-                color: "var(--color-gold-hover)",
-              }}
+              className="flex items-center gap-2 mt-2 text-[11px]"
+              style={{ color: "var(--color-mid-gray)" }}
             >
-              &ldquo;{entry.devNote}&rdquo;
+              <time dateTime={dateStr}>
+                {new Date(dateStr).toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </time>
             </div>
           )}
-
-          {/* Meta row */}
-          <div
-            className="flex items-center gap-2 mt-2 flex-wrap text-[11px]"
-            style={{ color: "var(--color-mid-gray)" }}
-          >
-            {entry.devName && entry.devName !== "Unknown" && (
-              <span className="font-medium">{entry.devName}</span>
-            )}
-            {entry.devName && entry.devName !== "Unknown" && (
-              <span aria-hidden="true">&middot;</span>
-            )}
-            <CopyHash hash={entry.commitHash} />
-            <span aria-hidden="true">&middot;</span>
-            <time dateTime={entry.date}>
-              {new Date(entry.date).toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-              })}
-            </time>
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-0.5 transition-colors hover:text-[var(--color-gold)]"
-              title="View on GitHub"
-              aria-label={`View commit ${entry.commitHash.slice(0, 7)} on GitHub`}
-            >
-              <ExternalLink size={10} />
-            </a>
-          </div>
         </div>
       </div>
     </div>
@@ -483,166 +401,55 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
 }
 
 /* ═══════════════════════════════════════════
-   MAIN PAGE COMPONENT
+   MAIN PAGE
    ═══════════════════════════════════════════ */
 
 export default function ChangelogPage() {
-  // ── State ──
   const [typeFilter, setTypeFilter] = useState<string>("all");
-  const [devFilter, setDevFilter] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchInput, setSearchInput] = useState<string>("");
-  const [offset, setOffset] = useState(0);
-  const [allEntries, setAllEntries] = useState<ChangelogEntry[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<string | null>(null);
-
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ── Build query params ──
-  const params = useMemo(() => {
-    const p: Record<string, string> = {
-      limit: String(PAGE_SIZE),
-      offset: String(offset),
-    };
-    if (typeFilter !== "all") p.type = typeFilter;
-    if (devFilter) p.dev = devFilter;
-    if (searchQuery) p.search = searchQuery;
-    return p;
-  }, [typeFilter, devFilter, searchQuery, offset]);
-
-  // ── Fetch data ──
-  const { data, loading, error, refetch } =
-    useAdminFetch<ChangelogResponse>("/api/commit-notes", params);
-
-  // ── Accumulate entries for infinite scroll ──
-  useEffect(() => {
-    if (data) {
-      if (offset === 0) {
-        setAllEntries(data.entries);
-      } else {
-        setAllEntries((prev) => {
-          // Deduplicate by id
-          const existingIds = new Set(prev.map((e) => e.id));
-          const newEntries = data.entries.filter(
-            (e) => !existingIds.has(e.id)
-          );
-          return [...prev, ...newEntries];
-        });
-      }
-      setHasMore(data.hasMore);
-      setLoadingMore(false);
-    }
-  }, [data, offset]);
-
-  // ── Reset on filter change ──
-  useEffect(() => {
-    setOffset(0);
-    setAllEntries([]);
-    setHasMore(true);
-  }, [typeFilter, devFilter, searchQuery]);
-
-  // ── Debounced search ──
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchInput(value);
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-      searchTimeoutRef.current = setTimeout(() => {
-        setSearchQuery(value.trim());
-      }, 350);
-    },
-    []
+  const [searchInput, setSearchInput] = useState("");
+  const [showCreate, setShowCreate] = useState(false);
+  const [banner, setBanner] = useState<{ msg: string; isError: boolean } | null>(
+    null
   );
 
-  // Cleanup search timeout
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
+  const { data, loading, error, refetch } =
+    useAdminFetch<{ entries: ChangelogEntry[] }>("/api/changelog");
+
+  const entries = useMemo(() => data?.entries ?? [], [data]);
+
+  // ── Client-side counts, filter, and search ──
+  const typeCounts = useMemo(() => {
+    const counts = { all: entries.length, feature: 0, improvement: 0, fix: 0 };
+    for (const e of entries) counts[normalizeCategory(e.category)] += 1;
+    return counts;
+  }, [entries]);
+
+  const filtered = useMemo(() => {
+    const q = searchInput.trim().toLowerCase();
+    return entries.filter((e) => {
+      if (typeFilter !== "all" && normalizeCategory(e.category) !== typeFilter) {
+        return false;
       }
-    };
-  }, []);
-
-  // ── Load more (infinite scroll) ──
-  const loadMore = useCallback(() => {
-    if (!loadingMore && hasMore && !loading) {
-      setLoadingMore(true);
-      setOffset((prev) => prev + PAGE_SIZE);
-    }
-  }, [loadingMore, hasMore, loading]);
-
-  // ── Intersection observer for infinite scroll ──
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [loadMore]);
-
-  // ── Sync handler ──
-  const handleSync = useCallback(async () => {
-    setSyncing(true);
-    setSyncResult(null);
-    try {
-      const adminKey =
-        typeof window !== "undefined"
-          ? localStorage.getItem("storageads_admin_key")
-          : null;
-      const res = await fetch("/api/commit-notes/sync", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(adminKey ? { "X-Admin-Key": adminKey } : {}),
-        },
-      });
-      const result = await res.json();
-      if (res.ok) {
-        setSyncResult(result.message || `Synced ${result.synced} commits`);
-        // Reset pagination and refetch
-        setOffset(0);
-        setAllEntries([]);
-        setHasMore(true);
-        // Small delay to let state settle, then refetch
-        setTimeout(() => refetch(), 100);
-      } else {
-        setSyncResult(result.error || `Sync failed (${res.status})`);
+      if (q) {
+        return (
+          e.title.toLowerCase().includes(q) || e.body.toLowerCase().includes(q)
+        );
       }
-    } catch {
-      setSyncResult("Sync failed — check your network connection");
-    } finally {
-      setSyncing(false);
-    }
-  }, [refetch]);
+      return true;
+    });
+  }, [entries, typeFilter, searchInput]);
 
-  // ── Clear search ──
-  const clearSearch = useCallback(() => {
-    setSearchInput("");
-    setSearchQuery("");
-  }, []);
+  const grouped = useMemo(() => groupByDate(filtered), [filtered]);
+  const totalCount = entries.length;
+  const hasActiveFilters = typeFilter !== "all" || searchInput.trim() !== "";
 
-  // ── Derived data ──
-  const grouped = useMemo(() => groupByDate(allEntries), [allEntries]);
-  const typeCounts = data?.typeCounts;
-  const developers = data?.developers || [];
-  const totalCount = data?.total ?? 0;
-  const isInitialLoad = loading && offset === 0;
-  const hasActiveFilters =
-    typeFilter !== "all" || devFilter !== "" || searchQuery !== "";
+  const handleCreated = useCallback(
+    (msg: string) => {
+      setBanner({ msg, isError: false });
+      refetch();
+    },
+    [refetch]
+  );
 
   return (
     <div className="space-y-5 p-3 sm:p-6">
@@ -660,54 +467,53 @@ export default function ChangelogPage() {
             style={{ color: "var(--color-mid-gray)" }}
           >
             {totalCount > 0
-              ? `${totalCount} update${totalCount === 1 ? "" : "s"} tracked`
+              ? `${totalCount} update${totalCount === 1 ? "" : "s"} published`
               : "Recent updates and improvements"}
           </p>
         </div>
 
         <button
           type="button"
-          onClick={handleSync}
-          disabled={syncing}
+          onClick={() => setShowCreate((v) => !v)}
           className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all self-start sm:self-auto"
           style={{
-            backgroundColor: syncing
+            backgroundColor: showCreate
               ? "var(--color-light-gray)"
               : "var(--color-gold)",
-            color: syncing
-              ? "var(--color-mid-gray)"
-              : "var(--color-light)",
-            cursor: syncing ? "not-allowed" : "pointer",
-            opacity: syncing ? 0.7 : 1,
+            color: showCreate ? "var(--color-mid-gray)" : "var(--color-light)",
           }}
-          aria-label={syncing ? "Syncing commits from GitHub" : "Sync commits from GitHub"}
-          aria-busy={syncing}
+          aria-expanded={showCreate}
         >
-          <RefreshCw
-            size={14}
-            className={syncing ? "animate-spin" : ""}
-          />
-          <span className="hidden sm:inline">
-            {syncing ? "Syncing..." : "Sync Commits"}
-          </span>
-          <span className="sm:hidden">
-            {syncing ? "Syncing..." : "Sync"}
-          </span>
+          {showCreate ? <X size={14} /> : <Plus size={14} />}
+          <span>{showCreate ? "Close" : "New entry"}</span>
         </button>
       </div>
 
-      {/* ── Sync result banner ── */}
-      {syncResult && (
-        <SyncBanner
-          result={syncResult}
-          onDismiss={() => setSyncResult(null)}
+      {/* ── Banner ── */}
+      {banner && (
+        <StatusBanner
+          result={banner.msg}
+          isError={banner.isError}
+          onDismiss={() => setBanner(null)}
+        />
+      )}
+
+      {/* ── Create form ── */}
+      {showCreate && (
+        <CreateEntryForm
+          onCreated={handleCreated}
+          onError={(msg) => setBanner({ msg, isError: true })}
+          onClose={() => setShowCreate(false)}
         />
       )}
 
       {/* ── Filters row ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Type filter tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Filter by type">
+        <div
+          className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide"
+          role="tablist"
+          aria-label="Filter by type"
+        >
           <Filter
             size={14}
             style={{ color: "var(--color-mid-gray)" }}
@@ -717,8 +523,7 @@ export default function ChangelogPage() {
           {TYPE_FILTERS.map((f) => {
             const Icon = f.icon;
             const isActive = typeFilter === f.key;
-            const count =
-              typeCounts?.[f.key as keyof typeof typeCounts] ?? null;
+            const count = typeCounts[f.key as keyof typeof typeCounts];
             return (
               <button
                 key={f.key}
@@ -735,96 +540,60 @@ export default function ChangelogPage() {
                 }}
                 role="tab"
                 aria-selected={isActive}
-                aria-label={`${f.label}${count !== null ? ` (${count})` : ""}`}
+                aria-label={`${f.label} (${count})`}
               >
                 <Icon size={11} />
                 <span>{f.label}</span>
-                {count !== null && (
-                  <span
-                    className="text-[9px] font-semibold rounded-full px-1.5 py-px"
-                    style={{
-                      backgroundColor: isActive
-                        ? "rgba(255,255,255,0.2)"
-                        : "rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    {count}
-                  </span>
-                )}
+                <span
+                  className="text-[9px] font-semibold rounded-full px-1.5 py-px"
+                  style={{
+                    backgroundColor: isActive
+                      ? "rgba(255,255,255,0.2)"
+                      : "rgba(0,0,0,0.06)",
+                  }}
+                >
+                  {count}
+                </span>
               </button>
             );
           })}
         </div>
 
-        {/* Search + developer filter */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 sm:flex-none">
-            <Search
-              size={13}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
-              style={{ color: "var(--color-mid-gray)" }}
-              aria-hidden="true"
-            />
-            <input
-              type="search"
-              value={searchInput}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search commits..."
-              className="w-full sm:w-48 rounded-lg border pl-8 pr-8 py-1.5 text-xs outline-none transition-colors focus:border-[var(--color-gold)]"
-              style={{
-                backgroundColor: "var(--bg-elevated)",
-                borderColor: "var(--border-subtle)",
-                color: "var(--color-dark)",
-              }}
-              aria-label="Search changelog entries"
-            />
-            {searchInput && (
-              <button
-                type="button"
-                onClick={clearSearch}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 transition-colors hover:bg-[var(--color-light-gray)]"
-                aria-label="Clear search"
-              >
-                <X size={11} style={{ color: "var(--color-mid-gray)" }} />
-              </button>
-            )}
-          </div>
-
-          <DevFilterDropdown
-            developers={developers}
-            selected={devFilter}
-            onSelect={setDevFilter}
+        <div className="relative flex-1 sm:flex-none">
+          <Search
+            size={13}
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ color: "var(--color-mid-gray)" }}
+            aria-hidden="true"
           />
+          <input
+            type="search"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search updates..."
+            className="w-full sm:w-48 rounded-lg border pl-8 pr-8 py-1.5 text-xs outline-none transition-colors focus:border-[var(--color-gold)]"
+            style={{
+              backgroundColor: "var(--bg-elevated)",
+              borderColor: "var(--border-subtle)",
+              color: "var(--color-dark)",
+            }}
+            aria-label="Search changelog entries"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={() => setSearchInput("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 transition-colors hover:bg-[var(--color-light-gray)]"
+              aria-label="Clear search"
+            >
+              <X size={11} style={{ color: "var(--color-mid-gray)" }} />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* ── Active filter indicators ── */}
-      {hasActiveFilters && !isInitialLoad && (
-        <div
-          className="flex items-center gap-2 text-xs"
-          style={{ color: "var(--color-mid-gray)" }}
-        >
-          <span>
-            Showing {allEntries.length} of {totalCount} entries
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setTypeFilter("all");
-              setDevFilter("");
-              setSearchInput("");
-              setSearchQuery("");
-            }}
-            className="font-medium transition-colors hover:text-[var(--color-gold)]"
-            style={{ color: "var(--color-gold)" }}
-          >
-            Clear filters
-          </button>
-        </div>
-      )}
-
       {/* ── Error state ── */}
-      {error && (
+      {error && !loading && (
         <div
           className="flex items-center gap-3 rounded-lg border p-4 text-sm"
           style={{
@@ -853,15 +622,16 @@ export default function ChangelogPage() {
         </div>
       )}
 
-      {/* ── Loading state ── */}
-      {isInitialLoad ? (
+      {/* ── Content ── */}
+      {loading ? (
         <ChangelogSkeleton />
       ) : grouped.length > 0 ? (
-        /* ── Entry list grouped by date ── */
         <div className="space-y-8">
           {grouped.map((group) => (
-            <section key={group.dateLabel} aria-label={`Changes from ${group.dateLabel}`}>
-              {/* Date separator */}
+            <section
+              key={group.dateLabel}
+              aria-label={`Changes from ${group.dateLabel}`}
+            >
               <div className="flex items-center gap-3 mb-3">
                 <div
                   className="h-px flex-1"
@@ -878,8 +648,6 @@ export default function ChangelogPage() {
                   style={{ backgroundColor: "var(--border-subtle)" }}
                 />
               </div>
-
-              {/* Entries */}
               <div className="space-y-2">
                 {group.entries.map((entry) => (
                   <EntryCard key={entry.id} entry={entry} />
@@ -887,126 +655,76 @@ export default function ChangelogPage() {
               </div>
             </section>
           ))}
-
-          {/* Infinite scroll sentinel */}
-          {hasMore && (
-            <div
-              ref={sentinelRef}
-              className="flex justify-center py-6"
-              role="status"
-              aria-label="Loading more entries"
-            >
-              {loadingMore && (
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-5 w-5 border-2 border-t-transparent rounded-full animate-spin"
-                    style={{ borderColor: "var(--color-gold)", borderTopColor: "transparent" }}
-                  />
-                  <span
-                    className="text-xs"
-                    style={{ color: "var(--color-mid-gray)" }}
-                  >
-                    Loading more...
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* End of list */}
-          {!hasMore && allEntries.length > 0 && (
-            <p
-              className="text-center text-xs py-4"
-              style={{ color: "var(--color-mid-gray)" }}
-            >
-              You&apos;ve reached the end &middot; {totalCount} total{" "}
-              {totalCount === 1 ? "entry" : "entries"}
-            </p>
-          )}
         </div>
       ) : (
-        /* ── Empty state ── */
-        <div className="text-center py-16 sm:py-24">
-          <div
-            className="inline-flex items-center justify-center h-16 w-16 rounded-2xl mb-4"
-            style={{ backgroundColor: "var(--color-light-gray)" }}
-          >
-            <GitCommit
-              size={28}
-              style={{ color: "var(--color-mid-gray)" }}
-            />
+        !error && (
+          <div className="text-center py-16 sm:py-24">
+            <div
+              className="inline-flex items-center justify-center h-16 w-16 rounded-2xl mb-4"
+              style={{ backgroundColor: "var(--color-light-gray)" }}
+            >
+              <GitCommit size={28} style={{ color: "var(--color-mid-gray)" }} />
+            </div>
+            {hasActiveFilters ? (
+              <>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--color-dark)" }}
+                >
+                  No matching entries
+                </p>
+                <p
+                  className="text-xs mt-1 mb-4"
+                  style={{ color: "var(--color-mid-gray)" }}
+                >
+                  Try adjusting your filter or search query
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTypeFilter("all");
+                    setSearchInput("");
+                  }}
+                  className="text-xs font-medium px-4 py-2 rounded-lg transition-colors"
+                  style={{
+                    backgroundColor: "var(--color-light-gray)",
+                    color: "var(--color-body-text)",
+                  }}
+                >
+                  Clear filters
+                </button>
+              </>
+            ) : (
+              <>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--color-dark)" }}
+                >
+                  No changelog entries yet
+                </p>
+                <p
+                  className="text-xs mt-1 mb-5 mx-auto"
+                  style={{ color: "var(--color-mid-gray)", maxWidth: "320px" }}
+                >
+                  Publish your first update. Partners see these on their
+                  changelog page.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowCreate(true)}
+                  className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-lg transition-all"
+                  style={{
+                    backgroundColor: "var(--color-gold)",
+                    color: "var(--color-light)",
+                  }}
+                >
+                  <Plus size={14} />
+                  New entry
+                </button>
+              </>
+            )}
           </div>
-
-          {hasActiveFilters ? (
-            <>
-              <p
-                className="text-sm font-medium"
-                style={{ color: "var(--color-dark)" }}
-              >
-                No matching entries
-              </p>
-              <p
-                className="text-xs mt-1 mb-4"
-                style={{ color: "var(--color-mid-gray)" }}
-              >
-                Try adjusting your filters or search query
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setTypeFilter("all");
-                  setDevFilter("");
-                  setSearchInput("");
-                  setSearchQuery("");
-                }}
-                className="text-xs font-medium px-4 py-2 rounded-lg transition-colors"
-                style={{
-                  backgroundColor: "var(--color-light-gray)",
-                  color: "var(--color-body-text)",
-                }}
-              >
-                Clear all filters
-              </button>
-            </>
-          ) : (
-            <>
-              <p
-                className="text-sm font-medium"
-                style={{ color: "var(--color-dark)" }}
-              >
-                No changelog entries yet
-              </p>
-              <p
-                className="text-xs mt-1 mb-5 mx-auto"
-                style={{
-                  color: "var(--color-mid-gray)",
-                  maxWidth: "320px",
-                }}
-              >
-                Sync your Git history to populate the changelog with
-                AI-generated summaries of every commit
-              </p>
-              <button
-                type="button"
-                onClick={handleSync}
-                disabled={syncing}
-                className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-lg transition-all"
-                style={{
-                  backgroundColor: "var(--color-gold)",
-                  color: "var(--color-light)",
-                  opacity: syncing ? 0.7 : 1,
-                }}
-                aria-label="Sync commits from GitHub to populate changelog"
-              >
-                <RefreshCw
-                  size={14}
-                  className={syncing ? "animate-spin" : ""}
-                />
-                {syncing ? "Syncing..." : "Sync from GitHub"}
-              </button>
-            </>
-          )}
-        </div>
+        )
       )}
     </div>
   );
