@@ -65,14 +65,14 @@ const DESTINATIONS: Destination[] = [
   { id: "portfolio", label: "Portfolio", href: "/admin/portfolio", group: "Facilities", icon: BarChart3 },
   { id: "facilities", label: "Facility Manager", href: "/admin/facilities", group: "Facilities", icon: Building2 },
   { id: "pms-queue", label: "PMS Queue", href: "/admin/pms-queue", group: "Facilities", icon: FileUp },
-  { id: "funnels", label: "Funnels", href: "/admin/funnels", group: "Marketing", icon: GitBranch },
+  { id: "funnels", label: "Funnels (all facilities)", href: "/admin/funnels", group: "Marketing", icon: GitBranch },
   { id: "campaigns", label: "Campaigns", href: "/admin/campaigns", group: "Marketing", icon: Megaphone },
   { id: "creative-library", label: "Creative Library", href: "/admin/style-references", group: "Marketing", icon: Palette },
   { id: "sequences", label: "Sequences", href: "/admin/sequences", group: "Marketing", icon: Mail },
   { id: "insights", label: "Insights", href: "/admin/insights", group: "Marketing", icon: LineChart },
   { id: "billing", label: "Billing", href: "/admin/billing", group: "Revenue", icon: CreditCard },
   { id: "activity", label: "Activity", href: "/admin/activity", group: "Operations", icon: Activity },
-  { id: "calls", label: "Calls", href: "/admin/calls", group: "Operations", icon: Phone },
+  { id: "calls", label: "Calls (all facilities)", href: "/admin/calls", group: "Operations", icon: Phone },
   { id: "diagnostics", label: "Diagnostics", href: "/admin/audits", group: "Operations", icon: ShieldCheck },
   { id: "reports", label: "Reports", href: "/admin/reports", group: "Operations", icon: FileText },
   { id: "partners", label: "Partners", href: "/admin/partners", group: "Operations", icon: Users },
@@ -128,21 +128,21 @@ export function CommandPalette() {
   const { facilities, setFacility } = useFacility();
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
-  const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [recentIds, setRecentIds] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = JSON.parse(localStorage.getItem(RECENTS_KEY) || "[]");
+      return Array.isArray(raw) ? raw.filter((x) => typeof x === "string") : [];
+    } catch {
+      return [];
+    }
+  });
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem(RECENTS_KEY) || "[]");
-      if (Array.isArray(raw)) setRecentIds(raw.filter((x) => typeof x === "string"));
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset query/cursor when the palette opens
       setQuery("");
       setCursor(0);
       const t = setTimeout(() => inputRef.current?.focus(), 20);
@@ -205,15 +205,12 @@ export function CommandPalette() {
   }, [q, recentIds, byId, toolItems, facilityItems, actionItems]);
 
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
-
-  useEffect(() => {
-    if (cursor > flat.length - 1) setCursor(Math.max(0, flat.length - 1));
-  }, [flat.length, cursor]);
+  const activeIndex = flat.length ? Math.min(Math.max(cursor, 0), flat.length - 1) : 0;
 
   useEffect(() => {
     const el = listRef.current?.querySelector('[data-active="true"]');
     el?.scrollIntoView({ block: "nearest" });
-  }, [cursor, flat.length]);
+  }, [activeIndex, flat.length]);
 
   function select(item: Item) {
     const next = [item.id, ...recentIds.filter((x) => x !== item.id)].slice(0, 8);
@@ -240,7 +237,7 @@ export function CommandPalette() {
       setCursor((c) => Math.max(c - 1, 0));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      const it = flat[cursor];
+      const it = flat[activeIndex];
       if (it) select(it);
     }
   }
@@ -249,6 +246,14 @@ export function CommandPalette() {
 
   const tag = (kind: Item["kind"]) =>
     kind === "facility" ? "Facility" : kind === "action" ? "Action" : "Tool";
+
+  // Pair each row with its absolute position in `flat` so the active-row
+  // highlight stays correct even when an item appears in two groups (Recent + its category).
+  let flatIdx = -1;
+  const indexedGroups = groups.map((group) => ({
+    title: group.title,
+    items: group.items.map((item) => ({ item, index: (flatIdx += 1) })),
+  }));
 
   return (
     <div
@@ -295,7 +300,7 @@ export function CommandPalette() {
               No matches for &ldquo;{query}&rdquo;
             </div>
           ) : (
-            groups.map((group) => (
+            indexedGroups.map((group) => (
               <div key={group.title}>
                 <div
                   style={{
@@ -310,9 +315,8 @@ export function CommandPalette() {
                 >
                   {group.title}
                 </div>
-                {group.items.map((item) => {
-                  const idx = flat.indexOf(item);
-                  const active = idx === cursor;
+                {group.items.map(({ item, index }) => {
+                  const active = index === activeIndex;
                   const Icon = "icon" in item ? item.icon : item.kind === "facility" ? Building2 : LayoutGrid;
                   const sub = "sub" in item ? item.sub : undefined;
                   return (
@@ -320,7 +324,7 @@ export function CommandPalette() {
                       key={item.id}
                       data-active={active}
                       type="button"
-                      onMouseMove={() => setCursor(idx)}
+                      onMouseMove={() => setCursor(index)}
                       onClick={() => select(item)}
                       className="flex w-full items-center gap-3 text-left"
                       style={{
