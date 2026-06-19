@@ -1185,7 +1185,7 @@ export default async function SharedAuditPage({
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">GBP & Review Management</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Automated Google Business Profile posting, AI-powered review responses, and review solicitation campaigns to boost your rating and local search visibility.
+                Automated Google Business Profile posting, review responses drafted for you, and review solicitation campaigns to boost your rating and local search visibility.
               </p>
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
@@ -1203,7 +1203,7 @@ export default async function SharedAuditPage({
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">PMS Integration</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Direct integration with storEDGE, SiteLink, and other PMS platforms. Pulls live unit data, pushes leads, and validates move-ins automatically.
+                Your storEDGE reservation flow embeds on every landing page, so renters book under your brand and the booking lands in storEDGE like a walk-in. Deeper PMS sync with SiteLink and others is on the roadmap.
               </p>
             </div>
           </div>

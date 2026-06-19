@@ -21,17 +21,17 @@ const manrope = Manrope({
 });
 
 const siteDescription =
-  "StorageAds runs the Meta and Google ads, builds the landing pages with your storEDGE rental flow embedded, and shows you which campaigns filled units. Built by an operator. Tested on our own facilities first.";
+  "StorageAds runs the Meta and Google ads, builds a landing page for every ad, reads your storEDGE reports, and shows you which campaigns filled units. Built by an operator. Tested on our own facilities first.";
 
 export const metadata: Metadata = {
   title: {
-    default: "StorageAds — Fill units. Prove which ads did it.",
+    default: "StorageAds. Fill units. Prove which ads did it.",
     template: "%s | StorageAds",
   },
   description: siteDescription,
   metadataBase: new URL("https://storageads.com"),
   openGraph: {
-    title: "StorageAds — Fill units. Prove which ads did it.",
+    title: "StorageAds. Fill units. Prove which ads did it.",
     description: siteDescription,
     url: "https://storageads.com",
     siteName: "StorageAds",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "StorageAds — Fill units. Prove which ads did it.",
+    title: "StorageAds. Fill units. Prove which ads did it.",
     description: siteDescription,
     images: ["/og-image.png"],
   },
@@ -86,7 +86,7 @@ const jsonLd = {
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
       url: "https://storageads.com",
-      description: "Marketing system for self-storage operators. Meta and Google ads, custom landing pages with embedded storEDGE rental flow, and per-move-in tracking from click to lease.",
+      description: "Marketing system for self-storage operators. Meta and Google ads, a custom landing page for every campaign, and per-move-in tracking from click to lease.",
       offers: {
         "@type": "AggregateOffer",
         priceCurrency: "USD",

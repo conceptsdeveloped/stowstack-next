@@ -9,14 +9,14 @@ export const metadata: Metadata = {
   description:
     "Founding facility pricing for StorageAds. One bill per facility per month. Ads, landing pages, site, and the dashboard. From $299/mo + $1,000 ad spend.",
   openGraph: {
-    title: "Pricing — StorageAds",
+    title: "Pricing | StorageAds",
     description:
       "Founding facility pricing for StorageAds. One bill per facility per month. From $299/mo + $1,000 ad spend.",
     url: "https://storageads.com/pricing",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pricing — StorageAds",
+    title: "Pricing | StorageAds",
     description:
       "Founding facility pricing for StorageAds. One bill per facility per month. From $299/mo + $1,000 ad spend.",
   },
@@ -114,7 +114,7 @@ const competitors = [
     name: "SpareFoot",
     type: "Lead aggregator",
     cost: "2× first month's rent, per move-in",
-    math: "On a $150/mo unit, $300 every time someone moves in — forever. At 10 move-ins/mo that's $36,000/yr in commissions, paid before your second month's rent shows up.",
+    math: "On a $150/mo unit, $300 every time someone moves in. Forever. At 10 move-ins/mo that's $36,000/yr in commissions, paid before your second month's rent shows up.",
     gotcha:
       "Those aren't your tenants. They're SpareFoot's. They get the email, the brand impression, and the relationship. You get the rental on day one and nothing else.",
   },
@@ -138,9 +138,9 @@ const competitors = [
     name: "Doing it yourself",
     type: "You + your phone",
     cost: "8–15 hours / week of your time",
-    math: "If your time is worth $75/hr, that's $2,400–4,500/mo in opportunity cost — before any ad spend. And the campaigns are almost certainly underperforming what a team running 50 facilities can do.",
+    math: "If your time is worth $75/hr, that's $2,400–4,500/mo in opportunity cost, before any ad spend. And the campaigns are almost certainly underperforming what a team running 50 facilities can do.",
     gotcha:
-      "Every lease-up day you didn't catch — because you were boosting a Facebook post instead of running the gate.",
+      "Every lease-up day you didn't catch, because you were boosting a Facebook post instead of running the gate.",
   },
 ];
 
@@ -197,7 +197,7 @@ const comparisonRows: { label: string; values: [string, string, string, string, 
 
 const enterpriseFeatures = [
   "Everything in Compound, run across the portfolio",
-  "White-label option — runs under your brand",
+  "White-label option: runs under your brand",
   "Cross-facility budget allocation",
   "Multi-tenant admin dashboard",
   "API access for PMS, BI, custom integrations",
@@ -227,11 +227,11 @@ const notInTheBill = [
 const faqs = [
   {
     q: "Why is there a minimum ad spend?",
-    a: "Because below $1,000/mo, paid ads can't gather enough data to tune. You'd pay us to run a campaign that can't optimize. The floor isn't a margin grab — it's the line below which the channel doesn't work.",
+    a: "Because below $1,000/mo, paid ads can't gather enough data to tune. You'd pay us to run a campaign that can't improve. The floor isn't a margin grab. It's the line below which the channel doesn't work.",
   },
   {
     q: "Do I have to commit?",
-    a: "Signal and Compound are month-to-month. System is six months because the site build is included — if you leave before then, we keep the site fee. After month six, you're month-to-month like everyone else.",
+    a: "Signal and Compound are month-to-month. System is six months because the site build is included. If you leave before then, we keep the site fee. After month six, you're month-to-month like everyone else.",
   },
   {
     q: "What if it doesn't work?",
@@ -247,7 +247,7 @@ const faqs = [
   },
   {
     q: "Can I just buy the website?",
-    a: "No. The site exists because it's part of the system — the ads send traffic to it, the rental flow lives on it, and the dashboard reads from it. Selling it alone would defeat the point.",
+    a: "No. The site exists because it's part of the system: the ads send traffic to it, the rental flow lives on it, and the dashboard reads from it. Selling it alone would defeat the point.",
   },
 ];
 
@@ -356,7 +356,7 @@ export default function PricingPage() {
               Locked for 12 months
             </p>
             <p style={{ color: "var(--text-secondary)" }}>
-              Sign in alpha, your price is locked for a year — even when we
+              Sign in alpha, your price is locked for a year. Even when we
               double the list price.
             </p>
           </div>
@@ -573,7 +573,7 @@ export default function PricingPage() {
             style={{ color: "var(--text-tertiary)" }}
           >
             All prices per facility per month. Ad spend ($1,000/mo minimum)
-            paid directly to Meta and Google — not marked up.
+            paid directly to Meta and Google. Not marked up.
           </p>
         </div>
       </section>
@@ -613,7 +613,7 @@ export default function PricingPage() {
               }}
             >
               Most independent operators are already paying for one of these.
-              Sometimes two. Here&apos;s what each one actually sells — and
+              Sometimes two. Here&apos;s what each one actually sells, and
               what it leaves out.
             </p>
           </div>
@@ -692,7 +692,7 @@ export default function PricingPage() {
               <div className="space-y-3 text-sm" style={{ opacity: 0.9 }}>
                 <p style={{ lineHeight: "var(--leading-normal)" }}>
                   <span style={{ fontWeight: 600 }}>The math:</span> Meta + Google + retargeting + custom site + 5 landing pages + video + the dashboard. At 10 move-ins/mo on a $150 unit, your effective cost is{" "}
-                  <strong>$175 per move-in</strong> — and you keep every month&apos;s rent, including the first.
+                  <strong>$175 per move-in</strong>, and you keep every month&apos;s rent, including the first.
                 </p>
                 <p style={{ lineHeight: "var(--leading-normal)" }}>
                   <span style={{ fontWeight: 600 }}>What we&apos;ll tell you:</span> Your ad accounts are in your name. The site is yours. The creative is yours. When the contract ends, you keep the keys.
@@ -724,7 +724,7 @@ export default function PricingPage() {
             }}
           >
             Same checklist, six options. Scroll the table if you&apos;re on
-            your phone — it&apos;s a lot of columns because we do a lot of
+            your phone. It&apos;s a lot of columns because we do a lot of
             things.
           </p>
 
@@ -833,7 +833,7 @@ export default function PricingPage() {
             style={{ color: "var(--text-tertiary)" }}
           >
             Competitor pricing reflects typical published rates for
-            independent operators. Your mileage may vary — call them and ask.
+            independent operators. Your mileage may vary. Call them and ask.
           </p>
         </div>
       </section>

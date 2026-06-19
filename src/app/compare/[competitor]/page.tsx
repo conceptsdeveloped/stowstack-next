@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const comp = COMPETITORS[competitor];
   const name = comp?.name || competitor;
   return {
-    title: `StorageAds vs ${name} — Compare Self-Storage Marketing Platforms`,
+    title: `StorageAds vs ${name}: Compare Self-Storage Marketing Platforms`,
     description: `See how StorageAds compares to ${name}. Feature-by-feature comparison of ad management, attribution, and pricing.`,
   };
 }
@@ -163,7 +163,7 @@ export default async function ComparisonPage({ params }: PageProps) {
             style={{ fontFamily: "var(--font-body)", color: "var(--color-body-text)" }}
           >
             Most storage marketing platforms stop at cost per click or cost per lead. StorageAds tracks
-            the full journey from ad impression through signed lease — so you know exactly what each
+            the full journey from the first ad through to a signed lease, so you know exactly what each
             move-in costs.
           </p>
           <Link

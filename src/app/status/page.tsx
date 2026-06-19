@@ -116,9 +116,6 @@ export default function StatusPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-xs" style={{ fontFamily: "var(--font-heading)", color: "var(--color-mid-gray)" }}>
-                    {comp.uptime}% uptime
-                  </span>
                   <span
                     className="rounded-full px-2 py-0.5 text-[10px] font-medium"
                     style={{ fontFamily: "var(--font-heading)", color: cfg.color, backgroundColor: cfg.bg }}
