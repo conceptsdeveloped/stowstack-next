@@ -24,6 +24,9 @@ import {
   Target,
   Users,
   FileUp,
+  FileText,
+  Megaphone,
+  Sparkles,
 } from "lucide-react";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { AdminProvider, STORAGE_KEY } from "@/lib/admin-context";
@@ -65,6 +68,7 @@ const NAV_GROUPS: NavGroup[] = [
     title: "MARKETING",
     items: [
       { label: "Funnels", href: "/admin/funnels", icon: GitBranch },
+      { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
       { label: "Creative Library", href: "/admin/style-references", icon: Target },
       { label: "Sequences", href: "/admin/sequences", icon: Mail },
       { label: "Insights", href: "/admin/insights", icon: BarChart3 },
@@ -82,12 +86,14 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Activity", href: "/admin/activity", icon: Activity },
       { label: "Calls", href: "/admin/calls", icon: Phone },
       { label: "Diagnostics", href: "/admin/audits", icon: ShieldCheck },
+      { label: "Reports", href: "/admin/reports", icon: FileText },
       { label: "Partners", href: "/admin/partners", icon: Users },
     ],
   },
   {
     title: "SYSTEM",
     items: [
+      { label: "Setup", href: "/admin/onboarding", icon: Sparkles },
       { label: "Settings", href: "/admin/settings", icon: Settings },
       { label: "Changelog", href: "/admin/changelog", icon: BookOpen },
     ],
