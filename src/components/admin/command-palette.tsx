@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
+  Film,
+  Globe,
+  Image as ImageIcon,
+  Link2,
+  Map as MapIcon,
+  Music2,
+  Share2,
   BarChart3,
   BookOpen,
   Building2,
@@ -76,6 +83,22 @@ const DESTINATIONS: Destination[] = [
   { id: "studio-creative", label: "Creative Studio", href: "/admin/studio/creative", group: "Studio", icon: Palette },
   { id: "studio-ad-generator", label: "Ad Generator", href: "/admin/studio/ad-generator", group: "Studio", icon: Sparkles },
   { id: "studio-publisher", label: "Publisher", href: "/admin/studio/publisher", group: "Studio", icon: Send },
+  { id: "studio-google-ads", label: "Google Ads Lab", href: "/admin/studio/google-ads", group: "Studio", icon: Search },
+  { id: "studio-tiktok", label: "TikTok Creator", href: "/admin/studio/tiktok", group: "Studio", icon: Music2 },
+  { id: "studio-video", label: "Video Generator", href: "/admin/studio/video", group: "Studio", icon: Film },
+  { id: "studio-media", label: "Media Library", href: "/admin/studio/media", group: "Studio", icon: ImageIcon },
+  { id: "channels-funnels", label: "Funnels", href: "/admin/channels/funnels", group: "Channels", icon: GitBranch },
+  { id: "channels-landing", label: "Landing Pages", href: "/admin/channels/landing-pages", group: "Channels", icon: FileText },
+  { id: "channels-gbp", label: "Google Business", href: "/admin/channels/gbp", group: "Channels", icon: Globe },
+  { id: "channels-social", label: "Social", href: "/admin/channels/social", group: "Channels", icon: Share2 },
+  { id: "channels-automations", label: "Automations", href: "/admin/channels/automations", group: "Channels", icon: Mail },
+  { id: "channels-utm", label: "UTM Links", href: "/admin/channels/utm", group: "Channels", icon: Link2 },
+  { id: "intel-occupancy", label: "Occupancy Intelligence", href: "/admin/intelligence/occupancy", group: "Intelligence", icon: Building2 },
+  { id: "intel-market", label: "Market Intelligence", href: "/admin/intelligence/market", group: "Intelligence", icon: MapIcon },
+  { id: "intel-revenue", label: "Revenue Analytics", href: "/admin/intelligence/revenue", group: "Intelligence", icon: BarChart3 },
+  { id: "fac-tenants", label: "Tenants", href: "/admin/facilities/tenants", group: "Facilities", icon: Users },
+  { id: "fac-pms", label: "PMS Data", href: "/admin/facilities/pms", group: "Facilities", icon: FileText },
+  { id: "fac-calls", label: "Call Tracking", href: "/admin/facilities/call-tracking", group: "Facilities", icon: Phone },
 ];
 
 const ACTIONS: Destination[] = [
