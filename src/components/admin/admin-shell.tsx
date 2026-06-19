@@ -77,7 +77,7 @@ function FacilityScope({ children }: { children: React.ReactNode }) {
     [data],
   );
   return (
-    <FacilityProvider key={facilities.length} facilities={facilities}>
+    <FacilityProvider key={facilities.map((f) => f.id).join(",")} facilities={facilities}>
       {children}
     </FacilityProvider>
   );
