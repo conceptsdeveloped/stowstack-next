@@ -5,6 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
+  Film,
+  Globe,
+  Image as ImageIcon,
+  Link2,
+  Map as MapIcon,
+  Music2,
+  Palette,
+  Send,
+  Share2,
   BarChart3,
   BookOpen,
   Building2,
@@ -99,6 +108,10 @@ interface NavGroup {
   items: NavItem[];
 }
 
+// Task-first spine. Facility tools (Studio / Channels / Intelligence / Facilities
+// ops) point to scope-aware routes; clicking one at "all" scope shows a
+// "select a facility" prompt. Leads stay as separate routes (locked decision).
+// Portfolio-wide Funnels/Calls remain reachable via the command palette.
 const NAV_GROUPS: NavGroup[] = [
   {
     title: "LEADS",
@@ -107,46 +120,68 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Kanban", href: "/admin/kanban", icon: Kanban },
       { label: "Consumer Leads", href: "/admin/consumer-leads", icon: Inbox },
       { label: "Recovery", href: "/admin/recovery", icon: Search },
+      { label: "Facility Pipeline", href: "/admin/pipeline", icon: Target },
+    ],
+  },
+  {
+    title: "STUDIO",
+    items: [
+      { label: "Creative Studio", href: "/admin/studio/creative", icon: Palette },
+      { label: "Ad Generator", href: "/admin/studio/ad-generator", icon: Sparkles },
+      { label: "Publisher", href: "/admin/studio/publisher", icon: Send },
+      { label: "Google Ads", href: "/admin/studio/google-ads", icon: Search },
+      { label: "TikTok", href: "/admin/studio/tiktok", icon: Music2 },
+      { label: "Video", href: "/admin/studio/video", icon: Film },
+      { label: "Media", href: "/admin/studio/media", icon: ImageIcon },
+      { label: "Creative Library", href: "/admin/style-references", icon: Layout },
+    ],
+  },
+  {
+    title: "CHANNELS",
+    items: [
+      { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
+      { label: "Funnels", href: "/admin/channels/funnels", icon: GitBranch },
+      { label: "Landing Pages", href: "/admin/channels/landing-pages", icon: FileText },
+      { label: "Google Business", href: "/admin/channels/gbp", icon: Globe },
+      { label: "Social", href: "/admin/channels/social", icon: Share2 },
+      { label: "Automations", href: "/admin/channels/automations", icon: Mail },
+      { label: "Sequences", href: "/admin/sequences", icon: Mail },
+      { label: "UTM Links", href: "/admin/channels/utm", icon: Link2 },
+    ],
+  },
+  {
+    title: "INTELLIGENCE",
+    items: [
+      { label: "Insights", href: "/admin/insights", icon: BarChart3 },
+      { label: "Occupancy", href: "/admin/intelligence/occupancy", icon: Building2 },
+      { label: "Market", href: "/admin/intelligence/market", icon: MapIcon },
+      { label: "Revenue", href: "/admin/intelligence/revenue", icon: BarChart3 },
+      { label: "Portfolio", href: "/admin/portfolio", icon: Target },
+      { label: "Reports", href: "/admin/reports", icon: FileText },
     ],
   },
   {
     title: "FACILITIES",
     items: [
-      { label: "Facility Pipeline", href: "/admin/pipeline", icon: Target },
-      { label: "Portfolio", href: "/admin/portfolio", icon: Building2 },
-      { label: "Facility Manager", href: "/admin/facilities", icon: Layout },
+      { label: "Facility Manager", href: "/admin/facilities", icon: Building2 },
+      { label: "Tenants", href: "/admin/facilities/tenants", icon: Users },
+      { label: "PMS", href: "/admin/facilities/pms", icon: FileText },
+      { label: "Calls", href: "/admin/facilities/call-tracking", icon: Phone },
       { label: "PMS Queue", href: "/admin/pms-queue", icon: FileUp },
-    ],
-  },
-  {
-    title: "MARKETING",
-    items: [
-      { label: "Funnels", href: "/admin/funnels", icon: GitBranch },
-      { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
-      { label: "Creative Library", href: "/admin/style-references", icon: Target },
-      { label: "Sequences", href: "/admin/sequences", icon: Mail },
-      { label: "Insights", href: "/admin/insights", icon: BarChart3 },
+      { label: "Diagnostics", href: "/admin/audits", icon: ShieldCheck },
     ],
   },
   {
     title: "REVENUE",
     items: [
       { label: "Billing", href: "/admin/billing", icon: CreditCard },
-    ],
-  },
-  {
-    title: "OPERATIONS",
-    items: [
-      { label: "Activity", href: "/admin/activity", icon: Activity },
-      { label: "Calls", href: "/admin/calls", icon: Phone },
-      { label: "Diagnostics", href: "/admin/audits", icon: ShieldCheck },
-      { label: "Reports", href: "/admin/reports", icon: FileText },
       { label: "Partners", href: "/admin/partners", icon: Users },
     ],
   },
   {
     title: "SYSTEM",
     items: [
+      { label: "Activity", href: "/admin/activity", icon: Activity },
       { label: "Setup", href: "/admin/onboarding", icon: Sparkles },
       { label: "Settings", href: "/admin/settings", icon: Settings },
       { label: "Changelog", href: "/admin/changelog", icon: BookOpen },
