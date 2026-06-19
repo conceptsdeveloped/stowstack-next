@@ -47,8 +47,26 @@ export function FacilityToolPage({
           }}
         >
           {title} works on a single facility. Pick one from the scope switcher in
-          the top bar to continue.
+          the top bar, or search for it below.
         </p>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("admin:open-palette"))}
+          style={{
+            marginTop: "14px",
+            fontFamily: "var(--font)",
+            fontSize: "13px",
+            fontWeight: 600,
+            color: "var(--ink)",
+            background: "var(--card)",
+            border: "1px solid var(--bdr-strong)",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            cursor: "pointer",
+          }}
+        >
+          Choose a facility
+        </button>
       </div>
     );
   }
