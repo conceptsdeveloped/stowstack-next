@@ -16,6 +16,10 @@ If unsure which register applies, ask before drafting.
 
 For any customer-facing copy, audit-tool insights, blog content, ads, or investor materials that reference self-storage market conditions, occupancy benchmarks, pricing trends, regulatory context, or the acquisition environment, read [.claude/market-data-2026.md](.claude/market-data-2026.md) before drafting. Never fabricate market stats — pull from that file or our own data.
 
+## Dispatch Playbooks
+
+Pre-written, self-contained tasks to fire at this machine from your phone via Claude Dispatch. See [docs/dispatch-playbooks.md](docs/dispatch-playbooks.md). Fire one with a short phone message like "Run StorageAds dispatch playbook 1". A cold dispatch session must read that file's Global Guardrails before acting: `main` auto-deploys to prod, so code/copy changes go to a PR (never pushed to `main` unattended); blog drafts with `draft: true` and `docs/` files are safe to commit to `main`. Cold-safe verify gate is `npm run typecheck && npm test`.
+
 ## Build & Development Commands
 
 ```bash
