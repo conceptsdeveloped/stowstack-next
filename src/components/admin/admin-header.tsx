@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   RefreshCw,
+  Search,
   User,
 } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
@@ -97,7 +98,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   }
 
   const iconBtnStyle = {
-    color: '#A3A3A3',
+    color: 'var(--ink3)',
     borderRadius: '6px',
     background: 'transparent',
     border: 'none',
@@ -126,13 +127,24 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         <Menu className="h-4 w-4" />
       </button>
 
-      <h1 style={{ fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 500, letterSpacing: '-0.01em', color: '#1A1A1A' }}>
+      <h1 style={{ fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ink)' }}>
         {getPageTitle(pathname)}
       </h1>
 
       <FacilitySwitcher />
 
-      <div className="ml-auto flex items-center gap-0.5 shrink-0">
+      <div className="ml-auto flex items-center gap-1.5 shrink-0">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("admin:open-palette"))}
+          className="hidden items-center gap-2 lg:flex"
+          style={{ fontFamily: 'var(--font)', fontSize: '12px', color: 'var(--ink3)', background: 'var(--card)', border: '1px solid var(--bdr)', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', width: '190px' }}
+          aria-label="Open command palette"
+        >
+          <Search className="h-3.5 w-3.5 shrink-0" />
+          <span style={{ flex: 1, textAlign: 'left' }}>Search</span>
+          <span style={{ fontSize: '10px', fontWeight: 600, border: '1px solid var(--bdr-strong)', borderRadius: '4px', padding: '0 5px', color: 'var(--ink2)' }}>⌘K</span>
+        </button>
         <button
           type="button"
           onClick={handleRefresh}
@@ -166,8 +178,8 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
             <span
               className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5"
               style={{
-                background: '#1A1A1A',
-                color: '#FFFFFF',
+                background: 'var(--ink)',
+                color: 'var(--bg)',
                 fontFamily: 'var(--font)',
                 fontSize: '9px',
                 fontWeight: 500,
