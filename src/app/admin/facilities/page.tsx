@@ -664,14 +664,10 @@ function VerticalTabSidebar({
 
 function FacilityDetail({
   facility,
-  activeTab,
-  onTabChange,
   onClose,
   onUpdate,
 }: {
   facility: Facility;
-  activeTab: TabKey;
-  onTabChange: (tab: TabKey) => void;
   onClose: () => void;
   onUpdate: () => void;
 }) {
@@ -679,30 +675,6 @@ function FacilityDetail({
     if (typeof window === "undefined") return "";
     return localStorage.getItem("storageads_admin_key") || "";
   });
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  // Lock body scroll when mobile drawer is open
-  useEffect(() => {
-    if (mobileNavOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      return () => {
-        document.body.style.overflow = "";
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [mobileNavOpen]);
-
-  const activeTabDef = ALL_TABS.find((t) => t.key === activeTab);
-  const activeGroupTitle = TAB_GROUPS.find((g) =>
-    g.tabs.some((t) => t.key === activeTab)
-  )?.title;
 
   return (
     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden">
@@ -733,24 +705,7 @@ function FacilityDetail({
 
         {/* Right: status + tools + close */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Status badge — hide below 480px to save header space, shown in breadcrumb instead */}
-          <div className="hidden min-[480px]:block">
-            {facility.status && <StatusBadge status={facility.status} />}
-          </div>
-
-          {/* Gold "Tools" button with count — mobile/tablet only */}
-          <button
-            type="button"
-            onClick={() => setMobileNavOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-[var(--burgundy)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--burgundy)] transition-all hover:bg-[var(--burgundy)]/20 active:scale-95 lg:hidden"
-            aria-label="Open tools menu"
-          >
-            <Menu className="h-3.5 w-3.5" />
-            <span>Tools</span>
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--burgundy)]/20 px-1 text-[10px] font-semibold">
-              {TOTAL_TOOLS}
-            </span>
-          </button>
+          {facility.status && <StatusBadge status={facility.status} />}
 
           <button
             type="button"
@@ -763,59 +718,15 @@ function FacilityDetail({
         </div>
       </div>
 
-      {/* Mobile/tablet: current tool breadcrumb — tappable, opens tools menu */}
-      <div className="flex items-center border-b border-[var(--border-subtle)] bg-[var(--color-light-gray)]/30 px-4 py-1.5 lg:hidden">
-        <button
-          type="button"
-          onClick={() => setMobileNavOpen(true)}
-          className="group flex items-center gap-1.5 rounded-md px-1 py-0.5 transition-colors hover:bg-[var(--burgundy)]/10"
-        >
-          {activeTabDef && (
-            <activeTabDef.icon className="h-3.5 w-3.5 text-[var(--burgundy)]" />
-          )}
-          {activeGroupTitle ? (
-            <>
-              <span className="text-[11px] font-medium text-[var(--color-mid-gray)]">
-                {activeGroupTitle}
-              </span>
-              <ChevronRight className="h-3 w-3 text-[var(--color-mid-gray)]" />
-              <span className="text-[13px] font-semibold text-[var(--color-dark)]">
-                {activeTabDef?.label}
-              </span>
-            </>
-          ) : (
-            <span className="text-[13px] font-semibold text-[var(--color-dark)]">
-              {activeTabDef?.label ?? "Overview"}
-            </span>
-          )}
-          <ChevronRight className="ml-0.5 h-3 w-3 text-[var(--color-mid-gray)] opacity-50 transition-all group-hover:translate-x-0.5 group-hover:opacity-100" />
-        </button>
-
-        {/* Status badge on small screens — shows here instead of header */}
-        <div className="ml-auto min-[480px]:hidden">
-          {facility.status && <StatusBadge status={facility.status} />}
-        </div>
-      </div>
-
-      {/* Main layout: sidebar + content */}
-      <div className="relative flex" style={{ minHeight: "calc(100vh - 16rem)" }}>
-        <VerticalTabSidebar
-          activeTab={activeTab}
-          onTabChange={onTabChange}
-          mobileOpen={mobileNavOpen}
-          onMobileClose={() => setMobileNavOpen(false)}
-          onMobileOpen={() => setMobileNavOpen(true)}
-        />
-
-        {/* Content area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5">
-          <TabContent
-            activeTab={activeTab}
-            facility={facility}
-            adminKey={adminKey}
-            onUpdate={onUpdate}
-          />
-        </div>
+      {/* Facility overview. Every tool now lives as a scope-aware route reached
+          from the sidebar and command palette, scoped to the selected facility. */}
+      <div
+        className="overflow-y-auto overflow-x-hidden p-3 sm:p-5"
+        style={{ minHeight: "calc(100vh - 16rem)" }}
+      >
+        <Suspense fallback={<TabLoadingFallback />}>
+          <FacilityOverview facility={facility} adminKey={adminKey} onUpdate={onUpdate} />
+        </Suspense>
       </div>
     </div>
   );
@@ -980,10 +891,6 @@ function FacilitiesContent() {
     setParam({ facility: null, tab: null });
   }
 
-  function handleTabChange(tab: TabKey) {
-    setParam({ tab });
-  }
-
   /* legacy tool tab → forwarding to its new route; show a spinner meanwhile */
   if (selectedFacility && activeTab !== "overview" && TAB_REDIRECTS[activeTab]) {
     return (
@@ -1001,8 +908,6 @@ function FacilitiesContent() {
     return (
       <FacilityDetail
         facility={selectedFacility}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
         onClose={handleCloseDetail}
         onUpdate={refetch}
       />
