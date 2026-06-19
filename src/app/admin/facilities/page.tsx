@@ -197,6 +197,31 @@ const TAB_GROUPS: TabGroup[] = [
 const ALL_TABS = TAB_GROUPS.flatMap((g) => g.tabs);
 type TabKey = string;
 
+// Old in-page tab keys -> new scope-aware routes (Phase 3 collapse). Selecting a
+// tool now forwards to its standalone route, which reads the facility from the
+// shared FacilityProvider via ?facility=. Overview stays in this page.
+const TAB_REDIRECTS: Record<string, string> = {
+  "creative-studio": "/admin/studio/creative",
+  "ad-studio": "/admin/studio/ad-generator",
+  "ad-publisher": "/admin/studio/publisher",
+  "google-ads": "/admin/studio/google-ads",
+  "tiktok": "/admin/studio/tiktok",
+  "video": "/admin/studio/video",
+  "media-library": "/admin/studio/media",
+  "funnels": "/admin/channels/funnels",
+  "landing-pages": "/admin/channels/landing-pages",
+  "utm-links": "/admin/channels/utm",
+  "gbp": "/admin/channels/gbp",
+  "social": "/admin/channels/social",
+  "lead-nurture": "/admin/channels/automations",
+  "occupancy": "/admin/intelligence/occupancy",
+  "market-intel": "/admin/intelligence/market",
+  "revenue": "/admin/intelligence/revenue",
+  "tenants": "/admin/facilities/tenants",
+  "pms": "/admin/facilities/pms",
+  "call-tracking": "/admin/facilities/call-tracking",
+};
+
 /* ================================================================
    Shared UI helpers
    ================================================================ */
@@ -940,6 +965,13 @@ function FacilitiesContent() {
     [facilities, selectedId],
   );
 
+  // Forward legacy ?tab= deep links (and tab-rail clicks) to the new routes.
+  useEffect(() => {
+    if (selectedId && activeTab !== "overview" && TAB_REDIRECTS[activeTab]) {
+      router.replace(`${TAB_REDIRECTS[activeTab]}?facility=${selectedId}`);
+    }
+  }, [selectedId, activeTab, router]);
+
   function handleSelectFacility(id: string) {
     setParam({ facility: id, tab: "overview" });
   }
@@ -952,7 +984,19 @@ function FacilitiesContent() {
     setParam({ tab });
   }
 
-  /* if facility selected, show detail */
+  /* legacy tool tab → forwarding to its new route; show a spinner meanwhile */
+  if (selectedFacility && activeTab !== "overview" && TAB_REDIRECTS[activeTab]) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <div
+          className="h-4 w-4 animate-spin rounded-full"
+          style={{ border: "1.5px solid var(--color-dark)", borderTopColor: "transparent" }}
+        />
+      </div>
+    );
+  }
+
+  /* if facility selected, show detail (overview) */
   if (selectedFacility) {
     return (
       <FacilityDetail
