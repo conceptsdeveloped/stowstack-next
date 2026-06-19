@@ -31,6 +31,7 @@ import {
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { AdminProvider, STORAGE_KEY } from "@/lib/admin-context";
 import { AdminHeader } from "./admin-header";
+import { CommandPalette } from "./command-palette";
 import { useClerkRole } from "@/hooks/use-clerk-role";
 import { VA_RESTRICTED_PATHS } from "@/lib/clerk-roles";
 import { useAdminFetch } from "@/hooks/use-admin-fetch";
@@ -502,6 +503,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 {children}
               </main>
             </div>
+            <CommandPalette />
           </div>
         </FacilityScope>
       </Suspense>
