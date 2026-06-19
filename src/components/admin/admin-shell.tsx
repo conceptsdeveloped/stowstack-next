@@ -312,6 +312,16 @@ function Sidebar({
 }) {
   const pathname = usePathname();
 
+  // Ambient nav signals: real counts from existing endpoints, keyed by href.
+  // Degrades gracefully — a missing/non-number value simply shows no badge.
+  const { data: analytics } = useAdminFetch<{ totalLeads?: number }>(
+    "/api/lead-analytics",
+  );
+  const navCounts: Record<string, number> = {};
+  if (typeof analytics?.totalLeads === "number") {
+    navCounts["/admin"] = analytics.totalLeads;
+  }
+
   const filteredGroups = isVA
     ? NAV_GROUPS.map((group) => ({
         ...group,
@@ -401,7 +411,19 @@ function Sidebar({
                       }}
                     >
                       <Icon className="h-3.5 w-3.5 shrink-0" />
-                      {!collapsed && <span>{item.label}</span>}
+                      {!collapsed && <span style={{ flex: 1 }}>{item.label}</span>}
+                      {!collapsed && navCounts[item.href] != null && (
+                        <span
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: 500,
+                            color: 'var(--ink3)',
+                            fontVariantNumeric: 'tabular-nums',
+                          }}
+                        >
+                          {navCounts[item.href]}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );
