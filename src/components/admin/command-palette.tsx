@@ -25,6 +25,7 @@ import {
   Phone,
   Plus,
   Search,
+  Send,
   Settings,
   ShieldCheck,
   Sparkles,
@@ -71,6 +72,10 @@ const DESTINATIONS: Destination[] = [
   { id: "setup", label: "Setup", href: "/admin/onboarding", group: "System", icon: Sparkles },
   { id: "settings", label: "Settings", href: "/admin/settings", group: "System", icon: Settings },
   { id: "changelog", label: "Changelog", href: "/admin/changelog", group: "System", icon: BookOpen },
+  // Scope-aware facility tool routes (Phase 3, rendered via FacilityToolPage).
+  { id: "studio-creative", label: "Creative Studio", href: "/admin/studio/creative", group: "Studio", icon: Palette },
+  { id: "studio-ad-generator", label: "Ad Generator", href: "/admin/studio/ad-generator", group: "Studio", icon: Sparkles },
+  { id: "studio-publisher", label: "Publisher", href: "/admin/studio/publisher", group: "Studio", icon: Send },
 ];
 
 const ACTIONS: Destination[] = [
