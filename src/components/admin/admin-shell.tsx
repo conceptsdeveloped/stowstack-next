@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -33,6 +33,59 @@ import { AdminProvider, STORAGE_KEY } from "@/lib/admin-context";
 import { AdminHeader } from "./admin-header";
 import { useClerkRole } from "@/hooks/use-clerk-role";
 import { VA_RESTRICTED_PATHS } from "@/lib/clerk-roles";
+import { useAdminFetch } from "@/hooks/use-admin-fetch";
+import { FacilityProvider } from "@/lib/facility-context";
+import type { Facility } from "@/types/facility";
+
+interface AdminFacility {
+  id: string;
+  name: string;
+  location?: string;
+  status?: string;
+  organization?: { id?: string } | null;
+}
+
+/**
+ * Fetches the admin's facilities (client-side; the API needs the X-Admin-Key
+ * header) and provides them through the shared FacilityProvider so the whole
+ * admin shares one scope. `key` remounts the provider once the list loads.
+ * Must sit under a <Suspense> boundary: FacilityProvider calls useSearchParams.
+ */
+function FacilityScope({ children }: { children: React.ReactNode }) {
+  const { data } = useAdminFetch<{ facilities: AdminFacility[] }>(
+    "/api/admin-facilities",
+  );
+  const facilities = useMemo<Facility[]>(
+    () =>
+      (data?.facilities ?? []).map((f) => ({
+        id: f.id,
+        name: f.name,
+        location: f.location ?? "",
+        status: f.status ?? "",
+        organizationId: f.organization?.id,
+      })),
+    [data],
+  );
+  return (
+    <FacilityProvider key={facilities.length} facilities={facilities}>
+      {children}
+    </FacilityProvider>
+  );
+}
+
+function ShellFallback() {
+  return (
+    <div
+      className="admin-theme flex min-h-screen items-center justify-center"
+      style={{ background: "var(--bg)" }}
+    >
+      <div
+        className="h-4 w-4 animate-spin rounded-full"
+        style={{ border: "1.5px solid #1A1A1A", borderTopColor: "transparent" }}
+      />
+    </div>
+  );
+}
 
 interface NavItem {
   label: string;
@@ -433,21 +486,25 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminProvider initialKey={adminKey}>
-      <div className="admin-theme flex h-screen overflow-hidden" style={{ background: 'var(--bg)', fontFamily: 'var(--font)' }}>
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onCollapse={setSidebarCollapsed}
-          mobileOpen={mobileOpen}
-          onMobileClose={() => setMobileOpen(false)}
-          isVA={isVA}
-        />
-        <div className="flex flex-1 flex-col overflow-hidden min-w-0">
-          <AdminHeader onToggleSidebar={() => setMobileOpen((v) => !v)} />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 md:p-6 min-w-0">
-            {children}
-          </main>
-        </div>
-      </div>
+      <Suspense fallback={<ShellFallback />}>
+        <FacilityScope>
+          <div className="admin-theme flex h-screen overflow-hidden" style={{ background: 'var(--bg)', fontFamily: 'var(--font)' }}>
+            <Sidebar
+              collapsed={sidebarCollapsed}
+              onCollapse={setSidebarCollapsed}
+              mobileOpen={mobileOpen}
+              onMobileClose={() => setMobileOpen(false)}
+              isVA={isVA}
+            />
+            <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+              <AdminHeader onToggleSidebar={() => setMobileOpen((v) => !v)} />
+              <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 md:p-6 min-w-0">
+                {children}
+              </main>
+            </div>
+          </div>
+        </FacilityScope>
+      </Suspense>
     </AdminProvider>
   );
 }

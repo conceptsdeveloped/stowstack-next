@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useAdmin } from "@/lib/admin-context";
+import { FacilitySwitcher } from "./facility-switcher";
 
 const ROUTE_TITLES: Record<string, string> = {
   "/admin": "Dashboard",
@@ -128,6 +129,8 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
       <h1 style={{ fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 500, letterSpacing: '-0.01em', color: '#1A1A1A' }}>
         {getPageTitle(pathname)}
       </h1>
+
+      <FacilitySwitcher />
 
       <div className="ml-auto flex items-center gap-0.5 shrink-0">
         <button
