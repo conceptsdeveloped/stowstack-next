@@ -12,7 +12,7 @@ import { useReducedMotion } from "framer-motion";
 const TYPEWRITER_WORDS = [
   "34 move-ins in 90 days.",
   "71% to 84% occupancy in one quarter.",
-  "Create demand. Capture demand. Recapture demand.",
+  "New renters, ready renters, the ones who almost left.",
   "REIT-grade tools to reach 100% occupancy.",
   "Stop leaking $72,000 a year to the REIT down the road.",
 ];

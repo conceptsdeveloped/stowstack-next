@@ -62,9 +62,9 @@ export default function HeroStatusStrip() {
             flexShrink: 0,
           }}
         />
-        <span className="sm:hidden">Marketing infrastructure</span>
+        <span className="sm:hidden">Marketing that fills units</span>
         <span className="hidden sm:inline">
-          Marketing infrastructure · Built for self-storage
+          Marketing that fills units · Built for self-storage
         </span>
       </span>
 

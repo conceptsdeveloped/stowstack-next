@@ -22,7 +22,8 @@ import Typewriter from "./typewriter";
 
 const TRUST_BADGES = [
   "Built and tested on our own facilities",
-  "storEDGE rental built in",
+  "Reads your storEDGE reports",
+  "No agency, no retainer",
   "Ads live in your first week",
 ];
 
@@ -246,7 +247,7 @@ export default function HomeHero() {
             color: "var(--text-faint)",
           }}
         >
-          Learn more <span aria-hidden="true">↓</span>
+          See how it works <span aria-hidden="true">↓</span>
         </a>
       </div>
     </section>
