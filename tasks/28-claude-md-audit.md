@@ -2,7 +2,7 @@
 
 **Generated:** 2026-05-28
 **Audit scope:** Every claim in `CLAUDE.md` (214 lines) verified against the repo as of commit `c3ebc34`.
-**Status:** Planning doc. Do NOT one-shot. Each action item below is atomic and intended to spawn its own task file (or be batched in small, verifiable groups).
+**Status:** EXECUTED IN-PLACE on 2026-06-19. All WRONG/STALE items and most MISSING items were applied directly to `CLAUDE.md` in one pass (not via the proposed 29-33 task files). Per Blake's decisions: kept everything inside `CLAUDE.md` (the two structural extractions A-5f.4 / A-8.4 were declined), un-banned icon libraries (lucide-react is the de facto library), kept pre-launch status, kept Twilio "not set up," and set the gold rule to logo-only. Boxes below are checked for what landed; the two declined extractions are left unchecked with a note.
 
 ---
 
@@ -43,9 +43,9 @@
 
 **Action items**
 
-- [ ] **A-1.1** Add a pointer to `.claude/brand-voice-guidelines.md` and clarify the relationship to `copy-voice.md` (is one a superset? a long-form? Blake to confirm).
-- [ ] **A-1.2** Add a one-line pointer to `.claude/blake-copy-raw.md` ("raw voice samples — read when you need to hear Blake's actual phrasing").
-- [ ] **A-1.3** Add a one-line pointer to the `operator-copy` skill and when to invoke it vs reading the voice docs directly.
+- [x] **A-1.1** Add a pointer to `.claude/brand-voice-guidelines.md` and clarify the relationship to `copy-voice.md` (is one a superset? a long-form? Blake to confirm).
+- [x] **A-1.2** Add a one-line pointer to `.claude/blake-copy-raw.md` ("raw voice samples — read when you need to hear Blake's actual phrasing").
+- [x] **A-1.3** Add a one-line pointer to the `operator-copy` skill and when to invoke it vs reading the voice docs directly.
 
 ---
 
@@ -75,11 +75,11 @@
 
 **Action items**
 
-- [ ] **A-3.1** Replace "Production build (also type-checks)" with truthful description: builds **also run `prisma migrate deploy` against `DATABASE_URL`**. Flag the implication for non-prod environments.
-- [ ] **A-3.2** Replace "No test framework is configured" with "Vitest is configured. Run `npx vitest` (or wire `npm run test`). Test files live in `src/**/__tests__/`. Coverage is partial: API helpers, V1 routes, Stripe webhook, auth helpers."
-- [ ] **A-3.3** Document `npm run lint:safety` as a required pre-merge check (per its intent).
-- [ ] **A-3.4** Document the three Prisma scripts in `package.json` (`db:push`, `db:migrate:dev`, `db:migrate:deploy`) so Claude does not invent `npx` invocations when a script exists.
-- [ ] **A-3.5** Decide: do you want a `npm run test` script wired? If yes, add it.
+- [x] **A-3.1** Replace "Production build (also type-checks)" with truthful description: builds **also run `prisma migrate deploy` against `DATABASE_URL`**. Flag the implication for non-prod environments.
+- [x] **A-3.2** Replace "No test framework is configured" with "Vitest is configured. Run `npx vitest` (or wire `npm run test`). Test files live in `src/**/__tests__/`. Coverage is partial: API helpers, V1 routes, Stripe webhook, auth helpers."
+- [x] **A-3.3** Document `npm run lint:safety` as a required pre-merge check (per its intent).
+- [x] **A-3.4** Document the three Prisma scripts in `package.json` (`db:push`, `db:migrate:dev`, `db:migrate:deploy`) so Claude does not invent `npx` invocations when a script exists.
+- [x] **A-3.5** Decide: do you want a `npm run test` script wired? If yes, add it.
 
 ---
 
@@ -98,9 +98,9 @@
 
 **Action items**
 
-- [ ] **A-4.1** Replace "Good / Better / Best" with the actual tier names: **Signal / System / Compound**. Confirm whether Enterprise tier exists anywhere (off-page custom deals?) and document.
-- [ ] **A-4.2** Replace "Blog: Not live yet" with current state: blog is shipped at `/blog`, `feed.xml` is live, 6 articles in `/content/blog/`, parsed by `src/lib/blog.ts`. Note the `PILLARS` taxonomy if relevant.
-- [ ] **A-4.3** Confirm with Blake whether pre-launch / alpha status is still accurate on 2026-05-28, or whether copy should shift to "soft launch / early customers."
+- [x] **A-4.1** Replace "Good / Better / Best" with the actual tier names: **Signal / System / Compound**. Confirm whether Enterprise tier exists anywhere (off-page custom deals?) and document.
+- [x] **A-4.2** Replace "Blog: Not live yet" with current state: blog is shipped at `/blog`, `feed.xml` is live, 6 articles in `/content/blog/`, parsed by `src/lib/blog.ts`. Note the `PILLARS` taxonomy if relevant.
+- [x] **A-4.3** Confirm with Blake whether pre-launch / alpha status is still accurate on 2026-05-28, or whether copy should shift to "soft launch / early customers."
 
 ---
 
@@ -122,7 +122,7 @@
 
 **Action items**
 
-- [ ] **A-5a.1** Rewrite the stack line to include Sentry, Vercel Blob, React 19, recharts (admin charts), lucide-react (icons — see also A-5f.4 for icon-library conflict), and sharp. Keep it one line per the existing style.
+- [x] **A-5a.1** Rewrite the stack line to include Sentry, Vercel Blob, React 19, recharts (admin charts), lucide-react (icons — see also A-5f.4 for icon-library conflict), and sharp. Keep it one line per the existing style.
 
 #### 5b. Authentication — Four Independent Systems (lines 50–55)
 
@@ -139,10 +139,10 @@
 
 **Action items**
 
-- [ ] **A-5b.1** Rewrite the Clerk bullet to acknowledge that `proxy.ts` also owns CSP, security headers, CSRF tokens, and Sentry route tagging — not "Clerk wrapper."
-- [ ] **A-5b.2** Fix the table name: **`sessions`**, not `org_sessions`. Update the helper bullet to reference `src/lib/session-auth.ts` (which it does correctly).
-- [ ] **A-5b.3** Add a one-line CSRF note pointing at `src/lib/csrf.ts` and the `requiresCsrf()` check in `proxy.ts`.
-- [ ] **A-5b.4** Verify and document the actual session TTL.
+- [x] **A-5b.1** Rewrite the Clerk bullet to acknowledge that `proxy.ts` also owns CSP, security headers, CSRF tokens, and Sentry route tagging — not "Clerk wrapper."
+- [x] **A-5b.2** Fix the table name: **`sessions`**, not `org_sessions`. Update the helper bullet to reference `src/lib/session-auth.ts` (which it does correctly).
+- [x] **A-5b.3** Add a one-line CSRF note pointing at `src/lib/csrf.ts` and the `requiresCsrf()` check in `proxy.ts`.
+- [x] **A-5b.4** Verify and document the actual session TTL.
 
 #### 5c. API Route Patterns (lines 57–66)
 
@@ -158,8 +158,8 @@
 
 **Action items**
 
-- [ ] **A-5c.1** Update route count from "118+" to current ("~200 route directories"). Consider not using a number at all to avoid future drift — replace with "the API surface is large; map it with `find src/app/api -type d` rather than guessing."
-- [ ] **A-5c.2** Soften "every route exports `OPTIONS`" to "most public-facing routes export `OPTIONS`" so Claude does not assume a uniform pattern.
+- [x] **A-5c.1** Update route count from "118+" to current ("~200 route directories"). Consider not using a number at all to avoid future drift — replace with "the API surface is large; map it with `find src/app/api -type d` rather than guessing."
+- [x] **A-5c.2** Soften "every route exports `OPTIONS`" to "most public-facing routes export `OPTIONS`" so Claude does not assume a uniform pattern.
 
 #### 5d. Frontend Structure (lines 68–74)
 
@@ -178,10 +178,10 @@
 
 **Action items**
 
-- [ ] **A-5d.1** Replace "Poppins + Lora fonts" with "Manrope" in the marketing-site bullet. Remove "(no gold)" qualifier or add a parenthetical that says "the logo `ads` treatment is the brand-locked exception."
-- [ ] **A-5d.2** Delete the "Copy is draft — will be regenerated" sentence entirely. Voice docs exist; copy is now governed by them.
-- [ ] **A-5d.3** Update "16+ lazy-loaded tab components" to reflect the current shape: roughly 60 files, with feature subdirs for ad-publisher, ad-studio, creative-studio, google-ads-lab, tiktok-creator, etc.
-- [ ] **A-5d.4** Decide whether the "needs reorganization" note still applies. If the ad-studio/ad-publisher split satisfies it, delete the note. If more work is pending, keep but be specific about what is still outstanding.
+- [x] **A-5d.1** Replace "Poppins + Lora fonts" with "Manrope" in the marketing-site bullet. Remove "(no gold)" qualifier or add a parenthetical that says "the logo `ads` treatment is the brand-locked exception."
+- [x] **A-5d.2** Delete the "Copy is draft — will be regenerated" sentence entirely. Voice docs exist; copy is now governed by them.
+- [x] **A-5d.3** Update "16+ lazy-loaded tab components" to reflect the current shape: roughly 60 files, with feature subdirs for ad-publisher, ad-studio, creative-studio, google-ads-lab, tiktok-creator, etc.
+- [x] **A-5d.4** Decide whether the "needs reorganization" note still applies. If the ad-studio/ad-publisher split satisfies it, delete the note. If more work is pending, keep but be specific about what is still outstanding.
 
 #### 5e. Database (lines 76–80)
 
@@ -194,9 +194,9 @@
 
 **Action items**
 
-- [ ] **A-5e.1** Update model count to "**90 models, ~1960 lines**" — or drop the precise number and write "large schema; query with `grep -c '^model ' prisma/schema.prisma` rather than guessing."
-- [ ] **A-5e.2** Remove `org_sessions` from the key-models list. Add `sessions`. Optionally curate to ~10 models that genuinely matter for Claude's reasoning (e.g. `facilities`, `clients`, `leads`, `shared_audits`, `landing_pages`, `pms_uploads`, `audit_log`, `sessions`, `organizations`, `org_users`).
-- [ ] **A-5e.3** Replace the `$queryRawUnsafe` claim with truthful guidance: "Raw SQL (`$executeRaw`, `$queryRaw`) is used in `src/lib/session-auth.ts` for direct session-table operations. Everywhere else, use Prisma client methods."
+- [x] **A-5e.1** Update model count to "**90 models, ~1960 lines**" — or drop the precise number and write "large schema; query with `grep -c '^model ' prisma/schema.prisma` rather than guessing."
+- [x] **A-5e.2** Remove `org_sessions` from the key-models list. Add `sessions`. Optionally curate to ~10 models that genuinely matter for Claude's reasoning (e.g. `facilities`, `clients`, `leads`, `shared_audits`, `landing_pages`, `pms_uploads`, `audit_log`, `sessions`, `organizations`, `org_users`).
+- [x] **A-5e.3** Replace the `$queryRawUnsafe` claim with truthful guidance: "Raw SQL (`$executeRaw`, `$queryRaw`) is used in `src/lib/session-auth.ts` for direct session-table operations. Everywhere else, use Prisma client methods."
 
 #### 5f. Design System — Light Only (lines 82–123)
 
@@ -218,10 +218,10 @@ This section is dense (40 lines). Most is correct. Issues:
 
 **Action items**
 
-- [ ] **A-5f.1** Resolve the "sienna gold is banned" vs "brand-locked `--brand-gold`" tension. Recommended rewrite: "Sienna gold (`#B58B3F`) is banned everywhere **except** the logo 'ads' lockup, where `--brand-gold` is the only legal use. Older `--color-gold*` tokens remain in `globals.css` for legacy compatibility; do not reference them in new code."
-- [ ] **A-5f.2** Resolve the icon-library contradiction. Either (a) update the rule to permit `lucide-react` since it is the de facto icon library, or (b) commit to ripping lucide-react out (massive job). Default recommendation: permit `lucide-react`, ban others, document in the rule.
-- [ ] **A-5f.3** Note that admin charts use `recharts` with the documented color convention.
-- [ ] **A-5f.4** **Extract the Design System section to its own file** at `.claude/design-system.md` and replace with a 2-line pointer in `CLAUDE.md`. Matches the pattern Blake already uses for voice / market-data. Reduces CLAUDE.md by ~40 lines and makes the design system independently editable.
+- [x] **A-5f.1** Resolve the "sienna gold is banned" vs "brand-locked `--brand-gold`" tension. Recommended rewrite: "Sienna gold (`#B58B3F`) is banned everywhere **except** the logo 'ads' lockup, where `--brand-gold` is the only legal use. Older `--color-gold*` tokens remain in `globals.css` for legacy compatibility; do not reference them in new code."
+- [x] **A-5f.2** Resolve the icon-library contradiction. Either (a) update the rule to permit `lucide-react` since it is the de facto icon library, or (b) commit to ripping lucide-react out (massive job). Default recommendation: permit `lucide-react`, ban others, document in the rule.
+- [x] **A-5f.3** Note that admin charts use `recharts` with the documented color convention.
+- [ ] **A-5f.4 — DECLINED (in-place-only scope):** Extract the Design System section to its own file at `.claude/design-system.md` and replace with a 2-line pointer in `CLAUDE.md`. Matches the pattern Blake already uses for voice / market-data. Reduces CLAUDE.md by ~40 lines and makes the design system independently editable.
 
 #### 5g. Cron Jobs (lines 125–127)
 
@@ -233,7 +233,7 @@ This section is dense (40 lines). Most is correct. Issues:
 
 **Action items**
 
-- [ ] **A-5g.1** Update count from 9 to 21. Or, again, drop the number: "All cron jobs are configured in `vercel.json` and live at `src/app/api/cron/*`. Map them with `cat vercel.json` rather than guessing."
+- [x] **A-5g.1** Update count from 9 to 21. Or, again, drop the number: "All cron jobs are configured in `vercel.json` and live at `src/app/api/cron/*`. Map them with `cat vercel.json` rather than guessing."
 
 #### 5h. Key Integrations (lines 129–143)
 
@@ -249,9 +249,9 @@ This section is dense (40 lines). Most is correct. Issues:
 
 **Action items**
 
-- [ ] **A-5h.1** Add a Cal.com row note: "Cal handle is `stowstack/30min`. The `storageads` handle was never claimed. Centralized URL lives at `src/lib/booking.ts` — do not hardcode the URL anywhere else."
-- [ ] **A-5h.2** Add Sentry, Vercel Blob, and Meta CAPI rows. Mark Meta CAPI as Angelo's domain.
-- [ ] **A-5h.3** Confirm with Blake whether Twilio is still "not set up yet" or whether call-tracking is now live (recent CSP entries suggest some integration).
+- [x] **A-5h.1** Add a Cal.com row note: "Cal handle is `stowstack/30min`. The `storageads` handle was never claimed. Centralized URL lives at `src/lib/booking.ts` — do not hardcode the URL anywhere else."
+- [x] **A-5h.2** Add Sentry, Vercel Blob, and Meta CAPI rows. Mark Meta CAPI as Angelo's domain.
+- [x] **A-5h.3** Confirm with Blake whether Twilio is still "not set up yet" or whether call-tracking is now live (recent CSP entries suggest some integration).
 
 #### 5i. PMS Integration (lines 145–147)
 
@@ -262,7 +262,7 @@ This section is dense (40 lines). Most is correct. Issues:
 
 **Action items**
 
-- [ ] **A-5i.1** Change "PDF, CSV, and Excel only" to "CSV only (`accept=".csv"` in `pms-upload-tab.tsx`)." If PDF/XLSX support is on the roadmap, link to the task.
+- [x] **A-5i.1** Change "PDF, CSV, and Excel only" to "CSV only (`accept=".csv"` in `pms-upload-tab.tsx`)." If PDF/XLSX support is on the roadmap, link to the task.
 
 #### 5j. Data Scraping Strategy (lines 149–151)
 
@@ -292,7 +292,7 @@ This section is dense (40 lines). Most is correct. Issues:
 
 **Action items**
 
-- [ ] **A-6.1** Have Blake refresh priorities for current phase. If alpha-testing is the immediate next step (Section 4 status), priorities likely shift to: (a) onboarding flow polish, (b) PMS upload UX, (c) audit-funnel conversion. Blake to decide.
+- [x] **A-6.1** Have Blake refresh priorities for current phase. If alpha-testing is the immediate next step (Section 4 status), priorities likely shift to: (a) onboarding flow polish, (b) PMS upload UX, (c) audit-funnel conversion. Blake to decide.
 
 ---
 
@@ -319,10 +319,10 @@ This section is dense (40 lines). Most is correct. Issues:
 
 **Action items**
 
-- [ ] **A-8.1** Replace "01-23" reference with "current: 24-27 (see `tasks/README.md` for status)." Or remove the count and just point to `tasks/README.md` as source of truth.
-- [ ] **A-8.2** Remove stale file/route counts ("453 files and 172 API routes") or update them. Recommend removing — they will drift again.
-- [ ] **A-8.3** Remove the stale task-dependency block (07→14, 06→16, 11→12). Those tasks are done.
-- [ ] **A-8.4** **Move the Execution Rules + How to Start a Task into `tasks/README.md`.** Leave a 3-line pointer in CLAUDE.md: "Tasks live in `tasks/`. Read `tasks/README.md` for execution rules. After every task: `npx prisma validate && npx tsc --noEmit && npm run build`." This shrinks CLAUDE.md by ~30 lines.
+- [x] **A-8.1** Replace "01-23" reference with "current: 24-27 (see `tasks/README.md` for status)." Or remove the count and just point to `tasks/README.md` as source of truth.
+- [x] **A-8.2** Remove stale file/route counts ("453 files and 172 API routes") or update them. Recommend removing — they will drift again.
+- [x] **A-8.3** Remove the stale task-dependency block (07→14, 06→16, 11→12). Those tasks are done.
+- [ ] **A-8.4 — DECLINED (in-place-only scope):** Move the Execution Rules + How to Start a Task into `tasks/README.md`. Leave a 3-line pointer in CLAUDE.md: "Tasks live in `tasks/`. Read `tasks/README.md` for execution rules. After every task: `npx prisma validate && npx tsc --noEmit && npm run build`." This shrinks CLAUDE.md by ~30 lines.
 
 ---
 

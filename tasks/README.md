@@ -12,6 +12,7 @@ Each task is self-contained per the execution rules in `CLAUDE.md`. Run one at a
 | 25 | Collapse audit-* API routes (10 → 3) | **DEFERRED** — high risk, split into 3 phases | High |
 | 26 | Decide: keep or kill partner/referral program | **CLOSED — KEEP** (CLAUDE.md lists management cos as buyers) | — |
 | 27 | Decide: keep or kill premature tenant lifecycle features | **CLOSED — KEEP** (tied to PMS moat) | — |
+| 28 | CLAUDE.md full audit & refresh | **CLOSED** — executed in-place 2026-06-19 (see header of `28-claude-md-audit.md`) | Low |
 
 ## What was already done in the QA pass + bloat reduction
 
