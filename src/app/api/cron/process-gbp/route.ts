@@ -4,6 +4,8 @@ import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { getValidGoogleToken } from "@/lib/platform-auth";
+import { generateWithVoice } from "@/lib/voice/generate";
+import { reviewAutoPublishDecision, logSafetyEvent } from "@/lib/voice/safety";
 
 export const maxDuration = 120;
 
@@ -381,13 +383,18 @@ export async function GET(request: NextRequest) {
 
           const config = conn.sync_config || {};
 
-          // 3. Auto-generate and optionally auto-publish responses
+          // 3. Auto-generate replies through the voice profile, then gate
+          //    auto-publish on the safety wrapper. Only clean 4-5 star replies
+          //    publish automatically; low ratings and blocklist hits are drafted
+          //    and left in the review queue (status 'ai_drafted') for approval.
           if (config.auto_respond) {
             const pendingReviews = await db.$queryRaw<
               {
                 id: string;
+                facility_id: string;
                 rating: number;
                 author_name: string;
+                review_text: string | null;
                 external_review_id: string;
                 facility_name: string;
               }[]
@@ -401,14 +408,44 @@ export async function GET(request: NextRequest) {
 
             for (const review of pendingReviews) {
               if (isTimeBudgetExceeded()) { results.timedOut = true; break; }
-              const draft = generateTemplateResponse(
-                review,
-                review.facility_name
-              );
+
+              const fallback = generateTemplateResponse(review, review.facility_name);
+              const gen = await generateWithVoice({
+                facilityId: review.facility_id,
+                facilityName: review.facility_name,
+                userPrompt: `Write a Google Business Profile review reply for "${review.facility_name}", a self-storage facility. The review is ${review.rating}/5 stars from "${review.author_name || "a customer"}". Review text: "${review.review_text || "(no text)"}". Under 150 words. Apologize briefly and invite direct contact for anything negative; thank them and reference a specific point for anything positive. Do not admit fault or discuss specifics. Sign off "The ${review.facility_name} Team". Reply text only.`,
+                maxTokens: 300,
+                fallback,
+              });
+              const draft = gen.text;
+
               await db.$executeRaw`
                 UPDATE gbp_reviews SET ai_draft = ${draft}, response_status = 'ai_drafted' WHERE id = ${review.id}::uuid
               `;
               results.responses_generated++;
+
+              const decision = reviewAutoPublishDecision({
+                rating: review.rating,
+                reviewText: review.review_text,
+                draftText: draft,
+              });
+
+              if (!decision.publish) {
+                await logSafetyEvent({
+                  facilityId: review.facility_id,
+                  eventType:
+                    decision.reason && decision.reason.startsWith("blocklist")
+                      ? "blocklist_hit"
+                      : "review_queue",
+                  surface: "gbp_review_reply",
+                  sourceId: review.id,
+                  aiDraft: draft,
+                  escalationReason: decision.reason,
+                  blocklistTerm: decision.blocklistTerm,
+                  metadata: { rating: review.rating },
+                });
+                continue;
+              }
 
               const published = await publishReply(review, draft, conn);
               if (published) {

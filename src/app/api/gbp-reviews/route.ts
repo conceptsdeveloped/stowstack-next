@@ -9,6 +9,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { generateWithVoice } from "@/lib/voice/generate";
 
 interface GbpConnection {
   id: string;
@@ -147,64 +148,29 @@ async function syncReviewsFromGBP(
 
 async function generateAIResponse(
   review: { rating: number; author_name: string | null; review_text: string | null },
-  facilityName: string,
-  responseTone: string = "professional"
+  facilityId: string,
+  facilityName: string
 ): Promise<string> {
-  const toneDescriptions: Record<string, string> = {
-    friendly: "warm, friendly, and conversational — like a neighbor who genuinely cares",
-    professional: "professional yet personable — courteous and competent",
-    casual: "casual and down-to-earth — relaxed but respectful",
-  };
-  const toneGuide = toneDescriptions[responseTone] || toneDescriptions.professional;
+  const fallback =
+    review.rating >= 4
+      ? `Thank you so much for your ${review.rating}-star review, ${review.author_name || "valued customer"}! We're glad you had a good experience at ${facilityName}, and we appreciate you taking the time to share it. — The ${facilityName} Team`
+      : review.rating === 3
+        ? `Thank you for the feedback, ${review.author_name || "valued customer"}. We're always working to do better at ${facilityName} — please reach out to the office directly so we can make your next visit a 5-star one. — The ${facilityName} Team`
+        : `We're sorry your experience at ${facilityName} fell short, ${review.author_name || "valued customer"}. We'd like to make it right — please contact the office directly so we can help. — The ${facilityName} Team`;
 
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": process.env.ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 300,
-          messages: [
-            {
-              role: "user",
-              content: `Write a Google Business Profile review response for a self-storage facility called "${facilityName}".
-
-Tone: ${toneGuide}
-
+  const userPrompt = `Write a Google Business Profile review reply for "${facilityName}", a self-storage facility.
 The review is ${review.rating}/5 stars from "${review.author_name || "a customer"}".
 Review text: "${review.review_text || "(no text)"}"
+Rules: under 150 words; for negative reviews apologize briefly, offer to make it right, and invite direct contact without admitting fault or discussing specifics; for positive reviews thank them and mention a specific point they raised; sign off "The ${facilityName} Team". Write only the reply text.`;
 
-Guidelines:
-- Keep it under 150 words
-- Match the tone described above consistently
-- For negative reviews: apologize, offer to resolve, invite direct contact
-- For positive reviews: express gratitude, mention specific points they raised
-- Don't be overly corporate or use buzzwords
-- Sign off with "The ${facilityName} Team"
-
-Write only the response text, no quotes or labels.`,
-            },
-          ],
-        }),
-      });
-      const data = await res.json();
-      if (data.content?.[0]?.text) return data.content[0].text;
-    } catch {
-      // AI generation failed, fall through to templates
-    }
-  }
-
-  if (review.rating >= 4) {
-    return `Thank you so much for your wonderful ${review.rating}-star review, ${review.author_name || "valued customer"}! We're thrilled to hear about your positive experience at ${facilityName}. Your kind words mean a lot to our team. We look forward to continuing to serve you!`;
-  } else if (review.rating === 3) {
-    return `Thank you for taking the time to share your feedback, ${review.author_name || "valued customer"}. At ${facilityName}, we're always striving to improve. We'd love to hear more about how we can enhance your experience. Please don't hesitate to reach out to us directly so we can address any concerns.`;
-  }
-  return `We sincerely apologize for your experience, ${review.author_name || "valued customer"}. At ${facilityName}, we take all feedback seriously and want to make this right. Please reach out to us directly so we can address your concerns and work toward a resolution. Your satisfaction is our top priority.`;
+  const { text } = await generateWithVoice({
+    facilityId,
+    facilityName,
+    userPrompt,
+    maxTokens: 300,
+    fallback,
+  });
+  return text;
 }
 
 async function publishReplyToGBP(
@@ -362,14 +328,10 @@ export async function POST(req: NextRequest) {
       });
       if (!review) return errorResponse("Review not found", 404, origin);
 
-      // Response tone — gbp_review_settings table not yet created;
-      // default to "professional" until settings UI is built
-      const responseTone = "professional";
-
       const aiDraft = await generateAIResponse(
         review,
-        review.facilities.name,
-        responseTone
+        review.facility_id,
+        review.facilities.name
       );
       await db.gbp_reviews.update({
         where: { id: reviewId },
@@ -429,16 +391,12 @@ export async function POST(req: NextRequest) {
         include: { facilities: { select: { name: true } } },
       });
 
-      // Response tone — gbp_review_settings table not yet created;
-      // default to "professional" until settings UI is built
-      const bulkTone = "professional";
-
       let generated = 0;
       for (const review of pending) {
         const aiDraft = await generateAIResponse(
           review,
-          review.facilities.name,
-          bulkTone
+          review.facility_id,
+          review.facilities.name
         );
         await db.gbp_reviews.update({
           where: { id: review.id },

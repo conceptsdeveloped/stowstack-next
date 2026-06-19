@@ -494,6 +494,9 @@ model facilities {
   noi_report_snapshots         noi_report_snapshots[]
   creative_performance         creative_performance[]
   facility_learnings           facility_learnings?
+  voice_profiles               voice_profiles[]
+  ai_safety_events             ai_safety_events[]
+  photo_refresh_prompts        photo_refresh_prompts[]
 
   deleted_at                   DateTime?                      @db.Timestamptz(6)
   deleted_by                   String?
@@ -768,7 +771,7 @@ model gbp_connections {
   token_expires_at  DateTime?       @db.Timestamptz(6)
   status            String?         @default("disconnected")
   last_sync_at      DateTime?       @db.Timestamptz(6)
-  sync_config       Json?           @default("{\"auto_post\": false, \"sync_hours\": true, \"sync_photos\": true, \"auto_respond\": false}")
+  sync_config       Json?           @default("{\"auto_post\": true, \"sync_hours\": true, \"sync_photos\": true, \"auto_respond\": true}")
   created_at        DateTime        @default(now()) @db.Timestamptz(6)
   updated_at        DateTime        @updatedAt @default(now()) @db.Timestamptz(6)
   facilities        facilities      @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -1963,4 +1966,75 @@ model synthesis_log {
   created_at    DateTime @default(now()) @db.Timestamptz(6)
 
   @@index([status], map: "idx_synthesis_log_status")
+}
+
+// ── Operator OS: AI voice + safety substrate, GBP Q&A seed library, photo refresh ──
+
+model voice_profiles {
+  id               String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id      String?     @db.Uuid
+  name             String
+  tone_descriptors Json        @default("{}")
+  do_use           String[]    @default([])
+  do_not_use       String[]    @default([])
+  template         String
+  active           Boolean     @default(true)
+  created_at       DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime    @updatedAt @default(now()) @db.Timestamptz(6)
+  facilities       facilities? @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_voice_profiles_facility")
+  @@index([active], map: "idx_voice_profiles_active")
+}
+
+model ai_safety_events {
+  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id       String?     @db.Uuid
+  event_type        String
+  surface           String
+  source_id         String?     @db.Uuid
+  ai_draft          String?
+  escalation_reason String?
+  blocklist_term    String?
+  human_decision    String?     @default("pending")
+  human_decided_by  String?
+  human_decided_at  DateTime?   @db.Timestamptz(6)
+  metadata          Json?
+  created_at        DateTime    @default(now()) @db.Timestamptz(6)
+  facilities        facilities? @relation(fields: [facility_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  @@index([facility_id], map: "idx_ai_safety_facility")
+  @@index([event_type, created_at(sort: Desc)], map: "idx_ai_safety_type")
+  @@index([surface, created_at(sort: Desc)], map: "idx_ai_safety_surface")
+}
+
+model gbp_question_templates {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category        String
+  question_text   String   @unique
+  answer_template String
+  active          Boolean  @default(true)
+  priority        Int      @default(0)
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime @updatedAt @default(now()) @db.Timestamptz(6)
+
+  @@index([active, priority(sort: Desc)], map: "idx_gbp_q_templates_priority")
+  @@index([category], map: "idx_gbp_q_templates_category")
+}
+
+model photo_refresh_prompts {
+  id                   String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id          String     @db.Uuid
+  prompt_month         DateTime   @db.Date
+  prompt_sent_at       DateTime?  @db.Timestamptz(6)
+  prompt_channel       String     @default("email")
+  response_received_at DateTime?  @db.Timestamptz(6)
+  uploaded_photo_ids   String[]   @default([])
+  uploaded_to_gbp_at   DateTime?  @db.Timestamptz(6)
+  status               String     @default("pending")
+  created_at           DateTime   @default(now()) @db.Timestamptz(6)
+  facilities           facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([facility_id, prompt_month])
+  @@index([status, prompt_sent_at], map: "idx_photo_prompts_due")
 }

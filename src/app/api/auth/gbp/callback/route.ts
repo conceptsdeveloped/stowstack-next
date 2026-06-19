@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { verifyOAuthState } from "@/lib/oauth-state";
+import { seedFacilityQuestions } from "@/lib/gbp/seed-questions";
 
 export const maxDuration = 15;
 
@@ -179,6 +180,15 @@ export async function GET(request: NextRequest) {
         meta: { locationId, locationName },
       },
     });
+
+    // Seed the storage Q&A library into the new profile (best-effort; never blocks OAuth)
+    if (connectionStatus === "connected") {
+      try {
+        await seedFacilityQuestions(facilityId, { publish: false });
+      } catch {
+        // seeding failure must not break the connect flow
+      }
+    }
 
     if (needsLocationSelection) {
       return NextResponse.redirect(

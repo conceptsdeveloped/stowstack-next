@@ -9,6 +9,11 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { generateWithVoice } from "@/lib/voice/generate";
+import {
+  seedFacilityQuestions,
+  ensureQuestionTemplatesSeeded,
+} from "@/lib/gbp/seed-questions";
 
 interface GbpConnection {
   id: string;
@@ -64,45 +69,23 @@ async function getValidToken(
 
 async function generateAIAnswer(
   question: { author_name: string | null; question_text: string },
+  facilityId: string,
   facilityName: string
 ): Promise<string> {
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": process.env.ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 250,
-          messages: [
-            {
-              role: "user",
-              content: `Write a helpful answer to a question posted on the Google Business Profile of a self-storage facility called "${facilityName}".
+  const fallback = `Great question! At ${facilityName}, we'd be happy to help. Please give us a call or stop by the office and our team can share the most up-to-date details. We look forward to assisting you!`;
 
+  const userPrompt = `Answer this question posted on the Google Business Profile of "${facilityName}", a self-storage facility.
 Question from "${question.author_name || "a customer"}": "${question.question_text}"
+Rules: under 100 words; be helpful and specific; if you don't know specifics like price, availability, or hours, invite them to call or visit; mention the facility name briefly. Write only the answer text.`;
 
-Guidelines:
-- Keep it under 100 words
-- Be helpful, friendly, and specific
-- If you don't know specifics (prices, hours), suggest they call or visit
-- Include a brief mention of the facility name
-- Write only the answer text, no labels or quotes`,
-            },
-          ],
-        }),
-      });
-      const data = await res.json();
-      if (data.content?.[0]?.text) return data.content[0].text;
-    } catch {
-      // AI generation failed, fall through to template
-    }
-  }
-
-  return `Great question! At ${facilityName}, we'd be happy to help. Please give us a call or stop by our office and our team can provide you with the most up-to-date information. We look forward to assisting you!`;
+  const { text } = await generateWithVoice({
+    facilityId,
+    facilityName,
+    userPrompt,
+    maxTokens: 250,
+    fallback,
+  });
+  return text;
 }
 
 async function syncQuestionsFromGBP(
@@ -259,6 +242,7 @@ export async function POST(req: NextRequest) {
 
       const aiDraft = await generateAIAnswer(
         question,
+        question.facility_id,
         question.facilities.name
       );
       await db.gbp_questions.update({
@@ -331,7 +315,7 @@ export async function POST(req: NextRequest) {
 
       let generated = 0;
       for (const q of pending) {
-        const aiDraft = await generateAIAnswer(q, q.facilities.name);
+        const aiDraft = await generateAIAnswer(q, q.facility_id, q.facilities.name);
         await db.gbp_questions.update({
           where: { id: q.id },
           data: { ai_draft: aiDraft, answer_status: "ai_drafted" },
@@ -339,6 +323,21 @@ export async function POST(req: NextRequest) {
         generated++;
       }
       return jsonResponse({ ok: true, generated }, 200, origin);
+    }
+
+    if (action === "seed-library") {
+      const templates = await ensureQuestionTemplatesSeeded();
+      return jsonResponse({ ok: true, templates }, 200, origin);
+    }
+
+    if (action === "seed") {
+      const { facilityId, publish } = body;
+      if (!facilityId)
+        return errorResponse("facilityId required", 400, origin);
+      const result = await seedFacilityQuestions(facilityId, {
+        publish: !!publish,
+      });
+      return jsonResponse({ ok: true, ...result }, 200, origin);
     }
 
     return errorResponse("Invalid action", 400, origin);
