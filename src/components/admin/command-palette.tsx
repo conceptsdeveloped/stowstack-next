@@ -95,7 +95,7 @@ function matches(q: string, label: string, sub?: string) {
  * tool internals touched.
  */
 export function CommandPalette() {
-  const { open, close } = useCommandPalette();
+  const { open, close, openPalette } = useCommandPalette();
   const router = useRouter();
   const { facilities, setFacility } = useFacility();
   const [query, setQuery] = useState("");
@@ -121,6 +121,16 @@ export function CommandPalette() {
       return () => clearTimeout(t);
     }
   }, [open]);
+
+  // Lets other chrome (sidebar Quick find, header search) open the palette
+  // without sharing the hook instance.
+  useEffect(() => {
+    function onOpen() {
+      openPalette();
+    }
+    window.addEventListener("admin:open-palette", onOpen);
+    return () => window.removeEventListener("admin:open-palette", onOpen);
+  }, [openPalette]);
 
   useEffect(() => {
     if (!open) return;

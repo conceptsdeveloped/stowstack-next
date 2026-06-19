@@ -328,7 +328,7 @@ function Sidebar({
         <Link
           href="/"
           className={`transition-opacity ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}
-          style={{ fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 700, letterSpacing: '-0.02em', color: '#1A1A1A', textDecoration: 'none' }}
+          style={{ fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--ink)', textDecoration: 'none' }}
         >
           storage<span style={{ color: 'var(--brand-gold)' }}>ads</span>
         </Link>
@@ -336,7 +336,7 @@ function Sidebar({
           <Link
             href="/"
             className="mx-auto flex h-7 w-7 items-center justify-center"
-            style={{ color: '#1A1A1A', textDecoration: 'none', fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 500 }}
+            style={{ color: 'var(--ink)', textDecoration: 'none', fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 500 }}
           >
             ~
           </Link>
@@ -345,11 +345,35 @@ function Sidebar({
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-5">
-        {filteredGroups.map((group) => (
+        {!collapsed ? (
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("admin:open-palette"))}
+            className="mb-4 flex w-full items-center gap-2.5"
+            style={{ fontFamily: 'var(--font)', fontSize: '12.5px', fontWeight: 500, color: 'var(--sidebar-muted)', background: 'var(--card)', border: '1px solid var(--bdr)', borderRadius: '7px', padding: '6px 10px', cursor: 'pointer' }}
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span style={{ flex: 1, textAlign: 'left' }}>Quick find</span>
+            <span style={{ fontSize: '10px', fontWeight: 600, border: '1px solid var(--bdr-strong)', borderRadius: '4px', padding: '0 5px', color: 'var(--ink3)' }}>⌘K</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("admin:open-palette"))}
+            className="mb-4 flex w-full items-center justify-center"
+            style={{ color: 'var(--sidebar-muted)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '6px' }}
+            aria-label="Quick find"
+            title="Quick find (⌘K)"
+          >
+            <Search className="h-3.5 w-3.5" />
+          </button>
+        )}
+        {filteredGroups.map((group, gi) => (
           <div key={group.title} className="mb-5">
             {!collapsed && (
-              <p className="mb-2 px-2.5" style={{ fontFamily: 'var(--font)', fontSize: '10px', fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#A3A3A3' }}>
-                {group.title}
+              <p className="mb-2 flex items-center gap-1.5 px-2.5" style={{ fontFamily: 'var(--font)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--sidebar-muted)' }}>
+                <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>§ {String(gi).padStart(2, "0")}</span>
+                <span>{group.title}</span>
               </p>
             )}
             <ul className="space-y-0.5">
@@ -366,11 +390,11 @@ function Sidebar({
                       style={{
                         fontFamily: 'var(--font)',
                         fontSize: '13px',
-                        fontWeight: isActive ? 500 : 400,
-                        color: isActive ? '#1A1A1A' : '#737373',
+                        fontWeight: isActive ? 600 : 400,
+                        color: isActive ? 'var(--sidebar-text-active)' : 'var(--sidebar-text)',
                         borderRadius: '4px',
                         padding: '6px 10px',
-                        borderLeft: isActive ? '2px solid #1A1A1A' : '2px solid transparent',
+                        borderLeft: isActive ? '2px solid var(--sidebar-text-active)' : '2px solid transparent',
                         marginLeft: '-1px',
                         textDecoration: 'none',
                         transition: 'color 120ms ease',
@@ -393,7 +417,7 @@ function Sidebar({
           type="button"
           onClick={() => onCollapse(!collapsed)}
           className="flex w-full items-center justify-center p-2"
-          style={{ color: '#A3A3A3', borderRadius: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}
+          style={{ color: 'var(--sidebar-muted)', borderRadius: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <ChevronLeft
