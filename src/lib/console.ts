@@ -520,6 +520,28 @@ function delta(value: string, direction: DeltaDirection, tone: DeltaTone): Pulse
   return { value, direction, tone };
 }
 
+/** The "Open alerts" vital, shared by both scopes. */
+function alertsPulse(attention: SeverityCounts): PulseMetric {
+  const hint =
+    attention.critical > 0
+      ? `${formatInt(attention.critical)} critical`
+      : attention.warning > 0
+        ? `${formatInt(attention.warning)} warning`
+        : attention.total > 0
+          ? `${formatInt(attention.total)} to review`
+          : "all clear";
+  return {
+    key: "alerts",
+    label: "Open alerts",
+    value: formatInt(attention.total),
+    hint,
+    delta:
+      attention.critical > 0
+        ? delta(`${formatInt(attention.critical)} critical`, "up", "negative")
+        : undefined,
+  };
+}
+
 /** Portfolio ("all" scope) vitals from the cheap portfolio-wide endpoints. */
 export function buildPortfolioPulse(args: {
   digest?: FounderDigest | null;
@@ -578,21 +600,7 @@ export function buildPortfolioPulse(args: {
     });
   }
 
-  metrics.push({
-    key: "alerts",
-    label: "Open alerts",
-    value: formatInt(attention.total),
-    hint:
-      attention.critical > 0
-        ? `${formatInt(attention.critical)} critical`
-        : attention.warning > 0
-          ? `${formatInt(attention.warning)} warning`
-          : "all clear",
-    delta:
-      attention.critical > 0
-        ? delta(`${formatInt(attention.critical)} critical`, "up", "negative")
-        : undefined,
-  });
+  metrics.push(alertsPulse(attention));
 
   return metrics;
 }
@@ -671,21 +679,7 @@ export function buildFacilityPulse(args: {
     });
   }
 
-  metrics.push({
-    key: "alerts",
-    label: "Open alerts",
-    value: formatInt(attention.total),
-    hint:
-      attention.critical > 0
-        ? `${formatInt(attention.critical)} critical`
-        : attention.warning > 0
-          ? `${formatInt(attention.warning)} warning`
-          : "all clear",
-    delta:
-      attention.critical > 0
-        ? delta(`${formatInt(attention.critical)} critical`, "up", "negative")
-        : undefined,
-  });
+  metrics.push(alertsPulse(attention));
 
   return metrics;
 }
