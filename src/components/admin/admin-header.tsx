@@ -17,6 +17,7 @@ import { FacilitySwitcher } from "./facility-switcher";
 
 const ROUTE_TITLES: Record<string, string> = {
   "/admin": "Dashboard",
+  "/admin/console": "Console",
   "/admin/pipeline": "Pipeline",
   "/admin/kanban": "Kanban",
   "/admin/consumer-leads": "Consumer Leads",

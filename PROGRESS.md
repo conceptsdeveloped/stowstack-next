@@ -33,4 +33,5 @@ internal is modified.
 ## Log
 - Task 1: `src/lib/console.ts` pure data layer (formatters, attention normalizers, ranker, pulse builders) + 21 unit tests green; typecheck clean.
 - Task 2+3: Console components (signal/sparkline/section/pulse/attention/toolkit) + scope-aware `/admin/console` page. Browser-verified empty + populated states via fetch interception — pulse deltas, sparkline, ranked triage feed, and a11y labels all correct; no client errors. Full suite 122 tests green, lint clean.
+- Task 4: Console wired into chrome — sidebar `§ 00 OVERVIEW → Console`, ⌘K palette entry ("Operator's Console"), header route title, `G O` shortcut. Browser-verified nav link, header title, and palette indexing. Typecheck + lint clean.
 

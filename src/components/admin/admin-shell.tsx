@@ -24,6 +24,7 @@ import {
   Inbox,
   Kanban,
   Layout,
+  LayoutDashboard,
   Lock,
   Mail,
   Phone,
@@ -113,6 +114,12 @@ interface NavGroup {
 // "select a facility" prompt. Leads stay as separate routes (locked decision).
 // Portfolio-wide Funnels/Calls remain reachable via the command palette.
 const NAV_GROUPS: NavGroup[] = [
+  {
+    title: "OVERVIEW",
+    items: [
+      { label: "Console", href: "/admin/console", icon: LayoutDashboard },
+    ],
+  },
   {
     title: "LEADS",
     items: [

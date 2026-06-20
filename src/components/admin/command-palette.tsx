@@ -23,6 +23,7 @@ import {
   GitBranch,
   Inbox,
   Kanban,
+  LayoutDashboard,
   LayoutGrid,
   LifeBuoy,
   LineChart,
@@ -57,6 +58,7 @@ interface Destination {
 // Mirrors the current admin sidebar routes. Phase 2 unifies this with the
 // sidebar into one source; kept self-contained here to stay additive.
 const DESTINATIONS: Destination[] = [
+  { id: "console", label: "Operator's Console", href: "/admin/console", group: "Overview", icon: LayoutDashboard },
   { id: "leads", label: "Lead Pipeline", href: "/admin", group: "Leads", icon: Flame },
   { id: "kanban", label: "Kanban", href: "/admin/kanban", group: "Leads", icon: Kanban },
   { id: "consumer", label: "Consumer Leads", href: "/admin/consumer-leads", group: "Leads", icon: Inbox },

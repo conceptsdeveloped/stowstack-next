@@ -22,6 +22,7 @@ export function isMac(): boolean {
 /** All shortcut definitions */
 export const SHORTCUTS: Shortcut[] = [
   // Navigation (G + key)
+  { id: 'go-console', keys: ['G', 'O'], label: 'Go to Console', category: 'navigation' },
   { id: 'go-dashboard', keys: ['G', 'D'], label: 'Go to Dashboard', category: 'navigation' },
   { id: 'go-campaigns', keys: ['G', 'C'], label: 'Go to Campaigns', category: 'navigation' },
   { id: 'go-reports', keys: ['G', 'R'], label: 'Go to Reports', category: 'navigation' },
@@ -46,6 +47,7 @@ export const SHORTCUT_CATEGORIES: ShortcutCategory[] = [
 
 /** Route map for G+key navigation shortcuts */
 export const NAV_SHORTCUT_ROUTES: Record<string, string> = {
+  O: '/admin/console',
   D: '/admin',
   C: '/admin/campaigns',
   R: '/admin/reports',
