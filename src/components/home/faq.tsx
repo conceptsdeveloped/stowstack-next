@@ -38,11 +38,11 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
       <>
         Good. That puts you ahead of most independents. The catch is
         Google&apos;s local algorithm weights proximity and review recency
-        over brand size, which is the one place independents can outrank REIT
-        locations. If you&apos;re not actively managing Google Business
+        over brand size, which is the one place independents can outrank the
+        national chains. If you&apos;re not actively managing Google Business
         Profile, reviews, and retargeting the visitors you already get,
-        you&apos;re sitting on the lever that costs the REITs $250M a year to
-        operate at scale.
+        you&apos;re sitting on the lever the big operators spend $250M a year
+        to run at scale.
         <Cite n={6} />{" "}The audit shows you which side of that gap you&apos;re
         on.
       </>

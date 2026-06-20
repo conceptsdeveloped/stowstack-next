@@ -48,7 +48,7 @@ export default function CTA() {
           size="var(--type-display)"
           lede={
             <>
-              Where you sit against the REITs&apos; 92.6% occupancy
+              Where you sit against the big operators&apos; 92.6% occupancy
               <Cite n={[1, 2]} />. Where revenue&apos;s leaking. What it takes
               to close the gap at your facility. Free, and yours to keep
               either way.

@@ -29,7 +29,7 @@ const CELLS: Array<{
     label: "Occupancy gap",
     value: <CountUp to={5} suffix=" pts" />,
     caption:
-      "REITs run 92.6% same-store occupancy. Independents average 87.2%. The space between is the lever, and it closes with marketing, not location.",
+      "The big operators run five points ahead of the average independent. The space between is the lever, and it closes with marketing, not location.",
     cites: [1, 2],
   },
   {

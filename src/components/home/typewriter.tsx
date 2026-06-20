@@ -13,8 +13,8 @@ const TYPEWRITER_WORDS = [
   "34 move-ins in 90 days.",
   "71% to 84% occupancy in one quarter.",
   "New renters, ready renters, the ones who almost left.",
-  "REIT-grade tools to reach 100% occupancy.",
-  "Stop leaking $72,000 a year to the REIT down the road.",
+  "Big-operator tools to reach 100% occupancy.",
+  "Stop leaking $72,000 a year in unfilled units.",
 ];
 
 const TYPE_MS = 80;

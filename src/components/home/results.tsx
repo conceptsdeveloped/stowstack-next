@@ -33,7 +33,7 @@ const CASES: Array<{
       { value: <CountUp to={35} suffix="x" />, label: "return on ad spend" },
     ],
     benchmark:
-      "84% lands above the 87.2% independent average and inside reach of the 92.6% REIT band. One quarter, one facility, no new units built.",
+      "84% lands above the 87.2% independent average and within reach of the big operators' 92.6%. One quarter, one facility, no new units built.",
     cites: [1, 2],
   },
   {

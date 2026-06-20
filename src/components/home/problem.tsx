@@ -23,11 +23,11 @@ const PROBLEMS: Array<{
   body: ReactNode;
 }> = [
   {
-    heading: "The REIT-to-independent occupancy gap is 5+ points.",
+    heading: "The occupancy gap with the big operators is 5+ points.",
     cites: [1, 2, 3],
     body: (
       <>
-        Extra Space ran 92.6% same-store occupancy in Q4 2025. The independent
+        Extra Space ran 92.6% occupancy in Q4 2025. The independent
         average sits at 87.2% across a panel of 70,000+ properties. At a
         500-unit facility, that gap is around <Hi>$72,000 a year</Hi>{" "}in
         revenue you&apos;re not collecting, and around $1.3M of asset value at
@@ -69,7 +69,7 @@ const PROBLEMS: Array<{
         A storage tenant is worth $1,820 over an average 14-month stay at $130
         a month. Landing that tenant on the StorageAds system costs $41.
         That&apos;s <Hi>44-to-1</Hi>{" "}on every extra move-in, the same math the
-        REITs run on. It works the same for 150 units as it does for 15,000.
+        national chains run on. It works the same for 150 units as it does for 15,000.
       </>
     ),
   },

@@ -137,7 +137,7 @@ export default function Comparison() {
             <>
               Three categories of marketing software you could buy today. None
               of them takes a renter all the way from ad to signed lease.
-              Closing the 5-point gap to the 92.6% REIT band
+              Closing the 5-point gap to the chains
               <Cite n={[1, 2]} />{" "}takes the whole system. Picking one slice
               below leaves the rest uncovered.
             </>

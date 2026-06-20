@@ -45,7 +45,7 @@ export default function HomeFooter() {
               className="mt-3 text-sm"
               style={{ color: "var(--text-dim)", maxWidth: 320, lineHeight: 1.6 }}
             >
-              REIT-grade marketing infrastructure for independent operators.
+              The marketing infrastructure the big chains run, built for independent operators.
             </p>
             <p
               className="mt-4 text-xs"
