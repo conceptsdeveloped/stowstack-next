@@ -113,6 +113,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async rewrites() {
+    return [
+      // /resume is a statically-exported standalone site shipped as plain files
+      // under public/resume/** (assets self-prefixed at /resume/_next/**). Serve
+      // its entry document at the bare path; deep asset/img URLs hit public directly.
+      { source: "/resume", destination: "/resume/index.html" },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {

@@ -56,3 +56,6 @@ next-env.d.ts
 
 # Marketing brochure workspace — kept local. Untrack with `!path` if needed.
 /marketing/
+
+# Standalone resume source project (built output lives in public/resume)
+resume webstite/
