@@ -113,7 +113,11 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
         return;
       }
       haptic("success");
-      savePortalSession(loginEmail.trim(), loginCode);
+      // Persist the client's PERMANENT access code (not the one-time login
+      // code, which is now marked used + expires in 10 min). Session restore
+      // on reload and every sub-page data fetch authenticate against this.
+      const persistentCode = json.client?.accessCode || loginCode;
+      savePortalSession(loginEmail.trim(), persistentCode);
       onSuccess(json.client);
     } catch {
       haptic("error");

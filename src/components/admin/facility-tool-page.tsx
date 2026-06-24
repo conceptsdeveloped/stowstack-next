@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { Building2 } from "lucide-react";
 import { useFacility } from "@/lib/facility-context";
 import { useAdmin } from "@/lib/admin-context";
@@ -46,12 +46,14 @@ export function FacilityToolPage({
             lineHeight: 1.5,
           }}
         >
-          {title} works on a single facility. Pick one from the scope switcher in
-          the top bar, or search for it below.
+          {title} works on a single facility. Pick one from the facility switcher
+          in the top bar.
         </p>
         <button
           type="button"
-          onClick={() => window.dispatchEvent(new Event("admin:open-palette"))}
+          onClick={() =>
+            window.dispatchEvent(new Event("admin:open-facility-switcher"))
+          }
           style={{
             marginTop: "14px",
             fontFamily: "var(--font)",
@@ -71,13 +73,15 @@ export function FacilityToolPage({
     );
   }
 
+  // Key on the facility id so switching scope remounts the tool — no stale data
+  // from the previously selected facility bleeds through.
   return (
-    <>
+    <Fragment key={currentId}>
       {render({
         facilityId: currentId,
         facilityName: current.name,
         adminKey: adminKey ?? "",
       })}
-    </>
+    </Fragment>
   );
 }

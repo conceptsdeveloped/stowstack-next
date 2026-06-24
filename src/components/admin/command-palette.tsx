@@ -24,7 +24,6 @@ import {
   Inbox,
   Kanban,
   LayoutDashboard,
-  LayoutGrid,
   LifeBuoy,
   LineChart,
   Mail,
@@ -42,7 +41,6 @@ import {
   Users,
 } from "lucide-react";
 import { useCommandPalette } from "@/hooks/use-command-palette";
-import { useFacility } from "@/lib/facility-context";
 
 const FONT = "var(--font), var(--font-manrope), system-ui, sans-serif";
 const RECENTS_KEY = "storageads_palette_recents";
@@ -109,9 +107,7 @@ const ACTIONS: Destination[] = [
   { id: "act-generate-audit", label: "Generate diagnostic", href: "/admin/audits", group: "Action", icon: Sparkles },
 ];
 
-type Item =
-  | { kind: "tool" | "action"; id: string; label: string; sub: string; href: string; icon: LucideIcon }
-  | { kind: "facility"; id: string; label: string; sub?: string; facId: string };
+type Item = { kind: "tool" | "action"; id: string; label: string; sub: string; href: string; icon: LucideIcon };
 
 function matches(q: string, label: string, sub?: string) {
   if (!q) return true;
@@ -120,14 +116,13 @@ function matches(q: string, label: string, sub?: string) {
 
 /**
  * Global ⌘K command palette for the admin. Built on the existing
- * useCommandPalette hook (⌘K / "/" / Esc). Indexes admin routes, facilities
- * (re-scopes via FacilityProvider), and a few actions. Navigation only — no
- * tool internals touched.
+ * useCommandPalette hook (⌘K / "/" / Esc). Indexes admin routes and a few
+ * actions — navigation and commands only. Facility scope is owned solely by
+ * the FacilitySwitcher in the admin header; it is never selected here.
  */
 export function CommandPalette() {
   const { open, close, openPalette } = useCommandPalette();
   const router = useRouter();
-  const { facilities, setFacility } = useFacility();
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
   const [recentIds, setRecentIds] = useState<string[]>(() => {
@@ -178,16 +173,11 @@ export function CommandPalette() {
     () => ACTIONS.map((d) => ({ kind: "action", id: d.id, label: d.label, sub: "Action", href: d.href, icon: d.icon })),
     [],
   );
-  const facilityItems = useMemo<Item[]>(
-    () => facilities.map((f) => ({ kind: "facility", id: `fac:${f.id}`, label: f.name, sub: f.location, facId: f.id })),
-    [facilities],
-  );
-
   const byId = useMemo(() => {
     const m = new Map<string, Item>();
-    [...toolItems, ...actionItems, ...facilityItems].forEach((i) => m.set(i.id, i));
+    [...toolItems, ...actionItems].forEach((i) => m.set(i.id, i));
     return m;
-  }, [toolItems, actionItems, facilityItems]);
+  }, [toolItems, actionItems]);
 
   const q = query.trim().toLowerCase();
 
@@ -197,14 +187,12 @@ export function CommandPalette() {
       const recents = recentIds.map((id) => byId.get(id)).filter((x): x is Item => Boolean(x)).slice(0, 5);
       if (recents.length) out.push({ title: "Recent", items: recents });
     }
-    const tools = toolItems.filter((i) => matches(q, i.label, "sub" in i ? i.sub : ""));
-    const facs = facilityItems.filter((i) => matches(q, i.label, i.sub)).slice(0, q ? 25 : 6);
-    const acts = actionItems.filter((i) => matches(q, i.label, "sub" in i ? i.sub : ""));
+    const tools = toolItems.filter((i) => matches(q, i.label, i.sub));
+    const acts = actionItems.filter((i) => matches(q, i.label, i.sub));
     if (tools.length) out.push({ title: "Go to", items: tools });
-    if (facs.length) out.push({ title: "Facilities", items: facs });
     if (acts.length) out.push({ title: "Actions", items: acts });
     return out;
-  }, [q, recentIds, byId, toolItems, facilityItems, actionItems]);
+  }, [q, recentIds, byId, toolItems, actionItems]);
 
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
   const activeIndex = flat.length ? Math.min(Math.max(cursor, 0), flat.length - 1) : 0;
@@ -222,11 +210,7 @@ export function CommandPalette() {
     } catch {
       /* ignore */
     }
-    if (item.kind === "facility") {
-      setFacility(item.facId);
-    } else {
-      router.push(item.href);
-    }
+    router.push(item.href);
     close();
   }
 
@@ -246,8 +230,7 @@ export function CommandPalette() {
 
   if (!open) return null;
 
-  const tag = (kind: Item["kind"]) =>
-    kind === "facility" ? "Facility" : kind === "action" ? "Action" : "Tool";
+  const tag = (kind: Item["kind"]) => (kind === "action" ? "Action" : "Tool");
 
   // Pair each row with its absolute position in `flat` so the active-row
   // highlight stays correct even when an item appears in two groups (Recent + its category).
@@ -282,7 +265,7 @@ export function CommandPalette() {
               setCursor(0);
             }}
             onKeyDown={onKeyDown}
-            placeholder="Search tools, facilities, and actions"
+            placeholder="Search tools and actions"
             style={{
               flex: 1,
               border: "none",
@@ -319,8 +302,8 @@ export function CommandPalette() {
                 </div>
                 {group.items.map(({ item, index }) => {
                   const active = index === activeIndex;
-                  const Icon = "icon" in item ? item.icon : item.kind === "facility" ? Building2 : LayoutGrid;
-                  const sub = "sub" in item ? item.sub : undefined;
+                  const Icon = item.icon;
+                  const sub = item.sub;
                   return (
                     <button
                       key={item.id}

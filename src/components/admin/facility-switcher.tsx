@@ -35,9 +35,47 @@ export function FacilitySwitcher() {
     };
   }, [open]);
 
-  if (!isMultiFacility) return null;
+  // Lets other chrome (e.g. the "Choose a facility" empty-state prompt) open
+  // the switcher. It is the single facility-scope control in the admin.
+  useEffect(() => {
+    function onOpen() {
+      setOpen(true);
+    }
+    window.addEventListener("admin:open-facility-switcher", onOpen);
+    return () =>
+      window.removeEventListener("admin:open-facility-switcher", onOpen);
+  }, []);
+
+  if (!facilities.length) return null;
 
   const label = current === "all" ? "All facilities" : current.name;
+
+  // Always show the active scope so the admin is never unsure which facility
+  // they are acting on. A single-facility admin is auto-scoped with nothing to
+  // switch to, so render a static label instead of a picker.
+  if (!isMultiFacility) {
+    return (
+      <span
+        className="flex items-center gap-2"
+        style={{
+          fontFamily: FONT,
+          fontSize: "12px",
+          fontWeight: 600,
+          color: "var(--ink)",
+          background: "var(--card)",
+          border: "1px solid var(--bdr-strong)",
+          borderRadius: "999px",
+          padding: "5px 10px",
+          maxWidth: "220px",
+        }}
+        aria-label={`Active facility: ${label}`}
+      >
+        <Building2 className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--ink3)" }} />
+        <span className="truncate">{label}</span>
+      </span>
+    );
+  }
+
   const q = query.trim().toLowerCase();
   const filtered = q
     ? facilities.filter(

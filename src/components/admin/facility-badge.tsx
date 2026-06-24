@@ -21,8 +21,8 @@ export function FacilityBadge() {
       style={{
         fontFamily: 'var(--font-heading)',
         fontWeight: 500,
-        color: 'var(--color-gold)',
-        backgroundColor: 'var(--color-gold-light)',
+        color: 'var(--color-body-text)',
+        backgroundColor: 'var(--color-light-gray)',
       }}
     >
       <Building2 className="h-3 w-3" />

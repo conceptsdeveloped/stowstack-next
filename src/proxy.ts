@@ -77,7 +77,7 @@ const clerkSecretKey = process.env.CLERK_SECRET_KEY ?? "";
 const hasClerkKeys = !!clerkPubKey && !!clerkSecretKey;
 const isClerkProdKeys = clerkPubKey.startsWith("pk_live_");
 
-function isCsrfExempt(req: NextRequest): boolean {
+export function isCsrfExempt(req: NextRequest): boolean {
   const path = req.nextUrl.pathname;
   if (path.startsWith("/api/webhooks/")) return true;
   if (path.startsWith("/api/stripe-webhook")) return true;
@@ -90,6 +90,10 @@ function isCsrfExempt(req: NextRequest): boolean {
   if (path === "/api/consumer-lead") return true;
   if (path === "/api/diagnostic-intake") return true;
   if (path === "/api/facility-lookup") return true;
+  // Portal login: both run pre-auth (no session/token yet), so they can't
+  // ride the header exemptions below. Abuse is bounded by per-route rate limits.
+  if (path === "/api/resend-access-code") return true;
+  if (path === "/api/client-data") return true;
   if (req.headers.get("x-admin-key")) return true;
   if (req.headers.get("authorization")?.startsWith("Bearer ")) return true;
   if (req.headers.get("x-org-token")) return true;

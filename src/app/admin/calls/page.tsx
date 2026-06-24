@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAdminFetch } from "@/hooks/use-admin-fetch";
+import { useFacility } from "@/lib/facility-context";
 import {
   Phone,
   PhoneCall,
@@ -68,7 +69,8 @@ function TableSkeleton() {
 }
 
 export default function CallsPage() {
-  const [facilityFilter, setFacilityFilter] = useState("");
+  const { current } = useFacility();
+  const facilityFilter = current === "all" ? "" : current.name;
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -84,10 +86,6 @@ export default function CallsPage() {
   const { data: rawLogs, loading: logsLoading, error: logsError } =
     useAdminFetch<{ logs: CallLog[]; total: number; page: number; pages: number }>("/api/call-logs", logParams);
   const logs = rawLogs?.logs ?? [];
-
-  const facilities = logs.length > 0
-    ? [...new Set(logs.map((l) => l.facility).filter(Boolean))]
-    : [];
 
   const kpis = stats
     ? [
@@ -140,17 +138,6 @@ export default function CallsPage() {
       >
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <Filter size={14} style={{ color: "var(--color-mid-gray)" }} />
-          <select
-            value={facilityFilter}
-            onChange={(e) => setFacilityFilter(e.target.value)}
-            className="rounded-lg border px-3 py-1.5 text-xs outline-none"
-            style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
-          >
-            <option value="">All Facilities</option>
-            {facilities.map((f) => (
-              <option key={f} value={f}>{f}</option>
-            ))}
-          </select>
           <input
             type="date"
             value={dateFrom}

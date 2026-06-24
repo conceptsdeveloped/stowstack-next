@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useAdminFetch, adminFetch } from "@/hooks/use-admin-fetch";
+import { useFacility } from "@/lib/facility-context";
 import {
   GitBranch,
   Plus,
@@ -31,12 +32,6 @@ interface Funnel {
   _count: { partial_leads: number };
 }
 
-interface Facility {
-  id: string;
-  name: string;
-  location: string;
-}
-
 const ARCHETYPE_LABELS: Record<string, string> = {
   social_proof: "Trusted Choice",
   convenience: "Easy Move",
@@ -54,12 +49,11 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function FunnelsPage() {
-  const [selectedFacility, setSelectedFacility] = useState<string>("");
+  const { currentId } = useFacility();
+  const selectedFacility = currentId === "all" ? "" : currentId;
   const [generating, setGenerating] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const { data: facilitiesData } = useAdminFetch<{ facilities: Facility[] }>("/api/admin-facilities");
-  const facilities = facilitiesData?.facilities;
   const { data: funnels, loading, refetch } = useAdminFetch<Funnel[]>(
     "/api/funnels",
     selectedFacility ? { facilityId: selectedFacility } : undefined
@@ -111,28 +105,11 @@ export default function FunnelsPage() {
         </button>
       </div>
 
-      {/* Facility selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-        <label className="text-sm font-medium text-[var(--color-body-text)]">Facility</label>
-        <select
-          value={selectedFacility}
-          onChange={(e) => setSelectedFacility(e.target.value)}
-          className="w-full sm:w-auto sm:min-w-[280px] rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-sm text-[var(--color-dark)]"
-        >
-          <option value="">Select a facility...</option>
-          {facilities?.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.name} — {f.location}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* Funnel grid */}
       {!selectedFacility ? (
         <div className="rounded-xl border border-black/[0.08] bg-white p-12 text-center">
           <GitBranch size={40} className="mx-auto text-[var(--color-mid-gray)] mb-4" />
-          <p className="text-[var(--color-body-text)]">Select a facility to view its funnels</p>
+          <p className="text-[var(--color-body-text)]">Select a facility from the switcher in the top bar to view its funnels.</p>
         </div>
       ) : loading ? (
         <div className="flex items-center justify-center py-12">
