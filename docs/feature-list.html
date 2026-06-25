@@ -7,7 +7,7 @@
 <style>
   :root{
     --dark:#141413; --light:#faf9f5; --body:#4a4640; --mid:#8a877f;
-    --line:#ddd9cd; --gold:#B58B3F;
+    --line:#ddd9cd; --gold:#B58B3F; --blue:#5a86b3; --green:#788c5d;
   }
   @page{ size:letter; margin:14mm 14mm 12mm; }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -44,7 +44,22 @@
   .note b{color:var(--dark)}
   .foot{margin-top:14px;border-top:1px solid var(--line);padding-top:7px;font-size:8.5px;color:var(--mid);display:flex;justify-content:space-between}
   .print-hint{position:fixed;top:10px;right:10px;background:var(--dark);color:var(--light);font-size:11px;font-weight:600;padding:7px 13px;border-radius:8px;font-family:inherit;cursor:pointer;border:none;box-shadow:0 2px 8px rgba(0,0,0,.18)}
-  @media print{ .print-hint{display:none} .sheet{padding:0;max-width:none} body{font-size:9.6px} li{font-size:9.3px} }
+  /* Part 2 — ideas */
+  .partbreak{break-before:page;page-break-before:always;height:0}
+  .banner{margin:8px 0 12px;border-top:2px solid var(--blue);padding-top:11px}
+  .banner .kicker{font-size:9px;font-weight:800;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+  .banner h1{font-size:20px;margin-top:3px}
+  .banner .tagline{margin-top:3px}
+  .lede.blue{border-left-color:var(--blue)}
+  .ideas .dept h2{border-bottom-color:#cdddec}
+  .ideas .dept h2 .n{color:var(--blue)}
+  .ideas li::before{content:"+";color:var(--blue)}
+  .ideas .bo{display:block;padding-left:0;font-size:8.3px;color:var(--mid);margin-top:1px;line-height:1.35}
+  .ideas .bo b{color:var(--blue);font-weight:700}
+  .ideas li{padding-bottom:3px}
+  .idtag{font-size:7.5px;font-weight:800;color:#fff;background:var(--blue);border-radius:3px;padding:1px 4px;margin-left:auto;letter-spacing:.04em}
+  .idtag.rev{background:var(--green)}
+  @media print{ .print-hint{display:none} .sheet{padding:0;max-width:none} body{font-size:9.6px} li{font-size:9.3px} .ideas .bo{font-size:8px} }
 </style>
 </head>
 <body>
@@ -241,7 +256,121 @@
 
   <div class="note"><b>Running quietly in the background:</b> about two dozen automated jobs run on a schedule with nobody pressing a button — sending the follow-ups and weekly reports, re-scoring churn and rate sensitivity, syncing Google listings and ad audiences, building NOI reports, processing uploads, and cleaning up old data. <b>Outside helpers it plugs into:</b> Claude AI (writing), Stripe (payments), Resend (email), Google (lookup &amp; listings), Facebook / Google / TikTok (ads), AI video/image services, Cal.com (bookings), and Sentry (error alerts).</div>
 
-  <div class="foot"><span>StorageAds.com — marketing automation for self-storage operators</span><span>Plain-English feature overview · June 2026</span></div>
+  <div class="partbreak"></div>
+
+  <div class="banner">
+    <div class="kicker">Part 2 · Not built yet</div>
+    <h1>New Ideas That Build On What Exists</h1>
+    <p class="tagline">Proposed features — none of these are live. Each one reuses machinery StorageAds already has, so it's a smaller lift than starting cold.</p>
+  </div>
+
+  <p class="lede blue">How to read this: every idea names what it <b>builds on</b> — the existing feature(s) it leans on. Tags: <span class="idtag">IDEA</span> proposed capability · <span class="idtag rev">$$</span> also a new way to make money. Nothing here is promised or shipped; it's a brainstorm grounded in today's product.</p>
+
+  <div class="cols ideas">
+
+    <div class="dept">
+      <h2><span class="n">A.</span> Smarter lead-getting <span class="idtag">IDEA</span></h2>
+      <ul>
+        <li><b>Auto-prospecting machine</b> — scrape every storage facility in a target metro, auto-build each owner's audit, and cold-email them their personal scorecard link.<span class="bo"><b>Builds on:</b> audit generator + website/competitor scrapers + templated email</span></li>
+        <li><b>Audit-to-proposal</b> — one click turns a finished audit into a branded pricing proposal using the facility's own revenue-loss numbers.<span class="bo"><b>Builds on:</b> audit + revenue-loss analyzer + email templates</span></li>
+        <li><b>"You vs. your competitor" audit</b> — show a prospect their score side-by-side with their nearest competitor's.<span class="bo"><b>Builds on:</b> audit + competitor &amp; market scan</span></li>
+        <li><b>Audit watcher</b> — re-run a prospect's audit monthly and email them when their score drops or a rival's climbs.<span class="bo"><b>Builds on:</b> audit + scheduled jobs</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">B.</span> Instant lead response <span class="idtag">IDEA</span></h2>
+      <ul>
+        <li><b>Speed-to-lead auto-text</b> — fire a personalized SMS within seconds of a lead arriving.<span class="bo"><b>Builds on:</b> lead capture + text messages</span></li>
+        <li><b>AI follow-up rep</b> — auto-draft (or send) the first reply per lead, tailored to their facility's biggest issue.<span class="bo"><b>Builds on:</b> lead scoring + nurture sequences + Claude</span></li>
+        <li><b>Missed-call rescue</b> — auto-text anyone whose tracked call went unanswered, with a booking link.<span class="bo"><b>Builds on:</b> call tracking + SMS</span></li>
+        <li><b>Voicemail-to-lead</b> — transcribe missed-call voicemails and create a scored lead automatically.<span class="bo"><b>Builds on:</b> call tracking + lead scoring</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">C.</span> Self-optimizing ads <span class="idtag">IDEA</span></h2>
+      <ul>
+        <li><b>Creative fatigue detector</b> — watch each ad's click-rate decline and auto-generate a fresh version before it tanks.<span class="bo"><b>Builds on:</b> spend/attribution + creative generator + alerts</span></li>
+        <li><b>Budget autopilot</b> — automatically shift daily spend toward the best-return campaign and pause the worst.<span class="bo"><b>Builds on:</b> spend tracking + campaign alerts + publisher</span></li>
+        <li><b>"Pause when full" rule</b> — stop ads for a unit type the moment it hits 100% occupancy; resume when a vacancy opens.<span class="bo"><b>Builds on:</b> occupancy data + ad publisher</span></li>
+        <li><b>Winning-ad cloning</b> — take the best ad from one facility and auto-adapt it for another.<span class="bo"><b>Builds on:</b> facility learnings + creative generator</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">D.</span> Pricing &amp; revenue autopilot <span class="idtag rev">$$</span></h2>
+      <ul>
+        <li><b>Street-rate autopilot</b> — recommend (or auto-set) web rates daily from occupancy + competitor pricing.<span class="bo"><b>Builds on:</b> occupancy intel + competitor scan + unit mix</span></li>
+        <li><b>Rate-increase letter machine</b> — turn ECRI findings into ready-to-send, scheduled tenant rate-increase letters.<span class="bo"><b>Builds on:</b> ECRI finder + safety scoring + email/SMS</span></li>
+        <li><b>What-if NOI simulator</b> — sliders for occupancy, rate, and ad budget that show the live impact on profit.<span class="bo"><b>Builds on:</b> NOI report + revenue analytics</span></li>
+        <li><b>Delinquency-to-auction pipeline</b> — automate the late-notice → lien → auction escalation with templated comms.<span class="bo"><b>Builds on:</b> tenant CRM + churn + messaging</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">E.</span> Acquisition &amp; growth intel <span class="idtag">IDEA</span></h2>
+      <ul>
+        <li><b>Acquisition scout</b> — use market data to flag nearby facilities that look underperforming or underpriced — buy candidates.<span class="bo"><b>Builds on:</b> market scan + audit scoring</span></li>
+        <li><b>Portfolio benchmarking</b> — rank your own facilities against each other and against the local market.<span class="bo"><b>Builds on:</b> performance aggregator + market intel</span></li>
+        <li><b>New-facility demand map</b> — a heatmap of unmet storage demand to guide where to build or buy.<span class="bo"><b>Builds on:</b> competitor + demographics scan</span></li>
+        <li><b>Lender / board NOI deck</b> — auto-generate an investor-ready performance deck per facility.<span class="bo"><b>Builds on:</b> NOI report + pitch voice</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">F.</span> Reputation autopilot <span class="idtag">IDEA</span></h2>
+      <ul>
+        <li><b>Feedback triage funnel</b> — route happy move-ins to leave a Google review and unhappy ones to a private feedback form first.<span class="bo"><b>Builds on:</b> review requests + messaging</span></li>
+        <li><b>Local rank tracker</b> — track each facility's map-pack ranking for "storage near me" over time.<span class="bo"><b>Builds on:</b> Google listing + market scan</span></li>
+        <li><b>Auto-photo refresh</b> — push fresh generated or uploaded photos to the Google listing on a schedule.<span class="bo"><b>Builds on:</b> image generator + listing sync + photo-refresh job</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">G.</span> Communication hub <span class="idtag">IDEA</span></h2>
+      <ul>
+        <li><b>Unified inbox</b> — calls, texts, Facebook messages, and portal chats in one thread per contact.<span class="bo"><b>Builds on:</b> call tracking + SMS + messaging</span></li>
+        <li><b>AI texting concierge</b> — answer renter questions ("got a 10×10?") by text with real availability and a reservation link.<span class="bo"><b>Builds on:</b> SMS + live unit availability + reservation widget</span></li>
+        <li><b>Portfolio AI assistant</b> — just ask "how are my ads doing this month?" and get a real answer.<span class="bo"><b>Builds on:</b> all analytics + Claude</span></li>
+        <li><b>Daily operator briefing</b> — one short morning email per facility: what changed overnight, what to do today.<span class="bo"><b>Builds on:</b> founder digest + NOI + alerts</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">H.</span> Retention &amp; new revenue <span class="idtag rev">$$</span></h2>
+      <ul>
+        <li><b>Tenant referral program</b> — give current tenants a referral link and credit to bring friends, mirroring the partner engine.<span class="bo"><b>Builds on:</b> referral engine + tenant CRM</span></li>
+        <li><b>Tenant-insurance revenue share</b> — sell tenant protection and book the upsell plus commission.<span class="bo"><b>Builds on:</b> upsell finder</span></li>
+        <li><b>Performance / NOI-share pricing</b> — an optional tier where the fee is a share of proven profit lift instead of flat.<span class="bo"><b>Builds on:</b> NOI report (already proves the lift)</span></li>
+        <li><b>Win-back autopilot upgrade</b> — auto-trigger a tailored offer the day a tenant moves out, by reason.<span class="bo"><b>Builds on:</b> move-out win-back + creative generator</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">I.</span> Connect the data <span class="idtag">IDEA</span></h2>
+      <ul>
+        <li><b>Live PMS sync</b> — a real two-way storEDGE connection so data flows automatically instead of by upload (the big one).<span class="bo"><b>Builds on:</b> PMS import + facility records</span></li>
+        <li><b>Rate write-back</b> — push approved rate changes from StorageAds back into the PMS.<span class="bo"><b>Builds on:</b> pricing autopilot + PMS sync</span></li>
+        <li><b>Move-in reconciliation</b> — auto-match ad-attributed move-ins against PMS move-ins to make ROI airtight.<span class="bo"><b>Builds on:</b> attribution + PMS revenue import</span></li>
+        <li><b>Data anomaly alerts</b> — flag sudden occupancy or revenue drops in uploaded data.<span class="bo"><b>Builds on:</b> PMS snapshots + alerts</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">J.</span> Partner growth <span class="idtag rev">$$</span></h2>
+      <ul>
+        <li><b>Co-branded audit tool</b> — give partners their own white-label version of the free audit to prospect with.<span class="bo"><b>Builds on:</b> audit tool + white-label branding</span></li>
+        <li><b>Partner lead marketplace</b> — route inbound facility leads to the right management-company partner.<span class="bo"><b>Builds on:</b> lead pipeline + partner program</span></li>
+        <li><b>A/B testing studio</b> — test two landing pages or ad creatives head-to-head and auto-pick the winner.<span class="bo"><b>Builds on:</b> landing builder + attribution (A/B is already a plan feature-gate)</span></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="note" style="border-top-color:#cdddec"><b>A note on sequencing:</b> the ideas that unlock the most without much new plumbing are the ones riding on data you already collect — <b>Live PMS sync</b> turns nearly every "intelligence" feature from estimate into fact, and <b>Budget autopilot</b> / <b>Street-rate autopilot</b> convert existing read-only insights into automatic action. The <span class="idtag rev" style="margin:0">$$</span>-tagged items are also new revenue lines, not just features.</div>
+
+  <div class="foot"><span>StorageAds.com — marketing automation for self-storage operators</span><span>Feature overview + idea backlog · June 2026</span></div>
 
 </div>
 </body>
