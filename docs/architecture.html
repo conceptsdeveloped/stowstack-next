@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>StorageAds — How the Product Works</title>
+<style>
+  :root{
+    --dark:#141413; --light:#faf9f5; --body:#6a6560; --mid:#b0aea5;
+    --line:#e8e6dc; --surface:#1e1d1b; --gold:#B58B3F;
+    --blue:#6a9bcc; --green:#788c5d; --red:#B04A3A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+  body{
+    font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--light); color:var(--dark); line-height:1.6;
+    -webkit-font-smoothing:antialiased; padding:48px 32px 96px;
+  }
+  .wrap{max-width:1160px;margin:0 auto}
+  .logo{font-weight:700;font-size:18px;letter-spacing:-.02em;text-transform:lowercase}
+  .logo .ads{color:var(--gold)}
+  h1{font-weight:700;font-size:36px;line-height:1.1;letter-spacing:-.03em;margin:18px 0 10px}
+  .sub{color:var(--body);font-size:16px;max-width:780px}
+  .analogy{
+    background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:12px;padding:18px 22px;margin:28px 0 40px;font-size:15px;max-width:880px
+  }
+  .analogy b{color:var(--dark)}
+  .section-label{font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin:0 0 14px}
+  .block{
+    border:1px solid var(--line);border-radius:18px;background:#fff;margin-bottom:16px;
+    padding:24px 26px;position:relative
+  }
+  .block-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+  .step{
+    width:34px;height:34px;border-radius:10px;background:var(--dark);color:var(--light);
+    font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;flex:none
+  }
+  .block h2{font-size:21px;font-weight:700;letter-spacing:-.02em}
+  .block .lead{color:var(--body);font-size:15px;margin:4px 0 18px;max-width:820px}
+  .cards{display:grid;gap:12px;grid-template-columns:repeat(4,1fr)}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:880px){.cards{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.cards{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:11px;padding:14px 16px;background:var(--light)}
+  .card h3{font-size:14.5px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:13px;color:var(--body);line-height:1.5}
+  .icon{font-size:16px;line-height:1}
+  .down{display:flex;justify-content:center;color:var(--mid);font-size:26px;margin:-4px 0 12px;line-height:1}
+  .dept{margin:26px 0 12px;padding-top:20px;border-top:1px solid var(--line)}
+  .dept:first-of-type{border-top:none;padding-top:4px;margin-top:14px}
+  .dept-head{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+  .dept-ico{font-size:21px;line-height:1}
+  .dept h3{font-size:17px;font-weight:700;letter-spacing:-.02em}
+  .dept .cnt{font-size:11.5px;font-weight:700;color:var(--mid);background:var(--light);border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin-left:auto}
+  .dept .intro{font-size:13.5px;color:var(--body);margin:2px 0 13px;max-width:840px}
+  .feat{display:grid;gap:7px 26px;grid-template-columns:1fr 1fr}
+  @media(max-width:760px){.feat{grid-template-columns:1fr}}
+  .feat .f{display:flex;gap:9px;font-size:13px;line-height:1.45;padding:5px 0;border-bottom:1px solid #f2f0e8}
+  .feat .f b{color:var(--dark);font-weight:700}
+  .feat .f span{color:var(--body)}
+  .feat .f .bullet{color:var(--gold);font-weight:700;flex:none}
+  .ang-tag{font-size:10.5px;font-weight:700;color:var(--gold);border:1px solid var(--gold);border-radius:5px;padding:0 5px;margin-left:5px;white-space:nowrap}
+  .dark-block{background:var(--surface);border-color:#2c2b28}
+  .dark-block h2{color:var(--light)}
+  .dark-block .lead{color:#b8b4ab}
+  .dark-block .card{background:#26241f;border-color:#34322d}
+  .dark-block .card h3{color:var(--light)}
+  .dark-block .card p{color:#b8b4ab}
+  .dark-block .step{background:var(--gold);color:#1e1d1b}
+  .pill{display:inline-block;font-size:12px;font-weight:600;color:var(--body);background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 11px;margin:2px 4px 0 0}
+  .tone-blue h3{color:var(--blue)} .tone-green h3{color:var(--green)}
+  .note{background:#fff;border:1px dashed var(--mid);border-radius:12px;padding:14px 18px;font-size:13.5px;color:var(--body);margin-top:18px}
+  .note b{color:var(--dark)}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:880px){.twocol{grid-template-columns:1fr}}
+  footer{margin-top:36px;font-size:12px;color:var(--mid);text-align:center}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:30px;font-size:12.5px;color:var(--body)}
+  .legend span{display:flex;align-items:center;gap:7px;font-weight:600}
+  .sw{width:11px;height:11px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">storage<span class="ads">ads</span></div>
+  <h1>How the Product Works</h1>
+  <p class="sub">A plain-English map of StorageAds — software that does the marketing for self-storage facilities. No technical knowledge needed. Read it top to bottom: it follows the same path a real visitor or customer takes.</p>
+
+  <div class="analogy">
+    🏢 <b>Think of it like a building.</b> The <b>front door &amp; lobby</b> is the public website. The <b>security desk</b> checks who you are and where you're allowed to go. Behind that are the <b>working rooms</b> where the actual jobs get done. Downstairs is the <b>filing room</b> where everything is stored. And a <b>night crew</b> quietly works around the clock while everyone sleeps.
+  </div>
+
+  <!-- 1 -->
+  <div class="block">
+    <div class="block-head"><div class="step">1</div><h2>The front doors — who shows up</h2></div>
+    <p class="lead">Four different kinds of people use StorageAds, and each gets their own entrance and their own view.</p>
+    <div class="cards">
+      <div class="card"><h3><span class="icon">🌐</span>The public</h3><p>Storage owners browsing the website, reading the blog, or trying the free marketing "audit" tool. This is how new customers first find us.</p></div>
+      <div class="card"><h3><span class="icon">🛠️</span>Us (the founders)</h3><p>Blake &amp; Angelo. A private control room to manage every facility, campaign, and customer.</p></div>
+      <div class="card tone-blue"><h3><span class="icon">👤</span>Customers</h3><p>Paying facility operators. Their own dashboard to see campaigns, bills, and reports.</p></div>
+      <div class="card tone-green"><h3><span class="icon">🤝</span>Partners</h3><p>Resellers and referrers who bring us business and manage their own clients.</p></div>
+    </div>
+  </div>
+  <div class="down">↓</div>
+
+  <!-- 2 -->
+  <div class="block">
+    <div class="block-head"><div class="step">2</div><h2>The security desk — checking everyone in</h2></div>
+    <p class="lead">Before anyone gets to do anything, the system checks who they are and what they're allowed to touch. Each of the four groups above carries a different kind of "badge," and the desk also blocks anything that looks fake or unsafe.</p>
+    <div class="cards c3">
+      <div class="card"><h3><span class="icon">🪪</span>Different keys for different people</h3><p>Founders, customers, and partners each log in their own way and only see their own stuff.</p></div>
+      <div class="card"><h3><span class="icon">🛡️</span>Safety checks</h3><p>Blocks fake or harmful requests and keeps each visitor's data walled off from everyone else's.</p></div>
+      <div class="card"><h3><span class="icon">🚨</span>Alarm system</h3><p>If something breaks, it's flagged instantly so we know exactly where to look.</p></div>
+    </div>
+  </div>
+  <div class="down">↓</div>
+
+  <!-- 3 -->
+  <div class="block">
+    <div class="block-head"><div class="step">3</div><h2>The working rooms — everything the product actually does</h2></div>
+    <p class="lead">This is the heart of it, and it's big. Below is the <b>full</b> list, organized into the "departments" inside the building. Each line is one thing the software can do, in plain English. Items marked <span class="ang-tag">ANGELO</span> are the ad-platform and AI video/image pieces Angelo owns.</p>
+
+    <!-- DEPT 1 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">🎯</span><h3>Department 1 — Find &amp; win new customers</h3><span class="cnt">the sales funnel</span></div>
+      <p class="intro">Everything that turns a storage owner who's never heard of us into a paying customer. This is the front of the whole business.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Free instant audit.</b> An owner types their facility name and instantly gets a letter-grade scorecard of their online presence (Google rating, reviews, photos, website, phone).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Shareable audit report.</b> Each audit lives at its own web link with "money you're leaving on the table" math, used as the hook on a sales call.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Sample audit.</b> A ready-made example so a prospect can see the deliverable without entering their own facility.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Deep diagnostic.</b> A longer 5-step questionnaire that produces a full AI-written facility report for more serious prospects.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Revenue / ROAS calculator.</b> Owner enters units, occupancy, and budget and sees estimated move-ins, added revenue, and return on ad spend.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>"Cost of doing nothing" timeline.</b> A month-by-month picture of what six months of inaction costs while a competitor advertises.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Comparison pages.</b> "StorageAds vs. [competitor]" pages that handle objections and pull in search traffic.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Case studies.</b> Real before-and-after results pages that build proof.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Blog &amp; operator notes.</b> File-based articles, an RSS feed, and short first-person essays that bring in organic visitors.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Help center, pricing, demo &amp; overview pages.</b> The standard supporting marketing pages and an interactive product demo used on live sales calls.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Self-serve signup.</b> A "start your 14-day free trial" account-creation flow.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Sticky mobile button &amp; exit-intent popup.</b> Catch-the-visitor prompts tuned for phone and Facebook traffic before they leave.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 2 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">🧲</span><h3>Department 2 — Capture, score &amp; chase leads</h3><span class="cnt">never lose a lead</span></div>
+      <p class="intro">Once someone shows interest, this department makes sure they're captured, ranked, and followed up with automatically.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Lead capture.</b> Saves every prospect from the audit, popups, and landing-page forms in one place.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Half-finished form rescue.</b> Even captures people who start a form but don't finish, so they aren't lost.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Win-back console.</b> A screen for chasing dropped or cold leads back into the pipeline.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Lead scoring.</b> Automatically ranks leads by how promising they are so sales focuses on the hottest first.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Lead matching.</b> Recognizes when a new lead is really an existing contact (by phone, email, or name) and merges them.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Drip &amp; nurture sequences.</b> Pre-written multi-step email/text follow-ups that fire on a schedule ("Day 2," "Hour 1," etc.).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>AI marketing plan.</b> Generates a tailored per-facility marketing plan to use as a sales/onboarding leave-behind.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Lead pipeline &amp; board.</b> A list view and a drag-and-drop board for moving leads through sales stages.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Lead export.</b> Download the whole lead list as a spreadsheet.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 3 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">🌐</span><h3>Department 3 — Landing pages &amp; funnels</h3><span class="cnt">where ad clicks land</span></div>
+      <p class="intro">The custom web pages that ad traffic lands on, plus the automated path from "clicked an ad" to "filled out a form."</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Landing page builder.</b> Build custom, section-by-section ad landing pages per facility, with templates and an image picker.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>AI page generator.</b> Auto-writes a landing page from scratch for a facility or ad.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Funnel builder.</b> Generates a complete funnel — landing page plus the follow-up email steps after someone converts.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Built-in reservation widget.</b> Pages can embed the facility's storEDGE booking so renters can reserve right there.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Funnel metrics.</b> Shows how many people make it through each stage of the funnel.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 4 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">🎨</span><h3>Department 4 — Make the ad creative <span class="ang-tag">ANGELO</span></h3><span class="cnt">AI design studio</span></div>
+      <p class="intro">The AI "creative studio" that produces the words, pictures, and videos for ads — automatically and on-brand.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Ad copy writer.</b> Generates ready-to-run Facebook/Instagram ad text in several angles (urgency, convenience, social proof, lifestyle).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Google ad &amp; keyword writer.</b> Writes Google search ads and suggests 25–35 storage keywords grouped by theme.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Full creative bundle.</b> One click produces a matched set: Facebook ad, Google ad, landing-page copy, and a 4-email sequence.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>AI image generator.</b> Creates ad images from 10 templates (hero, lifestyle, before/after, seasonal, story background, etc.).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Stock image library.</b> A curated library of storage/moving photos to drop into ads.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>AI video generator.</b> Makes short marketing videos from 7 templates and 11 cinematic styles.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>TikTok slideshow maker.</b> Builds vertical TikTok-style slideshow videos with zoom/pan effects from facility photos.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Organic social post writer.</b> Writes everyday social posts, including bulk batches tied to a seasonal calendar (college move-in, holidays, spring cleaning).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Ad mockup preview.</b> Shows the finished ad exactly as it'll look in a Facebook feed or Google display slot before publishing.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Brand &amp; style memory.</b> Upload reference images and the system learns a facility's visual style and applies it to everything it makes.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 5 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">📣</span><h3>Department 5 — Publish &amp; manage the ads <span class="ang-tag">ANGELO</span></h3><span class="cnt">push it live</span></div>
+      <p class="intro">Taking finished ads live on the real platforms, then tracking the money and results that come back.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>One-click publishing.</b> Pushes a finished ad live to Facebook, Instagram, Google Ads, or TikTok directly.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Organic social publishing.</b> Posts directly to Facebook, Instagram, and the Google listing on a schedule.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Platform connections.</b> Securely links each facility's Facebook/Google/TikTok ad accounts.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Audience syncing.</b> Builds custom and "lookalike" ad audiences from the facility's tenant list (privacy-hashed).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Conversion tracking.</b> Reports leads and move-ins back to Facebook and Google so their systems optimize the ads.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Spend tracking &amp; attribution.</b> Tracks daily ad spend and ties it to which specific ad produced each click, lead, and move-in.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Campaign alerts.</b> Flags problems automatically ("cost per lead too high," "no campaign launched 14 days after signing").</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Self-improving creative.</b> Studies which ads worked and feeds those lessons back into future ad writing.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 6 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">📊</span><h3>Department 6 — Market &amp; money intelligence</h3><span class="cnt">the analyst</span></div>
+      <p class="intro">The "analyst" that studies each facility's numbers, the competition, and the local market, then tells the owner exactly where money is being lost or made.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Occupancy intelligence.</b> Shows how full a facility really is and why occupied units still aren't capturing full revenue.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>12-month occupancy forecast.</b> Projects future occupancy and contrasts "with ads" vs. "without ads."</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Revenue health score &amp; analytics.</b> A weighted health score plus a breakdown of where revenue leaks out.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Revenue-loss analyzer.</b> Puts a dollar figure on money bleeding from six causes (empty units, underpricing, missed leads, competitors, churn, discounts) and the payback from fixing it.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Rate-increase finder (ECRI).</b> Spots long-term tenants paying below market and suggests a new rate and the revenue lift.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Rate-increase safety scoring.</b> Scores how likely each tenant is to leave if their rate goes up, so increases target the safest ones.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>NOI / value-delivered report.</b> A periodic snapshot showing the net profit StorageAds added versus its fee.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Churn prediction.</b> Flags which tenants are likely to move out, why, and what to do to keep them.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Retention tracking.</b> Records whether the save-the-tenant efforts actually worked.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Upsell finder.</b> Surfaces expansion opportunities (add insurance, autopay, bigger unit, annual lease) with the dollar upside.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Move-out win-back.</b> Automatically re-markets to former tenants and tracks who comes back.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Competitor &amp; market scan.</b> Maps nearby competitors, their pricing/promos, local demographics, and demand drivers (apartments, colleges, military bases).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Site-map reader.</b> Looks at a storEDGE site-map screenshot and reads every unit's status (occupied, vacant, past-due, reserved).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Seasonal context.</b> Tells the owner whether they're in peak, shoulder, or slow season and what to do about it.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 7 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">⭐</span><h3>Department 7 — Google reviews &amp; local listing</h3><span class="cnt">reputation</span></div>
+      <p class="intro">Manages each facility's all-important Google Business Profile — the listing people see when they search "storage near me."</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Google posts.</b> Writes and publishes Google updates/offers/events, grounded in real data (only advertising units that are actually vacant).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Review management.</b> Pulls in Google reviews and AI-drafts tone-appropriate replies to approve and publish.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Auto-respond settings.</b> Choose to auto-reply to reviews above a chosen star rating, in a chosen tone.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Q&amp;A management.</b> Answers the questions people post on the listing, and pre-seeds common storage questions.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Listing sync.</b> Pushes correct hours and photos to Google and flags when the listing has drifted from reality.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Listing insights.</b> Reports how many people saw, clicked, called, or asked directions from the listing.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Review requests.</b> Emails or texts recent move-ins a direct link asking for a Google review.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 8 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">📋</span><h3>Department 8 — Facility records &amp; data uploads</h3><span class="cnt">the data feed</span></div>
+      <p class="intro">How each facility's real numbers get into the system, since all the intelligence above depends on it. (Note: data comes in by manual upload today — there's no live automatic connection to storEDGE yet.)</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Report upload.</b> Owners (or the team) upload facility management reports as spreadsheets.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>storEDGE report import.</b> Reads specific storEDGE reports — rent roll, occupancy, aging, revenue, length-of-stay — into organized tables.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Smart column matching.</b> Automatically figures out which spreadsheet columns are which, even when formats differ.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Unit mix &amp; specials.</b> Tracks each facility's unit types, counts, rates, and active promotions.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Upload review queue.</b> A founder-side queue to review and approve uploaded reports before they go live.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 9 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">👤</span><h3>Department 9 — The customer's own dashboard</h3><span class="cnt">what clients see</span></div>
+      <p class="intro">The self-service portal a paying facility operator logs into (by email + a code) to see their results and manage their account.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Results dashboard.</b> Leads and move-ins over the last 90 days, plus a monthly move-in goal tracker.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Campaign performance.</b> Spend, leads, move-ins, cost-per-lead, and return on ad spend over different time ranges.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Reports &amp; occupancy.</b> Occupancy snapshot, trend chart, unit-mix table, and a downloadable report.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Reputation view.</b> Their Google rating, review count, and recent reviews.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Upload reports.</b> Drag-and-drop their management reports for the team to process.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Two-way messaging.</b> A chat thread with the StorageAds team.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Billing &amp; invoices.</b> View invoices (ad spend + fee) and update payment method via Stripe.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Setup wizard.</b> A 6-step onboarding (brand, demographics, unit pricing, competitors, ad preferences, review) that saves and resumes.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Mobile app feel.</b> Installable on a phone, works offline, with bottom tabs and pull-to-refresh.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 10 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">🤝</span><h3>Department 10 — Partner / reseller program</h3><span class="cnt">management companies</span></div>
+      <p class="intro">A separate dashboard for management companies and referral partners who manage many facilities or send us business.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Multi-facility overview.</b> Portfolio totals across every facility a partner manages.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Add &amp; manage facilities.</b> Add facilities and drill into each one's occupancy, leads, and campaign history.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Team management.</b> Invite teammates with roles (Admin/Manager/Viewer).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Revenue-share program.</b> Earnings, tiers (Bronze→Platinum, 20–35%), next-tier progress, referrals, and payout history.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Referral engine.</b> Referral codes that auto-issue credits and milestone bonuses as referrals sign up.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>White-label branding.</b> Partners can put their own name/colors/logo on the product.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Developer tools.</b> API keys and webhooks so partners can plug StorageAds into their own systems.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Audit log &amp; changelog.</b> A security activity log and a product-updates feed.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 11 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">💳</span><h3>Department 11 — Billing, signup &amp; accounts</h3><span class="cnt">getting paid</span></div>
+      <p class="intro">Everything around money coming in and account security.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Plans &amp; checkout.</b> Per-facility pricing tiers with a 14-day trial, handled through Stripe.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Subscription syncing.</b> Keeps each account's status (trial, active, past-due, canceled) up to date automatically.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Invoices.</b> Founder-issued invoices (ad spend + management fee) clients can view and pay.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Usage limits &amp; feature gates.</b> Each plan unlocks certain features and caps (facilities, landing pages, team size, live ads).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Security: 2FA, sessions, password reset.</b> Two-factor login, active-session management, and password recovery.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Privacy &amp; data deletion.</b> A public request flow to delete personal data (GDPR/CCPA), including the Facebook data-deletion callback.</span></div>
+      </div>
+    </div>
+
+    <!-- DEPT 12 -->
+    <div class="dept">
+      <div class="dept-head"><span class="dept-ico">✉️</span><h3>Department 12 — Messages, reminders &amp; tracking</h3><span class="cnt">staying in touch</span></div>
+      <p class="intro">All the ways the system reaches out to people, and how it knows where every lead and call came from.</p>
+      <div class="feat">
+        <div class="f"><span class="bullet">›</span><span><b>Templated emails.</b> A library of branded sales/service emails (follow-up, audit delivery, proposal, check-in, win-back).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>White-label emails.</b> Emails that carry a partner's branding instead of StorageAds'.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Text messages.</b> Outbound SMS (with quiet-hours and opt-out rules built in).</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Push notifications.</b> Browser/phone push alerts to customers and partners.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Notification bell &amp; preferences.</b> An in-app alert center with per-type on/off settings.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Call tracking.</b> Dedicated phone numbers per page that log and attribute inbound calls.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Walk-in attribution.</b> A quick counter form asking new tenants "how did you hear about us?" to capture offline sources.</span></div>
+        <div class="f"><span class="bullet">›</span><span><b>Link &amp; visit tracking.</b> Trackable short links and heatmap-style page interaction data to see what's working.</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="down">↓</div>
+
+  <!-- 4 -->
+  <div class="block dark-block">
+    <div class="block-head"><div class="step">4</div><h2>The filing room — where everything is kept</h2></div>
+    <p class="lead">Every customer, facility, campaign, and report is stored safely so nothing gets lost and everything can be found again instantly.</p>
+    <div class="cards">
+      <div class="card"><h3><span class="icon">🗄️</span>Main records</h3><p>The big organized database holding customers, facilities, leads, campaigns, and history.</p></div>
+      <div class="card"><h3><span class="icon">⚡</span>Quick-access memory</h3><p>Keeps frequently-used info handy so pages load fast.</p></div>
+      <div class="card"><h3><span class="icon">🖼️</span>File storage</h3><p>Holds uploaded images, logos, and documents.</p></div>
+      <div class="card"><h3><span class="icon">📝</span>Written content</h3><p>The blog articles and guides, kept as simple files.</p></div>
+    </div>
+  </div>
+  <div class="down">↓</div>
+
+  <!-- 5 -->
+  <div class="block">
+    <div class="block-head"><div class="step">5</div><h2>The night crew — work that happens automatically</h2></div>
+    <p class="lead">About two dozen small automated jobs run on their own schedule, around the clock, with nobody clicking a button. They keep everything fresh and moving.</p>
+    <div class="cards">
+      <div class="card"><h3><span class="icon">🔁</span>Follow-ups</h3><p>Sends the next email or text in a sequence at the right time.</p></div>
+      <div class="card"><h3><span class="icon">🧮</span>Scoring</h3><p>Re-checks which customers might cancel and which leads are hot.</p></div>
+      <div class="card"><h3><span class="icon">📤</span>Reports</h3><p>Builds and emails the weekly and monthly reports.</p></div>
+      <div class="card"><h3><span class="icon">🧹</span>Housekeeping</h3><p>Cleans up old data and keeps things tidy and compliant.</p></div>
+    </div>
+  </div>
+
+  <!-- 6 outside helpers -->
+  <p class="section-label" style="margin-top:36px">Outside helpers it plugs into</p>
+  <div class="block" style="padding:20px 26px">
+    <p class="lead" style="margin:0 0 14px">StorageAds doesn't do everything itself — it connects to trusted outside services for specialized work:</p>
+    <div>
+      <span class="pill">🤖 Claude AI — writes audits, copy &amp; plans</span>
+      <span class="pill">💳 Stripe — payments</span>
+      <span class="pill">✉️ Resend — email delivery</span>
+      <span class="pill">📍 Google — facility lookup &amp; listings</span>
+      <span class="pill">🎬 Video &amp; image AI — ad creative</span>
+      <span class="pill">📣 Facebook / Google / TikTok — ad platforms</span>
+      <span class="pill">📅 Cal.com — demo bookings</span>
+      <span class="pill">🚨 Sentry — error alarms</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>A few things worth knowing:</b> There's no "practice" copy of the site — when we make a change, it goes live to real customers immediately, so changes are handled carefully. The product is <b>pre-launch</b>: the building is nearly finished, and the first real test will be Blake's own storage facilities. The ad-creation and AI-video parts are <b>Angelo's</b> area.
+  </div>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--dark)"></span>Us / founders</span>
+    <span><span class="sw" style="background:var(--blue)"></span>Customers</span>
+    <span><span class="sw" style="background:var(--green)"></span>Partners</span>
+    <span><span class="sw" style="background:var(--gold)"></span>StorageAds brand</span>
+  </div>
+
+  <footer>A non-technical overview of the StorageAds product · 2026-06-25 · ask for changes and I'll update it.</footer>
+</div>
+</body>
+</html>
