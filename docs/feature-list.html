@@ -59,7 +59,27 @@
   .ideas li{padding-bottom:3px}
   .idtag{font-size:7.5px;font-weight:800;color:#fff;background:var(--blue);border-radius:3px;padding:1px 4px;margin-left:auto;letter-spacing:.04em}
   .idtag.rev{background:var(--green)}
-  @media print{ .print-hint{display:none} .sheet{padding:0;max-width:none} body{font-size:9.6px} li{font-size:9.3px} .ideas .bo{font-size:8px} }
+  /* Part 3 — frontier */
+  .banner.frontier{border-top:2px solid var(--dark);background:var(--dark);color:var(--light);margin:8px -34px 14px;padding:14px 34px 16px}
+  .banner.frontier .kicker{color:var(--gold)}
+  .banner.frontier h1{color:var(--light)}
+  .banner.frontier .tagline{color:#c9c5bb;max-width:640px}
+  .lede.frontier{background:#201f1d;color:#d6d2c8;border-left-color:var(--gold)}
+  .lede.frontier b{color:#fff}
+  .frontier-cols .dept h2{border-bottom-color:#cfc9ba}
+  .frontier-cols .dept h2 .n{color:var(--gold)}
+  .frontier-cols li::before{content:"✦";color:var(--gold);font-size:8px;top:2px}
+  .frontier-cols .bo{display:block;font-size:8.3px;color:var(--mid);margin-top:1px;line-height:1.35}
+  .frontier-cols .bo b{color:var(--dark);font-weight:700}
+  .frontier-cols li{padding-bottom:3.5px}
+  .tg{font-size:7px;font-weight:800;border-radius:3px;padding:1px 4px;letter-spacing:.04em;white-space:nowrap;vertical-align:1px}
+  .tg.near{background:#e4ebd9;color:#46532f}
+  .tg.big{background:#dde8f1;color:#2f4d6b}
+  .tg.moon{background:var(--dark);color:var(--gold)}
+  .tg.rev{background:var(--gold);color:#fff}
+  .keymap{break-inside:avoid;font-size:8.5px;color:var(--body);margin:10px 0 4px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .keymap b{color:var(--dark)}
+  @media print{ .print-hint{display:none} .sheet{padding:0;max-width:none} body{font-size:9.6px} li{font-size:9.3px} .ideas .bo,.frontier-cols .bo{font-size:8px} .banner.frontier{margin-left:0;margin-right:0;-webkit-print-color-adjust:exact;print-color-adjust:exact} }
 </style>
 </head>
 <body>
@@ -370,7 +390,156 @@
 
   <div class="note" style="border-top-color:#cdddec"><b>A note on sequencing:</b> the ideas that unlock the most without much new plumbing are the ones riding on data you already collect — <b>Live PMS sync</b> turns nearly every "intelligence" feature from estimate into fact, and <b>Budget autopilot</b> / <b>Street-rate autopilot</b> convert existing read-only insights into automatic action. The <span class="idtag rev" style="margin:0">$$</span>-tagged items are also new revenue lines, not just features.</div>
 
-  <div class="foot"><span>StorageAds.com — marketing automation for self-storage operators</span><span>Feature overview + idea backlog · June 2026</span></div>
+  <div class="partbreak"></div>
+
+  <div class="banner frontier">
+    <div class="kicker">Part 3 · Frontier · way beyond</div>
+    <h1>The Most Advanced Ideas — Explore Everything</h1>
+    <p class="tagline">Moonshots and platform plays. The thread running through all of them: StorageAds doesn't just market facilities — it sits on the richest live dataset in self-storage (occupancy, true street rates, competitor pricing, demand signals, attributed move-ins, tenant behavior) across many facilities and markets. That data, plus AI agents on top of it, is the real asset. These ideas turn the product into a platform, a marketplace, a data business, and eventually an operating system for the whole asset class.</p>
+  </div>
+
+  <div class="keymap">
+    <b>Tiers:</b>
+    <span><span class="tg near">NEAR</span> plausible in ~12 mo</span>
+    <span><span class="tg big">BIG</span> ambitious platform play</span>
+    <span><span class="tg moon">MOON</span> moonshot / needs scale</span>
+    <span><span class="tg rev">$$$</span> major new revenue / data sale</span>
+  </div>
+
+  <p class="lede frontier"><b>Why this matters:</b> marketing software is a feature; a <b>data network</b> with autonomous agents is a category. Most ideas below only work once StorageAds runs enough facilities that its aggregate data is more valuable than any single operator's. That's the flywheel: more facilities → better data → smarter automation → better results → more facilities. Build for that.</p>
+
+  <div class="cols frontier-cols">
+
+    <div class="dept">
+      <h2><span class="n">1.</span> The Storage Data Network</h2>
+      <ul>
+        <li><b>Storage Price Index</b> — a "Case-Shiller for self-storage": a real-time street-rate &amp; occupancy index per market, built from live data nobody else has. <span class="tg big">BIG</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> competitor scrapes + PMS rates across the portfolio</span></li>
+        <li><b>Alt-data feed for Wall Street</b> — license anonymized storage demand &amp; pricing signals to REIT analysts, hedge funds, and lenders as leading-indicator alt-data.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> aggregate move-in / click / rate data</span></li>
+        <li><b>Benchmark-as-a-service</b> — any facility (even non-customers) pays to see exactly how its rates, occupancy, and reviews rank against its true local set.<span class="tg near">NEAR</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> performance aggregator + market scan</span></li>
+        <li><b>Privacy-safe data co-op</b> — facilities contribute their numbers and get back aggregate market truth they can't see alone; the network compounds.<span class="tg big">BIG</span><span class="bo"><b>From:</b> PMS imports across many facilities</span></li>
+        <li><b>Migration / move signal exchange</b> — "people are moving here" is gold to movers, insurers, realtors, utilities; sell the anonymized demand signal downstream.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> lead + move-in geography</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">2.</span> The Demand Exchange</h2>
+      <ul>
+        <li><b>Overflow lead routing</b> — when one facility is full, auto-sell its renter lead to a nearby facility with vacancy; a live lead marketplace.<span class="tg big">BIG</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> live availability + lead capture + attribution</span></li>
+        <li><b>Programmatic lead bidding</b> — facilities bid in real time for renter intent by unit size, distance, and price.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> lead marketplace + auction engine</span></li>
+        <li><b>Reverse marketplace</b> — renters post "need a 10×10 near downtown under $120"; facilities auto-respond with offers.<span class="tg big">BIG</span><span class="bo"><b>From:</b> reservation widget + availability + pricing</span></li>
+        <li><b>Network occupancy balancing</b> — steer demand across a portfolio (or the whole network) to maximize total NOI, like a hotel revenue network.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> demand exchange + pricing autopilot</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">3.</span> "Stripe for Storage" — dev platform</h2>
+      <ul>
+        <li><b>Storage API / SDK</b> — let any app (realtor sites, moving companies, apartment portals) sell or reserve storage through StorageAds and take a cut.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> v1 API + availability + reservation</span></li>
+        <li><b>Embeddable widgets</b> — drop-in audit, live-availability, review, and booking widgets for any facility's own website.<span class="tg near">NEAR</span><span class="bo"><b>From:</b> audit tool + availability API + GBP</span></li>
+        <li><b>Plugin / app marketplace</b> — third parties build and sell add-ons on top of the platform; revenue share.<span class="tg big">BIG</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> v1 API + webhooks + partner orgs</span></li>
+        <li><b>AI-agent interface (MCP)</b> — expose a facility's marketing/occupancy state so external AI agents (ChatGPT, Claude, etc.) can query and act on it.<span class="tg near">NEAR</span><span class="bo"><b>From:</b> v1 API + structured data</span></li>
+        <li><b>Native PMS-marketplace apps</b> — ship StorageAds as an installable app inside storEDGE, Yardi, and other PMS app stores.<span class="tg big">BIG</span><span class="bo"><b>From:</b> live PMS sync + creative engine</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">4.</span> Autonomous AI operators</h2>
+      <ul>
+        <li><b>The Autonomous Operator</b> — give it a goal ("hold 92% at max NOI") and a budget; it writes, launches, prices, optimizes, and reports with zero clicks.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> every automation feature, coordinated by an agent</span></li>
+        <li><b>AI revenue manager</b> — airline-style dynamic pricing that reprices every unit type continuously.<span class="tg big">BIG</span><span class="bo"><b>From:</b> pricing autopilot + occupancy + competitor data</span></li>
+        <li><b>Facility digital twin</b> — a simulator to test "what if I cut rates 5% / double ad spend" before risking a dollar.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> forecast + NOI model + reinforcement learning</span></li>
+        <li><b>AI retention negotiator</b> — a text/chat agent that detects a leaving tenant and negotiates a personalized save offer in real time.<span class="tg big">BIG</span><span class="bo"><b>From:</b> churn prediction + messaging + Claude</span></li>
+        <li><b>24/7 AI voice receptionist</b> — answers every call, quotes real availability, books tours, and takes reservations day or night.<span class="tg big">BIG</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> call tracking + availability + reservation</span></li>
+        <li><b>Multi-agent operator brain</b> — pricing, marketing, and reputation agents that negotiate with each other toward one NOI objective.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> all of the above orchestrated</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">5.</span> Embedded finance &amp; fintech</h2>
+      <ul>
+        <li><b>The Storage NOI Score</b> — a verified, real-time creditworthiness primitive for a facility, used to underwrite lending — owned by StorageAds.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> NOI report + PMS sync (verified financials)</span></li>
+        <li><b>Revenue-based financing</b> — advance operators capital against future move-ins, underwritten by data StorageAds already trusts.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> NOI score + attribution</span></li>
+        <li><b>Embedded tenant insurance</b> — broker or underwrite tenant protection at the point of reservation; recurring commission.<span class="tg near">NEAR</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> upsell finder + reservation flow</span></li>
+        <li><b>Payments &amp; rent financing</b> — process tenant payments and offer BNPL on storage; take the spread.<span class="tg big">BIG</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> Stripe rails + tenant CRM</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">6.</span> Acquisition &amp; capital markets</h2>
+      <ul>
+        <li><b>Auto-underwriting buy-box</b> — point it at a facility for sale and it underwrites the deal and drafts an LOI from real market data.<span class="tg big">BIG</span><span class="bo"><b>From:</b> acquisition scout + NOI model + market scan</span></li>
+        <li><b>Deal marketplace</b> — connect buyers and sellers of facilities, with StorageAds-verified performance as the listing.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> portfolio data + valuation API</span></li>
+        <li><b>Appraisal-grade valuation API</b> — sell instant, defensible facility valuations to lenders, brokers, and appraisers.<span class="tg big">BIG</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> data network + NOI model</span></li>
+        <li><b>Fractional / syndication platform</b> — let investors back facilities, with live verified performance as the prospectus.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> valuation + NOI reporting + portal</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">7.</span> Frontier advertising &amp; reality</h2>
+      <ul>
+        <li><b>Occupancy-triggered billboards</b> — programmatic digital out-of-home near the facility that switches on only when units sit empty.<span class="tg big">BIG</span><span class="bo"><b>From:</b> occupancy data + ad publisher (DOOH)</span></li>
+        <li><b>Connected-TV &amp; streaming buys</b> — extend the ad engine into CTV/streaming, hyper-targeted by trade area.<span class="tg near">NEAR</span><span class="bo"><b>From:</b> creative generator + audience sync</span></li>
+        <li><b>Life-event geofencing</b> — trigger ads when someone rents a U-Haul, tours an apartment, or lists a home nearby.<span class="tg big">BIG</span><span class="bo"><b>From:</b> signal intelligence + ad publisher</span></li>
+        <li><b>AR "see your unit"</b> — let a renter walk a unit in augmented reality from the ad before reserving.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> facility assets + reservation</span></li>
+        <li><b>Infinite personalized video</b> — a unique generated video ad per audience micro-segment, at scale.<span class="tg big">BIG</span><span class="bo"><b>From:</b> AI video generator + audience data</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">8.</span> Predictive signal intelligence</h2>
+      <ul>
+        <li><b>Life-event demand radar</b> — mine apartment turnover, building permits, business closures, estate sales, divorce/probate filings into a forward demand forecast per block.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> scrapers + market scan + forecasting</span></li>
+        <li><b>Household move-propensity model</b> — score who in a trade area is likely to need storage soon, and target them.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> demographics + life-event signals</span></li>
+        <li><b>Pre-emptive churn save</b> — act on a tenant's leaving signal before they consciously decide to go.<span class="tg big">BIG</span><span class="bo"><b>From:</b> churn scoring + behavioral signals</span></li>
+        <li><b>Macro &amp; weather demand model</b> — fold interest rates, housing turnover, and weather into the occupancy forecast.<span class="tg near">NEAR</span><span class="bo"><b>From:</b> forecast engine + external data</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">9.</span> Physical layer — IoT &amp; robotics</h2>
+      <ul>
+        <li><b>Smart-lock &amp; sensor sync</b> — read true unit occupancy from door sensors and smart locks instead of trusting the spreadsheet.<span class="tg big">BIG</span><span class="bo"><b>From:</b> facility records + new IoT integration</span></li>
+        <li><b>Computer-vision site audits</b> — drone or camera sweeps that read which units are actually occupied and flag curb-appeal issues.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> site-map vision reader, extended to live imagery</span></li>
+        <li><b>Auto-listing of freed units</b> — the instant a sensor sees a vacate, the unit hits ads, the listing, and the demand exchange.<span class="tg big">BIG</span><span class="bo"><b>From:</b> IoT + publisher + demand exchange</span></li>
+        <li><b>Dynamic on-site signage</b> — screens at the gate that change pricing/promos based on live occupancy.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> pricing autopilot + DOOH</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">10.</span> Beyond storage — Local Occupancy OS</h2>
+      <ul>
+        <li><b>Adjacent verticals</b> — the same engine runs RV/boat storage, parking, marinas, laundromats, car washes, mobile-home parks — any local, occupancy-driven business.<span class="tg big">BIG</span><span class="bo"><b>From:</b> the whole stack, re-skinned</span></li>
+        <li><b>"Occupancy OS" platform</b> — generalize into the marketing + revenue brain for any fragmented local asset class.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> vertical generalization</span></li>
+        <li><b>Geographic / franchise licensing</b> — license the operating system to REITs and operators in new regions as their internal marketing OS.<span class="tg big">BIG</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> white-label + full platform</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">11.</span> Ad-hoc data store &amp; syndication</h2>
+      <ul>
+        <li><b>Self-serve data API store</b> — pay-per-query access to competitor pricing, occupancy, and demand by market; metered like an API product.<span class="tg near">NEAR</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> data network + v1 API + usage metering</span></li>
+        <li><b>On-demand market reports</b> — auto-generate and sell a polished market study for any metro, instantly.<span class="tg near">NEAR</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> market scan + NOI/report engine</span></li>
+        <li><b>Investor research subscription</b> — a recurring data product for storage investors, brokers, and lenders.<span class="tg big">BIG</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> Storage Price Index + benchmarks</span></li>
+        <li><b>Consumer-intent syndication</b> — supply anonymized renter-intent signals to ad networks and adjacent advertisers.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> lead + interaction data (privacy-governed)</span></li>
+      </ul>
+    </div>
+
+    <div class="dept">
+      <h2><span class="n">12.</span> Moonshots &amp; wild cards</h2>
+      <ul>
+        <li><b>Become the system of record</b> — move up the stack from marketing layer to full PMS replacement and own the whole operator relationship.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> PMS sync, inverted</span></li>
+        <li><b>StorageAds Capital</b> — buy underperforming facilities the data flags, fix them with the platform, and keep the upside.<span class="tg moon">MOON</span><span class="tg rev">$$$</span><span class="bo"><b>From:</b> acquisition scout + autonomous operator</span></li>
+        <li><b>Industry-standard rating</b> — make the StorageAds score the "FICO of storage facilities" that lenders and buyers require.<span class="tg moon">MOON</span><span class="bo"><b>From:</b> NOI score + data network</span></li>
+        <li><b>ESG / carbon reporting</b> — auto-produce sustainability reporting facilities increasingly need for financing.<span class="tg near">NEAR</span><span class="bo"><b>From:</b> facility records + report engine</span></li>
+        <li><b>Tokenized / fractional units</b> — explore on-chain fractional ownership of storage income streams (skeptically — regulatory minefield).<span class="tg moon">MOON</span><span class="bo"><b>From:</b> valuation + syndication platform</span></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="note" style="border-top-color:#cfc9ba"><b>The one-sentence thesis:</b> StorageAds' durable moat isn't the ad tooling — it's becoming the <b>data and demand layer</b> for self-storage, then renting that position out as APIs, a marketplace, financing, and alt-data. Pick the wedge (likely the <span class="tg near" style="margin:0">NEAR</span> data-benchmark + embeddable widgets), use it to pull more facilities onto the network, and let the flywheel make every <span class="tg moon" style="margin:0">MOON</span> idea progressively cheaper to reach.</div>
+
+  <div class="foot"><span>StorageAds.com — from marketing tool to the operating system for self-storage</span><span>Shipped features + near-term ideas + frontier · June 2026</span></div>
 
 </div>
 </body>
