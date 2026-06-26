@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "id": "9c9579e726",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "tools",
+      "title": "Commit noi CSV helpers referenced by committed client"
+    },
+    {
+      "id": "efb98a1be3",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "ecri",
+      "title": "Full Existing Customer Rate Increase tool + bundled WIP"
+    },
+    {
       "id": "7baf175ee6",
       "date": "2026-06-26",
       "category": "feature",
