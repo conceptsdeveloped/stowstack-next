@@ -134,8 +134,9 @@ export default async function BlogPostPage({ params }: PageProps) {
           style={{ color: "var(--text-tertiary)" }}
         >
           {pillar && (
-            <span
-              className="px-2.5 py-1 rounded-full"
+            <Link
+              href={`/blog?pillar=${post.pillar}`}
+              className="px-2.5 py-1 rounded-full transition-colors hover:opacity-80"
               style={{
                 background: "var(--bg-elevated)",
                 border: "1px solid var(--border-subtle)",
@@ -143,7 +144,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               }}
             >
               {pillar.label}
-            </span>
+            </Link>
           )}
           <span>{post.date}</span>
           <span>·</span>
@@ -225,9 +226,10 @@ export default async function BlogPostPage({ params }: PageProps) {
           {post.tags.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag) => (
-                <span
+                <Link
                   key={tag}
-                  className="text-xs px-2.5 py-1 rounded-full"
+                  href={`/blog?tags=${encodeURIComponent(tag)}`}
+                  className="text-xs px-2.5 py-1 rounded-full transition-colors hover:opacity-80"
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-tertiary)",
@@ -235,7 +237,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                   }}
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
           ) : (
