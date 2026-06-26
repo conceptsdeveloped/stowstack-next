@@ -127,6 +127,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Calls", href: "/admin/facilities/call-tracking", icon: Phone, scoped: true },
       { label: "PMS Queue", href: "/admin/pms-queue", icon: FileUp },
       { label: "Diagnostics", href: "/admin/audits", icon: ShieldCheck },
+      { label: "Quick Diagnostic", href: "/admin/quick-audit", icon: Sparkles },
     ],
   },
   {
