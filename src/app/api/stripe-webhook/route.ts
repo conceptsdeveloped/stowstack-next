@@ -66,6 +66,10 @@ export async function POST(req: NextRequest) {
 async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   const { plan, companyName, facilityCount } = session.metadata || {};
   const customerId = session.customer as string;
+  // Persist the subscription id so org-deletion (cleanup-organizations cron) can
+  // actually cancel the Stripe subscription. Without this it stays null and the
+  // cron's cancel step silently no-ops, leaving deleted orgs billing forever.
+  const subscriptionId = (session.subscription as string | null) || null;
   const email = session.customer_email || session.customer_details?.email;
 
   if (!email || !plan || !companyName) return;
@@ -95,6 +99,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
         facility_limit: parseInt(facilityCount || "1"),
         subscription_status: "active",
         stripe_customer_id: customerId,
+        stripe_subscription_id: subscriptionId,
         status: "active",
       },
     });
@@ -148,6 +153,10 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     subscription_status: status,
   };
   if (newPlan) updateData.plan = newPlan;
+  // Backfill the subscription id on every update — this is the reliable path
+  // (fires right after checkout and on every change), so orgs created via any
+  // route end up with a cancellable subscription id. See cleanup-organizations.
+  if (subscription.id) updateData.stripe_subscription_id = subscription.id;
 
   // Atomic find-and-update — no race window between read and write
   await db.organizations.updateMany({
