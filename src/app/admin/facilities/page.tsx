@@ -96,7 +96,7 @@ function StatusBadge({ status }: { status?: string }) {
     draft: "bg-yellow-500/20 text-yellow-400",
     paused: "bg-orange-500/20 text-orange-400",
     inactive: "bg-red-500/20 text-red-400",
-    completed: "bg-[var(--burgundy)]/20 text-[var(--burgundy)]",
+    completed: "bg-[var(--ink)]/15 text-[var(--ink)]",
     answered: "bg-emerald-500/20 text-emerald-400",
     missed: "bg-red-500/20 text-red-400",
     voicemail: "bg-yellow-500/20 text-yellow-400",
@@ -431,7 +431,7 @@ function FacilitiesContent() {
             placeholder="Search facilities..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-9 pr-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:border-[var(--burgundy)]/50 focus:outline-none focus:ring-1 focus:ring-[var(--burgundy)]/50"
+            className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-9 pr-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] focus:border-[var(--ink)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--ink)]/40"
           />
           {localSearch && (
             <button
