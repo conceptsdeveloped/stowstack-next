@@ -158,7 +158,7 @@ Shell: `src/components/partner/partner-shell.tsx`.
 Every route exports `OPTIONS` for CORS (`corsResponse()`). Grouped by purpose:
 
 **Audit / diagnostic funnel**
-`audit-form` · `audit-generate` · `audit-generate-diagnostic` · `audit-load` · `audit-save` · `audit-approve` · `audit-report` · `shared-audits` · `diagnostic-intake` · `diagnostic-analyze` · `analyze-map`
+`audit-form` · `audit-generate-diagnostic` · `audit-load` · `audit-save` · `audit-approve` · `shared-audits` · `diagnostic-intake` · `analyze-map`
 
 **Leads**
 `lead-capture` · `lead-score` · `lead-analytics` · `partial-lead` · `consumer-lead` · `consumer-leads` · `admin-leads` · `export-leads`
