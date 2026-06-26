@@ -1,16 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import Link from "next/link";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Download,
-  Printer,
-  RotateCcw,
-  Info,
-} from "lucide-react";
+import { ArrowRight, Download, Printer, RotateCcw, Info } from "lucide-react";
 import { CAL_BOOKING_URL } from "@/lib/booking";
+import ToolHeader, { ToolCta } from "@/components/tools/tool-header";
+import {
+  MoneyField,
+  PercentField,
+  PlainNumber,
+  TextField,
+  SectionCard,
+  ResultRow,
+  MiniStat,
+  Faq,
+  usd0,
+  usd2,
+  pct,
+  clampPct,
+} from "@/components/tools/fields";
 
 /* ──────────────────────────────────────────────────────────────────────────
    Self-storage NOI calculator
@@ -19,12 +26,11 @@ import { CAL_BOOKING_URL } from "@/lib/booking";
 
    Excluded from NOI on purpose (lenders/buyers underwrite on it, so it stays
    "clean"): debt service / mortgage, depreciation & amortization, capital
-   expenditures, income taxes, owner distributions. We surface that note so
-   operators don't accidentally bury their NOI by subtracting their loan.
+   expenditures, income taxes, owner distributions.
 
    All values are stored internally as ANNUAL dollars. The basis toggle only
-   changes how numbers are displayed/entered; storage stays annual so the
-   math is consistent regardless of how the operator likes to think.
+   changes how numbers are displayed/entered; storage stays annual so the math
+   is consistent regardless of how the operator likes to think.
    ────────────────────────────────────────────────────────────────────────── */
 
 const STORAGE_KEY = "storageads_noi_calculator_v1";
@@ -37,7 +43,6 @@ interface FieldDef {
   help?: string;
 }
 
-/* Income line items (annual $, stored canonical) ------------------------- */
 const OTHER_INCOME_FIELDS: FieldDef[] = [
   {
     key: "tenantInsurance",
@@ -57,7 +62,7 @@ const OTHER_INCOME_FIELDS: FieldDef[] = [
   {
     key: "merchandise",
     label: "Retail & merchandise",
-    help: "Locks, boxes, packing supplies sold at the counter (net of cost, or gross — track COGS below).",
+    help: "Locks, boxes, packing supplies sold at the counter (track cost below).",
   },
   {
     key: "truckRental",
@@ -71,12 +76,11 @@ const OTHER_INCOME_FIELDS: FieldDef[] = [
   },
 ];
 
-/* Operating expense line items (annual $) -------------------------------- */
 const EXPENSE_FIELDS: FieldDef[] = [
   {
     key: "payroll",
     label: "On-site payroll & wages",
-    help: "Manager + relief/part-time wages. Exclude your own owner draw if you don't pay yourself a market wage.",
+    help: "Manager + relief/part-time wages. Exclude your own draw if you don't pay yourself a market wage.",
   },
   {
     key: "payrollTaxesBenefits",
@@ -96,12 +100,12 @@ const EXPENSE_FIELDS: FieldDef[] = [
   {
     key: "utilities",
     label: "Utilities",
-    help: "Electric, water, sewer, gas, trash — common areas, lights, gate, climate control.",
+    help: "Electric, water, sewer, gas, trash — lights, gate, climate control.",
   },
   {
     key: "repairs",
     label: "Repairs & maintenance",
-    help: "Doors, springs, gate motor, asphalt patching, HVAC service, general upkeep (not capex).",
+    help: "Doors, springs, gate motor, asphalt patching, HVAC service (not capex).",
   },
   {
     key: "marketing",
@@ -146,11 +150,9 @@ const EXPENSE_FIELDS: FieldDef[] = [
 ];
 
 interface CalcState {
-  // facility meta
   facilityName: string;
   totalUnits: number;
   rentableSqft: number;
-  // income (annual $)
   gpr: number;
   vacancyPct: number;
   tenantInsurance: number;
@@ -159,7 +161,6 @@ interface CalcState {
   merchandise: number;
   truckRental: number;
   otherIncome: number;
-  // expenses (annual $)
   managementPct: number;
   payroll: number;
   payrollTaxesBenefits: number;
@@ -175,7 +176,6 @@ interface CalcState {
   professionalFees: number;
   merchandiseCogs: number;
   licensesMisc: number;
-  // valuation
   capRatePct: number;
 }
 
@@ -209,24 +209,6 @@ const DEFAULTS: CalcState = {
   capRatePct: 6.5,
 };
 
-/* ── formatting helpers ─────────────────────────────────────────────────── */
-const usd0 = (n: number) =>
-  n.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
-
-const usd2 = (n: number) =>
-  n.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  });
-
-const pct = (n: number) => `${(Number.isFinite(n) ? n : 0).toFixed(1)}%`;
-
-/* ── derived totals ─────────────────────────────────────────────────────── */
 interface Derived {
   gpr: number;
   vacancyLoss: number;
@@ -301,266 +283,6 @@ function derive(s: CalcState): Derived {
   };
 }
 
-function clampPct(n: number) {
-  if (!Number.isFinite(n)) return 0;
-  return Math.min(100, Math.max(0, n));
-}
-
-/* ── number field with its own text buffer (so basis toggle + reset resync,
-      but live typing isn't clobbered) ──────────────────────────────────── */
-function MoneyField({
-  label,
-  help,
-  value,
-  onChange,
-}: {
-  label: string;
-  help?: string;
-  value: number; // already in display basis
-  onChange: (n: number) => void; // receives display-basis number
-}) {
-  const [text, setText] = useState(() => (value ? String(round2(value)) : ""));
-  // Adjust the text buffer during render when the external value changes for a
-  // reason other than this field's own edit (basis toggle, reset, load). React
-  // supports setState during render; this avoids a setState-in-effect cascade.
-  const [syncedValue, setSyncedValue] = useState(value);
-  if (value !== syncedValue) {
-    setSyncedValue(value);
-    const parsed = text === "" || text === "." ? 0 : parseFloat(text) || 0;
-    if (Math.abs(parsed - value) > 0.005) {
-      setText(value ? String(round2(value)) : "");
-    }
-  }
-
-  return (
-    <label className="block">
-      <div className="flex items-baseline justify-between gap-2 mb-1.5">
-        <span
-          className="text-sm font-medium"
-          style={{ color: "var(--color-dark)" }}
-        >
-          {label}
-        </span>
-      </div>
-      <div
-        className="flex items-center rounded-lg overflow-hidden focus-within:ring-2"
-        style={{
-          border: "1px solid var(--color-light-gray)",
-          background: "var(--color-light)",
-          // ring color set via CSS var fallback
-          ["--tw-ring-color" as string]: "var(--color-dark)",
-        }}
-      >
-        <span
-          className="pl-3 pr-1 text-sm select-none"
-          style={{ color: "var(--color-mid-gray)" }}
-        >
-          $
-        </span>
-        <input
-          type="text"
-          inputMode="decimal"
-          value={text}
-          placeholder="0"
-          onChange={(e) => {
-            const raw = e.target.value.replace(/[^0-9.]/g, "");
-            setText(raw);
-            const n = raw === "" || raw === "." ? 0 : parseFloat(raw);
-            const safe = Number.isFinite(n) ? n : 0;
-            setSyncedValue(safe);
-            onChange(safe);
-          }}
-          className="w-full bg-transparent py-2.5 pr-3 text-sm tabular-nums outline-none"
-          style={{ color: "var(--color-dark)" }}
-        />
-      </div>
-      {help && (
-        <p
-          className="text-xs mt-1.5 leading-snug"
-          style={{ color: "var(--color-mid-gray)" }}
-        >
-          {help}
-        </p>
-      )}
-    </label>
-  );
-}
-
-function PercentField({
-  label,
-  help,
-  value,
-  onChange,
-  derivedDollars,
-}: {
-  label: string;
-  help?: string;
-  value: number;
-  onChange: (n: number) => void;
-  derivedDollars?: number;
-}) {
-  const [text, setText] = useState(() => (value ? String(value) : ""));
-  const [syncedValue, setSyncedValue] = useState(value);
-  if (value !== syncedValue) {
-    setSyncedValue(value);
-    const parsed = text === "" || text === "." ? 0 : parseFloat(text) || 0;
-    if (Math.abs(parsed - value) > 0.005) {
-      setText(value ? String(value) : "");
-    }
-  }
-
-  return (
-    <label className="block">
-      <div className="flex items-baseline justify-between gap-2 mb-1.5">
-        <span
-          className="text-sm font-medium"
-          style={{ color: "var(--color-dark)" }}
-        >
-          {label}
-        </span>
-        {derivedDollars != null && derivedDollars > 0 && (
-          <span
-            className="text-xs tabular-nums"
-            style={{ color: "var(--color-mid-gray)" }}
-          >
-            ≈ {usd0(derivedDollars)}/yr
-          </span>
-        )}
-      </div>
-      <div
-        className="flex items-center rounded-lg overflow-hidden focus-within:ring-2"
-        style={{
-          border: "1px solid var(--color-light-gray)",
-          background: "var(--color-light)",
-          ["--tw-ring-color" as string]: "var(--color-dark)",
-        }}
-      >
-        <input
-          type="text"
-          inputMode="decimal"
-          value={text}
-          placeholder="0"
-          onChange={(e) => {
-            const raw = e.target.value.replace(/[^0-9.]/g, "");
-            setText(raw);
-            const n = raw === "" || raw === "." ? 0 : parseFloat(raw);
-            const safe = Number.isFinite(n) ? n : 0;
-            setSyncedValue(safe);
-            onChange(safe);
-          }}
-          className="w-full bg-transparent py-2.5 pl-3 text-sm tabular-nums outline-none"
-          style={{ color: "var(--color-dark)" }}
-        />
-        <span
-          className="pr-3 pl-1 text-sm select-none"
-          style={{ color: "var(--color-mid-gray)" }}
-        >
-          %
-        </span>
-      </div>
-      {help && (
-        <p
-          className="text-xs mt-1.5 leading-snug"
-          style={{ color: "var(--color-mid-gray)" }}
-        >
-          {help}
-        </p>
-      )}
-    </label>
-  );
-}
-
-function round2(n: number) {
-  return Math.round(n * 100) / 100;
-}
-
-function SectionCard({
-  step,
-  title,
-  subtitle,
-  children,
-}: {
-  step: string;
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section
-      className="rounded-2xl p-5 sm:p-7"
-      style={{
-        background: "var(--color-light)",
-        border: "1px solid var(--color-light-gray)",
-      }}
-    >
-      <div className="mb-5">
-        <span
-          className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: "var(--color-mid-gray)" }}
-        >
-          {step}
-        </span>
-        <h2
-          className="text-xl font-semibold mt-1"
-          style={{ color: "var(--color-dark)", letterSpacing: "-0.02em" }}
-        >
-          {title}
-        </h2>
-        {subtitle && (
-          <p
-            className="text-sm mt-1 leading-relaxed"
-            style={{ color: "var(--color-body-text)" }}
-          >
-            {subtitle}
-          </p>
-        )}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function ResultRow({
-  label,
-  value,
-  strong,
-  muted,
-  negative,
-}: {
-  label: string;
-  value: string;
-  strong?: boolean;
-  muted?: boolean;
-  negative?: boolean;
-}) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 py-1.5">
-      <span
-        className="text-sm"
-        style={{
-          color: muted ? "var(--color-mid-gray)" : "var(--color-body-text)",
-          fontWeight: strong ? 600 : 400,
-        }}
-      >
-        {label}
-      </span>
-      <span
-        className="text-sm tabular-nums"
-        style={{
-          color: negative
-            ? "var(--color-red)"
-            : strong
-              ? "var(--color-dark)"
-              : "var(--color-dark)",
-          fontWeight: strong ? 700 : 500,
-        }}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
 export default function NoiCalculatorClient() {
   const [s, setS] = useState<CalcState>(DEFAULTS);
   const [basis, setBasis] = useState<Basis>("annual");
@@ -587,7 +309,6 @@ export default function NoiCalculatorClient() {
     setLoaded(true);
   }, []);
 
-  // persist
   useEffect(() => {
     if (!loaded) return;
     try {
@@ -600,9 +321,7 @@ export default function NoiCalculatorClient() {
   const d = useMemo(() => derive(s), [s]);
 
   const divisor = basis === "monthly" ? 12 : 1;
-  // display a stored annual $ in the current basis
   const disp = useCallback((annual: number) => annual / divisor, [divisor]);
-  // setter: a money field reports a display-basis number, store as annual
   const setMoney = useCallback(
     (key: keyof CalcState) => (displayVal: number) =>
       setS((prev) => ({ ...prev, [key]: displayVal * divisor })),
@@ -627,49 +346,37 @@ export default function NoiCalculatorClient() {
   const downloadCsv = useCallback(() => {
     const rows: [string, string, string][] = [
       ["Line item", "Annual", "Monthly"],
-      ["Gross potential rent", money(d.gpr), money(d.gpr / 12)],
+      ["Gross potential rent", usd0(d.gpr), usd0(d.gpr / 12)],
       [
         `Less vacancy & credit loss (${pct(s.vacancyPct)})`,
-        money(-d.vacancyLoss),
-        money(-d.vacancyLoss / 12),
+        usd0(-d.vacancyLoss),
+        usd0(-d.vacancyLoss / 12),
       ],
-      ["Net rental income", money(d.rentalIncomeNet), money(d.rentalIncomeNet / 12)],
-      ["Other income", money(d.otherIncomeTotal), money(d.otherIncomeTotal / 12)],
-      ["Effective gross income (EGI)", money(d.egi), money(d.egi / 12)],
+      ["Net rental income", usd0(d.rentalIncomeNet), usd0(d.rentalIncomeNet / 12)],
+      ["Other income", usd0(d.otherIncomeTotal), usd0(d.otherIncomeTotal / 12)],
+      ["Effective gross income (EGI)", usd0(d.egi), usd0(d.egi / 12)],
       ...d.expenseLines.map(
         (l) =>
-          [`  ${l.label}`, money(-l.amount), money(-l.amount / 12)] as [
+          [`  ${l.label}`, usd0(-l.amount), usd0(-l.amount / 12)] as [
             string,
             string,
             string,
           ],
       ),
-      ["Total operating expenses", money(-d.opexTotal), money(-d.opexTotal / 12)],
-      ["NET OPERATING INCOME (NOI)", money(d.noi), money(d.noi / 12)],
+      ["Total operating expenses", usd0(-d.opexTotal), usd0(-d.opexTotal / 12)],
+      ["NET OPERATING INCOME (NOI)", usd0(d.noi), usd0(d.noi / 12)],
       ["NOI margin", pct(d.noiMargin), ""],
       ["Operating expense ratio", pct(d.expenseRatio), ""],
-      [
-        "NOI per unit",
-        s.totalUnits > 0 ? money(d.noiPerUnit) : "n/a",
-        "",
-      ],
+      ["NOI per unit", s.totalUnits > 0 ? usd0(d.noiPerUnit) : "n/a", ""],
       [
         "NOI per rentable sq ft",
         s.rentableSqft > 0 ? usd2(d.noiPerSqft) : "n/a",
         "",
       ],
-      [
-        `Implied value @ ${pct(s.capRatePct)} cap`,
-        money(d.impliedValue),
-        "",
-      ],
+      [`Implied value @ ${pct(s.capRatePct)} cap`, usd0(d.impliedValue), ""],
     ];
     const csv = rows
-      .map((r) =>
-        r
-          .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-          .join(","),
-      )
+      .map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
       .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -690,57 +397,9 @@ export default function NoiCalculatorClient() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-light)" }}>
-      {/* ── Header ── */}
-      <header
-        className="sticky top-0 z-50 border-b print:hidden"
-        style={{
-          background: "rgba(250,249,245,0.9)",
-          backdropFilter: "blur(12px)",
-          borderColor: "var(--border-subtle)",
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Link
-              href="/tools"
-              aria-label="Back to tools"
-              className="p-2 -ml-2 transition-opacity hover:opacity-70"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              <ArrowLeft size={20} />
-            </Link>
-            <Link href="/" className="hover:opacity-80 transition-opacity">
-              <span
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                  fontSize: 17,
-                  color: "var(--color-dark)",
-                }}
-              >
-                storage<span style={{ color: "var(--brand-gold)" }}>ads</span>
-              </span>
-            </Link>
-          </div>
-          <a
-            href={CAL_BOOKING_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
-            style={{
-              background: "var(--color-dark)",
-              color: "var(--color-light)",
-            }}
-          >
-            Book a Call
-            <ArrowRight className="h-4 w-4" />
-          </a>
-        </div>
-      </header>
+      <ToolHeader backHref="/tools" />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        {/* ── Title ── */}
         <div className="max-w-2xl mb-8">
           <span
             className="text-xs font-semibold uppercase tracking-wider"
@@ -761,12 +420,11 @@ export default function NoiCalculatorClient() {
             Tally the income and the storage-specific operating expenses and
             triangulate your net operating income in a few minutes. Answer the
             fields you know, skip the ones you don&apos;t. Nothing leaves your
-            browser. We&apos;ll show NOI, your expense ratio, per-unit
-            economics, and what it implies your facility is worth.
+            browser. We&apos;ll show NOI, your expense ratio, per-unit economics,
+            and what it implies your facility is worth.
           </p>
         </div>
 
-        {/* ── Basis toggle ── */}
         <div className="flex items-center justify-between flex-wrap gap-3 mb-8 print:hidden">
           <div
             className="inline-flex rounded-lg p-1"
@@ -779,12 +437,9 @@ export default function NoiCalculatorClient() {
                 onClick={() => setBasis(b)}
                 className="px-4 py-1.5 text-sm font-medium rounded-md transition-all capitalize"
                 style={{
-                  background:
-                    basis === b ? "var(--color-light)" : "transparent",
+                  background: basis === b ? "var(--color-light)" : "transparent",
                   color:
-                    basis === b
-                      ? "var(--color-dark)"
-                      : "var(--color-mid-gray)",
+                    basis === b ? "var(--color-dark)" : "var(--color-mid-gray)",
                   boxShadow:
                     basis === b ? "0 1px 2px rgba(20,20,19,0.08)" : "none",
                 }}
@@ -794,75 +449,35 @@ export default function NoiCalculatorClient() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={downloadCsv}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-              style={{
-                border: "1px solid var(--color-light-gray)",
-                color: "var(--color-body-text)",
-              }}
-            >
-              <Download className="h-4 w-4" /> CSV
-            </button>
-            <button
-              type="button"
+            <ToolbarButton onClick={downloadCsv} icon={<Download className="h-4 w-4" />}>
+              CSV
+            </ToolbarButton>
+            <ToolbarButton
               onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-              style={{
-                border: "1px solid var(--color-light-gray)",
-                color: "var(--color-body-text)",
-              }}
+              icon={<Printer className="h-4 w-4" />}
             >
-              <Printer className="h-4 w-4" /> Print
-            </button>
-            <button
-              type="button"
-              onClick={reset}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-              style={{
-                border: "1px solid var(--color-light-gray)",
-                color: "var(--color-body-text)",
-              }}
-            >
-              <RotateCcw className="h-4 w-4" /> Reset
-            </button>
+              Print
+            </ToolbarButton>
+            <ToolbarButton onClick={reset} icon={<RotateCcw className="h-4 w-4" />}>
+              Reset
+            </ToolbarButton>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8 items-start">
-          {/* ── Inputs column ── */}
+          {/* Inputs */}
           <div className="flex flex-col gap-6">
-            {/* Facility basics */}
             <SectionCard
               step="Step 1"
               title="Facility basics"
               subtitle="Optional, but unlocks per-unit and per-square-foot economics in your results."
             >
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <label className="block sm:col-span-1">
-                  <span
-                    className="text-sm font-medium block mb-1.5"
-                    style={{ color: "var(--color-dark)" }}
-                  >
-                    Facility name
-                  </span>
-                  <input
-                    type="text"
-                    value={s.facilityName}
-                    placeholder="Optional"
-                    onChange={(e) =>
-                      setS((p) => ({ ...p, facilityName: e.target.value }))
-                    }
-                    className="w-full rounded-lg py-2.5 px-3 text-sm outline-none focus:ring-2"
-                    style={{
-                      border: "1px solid var(--color-light-gray)",
-                      background: "var(--color-light)",
-                      color: "var(--color-dark)",
-                      ["--tw-ring-color" as string]: "var(--color-dark)",
-                    }}
-                  />
-                </label>
+                <TextField
+                  label="Facility name"
+                  value={s.facilityName}
+                  onChange={(v) => setS((p) => ({ ...p, facilityName: v }))}
+                />
                 <PlainNumber
                   label="Total units"
                   value={s.totalUnits}
@@ -876,7 +491,6 @@ export default function NoiCalculatorClient() {
               </div>
             </SectionCard>
 
-            {/* Income */}
             <SectionCard
               step="Step 2"
               title="Income"
@@ -892,9 +506,7 @@ export default function NoiCalculatorClient() {
                   />
                   <GprEstimator
                     basis={basis}
-                    onApply={(annual) =>
-                      setS((p) => ({ ...p, gpr: annual }))
-                    }
+                    onApply={(annual) => setS((p) => ({ ...p, gpr: annual }))}
                   />
                 </div>
                 <PercentField
@@ -902,7 +514,7 @@ export default function NoiCalculatorClient() {
                   help="Physical vacancy + concessions + bad debt, as a % of gross potential rent."
                   value={s.vacancyPct}
                   onChange={setNum("vacancyPct")}
-                  derivedDollars={d.vacancyLoss}
+                  derivedDollars={d.vacancyLoss / divisor}
                 />
                 <div className="hidden sm:block" />
                 {OTHER_INCOME_FIELDS.map((f) => (
@@ -916,32 +528,13 @@ export default function NoiCalculatorClient() {
                 ))}
               </div>
 
-              <div
-                className="mt-6 pt-5 flex items-baseline justify-between"
-                style={{ borderTop: "1px solid var(--color-light-gray)" }}
-              >
-                <span
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--color-dark)" }}
-                >
-                  Effective gross income (EGI)
-                </span>
-                <span
-                  className="text-lg font-bold tabular-nums"
-                  style={{ color: "var(--color-dark)" }}
-                >
-                  {money(d.egi / divisor)}
-                  <span
-                    className="text-sm font-medium ml-1"
-                    style={{ color: "var(--color-mid-gray)" }}
-                  >
-                    {basisLabel}
-                  </span>
-                </span>
-              </div>
+              <Subtotal
+                label="Effective gross income (EGI)"
+                value={usd0(d.egi / divisor)}
+                basisLabel={basisLabel}
+              />
             </SectionCard>
 
-            {/* Expenses */}
             <SectionCard
               step="Step 3"
               title="Operating expenses"
@@ -953,7 +546,7 @@ export default function NoiCalculatorClient() {
                   help="If a third party manages the facility (typically 5–6% of collected income). Set to 0 if you self-manage."
                   value={s.managementPct}
                   onChange={setNum("managementPct")}
-                  derivedDollars={d.managementFee}
+                  derivedDollars={d.managementFee / divisor}
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
@@ -968,32 +561,13 @@ export default function NoiCalculatorClient() {
                 ))}
               </div>
 
-              <div
-                className="mt-6 pt-5 flex items-baseline justify-between"
-                style={{ borderTop: "1px solid var(--color-light-gray)" }}
-              >
-                <span
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--color-dark)" }}
-                >
-                  Total operating expenses
-                </span>
-                <span
-                  className="text-lg font-bold tabular-nums"
-                  style={{ color: "var(--color-dark)" }}
-                >
-                  {money(d.opexTotal / divisor)}
-                  <span
-                    className="text-sm font-medium ml-1"
-                    style={{ color: "var(--color-mid-gray)" }}
-                  >
-                    {basisLabel}
-                  </span>
-                </span>
-              </div>
+              <Subtotal
+                label="Total operating expenses"
+                value={usd0(d.opexTotal / divisor)}
+                basisLabel={basisLabel}
+              />
             </SectionCard>
 
-            {/* Valuation input */}
             <SectionCard
               step="Step 4"
               title="Valuation (optional)"
@@ -1010,14 +584,11 @@ export default function NoiCalculatorClient() {
             </SectionCard>
           </div>
 
-          {/* ── Results column (sticky on desktop) ── */}
+          {/* Results */}
           <div className="lg:sticky lg:top-20">
             <div
               className="rounded-2xl p-6 sm:p-7"
-              style={{
-                background: "var(--color-dark)",
-                color: "var(--color-light)",
-              }}
+              style={{ background: "var(--color-dark)", color: "var(--color-light)" }}
             >
               <span
                 className="text-xs font-semibold uppercase tracking-wider"
@@ -1029,12 +600,11 @@ export default function NoiCalculatorClient() {
                 <span
                   className="text-4xl font-bold tabular-nums"
                   style={{
-                    color:
-                      d.noi < 0 ? "var(--color-red)" : "var(--color-light)",
+                    color: d.noi < 0 ? "var(--color-red)" : "var(--color-light)",
                     letterSpacing: "-0.03em",
                   }}
                 >
-                  {money(d.noi / divisor)}
+                  {usd0(d.noi / divisor)}
                 </span>
                 <span
                   className="text-base font-medium ml-1.5"
@@ -1043,54 +613,39 @@ export default function NoiCalculatorClient() {
                   {basisLabel}
                 </span>
               </div>
-              <p
-                className="text-sm"
-                style={{ color: "var(--color-mid-gray)" }}
-              >
+              <p className="text-sm" style={{ color: "var(--color-mid-gray)" }}>
                 {basis === "monthly"
-                  ? `${money(d.noi)} per year`
-                  : `${money(d.noiMonthly)} per month`}
+                  ? `${usd0(d.noi)} per year`
+                  : `${usd0(d.noiMonthly)} per month`}
               </p>
 
-              {/* mini metric grid */}
               <div
                 className="grid grid-cols-2 gap-px mt-6 rounded-xl overflow-hidden"
                 style={{ background: "rgba(250,249,245,0.12)" }}
               >
-                <MiniStat
-                  label="NOI margin"
-                  value={d.egi > 0 ? pct(d.noiMargin) : "—"}
-                />
+                <MiniStat label="NOI margin" value={d.egi > 0 ? pct(d.noiMargin) : "—"} />
                 <MiniStat
                   label="Expense ratio"
                   value={d.egi > 0 ? pct(d.expenseRatio) : "—"}
                 />
                 <MiniStat
                   label="NOI / unit"
-                  value={
-                    s.totalUnits > 0 ? `${usd0(d.noiPerUnit)}/yr` : "add units"
-                  }
+                  value={s.totalUnits > 0 ? `${usd0(d.noiPerUnit)}/yr` : "add units"}
                 />
                 <MiniStat
                   label="NOI / sq ft"
                   value={
-                    s.rentableSqft > 0
-                      ? `${usd2(d.noiPerSqft)}/yr`
-                      : "add sq ft"
+                    s.rentableSqft > 0 ? `${usd2(d.noiPerSqft)}/yr` : "add sq ft"
                   }
                 />
               </div>
 
-              {/* implied value */}
               <div
                 className="mt-5 pt-5"
                 style={{ borderTop: "1px solid rgba(250,249,245,0.12)" }}
               >
                 <div className="flex items-baseline justify-between">
-                  <span
-                    className="text-sm"
-                    style={{ color: "var(--color-mid-gray)" }}
-                  >
+                  <span className="text-sm" style={{ color: "var(--color-mid-gray)" }}>
                     Implied value @ {pct(s.capRatePct)} cap
                   </span>
                   <span className="text-xl font-bold tabular-nums">
@@ -1104,10 +659,7 @@ export default function NoiCalculatorClient() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-                style={{
-                  background: "var(--color-light)",
-                  color: "var(--color-dark)",
-                }}
+                style={{ background: "var(--color-light)", color: "var(--color-dark)" }}
               >
                 Grow the NOI line
                 <ArrowRight className="h-4 w-4" />
@@ -1135,37 +687,28 @@ export default function NoiCalculatorClient() {
               >
                 The math ({basis})
               </h3>
-              <ResultRow label="Gross potential rent" value={money(d.gpr / divisor)} />
+              <ResultRow label="Gross potential rent" value={usd0(d.gpr / divisor)} />
               <ResultRow
                 label={`Less vacancy & credit loss (${pct(s.vacancyPct)})`}
-                value={`(${money(d.vacancyLoss / divisor)})`}
+                value={`(${usd0(d.vacancyLoss / divisor)})`}
                 muted
               />
-              <ResultRow
-                label="Other income"
-                value={money(d.otherIncomeTotal / divisor)}
-              />
-              <div
-                className="my-1.5"
-                style={{ borderTop: "1px solid var(--color-light-gray)" }}
-              />
+              <ResultRow label="Other income" value={usd0(d.otherIncomeTotal / divisor)} />
+              <Divider />
               <ResultRow
                 label="Effective gross income"
-                value={money(d.egi / divisor)}
+                value={usd0(d.egi / divisor)}
                 strong
               />
               <ResultRow
                 label="Less operating expenses"
-                value={`(${money(d.opexTotal / divisor)})`}
+                value={`(${usd0(d.opexTotal / divisor)})`}
                 muted
               />
-              <div
-                className="my-1.5"
-                style={{ borderTop: "1px solid var(--color-light-gray)" }}
-              />
+              <Divider />
               <ResultRow
                 label="Net operating income"
-                value={money(d.noi / divisor)}
+                value={usd0(d.noi / divisor)}
                 strong
                 negative={d.noi < 0}
               />
@@ -1174,9 +717,7 @@ export default function NoiCalculatorClient() {
             {/* excluded note */}
             <div
               className="rounded-2xl p-5 mt-6 flex gap-3"
-              style={{
-                background: "var(--color-light-gray)",
-              }}
+              style={{ background: "var(--color-light-gray)" }}
             >
               <Info
                 className="h-4 w-4 mt-0.5 flex-shrink-0"
@@ -1203,7 +744,7 @@ export default function NoiCalculatorClient() {
           </div>
         </div>
 
-        {/* ── Methodology / FAQ ── */}
+        {/* Methodology / FAQ */}
         <div className="max-w-3xl mt-16 print:hidden">
           <h2
             className="text-2xl font-bold mb-6"
@@ -1218,8 +759,8 @@ export default function NoiCalculatorClient() {
               financing and taxes. Formula: EGI − operating expenses = NOI.
             </Faq>
             <Faq q="What is effective gross income (EGI)?">
-              Gross potential rent (every unit full at street rate) minus
-              vacancy and credit loss, plus other income like tenant insurance
+              Gross potential rent (every unit full at street rate) minus vacancy
+              and credit loss, plus other income like tenant insurance
               commissions, late fees, admin fees, retail, and truck rental. It is
               the income you actually collect.
             </Faq>
@@ -1249,37 +790,11 @@ export default function NoiCalculatorClient() {
             </Faq>
           </div>
 
-          <div
-            className="rounded-2xl p-7 mt-12 text-center"
-            style={{
-              background: "var(--color-dark)",
-              color: "var(--color-light)",
-            }}
-          >
-            <h3 className="text-xl font-bold mb-2">
-              A sign on a chainlink fence is not an acquisition strategy
-            </h3>
-            <p
-              className="text-sm mb-5 max-w-md mx-auto leading-relaxed"
-              style={{ color: "var(--color-mid-gray)" }}
-            >
-              NOI grows when units fill and rates hold. StorageAds runs the ads,
-              builds the landing pages, and proves which campaigns moved the line.
-              Built by an operator, tested on our own facilities first.
-            </p>
-            <a
-              href={CAL_BOOKING_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-              style={{
-                background: "var(--color-light)",
-                color: "var(--color-dark)",
-              }}
-            >
-              Book a Call
-              <ArrowRight className="h-4 w-4" />
-            </a>
+          <div className="mt-12">
+            <ToolCta
+              heading="A sign on a chainlink fence is not an acquisition strategy"
+              body="NOI grows when units fill and rates hold. StorageAds runs the ads, builds the landing pages, and proves which campaigns moved the line. Built by an operator, tested on our own facilities first."
+            />
           </div>
         </div>
 
@@ -1297,59 +812,62 @@ export default function NoiCalculatorClient() {
   );
 }
 
-/* ── plain integer field (units, sqft) ──────────────────────────────────── */
-function PlainNumber({
+function Subtotal({
   label,
   value,
-  onChange,
+  basisLabel,
 }: {
   label: string;
-  value: number;
-  onChange: (n: number) => void;
+  value: string;
+  basisLabel: string;
 }) {
-  const [text, setText] = useState(() => (value ? String(value) : ""));
-  const [syncedValue, setSyncedValue] = useState(value);
-  if (value !== syncedValue) {
-    setSyncedValue(value);
-    const parsed = text === "" ? 0 : parseInt(text, 10) || 0;
-    if (parsed !== value) {
-      setText(value ? String(value) : "");
-    }
-  }
   return (
-    <label className="block">
-      <span
-        className="text-sm font-medium block mb-1.5"
-        style={{ color: "var(--color-dark)" }}
-      >
+    <div
+      className="mt-6 pt-5 flex items-baseline justify-between"
+      style={{ borderTop: "1px solid var(--color-light-gray)" }}
+    >
+      <span className="text-sm font-semibold" style={{ color: "var(--color-dark)" }}>
         {label}
       </span>
-      <input
-        type="text"
-        inputMode="numeric"
-        value={text}
-        placeholder="0"
-        onChange={(e) => {
-          const raw = e.target.value.replace(/[^0-9]/g, "");
-          setText(raw);
-          const n = raw === "" ? 0 : parseInt(raw, 10);
-          const safe = Number.isFinite(n) ? n : 0;
-          setSyncedValue(safe);
-          onChange(safe);
-        }}
-        className="w-full rounded-lg py-2.5 px-3 text-sm tabular-nums outline-none focus:ring-2"
-        style={{
-          border: "1px solid var(--color-light-gray)",
-          background: "var(--color-light)",
-          color: "var(--color-dark)",
-          ["--tw-ring-color" as string]: "var(--color-dark)",
-        }}
-      />
-    </label>
+      <span className="text-lg font-bold tabular-nums" style={{ color: "var(--color-dark)" }}>
+        {value}
+        <span className="text-sm font-medium ml-1" style={{ color: "var(--color-mid-gray)" }}>
+          {basisLabel}
+        </span>
+      </span>
+    </div>
   );
 }
 
-/* ── GPR quick estimator ────────────────────────────────────────────────── */
+function ToolbarButton({
+  onClick,
+  icon,
+  children,
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+      style={{ border: "1px solid var(--color-light-gray)", color: "var(--color-body-text)" }}
+    >
+      {icon}
+      {children}
+    </button>
+  );
+}
+
+function Divider() {
+  return (
+    <div className="my-1.5" style={{ borderTop: "1px solid var(--color-light-gray)" }} />
+  );
+}
+
+/* GPR quick estimator — specific to this calculator. */
 function GprEstimator({
   basis,
   onApply,
@@ -1391,9 +909,7 @@ function GprEstimator({
               inputMode="numeric"
               value={units}
               placeholder="0"
-              onChange={(e) =>
-                setUnits(e.target.value.replace(/[^0-9]/g, ""))
-              }
+              onChange={(e) => setUnits(e.target.value.replace(/[^0-9]/g, ""))}
               className="w-full rounded-md py-2 px-2.5 text-sm tabular-nums outline-none"
               style={{
                 border: "1px solid var(--color-mid-gray)",
@@ -1414,9 +930,7 @@ function GprEstimator({
               inputMode="decimal"
               value={rate}
               placeholder="0"
-              onChange={(e) =>
-                setRate(e.target.value.replace(/[^0-9.]/g, ""))
-              }
+              onChange={(e) => setRate(e.target.value.replace(/[^0-9.]/g, ""))}
               className="w-full rounded-md py-2 px-2.5 text-sm tabular-nums outline-none"
               style={{
                 border: "1px solid var(--color-mid-gray)",
@@ -1433,10 +947,7 @@ function GprEstimator({
               setOpen(false);
             }}
             className="rounded-md py-2 px-3 text-sm font-medium transition-opacity disabled:opacity-40"
-            style={{
-              background: "var(--color-dark)",
-              color: "var(--color-light)",
-            }}
+            style={{ background: "var(--color-dark)", color: "var(--color-light)" }}
           >
             Use {annual > 0 ? usd0(basis === "monthly" ? annual / 12 : annual) : "—"}
           </button>
@@ -1444,48 +955,4 @@ function GprEstimator({
       )}
     </div>
   );
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="p-3" style={{ background: "var(--color-dark)" }}>
-      <p
-        className="text-[11px] font-medium uppercase tracking-wide mb-0.5"
-        style={{ color: "var(--color-mid-gray)" }}
-      >
-        {label}
-      </p>
-      <p
-        className="text-sm font-bold tabular-nums"
-        style={{ color: "var(--color-light)" }}
-      >
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function Faq({ q, children }: { q: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3
-        className="text-base font-semibold mb-1.5"
-        style={{ color: "var(--color-dark)" }}
-      >
-        {q}
-      </h3>
-      <p
-        className="text-sm leading-relaxed"
-        style={{ color: "var(--color-body-text)" }}
-      >
-        {children}
-      </p>
-    </div>
-  );
-}
-
-/* csv/display money helper that respects sign with parens handled by caller */
-function money(n: number) {
-  if (!Number.isFinite(n)) return usd0(0);
-  return usd0(n);
 }
