@@ -48,7 +48,7 @@ function buildSolicitationEmailHtml(
     </p>
 
     <p style="margin:16px 0 0;font-size:14px;color:#6a6560;">
-      &mdash; The ${esc(facilityName)} Team
+      The ${esc(facilityName)} Team
     </p>
   </div>
   <p style="text-align:center;margin-top:16px;font-size:11px;color:#b0aea5;">

@@ -199,7 +199,7 @@ Return ONLY a JSON object with two fields:
       title: `Units Available at ${facilityName}`,
       body:
         promptContext ||
-        `Great news — we have units available at ${facilityName}! Climate-controlled and standard options in multiple sizes. Reserve yours today.`,
+        `Great news, we have units available at ${facilityName}! Climate-controlled and standard options in multiple sizes. Reserve yours today.`,
     },
   };
   return templates[postType] || templates.update;

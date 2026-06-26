@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
         `),
       },
       campaign_live: {
-        subject: vars.subject || `Your campaigns are live — ${vars.facilityName || ""}`,
+        subject: vars.subject || `Your campaigns are live: ${vars.facilityName || ""}`,
         html: buildEmail(org, `
           <h2 style="color: #1e293b; margin: 0 0 12px;">Your campaigns are live!</h2>
           <p style="color: #475569; font-size: 15px;">We've launched campaigns for <strong>${vars.facilityName || "your facility"}</strong>.</p>
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
         `),
       },
       monthly_report: {
-        subject: vars.subject || `Monthly Report — ${vars.facilityName || ""} — ${vars.month || ""}`,
+        subject: vars.subject || `Monthly Report: ${vars.facilityName || ""} ${vars.month || ""}`,
         html: buildEmail(org, `
           <h2 style="color: #1e293b; margin: 0 0 12px;">Monthly Performance Report</h2>
           <p style="color: #475569; font-size: 15px;">Here's how <strong>${vars.facilityName || "your facility"}</strong> performed in <strong>${vars.month || "this month"}</strong>:</p>
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
         `),
       },
       lead_notification: {
-        subject: vars.subject || `New Lead — ${vars.facilityName || ""}`,
+        subject: vars.subject || `New Lead: ${vars.facilityName || ""}`,
         html: buildEmail(org, `
           <h2 style="color: #1e293b; margin: 0 0 12px;">New Lead Received</h2>
           <p style="color: #475569; font-size: 15px;">A new lead just came in for <strong>${vars.facilityName || "your facility"}</strong>:</p>

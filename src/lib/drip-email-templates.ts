@@ -52,7 +52,7 @@ ${body}
 
 <!-- Footer -->
 <tr><td style="padding-top:40px;border-top:1px solid #e8e6dc;color:#b0aea5;font-size:12px;line-height:1.5;">
-StorageAds &mdash; Marketing that fills units.<br />
+StorageAds. Marketing that fills units.<br />
 <a href="https://storageads.com" style="color:#b0aea5;text-decoration:underline;">storageads.com</a>
 </td></tr>
 
@@ -96,7 +96,7 @@ function followUp(data: DripEmailData): DripEmailResult {
 <p style="margin:0 0 8px;color:#141413;font-size:15px;">
 That&rsquo;s your ${name} marketing score. ${
           data.auditScore >= 70
-            ? "Not bad &mdash; but there&rsquo;s room to tighten things up."
+            ? "Not bad, but there&rsquo;s room to tighten things up."
             : data.auditScore >= 40
               ? "There are some clear opportunities to improve."
               : "There&rsquo;s a lot of low-hanging fruit here."
@@ -120,7 +120,7 @@ We just finished the marketing audit for <strong style="color:#141413;">${name}<
 ${scoreSection}
 
 <p style="margin:16px 0;">
-The full report breaks down your Google Business Profile, local SEO, ad presence, and online reputation &mdash; with specific recommendations for each.
+The full report breaks down your Google Business Profile, local SEO, ad presence, and online reputation, with specific recommendations for each.
 </p>
 
 ${ctaButton("View Your Full Results", auditLink)}
@@ -130,7 +130,7 @@ No strings attached. Just a clear picture of what&rsquo;s working and what isn&r
 </p>
 
 <p style="margin:24px 0 0;color:#141413;">
-&mdash; Blake<br />
+Blake<br />
 <span style="color:#6a6560;font-size:13px;">Founder, StorageAds</span>
 </p>
 `),
@@ -149,7 +149,7 @@ Quick math on ${name}:
 </p>
 
 <p style="margin:0 0 16px;">
-The average self-storage unit rents for about <strong style="color:#141413;">$130/month</strong>. That means every vacant unit isn&rsquo;t just empty space &mdash; it&rsquo;s $130 walking out the door every 30 days.
+The average self-storage unit rents for about <strong style="color:#141413;">$130/month</strong>. That means every vacant unit is $130 walking out the door every 30 days.
 </p>
 
 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;width:100%;">
@@ -178,13 +178,13 @@ Most facilities we audit are leaving money on the table with incomplete Google p
 </p>
 
 <p style="margin:0 0 16px;">
-StorageAds runs your ads, your Google listing, your retargeting, and your reputation &mdash; so you can run the facility.
+StorageAds runs your ads, your Google listing, your retargeting, and your reputation, so you can run the facility.
 </p>
 
 ${ctaButton("See What StorageAds Can Do", auditLink)}
 
 <p style="margin:24px 0 0;color:#141413;">
-&mdash; Blake<br />
+Blake<br />
 <span style="color:#6a6560;font-size:13px;">Founder, StorageAds</span>
 </p>
 `),
@@ -199,11 +199,11 @@ function checkIn(data: DripEmailData): DripEmailResult {
     subject: `Let's talk about filling ${data.facilityName}`,
     html: layout(`
 <p style="margin:0 0 16px;color:#141413;font-size:17px;font-weight:500;">
-Hey &mdash; quick note on ${name}.
+Hey, quick note on ${name}.
 </p>
 
 <p style="margin:0 0 16px;">
-I put together that audit earlier this week and wanted to follow up personally. I see some clear wins that could move the needle on occupancy, and I&rsquo;d like to walk you through them.
+I put together that audit earlier this week and wanted to follow up personally. I see some clear wins that could fill more units, and I&rsquo;d like to walk you through them.
 </p>
 
 <p style="margin:0 0 16px;">
@@ -213,11 +213,11 @@ No pitch deck, no pressure. Just 15 minutes to talk through what we found and wh
 ${ctaButton("Book a 15-Minute Call", calLink)}
 
 <p style="margin:0 0 16px;">
-Or just reply to this email &mdash; happy to answer any questions.
+Or just reply to this email, happy to answer any questions.
 </p>
 
 <p style="margin:24px 0 0;color:#141413;">
-&mdash; Blake<br />
+Blake<br />
 <span style="color:#6a6560;font-size:13px;">Founder, StorageAds</span>
 </p>
 `),

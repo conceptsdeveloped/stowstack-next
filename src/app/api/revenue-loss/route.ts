@@ -173,7 +173,7 @@ export async function GET(request: NextRequest) {
         unitBreakdown,
         detail:
           vacantUnits === 0
-            ? "You're at full occupancy — no vacancy drag. Nice."
+            ? "You're at full occupancy. No vacancy drag. Nice."
             : `You have ${vacantUnits} vacant units across ${unitBreakdown.length} unit types. That's $${Math.round(vacancyMonthly).toLocaleString()}/mo in potential revenue sitting empty.`,
         severity: severity(vacancyMonthly * 12),
       };
@@ -299,7 +299,7 @@ export async function GET(request: NextRequest) {
       benchmarkCPL,
       population,
       renterPct: Math.round(renterPct * 100),
-      detail: `An estimated ${estimatedSearchVolume.toLocaleString()} people search for storage in your area monthly. Without ads, you're invisible to them. At industry benchmarks, that's ~${missedMoveIns} move-ins/mo you're missing — $${Math.round(missedMonthlyRevenue).toLocaleString()}/mo in revenue.`,
+      detail: `An estimated ${estimatedSearchVolume.toLocaleString()} people search for storage in your area monthly. Without ads, you're invisible to them. At industry benchmarks, that's ~${missedMoveIns} move-ins/mo you're missing, worth $${Math.round(missedMonthlyRevenue).toLocaleString()}/mo in revenue.`,
       severity: severity(missedMonthlyRevenue * 12),
     };
 

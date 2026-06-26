@@ -33,23 +33,23 @@ function getSpendRecommendation(facility: Record<string, unknown>) {
   if (occ < 60) {
     budgetTier = "aggressive";
     monthlyBudget = { min: 2000, max: 5000 };
-    reasoning.push("Low occupancy — aggressive spend to fill units fast");
+    reasoning.push("Low occupancy, so spend aggressively to fill units fast");
   } else if (occ < 75) {
     budgetTier = "growth";
     monthlyBudget = { min: 1500, max: 3500 };
-    reasoning.push("Moderate vacancy — strong growth opportunity");
+    reasoning.push("Moderate vacancy, a strong growth opportunity");
   } else if (occ < 85) {
     budgetTier = "steady";
     monthlyBudget = { min: 800, max: 2000 };
-    reasoning.push("Healthy occupancy — steady spend to maintain and grow");
+    reasoning.push("Healthy occupancy, so keep spend steady to maintain and grow");
   } else if (occ < 95) {
     budgetTier = "optimize";
     monthlyBudget = { min: 500, max: 1200 };
-    reasoning.push("High occupancy — optimize for premium units and rate increases");
+    reasoning.push("High occupancy, so focus on premium units and rate increases");
   } else {
     budgetTier = "maintain";
     monthlyBudget = { min: 300, max: 800 };
-    reasoning.push("Near full — minimal spend, focus on retention and rate optimization");
+    reasoning.push("Near full, so keep spend minimal and focus on retention and rate increases");
   }
 
   const channels: Record<string, number> = {
@@ -62,15 +62,15 @@ function getSpendRecommendation(facility: Record<string, unknown>) {
 
   if (rating >= 4.5 && reviewCount > 50) {
     reasoning.push(
-      `Strong reputation (${rating}★, ${reviewCount} reviews) — leverage social proof in ads`
+      `Strong reputation (${rating}★, ${reviewCount} reviews), so put social proof in your ads`
     );
   } else if (rating < 4.0) {
-    reasoning.push("Below 4★ rating — prioritize reputation management before heavy ad spend");
+    reasoning.push("Below 4★ rating, so prioritize reputation management before heavy ad spend");
   }
 
   if (facility.biggest_issue) {
     reasoning.push(
-      `Operator-identified challenge: "${facility.biggest_issue}" — plan should address this directly`
+      `Operator-identified challenge: "${facility.biggest_issue}", which the plan should address directly`
     );
   }
 

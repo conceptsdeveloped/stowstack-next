@@ -1157,7 +1157,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           from: "StorageAds <notifications@storageads.com>",
           to: [diagnostic.contactEmail],
-          subject: `Your StorageAds Facility Diagnostic is Ready — ${diagnostic.facilityName}`,
+          subject: `Your StorageAds Facility Diagnostic is Ready: ${diagnostic.facilityName}`,
           html: operatorHtml,
         }),
       }).catch((err) => console.error("[email] Fire-and-forget failed:", err));

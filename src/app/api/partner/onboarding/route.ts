@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
         key: "pms",
         title: "Connect your PMS",
         description:
-          "Upload your PMS data to unlock occupancy insights and revenue intelligence.",
+          "Upload your PMS data to see occupancy insights and revenue intelligence.",
         completed: step3Complete,
         link: "/partner/facilities",
       },

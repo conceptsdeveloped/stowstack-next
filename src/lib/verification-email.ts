@@ -21,7 +21,7 @@ function renderHtml(name: string | null | undefined, verifyUrl: string): string 
           </a>
         </div>
         <p style="color: #6a6560; font-size: 13px; line-height: 1.55; margin: 20px 0 0;">This link expires in 24 hours. If you didn&rsquo;t create this account, you can safely ignore this email.</p>
-        <p style="color: #b0aea5; font-size: 12px; margin-top: 28px;">&mdash; The StorageAds Team</p>
+        <p style="color: #b0aea5; font-size: 12px; margin-top: 28px;">The StorageAds Team</p>
       </div>
     </div>
   `;
