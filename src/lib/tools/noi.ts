@@ -305,7 +305,7 @@ export function rowsToCsv(rows: CsvRow[]): string {
 
 /** Derive a safe download filename from the facility name. */
 export function noiCsvFileName(facilityName: string): string {
-  const slug = (facilityName || "facility")
+  const slug = facilityName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");

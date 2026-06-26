@@ -23,6 +23,9 @@ import {
   EXPENSE_FIELDS,
   NOI_DEFAULTS,
   deriveNoi,
+  buildNoiCsvRows,
+  rowsToCsv,
+  noiCsvFileName,
   type NoiState,
 } from "@/lib/tools/noi";
 
@@ -106,49 +109,12 @@ export default function NoiCalculatorClient() {
   }, []);
 
   const downloadCsv = useCallback(() => {
-    const rows: [string, string, string][] = [
-      ["Line item", "Annual", "Monthly"],
-      ["Gross potential rent", usd0(d.gpr), usd0(d.gpr / 12)],
-      [
-        `Less vacancy & credit loss (${pct(s.vacancyPct)})`,
-        usd0(-d.vacancyLoss),
-        usd0(-d.vacancyLoss / 12),
-      ],
-      ["Net rental income", usd0(d.rentalIncomeNet), usd0(d.rentalIncomeNet / 12)],
-      ["Other income", usd0(d.otherIncomeTotal), usd0(d.otherIncomeTotal / 12)],
-      ["Effective gross income (EGI)", usd0(d.egi), usd0(d.egi / 12)],
-      ...d.expenseLines.map(
-        (l) =>
-          [`  ${l.label}`, usd0(-l.amount), usd0(-l.amount / 12)] as [
-            string,
-            string,
-            string,
-          ],
-      ),
-      ["Total operating expenses", usd0(-d.opexTotal), usd0(-d.opexTotal / 12)],
-      ["NET OPERATING INCOME (NOI)", usd0(d.noi), usd0(d.noi / 12)],
-      ["NOI margin", pct(d.noiMargin), ""],
-      ["Operating expense ratio", pct(d.expenseRatio), ""],
-      ["NOI per unit", s.totalUnits > 0 ? usd0(d.noiPerUnit) : "n/a", ""],
-      [
-        "NOI per rentable sq ft",
-        s.rentableSqft > 0 ? usd2(d.noiPerSqft) : "n/a",
-        "",
-      ],
-      [`Implied value @ ${pct(s.capRatePct)} cap`, usd0(d.impliedValue), ""],
-    ];
-    const csv = rows
-      .map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
+    const csv = rowsToCsv(buildNoiCsvRows(s, d));
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    const name = (s.facilityName || "facility")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    a.download = `noi-${name || "storage"}.csv`;
+    a.download = noiCsvFileName(s.facilityName);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

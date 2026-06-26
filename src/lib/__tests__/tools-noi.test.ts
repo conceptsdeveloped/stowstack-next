@@ -4,6 +4,9 @@ import {
   NOI_DEFAULTS,
   EXPENSE_FIELDS,
   OTHER_INCOME_FIELDS,
+  buildNoiCsvRows,
+  rowsToCsv,
+  noiCsvFileName,
   type NoiState,
 } from "../tools/noi";
 
@@ -118,5 +121,65 @@ describe("deriveNoi", () => {
     expect(d.gpr).toBe(0);
     expect(d.noi).toBe(-5_000);
     expect(Number.isFinite(d.noi)).toBe(true);
+  });
+});
+
+describe("buildNoiCsvRows", () => {
+  it("starts with a header row and ends with the implied value", () => {
+    const s = state({ gpr: 1_200_000, vacancyPct: 10, tenantInsurance: 48_000 });
+    const rows = buildNoiCsvRows(s, deriveNoi(s));
+    expect(rows[0]).toEqual(["Line item", "Annual", "Monthly"]);
+    expect(rows[rows.length - 1][0]).toBe("Implied value @ 6.5% cap");
+    // every row has exactly three cells
+    expect(rows.every((r) => r.length === 3)).toBe(true);
+  });
+
+  it("formats annual and monthly columns and signs expenses negative", () => {
+    const s = state({ gpr: 1_200_000, vacancyPct: 0, payroll: 120_000 });
+    const rows = buildNoiCsvRows(s, deriveNoi(s));
+    const gpr = rows.find((r) => r[0] === "Gross potential rent");
+    expect(gpr).toEqual(["Gross potential rent", "$1,200,000", "$100,000"]);
+    const payroll = rows.find((r) => r[0].trim() === "On-site payroll & wages");
+    expect(payroll?.[1]).toBe("-$120,000");
+  });
+
+  it("emits n/a for per-unit and per-sqft when units/sqft are absent", () => {
+    const s = state({ gpr: 100_000, vacancyPct: 0 });
+    const rows = buildNoiCsvRows(s, deriveNoi(s));
+    expect(rows.find((r) => r[0] === "NOI per unit")?.[1]).toBe("n/a");
+    expect(rows.find((r) => r[0] === "NOI per rentable sq ft")?.[1]).toBe("n/a");
+  });
+
+  it("only lists non-zero expense lines", () => {
+    const s = state({ gpr: 100_000, vacancyPct: 0, propertyTax: 12_000 });
+    const rows = buildNoiCsvRows(s, deriveNoi(s));
+    const labels = rows.map((r) => r[0].trim());
+    expect(labels).toContain("Property taxes");
+    expect(labels).not.toContain("Utilities");
+  });
+});
+
+describe("rowsToCsv", () => {
+  it("quotes every cell and joins with newlines", () => {
+    const csv = rowsToCsv([
+      ["a", "b", "c"],
+      ["1", "2", "3"],
+    ]);
+    expect(csv).toBe('"a","b","c"\n"1","2","3"');
+  });
+
+  it("escapes embedded double quotes by doubling them", () => {
+    const csv = rowsToCsv([['say "hi"', "x", "y"]]);
+    expect(csv).toBe('"say ""hi""","x","y"');
+  });
+});
+
+describe("noiCsvFileName", () => {
+  it("slugifies the facility name", () => {
+    expect(noiCsvFileName("Pawpaw Storage #2")).toBe("noi-pawpaw-storage-2.csv");
+  });
+  it("falls back to a default when blank", () => {
+    expect(noiCsvFileName("")).toBe("noi-storage.csv");
+    expect(noiCsvFileName("   ")).toBe("noi-storage.csv");
   });
 });
