@@ -11,75 +11,81 @@ import {
   Sparkles,
   Star,
   TrendingUp,
+  type LucideIcon,
 } from "lucide-react";
 import { usePartnerAuth } from "@/components/partner/use-partner-auth";
+
+interface Tier {
+  name: string;
+  min: number;
+  max: number | null;
+  pct: number;
+}
 
 interface Referral {
   id: string;
   facility_name: string;
   status: string;
   commission: number;
-  created_at: string;
+  created_at: string | null;
 }
 
 interface PayoutEntry {
   id: string;
-  amount: number;
   period: string;
+  amount: number;
   status: string;
   paid_at: string | null;
 }
 
-const PER_FACILITY_MRR = 99;
-
-const REV_SHARE_TIERS = [
-  { name: "Bronze", min: 1, max: 10, pct: 20, icon: Star, color: "#cd7f32", bgGradient: "from-amber-600 to-yellow-700" },
-  { name: "Silver", min: 11, max: 25, pct: 25, icon: Award, color: "#94a3b8", bgGradient: "from-slate-400 to-slate-500" },
-  { name: "Gold", min: 26, max: 50, pct: 30, icon: Crown, color: "#eab308", bgGradient: "from-yellow-500 to-amber-500" },
-  { name: "Platinum", min: 51, max: Infinity, pct: 35, icon: Sparkles, color: "#8b5cf6", bgGradient: "from-violet-500 to-purple-600" },
-] as const;
-
-function getRevShareTier(facilityCount: number) {
-  return REV_SHARE_TIERS.find((t) => facilityCount >= t.min && facilityCount <= t.max) || REV_SHARE_TIERS[0];
+interface RevenueSummary {
+  enabled: boolean;
+  facilityCount: number;
+  tier: Tier;
+  nextTier: Tier | null;
+  pct: number;
+  grossMrr: number;
+  monthlyEarnings: number;
+  annualEarnings: number;
+  lifetimeEarnings: number;
+  tiers: Tier[];
+  referrals: Referral[];
+  payouts: PayoutEntry[];
 }
 
-function getNextTier(facilityCount: number) {
-  const currentIdx = REV_SHARE_TIERS.findIndex((t) => facilityCount >= t.min && facilityCount <= t.max);
-  return currentIdx < REV_SHARE_TIERS.length - 1 ? REV_SHARE_TIERS[currentIdx + 1] : null;
-}
+// Icon + medal accent per tier name. These medal colors are a categorical
+// signal on the tier icons only — not the brand sienna gold (which is banned
+// outside the logo). All earnings/CTA emphasis uses charcoal-on-light.
+const TIER_VISUAL: Record<string, { icon: LucideIcon; color: string }> = {
+  Bronze: { icon: Star, color: "#a07d4f" },
+  Silver: { icon: Award, color: "#8b94a3" },
+  Gold: { icon: Crown, color: "#9a8550" },
+  Platinum: { icon: Sparkles, color: "#7c6f9c" },
+};
+
+const tierColor = (name: string): string =>
+  TIER_VISUAL[name]?.color ?? "var(--color-mid-gray)";
+
+const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 export default function RevenuePage() {
   const { session, loading: authLoading, authFetch } = usePartnerAuth();
-  const [facilityCount, setFacilityCount] = useState(0);
-  const [referrals, setReferrals] = useState<Referral[]>([]);
-  const [payouts, setPayouts] = useState<PayoutEntry[]>([]);
+  const [data, setData] = useState<RevenueSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!session) return;
     try {
-      const [facRes, refRes, payRes] = await Promise.allSettled([
-        authFetch("/api/org-facilities"),
-        authFetch("/api/referrals"),
-        authFetch("/api/referrals?type=payouts"),
-      ]);
-
-      if (facRes.status === "fulfilled" && facRes.value.ok) {
-        const data = await facRes.value.json();
-        setFacilityCount((data.facilities || []).length);
-      }
-
-      if (refRes.status === "fulfilled" && refRes.value.ok) {
-        const data = await refRes.value.json();
-        setReferrals(data.referrals || []);
-      }
-
-      if (payRes.status === "fulfilled" && payRes.value.ok) {
-        const data = await payRes.value.json();
-        setPayouts(data.payouts || []);
+      const res = await authFetch("/api/partner/revenue");
+      if (res.ok) {
+        setData((await res.json()) as RevenueSummary);
+        setError(false);
+      } else {
+        setError(true);
       }
     } catch {
-      // handled by authFetch
+      setError(true);
     }
     setLoading(false);
   }, [session, authFetch]);
@@ -96,23 +102,50 @@ export default function RevenuePage() {
     );
   }
 
-  const currentTier = getRevShareTier(facilityCount);
-  const nextTier = getNextTier(facilityCount);
-  const TierIcon = currentTier.icon;
+  if (error || !data) {
+    return (
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-8 text-center">
+        <DollarSign className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
+        <p className="text-sm text-[var(--color-body-text)]">
+          We couldn&apos;t load your revenue share right now.
+        </p>
+        <button
+          onClick={() => {
+            setLoading(true);
+            fetchData();
+          }}
+          className="mt-3 rounded-lg bg-[var(--color-dark)] px-4 py-2 text-xs font-semibold text-[var(--color-light)]"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
 
-  const grossMrr = facilityCount * PER_FACILITY_MRR;
-  const monthlyEarnings = grossMrr * (currentTier.pct / 100);
-  const annualEarnings = monthlyEarnings * 12;
+  const {
+    facilityCount,
+    tier: currentTier,
+    nextTier,
+    pct,
+    grossMrr,
+    monthlyEarnings,
+    annualEarnings,
+    tiers,
+    referrals,
+    payouts,
+  } = data;
+  const TierIcon = TIER_VISUAL[currentTier.name]?.icon ?? Star;
+
   const facilitiesToNext = nextTier ? nextTier.min - facilityCount : 0;
   const nextTierMonthly = nextTier
-    ? nextTier.min * PER_FACILITY_MRR * (nextTier.pct / 100)
+    ? nextTier.min * (grossMrr / Math.max(1, facilityCount)) * (nextTier.pct / 100)
     : monthlyEarnings;
 
   return (
     <div className="space-y-6">
-      {/* Hero Earnings Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-hover)] p-6 text-[var(--color-light)] sm:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(0,0,0,0.08),transparent_50%)]" />
+      {/* Hero Earnings Banner — charcoal-on-light per design system (no gold). */}
+      <div className="relative overflow-hidden rounded-2xl bg-[var(--color-dark)] p-6 text-[var(--color-light)] sm:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.06),transparent_50%)]" />
         <div className="relative">
           <div className="mb-6 flex items-start justify-between">
             <div>
@@ -123,7 +156,7 @@ export default function RevenuePage() {
                 </span>
               </div>
               <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                ${monthlyEarnings.toLocaleString()}
+                {usd(monthlyEarnings)}
                 <span className="text-lg font-medium opacity-75">/mo</span>
               </h2>
               <p className="mt-1 text-sm opacity-80">
@@ -131,7 +164,7 @@ export default function RevenuePage() {
               </p>
             </div>
             <div className="hidden text-right sm:block">
-              <div className="text-3xl font-semibold">{currentTier.pct}%</div>
+              <div className="text-3xl font-semibold">{pct}%</div>
               <div className="text-xs opacity-75">rev share rate</div>
             </div>
           </div>
@@ -139,13 +172,13 @@ export default function RevenuePage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
               { label: "Active Facilities", value: facilityCount.toString() },
-              { label: "Gross MRR", value: `$${grossMrr.toLocaleString()}` },
-              { label: "Annual Earnings", value: `$${annualEarnings.toLocaleString()}` },
-              { label: "Revenue Share", value: `${currentTier.pct}%` },
+              { label: "Gross MRR", value: usd(grossMrr) },
+              { label: "Annual Earnings", value: usd(annualEarnings) },
+              { label: "Revenue Share", value: `${pct}%` },
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-xl bg-[var(--color-light-gray)] p-3 backdrop-blur-sm"
+                className="rounded-xl bg-[rgba(255,255,255,0.08)] p-3 backdrop-blur-sm"
               >
                 <div className="text-xl font-semibold">{item.value}</div>
                 <div className="text-[11px] opacity-75">{item.label}</div>
@@ -157,13 +190,13 @@ export default function RevenuePage() {
 
       {/* Next Tier CTA */}
       {nextTier && (
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+        <div className="rounded-xl border border-[var(--color-green)]/25 bg-[var(--color-green)]/5 p-5">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-dark)]">
               <Rocket className="h-5 w-5 text-[var(--color-light)]" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-emerald-400">
+              <h3 className="font-semibold text-[var(--color-dark)]">
                 Unlock {nextTier.name} — {nextTier.pct}% Revenue Share
               </h3>
               <p className="mt-1 text-sm text-[var(--color-body-text)]">
@@ -173,8 +206,8 @@ export default function RevenuePage() {
                   {facilitiesToNext === 1 ? "facility" : "facilities"}
                 </span>{" "}
                 to reach {nextTier.name} tier and earn{" "}
-                <span className="font-semibold text-emerald-400">
-                  ${nextTierMonthly.toLocaleString()}/mo
+                <span className="font-semibold text-[var(--color-dark)]">
+                  {usd(nextTierMonthly)}/mo
                 </span>
               </p>
               <div className="mt-3">
@@ -188,7 +221,7 @@ export default function RevenuePage() {
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-[var(--color-light-gray)]">
                   <div
-                    className="h-full rounded-full bg-emerald-500 transition-all"
+                    className="h-full rounded-full bg-[var(--color-dark)] transition-all"
                     style={{
                       width: `${Math.min(100, (facilityCount / nextTier.min) * 100)}%`,
                     }}
@@ -203,46 +236,46 @@ export default function RevenuePage() {
       {/* Tier Cards */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
         <div className="mb-4 flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-emerald-400" />
+          <DollarSign className="h-4 w-4 text-[var(--color-dark)]" />
           <h3 className="text-sm font-semibold text-[var(--color-dark)]">
             Revenue Share Tiers
           </h3>
         </div>
         <div className="grid gap-3 sm:grid-cols-4">
-          {REV_SHARE_TIERS.map((tier) => {
+          {tiers.map((tier) => {
             const isActive = currentTier.name === tier.name;
-            const TIcon = tier.icon;
+            const TIcon = TIER_VISUAL[tier.name]?.icon ?? Star;
             return (
               <div
                 key={tier.name}
                 className={`rounded-xl border-2 p-4 text-center transition-all ${
                   isActive
-                    ? "border-[var(--color-gold)] bg-[var(--color-gold)]/5"
+                    ? "border-[var(--color-dark)] bg-[var(--color-dark)]/5"
                     : "border-[var(--border-subtle)] hover:border-[var(--border-medium)]"
                 }`}
               >
                 <TIcon
                   className="mx-auto mb-2 h-6 w-6"
-                  style={{ color: tier.color }}
+                  style={{ color: tierColor(tier.name) }}
                 />
                 <div
                   className="text-sm font-semibold"
-                  style={{ color: tier.color }}
+                  style={{ color: tierColor(tier.name) }}
                 >
                   {tier.name}
                 </div>
                 <div
-                  className={`mt-1 text-3xl font-semibold ${isActive ? "text-[var(--color-gold)]" : "text-[var(--color-dark)]"}`}
+                  className={`mt-1 text-3xl font-semibold ${isActive ? "text-[var(--color-dark)]" : "text-[var(--color-dark)]"}`}
                 >
                   {tier.pct}%
                 </div>
                 <div className="mt-1 text-xs text-[var(--color-mid-gray)]">
-                  {tier.max === Infinity
+                  {tier.max === null
                     ? `${tier.min}+ facilities`
-                    : `${tier.min}\u2013${tier.max} facilities`}
+                    : `${tier.min}–${tier.max} facilities`}
                 </div>
                 {isActive && (
-                  <div className="mt-2 inline-block rounded-full bg-[var(--color-gold)]/20 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
+                  <div className="mt-2 inline-block rounded-full bg-[var(--color-dark)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-dark)]">
                     YOUR TIER
                   </div>
                 )}
@@ -255,14 +288,16 @@ export default function RevenuePage() {
       {/* Referral List */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
         <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">
-          Referrals
+          Facilities Earning
         </h3>
         {referrals.length === 0 ? (
           <div className="py-8 text-center">
             <TrendingUp className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
-            <p className="text-sm text-[var(--color-body-text)]">No referrals yet</p>
+            <p className="text-sm text-[var(--color-body-text)]">
+              No earnings booked yet
+            </p>
             <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-              Referrals from your network will appear here
+              Facilities appear here after your first monthly payout is calculated
             </p>
           </div>
         ) : (
@@ -277,10 +312,10 @@ export default function RevenuePage() {
                     Status
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
-                    Commission
+                    Earned
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-medium text-[var(--color-mid-gray)]">
-                    Date
+                    Since
                   </th>
                 </tr>
               </thead>
@@ -297,20 +332,20 @@ export default function RevenuePage() {
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                           r.status === "active"
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : r.status === "pending"
-                              ? "bg-amber-500/10 text-amber-400"
-                              : "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
+                            ? "bg-[var(--color-green)]/10 text-[var(--color-green)]"
+                            : "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
                         }`}
                       >
                         {r.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-right font-medium text-emerald-400">
-                      ${r.commission.toLocaleString()}
+                    <td className="px-4 py-2.5 text-right font-medium text-[var(--color-dark)]">
+                      {usd(r.commission)}
                     </td>
                     <td className="px-4 py-2.5 text-right text-[var(--color-mid-gray)]">
-                      {new Date(r.created_at).toLocaleDateString()}
+                      {r.created_at
+                        ? new Date(r.created_at).toLocaleDateString()
+                        : "--"}
                     </td>
                   </tr>
                 ))}
@@ -361,17 +396,17 @@ export default function RevenuePage() {
                     <td className="px-4 py-2.5 font-medium text-[var(--color-dark)]">
                       {p.period}
                     </td>
-                    <td className="px-4 py-2.5 text-right font-medium text-emerald-400">
-                      ${p.amount.toLocaleString()}
+                    <td className="px-4 py-2.5 text-right font-medium text-[var(--color-dark)]">
+                      {usd(p.amount)}
                     </td>
                     <td className="px-4 py-2.5">
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                           p.status === "paid"
-                            ? "bg-emerald-500/10 text-emerald-400"
+                            ? "bg-[var(--color-green)]/10 text-[var(--color-green)]"
                             : p.status === "processing"
                               ? "bg-[var(--color-blue)]/10 text-[var(--color-blue)]"
-                              : "bg-amber-500/10 text-amber-400"
+                              : "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
                         }`}
                       >
                         {p.status}
@@ -415,7 +450,7 @@ export default function RevenuePage() {
             },
           ].map((item) => (
             <div key={item.title} className="flex items-start gap-2">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-green)]" />
               <span className="text-xs text-[var(--color-body-text)]">
                 <strong className="text-[var(--color-dark)]">{item.title}</strong>{" "}
                 {item.desc}

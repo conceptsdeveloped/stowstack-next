@@ -100,6 +100,7 @@ describe("POST /api/stripe-webhook", () => {
       mockStripe.webhooks.constructEvent.mockReturnValue(
         makeEvent("checkout.session.completed", {
           customer: "cus_new",
+          subscription: "sub_new",
           customer_email: "blake@test.com",
           metadata: {
             plan: "launch",
@@ -121,7 +122,8 @@ describe("POST /api/stripe-webhook", () => {
       const res = await POST(createWebhookRequest());
       expect(res.status).toBe(200);
 
-      // Verify org was created with correct data
+      // Verify org was created with correct data, including the subscription id
+      // (needed so org-deletion can cancel the Stripe subscription).
       expect(mockDb.organizations.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           name: "Test Storage",
@@ -129,6 +131,7 @@ describe("POST /api/stripe-webhook", () => {
           facility_limit: 2,
           subscription_status: "active",
           stripe_customer_id: "cus_new",
+          stripe_subscription_id: "sub_new",
         }),
       });
 
@@ -180,9 +183,10 @@ describe("POST /api/stripe-webhook", () => {
   });
 
   describe("customer.subscription.updated", () => {
-    it("updates org subscription status", async () => {
+    it("updates org subscription status and persists the subscription id", async () => {
       mockStripe.webhooks.constructEvent.mockReturnValue(
         makeEvent("customer.subscription.updated", {
+          id: "sub_123",
           customer: "cus_123",
           status: "active",
           metadata: { plan: "growth" },
@@ -195,7 +199,26 @@ describe("POST /api/stripe-webhook", () => {
       expect(res.status).toBe(200);
       expect(mockDb.organizations.updateMany).toHaveBeenCalledWith({
         where: { stripe_customer_id: "cus_123" },
-        data: { subscription_status: "active", plan: "growth" },
+        data: { subscription_status: "active", plan: "growth", stripe_subscription_id: "sub_123" },
+      });
+    });
+
+    it("backfills stripe_subscription_id even when no plan is set", async () => {
+      mockStripe.webhooks.constructEvent.mockReturnValue(
+        makeEvent("customer.subscription.updated", {
+          id: "sub_backfill",
+          customer: "cus_backfill",
+          status: "active",
+          metadata: {},
+        }) as never
+      );
+
+      mockDb.organizations.updateMany.mockResolvedValue({ count: 1 } as never);
+
+      await POST(createWebhookRequest());
+      expect(mockDb.organizations.updateMany).toHaveBeenCalledWith({
+        where: { stripe_customer_id: "cus_backfill" },
+        data: { subscription_status: "active", stripe_subscription_id: "sub_backfill" },
       });
     });
 

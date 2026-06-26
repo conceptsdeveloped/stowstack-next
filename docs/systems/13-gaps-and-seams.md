@@ -17,7 +17,7 @@ mindmap
       🟡 CSP report-only, no sink
       🟡 rate limit fail-open default
     Billing
-      🔴 stripe_subscription_id never written
+      ✅ stripe_subscription_id now persisted (fixed)
       🔴 two plan namespaces unmapped
       🟡 prices disagree across 4 files
       ⚪ Checkout path unwired
@@ -28,8 +28,8 @@ mindmap
       🟡 visitor_id scaffold unwired
       🟡 walk-ins not auto-matched
     Growth
-      🔴 partner rev-share not wired
-      🟡 revenue page fetches dead endpoint
+      ✅ partner rev-share wired
+      ✅ revenue page reads real endpoint
     Compliance
       ⚪ fb_deletion_requests orphan
     Integrations
@@ -60,8 +60,8 @@ Clerk activates only with `pk_live_` keys, and even then marks **every** route p
 
 ## Billing
 
-### 🔴 `stripe_subscription_id` is never written by application code
-The webhook stores `stripe_customer_id`, not the subscription id. No code path writes `stripe_subscription_id`. The deletion cron's "cancel Stripe subscription" step reads that field — so for orgs created normally it **no-ops**, and the subscription keeps billing after org deletion unless cancelled out-of-band.
+### ✅ `stripe_subscription_id` not persisted — **FIXED**
+*Was:* the webhook stored `stripe_customer_id` but never `stripe_subscription_id`, so the deletion cron's "cancel Stripe subscription" step (which reads that field) **no-opped** and deleted orgs kept billing. *Now:* `handleCheckoutComplete` stores `session.subscription` and `handleSubscriptionUpdate` backfills `subscription.id` on every update (`src/app/api/stripe-webhook/route.ts`), with test coverage. Only legacy orgs created before the fix and never updated may still have a null id.
 → [07 · Billing & Stripe](07-billing-stripe.md) §6
 
 ### 🔴 Two plan namespaces, never mapped
@@ -118,12 +118,23 @@ Despite the name, it's an admin-gated endpoint that ingests **pre-parsed JSON** 
 
 ## Growth (referrals & rev-share)
 
-### 🔴 Partner rev-share is schema + UI only — no backend
-`rev_share_referrals` and `rev_share_payouts` are **read/written by no API route** (the only reference outside the schema is a cascade-delete comment in `cleanup-organizations`). No code computes a partner payout. A reseller's earnings exist only as client-side math on hardcoded tiers.
+### ✅ Partner rev-share is now wired (was 🔴 schema + UI only)
+`rev_share_referrals` and `rev_share_payouts` now have producers and a reader.
+`GET /api/partner/revenue` (org-session gated) serves the server-computed tier,
+earnings, referral registry, and payout history; the monthly cron
+`generate-rev-share-payouts` snapshots each enabled org's payout (idempotent per
+org+month) and recomputes `organizations.lifetime_earnings`. All tier/earnings
+math lives in the pure, tested `src/lib/rev-share.ts`. **Open seam:** the per-facility
+MRR basis is a single constant (`REV_SHARE_FACILITY_MRR = $99`), not the org's real
+billed MRR — swap it once the plan-namespace mapping (see Billing) lands.
 → [16 · Referrals & Rev-Share](16-referrals-revshare.md) §3
 
-### 🟡 The partner revenue page fetches a dead endpoint
-`/partner/revenue` calls `/api/referrals?type=payouts`, but the referrals route only branches on `action` (not `type`) and is admin-key gated — so the Referrals and Payout History tables always render empty. Tiers (`REV_SHARE_TIERS`) and per-facility MRR ($99) are hardcoded in the component, not read from `organizations.rev_share_pct`.
+### ✅ The partner revenue page now reads a real endpoint (was 🟡 dead fetch)
+`/partner/revenue` previously called `/api/referrals?type=payouts` (no such
+handler → always-empty tables) and computed earnings from hardcoded tiers. It now
+fetches `/api/partner/revenue` and renders server-authoritative tiers/earnings,
+with the override path reading `organizations.rev_share_pct`. Banned sienna-gold
+tokens in the page were also replaced with charcoal-on-light per the design system.
 → [16 · Referrals & Rev-Share](16-referrals-revshare.md) §3
 
 ---
@@ -133,7 +144,7 @@ Despite the name, it's an admin-gated endpoint that ingests **pre-parsed JSON** 
 | Seam | Severity | System | The surprise |
 |------|----------|--------|--------------|
 | CSRF 403s new public POSTs | 🔴 | Auth | Handler never runs; only signal is a Vercel-log 403 |
-| `stripe_subscription_id` unwritten | 🔴 | Billing | Deletion cron can't cancel the subscription |
+| `stripe_subscription_id` unwritten | ✅ fixed | Billing | Now persisted by the webhook; cron can cancel |
 | Two plan namespaces | 🔴 | Billing | Marketing tier ≠ backend plan key, no mapping |
 | Clerk inert | 🟡 | Auth | Pages aren't protected by the proxy |
 | CSP report-only, no sink | 🟡 | Security | No enforcement, no telemetry |
@@ -142,8 +153,8 @@ Despite the name, it's an admin-gated endpoint that ingests **pre-parsed JSON** 
 | Escalation/move-out timers | 🟡 | Retention | Tenant-side sequences need an admin to advance |
 | `visitor_id` scaffold | 🟡 | Attribution | Real key is `session_id` |
 | Walk-ins unmatched | 🟡 | Attribution | Land in `activity_log` only |
-| Partner rev-share unwired | 🔴 | Growth | No route computes payouts |
-| Revenue page dead endpoint | 🟡 | Growth | `?type=payouts` has no handler |
+| Partner rev-share | ✅ | Growth | Wired: `/api/partner/revenue` + monthly payout cron |
+| Revenue page endpoint | ✅ | Growth | Reads `/api/partner/revenue`; dead `?type=payouts` fetch removed |
 | `fb_deletion_requests` orphan | ⚪ | Compliance | Dead table |
 | `storedge-import` JSON-only | ⚪ | PMS | No live storEDGE sync |
 

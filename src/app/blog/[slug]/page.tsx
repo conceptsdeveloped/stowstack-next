@@ -12,6 +12,7 @@ import {
 import { MarkdownRenderer, extractHeadings } from "@/lib/markdown";
 import { TableOfContents } from "@/components/blog/table-of-contents";
 import { AuthorBio } from "@/components/blog/author-bio";
+import { relatedPosts } from "@/lib/blog-filter";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -62,6 +63,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) notFound();
 
   const { prev, next } = getAdjacentPosts(slug);
+  const related = relatedPosts(slug, getAllPosts(), 3);
   const author = getAuthor();
   const pillar = PILLARS[post.pillar];
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com";
@@ -134,8 +136,9 @@ export default async function BlogPostPage({ params }: PageProps) {
           style={{ color: "var(--text-tertiary)" }}
         >
           {pillar && (
-            <span
-              className="px-2.5 py-1 rounded-full"
+            <Link
+              href={`/blog?pillar=${post.pillar}`}
+              className="px-2.5 py-1 rounded-full transition-colors hover:opacity-80"
               style={{
                 background: "var(--bg-elevated)",
                 border: "1px solid var(--border-subtle)",
@@ -143,7 +146,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               }}
             >
               {pillar.label}
-            </span>
+            </Link>
           )}
           <span>{post.date}</span>
           <span>·</span>
@@ -225,9 +228,10 @@ export default async function BlogPostPage({ params }: PageProps) {
           {post.tags.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag) => (
-                <span
+                <Link
                   key={tag}
-                  className="text-xs px-2.5 py-1 rounded-full"
+                  href={`/blog?tags=${encodeURIComponent(tag)}`}
+                  className="text-xs px-2.5 py-1 rounded-full transition-colors hover:opacity-80"
                   style={{
                     background: "var(--bg-elevated)",
                     color: "var(--text-tertiary)",
@@ -235,7 +239,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                   }}
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
           ) : (
@@ -283,6 +287,51 @@ export default async function BlogPostPage({ params }: PageProps) {
             </a>
           </div>
         </div>
+
+        {/* Related posts */}
+        {related.length > 0 && (
+          <section
+            className="mt-12 pt-8 border-t"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
+            <h2
+              className="text-xs font-semibold uppercase mb-5"
+              style={{ color: "var(--text-tertiary)", letterSpacing: "var(--tracking-wide)" }}
+            >
+              Keep reading
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {related.map((r) => (
+                <Link
+                  key={r.slug}
+                  href={`/blog/${r.slug}`}
+                  className="block rounded-lg p-4 transition-colors group h-full"
+                  style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)" }}
+                >
+                  <span
+                    className="text-xs mb-2 block"
+                    style={{ color: "var(--accent)" }}
+                  >
+                    {PILLARS[r.pillar]?.label || r.pillar}
+                  </span>
+                  <h3
+                    className="text-sm font-semibold mb-2 group-hover:opacity-80 transition-opacity line-clamp-3"
+                    style={{ lineHeight: "var(--leading-snug)" }}
+                  >
+                    {r.title}
+                  </h3>
+                  <span
+                    className="text-xs flex items-center gap-1"
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
+                    <Clock size={11} />
+                    {r.readingTime} min
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Navigation */}
         <nav
