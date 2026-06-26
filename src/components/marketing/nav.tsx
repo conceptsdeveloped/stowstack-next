@@ -15,6 +15,7 @@ const SECTION_LINKS = [
 
 const PAGE_LINKS = [
   { label: "Pricing", href: "/pricing" },
+  { label: "Tools", href: "/tools" },
   { label: "About", href: "/about" },
   { label: "Blog", href: "/blog" },
   { label: "Insights", href: "/insights" },

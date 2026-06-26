@@ -4,6 +4,7 @@ import { CAL_BOOKING_URL } from "@/lib/booking";
 const FOOTER_LINKS: Array<{ label: string; href: string; external?: boolean }> = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Pricing", href: "/pricing" },
+  { label: "Tools", href: "/tools" },
   { label: "Free Diagnostic", href: "/diagnostic" },
   { label: "About", href: "/about" },
   { label: "Blog", href: "/blog" },
