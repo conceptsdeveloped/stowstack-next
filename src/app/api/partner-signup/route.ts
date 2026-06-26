@@ -7,6 +7,7 @@ import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidEmail, sanitizeString, escapeHtml } from "@/lib/validation";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 const scryptAsync = promisify(crypto.scrypt);
 const SCRYPT_KEYLEN = 64;
@@ -108,42 +109,33 @@ export async function POST(req: NextRequest) {
 
     const token = await createSession(userId, req);
 
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds Partners <partners@storageads.com>",
-          to: email,
-          subject: `Welcome to StorageAds — ${escapeHtml(companyName)} Partner Account`,
-          html: `
-            <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto;">
-              <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 24px; border-radius: 12px 12px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 20px;">Welcome to StorageAds</h1>
-                <p style="color: var(--color-dark); margin: 8px 0 0; font-size: 14px;">Partner Portal Access</p>
+    // Fire-and-forget; sendEmail never throws and logs its own failures.
+    void sendEmail({
+      from: SENDERS.partners,
+      to: email,
+      subject: `Welcome to StorageAds — ${escapeHtml(companyName)} Partner Account`,
+      tags: [{ name: "type", value: "partner_welcome" }],
+      html: `
+            <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto; background: #faf9f5;">
+              <div style="background: #141413; padding: 24px; border-radius: 12px 12px 0 0;">
+                <h1 style="color: #faf9f5; margin: 0; font-size: 20px;">Welcome to StorageAds</h1>
+                <p style="color: rgba(250,249,245,0.8); margin: 8px 0 0; font-size: 14px;">Partner Portal Access</p>
               </div>
-              <div style="padding: 24px; border: 1px solid #e2e8f0; border-top: 0; border-radius: 0 0 12px 12px;">
-                <p style="color: #334155; font-size: 15px;">Hi ${escapeHtml(contactName)},</p>
-                <p style="color: #334155; font-size: 15px;">Your partner account for <strong>${escapeHtml(companyName)}</strong> is ready.</p>
-                <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin: 16px 0;">
-                  <p style="margin: 0 0 8px; font-size: 13px; color: #64748b;">Your login credentials:</p>
-                  <p style="margin: 0 0 4px; font-size: 14px;"><strong>Organization:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${escapeHtml(slug)}</code></p>
-                  <p style="margin: 0 0 4px; font-size: 14px;"><strong>Email:</strong> ${escapeHtml(email)}</p>
-                  <p style="margin: 0; font-size: 14px;"><strong>Temporary Password:</strong> <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${tempPassword}</code></p>
+              <div style="padding: 24px; border: 1px solid #e8e6dc; border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
+                <p style="color: #141413; font-size: 15px;">Hi ${escapeHtml(contactName)},</p>
+                <p style="color: #141413; font-size: 15px;">Your partner account for <strong>${escapeHtml(companyName)}</strong> is ready.</p>
+                <div style="background: #faf9f5; border: 1px solid #e8e6dc; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                  <p style="margin: 0 0 8px; font-size: 13px; color: #6a6560;">Your login credentials:</p>
+                  <p style="margin: 0 0 4px; font-size: 14px; color: #141413;"><strong>Organization:</strong> <code style="background: #e8e6dc; padding: 2px 6px; border-radius: 4px;">${escapeHtml(slug)}</code></p>
+                  <p style="margin: 0 0 4px; font-size: 14px; color: #141413;"><strong>Email:</strong> ${escapeHtml(email)}</p>
+                  <p style="margin: 0; font-size: 14px; color: #141413;"><strong>Temporary Password:</strong> <code style="background: #e8e6dc; padding: 2px 6px; border-radius: 4px;">${tempPassword}</code></p>
                 </div>
-                <p style="color: #334155; font-size: 14px;">Sign in at <strong>storageads.com/partner</strong> to get started.</p>
-                <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">— The StorageAds Team</p>
+                <p style="color: #141413; font-size: 14px;">Sign in at <strong>storageads.com/partner</strong> to get started.</p>
+                <p style="color: #b0aea5; font-size: 12px; margin-top: 24px;">— The StorageAds Team</p>
               </div>
             </div>
           `,
-        }),
-      }).catch((err) => {
-        console.error("[partner-signup] Welcome email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    });
 
     return jsonResponse(
       {

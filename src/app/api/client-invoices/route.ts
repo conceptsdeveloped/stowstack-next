@@ -10,6 +10,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { authenticatePortalRequest } from "@/lib/portal-auth";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 const PLAN_PRICES: Record<string, number> = {
   launch: 499,
@@ -238,23 +239,14 @@ export async function POST(req: NextRequest) {
 
     const html = renderInvoiceHTML(invoiceData);
 
-    const apiKey = process.env.RESEND_API_KEY;
-    if (apiKey) {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          from: "StorageAds Billing <billing@storageads.com>",
-          to: row.email,
-          cc: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `Invoice ${invoiceNumber} — ${row.fac_name || row.facility_name} — ${period}`,
-          html,
-        }),
-      });
-    }
+    await sendEmail({
+      from: SENDERS.billing,
+      to: row.email,
+      cc: process.env.ADMIN_EMAIL || "blake@storageads.com",
+      subject: `Invoice ${invoiceNumber} — ${row.fac_name || row.facility_name} — ${period}`,
+      html,
+      tags: [{ name: "type", value: "invoice" }],
+    });
 
     // Log activity (fire-and-forget)
     db.activity_log

@@ -10,6 +10,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 function esc(str: string): string {
   if (!str) return "";
@@ -469,26 +470,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const emailRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${resendKey}`,
-      },
-      body: JSON.stringify({
-        from:
-          templateId === "onboarding_reminder"
-            ? "Anna at StorageAds <noreply@storageads.com>"
-            : "Blake at StorageAds <noreply@storageads.com>",
-        to: lead.email,
-        cc: "anna@storageads.com",
-        reply_to: ["blake@storageads.com", "anna@storageads.com"],
-        subject,
-        html,
-      }),
+    const result = await sendEmail({
+      from: templateId === "onboarding_reminder" ? SENDERS.anna : SENDERS.blake,
+      to: lead.email,
+      cc: "anna@storageads.com",
+      replyTo: ["blake@storageads.com", "anna@storageads.com"],
+      subject,
+      html,
+      tags: [{ name: "type", value: "outreach" }],
     });
 
-    if (!emailRes.ok) {
+    if (!result.ok) {
       return errorResponse("Failed to send email", 500, origin);
     }
 

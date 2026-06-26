@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { sendEmail } from "@/lib/email";
 
 function buildEmail(
   org: { primary_color: string | null; white_label: boolean | null; name: string; logo_url: string | null },
@@ -152,23 +153,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const emailRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: `${fromName} <${org.white_label ? "noreply" : "team"}@storageads.com>`,
-        to,
-        subject: subject || template.subject,
-        html: template.html,
-      }),
+    const result = await sendEmail({
+      from: `${fromName} <${org.white_label ? "noreply" : "team"}@storageads.com>`,
+      to,
+      subject: subject || template.subject,
+      html: template.html,
+      tags: [{ name: "type", value: `org_email_${templateKey}` }],
     });
 
-    if (!emailRes.ok) {
-      const err = await emailRes.text();
-      return errorResponse(`Failed to send email: ${err}`, 500, origin);
+    if (!result.ok) {
+      return errorResponse(
+        `Failed to send email: ${result.error || result.skipReason}`,
+        500,
+        origin
+      );
     }
 
     return jsonResponse({ success: true }, 200, origin);
