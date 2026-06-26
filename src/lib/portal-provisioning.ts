@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 export type ProvisionPortalResult =
   | { ok: true; code: string; email: string; created: boolean }
@@ -80,27 +81,16 @@ async function sendWelcomeEmail(
   name: string,
   facilityName: string
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("[portal-provisioning] RESEND_API_KEY not set — skipping welcome email");
-    return;
-  }
-
   const portalUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
 
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "StorageAds <noreply@storageads.com>",
-        to: email,
-        subject: `Welcome to StorageAds — Your ${facilityName || "Facility"} Portal is Ready`,
-        html: `
+  const result = await sendEmail({
+    from: SENDERS.noreply,
+    to: email,
+    subject: `Welcome to StorageAds — Your ${facilityName || "Facility"} Portal is Ready`,
+    tags: [{ name: "type", value: "portal_welcome" }],
+    html: `
           <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 560px; margin: 0 auto; background: #faf9f5; color: #141413;">
-            <div style="background: linear-gradient(135deg, #B58B3F, #9E7A36); padding: 28px 24px; border-radius: 12px 12px 0 0;">
+            <div style="background: #141413; padding: 28px 24px; border-radius: 12px 12px 0 0;">
               <h1 style="color: #faf9f5; margin: 0; font-size: 22px;">Welcome to StorageAds</h1>
               <p style="color: rgba(250,249,245,0.85); margin: 8px 0 0; font-size: 14px;">Your client portal is ready</p>
             </div>
@@ -108,7 +98,7 @@ async function sendWelcomeEmail(
               <p style="color: #6a6560; font-size: 15px; margin: 0 0 16px;">Hi ${name || "there"},</p>
               <p style="color: #6a6560; font-size: 15px; margin: 0 0 20px;">Your StorageAds portal for <strong>${facilityName || "your facility"}</strong> is set up and ready. You can log in to track campaigns, view reports, and message our team.</p>
               <div style="text-align: center; margin: 24px 0;">
-                <a href="${portalUrl}/portal" style="display: inline-block; background: #B58B3F; color: #faf9f5; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600;">
+                <a href="${portalUrl}/portal" style="display: inline-block; background: #141413; color: #faf9f5; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600;">
                   Open Your Portal
                 </a>
               </div>
@@ -124,17 +114,9 @@ async function sendWelcomeEmail(
             </div>
           </div>
         `,
-      }),
-    });
+  });
 
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      console.error(`[portal-provisioning] welcome email failed (${res.status}): ${detail}`);
-    }
-  } catch (err) {
-    console.error(
-      "[portal-provisioning] welcome email error:",
-      err instanceof Error ? err.message : err
-    );
+  if (!result.ok && !result.skipped) {
+    console.error(`[portal-provisioning] welcome email failed: ${result.error}`);
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { verifyCronSecret } from "./cron-auth";
+import { SENDERS, sendEmail } from "./email";
 
 type CronConfig = {
   name: string;
@@ -122,13 +123,13 @@ function sendCronAlert(alert: {
   durationMs: number;
 }) {
   const adminEmail = process.env.ADMIN_EMAIL;
-  const resendKey = process.env.RESEND_API_KEY;
 
   // Log the alert regardless of notification channel
   console.error("[CRON_ALERT]", JSON.stringify(alert));
 
-  // Send email notification if configured
-  if (adminEmail && resendKey) {
+  // Send email notification if configured. Fire-and-forget — sendEmail never
+  // throws, so we don't await it inside this synchronous helper.
+  if (adminEmail) {
     const subject =
       alert.type === "fatal_error"
         ? `CRON FATAL: ${alert.cronName}`
@@ -139,20 +140,12 @@ function sendCronAlert(alert: {
         ? `Cron job "${alert.cronName}" failed with error: ${alert.error}\nDuration: ${alert.durationMs}ms`
         : `Cron job "${alert.cronName}" completed with failures.\nProcessed: ${alert.processed}, Failed: ${alert.failed}\nDuration: ${alert.durationMs}ms\nErrors:\n${alert.errors?.map((e) => `  - ${e.id}: ${e.error}`).join("\n")}`;
 
-    fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "StorageAds Alerts <alerts@storageads.com>",
-        to: adminEmail,
-        subject,
-        text: body,
-      }),
-    }).catch((err) =>
-      console.error("[CRON_ALERT] Email send failed:", err instanceof Error ? err.message : err)
-    );
+    void sendEmail({
+      from: SENDERS.alerts,
+      to: adminEmail,
+      subject,
+      text: body,
+      tags: [{ name: "type", value: "cron_alert" }],
+    });
   }
 }

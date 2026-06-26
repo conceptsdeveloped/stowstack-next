@@ -13,6 +13,7 @@ import { logAudit } from "@/lib/audit";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidEmail } from "@/lib/validation";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 const scryptAsync = promisify(crypto.scrypt);
 const SCRYPT_KEYLEN = 64;
@@ -70,43 +71,37 @@ export async function POST(req: NextRequest) {
         WHERE id = ${user.id}::uuid
       `;
 
-      if (process.env.RESEND_API_KEY) {
-        const resetUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com"}/partner?reset=${resetToken}`;
-        try {
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              from: "StorageAds <noreply@storageads.com>",
-              to: user.email,
-              subject: "Reset Your StorageAds Password",
-              html: `
-                <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto;">
-                  <div style="background: linear-gradient(135deg, #B58B3F, #9E7A36); padding: 24px; border-radius: 12px 12px 0 0;">
-                    <h1 style="color: white; margin: 0; font-size: 20px;">Password Reset</h1>
-                    <p style="color: var(--color-dark); margin: 8px 0 0; font-size: 14px;">StorageAds Partner Portal</p>
+      const resetUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://storageads.com"}/partner?reset=${resetToken}`;
+      // Email is non-critical to the request. The reset token doubles as the
+      // idempotency key so a retried send never issues two reset emails.
+      const emailResult = await sendEmail({
+        from: SENDERS.noreply,
+        to: user.email,
+        subject: "Reset Your StorageAds Password",
+        tags: [{ name: "type", value: "password_reset" }],
+        idempotencyKey: `password-reset:${resetToken}`,
+        html: `
+                <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto; background: #faf9f5;">
+                  <div style="background: #141413; padding: 24px; border-radius: 12px 12px 0 0;">
+                    <h1 style="color: #faf9f5; margin: 0; font-size: 20px;">Password Reset</h1>
+                    <p style="color: rgba(250,249,245,0.8); margin: 8px 0 0; font-size: 14px;">StorageAds Partner Portal</p>
                   </div>
-                  <div style="padding: 24px; border: 1px solid #e2e8f0; border-top: 0; border-radius: 0 0 12px 12px;">
-                    <p style="color: #334155; font-size: 15px;">Hi ${user.name || "there"},</p>
-                    <p style="color: #334155; font-size: 15px;">We received a request to reset your password for <strong>${user.org_name}</strong>.</p>
+                  <div style="padding: 24px; border: 1px solid #e8e6dc; border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
+                    <p style="color: #141413; font-size: 15px;">Hi ${user.name || "there"},</p>
+                    <p style="color: #141413; font-size: 15px;">We received a request to reset your password for <strong>${user.org_name}</strong>.</p>
                     <div style="margin: 24px 0; text-align: center;">
-                      <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #B58B3F, #9E7A36); color: #faf9f5; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
+                      <a href="${resetUrl}" style="display: inline-block; background: #141413; color: #faf9f5; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
                         Reset Password
                       </a>
                     </div>
-                    <p style="color: #64748b; font-size: 13px;">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
-                    <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">— The StorageAds Team</p>
+                    <p style="color: #6a6560; font-size: 13px;">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
+                    <p style="color: #b0aea5; font-size: 12px; margin-top: 24px;">— The StorageAds Team</p>
                   </div>
                 </div>
               `,
-            }),
-          });
-        } catch {
-          /* email send failed, not critical */
-        }
+      });
+      if (!emailResult.ok && !emailResult.skipped) {
+        console.error(`[password-reset] reset email failed: ${emailResult.error}`);
       }
 
       return jsonResponse({ success: true }, 200, origin);

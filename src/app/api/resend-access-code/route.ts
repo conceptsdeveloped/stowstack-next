@@ -9,6 +9,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidEmail } from "@/lib/validation";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -69,29 +70,25 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
     const magicLink = `${baseUrl}/portal?code=${code}&email=${encodeURIComponent(client.email)}`;
 
-    if (process.env.RESEND_API_KEY) {
-      try {
-        const emailRes = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "StorageAds <noreply@storageads.com>",
-            to: client.email,
-            subject: "Your StorageAds Login Code",
-            html: `
+    // Email delivery is non-critical to the request. sendEmail() never throws —
+    // it validates, retries transient failures, and logs its own errors — so we
+    // only need to surface a non-skip failure for visibility.
+    const emailResult = await sendEmail({
+      from: SENDERS.noreply,
+      to: client.email,
+      subject: "Your StorageAds Login Code",
+      tags: [{ name: "type", value: "portal_login_code" }],
+      html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto; background: #faf9f5; color: #141413;">
-                <div style="background: linear-gradient(135deg, #B58B3F, #9E7A36); padding: 24px; border-radius: 12px 12px 0 0;">
+                <div style="background: #141413; padding: 24px; border-radius: 12px 12px 0 0;">
                   <h1 style="color: #faf9f5; margin: 0; font-size: 20px;">Your Login Code</h1>
                   <p style="color: rgba(250,249,245,0.8); margin: 8px 0 0; font-size: 14px;">StorageAds Client Portal</p>
                 </div>
                 <div style="padding: 24px; border: 1px solid #e8e6dc; border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
                   <p style="color: #6a6560; font-size: 15px;">Hi ${client.name || "there"},</p>
                   <p style="color: #6a6560; font-size: 15px;">Here's your 4-digit login code:</p>
-                  <div style="background: #faf9f5; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; border: 1px solid rgba(181,139,63,0.2);">
-                    <div style="font-size: 36px; font-weight: bold; letter-spacing: 12px; color: #B58B3F; font-family: monospace;">
+                  <div style="background: #faf9f5; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; border: 1px solid #e8e6dc;">
+                    <div style="font-size: 36px; font-weight: bold; letter-spacing: 12px; color: #141413; font-family: monospace;">
                       ${code}
                     </div>
                   </div>
@@ -99,7 +96,7 @@ export async function POST(req: NextRequest) {
                     This code expires in 10 minutes.
                   </p>
                   <div style="text-align: center; margin: 24px 0;">
-                    <a href="${magicLink}" style="display: inline-block; background: #B58B3F; color: #faf9f5; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                    <a href="${magicLink}" style="display: inline-block; background: #141413; color: #faf9f5; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: 600;">
                       Sign In Instantly
                     </a>
                   </div>
@@ -113,25 +110,10 @@ export async function POST(req: NextRequest) {
                 </div>
               </div>
             `,
-          }),
-        });
-        if (!emailRes.ok) {
-          const detail = await emailRes.text().catch(() => "");
-          console.error(
-            `[resend-access-code] Resend send failed (${emailRes.status}): ${detail}`
-          );
-        }
-      } catch (err) {
-        // Email delivery is non-critical to the request, but log it so silent
-        // failures (bad key, unverified domain) are visible in runtime logs.
-        console.error(
-          "[resend-access-code] Resend send error:",
-          err instanceof Error ? err.message : err
-        );
-      }
-    } else {
-      console.warn(
-        "[resend-access-code] RESEND_API_KEY not set — login code email not sent"
+    });
+    if (!emailResult.ok && !emailResult.skipped) {
+      console.error(
+        `[resend-access-code] login code email failed: ${emailResult.error}`
       );
     }
 
