@@ -166,7 +166,7 @@ export default function HowItWorks() {
               letterSpacing: "-0.03em",
             }}
           >
-            Capabilities.
+            Everything in one dashboard.
           </h3>
           <p
             className="text-sm text-center mx-auto mb-6"

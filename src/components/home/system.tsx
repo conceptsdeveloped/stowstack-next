@@ -41,7 +41,7 @@ const PAGES_PARTS: Part[] = [
   {
     n: "03",
     title: "Landing pages built for the ad",
-    body: "Each ad gets its own page. Your facility. Your rates. Your offer. Built around your storEDGE reserve button so the renter books on your branded page.",
+    body: "Each ad gets its own page with your rates and your offer. Built around your storEDGE reserve button, so the renter books right on your branded page.",
     details: [
       "One page per ad, with the offer that ad promised",
       "8.7% average reservation rate",
@@ -198,7 +198,7 @@ export default function System() {
           kicker="The system"
           meta="Components · 6"
           as="h2"
-          lines={["One system. Six parts.", "Built to fill units."]}
+          lines={["Six parts, wired together,", "built to fill units."]}
           lede="Market intelligence, ads, pages, the reserve flow, and reservation follow-up. One system, wired together, that fills units and shows its work."
         />
 

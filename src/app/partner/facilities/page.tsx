@@ -363,7 +363,7 @@ export default function FacilitiesPage() {
           <Building2 className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
           <p className="text-sm text-[var(--color-body-text)]">No facilities yet</p>
           <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-            Add your first storage facility to get started
+            Add your first storage facility
           </p>
           <button
             onClick={() => setShowAddForm(true)}

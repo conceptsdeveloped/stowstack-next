@@ -80,8 +80,8 @@ export default function DemandTriggers() {
             own facilities every week.
           </h2>
           <p className="mt-5" style={{ fontSize: "var(--type-lede)", lineHeight: 1.6, color: "var(--text-dim)", maxWidth: 640 }}>
-            This isn&apos;t persona research from an agency deck. It&apos;s
-            what we see at our own gates every week. Meta puts your facility
+            This isn&apos;t research from an agency deck. We watch these
+            triggers hit our own gates in real time, and Meta puts your facility
             in front of these renters before they ever open Google.
           </p>
         </Reveal>

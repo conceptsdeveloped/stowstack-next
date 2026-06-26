@@ -6,7 +6,7 @@ import { getAllPosts, PILLARS } from "@/lib/blog";
 export const metadata: Metadata = {
   title: "Blog",
   description:
-    "Operator math, campaign insights, and hard-won lessons from running self-storage facilities and filling them with paid ads.",
+    "Operator math and campaign data from someone who runs self-storage facilities and pays for the ads.",
   openGraph: {
     title: "Blog — StorageAds",
     description: "Operator math, campaign insights, and hard-won lessons from running self-storage facilities and filling them with paid ads.",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Blog — StorageAds",
-    description: "Operator math, campaign insights, and hard-won lessons from self-storage marketing.",
+    description: "Operator math and campaign data from real self-storage marketing.",
   },
 };
 
@@ -85,8 +85,8 @@ export default async function BlogIndex({ searchParams }: PageProps) {
             maxWidth: "520px",
           }}
         >
-          Operator math, campaign insights, and hard-won lessons from running
-          self-storage facilities and filling them with paid ads.
+          Operator math and campaign data from someone who runs self-storage
+          facilities and pays for the ads.
         </p>
 
         {/* Pillar filters */}

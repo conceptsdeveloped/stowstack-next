@@ -98,7 +98,7 @@ export default function CampaignsPage() {
     } else if (highestSpend.roas < 1) {
       tip = `Your highest-spend campaign (${spendName}) is underperforming on ROAS. Review targeting or creative to improve returns.`;
     } else {
-      tip = `Campaigns are performing steadily. Monitor ${bestName} for continued strong results.`;
+      tip = `No big shifts this period. ${bestName} is your top performer — keep its budget where it is.`;
     }
 
     return { bestRoas, highestSpend, tip };
@@ -179,7 +179,7 @@ export default function CampaignsPage() {
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--color-dark)]">
             <TrendingUp className="h-4 w-4 text-[var(--color-gold)]" />
-            Campaign Insights
+What to do next
           </h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {/* Best ROAS */}
@@ -220,7 +220,7 @@ export default function CampaignsPage() {
             <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--color-gold-light)]/40 p-4 sm:col-span-2 lg:col-span-1">
               <div className="mb-1 flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-[var(--color-gold)]" />
-                <span className="text-xs font-medium text-[var(--color-gold)]">Insight</span>
+                <span className="text-xs font-medium text-[var(--color-gold)]">Recommendation</span>
               </div>
               <p className="text-sm leading-relaxed text-[var(--color-body-text)]">
                 {insights.tip}

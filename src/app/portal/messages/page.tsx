@@ -99,7 +99,7 @@ export default function MessagesPage() {
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <MessageSquare className="mb-3 h-10 w-10 text-[var(--color-mid-gray)]" />
-              <p className="text-sm text-[var(--color-body-text)]">No messages yet. Start a conversation!</p>
+              <p className="text-sm text-[var(--color-body-text)]">No messages yet. Send your account manager a note below.</p>
             </div>
           ) : (
             messages.map((msg) => (

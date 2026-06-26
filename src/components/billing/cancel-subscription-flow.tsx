@@ -68,7 +68,7 @@ export function CancelSubscriptionFlow({
               className="text-lg font-medium mb-2"
               style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-dark)' }}
             >
-              We&apos;re sorry to see you go
+              Before you cancel
             </h3>
             <p className="text-sm mb-4" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-mid-gray)' }}>
               Can you tell us why you&apos;re cancelling?
