@@ -84,7 +84,7 @@ sequenceDiagram
     WH->>CTN: lookup by dialed number
     WH->>CL: INSERT campaign_source (from utm_link.utm_campaign)<br/>status=ringing → TwiML dial to forward_to (record)
     Twilio->>WH: ?event=status callback
-    WH->>CL: final status/duration; recompute CTN aggregates
+    WH->>CL: final status/duration · recompute CTN aggregates
     Note over CL: PATCH /api/call-logs sets call_outcome +<br/>move_in_linked → activity_log attributed_move_in
 ```
 

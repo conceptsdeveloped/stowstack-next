@@ -156,7 +156,7 @@ sequenceDiagram
     Cust->>Route: ?accessCode=&email=<br/>OR Authorization: Bearer <code>
     Route->>DB: clients.findFirst({ access_code, email })
     DB-->>Route: client row → facilityId
-    Note over Route: no server session;<br/>code re-sent every call
+    Note over Route: no server session<br/>code re-sent every call
 ```
 
 Three coexisting validation patterns (all read the same `clients.access_code`): query params (`authenticatePortalRequest`), `Authorization: Bearer <code>`, and POST body `{ email, accessCode }` (the pre-auth, CSRF-exempt path).

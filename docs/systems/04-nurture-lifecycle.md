@@ -130,7 +130,7 @@ sequenceDiagram
             Cron->>DB: advanceStep() — next_send_at = now + nextStep.delay<br/>OR mark completed (all in a $transaction)
         end
     end
-    Note over Cron: remainder picked up next run;<br/>fatal failure → emails Blake
+    Note over Cron: remainder picked up next run<br/>fatal failure → emails Blake
 ```
 
 > **Why advance-step inside a transaction?** The message-send and the step advance commit together. Drip does the inverse — it **advances *before* sending** specifically to avoid double-sends on a retry. Two different safety strategies for the same hazard (duplicate messages).

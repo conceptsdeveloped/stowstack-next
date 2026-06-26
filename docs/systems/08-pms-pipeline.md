@@ -62,7 +62,7 @@ sequenceDiagram
     Cron->>Cron: classifyReport (headers/type sniff)
     alt classified rent_roll / aging / revenue
         Cron->>Cron: autoMapColumns vs EXPECTED_COLUMNS
-        Cron->>T: deleteMany + createMany (rent_roll/aging)<br/>or upsert (revenue); rent_roll rolls up snapshot
+        Cron->>T: deleteMany + createMany (rent_roll/aging)<br/>or upsert (revenue) · rent_roll rolls up snapshot
         Cron->>Q: status=processed
     else missing columns / unknown
         Cron->>Q: status=needs_review (+ missing list)

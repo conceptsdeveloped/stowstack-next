@@ -5,10 +5,10 @@ A layered view of every major surface, subsystem, and data flow in the codebase.
 > **Going deeper:** this file is the top-level map. For per-system deep dives — auth, data model, audit funnel, nurture, billing, PMS, retention, attribution, security, GBP/API, the Operator-OS AI substrate, the ad pipeline, referrals, plus a candid **Gaps & Seams** inventory — see [`./systems/`](./systems/README.md) (16 diagram-first study docs).
 
 Scope at a glance:
-- **4** independent auth systems
-- **~184** API route handlers
-- **~95** Prisma models
-- **~15** Vercel cron jobs
+- **4** independent auth systems (6 with cron + V1)
+- **180+** API route handlers
+- **94** Prisma models
+- **22** Vercel cron jobs
 - **~62** lazy-loaded admin facility tabs
 - **~20+** third-party integrations
 
@@ -53,7 +53,7 @@ flowchart LR
   end
 
   %% ── API layer ──
-  subgraph api[API Layer — ~184 routes]
+  subgraph api[API Layer — 180+ routes]
     pubAPI[Public<br/>audit · lead-capture · stripe-webhook · call-webhook]
     adminAPI[Admin API<br/>admin-* · facility-creatives · publish-ad · synthesize]
     portalAPI[Portal API<br/>client-* · portal-*]
@@ -77,7 +77,7 @@ flowchart LR
 
   %% ── Persistence ──
   subgraph data[Persistence]
-    db[(Postgres / Neon<br/>~95 Prisma models)]
+    db[(Postgres / Neon<br/>94 Prisma models)]
     redis[(Upstash Redis<br/>rate limits · cache)]
     blob[(Vercel Blob<br/>assets · PDFs · video)]
     fs[Filesystem doctrine<br/>CREATIVE.md · STRATEGY.md · BRAND_DOCTRINE.md · COMPLIANCE.md]
@@ -584,11 +584,13 @@ flowchart LR
 
 ## 9. Cron Schedule
 
-All 15 scheduled functions and their downstream effects.
+All 22 scheduled functions and their downstream effects. (Full table with schedules in [systems/17 §5](systems/17-glossary-reference.md) and [systems/05](systems/05-background-jobs.md).)
 
 ```mermaid
 flowchart LR
   subgraph sched[Vercel Cron · UTC]
+    S16[hourly :00 process-pms-uploads]
+    S17[hourly :30 retry-diagnostic-audits]
     S1[3:00 AM cleanup-sessions]
     S2[3:30 AM cleanup-organizations]
     S3[Sun 1 AM sync-audiences]
@@ -599,13 +601,20 @@ flowchart LR
     S8[6 AM process-nurture]
     S9[7 AM process-recovery]
     S10[8 AM check-campaign-alerts]
-    S11[9 AM send-client-reports]
+    S11[Mon 9 AM send-client-reports]
     S12[Fri 9 AM weekly-digest]
     S13[10 AM review-solicitation]
+    S18[Mon 11 AM score-churn-risk]
+    S19[Mon 11:30 update-retention-outcomes]
+    S20[Tue 11 AM score-ecri-sensitivity]
     S14[Sun 10 AM weekly-synthesis]
     S15[12 PM process-synthesis-queue]
+    S21[Fri 12 PM generate-noi-reports]
+    S22[1st 1 PM photo-refresh-prompts]
   end
 
+  S16 --> T13[CSV → facility_pms_* ingest]
+  S17 --> T14[rescue stuck diagnostic audits]
   S1 --> T1[org_sessions TTL cleanup]
   S2 --> T2[soft-deleted orgs purge]
   S3 --> T3[Meta/Google audience sync]
@@ -619,15 +628,20 @@ flowchart LR
   S11 --> T9[monthly HTML + PDF reports]
   S12 --> T10[weekly facility digest]
   S13 --> T11[post-move-in review requests]
+  S18 --> T15[churn_predictions scoring]
+  S19 --> T15
+  S20 --> T16[tenant_sensitivity_features ECRI]
   S14 --> T12[CREATIVE.md · STRATEGY.md rewrite]
   S15 --> T12
+  S21 --> T17[noi_report_snapshots rollup]
+  S22 --> T5
 ```
 
 ---
 
 ## 10. Data Model Clusters
 
-95 Prisma models grouped by domain. This is the schema backbone — arrows show the strongest foreign-key relationships.
+94 Prisma models grouped by domain (verify with `grep -c '^model ' prisma/schema.prisma`). This is the schema backbone — arrows show the strongest foreign-key relationships.
 
 ```mermaid
 flowchart TB
