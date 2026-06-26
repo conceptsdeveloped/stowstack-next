@@ -23,7 +23,7 @@ On the surface, that looks soft. But context matters.
 
 ## What the Occupancy Dip Actually Means
 
-Public Storage's occupancy decline isn't because demand is falling — it's because supply caught up. They added 14 million square feet of new development to their portfolio in 2025. When you pour that much new inventory into the market, occupancy takes a hit even if demand is steady.
+Public Storage's occupancy decline isn't because demand is falling, it's because supply caught up. They added 14 million square feet of new development to their portfolio in 2025. When you pour that much new inventory into the market, occupancy takes a hit even if demand is steady.
 
 For independent operators, the takeaway is nuanced. If you're in a market where a new Public Storage or Extra Space just opened, you're going to feel pricing pressure. If you're in a market they haven't entered, demand fundamentals are actually fine.
 
@@ -31,16 +31,16 @@ For independent operators, the takeaway is nuanced. If you're in a market where 
 
 ## The Rate Story
 
-Public Storage's move-in rates were down 3-5% from their 2023 peak. They're using promotional pricing more aggressively — first-month-free, 50%-off-first-month — to drive occupancy in new builds.
+Public Storage's move-in rates were down 3-5% from their 2023 peak. They're using promotional pricing more aggressively (first-month-free, 50%-off-first-month) to drive occupancy in new builds.
 
 This is the part that should concern independent operators. When a REIT drops move-in rates and runs promos, it pulls price-sensitive tenants away from independents. You can't outspend Public Storage on Google Ads. You can't match their promotional war chest.
 
 What you can do is compete on things they can't:
 
-- **Local relationships** — you're in the community, they're not
-- **Flexibility** — you can make decisions in 5 minutes, they need corporate approval
-- **Service quality** — their front desk is a kiosk, yours can be a human being
-- **Marketing specificity** — your ads can speak to your exact neighborhood, not a generic "storage near you" message
+- **Local relationships**: you're in the community, they're not
+- **Flexibility**: you can make decisions in 5 minutes, they need corporate approval
+- **Service quality**: their front desk is a kiosk, yours can be a human being
+- **Marketing specificity**: your ads can speak to your exact neighborhood, not a generic "storage near you" message
 
 ## What the Earnings Call Revealed About 2026
 
@@ -52,9 +52,9 @@ Public Storage said they're increasing digital marketing budgets by 20% in 2026,
 
 ### 2. Existing customer rate increases are slowing
 
-They acknowledged that the pace of existing customer rate increases (ECRIs) is moderating. In 2023-2024, they were pushing 8-12% annual increases on existing tenants. Now it's 4-6%. This suggests they're seeing more pushback — or more move-outs — at the higher increase levels.
+They acknowledged that the pace of existing customer rate increases (ECRIs) is moderating. In 2023-2024, they were pushing 8-12% annual increases on existing tenants. Now it's 4-6%. This suggests they're seeing more pushback, or more move-outs, at the higher increase levels.
 
-> **Operator Note:** If Public Storage is moderating their rate increases, it's a signal worth paying attention to. They have more data than any of us. It doesn't mean you shouldn't raise rates — but the days of easy 10% annual bumps may be behind us, at least for now.
+> **Operator Note:** If Public Storage is moderating their rate increases, it's a signal worth paying attention to. They have more data than any of us. It doesn't mean you shouldn't raise rates, but the days of easy 10% annual bumps may be behind us, at least for now.
 
 ### 3. Climate-controlled demand is outpacing standard
 
@@ -66,11 +66,11 @@ Based on the earnings data and broader market signals, here's how I'm thinking a
 
 - **Hold or modestly increase rates** on existing tenants (4-6% feels right for most markets)
 - **Watch your local competitive landscape** more carefully than national trends
-- **Invest in marketing differentiation** — generic "storage near me" is getting more expensive, so hyper-local messaging and better landing pages matter more
+- **Invest in marketing differentiation**: generic "storage near me" is getting more expensive, so hyper-local messaging and better landing pages matter more
 - **Consider climate-controlled investment** if your market supports it and you have the capital
 - **Track cost per move-in** (not cost per lead) to make sure your marketing spend is actually productive
 
-The REITs aren't going away. But they're dealing with their own problems — oversupply from aggressive development, rising capital costs, and the challenge of maintaining growth at scale. Independent operators who stay sharp on their local markets and optimize their operations have plenty of room to compete.
+The REITs aren't going away. But they're dealing with their own problems: oversupply from aggressive development, rising capital costs, and the challenge of maintaining growth at scale. Independent operators who stay sharp on their local markets and optimize their operations have plenty of room to compete.
 
 > **Example:** A 200-unit independent facility in a mid-size market with 94% occupancy and strong local branding is a fundamentally better business than a 600-unit REIT facility at 88% occupancy running perpetual promos. Size isn't everything. Execution is.
 

@@ -3,7 +3,7 @@ title: "Achieved Rate: The Number That Quietly Decides Your Revenue"
 slug: achieved-rate-the-number-that-decides-revenue
 date: 2026-04-18
 pillar: operator-math
-description: "Your occupancy can look great while your revenue lags, because what matters isn't just how full you are, it's what you actually collect per occupied unit. That's achieved rate, and most independents are leaving points of it on the table."
+description: "Your occupancy can look great while your revenue lags, because the number that decides revenue is what you actually collect per occupied unit. That's achieved rate, and most independents are leaving points of it on the table."
 author: "Blake"
 tags: [achieved-rate, pricing, operator-math, revenue, occupancy]
 featured: false

@@ -19,22 +19,22 @@ We ran a structured A/B test across a Meta Ads campaign for a 45,000 sq ft facil
 
 We targeted a 15-mile radius around the facility. Audience was 25-64, homeowners, with interests in home improvement, moving, and real estate. Monthly budget was $1,200 split evenly across the six variants.
 
-All six ads used the same image — a clean, well-lit interior shot of the climate-controlled hallway — and the same body copy. The only variable was the headline.
+All six ads used the same image (a clean, well-lit interior shot of the climate-controlled hallway) and the same body copy. The only variable was the headline.
 
 ### The Six Headlines
 
-1. **"Climate-Controlled Storage Starting at $129/mo"** — Price-forward
-2. **"Your Stuff Deserves Better Than a Hot Garage"** — Emotional/pain point
-3. **"10x10 Climate-Controlled Units Available Now"** — Availability-focused
-4. **"Protect Your Furniture, Electronics, and Documents"** — Item-specific
-5. **"Climate-Controlled Storage — 1 Mile from [Neighborhood]"** — Proximity
-6. **"Limited Climate-Controlled Units — Reserve Today"** — Urgency/scarcity
+1. **"Climate-Controlled Storage Starting at $129/mo"** (price-forward)
+2. **"Your Stuff Deserves Better Than a Hot Garage"** (emotional/pain point)
+3. **"10x10 Climate-Controlled Units Available Now"** (availability-focused)
+4. **"Protect Your Furniture, Electronics, and Documents"** (item-specific)
+5. **"Climate-Controlled Storage, 1 Mile from [Neighborhood]"** (proximity)
+6. **"Limited Climate-Controlled Units. Reserve Today"** (urgency/scarcity)
 
 ## The Results
 
 After 21 days and ~58,000 impressions per variant, here's how they stacked up:
 
-- **Headline 2 (Hot Garage):** 4.2% CTR, 22 leads, $9.09 cost per lead — **Winner**
+- **Headline 2 (Hot Garage):** 4.2% CTR, 22 leads, $9.09 cost per lead. **Winner**
 - **Headline 5 (Proximity):** 3.8% CTR, 19 leads, $10.53 CPL
 - **Headline 4 (Item-specific):** 3.1% CTR, 16 leads, $12.50 CPL
 - **Headline 6 (Urgency):** 2.7% CTR, 13 leads, $15.38 CPL
@@ -45,9 +45,9 @@ After 21 days and ~58,000 impressions per variant, here's how they stacked up:
 
 ## Why the "Hot Garage" Headline Won
 
-Self-storage is a grudge purchase. Nobody wakes up excited to rent a storage unit. They do it because they have a problem — they're moving, downsizing, renovating, or just running out of space.
+Self-storage is a grudge purchase. Nobody wakes up excited to rent a storage unit. They do it because they have a problem: they're moving, downsizing, renovating, or just running out of space.
 
-The winning headline tapped into a specific, relatable frustration. Almost everyone has a garage full of stuff that's slowly getting ruined by heat and humidity. The headline didn't sell storage — it sold the solution to a problem they already felt.
+The winning headline tapped into a specific, relatable frustration. Almost everyone has a garage full of stuff that's slowly getting ruined by heat and humidity. The headline didn't sell storage, it sold the solution to a problem they already felt.
 
 ### What Didn't Work (and Why)
 
@@ -55,15 +55,15 @@ The winning headline tapped into a specific, relatable frustration. Almost every
 
 **Availability** (Headline 3) was too generic. "Available Now" doesn't create any emotional response. It's informational copy in an attention-economy platform.
 
-> **Operator Note:** We almost didn't test the "hot garage" angle because it felt too casual for a paid ad. Lesson learned — the copy that sounds like something you'd actually say to a friend at a barbecue tends to outperform the copy that sounds like it was written by a marketing team.
+> **Operator Note:** We almost didn't test the "hot garage" angle because it felt too casual for a paid ad. Lesson learned: the copy that sounds like something you'd actually say to a friend at a barbecue tends to outperform the copy that sounds like it was written by a marketing team.
 
 ## What We Did With the Winner
 
 After identifying Headline 2 as the clear winner, we:
 
-1. **Scaled the budget** — moved 70% of the monthly spend to the winning variant
+1. **Scaled the budget**: moved 70% of the monthly spend to the winning variant
 2. **Created three more variants** in the same emotional style (testing different pain points)
-3. **Applied the insight to Google Ads** — rewrote our search headlines to lead with pain points instead of price
+3. **Applied the insight to Google Ads**: rewrote our search headlines to lead with pain points instead of price
 4. **Updated the landing page headline** to match the emotional tone
 
 Within 60 days, the facility went from 78% to 91% occupancy on climate-controlled units.
@@ -78,6 +78,6 @@ You don't need a massive budget. Here's the minimum viable setup:
 - **Metric:** Optimize for leads (form fills or calls), not clicks
 - **Timeline:** Give it at least 14 days before drawing conclusions
 
-The operators who test systematically don't just get better ads — they build an understanding of what their market actually responds to. That compounds over every campaign you run after.
+The operators who test systematically get better ads and, more important, build an understanding of what their market actually responds to. That compounds over every campaign you run after.
 
 **Keep reading:** The winning headlines almost always name [the life event that made someone rent](/blog/why-people-actually-rent-storage), and the cheapest demand of all is [the local map you can win without outbidding the REITs](/blog/google-spend-gap-local-search).

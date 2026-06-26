@@ -19,7 +19,7 @@ Last fall I pushed through a 12% increase across 340 units at one of our facilit
 
 The facility was sitting at 93% occupancy. Street rates hadn't changed in 14 months. Meanwhile, insurance went up 18%, property taxes went up 9%, and we'd invested $35K in LED lighting and security upgrades. We were leaving money on the table.
 
-The decision wasn't whether to raise rates — it was how to do it without triggering a wave of move-outs.
+The decision wasn't whether to raise rates, it was how to do it without triggering a wave of move-outs.
 
 ## The Approach
 
@@ -27,7 +27,7 @@ I didn't raise everyone at once. Here's the phased approach we used:
 
 ### Phase 1: New Tenants First (Week 1)
 
-We bumped street rates by 15% across all unit types. New tenants don't know what you were charging before, so this is risk-free. This also set the new baseline — existing tenants who check your website see that they're already getting a deal.
+We bumped street rates by 15% across all unit types. New tenants don't know what you were charging before, so this is risk-free. This also set the new baseline. Existing tenants who check your website see that they're already getting a deal.
 
 ### Phase 2: Long-Term Tenants (Week 3)
 
@@ -35,7 +35,7 @@ Tenants who'd been with us 12+ months got rate increase notices with 30 days lea
 
 ### Phase 3: Mid-Term Tenants (Week 5)
 
-Tenants at 6-12 months got 12% increases. This is your riskiest cohort — they're past the initial inertia but haven't fully settled in.
+Tenants at 6-12 months got 12% increases. This is your riskiest cohort: they're past the initial inertia but haven't fully settled in.
 
 ### Phase 4: Short-Term Tenants (Week 7)
 
@@ -62,7 +62,7 @@ That's $49,200 in annualized revenue from a decision that took two days of plann
 
 **More segmentation.** I treated all unit types the same. In hindsight, I should have been more aggressive on climate-controlled (lower price sensitivity, fewer alternatives) and more conservative on drive-up 5x5s (highest turnover, most price-sensitive).
 
-**A phone call for top accounts.** We had three tenants renting 4+ units each for their businesses. A personal call before the letter would have gone a long way. One of them called me upset, and a 5-minute conversation smoothed it over — but I should have been proactive.
+**A phone call for top accounts.** We had three tenants renting 4+ units each for their businesses. A personal call before the letter would have gone a long way. One of them called me upset, and a 5-minute conversation smoothed it over, but I should have been proactive.
 
 ## The Framework I Use Now
 
@@ -74,12 +74,12 @@ Every six months I review rates using this checklist:
 - What's my average tenant duration? (Longer tenure = more pricing power)
 - When was the last increase?
 
-> **Example:** If you're at 96% occupancy on 10x10 climate units and the nearest competitor is charging $20/month more than you, you're not "full" — you're underpriced. Raise street rates immediately, and phase in increases for existing tenants over 60 days. You can absorb a few move-outs and still come out ahead.
+> **Example:** If you're at 96% occupancy on 10x10 climate units and the nearest competitor is charging $20/month more than you, you're not "full." You're underpriced. Raise street rates immediately, and phase in increases for existing tenants over 60 days. You can absorb a few move-outs and still come out ahead.
 
 ## The Hardest Part
 
 The hardest part isn't the math. It's sending the letter. Every operator I talk to knows they should raise rates. Most don't because the fear of vacancy is louder than the reality of underpricing.
 
-But here's the math that finally got me over it: keeping rates flat while costs go up 5-8% per year means your margins shrink every single year. A rate increase isn't aggressive — it's maintenance.
+But here's the math that finally got me over it: keeping rates flat while costs go up 5-8% per year means your margins shrink every single year. A rate increase isn't aggressive, it's maintenance.
 
-**Keep reading:** Rate increases are really about [achieved rate, the number that quietly decides your revenue](/blog/achieved-rate-the-number-that-decides-revenue) — and before you send the next letter, know how [new pricing laws are reshaping what's allowed](/blog/sb709-ecri-playbook-ending).
+**Keep reading:** Rate increases are really about [achieved rate, the number that quietly decides your revenue](/blog/achieved-rate-the-number-that-decides-revenue), and before you send the next letter, know how [new pricing laws are reshaping what's allowed](/blog/sb709-ecri-playbook-ending).

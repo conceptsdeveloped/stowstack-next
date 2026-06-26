@@ -11,7 +11,7 @@ draft: false
 heroAlt: "An overlocked storage unit next to a vacancy sign, the cost of delinquency"
 ---
 
-Operators file delinquency under "collections" and marketing under "filling units," like they're two different departments. They're not. They're the same fight. Every unit that goes delinquent and empties out is a unit you now have to refill, against the same competitors, at the same acquisition cost you just paid the first time. Delinquency isn't only a collections problem. It's demand you light on fire.
+Operators file delinquency under "collections" and marketing under "filling units," like they're two different departments. They're not. They're the same fight. Every unit that goes delinquent and empties out is a unit you now have to refill, against the same competitors, at the same acquisition cost you just paid the first time. Delinquency is demand you light on fire. That makes it a marketing problem as much as a collections one.
 
 ## The math nobody runs
 
@@ -19,13 +19,13 @@ Say you fill a unit. It cost you something to acquire that renter, in ads, in ti
 
 Now that unit goes delinquent at month four and you eventually overlock and clear it. You collected four months of rent instead of nineteen. You ate the acquisition cost for a fraction of the value. And now you have an empty unit you have to market and fill all over again, paying acquisition cost number two, to get back to where you already were.
 
-That's the hidden expense of delinquency. It's not just the unpaid rent. It's the re-acquisition. You're buying the same unit's occupancy twice, and the second time the renter you lost is gone and so is the money you spent getting them.
+That's the hidden expense of delinquency: the re-acquisition, on top of the rent you already lost. You're buying the same unit's occupancy twice, and the second time the renter you lost is gone and so is the money you spent getting them.
 
 ## Why this is a marketing leak
 
 Think of your facility as a bucket. Marketing pours water in the top: new move-ins. Delinquency and move-outs drain it out the bottom. If the bottom leaks faster than you can pour, you run hard just to stay flat, and you spend a fortune doing it. (Even the move-outs you can't prevent cost less when you [replace them faster](/blog/replace-move-outs-faster).)
 
-The operators who win don't just pour faster. They fix the leak. Every delinquency you prevent is a move-in you don't have to buy. In a soft or [oversupplied market](/blog/sun-belt-oversupply-map), where new move-ins are expensive and hard-won, plugging the drain is often cheaper than widening the spigot. Keeping the tenant you have beats winning a new one against a facility two exits down that's discounting hard.
+The operators who win do more than pour water in faster. They fix the leak. Every delinquency you prevent is a move-in you don't have to buy. In a soft or [oversupplied market](/blog/sun-belt-oversupply-map), where new move-ins are expensive and hard-won, plugging the drain is often cheaper than widening the spigot. Keeping the tenant you have beats winning a new one against a facility two exits down that's discounting hard.
 
 ## What actually reduces the leak
 

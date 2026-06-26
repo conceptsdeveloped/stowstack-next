@@ -19,7 +19,7 @@ Then I ask them one question: **"What's your cost per move-in?"**
 
 Blank stare. Every time.
 
-Because here's the thing — you ARE spending money on marketing. You're just not tracking what it costs you per tenant who actually walks through the door. And when you finally add it up, the number is almost always higher than you'd expect.
+Because here's the thing: you ARE spending money on marketing. You're just not tracking what it costs you per tenant who actually walks through the door. And when you finally add it up, the number is almost always higher than you'd expect.
 
 Let me walk through the math.
 
@@ -37,7 +37,7 @@ Now, how many move-ins is that listing actually generating? Most operators have 
 
 **storEDGE cost per move-in: $200 ÷ 6 = $33**
 
-That looks great on paper. But hold that number — we're not done.
+That looks great on paper. But hold that number. We're not done.
 
 ### Google Business Profile
 
@@ -47,7 +47,7 @@ Somebody is managing that profile. Responding to reviews. Uploading photos. Upda
 
 Let's conservatively value that at **$75/month** in labor. Some operators pay a local SEO company $200–$500/month to manage it. Let's split the difference: **$150/month** in real cost. That's **$1,800/year**.
 
-Your Google Business Profile — when it's working well — might drive **8–15 calls/month** that turn into actual prospects. Not all of those convert. Typical phone-to-movein conversion in self-storage is around 35–40%. Let's say 10 calls, 4 move-ins per month.
+Your Google Business Profile, when it's working well, might drive **8–15 calls/month** that turn into actual prospects. Not all of those convert. Typical phone-to-movein conversion in self-storage is around 35–40%. Let's say 10 calls, 4 move-ins per month.
 
 **GBP cost per move-in: $150 ÷ 4 = $37.50**
 
@@ -57,7 +57,7 @@ Still looks reasonable. Keep going.
 
 Almost every operator has a website. Maybe it's the storEDGE template site. Maybe it's something a local company built five years ago. Maybe it's a WordPress site your nephew set up.
 
-If you're on a storEDGE website plan, you're paying **$100–$200/month** on top of your listing fee. If you have a standalone site, you're paying hosting ($20–$50/month), maybe a domain ($15/year), and hopefully someone updates it occasionally. Plus the amortized cost of building it — even a cheap site was $2,000–$5,000 at some point.
+If you're on a storEDGE website plan, you're paying **$100–$200/month** on top of your listing fee. If you have a standalone site, you're paying hosting ($20–$50/month), maybe a domain ($15/year), and hopefully someone updates it occasionally. Plus the amortized cost of building it. Even a cheap site was $2,000–$5,000 at some point.
 
 Let's call the all-in monthly cost **$175/month**. That's **$2,100/year**.
 
@@ -98,7 +98,7 @@ And that's before you account for the elephant in the room.
 
 ## The Cost Nobody Tracks: Manager Time
 
-Your facility manager spends time answering phone calls from prospects. Walking units. Processing move-ins. Following up (if they follow up at all). Every lead that comes in — whether it converts or not — costs you manager labor.
+Your facility manager spends time answering phone calls from prospects. Walking units. Processing move-ins. Following up (if they follow up at all). Every lead that comes in, whether it converts or not, costs you manager labor.
 
 If your manager makes $18/hour and spends 20 minutes on a lead that doesn't convert, that's $6 in labor per dead lead. If you're getting 30 leads a month and 13 convert, that's 17 dead leads costing you $102/month in wasted manager time.
 
@@ -112,7 +112,7 @@ I'm not telling you this to make you feel bad about storEDGE or Google. Those ch
 
 I'm telling you this because when you don't know your real cost per move-in, you can't make smart decisions about where to spend your next dollar.
 
-If your organic stack is costing you $90 per move-in and someone shows you a paid Meta campaign that delivers move-ins at $110 — but those are incremental tenants you weren't getting before, filling units that were sitting empty at $150/month — that's a no-brainer ROI. But if you think your current marketing is "free," that $110 number looks expensive and you pass on it.
+If your organic stack is costing you $90 per move-in and someone shows you a paid Meta campaign that delivers move-ins at $110 (but those are incremental tenants you weren't getting before, filling units that were sitting empty at $150/month), that's a no-brainer ROI. But if you think your current marketing is "free," that $110 number looks expensive and you pass on it.
 
 The operators who are growing right now aren't the ones spending the least. They're the ones who know their numbers and can do the math on whether a new channel is profitable.
 
@@ -122,7 +122,7 @@ Three things. All of them are free.
 
 **First**, add up what you're actually spending. Every platform fee. Every subscription. Every hour of labor. Get a real monthly number.
 
-**Second**, count your move-ins by source. Not leads — move-ins. If your PMS can't tell you where a tenant came from, start asking during move-in. "How did you hear about us?" is the cheapest attribution tool in the industry.
+**Second**, count your move-ins by source. Not leads. Move-ins. If your PMS can't tell you where a tenant came from, start asking during move-in. "How did you hear about us?" is the cheapest attribution tool in the industry.
 
 **Third**, divide the first number by the second number. That's your cost per move-in. Now you have a baseline. Every marketing decision you make from here should be measured against that number.
 

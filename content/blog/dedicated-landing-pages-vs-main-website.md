@@ -33,7 +33,7 @@ Here's what happens when you send paid traffic to your homepage:
 
 They land on the page. They see a hero banner that says something generic like "Your Storage Solution." They see a nav bar with eight links. They see a section about your facility's history. They scroll. They look for pricing. They can't find it easily. They click "Units & Pricing." They get a page with 30 unit types. They have to figure out which one matches the ad they clicked on.
 
-Half of them leave before they find what they came for. This isn't a guess — I've watched session recordings. The average time on page for paid traffic hitting a homepage is under 20 seconds. They bounce.
+Half of them leave before they find what they came for. This isn't a guess. I've watched session recordings. The average time on page for paid traffic hitting a homepage is under 20 seconds. They bounce.
 
 **Bounce rates for paid traffic to a self-storage homepage: 60–75%.**
 
@@ -47,13 +47,13 @@ A dedicated landing page does one thing: match the promise of the ad and make it
 
 If your ad says "10x10 Climate-Controlled Units from $129/mo," the landing page should show that exact unit, that exact price, and a button to rent it. Nothing else matters. No navigation bar. No about page link. No distractions.
 
-Think about it from the renter's perspective. They saw your ad while scrolling Instagram. They're moving next week. They're stressed. They clicked because the price looked right and the location works. They want to confirm two things — yes it's the right price, yes it's near them — and then they want to reserve or rent online.
+Think about it from the renter's perspective. They saw your ad while scrolling Instagram. They're moving next week. They're stressed. They clicked because the price looked right and the location works. They want to confirm two things (yes it's the right price, yes it's near them) and then they want to reserve or rent online.
 
 A good landing page gives them that confirmation in under 5 seconds and puts a CTA in front of them before they have to scroll.
 
 Here's what should be on the page and nothing more:
 
-The unit type and size they clicked on. The price, matching what the ad said. The facility location with a map. One or two trust signals — a review count, a security feature. A clear CTA to rent or reserve online. Maybe a phone number for people who prefer to call.
+The unit type and size they clicked on. The price, matching what the ad said. The facility location with a map. One or two trust signals: a review count, a security feature. A clear CTA to rent or reserve online. Maybe a phone number for people who prefer to call.
 
 That's it. Every additional element on the page is a potential exit point.
 
@@ -61,13 +61,13 @@ That's it. Every additional element on the page is a potential exit point.
 
 Here's where this gets really practical for most operators.
 
-If you're running storEDGE for your online rentals, you already have an embeddable rental widget. Most operators only use it on their storEDGE-hosted website. But you can embed that same widget on any page — including a custom landing page.
+If you're running storEDGE for your online rentals, you already have an embeddable rental widget. Most operators only use it on their storEDGE-hosted website. But you can embed that same widget on any page, including a custom landing page.
 
 This is the move that turns a landing page from "information about a unit" into a **closed-loop rental experience**.
 
 Here's what the flow looks like:
 
-The prospect sees your Meta ad. They click. They land on a custom page that matches the ad — right unit, right price, right location. Below the fold, there's your storEDGE rental widget, pre-filtered to show the exact unit type from the ad. They pick their unit. They enter their info. They rent. Done.
+The prospect sees your Meta ad. They click. They land on a custom page that matches the ad: right unit, right price, right location. Below the fold, there's your storEDGE rental widget, pre-filtered to show the exact unit type from the ad. They pick their unit. They enter their info. They rent. Done.
 
 They never left the page. They never had to navigate your main site. They never got lost in a list of 30 unit types. The ad promise and the rental completion happened in one continuous experience.
 
@@ -103,7 +103,7 @@ The landing page didn't change how many people saw your ad or how many clicked. 
 
 I hear this constantly. And five years ago, it was a legitimate excuse. Custom landing pages meant hiring a web developer, spending $2,000–$5,000, and waiting weeks.
 
-Today? A purpose-built landing page for a storage facility takes hours to spin up, not weeks. The template is simple because the page is simple. You're not building a website — you're building a single page with a headline, a price, a map, and a rental embed.
+Today? A purpose-built landing page for a storage facility takes hours to spin up, not weeks. The template is simple because the page is simple. You're not building a website. You're building a single page with a headline, a price, a map, and a rental embed.
 
 If you're running paid ads without dedicated landing pages, you're paying full price for your traffic and then throwing away half of it at the front door.
 
@@ -111,13 +111,13 @@ The fix isn't complicated. It's just specific. Match the ad to the page. Match t
 
 ## What to Do Next
 
-If you're running any paid traffic right now — Meta, Google, even storEDGE PPC — do this:
+If you're running any paid traffic right now (Meta, Google, even storEDGE PPC), do this:
 
 **Check where your ads are pointing.** If the destination URL is your homepage or your main units page, you've got a conversion leak.
 
 **Build one landing page as a test.** Pick your highest-spend campaign. Create a simple page that matches that ad's message exactly. Embed your storEDGE widget filtered to the relevant unit type.
 
-**Run it for 30 days.** Split your traffic if you can — half to the homepage, half to the landing page. Compare conversion rates. I've never seen the homepage win. Not once.
+**Run it for 30 days.** Split your traffic if you can: half to the homepage, half to the landing page. Compare conversion rates. I've never seen the homepage win. Not once.
 
 The operators who are filling units at the lowest cost right now aren't running better ads than everyone else. They're just not wasting the clicks they're already paying for.
 
