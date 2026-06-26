@@ -5,6 +5,7 @@ import { Plus, Minus } from "lucide-react";
 import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 import { useInView } from "./use-in-view";
 import Cite from "./cite";
+import { RevealText } from "./motion";
 
 /**
  * Homepage FAQ. The questions are phrased the way an operator would
@@ -99,7 +100,7 @@ export default function FAQ() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            Common questions from operators.
+            <RevealText>Common questions from operators.</RevealText>
           </h2>
           <p className="mt-4 mx-auto max-w-xl" style={{ color: "var(--text-secondary)" }}>
             If yours isn&apos;t here, email{" "}

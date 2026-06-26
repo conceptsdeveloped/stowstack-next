@@ -4,6 +4,7 @@ import { Check, Minus } from "lucide-react";
 import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 import { useInView } from "./use-in-view";
 import Cite from "./cite";
+import { RevealText } from "./motion";
 
 /**
  * Four-column vendor comparison. Replaces the older DIY-vs-Agency-vs-Us
@@ -122,10 +123,10 @@ export default function FourWayComparison() {
             className="font-semibold text-3xl sm:text-4xl md:text-5xl leading-[1.05] tracking-tight"
             style={{ fontFamily: "var(--serif)" }}
           >
-            Everyone else does one slice.
+            <RevealText>Everyone else does one slice.</RevealText>
             <br />
             <span className="text-2xl sm:text-3xl md:text-4xl font-normal" style={{ color: "var(--text-secondary)" }}>
-              We do the whole thing.
+              <RevealText start={220}>We do the whole thing.</RevealText>
             </span>
           </h2>
           <p

@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     if (process.env.RESEND_API_KEY) {
       try {
-        await fetch("https://api.resend.com/emails", {
+        const emailRes = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -115,9 +115,24 @@ export async function POST(req: NextRequest) {
             `,
           }),
         });
-      } catch {
-        /* email send failed, not critical */
+        if (!emailRes.ok) {
+          const detail = await emailRes.text().catch(() => "");
+          console.error(
+            `[resend-access-code] Resend send failed (${emailRes.status}): ${detail}`
+          );
+        }
+      } catch (err) {
+        // Email delivery is non-critical to the request, but log it so silent
+        // failures (bad key, unverified domain) are visible in runtime logs.
+        console.error(
+          "[resend-access-code] Resend send error:",
+          err instanceof Error ? err.message : err
+        );
       }
+    } else {
+      console.warn(
+        "[resend-access-code] RESEND_API_KEY not set — login code email not sent"
+      );
     }
 
     return jsonResponse({ success: true }, 200, origin);

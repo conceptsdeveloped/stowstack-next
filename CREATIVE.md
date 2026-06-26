@@ -1,6 +1,8 @@
 # CREATIVE.md — StorageAds Creative Directive
 
-This document is the single source of truth for all content generated through StorageAds. Every ad, headline, video prompt, landing page, email, and piece of copy flows through the principles defined here. If it conflicts with a template default, this file wins.
+This document is the single source of truth for the *craft* of all content generated through StorageAds — voice, aesthetics, conversion principles. Every ad, headline, video prompt, landing page, email, and piece of copy flows through the principles defined here. If it conflicts with a template default, this file wins.
+
+For *what we lead with and how we differentiate* — the message hierarchy itself — defer to [.claude/positioning.md](.claude/positioning.md). The hero is marketing infrastructure that turns ad spend into move-ins; the product is the full acquisition funnel; attribution is the measurement layer underneath it, never the headline or the differentiator. This file governs how the message sounds and looks; positioning.md governs what the message is.
 
 ---
 

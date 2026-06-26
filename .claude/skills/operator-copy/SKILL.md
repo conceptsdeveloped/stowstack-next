@@ -18,13 +18,16 @@ You're writing for an independent self-storage operator. 1–5 facilities. Owns 
 
 Voice references: Nick Huber, Michael Wagner (Storage Rebellion), AJ Osborne, Scott Meyers, Stacy Rosetti, Paul Moore. **Plain language. Operator-to-operator. No MBA words.**
 
-## Step 1 — Load voice context
+## Step 1 — Load voice + positioning context
 
-Read both of these before drafting anything:
+Read all three before drafting anything:
+- `.claude/positioning.md` — canonical message hierarchy: the hero, the funnel pillars (the product), and attribution's demoted role. This governs *what you lead with*.
 - `.claude/copy-voice.md` — full voice/word rules and right-vs-wrong examples
 - `.claude/blake-copy-raw.md` — Blake's raw voice in his own words, with always-good phrases
 
-If either file is missing, STOP and tell Blake. Do not freelance the voice from memory.
+If any file is missing, STOP and tell Blake. Do not freelance the voice or the positioning from memory.
+
+**Lead with the funnel, not the measurement.** The product is the full acquisition system: market mapping, Meta + Google acquisition, per-ad landing pages with the storEDGE flow, reservation-to-move-in conversion, audit and ancillary revenue, toward 100% occupancy. Attribution is the proof underneath it — at most one supporting line, never the headline.
 
 ## Step 2 — Classify the surface
 
@@ -45,7 +48,9 @@ Scan every draft. If anything matches, rewrite. Do not present copy that fails t
 
 **Banned anywhere customer-facing (always rewrite):**
 ```
-demand engine, full-funnel, full-funnel attribution, server-side, CAPI
+demand engine, full-funnel, full-funnel attribution, closed-loop,
+closed-loop attribution, ad-to-move-in attribution, cost per reservation,
+server-side, CAPI
 ```
 
 **Banned in hero / CTA / email / ad (allowed only in deep product/help pages):**
@@ -61,6 +66,14 @@ synergy, best-in-class, cutting-edge, empower, unlock, drive, robust,
 seamless, scalable, transform, revolutionize, supercharge, turnkey,
 enterprise-grade, AI-powered, world-class, next-generation, holistic
 ```
+
+**Positioning framing — banned everywhere customer-facing:**
+- **Attribution as the lede.** If a headline, opening line, section opener, or primary differentiator is about tracking/measurement, rewrite. Attribution is at most one supporting line inside a funnel or optimization section. Lead with move-ins, occupancy, revenue, and the full system.
+- **"Only ones who do X right" framing.** Drop "the only," "nobody else," "no one else does this," "the only platform/system that," and every variant when X is a measurement or attribution capability. We do not differentiate by owning a tracking term. Differentiate on the full acquisition system and the operator-built angle.
+- **Translate measurement to outcomes** (from positioning.md):
+  - "closed-loop / full-funnel attribution" → "you'll know exactly which ads brought paying tenants"
+  - "cost-per-move-in attribution" → "every dollar tracked to a move-in, so we cut what doesn't work"
+  - "we A/B test and optimize the funnel" → "we test against move-ins, not clicks"
 
 **Punctuation:**
 - **Em-dashes (—) banned everywhere in drafted copy.** Use periods, commas, or recast. (See [[feedback_no_em_dash]].)

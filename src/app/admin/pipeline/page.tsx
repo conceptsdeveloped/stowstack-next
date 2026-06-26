@@ -5,6 +5,7 @@ import {
   Building2,
   ExternalLink,
   FileText,
+  KeyRound,
   Loader2,
   Mail,
   MapPin,
@@ -148,15 +149,19 @@ function StageColumn({
   facilities,
   onAdvance,
   onDelete,
+  onGrantPortal,
   advancing,
   deleting,
+  granting,
 }: {
   stage: Stage;
   facilities: Facility[];
   onAdvance: (id: string, currentStage: string) => void;
   onDelete: (id: string, name: string) => void;
+  onGrantPortal: (id: string, label: string) => void;
   advancing: string | null;
   deleting: string | null;
+  granting: string | null;
 }) {
   return (
     <div className="min-w-[300px] flex-1">
@@ -271,6 +276,22 @@ function StageColumn({
                   <ExternalLink className="h-3 w-3" />
                 </a>
               )}
+              {/* Grant portal access — works at any stage, decoupled from the
+                  kanban. Idempotent: re-clicking a provisioned facility just
+                  re-surfaces its login code. */}
+              <button
+                type="button"
+                onClick={() => onGrantPortal(f.id, f.facilityName || f.name || "this facility")}
+                disabled={granting === f.id}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] text-[var(--color-mid-gray)] hover:border-[var(--color-gold)]/30 hover:bg-[var(--color-gold)]/5 hover:text-[var(--color-gold)] transition-colors disabled:opacity-50"
+                title="Grant portal access (creates a client login + emails sign-in instructions)"
+              >
+                {granting === f.id ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <KeyRound className="h-3 w-3" />
+                )}
+              </button>
               {/* Delete */}
               <button
                 type="button"
@@ -308,6 +329,7 @@ export default function PipelinePage() {
   }>("/api/admin-leads", { limit: "200" });
   const [advancing, setAdvancing] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [granting, setGranting] = useState<string | null>(null);
   const [_view, _setView] = useState<"board" | "list">("board");
 
   const facilities = data?.leads || [];
@@ -383,6 +405,38 @@ export default function PipelinePage() {
       console.error("Failed to delete:", err);
     } finally {
       setDeleting(null);
+    }
+  }
+
+  // Grant portal access to a facility regardless of pipeline stage. This is the
+  // status-independent path — no need to drag the lead to "client_signed".
+  async function handleGrantPortal(id: string, label: string) {
+    if (
+      !confirm(
+        `Grant portal access for "${label}"?\n\nThis creates a client login and emails sign-in instructions to the facility's contact email.`
+      )
+    )
+      return;
+
+    setGranting(id);
+    try {
+      const res = await adminFetch<{
+        portalAccess: { code: string; email: string; created: boolean };
+      }>("/api/admin-leads", {
+        method: "PATCH",
+        body: JSON.stringify({ id, grantPortalAccess: true }),
+      });
+      const { code, email, created } = res.portalAccess;
+      alert(
+        created
+          ? `Portal access granted.\n\nLogin code: ${code}\nWelcome email sent to ${email}.\n\nThe client can now sign in at /portal using their email.`
+          : `This facility already has portal access.\n\nLogin code: ${code}\nClient email: ${email}.`
+      );
+      refetch();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to grant portal access");
+    } finally {
+      setGranting(null);
     }
   }
 
@@ -493,8 +547,10 @@ export default function PipelinePage() {
                 facilities={stageGroups.get(stage.id) || []}
                 onAdvance={handleAdvance}
                 onDelete={handleDelete}
+                onGrantPortal={handleGrantPortal}
                 advancing={advancing}
                 deleting={deleting}
+                granting={granting}
               />
             ))}
           </div>

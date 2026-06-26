@@ -3,6 +3,7 @@
 import { useInView } from "./use-in-view";
 import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
 import Cite from "./cite";
+import { RevealText } from "./motion";
 
 type Problem = {
   heading: string;
@@ -62,7 +63,7 @@ export default function ProblemStatement() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            The economics are simple. The infrastructure to act on them hasn&apos;t existed for independents. Until now.
+            <RevealText>The economics are simple. The infrastructure to act on them hasn&apos;t existed for independents. Until now.</RevealText>
           </h2>
           <p
             className="mt-6 mx-auto"

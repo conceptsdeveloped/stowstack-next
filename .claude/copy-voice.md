@@ -1,14 +1,12 @@
 ## Copy & Voice — Read Before Writing Anything Customer-Facing
 
-> **This is a tactical implementation of [BRAND_DOCTRINE.md](../BRAND_DOCTRINE.md) Section VIII (StorageAds Brand Voice).** Where this doc and BRAND_DOCTRINE conflict, BRAND_DOCTRINE wins. This doc translates the canonical voice — *a brilliant strategist who explains complex things simply* — into specific banned/preferred vocabulary, sentence rules, and worked examples for day-to-day copywriting on the StorageAds product (marketing site, landing pages, in-app text, cold emails to operators).
->
-> Per BRAND_DOCTRINE Section III, this register governs the **StorageAds Product** context (the platform's own marketing and UI), not Generated Marketing Content for client facilities — that context is governed by [CREATIVE.md](../CREATIVE.md).
+> Positioning is canonical and lives in [.claude/positioning.md](.claude/positioning.md). Read it first. This file governs how the customer voice *sounds*; positioning.md governs *what we lead with* (the hero, the funnel pillars, attribution's demoted role).
 
 ### Who we're writing to
 
 The reader is an independent self-storage operator. One to five facilities. They own the place or manage it for the owner. They are 35–65, busy, smart, and skeptical. They've been pitched by agencies before and didn't like it. They know they should be marketing more than they are. They feel slightly guilty about it. They know the REITs (Public Storage, Extra Space, CubeSmart) are doing this at a level they can't match alone.
 
-Think Nick Huber, Michael Wagner (Storage Rebellion), AJ Osborne, Scott Meyers, Stacy Rosetti, Paul Moore. That's the **audience and the reference for what reads true** — but it is not the speaker. The speaker is the strategist that BRAND_DOCTRINE describes: confident, specific, technical when precision matters, human when emotion matters. The strategist speaks the operator's language fluently — uses "fill units" and "move-ins" and "trade area" — without being reducible to operator vernacular. Operator-aware, not operator-cosplay.
+Think Nick Huber, Michael Wagner (Storage Rebellion), AJ Osborne, Scott Meyers, Stacy Rosetti, Paul Moore,. That's the voice and that's the audience. Plain language. Operator-to-operator. No MBA words.
 
 ### What they actually care about
 
@@ -18,20 +16,29 @@ In order:
 3. Knowing what's working without having to learn marketing.
 4. Closing the gap with the REITs in their trade area.
 
-What they DO NOT care about, and what we should not lead with:
-- Attribution as an abstract concept
-- "Cost per move-in" as a hero phrase (the *number* matters; the *jargon* doesn't)
-- The mechanics of CAPI, click IDs, pixels, server-side forwarding
-- "Full-funnel" anything as marketing prose
+What they DO NOT care about, and what we must stop leading with:
+- Attribution as a concept
+- Cost-per-move-in as a phrase
+- Server-side conversion forwarding, CAPI, click IDs, pixels
+- "Full-funnel" anything
+- "Demand engine" (investor word — keep for pitch decks only)
 - Our technical architecture
 
-The technical depth is real and lives in the whitepaper and the analysis docs. It is the proof, not the pitch. Customers buy the outcome, not the mechanism.
+The technical depth is real and lives in the whitepaper. It is the proof, not the pitch. Customers buy the outcome, not the mechanism.
+
+### What we lead with instead (the funnel is the product)
+
+The product is the full customer-acquisition system, and that is what copy weights. Map the market and competitors. Run Meta to reach renters before they search and Google to catch the ones already looking. Send them to a per-ad landing page with the storEDGE rental flow built in. Convert reservations into move-ins. Audit the facility, add ancillary revenue, work the tax advantages, push toward 100% occupancy. Self-serve or fully managed, same system. A tenant is worth thousands over their stay, and most of that demand goes uncaptured because nobody in the industry markets right. That is the pitch.
+
+### Don't claim we're "the only ones who do X"
+
+Never frame differentiation as owning a measurement term — no "the only ones who do attribution right," "nobody else tracks move-ins," "the only platform that closes the loop." We win on the full system and the operator-built angle, not on a tracking word. The competitor we displace is the operator's inaction, not another vendor's reporting.
 
 ### The frame we lead with
 
 We are operators who built software, not marketers selling to operators. We had the same problem they have. We built the thing we needed. We turned it into software so they can plug it in.
 
-That frame replaces the agency frame, the attribution frame, and the generic-SaaS frame. Per BRAND_DOCTRINE Section IX, the gap we exploit is the agency model's misaligned incentives, the platform-vendor's bundle lock-in, and the DIY operator's missing infrastructure. The frame is honest about who we are and who built it.
+That frame replaces the agency frame, the attribution frame, and the SaaS frame. Use it.
 
 ### Word list — use these
 
@@ -39,20 +46,11 @@ Fill units. Move-ins. Trade area. Gate. Lease-up. Operator. Facility. Plug it in
 
 ### Word list — do not use these in customer-facing copy
 
-**Generic-SaaS register (always wrong, per BRAND_DOCTRINE Section VIII):**
-Leverage. Solution. Stack. Synergy. Best-in-class. Cutting-edge. Empower. Unlock. Drive (as verb meaning "produce"). Optimize / optimization (as marketing prose).
+Demand engine. Full-funnel. Attribution. Cost-per-move-in (as a hero phrase). CAPI. Server-side. Click ID. Pixel. Lookalike. Funnel. Conversion event. ROAS. CPL. CPMI. Engagement. Impressions. Optimize. Leverage. Solution. Platform. Stack. Synergy. Best-in-class. Cutting-edge. Empower. Unlock. Drive.
 
-**Vanity metrics treated as success (always wrong, per BRAND_DOCTRINE attribution doctrine):**
-Engagement. Impressions (as headline value). Clicks (as headline value). CPL / CPMI / ROAS (as hero acronyms).
+Acceptable in deep product pages or docs (not hero, not landing, not email): cost per move-in, attribution, dashboard, ad platforms.
 
-**Pitch-register words that don't belong in customer marketing:**
-Full-funnel. CAPI. Server-side. Click ID. Pixel (as marketing prose). Lookalike (as marketing prose). Funnel. Conversion event. Architectural commitment. Bounded novelty.
-
-**Context-dependent — OK as section/component names or in deep product surfaces, NOT in hero prose / meta descriptions / sales hero claims:**
-Demand engine. Attribution. Cost per move-in. Dashboard. Platform.
-
-**Generally bad in any register (per BRAND_DOCTRINE):**
-Revolutionize. Game-changer. Paradigm shift. "Unlock the power of." "Don't miss out." "Act now" without substance. Emoji-heavy "Hey there!" forced casualness.
+Never anywhere customer-facing: demand engine, full-funnel attribution, server-side, CAPI.
 
 ### Sentence rules
 
@@ -64,7 +62,6 @@ Revolutionize. Game-changer. Paradigm shift. "Unlock the power of." "Don't miss 
 - No semicolons in headlines or CTAs.
 - No em-dashes in CTAs.
 - Contractions are fine. We're, you're, don't, can't.
-- Per BRAND_DOCTRINE Section II (Anthropic-meets-literary-magazine aesthetic): generous whitespace, typographic confidence, every word earns its place. Decoration absent; ornamentation replaced by precision.
 
 ### Right vs wrong
 
@@ -86,18 +83,10 @@ RIGHT: "The REITs have a marketing team. Now you do too."
 
 ### The competitor we're displacing
 
-Per BRAND_DOCTRINE Section IX, the competitive landscape we differentiate against has specific named comparators (StoragePug, G5, Storable's marketing modules, generalist attribution platforms, aggregators like SpareFoot). For *customer-facing copy*, the most useful frame is still the operator's **inaction** — most of our prospects are paying nobody right now and feeling slightly bad about it. Copy should land on "you already knew this, here's the easy way" — never on "let us explain marketing to you."
-
-The specific named comparators (StoragePug, G5, etc.) appear in comparison pages and deep product surfaces, where they belong. In hero copy, the comparator is inaction.
+Not StoragePug. Not G5. Not Storable's marketing modules. The competitor is the operator's **inaction**. Most of our prospects are paying nobody right now and feeling slightly bad about it. Copy should land on "you already knew this, here's the easy way" — never on "let us explain marketing to you."
 
 ### When in doubt
 
-The two tests:
+Ask: would Nick Huber tweet this? Would Michael Wagner say this on a podcast? If the answer is no, rewrite it.
 
-1. **Would the strategist BRAND_DOCTRINE describes write this?** A brilliant strategist who explains complex things simply, confident but not arrogant, allergic to vanity metrics, witty in the Porsche tradition when the moment allows.
-
-2. **Would it land with the operator we're writing to?** The 35–65-year-old facility owner who's been pitched by agencies and didn't like it. Nick Huber would tweet this. Michael Wagner would say this on a podcast.
-
-Both tests must pass. Strategist-without-operator-fluency reads as generic SaaS. Operator-without-strategist-discipline reads as folksy filler. The voice is the intersection.
-
-The whitepaper is for engineers and acquirers. The customer site is for the operator who just got off the phone with a tenant about a gate code. Write for the latter, in the register of the former.
+The whitepaper is for engineers and acquirers. The website is for the guy who just got off the phone with a tenant about a gate code. Write for him.
