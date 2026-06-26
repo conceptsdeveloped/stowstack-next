@@ -14,6 +14,7 @@ import {
 } from "./facility-overview/marketing-plan-section"
 import { MarketingPlanDisplay } from "./facility-overview/marketing-plan-display"
 import type { FacilityProp, MarketingPlan } from "./facility-overview/types"
+import { authHeaders } from "@/lib/facility-auth"
 
 // ---------------------------------------------------------------------------
 // Main Component
@@ -62,7 +63,7 @@ export default function FacilityOverview({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Key": adminKey,
+          ...authHeaders(adminKey),
         },
         body: JSON.stringify({
           facilityId: facility.id,

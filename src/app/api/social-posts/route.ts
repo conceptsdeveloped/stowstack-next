@@ -6,7 +6,7 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
-  requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "social-posts");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
+  const authErr = await requireFacilityAccess(req);
   if (authErr) return authErr;
 
   const url = new URL(req.url);
@@ -67,8 +67,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "social-posts");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   let body: Record<string, unknown>;
   try {
@@ -76,6 +74,12 @@ export async function POST(req: NextRequest) {
   } catch {
     return errorResponse("Invalid JSON body", 400, origin);
   }
+
+  const authErr = await requireFacilityAccess(
+    req,
+    typeof body.facilityId === "string" ? body.facilityId : undefined
+  );
+  if (authErr) return authErr;
 
   const {
     facilityId,
@@ -137,8 +141,6 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "social-posts");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   let body: Record<string, unknown>;
   try {
@@ -162,6 +164,14 @@ export async function PATCH(req: NextRequest) {
   if (!id) {
     return errorResponse("id required", 400, origin);
   }
+
+  const existingPost = await db.social_posts.findUnique({
+    where: { id },
+    select: { facility_id: true },
+  });
+  if (!existingPost) return errorResponse("Post not found", 404, origin);
+  const authErr = await requireFacilityAccess(req, existingPost.facility_id);
+  if (authErr) return authErr;
 
   const sets: Prisma.Sql[] = [];
 
@@ -214,14 +224,20 @@ export async function DELETE(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "social-posts");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
   if (!id) {
     return errorResponse("id required", 400, origin);
   }
+
+  const existingPost = await db.social_posts.findUnique({
+    where: { id },
+    select: { facility_id: true },
+  });
+  if (!existingPost) return errorResponse("Post not found", 404, origin);
+  const authErr = await requireFacilityAccess(req, existingPost.facility_id);
+  if (authErr) return authErr;
 
   try {
     await db.$executeRaw`DELETE FROM social_posts WHERE id = ${id}::uuid`;

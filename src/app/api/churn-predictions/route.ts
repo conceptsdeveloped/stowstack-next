@@ -6,7 +6,7 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
-  isAdminRequest,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -37,12 +37,13 @@ export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
-  if (!isAdminRequest(request))
-    return errorResponse("Unauthorized", 401, origin);
 
   const facilityId = request.nextUrl.searchParams.get("facilityId");
   const riskLevel = request.nextUrl.searchParams.get("riskLevel");
   const resource = request.nextUrl.searchParams.get("resource");
+
+  const denied = await requireFacilityAccess(request, facilityId);
+  if (denied) return denied;
 
   try {
     if (resource === "campaigns") {
@@ -119,8 +120,6 @@ export async function POST(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
-  if (!isAdminRequest(request))
-    return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await request.json();
@@ -130,6 +129,9 @@ export async function POST(request: NextRequest) {
       const { facility_id, name, trigger_risk_level, sequence_steps } = body;
       if (!name || !sequence_steps)
         return errorResponse("name and sequence_steps required", 400, origin);
+
+      const createDenied = await requireFacilityAccess(request, facility_id);
+      if (createDenied) return createDenied;
 
       const rows = await db.$queryRaw<Record<string, unknown>[]>`
         INSERT INTO retention_campaigns (facility_id, name, trigger_risk_level, sequence_steps)
@@ -143,6 +145,14 @@ export async function POST(request: NextRequest) {
       const { campaign_id } = body;
       if (!campaign_id)
         return errorResponse("campaign_id required", 400, origin);
+
+      const existingCampaign = await db.retention_campaigns.findUnique({
+        where: { id: campaign_id },
+        select: { facility_id: true },
+      });
+      if (!existingCampaign) return errorResponse("Not found", 404, origin);
+      const enrollDenied = await requireFacilityAccess(request, existingCampaign.facility_id);
+      if (enrollDenied) return enrollDenied;
 
       const campaignRows = await db.$queryRaw<
         Record<string, unknown>[]
@@ -182,6 +192,8 @@ export async function POST(request: NextRequest) {
 
     // Run churn scoring
     const { facilityId } = body;
+    const scoreDenied = await requireFacilityAccess(request, facilityId);
+    if (scoreDenied) return scoreDenied;
     const result = await scoreActiveTenants(db, {
       facilityId: facilityId || undefined,
     });
@@ -202,8 +214,6 @@ export async function PATCH(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
-  if (!isAdminRequest(request))
-    return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await request.json();
@@ -216,6 +226,17 @@ export async function PATCH(request: NextRequest) {
     } = body;
 
     if (Array.isArray(ids) && ids.length > 0) {
+      const idPredictions = await db.churn_predictions.findMany({
+        where: { id: { in: ids } },
+        select: { facility_id: true },
+      });
+      if (idPredictions.length === 0) return errorResponse("Not found", 404, origin);
+      const idFacilityIds = [...new Set(idPredictions.map((p) => p.facility_id))];
+      for (const fid of idFacilityIds) {
+        const batchDenied = await requireFacilityAccess(request, fid);
+        if (batchDenied) return batchDenied;
+      }
+
       if (action === "batch_enroll" && campaign_id) {
         await db.$executeRaw`
           UPDATE churn_predictions SET retention_campaign_id = ${campaign_id}::uuid, retention_status = 'enrolled'
@@ -253,6 +274,24 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (!id) return errorResponse("id or ids required", 400, origin);
+
+    if (action === "toggle_campaign" || action === "update_campaign") {
+      const existingCampaign = await db.retention_campaigns.findUnique({
+        where: { id },
+        select: { facility_id: true },
+      });
+      if (!existingCampaign) return errorResponse("Not found", 404, origin);
+      const campaignDenied = await requireFacilityAccess(request, existingCampaign.facility_id);
+      if (campaignDenied) return campaignDenied;
+    } else {
+      const existingPrediction = await db.churn_predictions.findUnique({
+        where: { id },
+        select: { facility_id: true },
+      });
+      if (!existingPrediction) return errorResponse("Not found", 404, origin);
+      const predictionDenied = await requireFacilityAccess(request, existingPrediction.facility_id);
+      if (predictionDenied) return predictionDenied;
+    }
 
     if (action === "toggle_campaign") {
       const rows = await db.$queryRaw<Record<string, unknown>[]>`
@@ -295,13 +334,19 @@ export async function DELETE(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
-  if (!isAdminRequest(request))
-    return errorResponse("Unauthorized", 401, origin);
 
   const id = request.nextUrl.searchParams.get("id");
   if (!id) return errorResponse("id required", 400, origin);
 
   try {
+    const existing = await db.retention_campaigns.findUnique({
+      where: { id },
+      select: { facility_id: true },
+    });
+    if (!existing) return errorResponse("Not found", 404, origin);
+    const denied = await requireFacilityAccess(request, existing.facility_id);
+    if (denied) return denied;
+
     await db.$executeRaw`
       UPDATE churn_predictions SET retention_campaign_id = NULL WHERE retention_campaign_id = ${id}::uuid
     `;

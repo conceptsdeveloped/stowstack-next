@@ -17,13 +17,13 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const cspDirectives = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://connect.facebook.net https://cdnjs.cloudflare.com https://*.clerk.accounts.dev https://cal.com https://*.cal.com`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://connect.facebook.net https://cdnjs.cloudflare.com https://*.clerk.accounts.dev`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https://*.stripe.com https://*.googleapis.com https://*.gstatic.com https://img.clerk.com https://*.fal.media https://*.vercel-storage.com",
   "media-src 'self' blob: https://*.fal.media https://*.vercel-storage.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://api.stripe.com https://*.sentry.io https://*.upstash.io https://*.clerk.com https://*.clerk.accounts.dev https://*.facebook.com https://*.fal.media https://*.fal.run https://cal.com https://*.cal.com",
-  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://cal.com https://*.cal.com",
+  "connect-src 'self' https://api.stripe.com https://*.sentry.io https://*.upstash.io https://*.clerk.com https://*.clerk.accounts.dev https://*.facebook.com https://*.fal.media https://*.fal.run",
+  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
@@ -69,6 +69,7 @@ const isPublicRoute = createRouteMatcher([
   "/portal(.*)",
   "/partner(.*)",
   "/admin(.*)",
+  "/manage(.*)",
 ]);
 
 // Detect whether Clerk keys are production keys (pk_live_) vs dev/test keys (pk_test_)
@@ -77,7 +78,7 @@ const clerkSecretKey = process.env.CLERK_SECRET_KEY ?? "";
 const hasClerkKeys = !!clerkPubKey && !!clerkSecretKey;
 const isClerkProdKeys = clerkPubKey.startsWith("pk_live_");
 
-export function isCsrfExempt(req: NextRequest): boolean {
+function isCsrfExempt(req: NextRequest): boolean {
   const path = req.nextUrl.pathname;
   if (path.startsWith("/api/webhooks/")) return true;
   if (path.startsWith("/api/stripe-webhook")) return true;
@@ -90,13 +91,16 @@ export function isCsrfExempt(req: NextRequest): boolean {
   if (path === "/api/consumer-lead") return true;
   if (path === "/api/diagnostic-intake") return true;
   if (path === "/api/facility-lookup") return true;
-  // Portal login: both run pre-auth (no session/token yet), so they can't
-  // ride the header exemptions below. Abuse is bounded by per-route rate limits.
-  if (path === "/api/resend-access-code") return true;
-  if (path === "/api/client-data") return true;
+  // Owner /manage entry points — unauthenticated until they mint a session.
+  // Protected by Origin allowlist (verifyCsrfOrigin) inside each route.
+  if (path === "/api/manage/unlock") return true;
+  if (path === "/api/manage/scratch") return true;
   if (req.headers.get("x-admin-key")) return true;
   if (req.headers.get("authorization")?.startsWith("Bearer ")) return true;
   if (req.headers.get("x-org-token")) return true;
+  // Owner /manage tools carry a facility-scoped token here (same model as the
+  // admin key / org token above). The token itself authorizes the request.
+  if (req.headers.get("x-manage-token")) return true;
   return false;
 }
 
