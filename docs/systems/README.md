@@ -28,11 +28,20 @@ Visual study guides for the critical systems in this codebase. Each document is 
 | [11](11-security-compliance.md) | **Security & Compliance** | The layered defenses + GDPR/data-deletion | Headers, CSRF, rate limiting, hashed tokens, deletion lifecycle. CSP is report-only; rate limiting is fail-open by default. |
 | [12](12-gbp-external-api.md) | **GBP & External API + Webhooks** | The Google listing loop + the partner-facing API | GBP connect→sync→AI-draft→safety-gate→publish. V1 scoped keys, tenant isolation, HMAC webhooks that auto-disable after 10 failures. |
 
-### Meta
+### Intelligence & growth systems
+
+| # | System | What it answers | Why it's critical |
+|---|--------|-----------------|-------------------|
+| [14](14-operator-os-ai.md) | **Operator-OS AI Substrate** | How campaign data evolves the AI's strategy and stays brand-safe | The product's namesake. Synthesis → versioned doctrine → voice-shaped generation → safety gate, then the loop closes. |
+| [15](15-ad-creative-pipeline.md) | **Ad & Creative Pipeline** *(Angelo's domain — read-only)* | How a funnel becomes published ads with tracked spend | Funnel owns the graph; AI generates copy (Anthropic) + image/video (FAL); published PAUSED; spend attributed back to creative. |
+| [16](16-referrals-revshare.md) | **Referrals & Revenue Share** | The two referral economies | Customer referrals are fully wired ($99 + bonuses); partner rev-share is schema+UI only (not wired). |
+
+### Meta & reference
 
 | # | Doc | What it is |
 |---|-----|-----------|
 | [13](13-gaps-and-seams.md) | **Gaps & Seams** | A candid inventory of where the code's *intent* diverges from its *wired reality* — scaffolds, namespace mismatches, timers with no driver, fail-soft defaults. Read this before assuming a system does what its names imply. |
+| [17](17-glossary-reference.md) | **Glossary & Quick Reference** | The single Cmd-F lookup: domain vocabulary, every `String` status lifecycle (no enums), the two plan namespaces, auth credentials, the 22-cron inventory, and the lib-file map. |
 
 ## The mental model (one diagram for the whole product)
 

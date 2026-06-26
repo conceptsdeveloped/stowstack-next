@@ -161,7 +161,7 @@ flowchart LR
     META["Meta/Facebook<br/>signed_request"] --> CB["/api/data-deletion/meta-callback<br/>verify HMAC vs META_APP_SECRET"]
     CB --> RESOLVE["resolve user_id → platform_connections<br/>→ org → org_users email"]
     RESOLVE --> ROW["data_deletion_requests<br/>source=meta_callback"]
-    ROW --> RET["return {url, confirmation_code}<br/>→ /data-deletion?confirmation={id}"]
+    ROW --> RET["return (url, confirmation_code)<br/>→ /data-deletion?confirmation=id"]
 
     classDef c fill:#e8e6dc,stroke:#141413,color:#141413
     class META,CB,RESOLVE,ROW,RET c

@@ -27,6 +27,9 @@ mindmap
     Attribution
       🟡 visitor_id scaffold unwired
       🟡 walk-ins not auto-matched
+    Growth
+      🔴 partner rev-share not wired
+      🟡 revenue page fetches dead endpoint
     Compliance
       ⚪ fb_deletion_requests orphan
     Integrations
@@ -113,6 +116,18 @@ Despite the name, it's an admin-gated endpoint that ingests **pre-parsed JSON** 
 
 ---
 
+## Growth (referrals & rev-share)
+
+### 🔴 Partner rev-share is schema + UI only — no backend
+`rev_share_referrals` and `rev_share_payouts` are **read/written by no API route** (the only reference outside the schema is a cascade-delete comment in `cleanup-organizations`). No code computes a partner payout. A reseller's earnings exist only as client-side math on hardcoded tiers.
+→ [16 · Referrals & Rev-Share](16-referrals-revshare.md) §3
+
+### 🟡 The partner revenue page fetches a dead endpoint
+`/partner/revenue` calls `/api/referrals?type=payouts`, but the referrals route only branches on `action` (not `type`) and is admin-key gated — so the Referrals and Payout History tables always render empty. Tiers (`REV_SHARE_TIERS`) and per-facility MRR ($99) are hardcoded in the component, not read from `organizations.rev_share_pct`.
+→ [16 · Referrals & Rev-Share](16-referrals-revshare.md) §3
+
+---
+
 ## Summary table
 
 | Seam | Severity | System | The surprise |
@@ -127,6 +142,8 @@ Despite the name, it's an admin-gated endpoint that ingests **pre-parsed JSON** 
 | Escalation/move-out timers | 🟡 | Retention | Tenant-side sequences need an admin to advance |
 | `visitor_id` scaffold | 🟡 | Attribution | Real key is `session_id` |
 | Walk-ins unmatched | 🟡 | Attribution | Land in `activity_log` only |
+| Partner rev-share unwired | 🔴 | Growth | No route computes payouts |
+| Revenue page dead endpoint | 🟡 | Growth | `?type=payouts` has no handler |
 | `fb_deletion_requests` orphan | ⚪ | Compliance | Dead table |
 | `storedge-import` JSON-only | ⚪ | PMS | No live storEDGE sync |
 

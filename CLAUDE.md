@@ -52,6 +52,8 @@ npm run db:push      # prisma db push — schema → DB; manual, needs approval,
 
 ## Architecture
 
+> **System study maps:** [docs/systems/](docs/systems/README.md) holds 16 diagram-first deep dives (auth, data model, audit funnel, nurture, billing, PMS, retention, attribution, security, GBP/API, Operator-OS AI substrate, ad pipeline, referrals) plus a [Gaps & Seams](docs/systems/13-gaps-and-seams.md) inventory of where intent diverges from wired reality. Read the relevant map before deep work on a subsystem; the top-level overview is [docs/ARCHITECTURE_MAP.md](docs/ARCHITECTURE_MAP.md).
+
 **Stack:** Next.js 16 App Router, React 19, Prisma 5 (PostgreSQL/Neon), Tailwind CSS 4, Clerk (proxy only, see below), Stripe, Resend, Anthropic Claude API, Upstash Redis, Sentry (errors + route tagging), Vercel Blob (asset storage), recharts (admin charts), lucide-react (icons), Twilio (not wired yet), Vercel deployment.
 
 ### Authentication — Four Independent Systems

@@ -97,7 +97,7 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     DESK["/walkin/[code]<br/>front-desk kiosk form<br/>[code] = facility access_code"] --> POST["/api/walkin-attribution<br/>validate access_code"]
-    POST --> LOG["activity_log type=walkin_attribution<br/>{source, sawOnlineAd, tenantName, unitRented}"]
+    POST --> LOG["activity_log type=walkin_attribution<br/>(source, sawOnlineAd, tenantName, unitRented)"]
     LOG -.->|"⚠️ NOT auto-matched<br/>to partial_leads/tenants"| MANUAL["captured 'for matching later'"]
 
     classDef warn fill:#faf9f5,stroke:#B04A3A,color:#B04A3A

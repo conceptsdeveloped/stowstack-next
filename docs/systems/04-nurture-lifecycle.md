@@ -84,7 +84,7 @@ flowchart TD
     R --> RD["recovery / abandoned_form<br/>drip via process-recovery"]
 
     %% Cancellation
-    CANCEL["pipeline_status ∈<br/>{call_scheduled, client_signed, lost}"] -->|process-drips auto-cancels| STOP["drip status = cancelled<br/>activity_log: drip_cancelled"]
+    CANCEL["pipeline_status ∈<br/>(call_scheduled, client_signed, lost)"] -->|process-drips auto-cancels| STOP["drip status = cancelled<br/>activity_log: drip_cancelled"]
 
     classDef nur fill:#faf9f5,stroke:#788c5d,color:#141413
     classDef dri fill:#e8e6dc,stroke:#b0aea5,color:#6a6560
