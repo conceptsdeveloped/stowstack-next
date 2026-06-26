@@ -38,7 +38,7 @@ function VerifyEmailContent() {
       .catch(() => {
         if (cancelled) return;
         setState("error");
-        setErrorMessage("We couldn't verify your email. The link may have expired — try resending it.");
+        setErrorMessage("We couldn't verify your email. The link may have expired. Try resending it.");
       });
 
     return () => {

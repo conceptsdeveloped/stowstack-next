@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const author = getAuthor();
 
   return {
-    title: `${post.title} — StorageAds Blog`,
+    title: `${post.title} | StorageAds Blog`,
     description: post.description,
     keywords: post.tags,
     authors: author ? [{ name: author.name }] : undefined,

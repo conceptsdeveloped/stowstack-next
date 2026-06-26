@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal-layout";
 
 export const metadata: Metadata = {
-  title: "Data Processing Agreement — StorageAds",
+  title: "Data Processing Agreement | StorageAds",
   description: "StorageAds Data Processing Agreement for tenant data handling and compliance.",
 };
 
@@ -53,13 +53,13 @@ export default function DpaPage() {
         <h2>4. Sub-Processors</h2>
         <p>StorageAds uses the following sub-processors:</p>
         <ul>
-          <li><strong>Vercel</strong> — Application hosting (United States)</li>
-          <li><strong>Neon</strong> — Database hosting (United States)</li>
-          <li><strong>Upstash</strong> — Caching and rate limiting (United States)</li>
-          <li><strong>Resend</strong> — Transactional email delivery (United States)</li>
-          <li><strong>Stripe</strong> — Payment processing (United States)</li>
-          <li><strong>Meta Platforms</strong> — Advertising delivery via Conversions API</li>
-          <li><strong>Google</strong> — Advertising delivery via Google Ads API</li>
+          <li><strong>Vercel</strong>:Application hosting (United States)</li>
+          <li><strong>Neon</strong>:Database hosting (United States)</li>
+          <li><strong>Upstash</strong>:Caching and rate limiting (United States)</li>
+          <li><strong>Resend</strong>:Transactional email delivery (United States)</li>
+          <li><strong>Stripe</strong>:Payment processing (United States)</li>
+          <li><strong>Meta Platforms</strong>:Advertising delivery via Conversions API</li>
+          <li><strong>Google</strong>:Advertising delivery via Google Ads API</li>
         </ul>
       </section>
 

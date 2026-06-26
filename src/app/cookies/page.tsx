@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal-layout";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy — StorageAds",
-  description: "StorageAds Cookie Policy — what cookies we use and why.",
+  title: "Cookie Policy | StorageAds",
+  description: "StorageAds Cookie Policy: what cookies we use and why.",
 };
 
 export default function CookiePolicyPage() {
@@ -27,9 +27,9 @@ export default function CookiePolicyPage() {
           security tokens, and basic functionality. Cannot be disabled.
         </p>
         <ul>
-          <li><strong>Session cookie</strong> — maintains your login state</li>
-          <li><strong>CSRF token</strong> — prevents cross-site request forgery</li>
-          <li><strong>Preference cookies</strong> — stores timezone, sidebar state</li>
+          <li><strong>Session cookie</strong>:maintains your login state</li>
+          <li><strong>CSRF token</strong>:prevents cross-site request forgery</li>
+          <li><strong>Preference cookies</strong>:stores timezone, sidebar state</li>
         </ul>
 
         <h3>Analytics Cookies</h3>
@@ -59,10 +59,10 @@ export default function CookiePolicyPage() {
         <h2>3. Third-Party Cookies</h2>
         <p>We use cookies from the following third-party services:</p>
         <ul>
-          <li><strong>Clerk</strong> — Authentication (session management)</li>
-          <li><strong>Stripe</strong> — Payment processing (fraud prevention)</li>
-          <li><strong>Meta Pixel</strong> — On landing pages only, for ad conversion tracking</li>
-          <li><strong>Google Ads</strong> — On landing pages only, for conversion tracking</li>
+          <li><strong>Clerk</strong>:Authentication (session management)</li>
+          <li><strong>Stripe</strong>:Payment processing (fraud prevention)</li>
+          <li><strong>Meta Pixel</strong>:On landing pages only, for ad conversion tracking</li>
+          <li><strong>Google Ads</strong>:On landing pages only, for conversion tracking</li>
         </ul>
       </section>
 
