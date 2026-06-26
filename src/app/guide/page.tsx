@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: "Client Guide",
   description:
-    "How to use your StorageAds portal — your dashboard, your campaign data, and how to act on what you see.",
+    "How to use your StorageAds portal: your dashboard, your campaign data, and how to act on what you see.",
 };
 
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
@@ -126,7 +126,7 @@ const faqs = [
   },
   {
     q: "Can I change my campaign budget?",
-    a: "Yes — send a message through the portal or call your account team. They'll adjust your ad spend and update your projected metrics.",
+    a: "Yes. Send a message through the portal or call your account team. They'll adjust your ad spend and update your projected metrics.",
   },
   {
     q: 'What counts as a "lead"?',
@@ -295,7 +295,7 @@ export default function GuidePage() {
                   },
                   {
                     label: "Latest ROAS",
-                    desc: "Your return on ad spend — how many dollars you earn per dollar spent on ads",
+                    desc: "Your return on ad spend: how many dollars you earn per dollar spent on ads",
                   },
                 ].map((k) => (
                   <div
@@ -377,7 +377,7 @@ export default function GuidePage() {
                 {
                   n: 2,
                   title: "Target Demographics",
-                  desc: "Who your ideal tenants are — age range, location radius, and income level",
+                  desc: "Who your ideal tenants are: age range, location radius, and income level",
                 },
                 {
                   n: 3,
