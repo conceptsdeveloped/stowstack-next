@@ -4,11 +4,11 @@ import { DiagnosticForm } from "./diagnostic-form";
 export const metadata: Metadata = {
   title: "Free Facility Diagnostic — StorageAds",
   description:
-    "A free diagnostic of your self-storage facility, scored across 8 categories: occupancy, marketing, digital presence, and revenue management. Free and confidential.",
+    "A full diagnostic of your self-storage facility. Occupancy, marketing, digital presence, revenue. Free, confidential, in your inbox in minutes.",
   openGraph: {
     title: "Free Facility Diagnostic — StorageAds",
     description:
-      "A free diagnostic of your self-storage facility, scored across 8 categories. Free and confidential.",
+      "A full diagnostic of your self-storage facility. Free and confidential.",
     type: "website",
   },
 };

@@ -340,7 +340,7 @@ export async function PATCH(req: NextRequest) {
                   <p style="margin: 0; color: #16a34a; font-weight: 600;">${esc(stepLabel)}</p>
                 </div>
                 <p style="color: #666; margin: 0 0 20px;">Log in to your portal to see the full progress: <a href="https://storageads.com/portal" style="color: #16a34a;">storageads.com/portal</a></p>
-                <p style="color: #999; font-size: 12px; margin-top: 24px;">StorageAds by StorageAds.com</p>
+                <p style="color: #999; font-size: 12px; margin-top: 24px;">StorageAds &middot; storageads.com</p>
               </div>`,
           }),
         }).catch((err) => console.error("[email] Fire-and-forget failed:", err));

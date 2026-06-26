@@ -156,7 +156,7 @@ export default function DemoDashboardClient() {
               </div>
             </div>
           </div>
-          <Link href="/diagnostic" className="hidden sm:flex items-center gap-2 text-sm font-semibold px-4 py-2 transition-colors" style={{ background: "var(--accent)", color: "var(--text-inverse)" }}>
+          <Link href="/#cta" className="hidden sm:flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg transition-colors" style={{ background: "var(--accent)", color: "var(--text-inverse)" }}>
             Get this for your facility <ChevronRight size={14} />
           </Link>
         </div>
@@ -209,7 +209,7 @@ export default function DemoDashboardClient() {
           <KpiCard icon={DollarSign} label="Total Ad Spend" value={totalSpend} prefix="$" change={`Month ${activeMonth + 1}`} />
           <KpiCard icon={Users} label="Total Leads" value={totalLeads} change={`${current.leads} this month`} />
           <KpiCard icon={Target} label="Total Move-Ins" value={totalMoveIns} change={`${current.moveIns} this month`} isAccent />
-          <KpiCard icon={TrendingUp} label="Current Return" value={current.roas} suffix="x" change={current.roas >= 3 ? "Strong" : "Building"} isAccent />
+          <KpiCard icon={TrendingUp} label="Current ROAS" value={current.roas} suffix="x" change={current.roas >= 3 ? "Strong" : "Building"} isAccent />
         </div>
 
         {/* Charts */}
@@ -250,13 +250,13 @@ export default function DemoDashboardClient() {
                 -${(visibleData[0].cpl - visibleData[visibleData.length - 1].cpl).toFixed(0)} reduction
               </span>
             </div>
-            <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>Cost per lead drops as the system learns which renters actually rent</p>
+            <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>Cost per lead drops as the system learns who actually moves in</p>
             <ResponsiveChart mobileHeight={180} desktopHeight={220}>
               <BarChart data={visibleData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                 <YAxis tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} width={40} />
-                <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, "Cost/Lead"]} contentStyle={{ background: "var(--color-light-gray)", border: "1px solid var(--border-medium)", fontSize: "12px", color: "var(--color-dark)" }} />
+                <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, "CPL"]} contentStyle={{ borderRadius: "8px", background: "var(--color-light-gray)", border: "1px solid var(--border-medium)", fontSize: "12px", color: "var(--color-dark)" }} />
                 <Bar dataKey="cpl" radius={[6, 6, 0, 0]} maxBarSize={40}>
                   {visibleData.map((_, i) => (
                     <Cell key={i} fill={i === visibleData.length - 1 ? "var(--color-gold)" : "var(--color-mid-gray)"} opacity={0.4 + (i / visibleData.length) * 0.6} />
@@ -292,7 +292,7 @@ export default function DemoDashboardClient() {
         <div className="rounded-lg p-5 sm:p-6 mb-6" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-subtle)" }}>
           <div className="flex items-center gap-2 mb-4">
             <Zap size={18} style={{ color: "var(--accent)" }} />
-            <h3 className="font-semibold">What's working — {current.month}</h3>
+            <h3 className="font-semibold">Campaign intelligence — {current.month}</h3>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
@@ -359,7 +359,7 @@ export default function DemoDashboardClient() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ background: "var(--bg-surface)" }}>
-                    {["Unit Type", "Rate", "Vacant", "Filled", "Monthly Rev"].map((h) => (
+                    {["Unit Type", "Rate", "Vacant", "Filled", "MRR"].map((h) => (
                       <th key={h} className="px-4 py-3 font-medium text-xs uppercase text-left" style={{ color: "var(--text-tertiary)", letterSpacing: "var(--tracking-wide)" }}>{h}</th>
                     ))}
                   </tr>
@@ -394,7 +394,7 @@ export default function DemoDashboardClient() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ background: "var(--bg-surface)" }}>
-                  {["Month", "Ad Spend", "Leads", "Cost/Lead", "Move-Ins", "Cost/MI", "Return", "Occupancy"].map((h) => (
+                  {["Month", "Ad Spend", "Leads", "CPL", "Move-Ins", "Cost/Move-In", "ROAS", "Occupancy"].map((h) => (
                     <th key={h} className="px-4 py-3 font-medium text-xs uppercase text-right first:text-left" style={{ color: "var(--text-tertiary)", letterSpacing: "var(--tracking-wide)" }}>{h}</th>
                   ))}
                 </tr>
@@ -436,8 +436,8 @@ export default function DemoDashboardClient() {
           <p className="max-w-lg mx-auto mb-6 text-sm" style={{ color: "var(--text-secondary)" }}>
             Every facility is different. Our free audit analyzes your specific market, unit mix, and competition to project what campaigns could deliver for you.
           </p>
-          <Link href="/diagnostic" className="btn-primary inline-flex items-center gap-2">
-            Get your free facility audit <ArrowUpRight size={16} />
+          <Link href="/#cta" className="btn-primary inline-flex items-center gap-2">
+            Get a Free Facility Audit <ArrowUpRight size={16} />
           </Link>
         </div>
 

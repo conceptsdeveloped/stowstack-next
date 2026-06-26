@@ -1,253 +1,116 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Check, Minus } from "lucide-react";
-import PricingCalculator from "@/components/marketing/pricing-calculator";
-import { CAL_BOOKING_URL } from "@/lib/booking";
+import { ArrowLeft, Check } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Founding facility pricing for StorageAds. One bill per facility per month. Ads, landing pages, site, and the dashboard. From $299/mo + $1,000 ad spend.",
+    "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
   openGraph: {
-    title: "Pricing | StorageAds",
-    description:
-      "Founding facility pricing for StorageAds. One bill per facility per month. From $299/mo + $1,000 ad spend.",
+    title: "Pricing — StorageAds",
+    description: "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
     url: "https://storageads.com/pricing",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pricing | StorageAds",
-    description:
-      "Founding facility pricing for StorageAds. One bill per facility per month. From $299/mo + $1,000 ad spend.",
+    title: "Pricing — StorageAds",
+    description: "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
   },
 };
 
-type Tier = {
-  name: string;
-  price: string;
-  priceNote: string;
-  tagline: string;
-  description: string;
-  features: string[];
-  notIncluded?: string[];
-  bestFor: string;
-  isRecommended?: boolean;
-  badge?: string;
-  cta: string;
-};
-
-const tiers: Tier[] = [
+const demandEnginePlans = [
   {
-    name: "Signal",
-    price: "$299",
-    priceNote: "/mo per facility",
-    tagline: "The cheapest way to find out if paid ads work at your facility.",
-    description: "One channel. Two landing pages. The basics, running.",
+    name: "Launch",
+    price: "$750",
+    period: "/mo per facility",
+    description:
+      "For operators ready to start filling units with paid ads.",
     features: [
-      "Meta or Google (pick one)",
-      "2 ad-specific landing pages",
-      "Static creative, 4 variations / month",
-      "Monthly performance report",
-      "Move-in tracking dashboard",
-      "Email support",
-    ],
-    notIncluded: [
-      "Custom facility website",
-      "Video creative",
-      "Retargeting",
-      "Tuning calls",
+      "Meta ad campaigns (Facebook + Instagram)",
+      "2 ad-specific landing pages with embedded storEDGE rental flow",
+      "Static creative and ad copy",
+      "Monthly performance report with cost-per-move-in data",
     ],
     bestFor:
-      "Solo operators who want to test the channel before committing to the full system. Month-to-month.",
-    cta: "Start with Signal",
+      "Single-facility operators testing paid ads for the first time.",
+    isRecommended: false,
   },
   {
-    name: "System",
-    price: "$749",
-    priceNote: "/mo per facility",
-    tagline: "The full thing. One bill. Everything connected.",
+    name: "Growth",
+    price: "$1,500",
+    period: "/mo per facility",
     description:
-      "Meta + Google + retargeting. Custom site with the storEDGE rental flow built in. Five landing pages tuned to the campaign. Bi-weekly calls to read the numbers and turn the dials.",
+      "The full system. This is where compounding kicks in.",
     features: [
-      "Meta + Google + retargeting (all three)",
-      "Custom facility website with storEDGE embed",
-      "5 ad-specific landing pages",
-      "Video + static creative",
-      "A/B testing on ads and pages",
-      "Bi-weekly tuning calls",
-      "Weekly dashboard with channel breakdown",
-      "Slack + email support",
+      "Meta ad campaigns (Facebook + Instagram)",
+      "Google PPC campaigns (search + display)",
+      "5 ad-specific landing pages with embedded storEDGE rental flow",
+      "Retargeting campaigns for abandoned visitors",
+      "A/B testing on creative and landing pages",
+      "Video creative production",
+      "Full attribution dashboard: cost per reservation, cost per move-in, ROAS by creative",
+      "Bi-weekly optimization calls",
     ],
     bestFor:
-      "Independent operators with one to four facilities who want the full system without hiring an agency.",
+      "Operators who want every dollar tracked to a move-in and a dedicated team optimizing campaigns every two weeks.",
     isRecommended: true,
-    badge: "Most operators pick this",
-    cta: "Start with System",
   },
   {
-    name: "Compound",
-    price: "$1,249",
-    priceNote: "/mo per facility",
-    tagline: "For facilities where every move-in is worth $2,400 or more.",
+    name: "Portfolio",
+    price: "Custom",
+    period: " pricing (5+ facilities)",
     description:
-      "Everything in System, plus a named strategist running the account. Audience sync, churn predictions, Google Business Profile, priority creative. The full machine.",
+      "Everything in Growth, scaled across your portfolio.",
     features: [
-      "Everything in System",
-      "Dedicated strategist (named contact)",
-      "10 ad-specific landing pages",
-      "Priority creative queue, 4 videos / month",
-      "Audience sync (Meta + Google)",
-      "Churn prediction from your FMS uploads",
-      "Google Business Profile management",
-      "Weekly tuning calls",
-      "Quarterly business review",
-      "Phone support",
+      "Unlimited landing pages across all facilities",
+      "Cross-facility budget allocation and optimization",
+      "Portfolio-level attribution and reporting",
+      "Dedicated strategist",
+      "Volume discount: 20-35% off per-facility rates",
     ],
     bestFor:
-      "Climate-controlled, urban, or high-rent facilities where one extra move-in pays for the tier in a single month.",
-    cta: "Start with Compound",
+      "Multi-facility operators who want centralized campaign management with facility-level reporting.",
+    isRecommended: false,
   },
 ];
 
-const competitors = [
+const conversionPlans = [
   {
-    name: "SpareFoot",
-    type: "Lead aggregator",
-    cost: "2× first month's rent, per move-in",
-    math: "On a $150/mo unit, $300 every time someone moves in. Forever. At 10 move-ins/mo that's $36,000/yr in commissions, paid before your second month's rent shows up.",
-    gotcha:
-      "Those aren't your tenants. They're SpareFoot's. They get the email, the brand impression, and the relationship. You get the rental on day one and nothing else.",
+    name: "Single Site",
+    price: "$3,000 build + $199/mo",
+    features: [
+      "Custom designed and branded to your facility",
+      "Embedded storEDGE rental flow: customers reserve without leaving your site",
+      "Mobile-optimized and speed-optimized",
+      "Trust elements and social proof built in",
+    ],
+    bestFor:
+      "Operators whose current website is a default template or a page they haven't touched in years.",
   },
   {
-    name: "Adverank",
-    type: "Google Ads automation",
-    cost: "$199–499 / mo per facility",
-    math: "One channel: Google search. No Meta. No retargeting. No landing pages. No video. No website. No human to call when something's off.",
-    gotcha:
-      "The price tag is the pitch. The product is a third of one channel running on autopilot.",
+    name: "Site + Landing Pages",
+    price: "$5,000 build + $299/mo",
+    tag: "best value",
+    features: [
+      "Everything in Single Site, plus:",
+      "5 ad-specific landing pages built for campaign traffic",
+      "Per-page tracking setup",
+      "A/B testing framework",
+      "Ongoing conversion rate optimization",
+    ],
+    bestFor:
+      "Operators planning to run paid ads (now or soon) who want the landing page infrastructure ready from day one.",
   },
   {
-    name: "G5 / full-service agencies",
-    type: "Outsourced marketing retainer",
-    cost: "$1,500–4,500 / mo + 15–20% markup on ad spend",
-    math: "On $2,000/mo ad spend at 18% markup, $360/mo siphoned to overhead. That's $4,320 a year you paid to no one, for nothing.",
-    gotcha:
-      "The ad accounts, campaigns, landing pages, and creative are in their names, not yours. When the contract ends, you start from zero.",
-  },
-  {
-    name: "Doing it yourself",
-    type: "You + your phone",
-    cost: "8–15 hours / week of your time",
-    math: "If your time is worth $75/hr, that's $2,400–4,500/mo in opportunity cost, before any ad spend. And the campaigns are almost certainly underperforming what a team running 50 facilities can do.",
-    gotcha:
-      "Every lease-up day you didn't catch, because you were boosting a Facebook post instead of running the gate.",
-  },
-];
-
-const comparisonRows: { label: string; values: [string, string, string, string, string] }[] = [
-  {
-    label: "Meta ads (Facebook + Instagram)",
-    values: ["✓", "—", "—", "✓", "DIY"],
-  },
-  {
-    label: "Google ads",
-    values: ["✓", "—", "✓", "✓", "DIY"],
-  },
-  {
-    label: "Retargeting",
-    values: ["✓", "—", "—", "✓", "—"],
-  },
-  {
-    label: "Video creative",
-    values: ["✓", "—", "—", "Add-on", "DIY"],
-  },
-  {
-    label: "Custom facility website",
-    values: ["✓", "—", "—", "✓", "DIY"],
-  },
-  {
-    label: "storEDGE rental flow embedded",
-    values: ["✓", "—", "—", "—", "—"],
-  },
-  {
-    label: "5+ ad-specific landing pages",
-    values: ["✓", "—", "—", "✓", "—"],
-  },
-  {
-    label: "Move-in dashboard",
-    values: ["✓", "—", "Partial", "Partial", "—"],
-  },
-  {
-    label: "Markup on ad spend",
-    values: ["None", "2× first rent", "None", "15–20%", "None"],
-  },
-  {
-    label: "You own the leads & assets",
-    values: ["✓", "✗", "✓", "✗", "✓"],
-  },
-  {
-    label: "Contract length",
-    values: ["Month-to-month", "Pay-per-lead", "Annual", "12–24 mo", "—"],
-  },
-  {
-    label: "All-in / mo (1 facility)",
-    values: ["$1,749", "$3,000 at 10 moves", "$199–499", "$3,000+", "$0 + 30–60 hrs"],
-  },
-];
-
-const enterpriseFeatures = [
-  "Everything in Compound, run across the portfolio",
-  "White-label option: runs under your brand",
-  "Cross-facility budget allocation",
-  "Multi-tenant admin dashboard",
-  "API access for PMS, BI, custom integrations",
-  "Dedicated team: strategist + ops + creative lead",
-  "Portfolio-level reporting and quarterly executive review",
-  "Volume pricing: $599/facility at 10–24, $499 at 25–49, $449 at 50+",
-];
-
-const notInTheBill = [
-  {
-    item: "Ad spend",
-    detail:
-      "Paid directly to Meta and Google. $1,000/mo minimum per facility. We don't mark it up. You see what you spent.",
-  },
-  {
-    item: "Phone tracking",
-    detail:
-      "Twilio call tracking is built in. Numbers billed at cost (a few dollars per month per facility).",
-  },
-  {
-    item: "Stock photos and AI images",
-    detail:
-      "We don't use either. Real photos from your facility, or we shoot what we need.",
-  },
-];
-
-const faqs = [
-  {
-    q: "Why is there a minimum ad spend?",
-    a: "Because below $1,000/mo, paid ads can't gather enough data to tune. You'd pay us to run a campaign that can't improve. The floor isn't a margin grab. It's the line below which the channel doesn't work.",
-  },
-  {
-    q: "Do I have to commit?",
-    a: "Signal and Compound are month-to-month. System is six months because the site build is included. If you leave before then, we keep the site fee. After month six, you're month-to-month like everyone else.",
-  },
-  {
-    q: "What if it doesn't work?",
-    a: "If your move-in count hasn't moved in the right direction by the end of month three, month four is on us. No invoice. No fine print. We eat it.",
-  },
-  {
-    q: "Will the price stay this low?",
-    a: "Not forever. These are founding facility prices and they roughly double once we're out of alpha. If you sign in alpha, your price is locked for twelve months.",
-  },
-  {
-    q: "What about management companies?",
-    a: "There's a separate tier for portfolios of ten or more facilities, with white-label options and a dedicated team. Email blake@storageads.com or book a call below.",
-  },
-  {
-    q: "Can I just buy the website?",
-    a: "No. The site exists because it's part of the system: the ads send traffic to it, the rental flow lives on it, and the dashboard reads from it. Selling it alone would defeat the point.",
+    name: "Portfolio Build",
+    price: "Custom pricing (3+ facilities)",
+    features: [
+      "Everything in Site + Landing Pages, scaled across multiple facilities",
+      "Shared brand system with per-facility customization",
+      "Centralized management dashboard",
+      "Volume pricing: 25-40% off per-facility rates",
+    ],
+    bestFor: "",
   },
 ];
 
@@ -257,6 +120,7 @@ export default function PricingPage() {
       className="min-h-screen"
       style={{ background: "var(--color-light)", color: "var(--color-dark)" }}
     >
+      {/* Nav */}
       <header
         className="sticky top-0 z-[100] border-b"
         style={{
@@ -269,36 +133,17 @@ export default function PricingPage() {
             href="/"
             className="p-2 -ml-2 transition-colors"
             style={{ color: "var(--text-tertiary)" }}
-            aria-label="Back to home"
           >
             <ArrowLeft size={20} />
           </Link>
-          <span
-            style={{
-              fontFamily: "var(--font-heading)",
-              fontWeight: 600,
-              letterSpacing: "-0.5px",
-            }}
-          >
-            <span style={{ color: "var(--color-dark)" }}>storage</span>
-            <span style={{ color: "var(--brand-gold)" }}>ads</span>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 600, letterSpacing: "-0.5px" }}>
+            <span style={{ color: "var(--color-dark)" }}>storage</span><span style={{ color: "var(--color-gold)" }}>ads</span>
           </span>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="max-w-3xl mx-auto px-6 pt-24 pb-12 text-center">
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-6 uppercase"
-          style={{
-            background: "var(--color-light-gray)",
-            color: "var(--color-dark)",
-            border: "1px solid var(--border-subtle)",
-            letterSpacing: "var(--tracking-wide)",
-          }}
-        >
-          Founding facility pricing
-        </div>
+      {/* Intro */}
+      <section className="max-w-3xl mx-auto px-6 pt-24 pb-16 text-center">
         <h1
           className="font-semibold mb-6"
           style={{
@@ -307,604 +152,399 @@ export default function PricingPage() {
             letterSpacing: "var(--tracking-tight)",
           }}
         >
-          One bill per facility. One number to read.
+          Before you look at the price, look at the math.
         </h1>
-        <p
-          className="mx-auto mb-4"
+        <div
+          className="mx-auto space-y-4"
           style={{
-            maxWidth: "640px",
-            color: "var(--color-dark)",
-            fontSize: "var(--text-body)",
-            lineHeight: "var(--leading-normal)",
-            fontWeight: 500,
-          }}
-        >
-          Half the price of an agency. Everything the cheap tools leave out.
-          The whole system, in one bill.
-        </p>
-        <p
-          className="mx-auto"
-          style={{
-            maxWidth: "620px",
+            maxWidth: "680px",
             color: "var(--text-secondary)",
             fontSize: "var(--text-body)",
             lineHeight: "var(--leading-normal)",
           }}
         >
-          A move-in is worth about $1,800 over a year. The system costs less
-          than two of those a month. Everything past that goes in your pocket.
-        </p>
-      </section>
-
-      {/* Founding facility frame */}
-      <section className="max-w-3xl mx-auto px-6 pb-16">
-        <div
-          className="rounded-xl p-6 grid gap-6 md:grid-cols-3 text-sm"
-          style={{
-            background: "var(--color-light-gray)",
-            border: "1px solid var(--border-subtle)",
-          }}
-        >
-          <div>
-            <p
-              className="text-xs uppercase mb-2 font-semibold"
-              style={{
-                color: "var(--text-tertiary)",
-                letterSpacing: "var(--tracking-wide)",
-              }}
-            >
-              Locked for 12 months
-            </p>
-            <p style={{ color: "var(--text-secondary)" }}>
-              Sign in alpha, your price is locked for a year. Even when we
-              double the list price.
-            </p>
-          </div>
-          <div>
-            <p
-              className="text-xs uppercase mb-2 font-semibold"
-              style={{
-                color: "var(--text-tertiary)",
-                letterSpacing: "var(--tracking-wide)",
-              }}
-            >
-              Month-three guarantee
-            </p>
-            <p style={{ color: "var(--text-secondary)" }}>
-              If your move-in count hasn&apos;t moved by month three, month four
-              is on us. No invoice. No fine print.
-            </p>
-          </div>
-          <div>
-            <p
-              className="text-xs uppercase mb-2 font-semibold"
-              style={{
-                color: "var(--text-tertiary)",
-                letterSpacing: "var(--tracking-wide)",
-              }}
-            >
-              Direct line
-            </p>
-            <p style={{ color: "var(--text-secondary)" }}>
-              You work with Blake and the team. No account-management layer
-              between you and the people doing the work.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Tier cards */}
-      <section className="py-12">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            {tiers.map((tier) => (
-              <div
-                key={tier.name}
-                className="rounded-xl p-6 flex flex-col relative"
-                style={{
-                  background: tier.isRecommended
-                    ? "var(--color-dark)"
-                    : "var(--color-light)",
-                  color: tier.isRecommended
-                    ? "var(--color-light)"
-                    : "var(--color-dark)",
-                  border: tier.isRecommended
-                    ? "1px solid var(--color-dark)"
-                    : "1px solid var(--border-subtle)",
-                }}
-              >
-                {tier.badge && (
-                  <span
-                    className="absolute -top-3 left-6 text-xs font-semibold uppercase px-3 py-1 rounded-full"
-                    style={{
-                      background: "var(--color-light)",
-                      color: "var(--color-dark)",
-                      letterSpacing: "var(--tracking-wide)",
-                      border: "1px solid var(--color-dark)",
-                    }}
-                  >
-                    {tier.badge}
-                  </span>
-                )}
-                <h3 className="text-xl font-semibold mb-1">{tier.name}</h3>
-                <p
-                  className="text-sm mb-4"
-                  style={{
-                    color: tier.isRecommended
-                      ? "rgba(250,249,245,0.7)"
-                      : "var(--text-secondary)",
-                  }}
-                >
-                  {tier.tagline}
-                </p>
-                <div className="mb-1">
-                  <span
-                    className="text-3xl font-semibold"
-                    style={{ fontVariantNumeric: "tabular-nums" }}
-                  >
-                    {tier.price}
-                  </span>
-                  <span
-                    className="text-sm ml-1"
-                    style={{
-                      color: tier.isRecommended
-                        ? "rgba(250,249,245,0.6)"
-                        : "var(--text-tertiary)",
-                    }}
-                  >
-                    {tier.priceNote}
-                  </span>
-                </div>
-                <p
-                  className="text-xs mb-5"
-                  style={{
-                    color: tier.isRecommended
-                      ? "rgba(250,249,245,0.6)"
-                      : "var(--text-tertiary)",
-                  }}
-                >
-                  + $1,000/mo ad spend minimum
-                </p>
-
-                <p
-                  className="text-sm mb-5"
-                  style={{
-                    color: tier.isRecommended
-                      ? "rgba(250,249,245,0.85)"
-                      : "var(--text-secondary)",
-                    lineHeight: "var(--leading-normal)",
-                  }}
-                >
-                  {tier.description}
-                </p>
-
-                <ul className="space-y-2.5 mb-5 flex-1">
-                  {tier.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex gap-2 text-sm"
-                      style={{
-                        color: tier.isRecommended
-                          ? "rgba(250,249,245,0.9)"
-                          : "var(--text-secondary)",
-                      }}
-                    >
-                      <Check
-                        size={16}
-                        className="flex-shrink-0 mt-0.5"
-                        style={{
-                          color: tier.isRecommended
-                            ? "var(--color-light)"
-                            : "var(--color-dark)",
-                        }}
-                      />
-                      {feature}
-                    </li>
-                  ))}
-                  {tier.notIncluded?.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex gap-2 text-sm"
-                      style={{
-                        color: tier.isRecommended
-                          ? "rgba(250,249,245,0.5)"
-                          : "var(--text-tertiary)",
-                      }}
-                    >
-                      <Minus
-                        size={16}
-                        className="flex-shrink-0 mt-0.5"
-                        style={{
-                          color: tier.isRecommended
-                            ? "rgba(250,249,245,0.5)"
-                            : "var(--text-tertiary)",
-                        }}
-                      />
-                      <span style={{ textDecoration: "line-through" }}>
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <p
-                  className="text-xs pt-4 mb-5 border-t"
-                  style={{
-                    color: tier.isRecommended
-                      ? "rgba(250,249,245,0.7)"
-                      : "var(--text-secondary)",
-                    borderColor: tier.isRecommended
-                      ? "rgba(250,249,245,0.2)"
-                      : "var(--border-subtle)",
-                  }}
-                >
-                  <span
-                    style={{
-                      color: tier.isRecommended
-                        ? "rgba(250,249,245,0.5)"
-                        : "var(--text-tertiary)",
-                    }}
-                  >
-                    Best for:{" "}
-                  </span>
-                  {tier.bestFor}
-                </p>
-
-                <Link
-                  href="#cta"
-                  className="text-center text-sm font-medium rounded-md py-3 px-4 transition-colors"
-                  style={{
-                    background: tier.isRecommended
-                      ? "var(--color-light)"
-                      : "var(--color-dark)",
-                    color: tier.isRecommended
-                      ? "var(--color-dark)"
-                      : "var(--color-light)",
-                  }}
-                >
-                  {tier.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          <p
-            className="text-xs text-center mt-8"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            All prices per facility per month. Ad spend ($1,000/mo minimum)
-            paid directly to Meta and Google. Not marked up.
+          <p>
+            A single move-in at a typical self-storage facility generates
+            $100-150 per month in recurring revenue. The average tenant stays 12
+            months. That&apos;s $1,200-1,800 in lifetime value from one move-in.
+          </p>
+          <p>
+            If StorageAds produces 5 additional move-ins in a month, that&apos;s
+            $6,000-9,000 in annualized revenue. If it produces 10, that&apos;s
+            $12,000-18,000.
+          </p>
+          <p style={{ color: "var(--text-primary)", fontWeight: 500 }}>
+            Now look at the price.
           </p>
         </div>
       </section>
 
-      {/* Calculator */}
-      <PricingCalculator />
-
-      {/* Competition. Named. */}
-      <section className="py-20" style={{ background: "var(--color-light)" }}>
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <p
-              className="text-xs uppercase mb-3 font-semibold"
+      {/* Demand Engine */}
+      <section
+        className="py-20"
+        style={{ background: "var(--color-light)" }}
+      >
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-4">
+            <span
+              className="text-xs font-semibold uppercase"
               style={{
-                color: "var(--text-tertiary)",
+                color: "var(--accent)",
                 letterSpacing: "var(--tracking-wide)",
               }}
             >
-              The competition. Named.
-            </p>
-            <h2
-              className="font-semibold mb-4"
-              style={{
-                fontSize: "var(--text-section-head)",
-                lineHeight: "var(--leading-tight)",
-                letterSpacing: "var(--tracking-tight)",
-              }}
-            >
-              Half the price of the agency. Everything the cheap tools leave out.
-            </h2>
-            <p
-              className="mx-auto"
-              style={{
-                color: "var(--text-secondary)",
-                fontSize: "var(--text-body)",
-                maxWidth: "620px",
-              }}
-            >
-              Most independent operators are already paying for one of these.
-              Sometimes two. Here&apos;s what each one actually sells, and
-              what it leaves out.
-            </p>
+              Product A
+            </span>
           </div>
-
-          <div className="space-y-4">
-            {competitors.map((c) => (
-              <div
-                key={c.name}
-                className="rounded-xl p-6 md:p-8 grid gap-6 md:grid-cols-[200px_1fr]"
-                style={{ border: "1px solid var(--border-subtle)" }}
-              >
-                <div>
-                  <h3
-                    className="font-semibold mb-1"
-                    style={{ color: "var(--color-dark)", fontSize: "1.125rem" }}
-                  >
-                    {c.name}
-                  </h3>
-                  <p
-                    className="text-xs"
-                    style={{ color: "var(--text-tertiary)" }}
-                  >
-                    {c.type}
-                  </p>
-                  <p
-                    className="text-sm font-semibold mt-3"
-                    style={{
-                      color: "var(--color-dark)",
-                      fontVariantNumeric: "tabular-nums",
-                    }}
-                  >
-                    {c.cost}
-                  </p>
-                </div>
-                <div className="space-y-3 text-sm">
-                  <p style={{ color: "var(--text-secondary)", lineHeight: "var(--leading-normal)" }}>
-                    <span style={{ color: "var(--color-dark)", fontWeight: 600 }}>
-                      The math:
-                    </span>{" "}
-                    {c.math}
-                  </p>
-                  <p style={{ color: "var(--text-secondary)", lineHeight: "var(--leading-normal)" }}>
-                    <span style={{ color: "var(--color-dark)", fontWeight: 600 }}>
-                      What they don&apos;t tell you:
-                    </span>{" "}
-                    {c.gotcha}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            <div
-              className="rounded-xl p-6 md:p-8 grid gap-6 md:grid-cols-[200px_1fr]"
-              style={{
-                background: "var(--color-dark)",
-                color: "var(--color-light)",
-              }}
-            >
-              <div>
-                <h3
-                  className="font-semibold mb-1"
-                  style={{ fontSize: "1.125rem" }}
-                >
-                  StorageAds
-                </h3>
-                <p className="text-xs" style={{ opacity: 0.6 }}>
-                  Every column above, in one bill
-                </p>
-                <p
-                  className="text-sm font-semibold mt-3"
-                  style={{ fontVariantNumeric: "tabular-nums" }}
-                >
-                  $749/mo + $1,000 ad spend
-                </p>
-              </div>
-              <div className="space-y-3 text-sm" style={{ opacity: 0.9 }}>
-                <p style={{ lineHeight: "var(--leading-normal)" }}>
-                  <span style={{ fontWeight: 600 }}>The math:</span> Meta + Google + retargeting + custom site + 5 landing pages + video + the dashboard. At 10 move-ins/mo on a $150 unit, your effective cost is{" "}
-                  <strong>$175 per move-in</strong>, and you keep every month&apos;s rent, including the first.
-                </p>
-                <p style={{ lineHeight: "var(--leading-normal)" }}>
-                  <span style={{ fontWeight: 600 }}>What we&apos;ll tell you:</span> Your ad accounts are in your name. The site is yours. The creative is yours. When the contract ends, you keep the keys.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Comparison table */}
-      <section className="py-16" style={{ background: "var(--color-light)" }}>
-        <div className="max-w-6xl mx-auto px-6">
           <h2
-            className="font-semibold mb-3 text-center"
+            className="font-semibold mb-2"
             style={{
               fontSize: "var(--text-subhead)",
               lineHeight: "var(--leading-snug)",
             }}
           >
-            Side by side.
+            Paid Media
           </h2>
           <p
-            className="mb-10 text-center mx-auto"
+            className="mb-4"
             style={{
               color: "var(--text-secondary)",
               fontSize: "var(--text-body)",
-              maxWidth: "520px",
+              maxWidth: "680px",
             }}
           >
-            Same checklist, six options. Scroll the table if you&apos;re on
-            your phone. It&apos;s a lot of columns because we do a lot of
-            things.
+            We create, manage, and optimize paid ad campaigns. Every campaign
+            maps to its own landing page.
+          </p>
+          <p
+            className="mb-12"
+            style={{
+              color: "var(--text-tertiary)",
+              fontSize: "var(--text-small)",
+            }}
+          >
+            Monthly retainer. Ad spend paid directly to Meta/Google: separate
+            from StorageAds fees.
           </p>
 
-          <div
-            className="overflow-x-auto rounded-xl"
-            style={{ border: "1px solid var(--border-subtle)" }}
-          >
-            <table className="w-full text-sm" style={{ minWidth: "1040px" }}>
-              <thead>
-                <tr
-                  style={{
-                    background: "var(--color-light-gray)",
-                    borderBottom: "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <th
-                    className="text-left p-4 font-semibold"
+          <div className="grid gap-6 md:grid-cols-3">
+            {demandEnginePlans.map((plan) => (
+              <div
+                key={plan.name}
+                className="rounded-lg p-6 flex flex-col relative"
+                style={{
+                  background: "var(--color-light)",
+                  border: plan.isRecommended
+                    ? "1px solid var(--accent)"
+                    : "1px solid var(--border-subtle)",
+                }}
+              >
+                {plan.isRecommended && (
+                  <span
+                    className="absolute -top-3 left-6 text-xs font-semibold uppercase px-3 py-1 rounded-full"
+                    style={{
+                      background: "var(--accent)",
+                      color: "var(--text-inverse)",
+                      letterSpacing: "var(--tracking-wide)",
+                    }}
+                  >
+                    recommended
+                  </span>
+                )}
+                <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
+                <div className="mb-3">
+                  <span
+                    className="text-2xl font-semibold"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    {plan.price}
+                  </span>
+                  <span
+                    className="text-sm"
                     style={{ color: "var(--text-tertiary)" }}
                   >
-                    What you get
-                  </th>
-                  <th
-                    className="p-4 font-semibold"
+                    {plan.period}
+                  </span>
+                </div>
+                <p
+                  className="text-sm mb-6"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {plan.description}
+                </p>
+                <ul className="space-y-3 mb-6 flex-1">
+                  {plan.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex gap-2 text-sm"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <Check
+                        size={16}
+                        className="flex-shrink-0 mt-0.5"
+                        style={{ color: "var(--accent)" }}
+                      />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                {plan.bestFor && (
+                  <p
+                    className="text-xs mt-auto pt-4 border-t"
                     style={{
-                      background: "var(--color-dark)",
-                      color: "var(--color-light)",
+                      color: "var(--text-tertiary)",
+                      borderColor: "var(--border-subtle)",
                     }}
                   >
-                    StorageAds
-                  </th>
-                  <th
-                    className="p-4 font-semibold text-center"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    SpareFoot
-                  </th>
-                  <th
-                    className="p-4 font-semibold text-center"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    Adverank
-                  </th>
-                  <th
-                    className="p-4 font-semibold text-center"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    G5 / agency
-                  </th>
-                  <th
-                    className="p-4 font-semibold text-center"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    DIY
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row, i) => (
-                  <tr
-                    key={row.label}
-                    style={{
-                      borderBottom:
-                        i === comparisonRows.length - 1
-                          ? "none"
-                          : "1px solid var(--border-subtle)",
-                    }}
-                  >
-                    <td
-                      className="p-4 font-medium"
-                      style={{ color: "var(--color-dark)" }}
-                    >
-                      {row.label}
-                    </td>
-                    <td
-                      className="p-4 text-center"
-                      style={{
-                        background: "rgba(20,20,19,0.04)",
-                        color: "var(--color-dark)",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.values[0]}
-                    </td>
-                    {row.values.slice(1).map((v, j) => (
-                      <td
-                        key={j}
-                        className="p-4 text-center"
-                        style={{
-                          color:
-                            v === "—" || v === "✗"
-                              ? "var(--text-tertiary)"
-                              : "var(--text-secondary)",
-                        }}
-                      >
-                        {v}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      Best for:{" "}
+                    </span>
+                    {plan.bestFor}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
-
-          <p
-            className="text-xs text-center mt-4"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            Competitor pricing reflects typical published rates for
-            independent operators. Your mileage may vary. Call them and ask.
-          </p>
         </div>
       </section>
 
-      {/* Enterprise */}
+      {/* Conversion Layer */}
       <section className="py-20" style={{ background: "var(--color-light)" }}>
-        <div className="max-w-4xl mx-auto px-6">
-          <div
-            className="rounded-2xl p-8 md:p-12"
-            style={{
-              background: "var(--color-light-gray)",
-              border: "1px solid var(--border-subtle)",
-            }}
-          >
-            <p
-              className="text-xs uppercase mb-3 font-semibold"
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-4">
+            <span
+              className="text-xs font-semibold uppercase"
               style={{
-                color: "var(--text-tertiary)",
+                color: "var(--accent)",
                 letterSpacing: "var(--tracking-wide)",
               }}
             >
-              Enterprise · 10+ facilities
-            </p>
-            <h2
-              className="font-semibold mb-4"
-              style={{
-                fontSize: "var(--text-subhead)",
-                lineHeight: "var(--leading-snug)",
-              }}
-            >
-              Managing a portfolio? You need a different conversation.
-            </h2>
-            <p
-              className="mb-8"
-              style={{
-                color: "var(--text-secondary)",
-                fontSize: "var(--text-body)",
-                maxWidth: "640px",
-              }}
-            >
-              Management companies don&apos;t want three SKUs and a credit card
-              form. They want one team, one login, one bill, and the option to
-              run it under their own brand. That&apos;s Enterprise.
-            </p>
-            <ul className="grid gap-3 md:grid-cols-2 mb-8">
-              {enterpriseFeatures.map((feature) => (
-                <li
-                  key={feature}
-                  className="flex gap-2 text-sm"
-                  style={{ color: "var(--text-secondary)" }}
+              Product B
+            </span>
+          </div>
+          <h2
+            className="font-semibold mb-2"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            Conversion Layer (Custom Website + storEDGE Embed)
+          </h2>
+          <p
+            className="mb-4"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "var(--text-body)",
+              maxWidth: "680px",
+            }}
+          >
+            A branded facility website with embedded reservation and move-in
+            functionality. Sold standalone or bundled with the Demand Engine.
+          </p>
+          <p
+            className="mb-12"
+            style={{
+              color: "var(--text-tertiary)",
+              fontSize: "var(--text-small)",
+            }}
+          >
+            One-time build fee + monthly hosting and management.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {conversionPlans.map((plan) => (
+              <div
+                key={plan.name}
+                className="rounded-lg p-6 flex flex-col relative"
+                style={{
+                  background: "var(--color-light)",
+                  border:
+                    plan.tag
+                      ? "1px solid var(--accent)"
+                      : "1px solid var(--border-subtle)",
+                }}
+              >
+                {plan.tag && (
+                  <span
+                    className="absolute -top-3 left-6 text-xs font-semibold uppercase px-3 py-1 rounded-full"
+                    style={{
+                      background: "var(--accent)",
+                      color: "var(--text-inverse)",
+                      letterSpacing: "var(--tracking-wide)",
+                    }}
+                  >
+                    {plan.tag}
+                  </span>
+                )}
+                <h3 className="text-lg font-semibold mb-3">{plan.name}</h3>
+                <div
+                  className="mb-6 text-sm font-semibold"
+                  style={{ fontFamily: "var(--font-mono)" }}
                 >
-                  <Check
-                    size={16}
-                    className="flex-shrink-0 mt-0.5"
-                    style={{ color: "var(--color-dark)" }}
-                  />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="#cta"
-              className="btn-primary inline-flex items-center justify-center"
-            >
-              Talk to us about the portfolio
-            </Link>
+                  {plan.price}
+                </div>
+                <ul className="space-y-3 mb-6 flex-1">
+                  {plan.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex gap-2 text-sm"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <Check
+                        size={16}
+                        className="flex-shrink-0 mt-0.5"
+                        style={{ color: "var(--accent)" }}
+                      />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                {plan.bestFor && (
+                  <p
+                    className="text-xs mt-auto pt-4 border-t"
+                    style={{
+                      color: "var(--text-tertiary)",
+                      borderColor: "var(--border-subtle)",
+                    }}
+                  >
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      Best for:{" "}
+                    </span>
+                    {plan.bestFor}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* What's not in the bill */}
+      {/* Bundle */}
+      <section className="py-20" style={{ background: "var(--color-light)" }}>
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <h2
+            className="font-semibold mb-2"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            The Bundle: One System, One Bill
+          </h2>
+          <p
+            className="mb-8"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "var(--text-body)",
+            }}
+          >
+            One system. The ad, the page, the rental flow, the reporting. All
+            connected.
+          </p>
+          <div
+            className="rounded-lg p-8 text-left space-y-4"
+            style={{
+              background: "var(--color-light)",
+              border: "1px solid var(--border-subtle)",
+            }}
+          >
+            <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-body)" }}>
+              Commit to 6 months of Growth and the site build drops from $5,000
+              to $2,500. That&apos;s a $2,500 discount that locks in your full
+              acquisition system from day one.
+            </p>
+            <ul className="space-y-2 text-sm" style={{ color: "var(--text-secondary)" }}>
+              <li className="flex gap-2">
+                <Check size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
+                <span><strong style={{ color: "var(--text-primary)" }}>One-time build:</strong> $2,500-4,000 (waived or discounted with 6-month Growth commitment)</span>
+              </li>
+              <li className="flex gap-2">
+                <Check size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
+                <span><strong style={{ color: "var(--text-primary)" }}>Monthly retainer:</strong> $1,500-2,000/mo per facility</span>
+              </li>
+              <li className="flex gap-2">
+                <Check size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
+                <span><strong style={{ color: "var(--text-primary)" }}>Optional performance bonus:</strong> $X per move-in above your target baseline</span>
+              </li>
+            </ul>
+            <p className="pt-4" style={{ color: "var(--text-secondary)", fontSize: "var(--text-body)" }}>
+              You&apos;re paying one company for a website and another for ads.
+              Neither one can tell you which ad produced a move-in. With
+              StorageAds, it&apos;s one system: the ad, the page, the rental flow,
+              and the reporting. All connected.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison */}
+      <section className="py-20" style={{ background: "var(--color-light)" }}>
+        <div className="max-w-3xl mx-auto px-6">
+          <h2
+            className="font-semibold mb-8 text-center"
+            style={{
+              fontSize: "var(--text-subhead)",
+              lineHeight: "var(--leading-snug)",
+            }}
+          >
+            What you&apos;re actually paying for
+          </h2>
+          <div className="space-y-6">
+            {[
+              {
+                price: "$299-899/mo on an SEO shop",
+                copy: "You get a nice website and a promise that organic traffic will build in 3-6 months. No paid traffic. No embedded rental flow. No attribution. No idea which page produced a move-in.",
+              },
+              {
+                price: "$149-399/mo on a Google-only tool",
+                copy: 'You get automated Google ads that send clicks to your default rental page. No custom landing pages. No Meta ads. No way to tell which click filled a unit. They chase clicks, not leases.',
+              },
+              {
+                price: "$750-1,500/mo on StorageAds",
+                copy: "You get Meta ads + Google PPC + retargeting driving traffic to ad-specific landing pages with embedded storEDGE rental flow. Every move-in traced to the ad that produced it. A/B testing based on revenue. Cost per move-in drops every month.",
+                isHighlighted: true,
+              },
+            ].map((item) => (
+              <div
+                key={item.price}
+                className="rounded-lg p-6"
+                style={{
+                  background: item.isHighlighted
+                    ? "rgba(181,139,63,0.06)"
+                    : "transparent",
+                  border: item.isHighlighted
+                    ? "1px solid var(--color-gold)"
+                    : "1px solid var(--border-subtle)",
+                }}
+              >
+                <h3
+                  className="text-sm font-semibold uppercase mb-3"
+                  style={{
+                    color: item.isHighlighted
+                      ? "var(--accent)"
+                      : "var(--text-tertiary)",
+                    letterSpacing: "var(--tracking-wide)",
+                  }}
+                >
+                  {item.price}
+                </h3>
+                <p
+                  className="text-sm"
+                  style={{
+                    color: "var(--text-secondary)",
+                    lineHeight: "var(--leading-normal)",
+                  }}
+                >
+                  {item.copy}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SpareFoot Comparison */}
       <section className="py-20" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6">
           <h2
@@ -914,93 +554,89 @@ export default function PricingPage() {
               lineHeight: "var(--leading-snug)",
             }}
           >
-            What&apos;s not in the bill.
+            The SpareFoot math
           </h2>
           <p
             className="mb-10 text-center mx-auto"
             style={{
               color: "var(--text-secondary)",
               fontSize: "var(--text-body)",
-              maxWidth: "560px",
+              maxWidth: "580px",
             }}
           >
-            Three things sit outside the monthly number. We separate them so
-            you see exactly what goes where.
+            Most operators are already paying for marketing through aggregator
+            commissions. Here&apos;s what that actually costs.
           </p>
-          <div className="space-y-4">
-            {notInTheBill.map((item) => (
-              <div
-                key={item.item}
-                className="rounded-xl p-5"
-                style={{ border: "1px solid var(--border-subtle)" }}
-              >
-                <h3
-                  className="font-semibold mb-1"
-                  style={{ color: "var(--color-dark)" }}
-                >
-                  {item.item}
-                </h3>
-                <p
-                  className="text-sm"
-                  style={{
-                    color: "var(--text-secondary)",
-                    lineHeight: "var(--leading-normal)",
-                  }}
-                >
-                  {item.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* FAQ */}
-      <section className="py-20" style={{ background: "var(--color-light)" }}>
-        <div className="max-w-3xl mx-auto px-6">
-          <h2
-            className="font-semibold mb-10 text-center"
-            style={{
-              fontSize: "var(--text-subhead)",
-              lineHeight: "var(--leading-snug)",
-            }}
-          >
-            Questions operators actually ask.
-          </h2>
-          <div className="space-y-6">
-            {faqs.map((faq) => (
-              <div
-                key={faq.q}
-                className="rounded-xl p-6"
-                style={{ border: "1px solid var(--border-subtle)" }}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* SpareFoot */}
+            <div
+              className="rounded-lg p-6"
+              style={{ border: "1px solid var(--border-subtle)" }}
+            >
+              <h3
+                className="text-sm font-semibold uppercase mb-4"
+                style={{
+                  color: "var(--text-tertiary)",
+                  letterSpacing: "var(--tracking-wide)",
+                }}
               >
-                <h3
-                  className="font-semibold mb-2"
-                  style={{ color: "var(--color-dark)" }}
-                >
-                  {faq.q}
-                </h3>
-                <p
-                  className="text-sm"
-                  style={{
-                    color: "var(--text-secondary)",
-                    lineHeight: "var(--leading-normal)",
-                  }}
-                >
-                  {faq.a}
+                SpareFoot / Aggregator
+              </h3>
+              <div className="space-y-3 text-sm" style={{ color: "var(--text-secondary)" }}>
+                <p>
+                  Standard commission: <strong style={{ color: "var(--text-primary)" }}>2x first month&apos;s rent</strong>
+                </p>
+                <p>
+                  On a $130/month unit: <strong style={{ color: "var(--text-primary)" }}>$260 per move-in</strong>
+                </p>
+                <p>
+                  Two full months of rent gone before the tenant unpacks.
+                </p>
+                <p>
+                  Typical range across unit sizes: <strong style={{ color: "var(--text-primary)" }}>$130-390 per move-in</strong>
                 </p>
               </div>
-            ))}
+            </div>
+
+            {/* StorageAds */}
+            <div
+              className="rounded-lg p-6"
+              style={{
+                background: "rgba(181,139,63,0.06)",
+                border: "1px solid var(--color-gold)",
+              }}
+            >
+              <h3
+                className="text-sm font-semibold uppercase mb-4"
+                style={{
+                  color: "var(--accent)",
+                  letterSpacing: "var(--tracking-wide)",
+                }}
+              >
+                StorageAds
+              </h3>
+              <div className="space-y-3 text-sm" style={{ color: "var(--text-secondary)" }}>
+                <p>
+                  Monthly retainer: <strong style={{ color: "var(--text-primary)" }}>$750-1,500</strong>
+                </p>
+                <p>
+                  Target cost per move-in via Meta: <strong style={{ color: "var(--text-primary)" }}>$30-80</strong>
+                </p>
+                <p>
+                  Break even at just <strong style={{ color: "var(--accent)" }}>3-5 move-ins per month</strong>
+                </p>
+                <p>
+                  Every move-in after that is pure upside: you keep your first month&apos;s rent.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section
-        id="cta"
-        className="py-24"
-        style={{ background: "var(--color-light)" }}
-      >
+      <section className="py-24" style={{ background: "var(--color-light)" }}>
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2
             className="font-semibold mb-4"
@@ -1009,7 +645,7 @@ export default function PricingPage() {
               lineHeight: "var(--leading-snug)",
             }}
           >
-            Let&apos;s talk about your facility.
+            Let&apos;s talk about your facilities.
           </h2>
           <p
             className="mb-8 mx-auto"
@@ -1019,27 +655,16 @@ export default function PricingPage() {
               maxWidth: "520px",
             }}
           >
-            Book 30 minutes. We&apos;ll pull up your facility, run the audit
-            tool live, and tell you what we&apos;d do if it were ours.
+            This isn&apos;t a self-serve checkout. StorageAds is built for operators
+            who want a real conversation about their vacancy, their market, and
+            what the full system would look like at their facilities.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href={CAL_BOOKING_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/#cta"
               className="btn-primary inline-block text-center"
             >
-              Book a call
-            </a>
-            <Link
-              href="/audit-tool"
-              className="inline-block text-center px-6 py-3 rounded-md text-sm font-medium"
-              style={{
-                border: "1px solid var(--color-dark)",
-                color: "var(--color-dark)",
-              }}
-            >
-              Run the free audit first
+              Get a Free Facility Audit
             </Link>
           </div>
         </div>

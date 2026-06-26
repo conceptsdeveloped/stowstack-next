@@ -35,7 +35,6 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center gap-3">
           <Link
             href="/"
-            aria-label="Back to homepage"
             className="p-2 -ml-2 transition-colors"
             style={{ color: "var(--text-tertiary)" }}
           >
@@ -70,7 +69,8 @@ export default function AboutPage() {
             letterSpacing: "var(--tracking-tight)",
           }}
         >
-          Built by an operator. For operators.
+          Built by an operator.{" "}
+          <span style={{ color: "var(--color-gold)" }}>For operators.</span>
         </h1>
 
         <div
@@ -99,10 +99,10 @@ export default function AboutPage() {
           </p>
 
           <p>
-            Not a generic marketing tool. Not something built for e-commerce
-            and bolted onto storage. A system built specifically for the way
-            storage operators think about their business: move-ins, occupancy,
-            and revenue.
+            Not a generic marketing platform. Not something designed for
+            e-commerce and retrofitted for storage. A system built specifically
+            for the way storage operators think about their business:
+            move-ins, occupancy, and revenue.
           </p>
 
           {/* Divider */}
@@ -124,8 +124,8 @@ export default function AboutPage() {
           <p>
             The results changed how I run marketing entirely. I cut spend that
             looked good on paper but wasn&apos;t converting. I doubled down on
-            what actually worked. More units filled for less money. Every dollar
-            accounted for.
+            what actually worked. My cost per move-in dropped. My confidence in
+            every marketing dollar went up.
           </p>
 
           <p style={{ color: "var(--text-primary)", fontWeight: 500 }}>
@@ -163,8 +163,8 @@ export default function AboutPage() {
               fontFamily: "var(--font-heading)",
             }}
           >
-            This isn&apos;t a marketing agency. It&apos;s the system I built
-            for my own facilities. I sign the same checks you do.
+            This isn&apos;t a marketing agency. It&apos;s the system I needed,
+            built by someone who signs the same checks you do.
           </p>
 
           {/* Sign-off */}
@@ -182,17 +182,23 @@ export default function AboutPage() {
               className="text-sm"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Founder &amp; Operator, StorageAds
+              Founder, StorageAds.com
+            </p>
+            <p
+              className="text-sm"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              Storage operator &amp; founder
             </p>
           </div>
         </div>
 
         {/* CTA */}
         <div
-          className="mt-16 p-8 text-center"
+          className="mt-16 rounded-lg p-8 text-center"
           style={{
-            background: "var(--bg-alt)",
-            border: "1px solid var(--line)",
+            background: "rgba(181,139,63,0.06)",
+            border: "1px solid var(--color-gold)",
           }}
         >
           <p
@@ -211,7 +217,7 @@ export default function AboutPage() {
             Get a free diagnostic: no pitch deck, no commitment.
           </p>
           <Link href="/diagnostic" className="btn-primary inline-block">
-            Get your free facility audit
+            Get a Free Facility Audit
           </Link>
         </div>
       </article>

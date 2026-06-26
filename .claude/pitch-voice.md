@@ -1,10 +1,14 @@
 ## Pitch & Voice — Read Before Writing Anything Investor- or Acquirer-Facing
 
-**Register separation rule.** This register is for investors, acquirers (Storable corp dev specifically), technical due-diligence reviewers, partnership conversations (PMS vendors, REIT innovation teams, industry analysts), and the whitepaper. It is NEVER used in homepage copy, landing pages, in-app text, cold emails to operators, ad copy, or any surface where a storage operator will read it. If you are writing for an operator, use [.claude/copy-voice.md](.claude/copy-voice.md) instead. If you are unsure which register applies, ask before drafting.
+> **This is a tactical implementation of [BRAND_DOCTRINE.md](../BRAND_DOCTRINE.md) Section VIII, specifically the "Sales/pitch materials" tone row** ("Confident, evidence-backed, visionary. Show the gap between how it's done now and how we do it. Anthropic + Porsche — sophisticated confidence with proof."). Where this doc and BRAND_DOCTRINE conflict, BRAND_DOCTRINE wins.
+>
+> **Register separation rule.** This register is for investors, acquirers (Storable corp dev specifically), technical due-diligence reviewers, partnership conversations (PMS vendors, REIT innovation teams, industry analysts), and the whitepaper. It is NEVER used in homepage copy, landing pages, in-app text, cold emails to operators, ad copy, or any surface where a storage operator will read it. If you are writing for an operator, use [.claude/copy-voice.md](copy-voice.md) instead. If you are unsure which register applies, ask before drafting.
 
 ### Who we're writing to
 
 The reader is a sophisticated investor or acquirer evaluating StorageAds as a strategic asset. Vertical SaaS investors (Bessemer, Insight, Sageview). Storage-focused private equity. Storable corporate development. Technical due-diligence reviewers brought in by either side. Strategic partners — PMS vendors evaluating integration, REIT innovation teams scouting acquisitions or partnerships, industry analysts (Inside Self Storage, MJ Partners). They are not buying marketing services. They are evaluating defensibility, position, and trajectory. They expect category-level language and architectural claims, and they will discount unsupported assertion harder than an operator will.
+
+Per BRAND_DOCTRINE Section VIII's tone table, this audience reads us in the "Anthropic + Porsche" register: sophisticated confidence with proof. The strategist voice from copy-voice.md scales up here — same speaker, different audience, more weight per sentence.
 
 ### What they actually care about
 
@@ -22,15 +26,17 @@ What customers care about (filling units, not getting ripped off, closing the ga
 
 Self-storage paid acquisition has measured against the wrong event for the entire history of digital advertising in the vertical. Cost per lead is the optimization target every incumbent tool exposes, because the lead is the event the ad platform can see. Cost per move-in is the optimization target the operator actually pays in dollars, and it sits behind the PMS, invisible to the bidder. The architectural commitment that closes that gap is not optional and not small: PMS integration via webhook, server-side multi-platform conversion forwarding (Meta CAPI, Google Enhanced Conversions), and operator-knowledge encoding in defaults and prompts. That combination is uncommon in the vertical. That is what makes StorageAds a category, not a product.
 
+BRAND_DOCTRINE Section IV.B (the pre-qualification play) and Section IX (competitive positioning) ladder up to the same argument from the product/strategy side. This doc translates that argument into pitch register.
+
 ### Word list — use these
 
 Demand engine. Full-funnel attribution. Cost-per-move-in (CPMI). Unit of revenue. Server-side conversion forwarding. Meta CAPI. Google Enhanced Conversions. PMS-integrated. Operator-knowledge-encoded. Vertical SaaS. Architectural commitment. Bounded novelty. Addressable market. Defensibility. Moat. Click-to-move-in chain. Server-side multi-platform attribution. Operating outside the PMS. Vertical depth. Pattern analog (ServiceTitan in home services). Competitive analog (Storable). Category fit.
 
 ### Word list — do not use these
 
-Agency. Marketing service. Freelancer. Retainer. Plug-and-play (in pitch context it undersells the technical depth — say architectural commitment instead). "The REITs have a marketing team. Now you do too." (that line lives in customer copy). Folksy operator language — gate motors, midnight calls, sign on a chainlink fence — those are evidence the writer drifted into the wrong register. Anything that reads as small-business when the audience is evaluating a category.
+Agency. Marketing service. Freelancer. Retainer. Plug-and-play (in pitch context it undersells the technical depth — say "architectural commitment" instead). "The REITs have a marketing team. Now you do too." (that line lives in customer copy). Folksy operator language — gate motors, midnight calls, sign on a chainlink fence — those are evidence the writer drifted into the wrong register. Anything that reads as small-business when the audience is evaluating a category.
 
-Bad in any register: synergy, leverage, best-in-class, cutting-edge, disruptive, revolutionize, game-changer, paradigm shift.
+Bad in any register (per BRAND_DOCTRINE): synergy, leverage, best-in-class, cutting-edge, disruptive, revolutionize, game-changer, paradigm shift.
 
 ### Sentence rules
 
@@ -67,7 +73,7 @@ RIGHT: "The click-to-move-in chain is a 16-identifier pipeline spanning 12 seque
 
 ### The comparator we're displacing
 
-In customer voice the comparator is the operator's inaction. In pitch voice the comparator is the existing software landscape:
+In customer voice the comparator is the operator's inaction. In pitch voice the comparator is the existing software landscape (BRAND_DOCTRINE Section IX is the strategic anchor for this list):
 
 - **Storable's bundled marketing modules** — competitively closest, architecturally constrained by being inside the PMS, ties the marketing decision to the PMS decision.
 - **The agency model (StoragePug, G5, StorageRankers, local digital shops)** — billable-hour economics, infrastructure ownership flows to the vendor, no compounding software asset.
@@ -78,7 +84,7 @@ StorageAds sits at the intersection none of them occupy: vertical-specific + out
 
 ### The bounded novelty claim
 
-The defensible claim, lifted verbatim from the whitepaper's comparative analysis (§8.6 of `analysis/08_comparison.md`):
+The defensible claim, lifted verbatim from the comparative analysis at `analysis/08_comparison.md` §8.6 (the canonical source for the technical/pitch register; `WHITEPAPER.md` at the repo root is the operator-friendly long-form version of the same argument and is in customer voice by design):
 
 > To the analyst's knowledge, **the combination of (a) server-side multi-platform paid-acquisition attribution forwarding (Meta CAPI, Google Enhanced Conversions), (b) PMS-data-driven operational intelligence (occupancy, ECRI candidate flagging, churn prediction), and (c) operator-language AI audits as a public top-of-funnel demand-generation tool, in a single self-storage vertical software platform operating outside the PMS, is uncommon — because (a) is typically the domain of generalist attribution platforms that lack the PMS data connection; (b) is typically the domain of the PMS vendor itself that has not integrated cross-platform server-side ad attribution; and (c) is typically the domain of agencies that operate the audit as a sales-team service rather than as automated software.**
 

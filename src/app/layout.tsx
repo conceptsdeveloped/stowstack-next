@@ -1,37 +1,53 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Manrope } from "next/font/google";
+import { Inter, JetBrains_Mono, Archivo } from "next/font/google";
 import ScrollProgress from "@/components/scroll-progress";
 import GrainOverlay from "@/components/grain-overlay";
 import Analytics from "@/components/analytics";
 import TweaksPanel from "@/components/mono/tweaks-panel";
 import "./globals.css";
 
-// Single typeface: Manrope variable font (weights 200–800). Replaces the
-// prior JetBrains Mono + Inter + Archivo stack. Hierarchy comes from
-// size/weight/case/tracking — not from switching families.
-// Three legacy CSS variables (--font-jetbrains, --font-inter, --font-archivo)
-// remain in globals.css aliased to --font-manrope so the 125+ inline
-// MONO.mono / MONO.serif refs in components resolve to Manrope unchanged.
-const manrope = Manrope({
-  variable: "--font-manrope",
+// JetBrains Mono is the primary voice across the product.
+// Inter is the humanist-sans escape valve for the rare moments where
+// full monospace would read too harsh or technical — the Anthropic
+// principle of finding the happy medium.
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Archivo — serif/display-sans for headlines under the NULL//TRACE theme.
+// Used sparingly (section titles, hero display number). Mono handles everything else.
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
 const siteDescription =
-  "StorageAds runs the Meta and Google ads, builds a landing page for every ad, reads your storEDGE reports, and shows you which campaigns filled units. Built by an operator. Tested on our own facilities first.";
+  "Stop losing units to bad marketing. StorageAds builds the entire system — ads, landing pages, attribution, and conversion — so independent storage operators fill vacancies and prove every dollar.";
 
 export const metadata: Metadata = {
   title: {
-    default: "StorageAds. Fill units. Prove which ads did it.",
+    default: "StorageAds | Marketing that proves which ads fill units",
     template: "%s | StorageAds",
   },
   description: siteDescription,
   metadataBase: new URL("https://storageads.com"),
   openGraph: {
-    title: "StorageAds. Fill units. Prove which ads did it.",
+    title: "StorageAds | Marketing that proves which ads fill units",
     description: siteDescription,
     url: "https://storageads.com",
     siteName: "StorageAds",
@@ -40,7 +56,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "StorageAds. Fill units. Prove which ads did it.",
+    title: "StorageAds | Marketing that proves which ads fill units",
     description: siteDescription,
     images: ["/og-image.png"],
   },
@@ -86,7 +102,7 @@ const jsonLd = {
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
       url: "https://storageads.com",
-      description: "Marketing system for self-storage operators. Meta and Google ads, a custom landing page for every campaign, and per-move-in tracking from click to lease.",
+      description: "The marketing system built for self-storage operators. Ads, landing pages, call tracking, and ad-to-move-in tracking on one dashboard.",
       offers: {
         "@type": "AggregateOffer",
         priceCurrency: "USD",
@@ -125,12 +141,7 @@ export default function RootLayout({
       <html
         lang="en"
         data-palette="paper"
-        className={`${manrope.variable} antialiased`}
-        // The inline head script stamps data-iab="fb|ig|tiktok|line|none"
-        // before paint. That mutation creates a server/client attribute
-        // mismatch which React would otherwise warn about — suppress is
-        // the documented Next.js pattern for inline-script html mutations.
-        suppressHydrationWarning
+        className={`${jetbrainsMono.variable} ${inter.variable} ${archivo.variable} antialiased`}
       >
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -139,19 +150,6 @@ export default function RootLayout({
           <link rel="dns-prefetch" href="https://maps.googleapis.com" />
           <link rel="dns-prefetch" href="https://places.googleapis.com" />
           <link rel="manifest" href="/manifest.json" />
-          {/* In-app browser detection — stamps data-iab on <html> before paint
-              so styles/components can branch on it without a flash of
-              wrong-layout. 80% of homepage traffic is Facebook/Instagram IAB
-              on iPhone-class devices and we want CSS-level control without
-              a hydration round-trip. UA sniffing is fine here because:
-              (1) it's progressive enhancement — nothing breaks if it's wrong,
-              (2) the IAB UA strings (FBAN/FBAV/Instagram) are stable and
-              under Meta's control, (3) we never branch behavior on it. */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(){try{var u=navigator.userAgent||'';var iab='none';if(/FBAN|FBAV/.test(u))iab='fb';else if(/Instagram/.test(u))iab='ig';else if(/TikTok|musical_ly/.test(u))iab='tiktok';else if(/Line\\//.test(u))iab='line';document.documentElement.setAttribute('data-iab',iab);}catch(e){}})();`,
-            }}
-          />
           <script
             dangerouslySetInnerHTML={{
               __html: `

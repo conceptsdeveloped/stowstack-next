@@ -1,37 +1,36 @@
 "use client";
 
 import { SectionHeader, SectionMeta } from "@/components/mono/section-header";
-import { PipelineFlow, FeatureHighlights } from "./hero";
 
 import { useInView } from "./use-in-view";
 
 const STEPS = [
   {
     number: "01",
-    title: "Your market, mapped.",
-    body: "We map your trade area: every competitor, their pricing, their reviews, their positioning. It updates automatically. You see the field before you spend a dollar.",
+    title: "We create demand.",
+    body: "Meta ads reach people before they search. Google PPC captures people already looking. Retargeting brings back the ones who left. Most operators only do one of these. We run all three.",
   },
   {
     number: "02",
-    title: "Ads on Meta and Google.",
-    body: "The Ad Creator builds Meta and Google campaigns from your facility data. The Publishing Manager puts them live. Meta reaches renters before they search. Google catches the ones already looking. Retargeting brings back the ones who left.",
+    title: "Every ad gets its own landing page.",
+    body: "Not your homepage. Not a generic rental page. A dedicated URL built for that specific campaign, with its own headline, its own offer, and its own tracking.",
     examples: [
-      "[your-facility].storageads.com/climate-pawpaw: climate-controlled search campaign",
-      "[your-facility].storageads.com/10x10-offer: first-month-free Meta campaign",
-      "[your-facility].storageads.com/finish-your-rental: retargeting campaign",
+      "[your-facility].storageads.com/climate-pawpaw: for the climate-controlled search ad",
+      "[your-facility].storageads.com/10x10-offer: for the first-month-free Facebook ad",
+      "[your-facility].storageads.com/finish-your-rental: for the retargeting campaign",
     ],
     kicker:
-      "A page for every ad. 8.7% of visitors reserve, against a 2.1% industry average on generic pages.",
+      "Different intent. Different pages. Different offers. That's how conversion rate goes up.",
   },
   {
     number: "03",
-    title: "The renter books on your page.",
-    body: "Every campaign gets its own landing page with your storEDGE reserve flow built in. The renter books on your page, under your brand. The reservation lands in storEDGE the same as a walk-in. No redirects. No third-party directory.",
+    title: "The rental flow is embedded in the page.",
+    body: "storEDGE handles real-time availability, reservation processing, and payment. But the customer never leaves your branded page. They see your facility. Your branding. Your offer. And they rent: right there.",
   },
   {
     number: "04",
-    title: "You see what's working.",
-    body: "Every ad dollar tied to the unit it filled. What you spent, what you got, what each move-in cost. One dashboard. No mystery.",
+    title: "We tell you exactly which ad produced which move-in.",
+    body: "Cost per reservation. Cost per move-in. Conversion rate by campaign, ad, audience, keyword, and creative. Not clicks. Not impressions. Revenue.",
   },
 ];
 
@@ -46,9 +45,9 @@ export default function HowItWorks() {
       style={{ background: "var(--color-light)" }}
     >
       <div ref={ref} className="section-content">
-        <SectionHeader number="01" kicker="HOW IT WORKS" right={<SectionMeta text="STEPS · 4" />} style={{ marginBottom: 24 }} />
+        <SectionHeader number="03" kicker="HOW IT WORKS" right={<SectionMeta text="STEPS · 4" />} style={{ marginBottom: 28 }} />
         <div
-          className={`text-center mb-10 transition-all duration-700 ${
+          className={`text-center mb-16 transition-all duration-700 ${
             isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
@@ -58,21 +57,16 @@ export default function HowItWorks() {
             className="font-semibold max-w-3xl mx-auto"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            From ad dollar to signed lease.
+            From ad impression to signed lease. One system. Full visibility.
           </h2>
           <p
             className="mt-4 mx-auto max-w-2xl"
             style={{ color: "var(--text-secondary)" }}
           >
-            Market intelligence, ads, landing pages, the storEDGE reserve flow,
-            and follow-up that turns reservations into move-ins. One system,
-            start to finish.
+            Every step connects. The ad gets the click. The page converts it.
+            The rental flow closes it. The dashboard shows you which ad
+            filled the unit.
           </p>
-
-          {/* Pipeline flow — Ad → Page → Reserve → Move-in */}
-          <div className="mt-8 max-w-sm mx-auto">
-            <PipelineFlow isVisible={isVisible} />
-          </div>
         </div>
 
         <div className="max-w-3xl mx-auto space-y-0">
@@ -155,27 +149,6 @@ export default function HowItWorks() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Feature highlights — merged from SolutionVisuals */}
-        <div className={`mt-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-          <h3
-            className="text-lg sm:text-xl font-semibold text-center mb-2"
-            style={{
-              fontFamily: "var(--serif)",
-              letterSpacing: "-0.03em",
-            }}
-          >
-            Everything in one dashboard.
-          </h3>
-          <p
-            className="text-sm text-center mx-auto mb-6"
-            style={{ color: "var(--text-secondary)", maxWidth: "480px" }}
-          >
-            Everything the REITs staff a marketing department for, in one
-            dashboard.
-          </p>
-          <FeatureHighlights isVisible={isVisible} />
         </div>
       </div>
     </section>

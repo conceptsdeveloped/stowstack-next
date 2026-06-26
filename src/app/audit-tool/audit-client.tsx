@@ -232,10 +232,8 @@ export default function AuditToolPage() {
   const [auditScore, setAuditScore] = useState<AuditScore | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [captureEmail, setCaptureEmail] = useState("");
-  const [captureWebsite, setCaptureWebsite] = useState(""); // honeypot
   const [captureSubmitted, setCaptureSubmitted] = useState(false);
   const [captureLoading, setCaptureLoading] = useState(false);
-  const [captureError, setCaptureError] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -423,7 +421,7 @@ export default function AuditToolPage() {
                         </p>
                         <p className="text-sm text-[var(--text-secondary)] mt-1">
                           {auditScore.grade === "Excellent"
-                            ? "Your facility shows up well online. Focus on turning visitors into renters."
+                            ? "Your facility shows up well online. The next step is turning visitors into renters."
                             : auditScore.grade === "Strong"
                               ? "Good foundation. A few things to tighten up to fill more units."
                               : auditScore.grade === "Moderate"
@@ -594,12 +592,11 @@ export default function AuditToolPage() {
                 <div className="rounded-2xl bg-gradient-to-br from-[var(--accent-glow)] to-transparent border border-[var(--accent)]/20 p-8 text-center">
                   <TrendingUp className="w-8 h-8 text-[var(--accent)] mx-auto mb-3" />
                   <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-                    Want a full marketing audit?
+                    Want the full audit?
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)] mb-5 max-w-md mx-auto">
-                    See your vacancy cost, what move-ins should cost you, how
-                    you stack up against nearby facilities, and the first
-                    things to fix.
+                    Get vacancy cost, projections, competitor data, and what
+                    to fix first.
                   </p>
                   {captureSubmitted ? (
                     <div className="flex items-center justify-center gap-2 text-[var(--accent)] font-semibold">
@@ -610,22 +607,10 @@ export default function AuditToolPage() {
                     <form
                       onSubmit={async (e) => {
                         e.preventDefault();
-                        if (!captureEmail.trim() || captureLoading || captureSubmitted) return;
-
-                        // Honeypot: bots fill every input; humans never see this
-                        if (captureWebsite.trim() !== "") {
-                          setCaptureSubmitted(true);
-                          return;
-                        }
-
+                        if (!captureEmail.trim()) return;
                         setCaptureLoading(true);
-                        setCaptureError(null);
-
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
                         try {
-                          const res = await fetch("/api/consumer-lead", {
+                          await fetch("/api/consumer-lead", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -636,65 +621,23 @@ export default function AuditToolPage() {
                               placeId: result?.placeId,
                               auditScore: auditScore?.overall,
                             }),
-                            signal: controller.signal,
                           });
-                          if (res.ok) {
-                            setCaptureSubmitted(true);
-                          } else if (res.status === 429) {
-                            setCaptureError(
-                              "Too many requests. Please wait a minute and try again."
-                            );
-                          } else {
-                            const payload = await res.json().catch(() => null);
-                            setCaptureError(
-                              payload?.error ||
-                                "Couldn't send. Please try again or email blake@storageads.com."
-                            );
-                          }
-                        } catch (err) {
-                          const aborted =
-                            err instanceof DOMException && err.name === "AbortError";
-                          setCaptureError(
-                            aborted
-                              ? "Request timed out. Please check your connection."
-                              : "Network error. Please try again."
-                          );
+                          setCaptureSubmitted(true);
+                        } catch {
+                          // Fall back to homepage CTA
+                          window.location.href = "/#cta";
                         } finally {
-                          clearTimeout(timeoutId);
                           setCaptureLoading(false);
                         }
                       }}
                       className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
                     >
-                      {/* Honeypot */}
-                      <input
-                        type="text"
-                        name="website_url"
-                        value={captureWebsite}
-                        onChange={(e) => setCaptureWebsite(e.target.value)}
-                        tabIndex={-1}
-                        autoComplete="off"
-                        aria-hidden="true"
-                        style={{
-                          position: "absolute",
-                          left: "-10000px",
-                          width: 1,
-                          height: 1,
-                          opacity: 0,
-                          pointerEvents: "none",
-                        }}
-                      />
                       <input
                         type="email"
-                        inputMode="email"
                         required
                         placeholder="Your work email"
                         value={captureEmail}
                         onChange={(e) => setCaptureEmail(e.target.value)}
-                        autoComplete="email"
-                        autoCapitalize="off"
-                        autoCorrect="off"
-                        spellCheck={false}
                         aria-label="Your email address"
                         className="flex-1 px-4 py-3 rounded-xl border text-sm"
                         style={{
@@ -718,16 +661,6 @@ export default function AuditToolPage() {
                         )}
                       </button>
                     </form>
-                  )}
-                  {captureError && !captureSubmitted && (
-                    <p
-                      role="alert"
-                      aria-live="assertive"
-                      className="mt-3 text-sm text-center"
-                      style={{ color: "var(--color-error)" }}
-                    >
-                      {captureError}
-                    </p>
                   )}
                 </div>
               </div>
@@ -778,10 +711,7 @@ export default function AuditToolPage() {
           Powered by{" "}
           <Link href="/" className="text-[var(--accent)] hover:underline">
             StorageAds
-          </Link>{" "}
-          <span className="text-[var(--text-tertiary)]/60">
-            by StorageAds.com
-          </span>
+          </Link>
         </div>
       </div>
     </div>
