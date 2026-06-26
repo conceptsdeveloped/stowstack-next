@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
   openGraph: {
-    title: "Pricing — StorageAds",
+    title: "Pricing | StorageAds",
     description: "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
     url: "https://storageads.com/pricing",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pricing — StorageAds",
+    title: "Pricing | StorageAds",
     description: "StorageAds pricing per facility. Paid media, custom landing pages, ad-to-move-in tracking. From $750/mo.",
   },
 };

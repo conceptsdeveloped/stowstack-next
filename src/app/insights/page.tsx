@@ -3,17 +3,17 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Operator Notes — StorageAds",
+  title: "Operator Notes | StorageAds",
   description:
     "Short-form thoughts on self-storage marketing from an operator who spends his own money on ads every month. Attribution, cost per move-in, and what actually works.",
   openGraph: {
-    title: "Operator Notes — StorageAds",
+    title: "Operator Notes | StorageAds",
     description: "Short-form thoughts on self-storage marketing from an operator who spends his own money on ads every month.",
     url: "https://storageads.com/insights",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Operator Notes — StorageAds",
+    title: "Operator Notes | StorageAds",
     description: "Short-form thoughts on self-storage marketing from an operator who spends his own money on ads.",
   },
 };
@@ -221,7 +221,7 @@ Most can't answer it. Some guess. A few say "the internet" like that narrows it 
 
 If you don't know where your tenants are coming from, you don't know which marketing is working. And if you don't know what's working, you're just spreading money around and hoping.
 
-That one question — where did they come from — is the foundation of everything.`,
+That one question, where did they come from, is the foundation of everything.`,
   },
   {
     title: "Why I Don't Trust Marketing Dashboards",
@@ -243,7 +243,7 @@ The pattern is always the same:
 
 They're spending money. They think it's probably working. They can't prove it. They feel stuck because they don't know enough about marketing to challenge their agency. And they're a little embarrassed to admit it.
 
-You're not alone. This is an industry-wide problem. And it's not your fault — the tools and transparency just haven't existed.
+You're not alone. This is an industry-wide problem. And it's not your fault. The tools and transparency just haven't existed.
 
 That's changing.`,
   },

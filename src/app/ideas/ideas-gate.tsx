@@ -61,7 +61,7 @@ export default function IdeasGate() {
   if (html) {
     return (
       <iframe
-        title="StorageAds — Features & Ideas"
+        title="StorageAds: Features & Ideas"
         srcDoc={html}
         style={{
           position: "fixed",

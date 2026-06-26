@@ -292,7 +292,7 @@ export default function DemoDashboardClient() {
         <div className="rounded-lg p-5 sm:p-6 mb-6" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-subtle)" }}>
           <div className="flex items-center gap-2 mb-4">
             <Zap size={18} style={{ color: "var(--accent)" }} />
-            <h3 className="font-semibold">Campaign intelligence — {current.month}</h3>
+            <h3 className="font-semibold">Campaign intelligence: {current.month}</h3>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
@@ -388,7 +388,7 @@ export default function DemoDashboardClient() {
         <div className="rounded-lg overflow-hidden mb-6" style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)" }}>
           <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
             <h3 className="font-semibold">Monthly campaign performance</h3>
-            <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Full metrics by month — the numbers that matter</p>
+            <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Full metrics by month. The numbers that matter</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

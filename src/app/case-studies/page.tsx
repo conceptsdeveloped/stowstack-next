@@ -5,16 +5,16 @@ import { CASE_STUDIES } from "@/types/case-study";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 
 export const metadata: Metadata = {
-  title: "Case Studies — StorageAds",
+  title: "Case Studies | StorageAds",
   description: "Attributed move-ins from real storage facilities, tracked from ad click to signed lease.",
   openGraph: {
-    title: "Case Studies — StorageAds",
+    title: "Case Studies | StorageAds",
     description: "Attributed move-ins from real storage facilities, tracked from ad click to signed lease.",
     url: "https://storageads.com/case-studies",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Case Studies — StorageAds",
+    title: "Case Studies | StorageAds",
     description: "Attributed move-ins from real storage facilities.",
   },
 };

@@ -31,6 +31,7 @@ import {
   Flame,
   Calendar,
 } from "lucide-react";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -192,23 +193,23 @@ export async function generateMetadata({
   const { slug } = await params;
   const data = await loadAudit(slug);
   if (!data) {
-    return { title: "Audit Not Found — StorageAds" };
+    return { title: "Audit Not Found | StorageAds" };
   }
   const { audit, facilityName } = data;
   const description = audit.executiveSummary
     ? audit.executiveSummary.slice(0, 200)
     : `Facility diagnostic audit for ${facilityName}. Overall score: ${audit.overallScore}/100 (${audit.overallGrade}).`;
   return {
-    title: `${facilityName} — Facility Diagnostic | StorageAds`,
+    title: `${facilityName}: Facility Diagnostic | StorageAds`,
     description,
     openGraph: {
-      title: `${facilityName} — Facility Diagnostic`,
+      title: `${facilityName}: Facility Diagnostic`,
       description,
       type: "article",
     },
     twitter: {
       card: "summary",
-      title: `${facilityName} — Facility Diagnostic`,
+      title: `${facilityName}: Facility Diagnostic`,
       description,
     },
   };
@@ -514,7 +515,7 @@ export default async function SharedAuditPage({
           </p>
           <Link
             href="/"
-            className="inline-flex px-6 py-2.5 rounded-lg bg-[var(--accent)] text-[var(--color-light)] font-medium hover:bg-[var(--accent-hover)] transition-colors"
+            className="inline-flex px-6 py-2.5 rounded-lg bg-[var(--color-dark)] text-[var(--color-light)] font-medium hover:opacity-90 transition-opacity"
           >
             Visit StorageAds
           </Link>
@@ -543,7 +544,7 @@ export default async function SharedAuditPage({
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--accent)] text-[var(--color-light)] font-medium hover:bg-[var(--accent-hover)] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--color-dark)] text-[var(--color-light)] font-medium hover:opacity-90 transition-opacity"
           >
             Get a New Audit <ArrowRight className="w-4 h-4" />
           </Link>
@@ -587,7 +588,7 @@ export default async function SharedAuditPage({
         </div>
       )}
       {/* Top CTA Banner */}
-      <div className="bg-[var(--accent)] px-4 py-2.5 text-center">
+      <div className="bg-[var(--color-dark)] px-4 py-2.5 text-center">
         <div className="flex items-center justify-center gap-2 flex-wrap">
           <Rocket className="w-4 h-4 text-[var(--color-light)]/80" />
           <span className="text-sm text-[var(--color-light)]/90">
@@ -597,7 +598,7 @@ export default async function SharedAuditPage({
           </span>
           <Link
             href="/"
-            className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-dark)]/20 text-[var(--color-light)] hover:bg-[var(--color-dark)]/30 transition-colors"
+            className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-light)]/15 text-[var(--color-light)] hover:bg-[var(--color-light)]/25 transition-colors"
           >
             Get a Free Facility Audit
           </Link>
@@ -608,11 +609,11 @@ export default async function SharedAuditPage({
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-[var(--accent)] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-[var(--color-dark)] flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-[var(--color-light)]" />
             </div>
             <div>
-              <p className="text-xs text-[var(--accent)] font-medium tracking-wide uppercase">
+              <p className="text-xs text-[var(--text-primary)] font-medium tracking-wide uppercase">
                 StorageAds Facility Diagnostic
               </p>
               <h1 className="text-xl sm:text-2xl font-semibold text-[var(--text-primary)]">
@@ -801,7 +802,7 @@ export default async function SharedAuditPage({
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden mb-8">
             <div className="px-6 py-4 border-b border-[var(--border-subtle)]">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-[var(--accent)]" />
+                <BarChart3 className="w-5 h-5 text-[var(--text-primary)]" />
                 <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   Industry Benchmark Comparison
                 </h2>
@@ -941,13 +942,13 @@ export default async function SharedAuditPage({
           <div className="rounded-2xl border border-[var(--border-subtle)] overflow-hidden mb-8">
             <div className="px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
               <div className="flex items-center gap-2">
-                <Timer className="w-5 h-5 text-[var(--accent)]" />
+                <Timer className="w-5 h-5 text-[var(--text-primary)]" />
                 <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   90-Day Projection
                 </h2>
               </div>
               <p className="text-sm text-[var(--text-secondary)] mt-1">
-                Two paths — same facility, radically different outcomes
+                Two paths, same facility, very different outcomes
               </p>
             </div>
 
@@ -1072,7 +1073,7 @@ export default async function SharedAuditPage({
 
         {/* Cost of Inaction Summary */}
         {costOfInaction && costOfInaction.monthlyBleed > 0 && (
-          <div className="rounded-2xl bg-gradient-to-r from-red-950/50 to-orange-950/30 border border-red-500/20 p-6 mb-8">
+          <div className="rounded-2xl bg-red-500/5 border border-red-500/20 p-6 mb-8">
             <div className="flex items-start gap-3 mb-5">
               <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center shrink-0">
                 <Flame className="w-5 h-5 text-red-400" />
@@ -1270,10 +1271,10 @@ export default async function SharedAuditPage({
         </div>
 
         {/* StorageAds Platform CTA — What We'd Do For You */}
-        <div className="rounded-2xl border border-[var(--accent)]/20 overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--color-blue)]/5 px-6 py-5 border-b border-[var(--accent)]/10">
+        <div className="rounded-2xl border border-[var(--border-subtle)] overflow-hidden mb-8">
+          <div className="bg-[var(--bg-surface)] px-6 py-5 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[var(--color-dark)] flex items-center justify-center shrink-0">
                 <Rocket className="w-5 h-5 text-[var(--color-light)]" />
               </div>
               <div>
@@ -1290,16 +1291,16 @@ export default async function SharedAuditPage({
           <div className="grid sm:grid-cols-2 gap-px bg-[var(--color-light-gray)]">
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
-                <Target className="w-4 h-4 text-[var(--accent)]" />
+                <Target className="w-4 h-4 text-[var(--text-primary)]" />
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">Ad-Specific Landing Pages</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Every ad campaign gets its own landing page, built for the reserve button — with live unit availability, your pricing, and online rental. No more sending prospects to a generic website.
+                Every ad campaign gets its own landing page, built for the reserve button, with live unit availability, your pricing, and online rental. No more sending prospects to a generic website.
               </p>
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-[var(--accent)]" />
+                <Users className="w-4 h-4 text-[var(--text-primary)]" />
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">Ad-to-Move-in Tracking</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
@@ -1308,16 +1309,16 @@ export default async function SharedAuditPage({
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
-                <Megaphone className="w-4 h-4 text-[var(--accent)]" />
+                <Megaphone className="w-4 h-4 text-[var(--text-primary)]" />
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">Automated Drip Campaigns</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Automated follow-up sequences for abandoned reservations, no-shows, and past inquiries. No lead falls through the cracks — even when your team is busy.
+                Automated follow-up sequences for abandoned reservations, no-shows, and past inquiries. No lead falls through the cracks, even when your team is busy.
               </p>
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
-                <Globe className="w-4 h-4 text-[var(--accent)]" />
+                <Globe className="w-4 h-4 text-[var(--text-primary)]" />
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">Google Listing, on Auto</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
@@ -1326,7 +1327,7 @@ export default async function SharedAuditPage({
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
-                <BarChart3 className="w-4 h-4 text-[var(--accent)]" />
+                <BarChart3 className="w-4 h-4 text-[var(--text-primary)]" />
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">One Screen, Every Number</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
@@ -1335,7 +1336,7 @@ export default async function SharedAuditPage({
             </div>
             <div className="bg-[var(--bg-elevated)] p-5">
               <div className="flex items-center gap-2 mb-2">
-                <PiggyBank className="w-4 h-4 text-[var(--accent)]" />
+                <PiggyBank className="w-4 h-4 text-[var(--text-primary)]" />
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">PMS Integration</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
@@ -1344,7 +1345,7 @@ export default async function SharedAuditPage({
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--color-blue)]/5 px-6 py-5 border-t border-[var(--accent)]/10">
+          <div className="bg-[var(--bg-surface)] px-6 py-5 border-t border-[var(--border-subtle)]">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-[var(--text-primary)]">
@@ -1356,10 +1357,10 @@ export default async function SharedAuditPage({
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <a
-                  href="https://calendly.com/blake-storageads/facility-audit"
+                  href={CAL_BOOKING_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--accent)] text-[var(--color-light)] text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-dark)] text-[var(--color-light)] text-sm font-medium hover:opacity-90 transition-opacity"
                 >
                   Book a Walkthrough <ArrowRight className="w-4 h-4" />
                 </a>
@@ -1407,7 +1408,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
 
   return (
     <div className="min-h-screen bg-[var(--bg-void)] text-[var(--text-primary)]">
-      <div className="bg-[var(--accent)] px-4 py-2.5 text-center">
+      <div className="bg-[var(--color-dark)] px-4 py-2.5 text-center">
         <div className="flex items-center justify-center gap-2 flex-wrap">
           <Rocket className="w-4 h-4 text-[var(--color-light)]/80" />
           <span className="text-sm text-[var(--color-light)]/90">
@@ -1415,7 +1416,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
           </span>
           <Link
             href="/"
-            className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-dark)]/20 text-[var(--color-light)] hover:bg-[var(--color-dark)]/30 transition-colors"
+            className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-light)]/15 text-[var(--color-light)] hover:bg-[var(--color-light)]/25 transition-colors"
           >
             Get a Free Facility Audit
           </Link>
@@ -1438,7 +1439,7 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
         {legacy.marketOpportunity && (
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 mb-8 text-center">
             <p className="text-sm text-[var(--text-tertiary)] mb-2">Market Opportunity Score</p>
-            <p className="text-5xl font-semibold text-[var(--accent)] mb-1">{legacy.marketOpportunity.score}</p>
+            <p className="text-5xl font-semibold text-[var(--text-primary)] mb-1">{legacy.marketOpportunity.score}</p>
             <p className="text-lg font-semibold text-[var(--text-secondary)]">{legacy.marketOpportunity.grade}</p>
           </div>
         )}
@@ -1504,12 +1505,12 @@ function LegacyAuditPage({ data }: { data: AuditData }) {
         )}
 
         {/* CTA */}
-        <div className="rounded-2xl bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20 p-8 text-center">
-          <Rocket className="w-8 h-8 text-[var(--accent)] mx-auto mb-3" />
+        <div className="rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-8 text-center">
+          <Rocket className="w-8 h-8 text-[var(--text-primary)] mx-auto mb-3" />
           <h2 className="text-xl font-semibold mb-2">Ready to Fill Your Vacant Units?</h2>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--accent)] text-[var(--color-light)] font-medium hover:bg-[var(--accent-hover)] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--color-dark)] text-[var(--color-light)] font-medium hover:opacity-90 transition-opacity"
           >
             Get a Free Facility Audit <ArrowRight className="w-4 h-4" />
           </Link>

@@ -483,8 +483,8 @@ export function DiagnosticForm() {
             your full diagnostic report at{" "}
             <strong className="text-[var(--text-primary)]">
               {contactEmail}
-            </strong>{" "}
-            — typically within minutes.
+            </strong>.{" "}
+            Typically within minutes.
           </p>
           <p className="text-sm text-[var(--text-secondary)]/70 mb-8">
             Your report will include scores across 8 categories, industry

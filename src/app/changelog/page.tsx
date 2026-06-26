@@ -6,16 +6,16 @@ import { getChangelogByMonth, type ChangelogCategory } from "@/lib/changelog-dat
 export const metadata: Metadata = {
   title: "Changelog",
   description:
-    "Every shipped improvement to StorageAds — new features, refinements, and fixes, straight from our build log.",
+    "Every shipped improvement to StorageAds: new features, refinements, and fixes, straight from our build log.",
   openGraph: {
-    title: "Changelog — StorageAds",
+    title: "Changelog | StorageAds",
     description:
-      "Every shipped improvement to StorageAds — new features, refinements, and fixes.",
+      "Every shipped improvement to StorageAds: new features, refinements, and fixes.",
     url: "https://storageads.com/changelog",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Changelog — StorageAds",
+    title: "Changelog | StorageAds",
     description: "Every shipped improvement to StorageAds.",
   },
 };
@@ -111,7 +111,7 @@ export default function ChangelogPage() {
             maxWidth: "520px",
           }}
         >
-          Every meaningful change we ship to StorageAds — new features,
+          Every meaningful change we ship to StorageAds: new features,
           refinements, and fixes. Pulled straight from our build log.
         </p>
 

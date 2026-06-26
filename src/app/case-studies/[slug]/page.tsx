@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const study = CASE_STUDIES.find((s) => s.slug === slug);
   if (!study) return { title: "Not Found" };
   return {
-    title: `${study.facilityName} Case Study — StorageAds`,
+    title: `${study.facilityName} Case Study | StorageAds`,
     description: `${study.facilityName}: ${study.heroMetric.value} ${study.heroMetric.label}. Here's how.`,
   };
 }

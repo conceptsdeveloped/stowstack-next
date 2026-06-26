@@ -701,7 +701,7 @@ function ExitIntentPopup({
           ) : (
             <>
               <h3 className="text-xl font-semibold text-[#141413] mb-2">
-                Wait — don&apos;t lose your spot!
+                Wait, don&apos;t lose your spot!
               </h3>
               <p className="text-sm text-[#6a6560] mb-5">
                 Enter your email and we will save your progress. Plus, we will

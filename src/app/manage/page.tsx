@@ -134,7 +134,7 @@ export default function ManageEntryPage() {
                 className="w-full rounded-md border border-[var(--color-light-gray,#e8e6dc)] bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--color-dark,#141413)]"
               />
               <p className="mt-2 text-xs text-[var(--color-body-text,#6a6560)]">
-                If you ran a free audit with us, we already have your facility details — your code loads them in.
+                If you ran a free audit with us, we already have your facility details. Your code loads them in.
               </p>
             </div>
             <button
