@@ -16,14 +16,12 @@ import {
   usd2,
   pct,
 } from "@/components/tools/fields";
+import { deriveValuation, type SolveFor } from "@/lib/tools/valuation";
 
 /* ──────────────────────────────────────────────────────────────────────────
    Storage valuation by cap rate.   value = NOI / cap rate
-   Solve for whichever of {value, cap rate, NOI} you don't know from the
-   other two.
+   Math lives in @/lib/tools/valuation (pure, unit-tested); this is the UI shell.
    ────────────────────────────────────────────────────────────────────────── */
-
-type SolveFor = "value" | "cap" | "noi";
 
 const SOLVE_OPTIONS: { key: SolveFor; label: string }[] = [
   { key: "value", label: "Value" },
@@ -39,21 +37,14 @@ export default function ValuationClient() {
   const [units, setUnits] = useState(0);
   const [sqft, setSqft] = useState(0);
 
-  // resolve the three so all are known for display
-  let rNoi = noi;
-  let rValue = value;
-  let rCap = capPct;
-  if (solveFor === "value") {
-    rValue = capPct > 0 ? noi / (capPct / 100) : 0;
-  } else if (solveFor === "noi") {
-    rNoi = value * (capPct / 100);
-  } else {
-    rCap = value > 0 ? (noi / value) * 100 : 0;
-  }
-
-  const valuePerUnit = units > 0 ? rValue / units : 0;
-  const valuePerSqft = sqft > 0 ? rValue / sqft : 0;
-  const noiMonthly = rNoi / 12;
+  const {
+    noi: rNoi,
+    value: rValue,
+    capPct: rCap,
+    valuePerUnit,
+    valuePerSqft,
+    noiMonthly,
+  } = deriveValuation({ solveFor, noi, value, capPct, units, sqft });
 
   const answer =
     solveFor === "value"

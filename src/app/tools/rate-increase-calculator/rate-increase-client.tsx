@@ -17,17 +17,11 @@ import {
   pct,
   clampPct,
 } from "@/components/tools/fields";
+import { deriveRateIncrease } from "@/lib/tools/rate-increase";
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Existing-customer rate increase (ECRI) impact.
-
-   The conservative model assumes units vacated because of the increase sit
-   empty (no backfill credit), so the net lift is the floor, not the ceiling.
-
-   Break-even churn — the share of tenants who could leave before the increase
-   stops paying off — has a clean closed form:
-       staying × newRate = occupied × oldRate
-       (1 − c)(1 + i) = 1   →   c = i / (1 + i)
+   Existing-customer rate increase (ECRI) impact. Math lives in
+   @/lib/tools/rate-increase (pure, unit-tested); this is the UI shell.
    ────────────────────────────────────────────────────────────────────────── */
 
 export default function RateIncreaseClient() {
@@ -41,20 +35,24 @@ export default function RateIncreaseClient() {
   const churn = clampPct(churnPct);
   const cap = clampPct(capRatePct);
 
-  const newRate = currentRate * (1 + inc / 100);
-  const perUnitIncrease = newRate - currentRate;
-  const staying = occupied * (1 - churn / 100);
-
-  const oldMonthlyRev = occupied * currentRate;
-  const newMonthlyRev = staying * newRate; // churned units assumed empty
-  const netMonthlyLift = newMonthlyRev - oldMonthlyRev;
-  const netAnnualLift = netMonthlyLift * 12;
-
-  const grossMonthlyLift = oldMonthlyRev * (inc / 100); // if nobody left
-  const grossAnnualLift = grossMonthlyLift * 12;
-
-  const breakEvenChurn = inc > 0 ? (inc / (100 + inc)) * 100 : 0;
-  const valueLift = cap > 0 ? netAnnualLift / (cap / 100) : 0;
+  const {
+    newRate,
+    perUnitIncrease,
+    staying,
+    oldMonthlyRev,
+    newMonthlyRev,
+    netMonthlyLift,
+    netAnnualLift,
+    grossAnnualLift,
+    breakEvenChurnPct: breakEvenChurn,
+    valueLift,
+  } = deriveRateIncrease({
+    occupied,
+    currentRate,
+    increasePct,
+    churnPct,
+    capRatePct,
+  });
 
   const hasInputs = occupied > 0 && currentRate > 0;
 

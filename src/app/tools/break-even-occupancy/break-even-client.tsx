@@ -14,13 +14,11 @@ import {
   usd0,
   pct,
 } from "@/components/tools/fields";
+import { deriveBreakEven } from "@/lib/tools/break-even";
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Break-even occupancy.
-
-   Operating break-even: occupied units whose rent covers operating expenses.
-   All-in break-even: same, but covering operating expenses AND debt service.
-       units = monthly cost / average monthly rate
+   Break-even occupancy. Math lives in @/lib/tools/break-even (pure,
+   unit-tested); this is the UI shell.
    ────────────────────────────────────────────────────────────────────────── */
 
 export default function BreakEvenClient() {
@@ -30,16 +28,21 @@ export default function BreakEvenClient() {
   const [monthlyDebt, setMonthlyDebt] = useState(0);
   const [currentOccupied, setCurrentOccupied] = useState(0);
 
-  const opBreakEvenUnits = avgRate > 0 ? monthlyOpex / avgRate : 0;
-  const allInBreakEvenUnits = avgRate > 0 ? (monthlyOpex + monthlyDebt) / avgRate : 0;
-
-  const opBreakEvenPct = totalUnits > 0 ? (opBreakEvenUnits / totalUnits) * 100 : 0;
-  const allInBreakEvenPct =
-    totalUnits > 0 ? (allInBreakEvenUnits / totalUnits) * 100 : 0;
-
-  const currentPct = totalUnits > 0 ? (currentOccupied / totalUnits) * 100 : 0;
-  const cushionUnits = currentOccupied - allInBreakEvenUnits;
-  const cushionPct = currentPct - allInBreakEvenPct;
+  const {
+    opBreakEvenUnits,
+    allInBreakEvenUnits,
+    opBreakEvenPct,
+    allInBreakEvenPct,
+    currentPct,
+    cushionUnits,
+    cushionPct,
+  } = deriveBreakEven({
+    totalUnits,
+    avgRate,
+    monthlyOpex,
+    monthlyDebt,
+    currentOccupied,
+  });
 
   const hasCore = avgRate > 0 && monthlyOpex > 0;
   const hasCurrent = currentOccupied > 0 && totalUnits > 0;

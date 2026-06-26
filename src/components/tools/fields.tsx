@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { round2, usd0 } from "@/lib/tools/format";
 
 /* ──────────────────────────────────────────────────────────────────────────
    Shared input + display primitives for the operator tools at /tools.
@@ -10,35 +11,12 @@ import { useState } from "react";
    render (React supports setState-in-render) — not in an effect — so a basis
    toggle, reset, or persisted load updates the field without a setState-in-
    effect cascade, and live typing is never clobbered.
+
+   Formatters + numeric helpers live in @/lib/tools/format (pure, unit-tested);
+   re-exported here so calculator clients can import everything from one place.
    ────────────────────────────────────────────────────────────────────────── */
 
-export const usd0 = (n: number) =>
-  (Number.isFinite(n) ? n : 0).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
-
-export const usd2 = (n: number) =>
-  (Number.isFinite(n) ? n : 0).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  });
-
-export const pct = (n: number) => `${(Number.isFinite(n) ? n : 0).toFixed(1)}%`;
-
-export const num0 = (n: number) =>
-  Math.round(Number.isFinite(n) ? n : 0).toLocaleString("en-US");
-
-export function round2(n: number) {
-  return Math.round(n * 100) / 100;
-}
-
-export function clampPct(n: number) {
-  if (!Number.isFinite(n)) return 0;
-  return Math.min(100, Math.max(0, n));
-}
+export { usd0, usd2, pct, num0, round2, clampPct, nonNeg } from "@/lib/tools/format";
 
 /* ── Money input ($ prefix) ─────────────────────────────────────────────── */
 export function MoneyField({
