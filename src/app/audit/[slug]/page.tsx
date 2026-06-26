@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getSampleAuditData, SAMPLE_AUDIT_SLUG } from "@/lib/sample-audit";
 import {
   BarChart3,
   DollarSign,
@@ -191,7 +192,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const data = await loadAudit(slug);
+  const data =
+    slug === SAMPLE_AUDIT_SLUG
+      ? (getSampleAuditData() as unknown as AuditData)
+      : await loadAudit(slug);
   if (!data) {
     return { title: "Audit Not Found | StorageAds" };
   }
@@ -497,8 +501,13 @@ export default async function SharedAuditPage({
 }) {
   const { slug } = await params;
   const { sample } = await searchParams;
-  const isSample = sample === "true";
-  const data = await loadAudit(slug);
+  const isSampleSlug = slug === SAMPLE_AUDIT_SLUG;
+  const isSample = sample === "true" || isSampleSlug;
+  // The public sample lives in /lib (not the DB) so it never expires, never
+  // inflates view counts, and renders even if the DB is unreachable.
+  const data = isSampleSlug
+    ? (getSampleAuditData() as unknown as AuditData)
+    : await loadAudit(slug);
 
   if (!data) {
     return (

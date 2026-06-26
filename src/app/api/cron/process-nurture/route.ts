@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Resend } from "resend";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import {
+  SENDERS,
+  facilitySender,
+  sendEmail as sendCentralEmail,
+  sendEmailOrThrow,
+} from "@/lib/email";
 
 export const maxDuration = 60;
 
-const getResend = () => new Resend(process.env.RESEND_API_KEY!);
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
   || (process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -112,14 +116,16 @@ async function sendEmail(
   body: string,
   facilityName: string | null
 ) {
-  const result = await getResend().emails.send({
-    from: `${facilityName || "StorageAds"} <notifications@storageads.com>`,
+  // sendEmailOrThrow preserves this wrapper's original throw-on-failure
+  // contract, so a failed/skipped send still surfaces as a step failure and
+  // the enrollment does not advance past an undelivered message.
+  return sendEmailOrThrow({
+    from: facilitySender(facilityName, "notifications"),
     to: [to],
     subject,
     text: body,
+    tags: [{ name: "type", value: "nurture" }],
   });
-  if (result.error) throw new Error(`Resend: ${result.error.message}`);
-  return result.data;
 }
 
 interface EnrollmentRow {
@@ -353,24 +359,14 @@ export async function GET(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`[CRON:process-nurture] Fatal error:`, err);
 
-    // Notify admin of cron failure
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds <noreply@storageads.com>",
-          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `[CRON FAILURE] process-nurture`,
-          html: `<p>The <strong>process-nurture</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
-        }),
-      }).catch((err) => {
-        console.error("[cron:process-nurture] Alert email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    // Notify admin of cron failure (fire-and-forget; sendEmail never throws).
+    void sendCentralEmail({
+      from: SENDERS.noreply,
+      to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+      subject: `[CRON FAILURE] process-nurture`,
+      tags: [{ name: "type", value: "cron_failure" }],
+      html: `<p>The <strong>process-nurture</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
+    });
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }

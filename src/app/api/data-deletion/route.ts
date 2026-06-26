@@ -8,14 +8,10 @@ import {
   getOrigin,
   verifyCsrfOrigin,
 } from "@/lib/api-helpers";
-import { Resend } from "resend";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { escapeHtml } from "@/lib/validation";
-
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+import { SENDERS, sendEmail } from "@/lib/email";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(req.headers.get("origin"));
@@ -123,40 +119,32 @@ async function handleNewRequest(
     },
   });
 
-  // Send confirmation email to the user
-  if (resend) {
-    try {
-      await resend.emails.send({
-        from: "StorageAds <noreply@storageads.com>",
-        to: sanitizedEmail,
-        subject: "Data Deletion Request Received - StorageAds",
-        html: buildUserConfirmationEmail(
-          sanitizedName || "there",
-          request.id
-        ),
-      });
-    } catch {
-      // Email failure shouldn't block the request
-    }
+  // Send confirmation email to the user. sendEmail() never throws and skips
+  // cleanly when RESEND_API_KEY is unset, so email can't block the request.
+  await sendEmail({
+    from: SENDERS.noreply,
+    to: sanitizedEmail,
+    subject: "Data Deletion Request Received - StorageAds",
+    tags: [{ name: "type", value: "data_deletion_received" }],
+    idempotencyKey: `data-deletion-received:${request.id}`,
+    html: buildUserConfirmationEmail(sanitizedName || "there", request.id),
+  });
 
-    // Notify admin
-    try {
-      await resend.emails.send({
-        from: "StorageAds System <noreply@storageads.com>",
-        to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-        subject: `Data Deletion Request: ${sanitizedEmail}`,
-        html: buildAdminNotificationEmail(
-          sanitizedEmail,
-          sanitizedName,
-          sanitizedReason,
-          dataFound,
-          request.id
-        ),
-      });
-    } catch {
-      // Admin notification failure shouldn't block
-    }
-  }
+  // Notify admin
+  await sendEmail({
+    from: SENDERS.system,
+    to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+    subject: `Data Deletion Request: ${sanitizedEmail}`,
+    tags: [{ name: "type", value: "data_deletion_admin" }],
+    idempotencyKey: `data-deletion-admin:${request.id}`,
+    html: buildAdminNotificationEmail(
+      sanitizedEmail,
+      sanitizedName,
+      sanitizedReason,
+      dataFound,
+      request.id
+    ),
+  });
 
   return jsonResponse(
     {
@@ -190,19 +178,15 @@ async function handleAcknowledge(
     },
   });
 
-  // Email the user that their request was acknowledged
-  if (resend) {
-    try {
-      await resend.emails.send({
-        from: "StorageAds <noreply@storageads.com>",
-        to: request.email,
-        subject: "Data Deletion Request Acknowledged - StorageAds",
-        html: buildAcknowledgmentEmail(request.name || "there", request.id),
-      });
-    } catch {
-      // Non-blocking
-    }
-  }
+  // Email the user that their request was acknowledged (non-blocking).
+  await sendEmail({
+    from: SENDERS.noreply,
+    to: request.email,
+    subject: "Data Deletion Request Acknowledged - StorageAds",
+    tags: [{ name: "type", value: "data_deletion_acknowledged" }],
+    idempotencyKey: `data-deletion-acknowledged:${request.id}`,
+    html: buildAcknowledgmentEmail(request.name || "there", request.id),
+  });
 
   return jsonResponse({ request: updated }, 200, origin);
 }
@@ -338,19 +322,15 @@ async function handleExecuteDeletion(
     return { deleted: txDeleted, updated: txUpdated };
   }, { maxWait: 10000, timeout: 30000 });
 
-  // Send completion email to user
-  if (resend) {
-    try {
-      await resend.emails.send({
-        from: "StorageAds <noreply@storageads.com>",
-        to: email,
-        subject: "Data Deletion Complete - StorageAds",
-        html: buildCompletionEmail(request.name || "there", request.id),
-      });
-    } catch {
-      // Non-blocking
-    }
-  }
+  // Send completion email to user (non-blocking).
+  await sendEmail({
+    from: SENDERS.noreply,
+    to: email,
+    subject: "Data Deletion Complete - StorageAds",
+    tags: [{ name: "type", value: "data_deletion_complete" }],
+    idempotencyKey: `data-deletion-complete:${request.id}`,
+    html: buildCompletionEmail(request.name || "there", request.id),
+  });
 
   return jsonResponse(
     { request: updated, deleted },
@@ -397,7 +377,7 @@ function buildUserConfirmationEmail(name: string, requestId: string) {
       </ul>
       <div style="background: #ffffff; border: 1px solid #e8e6dc; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
         <p style="color: #b0aea5; font-size: 12px; margin-bottom: 4px;">Confirmation ID</p>
-        <p style="color: #B58B3F; font-family: monospace; font-size: 14px;">${requestId}</p>
+        <p style="color: #141413; font-family: monospace; font-size: 14px;">${requestId}</p>
       </div>
       <p style="color: #b0aea5; font-size: 12px; line-height: 1.5;">
         If you have questions, contact us at blake@storageads.com or (269) 929-8541.
@@ -442,7 +422,7 @@ function buildAcknowledgmentEmail(name: string, requestId: string) {
       <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #141413;">Deletion Request Acknowledged</h2>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${escapeHtml(name)},</p>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
-        Your data deletion request (ID: <span style="color: #B58B3F; font-family: monospace;">${requestId}</span>) has been acknowledged and is being processed.
+        Your data deletion request (ID: <span style="color: #141413; font-family: monospace;">${requestId}</span>) has been acknowledged and is being processed.
       </p>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         Deletion will be completed within 30 days of your original request. You will receive a final confirmation email when complete.
@@ -463,7 +443,7 @@ function buildCompletionEmail(name: string, requestId: string) {
       <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #22C55E;">Data Deletion Complete</h2>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">Hi ${escapeHtml(name)},</p>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
-        Your data deletion request (ID: <span style="color: #B58B3F; font-family: monospace;">${requestId}</span>) has been completed.
+        Your data deletion request (ID: <span style="color: #141413; font-family: monospace;">${requestId}</span>) has been completed.
       </p>
       <p style="color: #6a6560; line-height: 1.6; margin-bottom: 16px;">
         The following data has been permanently removed from our systems:
