@@ -77,7 +77,7 @@ const clerkSecretKey = process.env.CLERK_SECRET_KEY ?? "";
 const hasClerkKeys = !!clerkPubKey && !!clerkSecretKey;
 const isClerkProdKeys = clerkPubKey.startsWith("pk_live_");
 
-function isCsrfExempt(req: NextRequest): boolean {
+export function isCsrfExempt(req: NextRequest): boolean {
   const path = req.nextUrl.pathname;
   if (path.startsWith("/api/webhooks/")) return true;
   if (path.startsWith("/api/stripe-webhook")) return true;
