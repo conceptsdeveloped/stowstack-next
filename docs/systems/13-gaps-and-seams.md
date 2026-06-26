@@ -28,8 +28,8 @@ mindmap
       🟡 visitor_id scaffold unwired
       🟡 walk-ins not auto-matched
     Growth
-      🔴 partner rev-share not wired
-      🟡 revenue page fetches dead endpoint
+      ✅ partner rev-share wired
+      ✅ revenue page reads real endpoint
     Compliance
       ⚪ fb_deletion_requests orphan
     Integrations
@@ -118,12 +118,23 @@ Despite the name, it's an admin-gated endpoint that ingests **pre-parsed JSON** 
 
 ## Growth (referrals & rev-share)
 
-### 🔴 Partner rev-share is schema + UI only — no backend
-`rev_share_referrals` and `rev_share_payouts` are **read/written by no API route** (the only reference outside the schema is a cascade-delete comment in `cleanup-organizations`). No code computes a partner payout. A reseller's earnings exist only as client-side math on hardcoded tiers.
+### ✅ Partner rev-share is now wired (was 🔴 schema + UI only)
+`rev_share_referrals` and `rev_share_payouts` now have producers and a reader.
+`GET /api/partner/revenue` (org-session gated) serves the server-computed tier,
+earnings, referral registry, and payout history; the monthly cron
+`generate-rev-share-payouts` snapshots each enabled org's payout (idempotent per
+org+month) and recomputes `organizations.lifetime_earnings`. All tier/earnings
+math lives in the pure, tested `src/lib/rev-share.ts`. **Open seam:** the per-facility
+MRR basis is a single constant (`REV_SHARE_FACILITY_MRR = $99`), not the org's real
+billed MRR — swap it once the plan-namespace mapping (see Billing) lands.
 → [16 · Referrals & Rev-Share](16-referrals-revshare.md) §3
 
-### 🟡 The partner revenue page fetches a dead endpoint
-`/partner/revenue` calls `/api/referrals?type=payouts`, but the referrals route only branches on `action` (not `type`) and is admin-key gated — so the Referrals and Payout History tables always render empty. Tiers (`REV_SHARE_TIERS`) and per-facility MRR ($99) are hardcoded in the component, not read from `organizations.rev_share_pct`.
+### ✅ The partner revenue page now reads a real endpoint (was 🟡 dead fetch)
+`/partner/revenue` previously called `/api/referrals?type=payouts` (no such
+handler → always-empty tables) and computed earnings from hardcoded tiers. It now
+fetches `/api/partner/revenue` and renders server-authoritative tiers/earnings,
+with the override path reading `organizations.rev_share_pct`. Banned sienna-gold
+tokens in the page were also replaced with charcoal-on-light per the design system.
 → [16 · Referrals & Rev-Share](16-referrals-revshare.md) §3
 
 ---
@@ -142,8 +153,8 @@ Despite the name, it's an admin-gated endpoint that ingests **pre-parsed JSON** 
 | Escalation/move-out timers | 🟡 | Retention | Tenant-side sequences need an admin to advance |
 | `visitor_id` scaffold | 🟡 | Attribution | Real key is `session_id` |
 | Walk-ins unmatched | 🟡 | Attribution | Land in `activity_log` only |
-| Partner rev-share unwired | 🔴 | Growth | No route computes payouts |
-| Revenue page dead endpoint | 🟡 | Growth | `?type=payouts` has no handler |
+| Partner rev-share | ✅ | Growth | Wired: `/api/partner/revenue` + monthly payout cron |
+| Revenue page endpoint | ✅ | Growth | Reads `/api/partner/revenue`; dead `?type=payouts` fetch removed |
 | `fb_deletion_requests` orphan | ⚪ | Compliance | Dead table |
 | `storedge-import` JSON-only | ⚪ | PMS | No live storEDGE sync |
 

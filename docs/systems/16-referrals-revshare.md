@@ -1,6 +1,6 @@
 # 16 · Referrals & Revenue Share
 
-> **The headline:** Two systems that share naming but never touch. **Customer/facility referrals** (`/api/referrals`) is fully wired — codes, invites, credits, milestone bonuses. **Partner org rev-share** (`rev_share_*` tables) is **schema + UI only** — no backend reads or writes it, and the partner revenue page fetches an endpoint that can't serve it data.
+> **The headline:** Two systems that share naming but never touch. **Customer/facility referrals** (`/api/referrals`) is fully wired — codes, invites, credits, milestone bonuses. **Partner org rev-share** (`rev_share_*` tables) is now also wired: `GET /api/partner/revenue` reads the tables and computes the tier/earnings, and the monthly `generate-rev-share-payouts` cron produces the payout + per-facility rows. Math lives in the pure, tested `src/lib/rev-share.ts`. (Historically this was schema + UI only with a dead endpoint — see §3.)
 
 ---
 
@@ -37,11 +37,11 @@ graph TB
 | | ① Customer referrals | ② Partner rev-share |
 |---|---|---|
 | Anchor | `facilities` | `organizations` |
-| Route | `/api/referrals` (admin-key) | **none** |
-| Earn model | flat $99/signup + milestone bonuses | tiered % of facility MRR |
-| Output | internal `credit_balance` (manual redeem) | monthly `payout_amount` (unbuilt) |
-| Stripe | none | intended, absent |
-| State | ✅ functional | ⚠️ not wired |
+| Route | `/api/referrals` (admin-key) | `/api/partner/revenue` (org-session) |
+| Earn model | flat $99/signup + milestone bonuses | tiered % of facility MRR ($99 basis) |
+| Output | internal `credit_balance` (manual redeem) | monthly `payout_amount` via cron (status `pending`→`paid`) |
+| Stripe | none | intended, absent (payout marking still manual) |
+| State | ✅ functional | ✅ wired (read API + monthly cron) |
 
 ---
 
@@ -80,31 +80,46 @@ GET reads: codes list, per-code referrals, per-code ledger, and a top-20 leaderb
 
 ---
 
-## 3. System ② — Partner org rev-share (schema + UI only)
+## 3. System ② — Partner org rev-share (wired)
 
 ```mermaid
 flowchart TD
     ORG["organizations.rev_share_*<br/>rev_share_enabled · rev_share_pct<br/>lifetime_earnings · payout_method"]
     RR["rev_share_referrals<br/>unique org+facility<br/>total_earned · status"]
     RP["rev_share_payouts<br/>unique org+month<br/>gross_mrr · payout_amount · status pending/processing/paid"]
-    ORG --> RR
-    ORG --> RP
 
-    UI["/partner/revenue/page.tsx"]
-    UI --> HC["REV_SHARE_TIERS (HARDCODED in component):<br/>Bronze 1-10→20% · Silver 11-25→25%<br/>Gold 26-50→30% · Platinum 51+→35%<br/>PER_FACILITY_MRR = $99"]
-    UI -.->|"GET /api/referrals?type=payouts<br/>(no such handler → empty)"| EMPTY["Referrals + Payout tables always empty"]
+    LIB["src/lib/rev-share.ts (pure, tested)<br/>REV_SHARE_TIERS · resolvePct · summarize · monthKey<br/>Bronze 1-10→20% · Silver 11-25→25%<br/>Gold 26-50→30% · Platinum 51+→35%<br/>REV_SHARE_FACILITY_MRR = $99"]
 
-    NOTE["⚠️ No API route reads/writes rev_share_referrals<br/>or rev_share_payouts. Only reference outside schema:<br/>a cascade-delete comment in cleanup-organizations."]
+    CRON["cron generate-rev-share-payouts (monthly)<br/>idempotent per org+month"] -->|"writes"| RP
+    CRON -->|"upserts"| RR
+    CRON -->|"recomputes"| ORG
+    CRON --> LIB
 
-    classDef warn fill:#faf9f5,stroke:#B04A3A,color:#B04A3A
+    API["GET /api/partner/revenue (org-session)"] -->|"reads"| ORG
+    API -->|"reads"| RR
+    API -->|"reads"| RP
+    API --> LIB
+    UI["/partner/revenue/page.tsx"] -->|"fetches"| API
+
     classDef c fill:#e8e6dc,stroke:#141413,color:#141413
-    class ORG,RR,RP,UI,HC c
-    class EMPTY,NOTE warn
+    classDef ok fill:#faf9f5,stroke:#788c5d,color:#141413
+    class ORG,RR,RP,UI c
+    class LIB,CRON,API ok
 ```
 
-The partner revenue page computes earnings **client-side** from hardcoded tiers (`grossMrr = facilityCount × $99`, `earnings = grossMrr × pct`). It fetches `/api/referrals` (the customer route, admin-gated) and `/api/referrals?type=payouts` (a handler that doesn't exist), so the Referrals and Payout History tables render empty. The `rev_share_referrals` / `rev_share_payouts` tables are designed to be populated from org MRR but **nothing computes them yet**.
+The partner revenue page now fetches `GET /api/partner/revenue`, which computes the
+tier and earnings server-side from the org's **active** facility count (with an
+`organizations.rev_share_pct` override when `rev_share_tier ≠ "auto"`). The monthly
+`generate-rev-share-payouts` cron snapshots each enabled org's payout into
+`rev_share_payouts` (idempotent on the unique `org+month`; never downgrades a
+`paid`/`processing` row), maintains the per-facility `rev_share_referrals` registry,
+and recomputes `organizations.lifetime_earnings` from the payout ledger. All tier
+and money math is centralized in the pure, unit-tested `src/lib/rev-share.ts` so the
+API and cron can't drift. **Remaining seam:** gross MRR uses the
+`REV_SHARE_FACILITY_MRR = $99` constant rather than the org's real billed MRR, and
+marking a payout `paid` is still manual (no Stripe payout integration).
 
-→ Logged in [13 · Gaps & Seams](13-gaps-and-seams.md).
+→ Was logged as a 🔴 gap in [13 · Gaps & Seams](13-gaps-and-seams.md); now resolved there.
 
 ---
 
@@ -114,5 +129,8 @@ The partner revenue page computes earnings **client-side** from hardcoded tiers 
 |---------|------|
 | Customer referrals (wired) | `src/app/api/referrals/route.ts` |
 | Customer models | `referral_codes`, `referrals`, `referral_credits` in `prisma/schema.prisma` |
-| Partner rev-share UI | `src/app/partner/revenue/page.tsx` (hardcoded tiers) |
-| Partner models (unwired) | `organizations.rev_share_*`, `rev_share_referrals`, `rev_share_payouts` |
+| Partner rev-share math (pure) | `src/lib/rev-share.ts` (+ `src/lib/__tests__/rev-share.test.ts`) |
+| Partner rev-share read API | `src/app/api/partner/revenue/route.ts` |
+| Partner payout cron | `src/app/api/cron/generate-rev-share-payouts/route.ts` |
+| Partner rev-share UI | `src/app/partner/revenue/page.tsx` (reads the API) |
+| Partner models | `organizations.rev_share_*`, `rev_share_referrals`, `rev_share_payouts` |
