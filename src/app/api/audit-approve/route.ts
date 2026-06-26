@@ -11,6 +11,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { CAL_BOOKING_URL } from "@/lib/booking";
+import { SEQUENCE_TEMPLATES } from "@/app/api/nurture-sequences/route";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -29,6 +30,27 @@ function generateSlug(facilityName: string): string {
     .slice(0, 40);
   const rand = Math.random().toString(36).slice(2, 6);
   return `${base}-${rand}`;
+}
+
+// Legacy drip enrollment, kept as the fallback when the nurture path is
+// unavailable (no contact email) or fails. Idempotent per facility + sequence.
+async function enrollPostAuditDrip(facilityId: string): Promise<void> {
+  const existingDrip = await db.drip_sequences.findFirst({
+    where: { facility_id: facilityId, sequence_id: "post_audit" },
+  });
+  if (!existingDrip) {
+    const firstSendAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // Day 2
+    await db.drip_sequences.create({
+      data: {
+        facility_id: facilityId,
+        sequence_id: "post_audit",
+        current_step: 0,
+        status: "active",
+        next_send_at: firstSendAt,
+        history: [],
+      },
+    });
+  }
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -241,22 +263,66 @@ export async function POST(req: NextRequest) {
       })
       .catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
 
-    // Enroll in post-audit drip sequence (day 1, 3, 7 follow-ups)
-    const existingDrip = await db.drip_sequences.findFirst({
-      where: { facility_id: facilityId, sequence_id: "post_audit" },
-    });
-    if (!existingDrip) {
-      const firstSendAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // Day 2
-      await db.drip_sequences.create({
-        data: {
-          facility_id: facilityId,
-          sequence_id: "post_audit",
-          current_step: 0,
-          status: "active",
-          next_send_at: firstSendAt,
-          history: [],
-        },
-      });
+    // Enroll in the post-audit nurture sequence (day 1/3/7 follow-ups).
+    // Requires a contact email to nurture; falls back to the legacy drip sequence
+    // when there is no email or if nurture enrollment fails. Drip is the safety net.
+    if (facility.contact_email) {
+      try {
+        const template = SEQUENCE_TEMPLATES.post_audit;
+
+        // Find-or-create this facility's post_audit nurture sequence.
+        const existingSeq = await db.$queryRaw<Array<{ id: string }>>`
+          SELECT id FROM nurture_sequences
+          WHERE facility_id = ${facilityId}::uuid AND trigger_type = ${template.trigger_type}
+          ORDER BY created_at ASC LIMIT 1
+        `;
+        let sequenceId = existingSeq[0]?.id;
+        if (!sequenceId) {
+          const createdSeq = await db.$queryRaw<Array<{ id: string }>>`
+            INSERT INTO nurture_sequences (facility_id, name, trigger_type, steps, status)
+            VALUES (${facilityId}, ${template.name}, ${template.trigger_type}, ${JSON.stringify(template.steps)}::jsonb, 'active')
+            RETURNING id
+          `;
+          sequenceId = createdSeq[0]?.id;
+        }
+        if (!sequenceId) {
+          throw new Error("Failed to resolve post_audit nurture sequence");
+        }
+
+        // Idempotency: do not double-enroll the same contact on this sequence.
+        const existingEnroll = await db.$queryRaw<Array<{ id: string }>>`
+          SELECT id FROM nurture_enrollments
+          WHERE facility_id = ${facilityId}::uuid AND sequence_id = ${sequenceId}::uuid
+            AND contact_email = ${facility.contact_email}
+          LIMIT 1
+        `;
+        if (existingEnroll.length === 0) {
+          const firstStep = template.steps[0];
+          const nextSendAt = new Date(
+            Date.now() + (firstStep?.delay_minutes || 60) * 60 * 1000
+          ).toISOString();
+          await db.$executeRaw`
+            INSERT INTO nurture_enrollments (
+              sequence_id, facility_id, contact_name, contact_email,
+              current_step, status, next_send_at, metadata
+            ) VALUES (
+              ${sequenceId}, ${facilityId},
+              ${facility.contact_name || null}, ${facility.contact_email},
+              0, 'active', ${nextSendAt}::timestamptz,
+              ${JSON.stringify({ source: "audit_approve", audit_id: auditId })}::jsonb
+            )
+          `;
+        }
+      } catch (nurtureErr) {
+        console.error(
+          "[audit-approve] nurture enroll failed, falling back to drip:",
+          nurtureErr instanceof Error ? nurtureErr.message : nurtureErr
+        );
+        await enrollPostAuditDrip(facilityId);
+      }
+    } else {
+      // No contact email to nurture; keep the legacy drip enrollment.
+      await enrollPostAuditDrip(facilityId);
     }
 
     return jsonResponse(
