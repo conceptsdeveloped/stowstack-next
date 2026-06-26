@@ -13,7 +13,7 @@ export default function CookiePolicyPage() {
         <h2>1. What Are Cookies</h2>
         <p>
           Cookies are small text files stored on your device when you visit a website.
-          They help us provide a better experience, remember your preferences, and
+          They keep you logged in, remember your preferences, and help us
           understand how our services are used.
         </p>
       </section>

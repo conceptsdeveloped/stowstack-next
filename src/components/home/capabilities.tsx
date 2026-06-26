@@ -44,14 +44,14 @@ const CAPABILITIES = [
 
 export default function Capabilities() {
   return (
-    <section aria-label="Everything in the system: capabilities grid">
+    <section aria-label="The eight modules in the system">
       <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-10 pb-14 sm:pb-20">
         <Reveal>
           <div
             className="flex items-baseline justify-between gap-3"
             style={{ borderBottom: "1px solid var(--line)", paddingBottom: 10 }}
           >
-            <h2 style={{ fontSize: "var(--type-h3)" }}>Everything in the system</h2>
+            <h2 style={{ fontSize: "var(--type-h3)" }}>The eight modules</h2>
             <span
               className="hidden sm:block"
               style={{

@@ -292,7 +292,7 @@ export default function DemoDashboardClient() {
         <div className="rounded-lg p-5 sm:p-6 mb-6" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-subtle)" }}>
           <div className="flex items-center gap-2 mb-4">
             <Zap size={18} style={{ color: "var(--accent)" }} />
-            <h3 className="font-semibold">Campaign intelligence — {current.month}</h3>
+            <h3 className="font-semibold">What's working — {current.month}</h3>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {[

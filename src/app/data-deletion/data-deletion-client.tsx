@@ -279,7 +279,7 @@ export function DataDeletionClient() {
                 className="text-base font-semibold"
                 style={{ color: "#22C55E" }}
               >
-                Request Submitted Successfully
+                Request received
               </h2>
             </div>
             <p

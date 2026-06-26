@@ -38,7 +38,7 @@ function VerifyEmailContent() {
       .catch(() => {
         if (cancelled) return;
         setState("error");
-        setErrorMessage("Something went wrong. Please try again.");
+        setErrorMessage("We couldn't verify your email. The link may have expired — try resending it.");
       });
 
     return () => {
@@ -85,7 +85,7 @@ function VerifyEmailContent() {
       setResendState("sent");
     } catch {
       setResendState("error");
-      setResendError("Something went wrong. Please try again.");
+      setResendError("We couldn't resend the email. Try again in a minute.");
     }
   };
 
@@ -155,7 +155,7 @@ function VerifyEmailContent() {
                   color: "var(--color-body-text)",
                 }}
               >
-                Please wait a moment...
+                Checking your link…
               </p>
             </div>
           )}
@@ -199,8 +199,8 @@ function VerifyEmailContent() {
                   color: "var(--color-body-text)",
                 }}
               >
-                Your email has been verified successfully. You can now access all
-                partner features.
+                Your email is verified. You now have full access to your
+                partner account.
               </p>
               <Link
                 href="/partner"

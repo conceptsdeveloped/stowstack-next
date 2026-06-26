@@ -35,9 +35,9 @@ export const LOOP_STAGES: LoopStage[] = [
     title: "Landing pages built for the ad.",
     body: (
       <>
-        Each ad gets its own page. Your facility. Your rates. Your offer.
-        Built around your storEDGE reserve button so the renter books on your
-        branded page.
+        Each ad gets its own page with your rates and your offer.
+        Built around your storEDGE reserve button, so the renter books right
+        on your branded page.
       </>
     ),
   },

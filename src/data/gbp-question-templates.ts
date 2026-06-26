@@ -41,7 +41,7 @@ export const GBP_QUESTION_TEMPLATES: GbpQuestionTemplate[] = [
     category: "access_hours",
     question_text: "What are your access hours?",
     answer_template:
-      "{{facility_name}} is set up so you can get to your belongings when you need them. Gate hours can vary, so call or stop by and we'll confirm the current access hours for you.",
+      "{{facility_name}} offers gated access during posted gate hours. Hours can vary by site, so call or stop by and we'll confirm the current access hours for you.",
     priority: 88,
   },
   {
@@ -55,7 +55,7 @@ export const GBP_QUESTION_TEMPLATES: GbpQuestionTemplate[] = [
     category: "security",
     question_text: "How secure is the facility?",
     answer_template:
-      "Security is a priority at {{facility_name}} — the site is designed to keep your belongings protected and give you peace of mind. We're happy to walk you through the specific features in place; just give us a call or schedule a visit.",
+      "{{facility_name}} is gated and monitored to keep your belongings safe. Call or stop by and we'll walk you through the specific security features on site.",
     priority: 84,
   },
   {
@@ -104,14 +104,14 @@ export const GBP_QUESTION_TEMPLATES: GbpQuestionTemplate[] = [
     category: "access",
     question_text: "Do you have carts or dollies to help me move in?",
     answer_template:
-      "Move-in day is a lot easier with the right equipment, and {{facility_name}} is set up to help. Ask the office about carts and dollies available on site when you come by.",
+      "Move-in day is easier with carts and dollies. Ask the {{facility_name}} office about what's available on site when you come by.",
     priority: 64,
   },
   {
     category: "insurance",
     question_text: "Do I need insurance for my unit?",
     answer_template:
-      "Protecting your stored belongings is a good idea, and there are simple options available. The team at {{facility_name}} can explain the choices when you rent so you can decide what's right for you.",
+      "We offer affordable coverage for your stored items. The {{facility_name}} team can explain the choices when you rent so you can decide what's right for you.",
     priority: 62,
   },
   {

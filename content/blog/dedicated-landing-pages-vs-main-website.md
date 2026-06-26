@@ -11,7 +11,7 @@ draft: false
 heroAlt: "Side-by-side comparison of a cluttered homepage versus a focused landing page"
 ---
 
-Imagine you're selling storage units at a trade show. Someone walks up to your booth, says "I need a 10x10 climate-controlled unit near downtown." They're ready to rent. Right now.
+You're working a trade show, selling storage units. Someone walks up to your booth and says "I need a 10x10 climate-controlled unit near downtown." They're ready to rent. Right now.
 
 You have two options.
 
@@ -57,7 +57,7 @@ The unit type and size they clicked on. The price, matching what the ad said. Th
 
 That's it. Every additional element on the page is a potential exit point.
 
-## The storEDGE Embed Changes Everything
+## The storEDGE Embed Closes the Loop
 
 Here's where this gets really practical for most operators.
 

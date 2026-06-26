@@ -597,9 +597,9 @@ export default function AuditToolPage() {
                     Want a full marketing audit?
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)] mb-5 max-w-md mx-auto">
-                    Get a detailed analysis including vacancy cost, ROI
-                    projections, competitive insights, and personalized
-                    recommendations.
+                    See your vacancy cost, what move-ins should cost you, how
+                    you stack up against nearby facilities, and the first
+                    things to fix.
                   </p>
                   {captureSubmitted ? (
                     <div className="flex items-center justify-center gap-2 text-[var(--accent)] font-semibold">

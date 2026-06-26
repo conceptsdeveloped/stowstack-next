@@ -93,7 +93,7 @@ export default function WalkInAttributionPage() {
         setUnitRented("");
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : "We couldn't log that walk-in. Check your connection and try again.");
     } finally {
       setSubmitting(false);
     }

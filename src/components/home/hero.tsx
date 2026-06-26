@@ -87,7 +87,7 @@ export default function HomeHero() {
                 marginBottom: "clamp(14px, 2.5vw, 24px)",
               }}
             >
-              REIT-grade marketing for independents
+              The marketing the REITs run, built for independents
             </p>
           </Enter>
 
@@ -237,7 +237,7 @@ export default function HomeHero() {
         {/* Scroll cue */}
         <a
           href="#how-it-works"
-          aria-label="Scroll to learn more"
+          aria-label="Jump to How it works"
           className="hidden lg:inline-flex items-center gap-2 pb-8 home-link"
           style={{
             fontFamily: "var(--mono)",

@@ -256,7 +256,7 @@ function CampaignAlerts() {
       </div>
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
         <CheckCircle2 className="mx-auto h-6 w-6 text-[var(--color-green)]" />
-        <p className="mt-2 text-sm text-[var(--color-mid-gray)]">No active alerts — everything looks good</p>
+        <p className="mt-2 text-sm text-[var(--color-mid-gray)]">No active alerts.</p>
       </div>
     </div>
   );

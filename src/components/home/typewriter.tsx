@@ -13,7 +13,7 @@ const TYPEWRITER_WORDS = [
   "34 move-ins in 90 days.",
   "71% to 84% occupancy in one quarter.",
   "New renters, ready renters, the ones who almost left.",
-  "Big-operator tools to reach 100% occupancy.",
+  "Big-operator tools to fill the units you're missing.",
   "Stop leaking $72,000 a year in unfilled units.",
 ];
 

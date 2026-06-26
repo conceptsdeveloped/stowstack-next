@@ -163,7 +163,7 @@ export default async function ComparisonPage({ params }: PageProps) {
             style={{ fontFamily: "var(--font-body)", color: "var(--color-body-text)" }}
           >
             Most storage marketing platforms stop at cost per click or cost per lead. StorageAds tracks
-            the full journey from the first ad through to a signed lease, so you know exactly what each
+            every step from the first ad click through to a signed lease, so you know exactly what each
             move-in costs.
           </p>
           <Link
@@ -171,7 +171,7 @@ export default async function ComparisonPage({ params }: PageProps) {
             className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium"
             style={{ fontFamily: "var(--font-heading)", color: "#fff", backgroundColor: "var(--color-gold)" }}
           >
-            See it in action
+            Watch the demo dashboard
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
