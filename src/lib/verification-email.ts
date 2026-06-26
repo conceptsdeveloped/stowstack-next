@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import { SENDERS, resolveSiteUrl, sendEmail } from "./email";
 
 type SendVerificationArgs = {
   to: string;
@@ -30,28 +30,24 @@ function renderHtml(name: string | null | undefined, verifyUrl: string): string 
 /**
  * Send the verification email for a newly created org_user. Fails silently —
  * the caller stores the token regardless, and the user can trigger a resend.
+ *
+ * Delivery now goes through the centralized email layer (`sendEmail`), which adds
+ * validation, retry/backoff, and the dry-run/redirect safety guards. The token is
+ * used as the idempotency key so a retried request never double-sends.
  */
 export async function sendVerificationEmail({ to, name, token }: SendVerificationArgs): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.warn("[verification-email] RESEND_API_KEY not set — skipping send");
-    return;
-  }
+  const verifyUrl = `${resolveSiteUrl()}/verify-email?token=${token}`;
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://storageads.com");
-  const verifyUrl = `${siteUrl}/verify-email?token=${token}`;
+  const result = await sendEmail({
+    from: SENDERS.noreply,
+    to,
+    subject: "Verify your email address",
+    html: renderHtml(name, verifyUrl),
+    tags: [{ name: "type", value: "email_verification" }],
+    idempotencyKey: `verify-email:${token}`,
+  });
 
-  try {
-    const resend = new Resend(apiKey);
-    await resend.emails.send({
-      from: "StorageAds <noreply@storageads.com>",
-      to,
-      subject: "Verify your email address",
-      html: renderHtml(name, verifyUrl),
-    });
-  } catch (err) {
-    console.error("[verification-email] send failed:", err instanceof Error ? err.message : err);
+  if (!result.ok && !result.skipped) {
+    console.error(`[verification-email] send failed: ${result.error}`);
   }
 }
