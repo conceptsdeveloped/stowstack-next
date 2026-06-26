@@ -3,16 +3,16 @@
 import { useMemo, useState } from "react";
 import { ArrowRight, Calculator } from "lucide-react";
 
-type Tier = "system" | "compound";
+type Tier = "launch" | "growth";
 
 const TIER_FEE: Record<Tier, number> = {
-  system: 749,
-  compound: 1249,
+  launch: 750,
+  growth: 1500,
 };
 
 const TIER_LABEL: Record<Tier, string> = {
-  system: "System",
-  compound: "Compound",
+  launch: "Launch",
+  growth: "Growth",
 };
 
 const AD_SPEND_FLOOR = 1000;
@@ -23,7 +23,7 @@ export default function PricingCalculator() {
   const [facilities, setFacilities] = useState(1);
   const [unitRent, setUnitRent] = useState(150);
   const [moveIns, setMoveIns] = useState(8);
-  const [tier, setTier] = useState<Tier>("system");
+  const [tier, setTier] = useState<Tier>("launch");
 
   const result = useMemo(() => {
     const moveInLtv = unitRent * AVG_TENURE_MONTHS;
@@ -223,7 +223,7 @@ export default function PricingCalculator() {
                   Tier
                 </p>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["system", "compound"] as Tier[]).map((t) => (
+                  {(["launch", "growth"] as Tier[]).map((t) => (
                     <button
                       key={t}
                       type="button"

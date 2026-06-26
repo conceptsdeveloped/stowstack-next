@@ -8,10 +8,10 @@
  *
  * `gross MRR` is computed from a per-facility rev-share basis (`REV_SHARE_FACILITY_MRR`).
  * This is the StorageAds subscription MRR the share is paid against. It is a single
- * named constant on purpose: the customer-facing plan prices (Signal/System/Compound)
- * and the backend plan keys (launch/growth/portfolio) are not yet reconciled, so we
- * do not derive the basis from `organizations.plan` here. When that mapping lands,
- * swap this basis for the org's real billed MRR — the rest of the math is unchanged.
+ * named constant on purpose: the basis is not yet derived from the org's actual
+ * billed plan (Launch/Growth/Portfolio), so we do not read `organizations.plan`
+ * here. When that mapping lands, swap this basis for the org's real billed MRR —
+ * the rest of the math is unchanged.
  *
  * Everything in this file is pure (no I/O) so it can be unit-tested and shared by
  * the read API and the monthly payout cron without divergence.
