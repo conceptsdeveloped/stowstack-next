@@ -5,7 +5,7 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -18,8 +18,8 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "call-logs");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req))
-    return errorResponse("Unauthorized", 401, origin);
+  const denied = await requireFacilityAccess(req);
+  if (denied) return denied;
 
   const url = new URL(req.url);
   const facilityId = url.searchParams.get("facilityId");
@@ -145,8 +145,6 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "call-logs");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req))
-    return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await req.json();
@@ -155,6 +153,17 @@ export async function PATCH(req: NextRequest) {
     if (call_outcome && !VALID_OUTCOMES.includes(call_outcome)) {
       return errorResponse(`Invalid outcome. Valid: ${VALID_OUTCOMES.join(", ")}`, 400, origin);
     }
+
+    // Scope the update to the call log's facility: admins pass, owners must
+    // hold a manage session for that facility.
+    const callLog = await db.call_logs.findUnique({
+      where: { id },
+      select: { facility_id: true, caller_number: true, campaign_source: true },
+    });
+    if (!callLog) return errorResponse("Call log not found", 404, origin);
+
+    const denied = await requireFacilityAccess(req, callLog.facility_id);
+    if (denied) return denied;
 
     const updateData: Record<string, unknown> = {};
     if (call_outcome !== undefined) updateData.call_outcome = call_outcome || null;
@@ -167,20 +176,14 @@ export async function PATCH(req: NextRequest) {
 
     // If marking as move-in, create an activity log entry for attribution
     if (move_in_linked) {
-      const callLog = await db.call_logs.findUnique({
-        where: { id },
-        select: { facility_id: true, caller_number: true, campaign_source: true },
-      });
-      if (callLog) {
-        db.activity_log.create({
-          data: {
-            type: "attributed_move_in",
-            facility_id: callLog.facility_id,
-            detail: `Move-in attributed from phone call${callLog.campaign_source ? ` (${callLog.campaign_source})` : ""}`,
-            meta: { source: "phone_call", call_log_id: id, campaign: callLog.campaign_source },
-          },
-        }).catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
-      }
+      db.activity_log.create({
+        data: {
+          type: "attributed_move_in",
+          facility_id: callLog.facility_id,
+          detail: `Move-in attributed from phone call${callLog.campaign_source ? ` (${callLog.campaign_source})` : ""}`,
+          meta: { source: "phone_call", call_log_id: id, campaign: callLog.campaign_source },
+        },
+      }).catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
     }
 
     return jsonResponse({ success: true }, 200, origin);

@@ -5,9 +5,10 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  requireAdminKey,
+  requireFacilityAccess,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { getManageScope, manageScopeAllows } from "@/lib/manage-session";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
@@ -20,6 +21,11 @@ async function authorizeRequest(
 
   // Admin key auth
   if (isAdminRequest(req)) {
+    return { authorized: true, origin };
+  }
+
+  // Owner manage-session auth (scoped to this facility)
+  if (manageScopeAllows(getManageScope(req), facilityId)) {
     return { authorized: true, origin };
   }
 
@@ -150,14 +156,12 @@ export async function GET(req: NextRequest) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   POST — Import PMS data (admin only)
+   POST — Import PMS data (admin OR facility owner)
 ══════════════════════════════════════════════════════════ */
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "pms-data");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const adminErr = await requireAdminKey(req);
-  if (adminErr) return adminErr;
 
   let body: Record<string, unknown>;
   try {
@@ -172,6 +176,12 @@ export async function POST(req: NextRequest) {
   if (!facilityId) {
     return errorResponse("facility_id is required", 400, origin);
   }
+
+  // Importing a facility's own PMS data is open to that facility's owner or an
+  // admin. Client portal Bearer tokens are deliberately NOT accepted here —
+  // the portal is read-only for tenants.
+  const denied = await requireFacilityAccess(req, facilityId);
+  if (denied) return denied;
 
   try {
     /* ── Import Rent Roll ── */

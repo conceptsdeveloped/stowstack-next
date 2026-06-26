@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import {
@@ -6,11 +6,27 @@ import {
   errorResponse,
   corsResponse,
   getOrigin,
+  requireAdminKey,
   requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
-import { scoreActiveTenants } from "@/lib/churn-scoring";
+
+/**
+ * Guard a churn-predictions write to the facility it touches:
+ *  - facility-scoped op (facilityId present) → admins pass; owners need a
+ *    manage session scoped to that facility.
+ *  - global / cross-facility op (facilityId null/undefined) → admins only.
+ * Passing a truthy facilityId means requireFacilityAccess does NOT fall back to
+ * the ?facilityId= query param, so a query param can't widen a body-scoped op.
+ */
+async function guardChurnWrite(
+  req: NextRequest,
+  facilityId: string | null | undefined
+): Promise<NextResponse | null> {
+  if (facilityId) return requireFacilityAccess(req, facilityId);
+  return requireAdminKey(req);
+}
 
 function serializeBigInts(obj: unknown): unknown {
   if (obj === null || obj === undefined) return obj;
@@ -26,8 +42,162 @@ function serializeBigInts(obj: unknown): unknown {
   return obj;
 }
 
-// Scoring logic lives in @/lib/churn-scoring (shared with the weekly cron at
-// /api/cron/score-churn-risk). See roadmap 11 phase 2 (revised).
+interface ChurnResult {
+  score: number;
+  riskLevel: string;
+  factors: Array<{ factor: string; weight: number; detail: string }>;
+  actions: Array<{
+    action: string;
+    priority: string;
+    description: string;
+  }>;
+  predictedVacate: string | null;
+}
+
+function computeChurnScore(
+  tenant: Record<string, unknown>,
+  payments: Record<string, unknown>[]
+): ChurnResult {
+  const factors: ChurnResult["factors"] = [];
+  const actions: ChurnResult["actions"] = [];
+  let score = 0;
+
+  const daysDelinquent = Number(tenant.days_delinquent || 0);
+  if (daysDelinquent > 0) {
+    const pts = Math.min(30, daysDelinquent);
+    score += pts;
+    factors.push({
+      factor: "Payment delinquency",
+      weight: pts,
+      detail: `${daysDelinquent} days past due`,
+    });
+  }
+
+  if (!tenant.autopay_enabled) {
+    score += 10;
+    factors.push({
+      factor: "No autopay",
+      weight: 10,
+      detail: "Manual payment increases churn risk",
+    });
+  }
+
+  const latePayments = payments.filter(
+    (p) => Number(p.days_late || 0) > 0
+  );
+  if (latePayments.length > 0) {
+    const pts = Math.min(20, latePayments.length * 5);
+    score += pts;
+    factors.push({
+      factor: "Late payment history",
+      weight: pts,
+      detail: `${latePayments.length} late payments`,
+    });
+  }
+
+  const tenureMonths = Math.floor(
+    (Date.now() - new Date(String(tenant.move_in_date)).getTime()) /
+      (30 * 86400000)
+  );
+  if (tenureMonths < 3) {
+    const pts = 15 - tenureMonths * 5;
+    score += pts;
+    factors.push({
+      factor: "Short tenure",
+      weight: pts,
+      detail: `${tenureMonths} month(s) tenure`,
+    });
+  }
+
+  if (tenant.lease_end_date) {
+    const daysToEnd = Math.floor(
+      (new Date(String(tenant.lease_end_date)).getTime() - Date.now()) /
+        86400000
+    );
+    if (daysToEnd <= 30 && daysToEnd > 0) {
+      const pts = Math.min(15, Math.round(15 * (1 - daysToEnd / 30)));
+      score += pts;
+      factors.push({
+        factor: "Lease expiring soon",
+        weight: pts,
+        detail: `${daysToEnd} days until lease end`,
+      });
+    } else if (daysToEnd <= 0) {
+      score += 15;
+      factors.push({
+        factor: "Lease expired",
+        weight: 15,
+        detail: "Month-to-month, easy to leave",
+      });
+    }
+  } else {
+    score += 5;
+    factors.push({
+      factor: "No lease end date",
+      weight: 5,
+      detail: "Month-to-month tenant",
+    });
+  }
+
+  if (!tenant.has_insurance) {
+    score += 5;
+    factors.push({
+      factor: "No insurance",
+      weight: 5,
+      detail: "Less invested in unit",
+    });
+  }
+
+  score = Math.min(100, score);
+  const riskLevel =
+    score >= 75
+      ? "critical"
+      : score >= 50
+        ? "high"
+        : score >= 25
+          ? "medium"
+          : "low";
+
+  if (score >= 50) {
+    actions.push({
+      action: "personal_call",
+      priority: "high",
+      description: "Schedule a personal check-in call",
+    });
+  }
+  if (score >= 25 && !tenant.autopay_enabled) {
+    actions.push({
+      action: "autopay_incentive",
+      priority: "medium",
+      description: "Offer autopay discount incentive",
+    });
+  }
+  if (score >= 50 && tenant.lease_end_date) {
+    actions.push({
+      action: "renewal_offer",
+      priority: "high",
+      description: "Send early renewal offer with discount",
+    });
+  }
+  if (daysDelinquent > 7) {
+    actions.push({
+      action: "payment_reminder",
+      priority: "urgent",
+      description: "Send payment reminder with flexible options",
+    });
+  }
+
+  return {
+    score,
+    riskLevel,
+    factors,
+    actions,
+    predictedVacate:
+      riskLevel === "critical" || riskLevel === "high"
+        ? new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10)
+        : null,
+  };
+}
 
 export async function OPTIONS(request: NextRequest) {
   return corsResponse(getOrigin(request));
@@ -37,13 +207,12 @@ export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.AUTHENTICATED, "churn-predictions");
   if (limited) return limited;
   const origin = getOrigin(request);
+  const denied = await requireFacilityAccess(request);
+  if (denied) return denied;
 
   const facilityId = request.nextUrl.searchParams.get("facilityId");
   const riskLevel = request.nextUrl.searchParams.get("riskLevel");
   const resource = request.nextUrl.searchParams.get("resource");
-
-  const denied = await requireFacilityAccess(request, facilityId);
-  if (denied) return denied;
 
   try {
     if (resource === "campaigns") {
@@ -130,8 +299,9 @@ export async function POST(request: NextRequest) {
       if (!name || !sequence_steps)
         return errorResponse("name and sequence_steps required", 400, origin);
 
-      const createDenied = await requireFacilityAccess(request, facility_id);
-      if (createDenied) return createDenied;
+      // A facility-less campaign is global (spans every facility) → admin only.
+      const denied = await guardChurnWrite(request, facility_id ?? null);
+      if (denied) return denied;
 
       const rows = await db.$queryRaw<Record<string, unknown>[]>`
         INSERT INTO retention_campaigns (facility_id, name, trigger_risk_level, sequence_steps)
@@ -146,20 +316,20 @@ export async function POST(request: NextRequest) {
       if (!campaign_id)
         return errorResponse("campaign_id required", 400, origin);
 
-      const existingCampaign = await db.retention_campaigns.findUnique({
-        where: { id: campaign_id },
-        select: { facility_id: true },
-      });
-      if (!existingCampaign) return errorResponse("Not found", 404, origin);
-      const enrollDenied = await requireFacilityAccess(request, existingCampaign.facility_id);
-      if (enrollDenied) return enrollDenied;
-
       const campaignRows = await db.$queryRaw<
         Record<string, unknown>[]
       >`SELECT * FROM retention_campaigns WHERE id = ${campaign_id}::uuid`;
       if (campaignRows.length === 0)
         return errorResponse("Campaign not found", 404, origin);
       const campaign = campaignRows[0];
+
+      // Scope to the campaign's facility; a global campaign enrolls across every
+      // facility → admin only.
+      const denied = await guardChurnWrite(
+        request,
+        (campaign.facility_id as string | null) ?? null
+      );
+      if (denied) return denied;
 
       const triggerLevel = String(campaign.trigger_risk_level || "high");
       const riskLevels =
@@ -192,14 +362,42 @@ export async function POST(request: NextRequest) {
 
     // Run churn scoring
     const { facilityId } = body;
-    const scoreDenied = await requireFacilityAccess(request, facilityId);
-    if (scoreDenied) return scoreDenied;
-    const result = await scoreActiveTenants(db, {
-      facilityId: facilityId || undefined,
-    });
+
+    // Facility-scoped scoring is open to that facility's owner; scoring across
+    // every facility (no facilityId) is admin only.
+    const denied = await guardChurnWrite(request, facilityId ?? null);
+    if (denied) return denied;
+
+    const scoringFacilityFilter = facilityId
+      ? Prisma.sql`AND facility_id = ${facilityId}::uuid`
+      : Prisma.empty;
+
+    const tenants = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT * FROM tenants WHERE status = 'active' ${scoringFacilityFilter}
+    `;
+
+    let scored = 0;
+    for (const tenant of tenants) {
+      const payments = await db.$queryRaw<Record<string, unknown>[]>`
+        SELECT * FROM tenant_payments WHERE tenant_id = ${tenant.id}::uuid ORDER BY payment_date DESC LIMIT 12
+      `;
+
+      const result = computeChurnScore(tenant, payments);
+
+      await db.$executeRaw`
+        INSERT INTO churn_predictions (tenant_id, facility_id, risk_score, risk_level, predicted_vacate, factors, recommended_actions, last_scored_at)
+         VALUES (${tenant.id}::uuid, ${tenant.facility_id}::uuid, ${result.score}, ${result.riskLevel}, ${result.predictedVacate}, ${JSON.stringify(result.factors)}::jsonb, ${JSON.stringify(result.actions)}::jsonb, NOW())
+         ON CONFLICT (tenant_id) DO UPDATE SET
+           risk_score = EXCLUDED.risk_score, risk_level = EXCLUDED.risk_level,
+           predicted_vacate = EXCLUDED.predicted_vacate, factors = EXCLUDED.factors,
+           recommended_actions = EXCLUDED.recommended_actions, last_scored_at = NOW()
+      `;
+
+      scored++;
+    }
 
     return jsonResponse(
-      { ...result, message: `Scored ${result.scored} tenants` },
+      { scored, message: `Scored ${scored} tenants` },
       200,
       origin
     );
@@ -226,16 +424,10 @@ export async function PATCH(request: NextRequest) {
     } = body;
 
     if (Array.isArray(ids) && ids.length > 0) {
-      const idPredictions = await db.churn_predictions.findMany({
-        where: { id: { in: ids } },
-        select: { facility_id: true },
-      });
-      if (idPredictions.length === 0) return errorResponse("Not found", 404, origin);
-      const idFacilityIds = [...new Set(idPredictions.map((p) => p.facility_id))];
-      for (const fid of idFacilityIds) {
-        const batchDenied = await requireFacilityAccess(request, fid);
-        if (batchDenied) return batchDenied;
-      }
+      // Batch ops act on arbitrary prediction ids that may span facilities →
+      // admin only.
+      const denied = await requireAdminKey(request);
+      if (denied) return denied;
 
       if (action === "batch_enroll" && campaign_id) {
         await db.$executeRaw`
@@ -276,21 +468,18 @@ export async function PATCH(request: NextRequest) {
     if (!id) return errorResponse("id or ids required", 400, origin);
 
     if (action === "toggle_campaign" || action === "update_campaign") {
-      const existingCampaign = await db.retention_campaigns.findUnique({
-        where: { id },
-        select: { facility_id: true },
-      });
-      if (!existingCampaign) return errorResponse("Not found", 404, origin);
-      const campaignDenied = await requireFacilityAccess(request, existingCampaign.facility_id);
-      if (campaignDenied) return campaignDenied;
-    } else {
-      const existingPrediction = await db.churn_predictions.findUnique({
-        where: { id },
-        select: { facility_id: true },
-      });
-      if (!existingPrediction) return errorResponse("Not found", 404, origin);
-      const predictionDenied = await requireFacilityAccess(request, existingPrediction.facility_id);
-      if (predictionDenied) return predictionDenied;
+      // Scope campaign mutations to the campaign's facility; global campaigns
+      // (no facility) are admin only.
+      const campaignRows = await db.$queryRaw<Record<string, unknown>[]>`
+        SELECT facility_id FROM retention_campaigns WHERE id = ${id}::uuid
+      `;
+      if (campaignRows.length === 0)
+        return errorResponse("Campaign not found", 404, origin);
+      const denied = await guardChurnWrite(
+        request,
+        (campaignRows[0].facility_id as string | null) ?? null
+      );
+      if (denied) return denied;
     }
 
     if (action === "toggle_campaign") {
@@ -319,6 +508,18 @@ export async function PATCH(request: NextRequest) {
       return jsonResponse({ campaign: rows[0] }, 200, origin);
     }
 
+    // Single prediction status update: scope to the prediction's facility.
+    const predRows = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT facility_id FROM churn_predictions WHERE id = ${id}::uuid
+    `;
+    if (predRows.length === 0)
+      return errorResponse("Prediction not found", 404, origin);
+    const predDenied = await guardChurnWrite(
+      request,
+      (predRows[0].facility_id as string | null) ?? null
+    );
+    if (predDenied) return predDenied;
+
     const rows = await db.$queryRaw<Record<string, unknown>[]>`
       UPDATE churn_predictions SET retention_status = ${retention_status} WHERE id = ${id}::uuid RETURNING *
     `;
@@ -339,12 +540,17 @@ export async function DELETE(request: NextRequest) {
   if (!id) return errorResponse("id required", 400, origin);
 
   try {
-    const existing = await db.retention_campaigns.findUnique({
-      where: { id },
-      select: { facility_id: true },
-    });
-    if (!existing) return errorResponse("Not found", 404, origin);
-    const denied = await requireFacilityAccess(request, existing.facility_id);
+    // Scope the delete to the campaign's facility; global campaigns are admin
+    // only.
+    const campaignRows = await db.$queryRaw<Record<string, unknown>[]>`
+      SELECT facility_id FROM retention_campaigns WHERE id = ${id}::uuid
+    `;
+    if (campaignRows.length === 0)
+      return errorResponse("Campaign not found", 404, origin);
+    const denied = await guardChurnWrite(
+      request,
+      (campaignRows[0].facility_id as string | null) ?? null
+    );
     if (denied) return denied;
 
     await db.$executeRaw`

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { jsonResponse, errorResponse, getOrigin, corsResponse, requireAdminKey, safeCompare } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, requireFacilityAccess, safeCompare } from "@/lib/api-helpers";
+import { getManageScope, manageScopeAllows } from "@/lib/manage-session";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidUuid } from "@/lib/validation";
@@ -14,13 +15,20 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
   const origin = getOrigin(req);
 
-  // Accept either admin key or client Bearer token (for portal access)
+  const url = new URL(req.url);
+  const facilityId = url.searchParams.get("facilityId");
+  if (!facilityId) return errorResponse("facilityId required", 400, origin);
+  if (!isValidUuid(facilityId)) return errorResponse("Invalid facilityId format", 400, origin);
+
+  // Accept admin key, owner manage session (scoped to this facility), or a
+  // client Bearer token (portal access).
   const adminKey = req.headers.get("x-admin-key");
   const authHeader = req.headers.get("authorization");
   const isAdminAuth = adminKey && process.env.ADMIN_SECRET && safeCompare(adminKey, process.env.ADMIN_SECRET);
+  const isOwnerAuth = !isAdminAuth && manageScopeAllows(getManageScope(req), facilityId);
 
   let clientFacilityId: string | null = null;
-  if (!isAdminAuth && authHeader?.startsWith("Bearer ")) {
+  if (!isAdminAuth && !isOwnerAuth && authHeader?.startsWith("Bearer ")) {
     const accessCode = authHeader.slice(7);
     if (accessCode) {
       const client = await db.clients.findFirst({ where: { access_code: accessCode } });
@@ -29,14 +37,9 @@ export async function GET(req: NextRequest) {
   }
 
   const isClientAuth = !!clientFacilityId;
-  if (!isAdminAuth && !isClientAuth) {
+  if (!isAdminAuth && !isOwnerAuth && !isClientAuth) {
     return errorResponse("Unauthorized", 401, origin);
   }
-
-  const url = new URL(req.url);
-  const facilityId = url.searchParams.get("facilityId");
-  if (!facilityId) return errorResponse("facilityId required", 400, origin);
-  if (!isValidUuid(facilityId)) return errorResponse("Invalid facilityId format", 400, origin);
 
   // Verify client owns the requested facility
   if (isClientAuth && clientFacilityId !== facilityId) {
@@ -74,12 +77,19 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "facility-pms");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   try {
     const body = await req.json();
     const { action } = body || {};
+
+    // Every POST action mutates a single facility's PMS data. Scope to that
+    // facility upfront: admins pass, owners need a manage session for it. Client
+    // portal Bearer tokens are NOT accepted (the portal is read-only).
+    const facilityId = body?.facility_id;
+    if (!facilityId) return errorResponse("facility_id required", 400, origin);
+    if (!isValidUuid(facilityId)) return errorResponse("Invalid facility_id format", 400, origin);
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
 
     if (action === "save_snapshot") {
       const {
@@ -193,7 +203,7 @@ export async function POST(req: NextRequest) {
           UPDATE facility_pms_specials SET
             name = ${name}, description = ${description || null}, applies_to = ${applies_to || []}, discount_type = ${discount_type || "fixed"},
             discount_value = ${discount_value || null}, min_lease_months = ${min_lease_months || 1}, start_date = ${start_date || null}, end_date = ${end_date || null}, active = ${active !== false}
-          WHERE id = ${id}::uuid RETURNING *`;
+          WHERE id = ${id}::uuid AND facility_id = ${facility_id}::uuid RETURNING *`;
       } else {
         row = await db.$queryRaw<Array<Record<string, unknown>>>`
           INSERT INTO facility_pms_specials (facility_id, name, description, applies_to, discount_type, discount_value, min_lease_months, start_date, end_date, active)
@@ -246,8 +256,6 @@ export async function DELETE(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "facility-pms");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const authErr = await requireAdminKey(req);
-  if (authErr) return authErr;
 
   try {
     const body = await req.json();
@@ -255,12 +263,33 @@ export async function DELETE(req: NextRequest) {
     if (!id) return errorResponse("id required", 400, origin);
     if (!isValidUuid(id)) return errorResponse("Invalid id format", 400, origin);
 
+    // Resolve the record's facility, then scope the delete to it: admins pass,
+    // owners need a manage session for that facility.
+    let recordFacilityId: string | null = null;
     if (type === "unit") {
-      await db.facility_pms_units.delete({ where: { id } });
+      const unit = await db.facility_pms_units.findUnique({
+        where: { id },
+        select: { facility_id: true },
+      });
+      recordFacilityId = unit?.facility_id ?? null;
     } else if (type === "special") {
-      await db.facility_pms_specials.delete({ where: { id } });
+      const special = await db.facility_pms_specials.findUnique({
+        where: { id },
+        select: { facility_id: true },
+      });
+      recordFacilityId = special?.facility_id ?? null;
     } else {
       return errorResponse('type must be "unit" or "special"', 400, origin);
+    }
+
+    if (!recordFacilityId) return errorResponse("Not found", 404, origin);
+    const denied = await requireFacilityAccess(req, recordFacilityId);
+    if (denied) return denied;
+
+    if (type === "unit") {
+      await db.facility_pms_units.delete({ where: { id } });
+    } else {
+      await db.facility_pms_specials.delete({ where: { id } });
     }
 
     return jsonResponse({ success: true }, 200, origin);

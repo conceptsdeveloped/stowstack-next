@@ -11,6 +11,7 @@ import {
   getOrigin,
   corsResponse,
   isAdminRequest,
+  requireManageOrAdmin,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -25,7 +26,8 @@ export async function OPTIONS(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
+  const denied = await requireManageOrAdmin(req);
+  if (denied) return denied;
 
   try {
     const url = new URL(req.url);

@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { setManageToken } from "@/lib/facility-auth";
 
 type Mode = "code" | "scratch";
 
@@ -36,7 +35,7 @@ export default function ManageEntryPage() {
         setError(data?.error || "That code didn't work. Double-check it and try again.");
         return;
       }
-      setManageToken(data.token);
+      // Session is set as an httpOnly cookie by the route; nothing to store.
       router.push("/manage/dashboard");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -65,7 +64,7 @@ export default function ManageEntryPage() {
         setError(data?.error || "Couldn't create your workspace. Check your invite code.");
         return;
       }
-      setManageToken(data.token);
+      // Session is set as an httpOnly cookie by the route; nothing to store.
       router.push("/manage/dashboard");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -76,13 +75,13 @@ export default function ManageEntryPage() {
 
   return (
     <main
-      style={{ fontFamily: "var(--font-manrope, sans-serif)" }}
+      style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)" }}
       className="min-h-screen bg-[var(--color-light,#faf9f5)] text-[var(--color-dark,#141413)] flex items-center justify-center px-4 py-16"
     >
       <div className="w-full max-w-md">
         <header className="mb-8 text-center">
-          <div className="text-2xl font-bold lowercase tracking-tight">
-            storage<span style={{ color: "var(--brand-gold, #B58B3F)" }}>ads</span>
+          <div className="text-2xl font-semibold lowercase tracking-tight">
+            storageads
           </div>
           <h1 className="mt-6 text-2xl font-semibold tracking-tight">
             Manage your facility

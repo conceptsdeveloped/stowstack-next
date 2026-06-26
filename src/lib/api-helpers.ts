@@ -247,3 +247,81 @@ export async function requireAdminAuth(
     return errorResponse("Unauthorized", 401, req.headers.get("origin"));
   }
 }
+
+/**
+ * Facility-scoped guard for the owner-facing /manage tools.
+ *
+ * Returns null (authorized) when EITHER:
+ *  - the request carries a valid admin key (founders/VAs — full access), OR
+ *  - the request carries a valid manage session whose scope includes the
+ *    specific `facilityId` being accessed.
+ *
+ * Otherwise returns an error response. This is the single guard that lets the
+ * existing facility components be reused by owners without leaking one
+ * facility's data to another: an owner can only ever touch facilities their
+ * signed session was issued for.
+ *
+ * Usage in a route:
+ *   const denied = await requireFacilityAccess(req, facilityId);
+ *   if (denied) return denied;
+ */
+export async function requireFacilityAccess(
+  req: NextRequest,
+  facilityId?: string | null
+): Promise<NextResponse | null> {
+  // Admin fast path (shared ADMIN_SECRET).
+  if (isAdminRequest(req)) return null;
+
+  // When facilityId isn't passed explicitly (e.g. GET handlers), fall back to
+  // the ?facilityId= query param so the guard can be a 1:1 swap. Body-based
+  // handlers (POST/PATCH/DELETE) must still pass it explicitly after parsing.
+  const targetFacilityId =
+    facilityId ?? req.nextUrl.searchParams.get("facilityId") ?? undefined;
+
+  // Manage session must be present, valid, and scoped to THIS facility.
+  const { getManageScope, manageScopeAllows } = await import("@/lib/manage-session");
+  const scope = getManageScope(req);
+  if (manageScopeAllows(scope, targetFacilityId)) {
+    Sentry.addBreadcrumb({
+      category: "auth",
+      message: `Manage session authorized for facility ${targetFacilityId}`,
+      level: "info",
+    });
+    return null;
+  }
+
+  // Fall back to per-admin key validation (async) before refusing.
+  const providedKey = req.headers.get("x-admin-key");
+  if (providedKey?.startsWith("sa_adm_")) {
+    const adminCheck = await requireAdminKey(req);
+    if (adminCheck === null) return null;
+  }
+
+  return errorResponse("Unauthorized", 401, req.headers.get("origin"));
+}
+
+/**
+ * Guard for resources that are NOT facility-scoped but should still be
+ * available to signed-in owners — e.g. global template lists, the shared
+ * style-reference library, stock imagery. Authorizes when the request carries
+ * a valid admin key OR any valid manage session (no specific facility match
+ * required). Use requireFacilityAccess instead whenever the data belongs to a
+ * particular facility.
+ */
+export async function requireManageOrAdmin(
+  req: NextRequest
+): Promise<NextResponse | null> {
+  if (isAdminRequest(req)) return null;
+
+  const { getManageScope } = await import("@/lib/manage-session");
+  const scope = getManageScope(req);
+  if (scope && scope.facilityIds.length > 0) return null;
+
+  const providedKey = req.headers.get("x-admin-key");
+  if (providedKey?.startsWith("sa_adm_")) {
+    const adminCheck = await requireAdminKey(req);
+    if (adminCheck === null) return null;
+  }
+
+  return errorResponse("Unauthorized", 401, req.headers.get("origin"));
+}

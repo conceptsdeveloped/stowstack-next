@@ -6,7 +6,12 @@ import {
   corsResponse,
   verifyCsrfOrigin,
 } from "@/lib/api-helpers";
-import { createManageToken } from "@/lib/manage-session";
+import {
+  createManageToken,
+  COOKIE_NAME,
+  manageCookieOptions,
+  MANAGE_TTL_DAYS,
+} from "@/lib/manage-session";
 import { db } from "@/lib/db";
 
 /**
@@ -14,8 +19,9 @@ import { db } from "@/lib/db";
  *
  * Owner entry — "I have a code". The visitor enters the facility access_code
  * they received from their audit. We look it up, and on a match mint a
- * facility-scoped manage token. The token is returned to the client (stored
- * client-side and sent as x-manage-token, mirroring the admin-key pattern).
+ * facility-scoped manage session, set as an httpOnly cookie. The cookie is the
+ * single transport: same-origin tool fetches send it automatically and
+ * requireFacilityAccess() validates it server-side. Nothing is stored client-side.
  *
  * No admin auth: this is an unauthenticated entry point gated by knowledge of
  * the access_code. Abuse is bounded by the code being a unique 16-char value;
@@ -81,9 +87,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  return jsonResponse(
+  const res = jsonResponse(
     {
-      token,
       facility: {
         id: facility.id,
         name: facility.name,
@@ -107,4 +112,7 @@ export async function POST(req: NextRequest) {
     200,
     origin
   );
+
+  res.cookies.set(COOKIE_NAME, token, manageCookieOptions(MANAGE_TTL_DAYS * 24 * 60 * 60));
+  return res;
 }

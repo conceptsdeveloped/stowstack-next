@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { jsonResponse, errorResponse, getOrigin, corsResponse, isAdminRequest } from "@/lib/api-helpers";
+import { jsonResponse, errorResponse, getOrigin, corsResponse, isAdminRequest, requireFacilityAccess } from "@/lib/api-helpers";
 import { getSession } from "@/lib/session-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -77,7 +77,6 @@ export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "landing-pages");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {
     const body = await req.json();
@@ -105,6 +104,16 @@ export async function POST(req: NextRequest) {
       const cloneTitle = pageTitle || `${sourceP.title} (Copy)`;
       const cloneSlug = slug || `${sourceP.slug}-copy-${Date.now().toString(36)}`;
       const cloneFacility = facilityId || sourceP.facility_id;
+
+      // Owner must own the destination facility, and the source facility too
+      // when copying across facilities (don't let one facility lift another's
+      // page content).
+      const denied = await requireFacilityAccess(req, cloneFacility);
+      if (denied) return denied;
+      if (sourceP.facility_id !== cloneFacility) {
+        const srcDenied = await requireFacilityAccess(req, sourceP.facility_id);
+        if (srcDenied) return srcDenied;
+      }
 
       const existing = await db.landing_pages.findFirst({ where: { slug: cloneSlug } });
       if (existing) return errorResponse("Slug already exists", 400, origin);
@@ -137,6 +146,21 @@ export async function POST(req: NextRequest) {
 
     if (!facilityId || !pageTitle || !slug) {
       return errorResponse("Missing required fields: facilityId, title, slug", 400, origin);
+    }
+
+    // Owner must own the destination facility; when cloning across facilities,
+    // the source facility too.
+    const denied = await requireFacilityAccess(req, facilityId);
+    if (denied) return denied;
+    if (cloneFrom) {
+      const sourceP = await db.landing_pages.findUnique({
+        where: { id: cloneFrom },
+        select: { facility_id: true },
+      });
+      if (sourceP && sourceP.facility_id !== facilityId) {
+        const srcDenied = await requireFacilityAccess(req, sourceP.facility_id);
+        if (srcDenied) return srcDenied;
+      }
     }
 
     const existing = await db.landing_pages.findFirst({ where: { slug } });
@@ -209,7 +233,6 @@ export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "landing-pages");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {
     const url = new URL(req.url);
@@ -224,6 +247,11 @@ export async function PATCH(req: NextRequest) {
 
     const page = await db.landing_pages.findUnique({ where: { id } });
     if (!page) return errorResponse("Page not found", 404, origin);
+
+    // Scope the edit to the page's facility: admins pass, owners need a manage
+    // session for it.
+    const denied = await requireFacilityAccess(req, page.facility_id);
+    if (denied) return denied;
 
     const sections = updates.sections;
     delete updates.sections;
@@ -310,12 +338,21 @@ export async function DELETE(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "landing-pages");
   if (limited) return limited;
   const origin = getOrigin(req);
-  if (!isAdminRequest(req)) return errorResponse("Unauthorized", 401, origin);
 
   try {
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
     if (!id) return errorResponse("Missing page ID", 400, origin);
+
+    // Scope the delete to the page's facility: admins pass, owners need a manage
+    // session for it.
+    const page = await db.landing_pages.findUnique({
+      where: { id },
+      select: { facility_id: true },
+    });
+    if (!page) return errorResponse("Page not found", 404, origin);
+    const denied = await requireFacilityAccess(req, page.facility_id);
+    if (denied) return denied;
 
     await db.$transaction(async (tx) => {
       await tx.landing_page_sections.deleteMany({ where: { landing_page_id: id } });

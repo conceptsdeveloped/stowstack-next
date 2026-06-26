@@ -6,6 +6,7 @@ import {
   getOrigin,
   corsResponse,
   requireAdminKey,
+  requireFacilityAccess,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -21,7 +22,7 @@ export async function OPTIONS(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-pms-queue");
   if (limited) return limited;
-  const authError = await requireAdminKey(req);
+  const authError = await requireFacilityAccess(req);
   if (authError) return authError;
   const origin = getOrigin(req);
 
@@ -78,6 +79,11 @@ export async function GET(req: NextRequest) {
 
 /**
  * PATCH — Update a PMS report upload status, notes, etc.
+ *
+ * Admin-only by design. Unlike GET (facility-scoped so an owner can see the
+ * status of reports they uploaded), processing a report — marking it processed,
+ * recording processed_by — is an internal back-office action handled by
+ * founders/VAs, not facility owners. Owners do not get write access here.
  */
 export async function PATCH(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "admin-pms-queue");

@@ -8,7 +8,12 @@ import {
   verifyCsrfOrigin,
   safeCompare,
 } from "@/lib/api-helpers";
-import { createManageToken } from "@/lib/manage-session";
+import {
+  createManageToken,
+  COOKIE_NAME,
+  manageCookieOptions,
+  MANAGE_TTL_DAYS,
+} from "@/lib/manage-session";
 import { db } from "@/lib/db";
 
 /**
@@ -16,7 +21,8 @@ import { db } from "@/lib/db";
  *
  * Owner entry — "Start from scratch". Gated behind a shared invite code
  * (MANAGE_INVITE_CODE) so the paid generation tools aren't wide open. Creates
- * a fresh facility owned by the resulting manage session and returns a token.
+ * a fresh facility owned by the resulting manage session, set as an httpOnly
+ * cookie (the single session transport).
  */
 
 function generateAccessCode(): string {
@@ -112,5 +118,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  return jsonResponse({ token, facility }, 200, origin);
+  const res = jsonResponse({ facility }, 200, origin);
+  res.cookies.set(COOKIE_NAME, token, manageCookieOptions(MANAGE_TTL_DAYS * 24 * 60 * 60));
+  return res;
 }

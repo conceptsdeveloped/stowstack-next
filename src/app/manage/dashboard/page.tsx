@@ -32,7 +32,6 @@ import {
   Phone,
 } from "lucide-react";
 import type { FacilityProp } from "@/components/admin/facility-tabs/facility-overview/types";
-import { getManageToken, clearManageToken } from "@/lib/facility-auth";
 
 /* Reuse the exact same tool components the admin facility manager uses. They
    accept an `adminKey` prop and fetch via authHeaders(); passing "" makes them
@@ -160,19 +159,13 @@ export default function ManageDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
 
   const loadSession = useCallback(async () => {
-    const token = getManageToken();
-    if (!token) {
-      router.replace("/manage");
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/manage/session", {
-        headers: { "x-manage-token": token },
-      });
+      // The session rides in the httpOnly sa_manage cookie; same-origin
+      // fetch sends it automatically.
+      const res = await fetch("/api/manage/session", { credentials: "include" });
       if (res.status === 401) {
-        clearManageToken();
         router.replace("/manage");
         return;
       }
@@ -194,20 +187,24 @@ export default function ManageDashboardPage() {
     loadSession();
   }, [loadSession]);
 
-  function exit() {
-    clearManageToken();
+  async function exit() {
+    try {
+      await fetch("/api/manage/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // best-effort; redirect regardless
+    }
     router.replace("/manage");
   }
 
   return (
     <div
-      style={{ fontFamily: "var(--font-manrope, sans-serif)" }}
+      style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)" }}
       className="min-h-screen bg-[var(--color-light,#faf9f5)] text-[var(--color-dark,#141413)]"
     >
       <header className="flex items-center justify-between border-b border-[var(--color-light-gray,#e8e6dc)] px-6 py-4">
         <div className="flex items-center gap-3">
-          <div className="text-lg font-bold lowercase tracking-tight">
-            storage<span style={{ color: "var(--brand-gold, #B58B3F)" }}>ads</span>
+          <div className="text-lg font-semibold lowercase tracking-tight">
+            storageads
           </div>
           {facility && (
             <>
