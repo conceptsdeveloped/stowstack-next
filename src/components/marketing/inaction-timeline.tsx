@@ -48,7 +48,7 @@ const MONTHS = [
   },
   {
     month: 6,
-    title: "10 vacant — occupancy below 80%",
+    title: "10 vacant, occupancy below 80%",
     detail: "Rate cuts attract short-term tenants who churn. Revenue spiral.",
     loss: 1500,
     cumulative: 5850,

@@ -16,7 +16,7 @@ type Problem = {
 const PROBLEMS: Problem[] = [
   {
     heading: "The REIT-to-independent occupancy gap is 5+ points.",
-    body: "Extra Space ran 92.6% same-store occupancy in Q4 2025. The independent average sits at 87.2% across a panel of 70,000+ properties. At a 500-unit facility, that gap is around $72,000 a year in revenue you're not collecting, and around $1.3M of asset value at a 5.5% cap. The gap closes with marketing infrastructure, not a renovation, a new sign, or a better location.",
+    body: "Extra Space ran 92.6% same-store occupancy in Q4 2025. The independent average sits at 87.2% across a panel of 70,000+ properties. At a 500-unit facility, that gap is around $72,000 a year in revenue you're not collecting, and around $1.3M of asset value at a 5.5% cap. You close that gap with marketing infrastructure, the same lever the REITs already pull.",
     highlight: "$72,000 a year",
     cite: [1, 2, 3],
   },
@@ -63,7 +63,7 @@ export default function ProblemStatement() {
             className="font-semibold"
             style={{ fontSize: "var(--text-section-head)" }}
           >
-            <RevealText>The economics are simple. The infrastructure to act on them hasn&apos;t existed for independents. Until now.</RevealText>
+            <RevealText>The economics are simple. Independents never had the infrastructure to act on them. Now you do.</RevealText>
           </h2>
           <p
             className="mt-6 mx-auto"

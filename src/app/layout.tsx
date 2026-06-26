@@ -37,7 +37,7 @@ const archivo = Archivo({
 });
 
 const siteDescription =
-  "Stop losing units to bad marketing. StorageAds builds the entire system — ads, landing pages, attribution, and conversion — so independent storage operators fill vacancies and prove every dollar.";
+  "Stop losing units to the REIT down the road. StorageAds runs the whole marketing system for independent storage operators: ads, landing pages, and reservations that become move-ins. See which ads fill your units.";
 
 export const metadata: Metadata = {
   title: {

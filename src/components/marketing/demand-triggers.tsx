@@ -104,9 +104,9 @@ export default function DemandTriggers() {
               maxWidth: "62ch",
             }}
           >
-            This isn&apos;t persona research from an agency deck. It&apos;s
-            what we see at our own gates every week. Meta puts your facility
-            in front of these renters before they ever open Google.
+            These are the reasons people rent a unit. We watch them walk
+            through our own gates every week. Meta puts your facility in front
+            of these renters before they ever open Google.
           </p>
         </div>
 

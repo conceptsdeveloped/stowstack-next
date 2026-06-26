@@ -56,7 +56,7 @@ const ROWS: Row[] = [
   },
   {
     capability: "Every move-in tracked back to its ad",
-    detail: "Not clicks. Not leads. The actual unit that got rented",
+    detail: "The actual unit that got rented, traced to the ad that filled it",
     values: ["yes", "no", "partial", "no"],
   },
   {

@@ -204,7 +204,7 @@ export default function CTASection() {
       setSubmitError(
         aborted
           ? "The request took too long. Please check your connection and try again."
-          : "Network error — please check your connection and try again."
+          : "Network error. Please check your connection and try again."
       );
     } finally {
       clearTimeout(timeoutId);
