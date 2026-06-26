@@ -189,6 +189,8 @@ export default function NoiCalculatorClient() {
 
         <div className="flex items-center justify-between flex-wrap gap-3 mb-8 print:hidden">
           <div
+            role="group"
+            aria-label="Display basis"
             className="inline-flex rounded-lg p-1"
             style={{ background: "var(--color-light-gray)" }}
           >
@@ -196,6 +198,7 @@ export default function NoiCalculatorClient() {
               <button
                 key={b}
                 type="button"
+                aria-pressed={basis === b}
                 onClick={() => setBasis(b)}
                 className="px-4 py-1.5 text-sm font-medium rounded-md transition-all capitalize"
                 style={{

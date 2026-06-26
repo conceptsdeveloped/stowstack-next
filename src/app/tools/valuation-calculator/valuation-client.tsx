@@ -105,6 +105,8 @@ export default function ValuationClient() {
               subtitle="Pick the unknown. Enter the other two below and we'll compute it."
             >
               <div
+                role="group"
+                aria-label="Solve for"
                 className="inline-flex rounded-lg p-1 w-full sm:w-auto"
                 style={{ background: "var(--color-light-gray)" }}
               >
@@ -112,6 +114,7 @@ export default function ValuationClient() {
                   <button
                     key={o.key}
                     type="button"
+                    aria-pressed={solveFor === o.key}
                     onClick={() => setSolveFor(o.key)}
                     className="px-4 py-1.5 text-sm font-medium rounded-md transition-all flex-1 sm:flex-none"
                     style={{
