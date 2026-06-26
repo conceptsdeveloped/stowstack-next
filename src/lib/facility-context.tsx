@@ -165,17 +165,12 @@ export function FacilityProvider({
     }
   }, [facilityParam, persisted, facilities, isMultiFacility]);
 
-  // When navigation lands on a bare URL but a facility is remembered, re-write
-  // the param so the address bar reflects (and can share) the active scope.
-  useEffect(() => {
-    if (!isMultiFacility) return;
-    if (facilityParam) return;
-    if (persisted && persisted !== 'all' && facilities.some((f) => f.id === persisted)) {
-      const sp = new URLSearchParams(searchParams.toString());
-      sp.set('facility', persisted);
-      router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
-    }
-  }, [facilityParam, persisted, facilities, isMultiFacility, pathname, router, searchParams]);
+  // NB: we deliberately do NOT rewrite a bare URL back to ?facility=. Scope is
+  // carried by context (resolveFacilityScope falls back to `persisted`), so a
+  // facility-coupled tool stays scoped without the param. Leaving bare URLs
+  // alone keeps /admin/facilities — which reads the param directly to choose
+  // grid-vs-overview — as the portfolio chooser when reached via a plain nav
+  // link. Explicit switches (setFacility) still write a shareable param.
 
   const value = useMemo<FacilityContextValue>(
     () => ({

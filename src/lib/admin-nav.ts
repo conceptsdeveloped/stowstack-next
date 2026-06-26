@@ -118,7 +118,10 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: "FACILITIES",
     items: [
-      { label: "Facility Manager", href: "/admin/facilities", icon: Building2, scoped: true },
+      // The chooser/overview hub itself: a portfolio grid at "all", a facility's
+      // overview when one is picked. It reads ?facility= directly and has its own
+      // in-page facility header, so it is not a header-chip "scoped" route.
+      { label: "Facility Manager", href: "/admin/facilities", icon: Building2 },
       { label: "Tenants", href: "/admin/facilities/tenants", icon: Users, scoped: true },
       { label: "PMS", href: "/admin/facilities/pms", icon: FileText, scoped: true },
       { label: "Calls", href: "/admin/facilities/call-tracking", icon: Phone, scoped: true },
