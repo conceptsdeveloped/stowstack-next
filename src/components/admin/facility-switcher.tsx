@@ -3,25 +3,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Building2, Check, ChevronsUpDown, Layers, Search } from "lucide-react";
 import { useFacility } from "@/lib/facility-context";
+import { pushFacilityRecent, readFacilityRecents } from "@/lib/facility-recents";
 import type { Facility } from "@/types/facility";
 
 const FONT = "var(--font), var(--font-manrope), system-ui, sans-serif";
-const RECENTS_KEY = "storageads_facility_recents";
 
 /** Facilities considered "live" get a green status dot; everything else is muted. */
 function isLive(status?: string): boolean {
   const s = (status || "").toLowerCase();
   return s === "active" || s === "live" || s === "client" || s === "client_signed";
-}
-
-function readRecents(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = JSON.parse(localStorage.getItem(RECENTS_KEY) || "[]");
-    return Array.isArray(raw) ? raw.filter((x) => typeof x === "string") : [];
-  } catch {
-    return [];
-  }
 }
 
 interface Option {
@@ -71,7 +61,7 @@ export function FacilitySwitcher({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlight, setHighlight] = useState(0);
-  const [recentIds, setRecentIds] = useState<string[]>(() => readRecents());
+  const [recentIds, setRecentIds] = useState<string[]>(() => readFacilityRecents());
   const ref = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -197,18 +187,16 @@ export function FacilitySwitcher({
   }
 
   function select(id: string) {
-    if (id !== "all") {
-      const next = [id, ...recentIds.filter((x) => x !== id)].slice(0, 6);
-      setRecentIds(next);
-      try {
-        localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
-      } catch {
-        /* ignore */
-      }
-    }
+    if (id !== "all") setRecentIds(pushFacilityRecent(id));
     setFacility(id === "all" ? "all" : id);
     close();
   }
+
+  // Re-read recents whenever the menu opens, so a facility selected elsewhere
+  // (e.g. the inline picker on an empty scope-aware page) shows up here too.
+  useEffect(() => {
+    if (open) setRecentIds(readFacilityRecents());
+  }, [open]);
 
   if (!facilities.length) return null;
 

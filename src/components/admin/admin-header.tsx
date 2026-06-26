@@ -13,33 +13,8 @@ import {
 } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useAdmin } from "@/lib/admin-context";
+import { findRouteMeta } from "@/lib/admin-nav";
 import { FacilitySwitcher } from "./facility-switcher";
-
-const ROUTE_TITLES: Record<string, string> = {
-  "/admin": "Dashboard",
-  "/admin/console": "Console",
-  "/admin/pipeline": "Pipeline",
-  "/admin/kanban": "Kanban",
-  "/admin/consumer-leads": "Consumer Leads",
-  "/admin/recovery": "Recovery",
-  "/admin/portfolio": "Portfolio",
-  "/admin/facilities": "Facility Manager",
-  "/admin/style-references": "Creative Library",
-  "/admin/sequences": "Sequences",
-  "/admin/insights": "Insights",
-  "/admin/billing": "Billing",
-  "/admin/activity": "Activity",
-  "/admin/calls": "Call Tracking",
-  "/admin/audits": "Diagnostics",
-  "/admin/partners": "Partners",
-  "/admin/settings": "Settings",
-  "/admin/changelog": "Changelog",
-  "/admin/campaigns": "Campaigns",
-};
-
-function getPageTitle(pathname: string): string {
-  return ROUTE_TITLES[pathname] ?? "Dashboard";
-}
 
 interface AdminHeaderProps {
   onToggleSidebar: () => void;
@@ -47,6 +22,7 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   const pathname = usePathname();
+  const route = findRouteMeta(pathname);
   const { adminKey, logout, refreshData } = useAdmin();
   const { isSignedIn } = useUser();
   const [notificationCount, setNotificationCount] = useState(0);
@@ -128,15 +104,53 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         <Menu className="h-4 w-4" />
       </button>
 
-      <h1 style={{ fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ink)' }}>
-        {getPageTitle(pathname)}
-      </h1>
+      {/* Breadcrumb: section › page. The section eyebrow tells you where in the
+          spine you are without opening the sidebar. */}
+      <nav className="flex min-w-0 items-center gap-2" aria-label="Breadcrumb">
+        {route.group && (
+          <>
+            <span
+              className="hidden sm:inline"
+              style={{
+                fontFamily: 'var(--font)',
+                fontSize: '13px',
+                fontWeight: 400,
+                color: 'var(--ink3)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {route.group}
+            </span>
+            <span className="hidden sm:inline" style={{ color: 'var(--ink3)', fontSize: '12px' }} aria-hidden>
+              /
+            </span>
+          </>
+        )}
+        <h1 style={{ fontFamily: 'var(--font)', fontSize: '14px', fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
+          {route.title}
+        </h1>
+      </nav>
 
-      {/* Mobile only: the sidebar (and its primary switcher) is hidden behind a
-          drawer on small screens, so surface a compact scope control here. */}
-      <span className="md:hidden">
-        <FacilitySwitcher variant="compact" />
-      </span>
+      {route.scoped ? (
+        /* Scope-aware page: the active facility is part of the page's identity,
+           so surface it as a breadcrumb-level switcher on every screen size.
+           This is the persistent "which facility am I in" indicator and the
+           fastest way to switch right where you're working. */
+        <>
+          <span style={{ color: 'var(--ink3)', fontSize: '12px' }} aria-hidden>
+            ·
+          </span>
+          <span className="min-w-0">
+            <FacilitySwitcher variant="compact" />
+          </span>
+        </>
+      ) : (
+        /* Portfolio/global page: the sidebar switcher governs scope, but it is
+           behind a drawer on mobile — keep a compact control reachable there. */
+        <span className="md:hidden">
+          <FacilitySwitcher variant="compact" />
+        </span>
+      )}
 
       <div className="ml-auto flex items-center gap-1.5 shrink-0">
         <button
