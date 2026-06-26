@@ -9,7 +9,7 @@
  * concern and lives in the client component, not here.
  */
 
-import { clampPct } from "./format";
+import { clampPct, usd0, usd2, pct } from "./format";
 
 export interface FieldDef {
   key: string;
@@ -259,4 +259,55 @@ export function deriveNoi(s: NoiState): NoiResult {
     impliedValue,
     expenseLines,
   };
+}
+
+export type CsvRow = [string, string, string];
+
+/**
+ * Build the rows for a NOI export. Pure (no DOM) so it can be unit-tested; the
+ * client wraps the result in a Blob and triggers the download.
+ */
+export function buildNoiCsvRows(s: NoiState, d: NoiResult): CsvRow[] {
+  return [
+    ["Line item", "Annual", "Monthly"],
+    ["Gross potential rent", usd0(d.gpr), usd0(d.gpr / 12)],
+    [
+      `Less vacancy & credit loss (${pct(s.vacancyPct)})`,
+      usd0(-d.vacancyLoss),
+      usd0(-d.vacancyLoss / 12),
+    ],
+    ["Net rental income", usd0(d.rentalIncomeNet), usd0(d.rentalIncomeNet / 12)],
+    ["Other income", usd0(d.otherIncomeTotal), usd0(d.otherIncomeTotal / 12)],
+    ["Effective gross income (EGI)", usd0(d.egi), usd0(d.egi / 12)],
+    ...d.expenseLines.map(
+      (l) => [`  ${l.label}`, usd0(-l.amount), usd0(-l.amount / 12)] as CsvRow,
+    ),
+    ["Total operating expenses", usd0(-d.opexTotal), usd0(-d.opexTotal / 12)],
+    ["NET OPERATING INCOME (NOI)", usd0(d.noi), usd0(d.noi / 12)],
+    ["NOI margin", pct(d.noiMargin), ""],
+    ["Operating expense ratio", pct(d.expenseRatio), ""],
+    ["NOI per unit", s.totalUnits > 0 ? usd0(d.noiPerUnit) : "n/a", ""],
+    [
+      "NOI per rentable sq ft",
+      s.rentableSqft > 0 ? usd2(d.noiPerSqft) : "n/a",
+      "",
+    ],
+    [`Implied value @ ${pct(s.capRatePct)} cap`, usd0(d.impliedValue), ""],
+  ];
+}
+
+/** Serialize rows to RFC-4180-ish CSV text, quoting every cell. */
+export function rowsToCsv(rows: CsvRow[]): string {
+  return rows
+    .map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+}
+
+/** Derive a safe download filename from the facility name. */
+export function noiCsvFileName(facilityName: string): string {
+  const slug = (facilityName || "facility")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `noi-${slug || "storage"}.csv`;
 }
