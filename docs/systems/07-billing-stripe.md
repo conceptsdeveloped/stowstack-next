@@ -147,8 +147,8 @@ Two portal-side billing surfaces are **not** Stripe Invoice objects:
 flowchart LR
     MARK["org status=pending_deletion<br/>+ scheduled_deletion_at"] --> CRON["cron cleanup-organizations<br/>3:30 AM daily"]
     CRON --> HAS{"stripe_subscription_id<br/>present?"}
-    HAS -->|yes| CANCEL["DELETE api.stripe.com/v1/subscriptions/{id}<br/>(404 = already gone, proceed)"]
-    HAS -->|"no (the common case ⚠️)"| SKIP["no-op cancel step"]
+    HAS -->|"yes (now populated by the webhook)"| CANCEL["DELETE api.stripe.com/v1/subscriptions/id<br/>(404 = already gone, proceed)"]
+    HAS -->|"no (only legacy/out-of-band orgs)"| SKIP["no-op cancel step"]
     CANCEL --> PURGE["$transaction: null partial_leads.facility_id<br/>→ delete facilities (cascade)<br/>→ delete organizations (cascade)"]
     SKIP --> PURGE
 
@@ -156,7 +156,7 @@ flowchart LR
     class SKIP warn
 ```
 
-> **⚠️ Known gap:** `stripe_subscription_id` is **never written by any application code** (the webhook stores `stripe_customer_id`, not the subscription id). So the cancel step only fires for orgs whose subscription id was populated out-of-band. See [13 · Gaps & Seams](13-gaps-and-seams.md).
+> **✅ Fixed (was a gap):** the webhook now persists `stripe_subscription_id` — `handleCheckoutComplete` stores `session.subscription`, and `handleSubscriptionUpdate` backfills `subscription.id` on every update. Previously it stored only `stripe_customer_id`, so the cron's cancel step silently no-opped and deleted orgs kept billing. The id is now populated for any org that goes through checkout or receives a subscription update.
 
 ---
 

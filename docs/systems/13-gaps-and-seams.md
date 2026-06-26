@@ -17,7 +17,7 @@ mindmap
       🟡 CSP report-only, no sink
       🟡 rate limit fail-open default
     Billing
-      🔴 stripe_subscription_id never written
+      ✅ stripe_subscription_id now persisted (fixed)
       🔴 two plan namespaces unmapped
       🟡 prices disagree across 4 files
       ⚪ Checkout path unwired
@@ -60,8 +60,8 @@ Clerk activates only with `pk_live_` keys, and even then marks **every** route p
 
 ## Billing
 
-### 🔴 `stripe_subscription_id` is never written by application code
-The webhook stores `stripe_customer_id`, not the subscription id. No code path writes `stripe_subscription_id`. The deletion cron's "cancel Stripe subscription" step reads that field — so for orgs created normally it **no-ops**, and the subscription keeps billing after org deletion unless cancelled out-of-band.
+### ✅ `stripe_subscription_id` not persisted — **FIXED**
+*Was:* the webhook stored `stripe_customer_id` but never `stripe_subscription_id`, so the deletion cron's "cancel Stripe subscription" step (which reads that field) **no-opped** and deleted orgs kept billing. *Now:* `handleCheckoutComplete` stores `session.subscription` and `handleSubscriptionUpdate` backfills `subscription.id` on every update (`src/app/api/stripe-webhook/route.ts`), with test coverage. Only legacy orgs created before the fix and never updated may still have a null id.
 → [07 · Billing & Stripe](07-billing-stripe.md) §6
 
 ### 🔴 Two plan namespaces, never mapped
@@ -133,7 +133,7 @@ Despite the name, it's an admin-gated endpoint that ingests **pre-parsed JSON** 
 | Seam | Severity | System | The surprise |
 |------|----------|--------|--------------|
 | CSRF 403s new public POSTs | 🔴 | Auth | Handler never runs; only signal is a Vercel-log 403 |
-| `stripe_subscription_id` unwritten | 🔴 | Billing | Deletion cron can't cancel the subscription |
+| `stripe_subscription_id` unwritten | ✅ fixed | Billing | Now persisted by the webhook; cron can cancel |
 | Two plan namespaces | 🔴 | Billing | Marketing tier ≠ backend plan key, no mapping |
 | Clerk inert | 🟡 | Auth | Pages aren't protected by the proxy |
 | CSP report-only, no sink | 🟡 | Security | No enforcement, no telemetry |
