@@ -43,6 +43,21 @@ Visual study guides for the critical systems in this codebase. Each document is 
 | [13](13-gaps-and-seams.md) | **Gaps & Seams** | A candid inventory of where the code's *intent* diverges from its *wired reality* — scaffolds, namespace mismatches, timers with no driver, fail-soft defaults. Read this before assuming a system does what its names imply. |
 | [17](17-glossary-reference.md) | **Glossary & Quick Reference** | The single Cmd-F lookup: domain vocabulary, every `String` status lifecycle (no enums), the two plan namespaces, auth credentials, the 22-cron inventory, and the lib-file map. |
 
+## Suggested reading paths
+
+Don't read 1→17 in order. Pick the path that matches what you're doing:
+
+| You are… | Read in this order | Why |
+|----------|--------------------|-----|
+| **New to the codebase** | [06](06-frontend-ia.md) → [01](01-authentication.md) → [02](02-data-model.md) → [03](03-audit-funnel.md) → [17](17-glossary-reference.md) | Surfaces, then auth boundaries, then data, then the core funnel, with the glossary as a backstop. |
+| **Adding/​debugging an API route** | [01](01-authentication.md) → [13](13-gaps-and-seams.md) → [17](17-glossary-reference.md) | The CSRF footgun and the auth perimeters are where routes silently break. |
+| **Doing security/​compliance work** | [01](01-authentication.md) → [11](11-security-compliance.md) → [13](13-gaps-and-seams.md) | The perimeters, the layered defenses, and the known soft spots. |
+| **Working on billing** | [07](07-billing-stripe.md) → [02](02-data-model.md) → [13](13-gaps-and-seams.md) | The webhook state engine, the org fields, and the unwired subscription-id seam. |
+| **Working on the funnel/​growth** | [03](03-audit-funnel.md) → [04](04-nurture-lifecycle.md) → [10](10-attribution-tracking.md) → [16](16-referrals-revshare.md) | Stranger → lead → nurtured → measured → referred. |
+| **Working on the tenant/​PMS side** | [08](08-pms-pipeline.md) → [09](09-retention-engine.md) → [02](02-data-model.md) | Data ingestion, then the retention machine it feeds. |
+| **Working on AI features** | [14](14-operator-os-ai.md) → [15](15-ad-creative-pipeline.md) → [12](12-gbp-external-api.md) | The substrate, then the two big AI consumers. |
+| **Auditing for risk** | [13](13-gaps-and-seams.md) first, then any system it flags | The candid inventory of intent-vs-reality gaps. |
+
 ## The mental model (one diagram for the whole product)
 
 ```mermaid
