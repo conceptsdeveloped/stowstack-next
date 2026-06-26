@@ -132,7 +132,11 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         {getPageTitle(pathname)}
       </h1>
 
-      <FacilitySwitcher />
+      {/* Mobile only: the sidebar (and its primary switcher) is hidden behind a
+          drawer on small screens, so surface a compact scope control here. */}
+      <span className="md:hidden">
+        <FacilitySwitcher variant="compact" />
+      </span>
 
       <div className="ml-auto flex items-center gap-1.5 shrink-0">
         <button

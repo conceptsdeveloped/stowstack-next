@@ -23,6 +23,7 @@ import {
   GitBranch,
   Inbox,
   Kanban,
+  Layers,
   LayoutDashboard,
   LifeBuoy,
   LineChart,
@@ -37,10 +38,12 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
+  TrendingUp,
   Upload,
   Users,
 } from "lucide-react";
 import { useCommandPalette } from "@/hooks/use-command-palette";
+import { useFacility } from "@/lib/facility-context";
 
 const FONT = "var(--font), var(--font-manrope), system-ui, sans-serif";
 const RECENTS_KEY = "storageads_palette_recents";
@@ -96,6 +99,7 @@ const DESTINATIONS: Destination[] = [
   { id: "intel-occupancy", label: "Occupancy Intelligence", href: "/admin/intelligence/occupancy", group: "Intelligence", icon: Building2 },
   { id: "intel-market", label: "Market Intelligence", href: "/admin/intelligence/market", group: "Intelligence", icon: MapIcon },
   { id: "intel-revenue", label: "Revenue Analytics", href: "/admin/intelligence/revenue", group: "Intelligence", icon: BarChart3 },
+  { id: "intel-ecri", label: "ECRI Finder", href: "/admin/intelligence/ecri", group: "Intelligence", icon: TrendingUp },
   { id: "fac-tenants", label: "Tenants", href: "/admin/facilities/tenants", group: "Facilities", icon: Users },
   { id: "fac-pms", label: "PMS Data", href: "/admin/facilities/pms", group: "Facilities", icon: FileText },
   { id: "fac-calls", label: "Call Tracking", href: "/admin/facilities/call-tracking", group: "Facilities", icon: Phone },
@@ -107,7 +111,15 @@ const ACTIONS: Destination[] = [
   { id: "act-generate-audit", label: "Generate diagnostic", href: "/admin/audits", group: "Action", icon: Sparkles },
 ];
 
-type Item = { kind: "tool" | "action"; id: string; label: string; sub: string; href: string; icon: LucideIcon };
+type Item = {
+  kind: "tool" | "action" | "facility";
+  id: string;
+  label: string;
+  sub: string;
+  href: string;
+  icon: LucideIcon;
+  facilityId?: string; // for kind "facility": the id to scope to, or "all"
+};
 
 function matches(q: string, label: string, sub?: string) {
   if (!q) return true;
@@ -116,13 +128,16 @@ function matches(q: string, label: string, sub?: string) {
 
 /**
  * Global ⌘K command palette for the admin. Built on the existing
- * useCommandPalette hook (⌘K / "/" / Esc). Indexes admin routes and a few
- * actions — navigation and commands only. Facility scope is owned solely by
- * the FacilitySwitcher in the admin header; it is never selected here.
+ * useCommandPalette hook (⌘K / "/" / Esc). Indexes admin routes, a few actions,
+ * and — when you type a facility name — facility scope switches. The
+ * FacilitySwitcher in the sidebar remains the primary scope control; the palette
+ * is just a fast keyboard path to it. Switching scope only rewrites the
+ * `?facility=` param via setFacility (no API call, so no CSRF concern).
  */
 export function CommandPalette() {
   const { open, close, openPalette } = useCommandPalette();
   const router = useRouter();
+  const { facilities, setFacility, currentId } = useFacility();
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
   const [recentIds, setRecentIds] = useState<string[]>(() => {
@@ -173,6 +188,30 @@ export function CommandPalette() {
     () => ACTIONS.map((d) => ({ kind: "action", id: d.id, label: d.label, sub: "Action", href: d.href, icon: d.icon })),
     [],
   );
+  const facilityItems = useMemo<Item[]>(() => {
+    if (facilities.length < 2) return [];
+    const all: Item = {
+      kind: "facility",
+      id: "fac-scope-all",
+      label: "All facilities",
+      sub: currentId === "all" ? "Current scope" : "Portfolio roll-up",
+      href: "",
+      icon: Layers,
+      facilityId: "all",
+    };
+    return [
+      all,
+      ...facilities.map<Item>((f) => ({
+        kind: "facility",
+        id: `fac-scope-${f.id}`,
+        label: f.name,
+        sub: f.id === currentId ? "Current scope" : f.location || "Switch scope",
+        href: "",
+        icon: Building2,
+        facilityId: f.id,
+      })),
+    ];
+  }, [facilities, currentId]);
   const byId = useMemo(() => {
     const m = new Map<string, Item>();
     [...toolItems, ...actionItems].forEach((i) => m.set(i.id, i));
@@ -187,12 +226,16 @@ export function CommandPalette() {
       const recents = recentIds.map((id) => byId.get(id)).filter((x): x is Item => Boolean(x)).slice(0, 5);
       if (recents.length) out.push({ title: "Recent", items: recents });
     }
+    // Facility scope switches surface only when you type — browsing the full
+    // facility list is the sidebar switcher's job; here we match by name.
+    const facs = q ? facilityItems.filter((i) => matches(q, i.label, i.sub)) : [];
     const tools = toolItems.filter((i) => matches(q, i.label, i.sub));
     const acts = actionItems.filter((i) => matches(q, i.label, i.sub));
+    if (facs.length) out.push({ title: "Switch facility", items: facs });
     if (tools.length) out.push({ title: "Go to", items: tools });
     if (acts.length) out.push({ title: "Actions", items: acts });
     return out;
-  }, [q, recentIds, byId, toolItems, actionItems]);
+  }, [q, recentIds, byId, toolItems, actionItems, facilityItems]);
 
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
   const activeIndex = flat.length ? Math.min(Math.max(cursor, 0), flat.length - 1) : 0;
@@ -203,6 +246,11 @@ export function CommandPalette() {
   }, [activeIndex, flat.length]);
 
   function select(item: Item) {
+    if (item.kind === "facility") {
+      setFacility(item.facilityId === "all" ? "all" : item.facilityId!);
+      close();
+      return;
+    }
     const next = [item.id, ...recentIds.filter((x) => x !== item.id)].slice(0, 8);
     setRecentIds(next);
     try {
@@ -230,7 +278,8 @@ export function CommandPalette() {
 
   if (!open) return null;
 
-  const tag = (kind: Item["kind"]) => (kind === "action" ? "Action" : "Tool");
+  const tag = (kind: Item["kind"]) =>
+    kind === "action" ? "Action" : kind === "facility" ? "Scope" : "Tool";
 
   // Pair each row with its absolute position in `flat` so the active-row
   // highlight stays correct even when an item appears in two groups (Recent + its category).

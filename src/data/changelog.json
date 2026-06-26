@@ -1,0 +1,963 @@
+{
+  "entries": [
+    {
+      "id": "7baf175ee6",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "tools",
+      "title": "Add ItemList JSON-LD to the tools hub"
+    },
+    {
+      "id": "7e3162178b",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "calculator",
+      "title": "Remove banned sienna gold, use charcoal-on-light"
+    },
+    {
+      "id": "ae99337bfd",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "tools",
+      "title": "Cross-link tools + WebApplication JSON-LD"
+    },
+    {
+      "id": "52de9b5450",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "tools",
+      "title": "Expand suite (ECRI, break-even, valuation) + shared primitives"
+    },
+    {
+      "id": "37c8f86e4e",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "tools",
+      "title": "Add Tools section + self-storage NOI calculator"
+    },
+    {
+      "id": "9691b5a5bf",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "audit-approve",
+      "title": "Enroll via nurture post_audit, drip as fallback"
+    },
+    {
+      "id": "5c12fbe221",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "nurture",
+      "title": "Add post_audit + recovery sequence templates"
+    },
+    {
+      "id": "2859cdb8dd",
+      "date": "2026-06-25",
+      "category": "feature",
+      "scope": "ideas",
+      "title": "Admin-gated /ideas viewer for the feature + idea doc"
+    },
+    {
+      "id": "43e0f6a4c8",
+      "date": "2026-06-24",
+      "category": "feature",
+      "scope": "resume",
+      "title": "Serve richer resume site at /resume via static export"
+    },
+    {
+      "id": "aabcaeaa30",
+      "date": "2026-06-23",
+      "category": "feature",
+      "scope": "resume",
+      "title": "Add Blake's resume site at /resume"
+    },
+    {
+      "id": "491ef107ec",
+      "date": "2026-06-20",
+      "category": "fix",
+      "scope": "home",
+      "title": "Cut REIT/jargon overuse in homepage copy"
+    },
+    {
+      "id": "ecb21cae02",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Wire the Operator's Console into the admin chrome"
+    },
+    {
+      "id": "e0d6511100",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Build the Operator's Console workbench page"
+    },
+    {
+      "id": "11290daffa",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Add Operator's Console data layer (pulse + attention) with tests"
+    },
+    {
+      "id": "f3c935c7a3",
+      "date": "2026-06-19",
+      "category": "fix",
+      "scope": "admin",
+      "title": "Remount facility scope on any facility-set change"
+    },
+    {
+      "id": "435a310993",
+      "date": "2026-06-19",
+      "category": "fix",
+      "scope": "admin",
+      "title": "Harden command palette highlight, effects, and labels"
+    },
+    {
+      "id": "48d675bd42",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Add read-only founder-digest endpoint"
+    },
+    {
+      "id": "e2850ffc8d",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Make scope-aware tool empty state actionable"
+    },
+    {
+      "id": "89426d5cac",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Forward facility-manager tabs to scope-aware routes (Phase 3)"
+    },
+    {
+      "id": "56d87a1927",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Re-spine sidebar into task-first groups (Phase 3)"
+    },
+    {
+      "id": "aaf3846777",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Scope-aware routes for all facility tools (Phase 3)"
+    },
+    {
+      "id": "2c418d2509",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Scope-aware facility tool routes (Phase 3 start, Studio group)"
+    },
+    {
+      "id": "4ebd9fb10b",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "gbp",
+      "title": "Make GBP the autonomous flagship — voice+safety, Q&A seed, photo refresh"
+    },
+    {
+      "id": "f709d1f19e",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Ambient lead count in sidebar nav"
+    },
+    {
+      "id": "1d2695cf92",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Header token cleanup + header search opens palette"
+    },
+    {
+      "id": "ca27495465",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Editorial sidebar restyle + Quick find palette trigger"
+    },
+    {
+      "id": "2c90c062f8",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Add global command palette (cmd-K)"
+    },
+    {
+      "id": "eb5173bc16",
+      "date": "2026-06-19",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Mount facility scope provider + add header scope switcher"
+    },
+    {
+      "id": "c5e353d552",
+      "date": "2026-06-19",
+      "category": "fix",
+      "scope": "admin",
+      "title": "Surface orphaned pages in sidebar nav"
+    },
+    {
+      "id": "597a22958d",
+      "date": "2026-06-18",
+      "category": "feature",
+      "scope": "changelog",
+      "title": "Redirect /changelog to the admin changelog"
+    },
+    {
+      "id": "2a42e7a9f3",
+      "date": "2026-06-18",
+      "category": "fix",
+      "scope": "admin",
+      "title": "Rewire changelog page to surviving /api/changelog"
+    },
+    {
+      "id": "54622c8fe5",
+      "date": "2026-06-11",
+      "category": "feature",
+      "scope": "home",
+      "title": "Calculator, faq, final CTA, page wiring + QA fixes"
+    },
+    {
+      "id": "cb7e0ee806",
+      "date": "2026-06-11",
+      "category": "feature",
+      "scope": "home",
+      "title": "Results dossiers, numbers strip, demand triggers"
+    },
+    {
+      "id": "76f674ed45",
+      "date": "2026-06-11",
+      "category": "feature",
+      "scope": "home",
+      "title": "System split, capabilities grid, comparison + before/after"
+    },
+    {
+      "id": "10ab4b7d89",
+      "date": "2026-06-11",
+      "category": "feature",
+      "scope": "home",
+      "title": "Hero, problem, and the pinned closed-loop centerpiece"
+    },
+    {
+      "id": "3932d12c33",
+      "date": "2026-06-11",
+      "category": "feature",
+      "scope": "home",
+      "title": "Redesign foundation — motion system, ledger tokens, chrome"
+    },
+    {
+      "id": "bcb90bae17",
+      "date": "2026-06-03",
+      "category": "fix",
+      "scope": "marketing",
+      "title": "Mobile a11y polish on hero dashboard + capabilities"
+    },
+    {
+      "id": "2066838380",
+      "date": "2026-06-02",
+      "category": "feature",
+      "scope": "marketing",
+      "title": "Match desktop hero copy + dashboard on mobile"
+    },
+    {
+      "id": "225204540f",
+      "date": "2026-05-29",
+      "category": "feature",
+      "scope": "marketing",
+      "title": "Move Cost of Inaction onto its own /cost-of-inaction page"
+    },
+    {
+      "id": "74542fbb3b",
+      "date": "2026-05-28",
+      "category": "feature",
+      "scope": "marketing",
+      "title": "Extend citations to FAQ + Results case studies"
+    },
+    {
+      "id": "f26a37df9a",
+      "date": "2026-05-28",
+      "category": "feature",
+      "scope": "marketing",
+      "title": "Citations system + numbered footnotes across homepage"
+    },
+    {
+      "id": "a3fa04b108",
+      "date": "2026-05-28",
+      "category": "feature",
+      "scope": "mobile",
+      "title": "FB in-app browser sticky CTA + centralized Cal.com URL"
+    },
+    {
+      "id": "7dea835506",
+      "date": "2026-05-28",
+      "category": "fix",
+      "scope": "booking",
+      "title": "Broken Cal links across every Book-a-Call surface"
+    },
+    {
+      "id": "60cc483117",
+      "date": "2026-05-28",
+      "category": "fix",
+      "scope": "hero",
+      "title": "Mobile overlap on iPhone 17 Pro Max (nav, status strip, typewriter)"
+    },
+    {
+      "id": "6a5ffa6080",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "hero",
+      "title": "Add DemoPreviewStrip — 3 live tiles under dashboard mockup"
+    },
+    {
+      "id": "d970e07d5e",
+      "date": "2026-05-27",
+      "category": "fix",
+      "scope": null,
+      "title": "Exempt public lead-capture endpoints from CSRF, harden forms"
+    },
+    {
+      "id": "0fefd1936c",
+      "date": "2026-05-26",
+      "category": "fix",
+      "scope": null,
+      "title": "/pricing, /about, /demo — critical CTA routing, copy voice, design system"
+    },
+    {
+      "id": "0585957254",
+      "date": "2026-05-26",
+      "category": "fix",
+      "scope": null,
+      "title": "Diagnostic pipeline — submit button, maxDuration, lead scoring, retry cron"
+    },
+    {
+      "id": "78d41e8d42",
+      "date": "2026-05-25",
+      "category": "fix",
+      "scope": "demand-triggers",
+      "title": "Switch to light-theme tokens so body text is readable"
+    },
+    {
+      "id": "888fa1cc06",
+      "date": "2026-05-25",
+      "category": "feature",
+      "scope": "homepage",
+      "title": "Add Demand Triggers section between HowItWorks and System"
+    },
+    {
+      "id": "c8dd799e8f",
+      "date": "2026-05-25",
+      "category": "feature",
+      "scope": "homepage",
+      "title": "Restore Angelo's 2-column hero + dedupe pipeline"
+    },
+    {
+      "id": "444dea1557",
+      "date": "2026-05-25",
+      "category": "feature",
+      "scope": "homepage",
+      "title": "Refinement sweep — hoist dashboard, 4-way comparison, FAQ"
+    },
+    {
+      "id": "3388099da0",
+      "date": "2026-05-25",
+      "category": "feature",
+      "scope": "pricing",
+      "title": "Alpha founding-facility pricing + competitor comparison + calculator"
+    },
+    {
+      "id": "6102ad332d",
+      "date": "2026-05-25",
+      "category": "fix",
+      "scope": "brand",
+      "title": "Tabular numerals + restore brand-gold logo split"
+    },
+    {
+      "id": "e695bc166e",
+      "date": "2026-05-25",
+      "category": "feature",
+      "scope": "typography",
+      "title": "Override Angelo's JetBrains+Inter+Archivo with Manrope"
+    },
+    {
+      "id": "16ab7d825b",
+      "date": "2026-05-25",
+      "category": "fix",
+      "scope": "hero",
+      "title": "Kill SSR hydration mismatches in live-data hooks"
+    },
+    {
+      "id": "f41f4913dc",
+      "date": "2026-05-25",
+      "category": "fix",
+      "scope": null,
+      "title": "Re-delete commit-notes/sync/route.ts after merge"
+    },
+    {
+      "id": "fd61b3ca49",
+      "date": "2026-05-24",
+      "category": "feature",
+      "scope": "retention",
+      "title": "Outcome tracking — churned + retained sweep (roadmap 11 phase 3)"
+    },
+    {
+      "id": "ea8f179496",
+      "date": "2026-05-24",
+      "category": "feature",
+      "scope": "attribution",
+      "title": "PMS-to-lead fuzzy matching wired into v1 import (roadmap 10 phase 2)"
+    },
+    {
+      "id": "612df04c83",
+      "date": "2026-05-24",
+      "category": "feature",
+      "scope": "attribution",
+      "title": "Extend partial_leads + add lead_status_events (roadmap 10 phase 1)"
+    },
+    {
+      "id": "d2997247fa",
+      "date": "2026-05-24",
+      "category": "feature",
+      "scope": "ecri",
+      "title": "Weekly price-sensitivity scoring (roadmap 08 phase 2)"
+    },
+    {
+      "id": "eb51d4951b",
+      "date": "2026-05-24",
+      "category": "feature",
+      "scope": "noi-report",
+      "title": "Weekly NOI snapshot computation + Friday cron (roadmap 13 phase 1)"
+    },
+    {
+      "id": "7d8281af19",
+      "date": "2026-05-24",
+      "category": "feature",
+      "scope": "retention",
+      "title": "Weekly churn risk scoring cron (roadmap 11 phase 2)"
+    },
+    {
+      "id": "2958d8e6d5",
+      "date": "2026-05-24",
+      "category": "feature",
+      "scope": "reactivation",
+      "title": "Auto-enroll move-outs into win-back sequence (roadmap 05 phase 1)"
+    },
+    {
+      "id": "39906b02c7",
+      "date": "2026-05-22",
+      "category": "feature",
+      "scope": "overview",
+      "title": "Inline image as base64 — self-contained page"
+    },
+    {
+      "id": "55713f0155",
+      "date": "2026-05-22",
+      "category": "feature",
+      "scope": "overview",
+      "title": "Page that displays the overview card image"
+    },
+    {
+      "id": "0f96277372",
+      "date": "2026-05-22",
+      "category": "feature",
+      "scope": "public",
+      "title": "Add storageads overview card for sharing"
+    },
+    {
+      "id": "52f3dec1a6",
+      "date": "2026-05-05",
+      "category": "feature",
+      "scope": "preview",
+      "title": "Blueprint theme preview at /preview/blueprint"
+    },
+    {
+      "id": "c0eb2a71a8",
+      "date": "2026-05-04",
+      "category": "fix",
+      "scope": "how-it-works",
+      "title": "Wrap long URL examples on mobile"
+    },
+    {
+      "id": "9a6e3d8d1c",
+      "date": "2026-05-04",
+      "category": "fix",
+      "scope": "hero",
+      "title": "Stop §00·NUMBERS card headers from overlapping on mobile"
+    },
+    {
+      "id": "9e05716983",
+      "date": "2026-04-29",
+      "category": "feature",
+      "scope": "hero",
+      "title": "Rip platform cards from §00·NUMBERS — industry + forecast only"
+    },
+    {
+      "id": "937937ac10",
+      "date": "2026-04-29",
+      "category": "feature",
+      "scope": "hero",
+      "title": "§00·NUMBERS — industry + forecast cards, hue-by-data-type"
+    },
+    {
+      "id": "c26ab1b1ff",
+      "date": "2026-04-29",
+      "category": "feature",
+      "scope": "hero",
+      "title": "Juice up §00·NUMBERS — count-up, flash-on-update, deltas, 6 cards"
+    },
+    {
+      "id": "513831d191",
+      "date": "2026-04-29",
+      "category": "feature",
+      "scope": "public-stats",
+      "title": "7d deltas + impressionsServed + moveInsAttributed"
+    },
+    {
+      "id": "ddcd765493",
+      "date": "2026-04-29",
+      "category": "feature",
+      "scope": null,
+      "title": "NULL//TRACE theme port + live-data layer"
+    },
+    {
+      "id": "03eb761ff1",
+      "date": "2026-04-20",
+      "category": "fix",
+      "scope": null,
+      "title": "Video gen async via FAL queue — unblocks Vercel 300s timeout"
+    },
+    {
+      "id": "7c13d8a805",
+      "date": "2026-04-19",
+      "category": "feature",
+      "scope": null,
+      "title": "Strip Poppins + Lora, JetBrains Mono primary, Inter as warmth escape"
+    },
+    {
+      "id": "87dc14447a",
+      "date": "2026-04-19",
+      "category": "feature",
+      "scope": null,
+      "title": "ThreeWayComparison — repetition-grid disruptor"
+    },
+    {
+      "id": "8e31c1a87b",
+      "date": "2026-04-19",
+      "category": "feature",
+      "scope": null,
+      "title": "Typography — editorial voice for default, system voice opt-in"
+    },
+    {
+      "id": "cc01cead6b",
+      "date": "2026-04-19",
+      "category": "feature",
+      "scope": null,
+      "title": ".zine-frame editorial device + apply to InactionTimeline cards"
+    },
+    {
+      "id": "85291ac589",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Pin mobile ticker inner absolute to left-0"
+    },
+    {
+      "id": "6824cf384f",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Hide hero DashboardMockup below lg breakpoint"
+    },
+    {
+      "id": "c3500beebb",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Overflow-x clip on html + body (mobile horizontal scroll)"
+    },
+    {
+      "id": "a027461b1f",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Mobile overflow on admin — add grid-cols-1 base across content grids"
+    },
+    {
+      "id": "1ba3749d96",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Marketing — proportional font on mobile under urbit-landing"
+    },
+    {
+      "id": "072054eadc",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Inaction-timeline mobile — stack card inner, shrink circle, remove gold"
+    },
+    {
+      "id": "4656ad246e",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Mobile layout — funnels tab, ad mockups, admin header, logo"
+    },
+    {
+      "id": "1a1fbfdb78",
+      "date": "2026-04-17",
+      "category": "feature",
+      "scope": null,
+      "title": "Real TikTok slideshow + video text-overlay renderers"
+    },
+    {
+      "id": "f30a532cae",
+      "date": "2026-04-17",
+      "category": "feature",
+      "scope": null,
+      "title": "Data-deletion cascade + server-side Meta CAPI on lead capture"
+    },
+    {
+      "id": "d30286cf02",
+      "date": "2026-04-17",
+      "category": "feature",
+      "scope": null,
+      "title": "Billing plan enforcement + auto-send email verification"
+    },
+    {
+      "id": "da540d8348",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Remove sienna gold from global error boundary"
+    },
+    {
+      "id": "3217d31528",
+      "date": "2026-04-17",
+      "category": "feature",
+      "scope": null,
+      "title": "PMS auto-processor cron — unblocks intelligence tabs"
+    },
+    {
+      "id": "6b84044c34",
+      "date": "2026-04-17",
+      "category": "fix",
+      "scope": null,
+      "title": "Security — Twilio sig verify, Meta CAPI CSRF, admin-key scopes, cron alerts"
+    },
+    {
+      "id": "27c9909f3b",
+      "date": "2026-04-17",
+      "category": "feature",
+      "scope": null,
+      "title": "Design system + hero + admin shell pass"
+    },
+    {
+      "id": "e424e4c34c",
+      "date": "2026-04-17",
+      "category": "feature",
+      "scope": null,
+      "title": "Funnels admin UI"
+    },
+    {
+      "id": "5328e398b9",
+      "date": "2026-04-17",
+      "category": "feature",
+      "scope": null,
+      "title": "Funnels backend — schema, routes, drip/lead integration"
+    },
+    {
+      "id": "bad76899a8",
+      "date": "2026-04-06",
+      "category": "feature",
+      "scope": null,
+      "title": "Add soft-delete for leads in pipeline"
+    },
+    {
+      "id": "26fbc7f945",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "QA fixes — lint errors in video-generator, data-retention, onboarding"
+    },
+    {
+      "id": "b654c5af96",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "Use Web Crypto API in CSRF lib for edge runtime compatibility"
+    },
+    {
+      "id": "7b779de30c",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "15 split 14 mega-components into focused subcomponents"
+    },
+    {
+      "id": "b7a1560b85",
+      "date": "2026-04-06",
+      "category": "feature",
+      "scope": null,
+      "title": "Add PMS report upload pipeline — portal upload + admin processing queue"
+    },
+    {
+      "id": "f58be98857",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "23 extract shared SQL queries into facility-analytics module"
+    },
+    {
+      "id": "96433b9ba9",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "22 add runtime enum validation constants and helpers"
+    },
+    {
+      "id": "fb05ff45e1",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "21 add data retention cron for unbounded log tables"
+    },
+    {
+      "id": "92e371decd",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "20 add soft delete pattern for key business entities"
+    },
+    {
+      "id": "e081721721",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "17 add security headers and CSP in report-only mode"
+    },
+    {
+      "id": "957fb6a988",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "16 add cron runner with retry logic and failure notifications"
+    },
+    {
+      "id": "a0ce624f2d",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "14 make updated_at fields non-nullable with @updatedAt"
+    },
+    {
+      "id": "0014b86bf9",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "13 expand env var validation with feature-level warnings"
+    },
+    {
+      "id": "81ec3d3d31",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "12 enrich Sentry with route context, header scrubbing, and noise filtering"
+    },
+    {
+      "id": "1fd0a8e121",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "11 add structured error logging with Sentry integration"
+    },
+    {
+      "id": "5cb290efa3",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "10 replace shared admin secret with per-admin API keys"
+    },
+    {
+      "id": "1bde8f5876",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "07 add missing @relation and cascade deletes to orphan models"
+    },
+    {
+      "id": "73c61e9e7a",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "05 wrap all multi-step writes in Prisma transactions"
+    },
+    {
+      "id": "9f66ac4f83",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "04 add CSRF protection to all state-changing endpoints"
+    },
+    {
+      "id": "5ecec87e17",
+      "date": "2026-04-06",
+      "category": "fix",
+      "scope": null,
+      "title": "03 remove legacy base64 session tokens"
+    },
+    {
+      "id": "b2e661be36",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Match portal login to 4-digit code — API now generates 4 digits"
+    },
+    {
+      "id": "3ad4eb5406",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Portal login code UI — change from 4 digits to 6 to match API"
+    },
+    {
+      "id": "dcb60dbdb9",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Add missing social-content-calendar component"
+    },
+    {
+      "id": "91e96b18f5",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Comprehensive security hardening + ship readiness remediation"
+    },
+    {
+      "id": "d05aaaccc5",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Final sweep — uuid casts on 9 files + jsonb casts on churn-predictions"
+    },
+    {
+      "id": "55b21f64e3",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Add loading state to avatar remove button"
+    },
+    {
+      "id": "ee2ce34c6e",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Normalize invite email to lowercase before DB insert"
+    },
+    {
+      "id": "bf354d5763",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Add ::uuid casts to 10 more files — complete sweep"
+    },
+    {
+      "id": "30a33eaa68",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Pentester audit — XSS, date overflow, missing uuid/jsonb casts"
+    },
+    {
+      "id": "2439bc64d3",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Stripe cancel check, cron collision, avatar upload UX"
+    },
+    {
+      "id": "ef3fa09d9e",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Avatar persistence, cron atomicity, invite flow, button color"
+    },
+    {
+      "id": "9ce00c270e",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Thorough audit pass on tasks 06+08 — uuid casts, jsonb casts, cron fixes"
+    },
+    {
+      "id": "1c22ff2f65",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Email subject escaping, cron XSS, skeleton count, button color"
+    },
+    {
+      "id": "358acbd0b5",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Security issues in avatar upload and invite email"
+    },
+    {
+      "id": "042ebdc249",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "Settings status check + cleanup cron cascade safety"
+    },
+    {
+      "id": "a66b63804c",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "08 replace all $queryRawUnsafe with parameterized queries"
+    },
+    {
+      "id": "56ad6e167c",
+      "date": "2026-04-02",
+      "category": "feature",
+      "scope": null,
+      "title": "Complete settings & account management (roadmap task 07)"
+    },
+    {
+      "id": "6fdadbf24f",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "02 apply rate limiting to all API routes"
+    },
+    {
+      "id": "abfbf8023d",
+      "date": "2026-04-02",
+      "category": "feature",
+      "scope": null,
+      "title": "Complete onboarding checklist (roadmap task 05)"
+    },
+    {
+      "id": "6e5bf3175f",
+      "date": "2026-04-02",
+      "category": "fix",
+      "scope": null,
+      "title": "06 fix unbounded cron loops with batching and time budgets"
+    },
+    {
+      "id": "88a7906780",
+      "date": "2026-04-01",
+      "category": "fix",
+      "scope": null,
+      "title": "01 remove --accept-data-loss, switch to prisma migrate deploy"
+    }
+  ]
+}

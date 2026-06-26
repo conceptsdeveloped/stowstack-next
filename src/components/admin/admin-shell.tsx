@@ -32,6 +32,7 @@ import {
   Settings,
   ShieldCheck,
   Target,
+  TrendingUp,
   Users,
   FileUp,
   FileText,
@@ -42,10 +43,11 @@ import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { AdminProvider, STORAGE_KEY } from "@/lib/admin-context";
 import { AdminHeader } from "./admin-header";
 import { CommandPalette } from "./command-palette";
+import { FacilitySwitcher } from "./facility-switcher";
 import { useClerkRole } from "@/hooks/use-clerk-role";
 import { VA_RESTRICTED_PATHS } from "@/lib/clerk-roles";
 import { useAdminFetch } from "@/hooks/use-admin-fetch";
-import { FacilityProvider } from "@/lib/facility-context";
+import { FacilityProvider, useFacility } from "@/lib/facility-context";
 import type { Facility } from "@/types/facility";
 
 interface AdminFacility {
@@ -163,6 +165,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Occupancy", href: "/admin/intelligence/occupancy", icon: Building2 },
       { label: "Market", href: "/admin/intelligence/market", icon: MapIcon },
       { label: "Revenue", href: "/admin/intelligence/revenue", icon: BarChart3 },
+      { label: "ECRI Finder", href: "/admin/intelligence/ecri", icon: TrendingUp },
       { label: "Portfolio", href: "/admin/portfolio", icon: Target },
       { label: "Reports", href: "/admin/reports", icon: FileText },
     ],
@@ -353,6 +356,7 @@ function Sidebar({
   isVA: boolean;
 }) {
   const pathname = usePathname();
+  const { facilities } = useFacility();
 
   // Ambient nav signals: real counts from existing endpoints, keyed by href.
   // Degrades gracefully — a missing/non-number value simply shows no badge.
@@ -394,6 +398,19 @@ function Sidebar({
           </Link>
         )}
       </div>
+
+      {/* Facility scope switcher — the primary scope control. Sits in its own
+          shrink-0 row (outside the scrollable nav) so its dropdown is not
+          clipped by the nav's overflow. Hidden until facilities load so there
+          is no empty bordered bar. */}
+      {facilities.length > 0 && (
+        <div
+          className={`shrink-0 ${collapsed ? "px-2" : "px-3"} py-3`}
+          style={{ borderBottom: "1px solid var(--bdr)" }}
+        >
+          <FacilitySwitcher variant="sidebar" collapsed={collapsed} />
+        </div>
+      )}
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-5">
