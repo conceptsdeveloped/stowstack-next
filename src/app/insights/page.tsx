@@ -75,7 +75,7 @@ But here's what I learned at Two Paws: the best time to push marketing is when y
 
 Cutting marketing at 92% means you're scrambling at 84%.
 
-The operators who grow are the ones who market through strength, not just through panic.`,
+The operators who grow market from strength, long before panic sets in.`,
   },
   {
     title: 'The Problem With "Cost Per Lead"',
@@ -199,7 +199,7 @@ You're not desperate. You're not worried about vacancies. You raise rates becaus
 
 Bad marketing doesn't just cost you the ad spend. It costs you the confidence to price correctly.
 
-Good marketing is a rate strategy, not just a lead strategy.`,
+Good marketing is a rate strategy as much as a lead strategy.`,
   },
   {
     title: "Your Ad Account Should Be Yours",

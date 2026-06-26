@@ -37,7 +37,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { label: 'Monthly move-ins', before: '8', after: '34', change: '+325%', isPositive: true },
       { label: 'Monthly ad spend', before: '$2,400', after: '$1,500', change: '-38%', isPositive: true },
     ],
-    quote: { text: "For the first time, I can see exactly which ads produce move-ins. Not clicks, not leads — actual signed leases.", author: 'Blake', role: 'Owner, Two Paws Self Storage' },
+    quote: { text: "For the first time, I can see exactly which ads produce move-ins. Not clicks, not leads. Actual signed leases.", author: 'Blake', role: 'Owner, Two Paws Self Storage' },
     timelineWeeks: 6,
     tags: ['climate-controlled', 'meta-ads', 'rural-market'],
   },
