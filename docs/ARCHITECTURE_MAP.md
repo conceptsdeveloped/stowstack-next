@@ -2,7 +2,7 @@
 
 A layered view of every major surface, subsystem, and data flow in the codebase. Diagrams use Mermaid (renders natively on GitHub and most Markdown viewers).
 
-> **Going deeper:** this file is the top-level map. For per-system deep dives — auth, data model, audit funnel, nurture, billing, PMS, retention, attribution, security, GBP/API, the Operator-OS AI substrate, the ad pipeline, referrals, plus a candid **Gaps & Seams** inventory — see [`./systems/`](./systems/README.md) (16 diagram-first study docs).
+> **Going deeper:** this file is the top-level map. For per-system deep dives — auth, data model, audit funnel, nurture, billing, PMS, retention, attribution, security, GBP/API, the Operator-OS AI substrate, the ad pipeline, referrals, plus a candid **Gaps & Seams** inventory and a quick-reference glossary — see [`./systems/`](./systems/README.md) (17 diagram-first study docs).
 
 Scope at a glance:
 - **4** independent auth systems (6 with cron + V1)
