@@ -73,3 +73,5 @@ Based on the earnings data and broader market signals, here's how I'm thinking a
 The REITs aren't going away. But they're dealing with their own problems — oversupply from aggressive development, rising capital costs, and the challenge of maintaining growth at scale. Independent operators who stay sharp on their local markets and optimize their operations have plenty of room to compete.
 
 > **Example:** A 200-unit independent facility in a mid-size market with 94% occupancy and strong local branding is a fundamentally better business than a 600-unit REIT facility at 88% occupancy running perpetual promos. Size isn't everything. Execution is.
+
+**Keep reading:** The oversupply they're absorbing is mapped out in [where the Sun Belt is competing on price through 2027](/blog/sun-belt-oversupply-map), and the ownership churn behind it is [the $875B maturity wall creating a wave of new operators](/blog/maturity-wall-new-operators). Worried about a downturn? [Recessions don't kill storage demand, they create it](/blog/recessions-dont-kill-storage-demand).

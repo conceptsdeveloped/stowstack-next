@@ -75,3 +75,5 @@ It's manual. It's tedious. But it's the difference between knowing your business
 ## The Bottom Line
 
 Stop optimizing for cost per lead. Start tracking cost per move-in. The operators who know this number make better budget decisions, negotiate better with agencies, and grow faster because they're investing in what actually works — not what looks good on a report.
+
+**Keep reading:** Once you know your cost per move-in, use it to [set a marketing budget that actually pays](/blog/how-much-to-spend-on-marketing), and see [which of the three reasons REITs out-occupy you](/blog/three-reasons-reits-hit-92-occupancy) you can close this quarter.

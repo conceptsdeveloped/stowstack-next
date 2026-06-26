@@ -81,3 +81,5 @@ Every six months I review rates using this checklist:
 The hardest part isn't the math. It's sending the letter. Every operator I talk to knows they should raise rates. Most don't because the fear of vacancy is louder than the reality of underpricing.
 
 But here's the math that finally got me over it: keeping rates flat while costs go up 5-8% per year means your margins shrink every single year. A rate increase isn't aggressive — it's maintenance.
+
+**Keep reading:** Rate increases are really about [achieved rate, the number that quietly decides your revenue](/blog/achieved-rate-the-number-that-decides-revenue) — and before you send the next letter, know how [new pricing laws are reshaping what's allowed](/blog/sb709-ecri-playbook-ending).

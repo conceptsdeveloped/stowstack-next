@@ -127,3 +127,5 @@ Three things. All of them are free.
 **Third**, divide the first number by the second number. That's your cost per move-in. Now you have a baseline. Every marketing decision you make from here should be measured against that number.
 
 Because you're already paying for marketing. You just might not know how much.
+
+**Keep reading:** Use that baseline to [size a marketing budget that pays](/blog/how-much-to-spend-on-marketing), and stop letting the leads you already bought go cold, because [the first operator to call back wins the unit](/blog/first-callback-wins-the-unit).
