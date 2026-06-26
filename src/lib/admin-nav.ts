@@ -172,45 +172,56 @@ function titleCaseGroup(group: string): string {
   return group.charAt(0) + group.slice(1).toLowerCase();
 }
 
-const FLAT_ITEMS: { item: NavItem; group: string }[] = NAV_GROUPS.flatMap((g) =>
-  g.items.map((item) => ({ item, group: g.title })),
-);
+interface RouteCandidate {
+  href: string;
+  title: string;
+  group: string | null;
+  scoped: boolean;
+}
+
+// Every titled route (spine items first, then supplemental), used for both exact
+// and longest-prefix resolution. Spine items precede supplemental so a spine
+// route wins any exact collision.
+const ROUTE_CANDIDATES: RouteCandidate[] = [
+  ...NAV_GROUPS.flatMap((g) =>
+    g.items.map((item) => ({
+      href: item.href,
+      title: item.label,
+      group: titleCaseGroup(g.title),
+      scoped: Boolean(item.scoped),
+    })),
+  ),
+  ...Object.entries(SUPPLEMENTAL).map(([href, meta]) => ({
+    href,
+    title: meta.title,
+    group: null,
+    scoped: meta.scoped,
+  })),
+];
 
 /**
- * Resolve display metadata for a pathname: exact spine match first, then exact
- * supplemental, then the longest matching path prefix (so detail routes like
- * /admin/funnels/[id] inherit their parent's title). Falls back to "Admin".
+ * Resolve display metadata for a pathname: exact match first, then the longest
+ * matching path prefix (so detail routes like /admin/funnels/[id] inherit their
+ * parent's title). Falls back to "Admin".
  */
 export function findRouteMeta(pathname: string): RouteMeta {
-  const exact = FLAT_ITEMS.find((e) => e.item.href === pathname);
+  const exact = ROUTE_CANDIDATES.find((c) => c.href === pathname);
   if (exact) {
-    return {
-      title: exact.item.label,
-      group: titleCaseGroup(exact.group),
-      scoped: Boolean(exact.item.scoped),
-    };
+    return { title: exact.title, group: exact.group, scoped: exact.scoped };
   }
 
-  const supp = SUPPLEMENTAL[pathname];
-  if (supp) return { ...supp, group: null };
-
-  // Longest-prefix match for nested/detail routes.
-  let best: { item: NavItem; group: string } | null = null;
-  for (const entry of FLAT_ITEMS) {
-    if (entry.item.href === "/admin") continue; // would prefix-match everything
+  let best: RouteCandidate | null = null;
+  for (const c of ROUTE_CANDIDATES) {
+    if (c.href === "/admin") continue; // would prefix-match every admin route
     if (
-      pathname.startsWith(entry.item.href + "/") &&
-      (!best || entry.item.href.length > best.item.href.length)
+      pathname.startsWith(c.href + "/") &&
+      (!best || c.href.length > best.href.length)
     ) {
-      best = entry;
+      best = c;
     }
   }
   if (best) {
-    return {
-      title: best.item.label,
-      group: titleCaseGroup(best.group),
-      scoped: Boolean(best.item.scoped),
-    };
+    return { title: best.title, group: best.group, scoped: best.scoped };
   }
 
   return { title: "Admin", group: null, scoped: false };
