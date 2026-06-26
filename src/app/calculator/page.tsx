@@ -38,7 +38,7 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
       <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ fontFamily: "var(--font-heading)", color: "var(--color-mid-gray)" }}>
         {label}
       </p>
-      <p className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-gold)" }}>
+      <p className="text-2xl font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
         {value}
       </p>
       {sub && <p className="text-xs mt-1" style={{ fontFamily: "var(--font-body)", color: "var(--color-mid-gray)" }}>{sub}</p>}
@@ -69,7 +69,7 @@ function SliderInput({
         <label className="text-sm font-medium" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
           {label}
         </label>
-        <span className="text-sm font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-gold)" }}>
+        <span className="text-sm font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
           {format(value)}
         </span>
       </div>
@@ -80,7 +80,7 @@ function SliderInput({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-[var(--color-gold)]"
+        className="w-full accent-[var(--color-dark)]"
       />
       <div className="flex justify-between text-xs mt-1" style={{ color: "var(--color-mid-gray)" }}>
         <span>{format(min)}</span>
@@ -121,14 +121,14 @@ export default function CalculatorPage() {
       <header className="border-b" style={{ borderColor: "var(--color-light-gray)" }}>
         <div className="max-w-5xl mx-auto px-5 py-4 flex items-center justify-between">
           <Link href="/" className="text-lg font-semibold" style={{ fontFamily: "var(--font-heading)", color: "var(--color-dark)" }}>
-            <span>storage</span><span style={{ color: "var(--color-gold)" }}>ads</span>
+            <span>storage</span><span style={{ color: "var(--brand-gold)" }}>ads</span>
           </Link>
           <a
             href={CAL_BOOKING_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium"
-            style={{ fontFamily: "var(--font-heading)", color: "#fff", backgroundColor: "var(--color-gold)" }}
+            style={{ fontFamily: "var(--font-heading)", color: "var(--color-light)", backgroundColor: "var(--color-dark)" }}
           >
             Book a Call
             <ArrowRight className="h-4 w-4" />
@@ -242,7 +242,7 @@ export default function CalculatorPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-medium"
-                style={{ fontFamily: "var(--font-heading)", color: "#fff", backgroundColor: "var(--color-gold)" }}
+                style={{ fontFamily: "var(--font-heading)", color: "var(--color-light)", backgroundColor: "var(--color-dark)" }}
               >
                 Book a Call with Blake
                 <ArrowRight className="h-4 w-4" />
