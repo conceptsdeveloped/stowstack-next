@@ -11,7 +11,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
-const SEQUENCE_TEMPLATES: Record<
+export const SEQUENCE_TEMPLATES: Record<
   string,
   {
     name: string;
@@ -64,6 +64,31 @@ const SEQUENCE_TEMPLATES: Record<
       { step_number: 1, delay_minutes: 1440, channel: "email", subject: "We'll miss you at {facility_name}, {first_name}", body: "Hi {first_name},\n\nWe're sorry to see you go. If you have 30 seconds, we'd love to know how we did:\n\n{feedback_link}\n\nIf you ever need storage again, you'll always have a spot.\n\n\u2014 {facility_name} Team", send_window: null },
       { step_number: 2, delay_minutes: 43200, channel: "sms", subject: null, body: "Hey {first_name}, it's {facility_name}. Need storage again? Come back and get 25% off your first month. Code: {promo_code}. Reserve: {reserve_link}", send_window: { start: "10:00", end: "18:00" } },
       { step_number: 3, delay_minutes: 129600, channel: "email", subject: "Your neighbors are still storing with us, {first_name}", body: "Hi {first_name},\n\nIt's been 3 months since you moved out of {facility_name}. If your storage needs have changed, we'd love to have you back.\n\nReturning tenant special: 25% off your first month + waived admin fee.\n\nReserve: {reserve_link}\n\n\u2014 {facility_name} Team", send_window: null },
+    ],
+  },
+  // Ported from the drip post_audit sequence (src/lib/drip-sequences.ts day 1/3/7 \u2192
+  // send-template follow_up / value_add / check_in). Email-only, matching the source
+  // templateIds. delay_minutes is incremental (process-nurture schedules each step at
+  // now + delay after the prior send), so cumulative diffs preserve the day 1/3/7 schedule.
+  post_audit: {
+    name: "Post-Audit Follow-up",
+    trigger_type: "post_audit",
+    steps: [
+      { step_number: 1, delay_minutes: 1440, channel: "email", subject: "Quick question about {facility_name}", body: "Hi {first_name},\n\nThanks for filling out the facility audit for {facility_name}. I went through your numbers and I have some initial thoughts on how we could help you fill units faster.\n\nDo you have 15 minutes this week for a quick call? I'd love to walk you through what we're seeing in your market and share a few ideas specific to your facility.\n\nNo pressure at all. I just want to make sure you have the full picture before deciding if we're a fit.\n\nBlake Burkett, StorageAds\n{facility_phone}", send_window: null },
+      { step_number: 2, delay_minutes: 2880, channel: "email", subject: "A quick tip for {facility_name}", body: "Hi {first_name},\n\nI've been looking at facilities similar to {facility_name} in your area and noticed something worth sharing.\n\nThe biggest thing we see across the board: facilities send paid traffic to their homepage instead of a dedicated landing page. A simple landing page with unit availability, pricing, and a reservation form typically converts 3 to 4 times better than a homepage.\n\nHappy to dig into this more if you're interested. No pitch, just sharing what's working in your market right now.\n\nBlake Burkett, StorageAds\n{facility_phone}", send_window: null },
+      { step_number: 3, delay_minutes: 5760, channel: "email", subject: "Still thinking about {facility_name}?", body: "Hi {first_name},\n\nJust checking in. I know things get busy. I wanted to see if you still had questions about filling units at {facility_name}.\n\nNo worries if the timing isn't right. But if occupancy is still a concern, we're here whenever you're ready to chat.\n\nEither way, I appreciate you taking the time to go through the audit.\n\nBlake Burkett, StorageAds\n{facility_phone}", send_window: null },
+    ],
+  },
+  // Ported from the drip recovery sequence (src/lib/drip-sequences.ts 1hr/24hr/72hr \u2192
+  // send-template recovery_1hr / recovery_24hr / recovery_72hr). Email-only, matching the
+  // source templateIds. Cumulative diffs (60/1380/2880) preserve the 1hr/24hr/72hr schedule.
+  recovery: {
+    name: "Abandoned Form Recovery",
+    trigger_type: "abandoned_form",
+    steps: [
+      { step_number: 1, delay_minutes: 60, channel: "email", subject: "Still looking for storage near {facility_name}?", body: "Hi {first_name},\n\nGood news: units are still available and we're holding your spot at {facility_name}.\n\nYou can pick up right where you left off. It takes less than 60 seconds: {reserve_link}\n\nQuestions? Just reply to this email or call us at {facility_phone}.", send_window: null },
+      { step_number: 2, delay_minutes: 1380, channel: "email", subject: "Don't miss out, units are filling up at {facility_name}", body: "Hi {first_name},\n\nQuick heads up: we've seen a few units get reserved since yesterday, and availability is getting tighter at {facility_name}.\n\nWe can't guarantee pricing or availability beyond today, so lock in your rate now: {reserve_link}\n\nNeed help deciding? Call us at {facility_phone} and we'll walk you through the options.", send_window: null },
+      { step_number: 3, delay_minutes: 2880, channel: "email", subject: "A little something to help you decide, {first_name}", body: "Hi {first_name},\n\nFinding the right storage spot takes time, so to make the decision easier we've got something for you: your first month for $1 at {facility_name}.\n\nReserve in the next 48 hours to lock it in: {reserve_link}\n\nThis offer is limited to new reservations only. Questions? Reply to this email or call {facility_phone}.", send_window: null },
     ],
   },
 };
