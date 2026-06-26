@@ -96,6 +96,19 @@ export function isCsrfExempt(req: NextRequest): boolean {
   // per-IP + per-email rate limits at the route level.
   if (path === "/api/resend-access-code") return true;
   if (path === "/api/client-data") return true;
+  // Portal client messaging authenticates via access code + email in the body
+  // (same model as the endpoints above), so the ambient-cookie CSRF token is moot.
+  if (path === "/api/client-messages") return true;
+  // Session/portal mutation endpoints that enforce CSRF themselves via
+  // verifyCsrfOrigin() (an Origin check) rather than the double-submit token.
+  // No client sends x-csrf-token, so the proxy's token gate would 403 these
+  // before their own origin check ever runs. Each route below calls
+  // verifyCsrfOrigin() (or, for partner login, can't carry a token it's trying
+  // to obtain). Exempting here lets their in-route origin check do the work.
+  if (path === "/api/client-onboarding") return true;
+  if (path === "/api/organizations") return true;
+  if (path === "/api/create-billing-portal") return true;
+  if (path === "/api/data-deletion") return true;
   if (req.headers.get("x-admin-key")) return true;
   if (req.headers.get("authorization")?.startsWith("Bearer ")) return true;
   if (req.headers.get("x-org-token")) return true;

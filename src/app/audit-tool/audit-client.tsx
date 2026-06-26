@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ExitIntentPopup } from "@/components/marketing/exit-intent-popup";
+import { CAL_BOOKING_URL } from "@/lib/booking";
 import {
   Search,
   Loader2,
@@ -146,17 +147,18 @@ function computeAuditScore(data: PlacesResult): AuditScore {
 }
 
 function gradeColor(grade: string) {
-  if (grade === "Excellent") return "text-emerald-400";
+  if (grade === "Excellent") return "text-[var(--color-green)]";
   if (grade === "Strong") return "text-[var(--color-blue)]";
-  if (grade === "Moderate") return "text-amber-400";
-  return "text-red-400";
+  // No brand amber token exists; amber is the pragmatic caution tier for the gauge.
+  if (grade === "Moderate") return "text-amber-500";
+  return "text-[var(--color-red)]";
 }
 
 function gradeBg(grade: string) {
-  if (grade === "Excellent") return "bg-emerald-500/10 border-emerald-500/20";
+  if (grade === "Excellent") return "bg-[var(--color-green)]/10 border-[var(--color-green)]/20";
   if (grade === "Strong") return "bg-[var(--color-blue)]/10 border-[var(--color-blue)]/20";
   if (grade === "Moderate") return "bg-amber-500/10 border-amber-500/20";
-  return "bg-red-500/10 border-red-500/20";
+  return "bg-[var(--color-red)]/10 border-[var(--color-red)]/20";
 }
 
 function ScoreRing({
@@ -170,12 +172,12 @@ function ScoreRing({
   const dashLength = (score / 100) * circumference;
   const strokeColor =
     grade === "Excellent"
-      ? "text-emerald-500"
+      ? "text-[var(--color-green)]"
       : grade === "Strong"
         ? "text-[var(--color-blue)]"
         : grade === "Moderate"
           ? "text-amber-500"
-          : "text-red-500";
+          : "text-[var(--color-red)]";
 
   return (
     <svg viewBox="0 0 120 120" className="w-28 h-28">
@@ -234,6 +236,7 @@ export default function AuditToolPage() {
   const [captureEmail, setCaptureEmail] = useState("");
   const [captureSubmitted, setCaptureSubmitted] = useState(false);
   const [captureLoading, setCaptureLoading] = useState(false);
+  const [captureError, setCaptureError] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -298,7 +301,7 @@ export default function AuditToolPage() {
         <div className="mx-auto max-w-4xl flex items-center justify-between px-5 h-14">
           <Link
             href="/"
-            className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+            className="text-sm font-semibold text-[var(--text-primary)] hover:opacity-70 transition-opacity"
           >
             StorageAds
           </Link>
@@ -311,7 +314,7 @@ export default function AuditToolPage() {
       <div className="mx-auto max-w-4xl px-5 py-12 sm:py-16">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium mb-5 bg-[var(--accent-glow)] border border-[var(--accent)]/20 text-[var(--accent)]">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium mb-5 bg-[var(--color-dark)]/5 border border-[var(--border-subtle)] text-[var(--text-secondary)]">
             <BarChart3 className="w-3.5 h-3.5" />
             Self-Service Audit
           </div>
@@ -338,7 +341,7 @@ export default function AuditToolPage() {
                 type="text"
                 value={facilityName}
                 onChange={(e) => setFacilityName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-medium)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-medium)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-dark)]/30 focus:border-transparent transition-all"
                 placeholder="e.g. Midway Self Storage"
               />
             </div>
@@ -350,7 +353,7 @@ export default function AuditToolPage() {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-medium)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-medium)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-dark)]/30 focus:border-transparent transition-all"
                 placeholder="e.g. Grand Rapids, MI"
               />
             </div>
@@ -366,7 +369,7 @@ export default function AuditToolPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-sm font-semibold text-[#111827] bg-[var(--accent)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-sm font-semibold text-[var(--color-light)] bg-[var(--color-dark)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -485,7 +488,7 @@ export default function AuditToolPage() {
                           href={result.website}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-[var(--accent)] hover:underline truncate"
+                          className="text-sm text-[var(--color-dark)] hover:underline truncate"
                         >
                           {result.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
                         </a>
@@ -589,8 +592,8 @@ export default function AuditToolPage() {
                 )}
 
                 {/* CTA with email capture */}
-                <div className="rounded-2xl bg-gradient-to-br from-[var(--accent-glow)] to-transparent border border-[var(--accent)]/20 p-8 text-center">
-                  <TrendingUp className="w-8 h-8 text-[var(--accent)] mx-auto mb-3" />
+                <div className="rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-8 text-center">
+                  <TrendingUp className="w-8 h-8 text-[var(--text-primary)] mx-auto mb-3" />
                   <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                     Want the full audit?
                   </h2>
@@ -599,9 +602,24 @@ export default function AuditToolPage() {
                     to fix first.
                   </p>
                   {captureSubmitted ? (
-                    <div className="flex items-center justify-center gap-2 text-[var(--accent)] font-semibold">
-                      <CheckCircle2 className="w-5 h-5" />
-                      We&apos;ll send your full audit shortly.
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="flex items-center justify-center gap-2 text-[var(--color-green)] font-semibold">
+                        <CheckCircle2 className="w-5 h-5" />
+                        Got it. We&apos;ll review your facility and follow up.
+                      </div>
+                      <p className="text-sm text-[var(--text-secondary)] max-w-md">
+                        Want it faster? Book a 30-minute call and we&apos;ll walk
+                        your full audit together.
+                      </p>
+                      <a
+                        href={CAL_BOOKING_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-dark)] text-[var(--color-light)] font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        Book a call
+                        <ArrowRight className="w-4 h-4" />
+                      </a>
                     </div>
                   ) : (
                     <form
@@ -609,11 +627,22 @@ export default function AuditToolPage() {
                         e.preventDefault();
                         if (!captureEmail.trim()) return;
                         setCaptureLoading(true);
+                        setCaptureError(false);
                         try {
-                          await fetch("/api/consumer-lead", {
+                          // consumer-lead requires a session id to key the
+                          // partial_lead; the audit tool has no ambient session,
+                          // so mint a one-off id for this capture.
+                          const sessionId =
+                            typeof crypto !== "undefined" && crypto.randomUUID
+                              ? `audit_${crypto.randomUUID()}`
+                              : `audit_${Date.now()}_${Math.random()
+                                  .toString(36)
+                                  .slice(2)}`;
+                          const res = await fetch("/api/consumer-lead", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
+                              sessionId,
                               email: captureEmail.trim(),
                               facilityName: result?.name || facilityName,
                               location: result?.address || location,
@@ -622,10 +651,10 @@ export default function AuditToolPage() {
                               auditScore: auditScore?.overall,
                             }),
                           });
+                          if (!res.ok) throw new Error(`status ${res.status}`);
                           setCaptureSubmitted(true);
                         } catch {
-                          // Fall back to homepage CTA
-                          window.location.href = "/#cta";
+                          setCaptureError(true);
                         } finally {
                           setCaptureLoading(false);
                         }
@@ -649,7 +678,7 @@ export default function AuditToolPage() {
                       <button
                         type="submit"
                         disabled={captureLoading}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--accent)] text-white font-semibold hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-70"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-dark)] text-[var(--color-light)] font-semibold hover:opacity-90 transition-opacity disabled:opacity-70"
                       >
                         {captureLoading ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -661,6 +690,20 @@ export default function AuditToolPage() {
                         )}
                       </button>
                     </form>
+                  )}
+                  {captureError && !captureSubmitted && (
+                    <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                      Something went wrong saving that.{" "}
+                      <a
+                        href={CAL_BOOKING_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-[var(--color-dark)] underline"
+                      >
+                        Book a call
+                      </a>{" "}
+                      and we&apos;ll walk your audit live.
+                    </p>
                   )}
                 </div>
               </div>
@@ -692,7 +735,7 @@ export default function AuditToolPage() {
                 key={card.title}
                 className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] p-5"
               >
-                <div className="w-9 h-9 rounded-lg bg-[var(--accent-glow)] flex items-center justify-center text-[var(--accent)] mb-3">
+                <div className="w-9 h-9 rounded-lg bg-[var(--color-dark)]/5 flex items-center justify-center text-[var(--text-primary)] mb-3">
                   {card.icon}
                 </div>
                 <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
@@ -709,7 +752,7 @@ export default function AuditToolPage() {
         {/* Footer */}
         <div className="text-center py-10 text-xs text-[var(--text-tertiary)]">
           Powered by{" "}
-          <Link href="/" className="text-[var(--accent)] hover:underline">
+          <Link href="/" className="text-[var(--color-dark)] hover:underline">
             StorageAds
           </Link>
         </div>

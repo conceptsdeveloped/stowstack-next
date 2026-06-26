@@ -6,6 +6,7 @@ import {
   errorResponse,
   requireAdminKey,
   getOrigin,
+  verifyCsrfOrigin,
 } from "@/lib/api-helpers";
 import { Resend } from "resend";
 import { applyRateLimit } from "@/lib/with-rate-limit";
@@ -63,7 +64,10 @@ export async function POST(req: NextRequest) {
       return handleAcknowledge(body, origin);
     }
 
-    // Public: submit a new deletion request
+    // Public: submit a new deletion request. This route is CSRF-exempt at the
+    // proxy (no token), so enforce same-origin here for the unauthenticated path.
+    const originError = verifyCsrfOrigin(req);
+    if (originError) return originError;
     return handleNewRequest(body, origin);
   } catch {
     return errorResponse("Invalid request", 400, origin);

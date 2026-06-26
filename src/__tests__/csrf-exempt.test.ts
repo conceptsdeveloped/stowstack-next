@@ -25,6 +25,16 @@ describe("isCsrfExempt — portal login footgun guard", () => {
     expect(isCsrfExempt(req("/api/facility-lookup"))).toBe(true);
   });
 
+  it("exempts session/portal routes that self-defend via verifyCsrfOrigin", () => {
+    // These 403'd in prod before being exempted: the proxy token gate fired
+    // before each route's own Origin check could run. They must stay exempt.
+    expect(isCsrfExempt(req("/api/client-onboarding"))).toBe(true);
+    expect(isCsrfExempt(req("/api/organizations"))).toBe(true);
+    expect(isCsrfExempt(req("/api/create-billing-portal"))).toBe(true);
+    expect(isCsrfExempt(req("/api/data-deletion"))).toBe(true);
+    expect(isCsrfExempt(req("/api/client-messages"))).toBe(true);
+  });
+
   it("exempts webhook / cron / v1 prefixes", () => {
     expect(isCsrfExempt(req("/api/webhooks/anything"))).toBe(true);
     expect(isCsrfExempt(req("/api/stripe-webhook"))).toBe(true);

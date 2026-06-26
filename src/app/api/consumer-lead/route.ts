@@ -3,12 +3,46 @@ import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
-import { isValidEmail, sanitizeString } from "@/lib/validation";
+import { isValidEmail, sanitizeString, escapeHtml } from "@/lib/validation";
+import { sendEmail, SENDERS } from "@/lib/email";
 
 /** Clamp optional string fields from untrusted input */
 function clean(val: unknown, max: number): string | null {
   const s = sanitizeString(val, max);
   return s || null;
+}
+
+/**
+ * Fire-and-forget admin notification for instant-audit-tool captures. The audit
+ * tool has no facility record (Google Places lookup only), so these leads would
+ * otherwise land silently in partial_leads with no alert. Other sources (landing
+ * pages) have their own pipeline/visibility, so we only notify for the audit tool.
+ */
+function notifyAuditLead(fields: {
+  email: string | null;
+  facilityName: unknown;
+  location: unknown;
+  auditScore: unknown;
+}) {
+  if (!fields.email) return;
+  const facilityName = clean(fields.facilityName, 200) || "Unknown facility";
+  const location = clean(fields.location, 500) || "N/A";
+  const score =
+    typeof fields.auditScore === "number" ? String(fields.auditScore) : "N/A";
+  // Owner notification via the canonical email layer (validate/retry/skip-on-no-key).
+  void sendEmail({
+    from: SENDERS.notifications,
+    to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+    subject: `New Audit-Tool Lead: ${facilityName}`,
+    html: `
+      <h2>New Audit-Tool Lead</h2>
+      <p><strong>Email:</strong> ${escapeHtml(fields.email)}</p>
+      <p><strong>Facility:</strong> ${escapeHtml(facilityName)}</p>
+      <p><strong>Location:</strong> ${escapeHtml(location)}</p>
+      <p><strong>Audit score:</strong> ${escapeHtml(score)}</p>
+    `,
+    tags: [{ name: "type", value: "audit_tool_lead" }],
+  }).catch((err) => console.error("[consumer-lead] notify failed:", err));
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -26,6 +60,7 @@ export async function POST(req: NextRequest) {
       sessionId, email, phone, name, unitSize, facilityId, landingPageId,
       fbclid, gclid, fbc: _fbc, fbp: _fbp,
       utm_source, utm_medium, utm_campaign, utm_content, utm_term: _utm_term,
+      source, facilityName, location, auditScore,
     } = body;
 
     if (!sessionId || typeof sessionId !== "string" || sessionId.length > 200) {
@@ -71,6 +106,9 @@ export async function POST(req: NextRequest) {
           utm_content: cleanUtmContent || existingPartial.utm_content,
         },
       });
+      if (source === "audit_tool") {
+        notifyAuditLead({ email: cleanEmail, facilityName, location, auditScore });
+      }
       return jsonResponse({ success: true, id: updated.id, status: "updated" }, 200, origin);
     }
 
@@ -108,6 +146,9 @@ export async function POST(req: NextRequest) {
       }).catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
     }
 
+    if (source === "audit_tool") {
+      notifyAuditLead({ email: cleanEmail, facilityName, location, auditScore });
+    }
     return jsonResponse({ success: true, id: lead.id, status: "created" }, 200, origin);
   } catch (err) {
     console.error("Consumer lead error:", err);
