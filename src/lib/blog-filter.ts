@@ -106,6 +106,41 @@ export function sortPosts(posts: BlogListItem[], sort: SortKey): BlogListItem[] 
   }
 }
 
+/** Minimal shape needed to compute relatedness. */
+export interface RelatablePost {
+  slug: string;
+  tags: string[];
+  pillar: string;
+  date: string;
+}
+
+/**
+ * Rank other posts by relevance to `currentSlug`: shared tags weigh most,
+ * same pillar adds a point, ties break on recency. Only returns posts with a
+ * real connection (score > 0), up to `limit`. Pure.
+ */
+export function relatedPosts<T extends RelatablePost>(
+  currentSlug: string,
+  posts: T[],
+  limit = 3,
+): T[] {
+  const current = posts.find((p) => p.slug === currentSlug);
+  if (!current) return [];
+  const currentTags = new Set(current.tags);
+
+  return posts
+    .filter((p) => p.slug !== currentSlug)
+    .map((p) => {
+      const sharedTags = p.tags.filter((t) => currentTags.has(t)).length;
+      const score = sharedTags * 2 + (p.pillar === current.pillar ? 1 : 0);
+      return { post: p, score };
+    })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score || b.post.date.localeCompare(a.post.date))
+    .slice(0, limit)
+    .map((x) => x.post);
+}
+
 /** True when no filters are active (default browse view). */
 export function isDefaultView(filter: BlogFilter): boolean {
   return (

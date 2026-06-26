@@ -6,6 +6,7 @@ import {
   filterPosts,
   sortPosts,
   isDefaultView,
+  relatedPosts,
   type BlogListItem,
 } from "../blog-filter";
 
@@ -160,6 +161,40 @@ describe("blog-filter", () => {
         "The Web Rate Street Rate Spread",
         "Win the Local Map",
       ]);
+    });
+  });
+
+  describe("relatedPosts", () => {
+    it("ranks by shared tags (weight 2) then same pillar (weight 1)", () => {
+      // for "reviews": map shares 2 tags (reviews, local-search)=4 + diff pillar = 4;
+      // pricing shares 0 tags, diff pillar = 0 (excluded)
+      const r = relatedPosts("reviews", posts);
+      expect(r.map((p) => p.slug)).toEqual(["map"]);
+    });
+    it("includes same-pillar posts even with no shared tags", () => {
+      const extra = make({
+        slug: "math2",
+        pillar: "operator-math",
+        tags: ["unrelated"],
+        date: "2026-04-01",
+      });
+      const r = relatedPosts("pricing", [...posts, extra]);
+      expect(r.map((p) => p.slug)).toContain("math2"); // same pillar, score 1
+    });
+    it("excludes the current post and unrelated posts", () => {
+      const r = relatedPosts("reviews", posts);
+      expect(r.map((p) => p.slug)).not.toContain("reviews");
+      expect(r.map((p) => p.slug)).not.toContain("pricing");
+    });
+    it("respects the limit", () => {
+      const many = Array.from({ length: 5 }, (_, i) =>
+        make({ slug: `r${i}`, tags: ["reviews"], pillar: "operators-edge" }),
+      );
+      const r = relatedPosts("map", [...posts, ...many], 3);
+      expect(r.length).toBe(3);
+    });
+    it("returns empty when current slug not found", () => {
+      expect(relatedPosts("nope", posts)).toEqual([]);
     });
   });
 
