@@ -100,6 +100,17 @@ export interface EmailTag {
   value: string;
 }
 
+export interface EmailAttachment {
+  /** Filename shown to the recipient, e.g. "report-2026-06.pdf". */
+  filename: string;
+  /** Base64-encoded file content. Mutually exclusive with `path`. */
+  content?: string;
+  /** Hosted URL Resend will fetch the attachment from. Mutually exclusive with `content`. */
+  path?: string;
+  /** Optional explicit MIME type (Resend infers from the filename otherwise). */
+  contentType?: string;
+}
+
 export interface SendEmailParams {
   /** Sender identity. Prefer a SENDERS value or facilitySender(); must be on the sending domain. */
   from: string;
@@ -116,6 +127,8 @@ export interface SendEmailParams {
   headers?: Record<string, string>;
   /** Resend tags for analytics/segmentation. */
   tags?: EmailTag[];
+  /** File attachments (base64 content or a hosted path). */
+  attachments?: EmailAttachment[];
   /** ISO-8601 timestamp or natural language (e.g. "in 1 hour") for Resend scheduled send. */
   scheduledAt?: string;
   /**
@@ -350,6 +363,14 @@ function buildResendBody(
   if (replyTo.length) body.reply_to = replyTo;
   if (params.headers && Object.keys(params.headers).length) body.headers = params.headers;
   if (params.tags && params.tags.length) body.tags = params.tags;
+  if (params.attachments && params.attachments.length) {
+    body.attachments = params.attachments.map((a) => ({
+      filename: a.filename,
+      ...(a.content != null ? { content: a.content } : {}),
+      ...(a.path != null ? { path: a.path } : {}),
+      ...(a.contentType != null ? { content_type: a.contentType } : {}),
+    }));
+  }
   if (params.scheduledAt) body.scheduled_at = params.scheduledAt;
   return body;
 }

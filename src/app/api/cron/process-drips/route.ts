@@ -4,6 +4,7 @@ import { SEQUENCES, type DripStep } from "@/lib/drip-sequences";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { sendCronFailureAlert } from "@/lib/cron-runner";
 
 export const maxDuration = 60;
 
@@ -335,24 +336,8 @@ export async function GET(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`[CRON:process-drips] Fatal error:`, err);
 
-    // Notify admin of cron failure
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds <noreply@storageads.com>",
-          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `[CRON FAILURE] process-drips`,
-          html: `<p>The <strong>process-drips</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
-        }),
-      }).catch((err) => {
-        console.error("[cron:process-drips] Alert email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    // Notify admin of cron failure (centralized; fire-and-forget).
+    sendCronFailureAlert("process-drips", message);
 
     // Retry: Vercel cron will re-invoke on next schedule.
     // Items not processed in this run will be picked up by the cursor-based pagination.

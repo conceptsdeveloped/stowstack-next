@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { facilitySender, sendEmail } from "@/lib/email";
+import { sendCronFailureAlert } from "@/lib/cron-runner";
 
 export const maxDuration = 60;
 
@@ -40,7 +42,7 @@ function buildSolicitationEmailHtml(
     </p>
 
     <div style="text-align:center;margin-bottom:24px;">
-      <a href="${esc(reviewUrl)}" style="display:inline-block;background:#B58B3F;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:6px;font-size:16px;font-weight:600;">Leave a Google Review</a>
+      <a href="${esc(reviewUrl)}" style="display:inline-block;background:#141413;color:#faf9f5;text-decoration:none;padding:14px 32px;border-radius:6px;font-size:16px;font-weight:600;">Leave a Google Review</a>
     </div>
 
     <p style="margin:0;font-size:14px;color:#6a6560;line-height:1.5;">
@@ -244,21 +246,15 @@ export async function GET(request: NextRequest) {
       );
 
       try {
-        const emailRes = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            from: `${facility.name} <reviews@storageads.com>`,
-            to: tenantEmail,
-            subject: `How's your experience at ${facility.name}?`,
-            html,
-          }),
+        const result = await sendEmail({
+          from: facilitySender(facility.name, "reviews"),
+          to: tenantEmail,
+          subject: `How's your experience at ${facility.name}?`,
+          html,
+          tags: [{ name: "type", value: "review_solicitation" }],
         });
 
-        if (!emailRes.ok) {
+        if (!result.ok) {
           results.failed++;
           continue;
         }
@@ -300,24 +296,8 @@ export async function GET(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`[CRON:review-solicitation] Fatal error:`, err);
 
-    // Notify admin of cron failure
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds <noreply@storageads.com>",
-          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `[CRON FAILURE] review-solicitation`,
-          html: `<p>The <strong>review-solicitation</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
-        }),
-      }).catch((err) => {
-        console.error("[cron:review-solicitation] Alert email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    // Notify admin of cron failure (centralized; fire-and-forget).
+    sendCronFailureAlert("review-solicitation", message);
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }

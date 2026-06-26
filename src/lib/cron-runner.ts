@@ -99,6 +99,29 @@ export async function withRetry<T>(
 }
 
 /**
+ * Fire-and-forget admin alert for an inline cron's fatal error, sent through
+ * the centralized email layer. Replaces the hand-rolled
+ * `[CRON FAILURE] <name>` fetch blocks that used to live in each cron's catch
+ * clause. sendEmail() never throws and skips cleanly when RESEND_API_KEY is
+ * unset, so this is safe to call unconditionally.
+ */
+export function sendCronFailureAlert(cronName: string, message: string): void {
+  // Escape the error message — it can contain DB/driver text with angle
+  // brackets that would otherwise break the HTML body.
+  const safeMessage = message
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  void sendEmail({
+    from: SENDERS.noreply,
+    to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+    subject: `[CRON FAILURE] ${cronName}`,
+    tags: [{ name: "type", value: "cron_failure" }],
+    html: `<p>The <strong>${cronName}</strong> cron job failed:</p><pre>${safeMessage}</pre><p>Time: ${new Date().toISOString()}</p>`,
+  });
+}
+
+/**
  * Minimal failure alert for crons that don't use createCronHandler.
  * Logs to console and emails admin (via Resend) when configured.
  */

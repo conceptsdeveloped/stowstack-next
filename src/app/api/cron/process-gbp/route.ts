@@ -6,6 +6,8 @@ import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { getValidGoogleToken } from "@/lib/platform-auth";
 import { generateWithVoice } from "@/lib/voice/generate";
 import { reviewAutoPublishDecision, logSafetyEvent } from "@/lib/voice/safety";
+import { SENDERS, sendEmail } from "@/lib/email";
+import { sendCronFailureAlert } from "@/lib/cron-runner";
 
 export const maxDuration = 120;
 
@@ -144,7 +146,7 @@ function buildNewReviewEmailHtml(
     </div>
 
     <div style="text-align:center;">
-      <a href="${adminReviewsUrl}" style="display:inline-block;background:#B58B3F;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:500;">View in Admin</a>
+      <a href="${adminReviewsUrl}" style="display:inline-block;background:#141413;color:#faf9f5;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:500;">View in Admin</a>
     </div>
   </div>
   <p style="text-align:center;margin-top:16px;font-size:12px;color:#b0aea5;">StorageAds Review Notification</p>
@@ -157,9 +159,6 @@ async function sendNewReviewNotification(
   contactEmail: string | null,
   review: NewReview
 ): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return;
-
   const adminEmail = process.env.ADMIN_EMAIL || "blake@storageads.com";
   const recipients = [adminEmail];
   if (contactEmail && contactEmail !== adminEmail) {
@@ -173,23 +172,14 @@ async function sendNewReviewNotification(
     review.reviewText
   );
 
-  try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        from: "StorageAds <notifications@storageads.com>",
-        to: recipients,
-        subject: `New ${review.rating}-star review for ${facilityName}`,
-        html,
-      }),
-    });
-  } catch {
-    // Email send failed — non-blocking, continue sync
-  }
+  // Non-blocking — sendEmail never throws and logs its own failures.
+  void sendEmail({
+    from: SENDERS.notifications,
+    to: recipients,
+    subject: `New ${review.rating}-star review for ${facilityName}`,
+    html,
+    tags: [{ name: "type", value: "new_review" }],
+  });
 }
 
 async function syncReviewsForConnection(
@@ -522,24 +512,8 @@ export async function GET(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`[CRON:process-gbp] Fatal error:`, err);
 
-    // Notify admin of cron failure
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds <noreply@storageads.com>",
-          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `[CRON FAILURE] process-gbp`,
-          html: `<p>The <strong>process-gbp</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
-        }),
-      }).catch((err) => {
-        console.error("[cron:process-gbp] Alert email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    // Notify admin of cron failure (centralized; fire-and-forget).
+    sendCronFailureAlert("process-gbp", message);
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }

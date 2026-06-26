@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 const RETENTION_POLICIES = [
   {
@@ -87,24 +88,13 @@ export async function GET(request: NextRequest) {
 
   const hasErrors = results.some((r) => r.error);
 
-  if (hasErrors && process.env.RESEND_API_KEY) {
-    fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "StorageAds <noreply@storageads.com>",
-        to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-        subject: "[CRON PARTIAL FAILURE] data-retention",
-        html: `<p>The <strong>data-retention</strong> cron job had errors:</p><pre>${JSON.stringify(results, null, 2)}</pre><p>Time: ${new Date().toISOString()}</p>`,
-      }),
-    }).catch((err) => {
-      console.error(
-        "[cron:data-retention] Alert email failed:",
-        err instanceof Error ? err.message : err
-      );
+  if (hasErrors) {
+    void sendEmail({
+      from: SENDERS.noreply,
+      to: process.env.ADMIN_EMAIL || "blake@storageads.com",
+      subject: "[CRON PARTIAL FAILURE] data-retention",
+      tags: [{ name: "type", value: "cron_failure" }],
+      html: `<p>The <strong>data-retention</strong> cron job had errors:</p><pre>${JSON.stringify(results, null, 2)}</pre><p>Time: ${new Date().toISOString()}</p>`,
     });
   }
 

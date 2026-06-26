@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 export const maxDuration = 60;
 
@@ -43,31 +44,18 @@ async function sendPhotoPrompt(
   facilityName: string,
   contactEmail: string | null
 ): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return false;
-
   const adminEmail = process.env.ADMIN_EMAIL || "blake@storageads.com";
   const recipients = [adminEmail];
   if (contactEmail && contactEmail !== adminEmail) recipients.push(contactEmail);
 
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        from: "StorageAds <notifications@storageads.com>",
-        to: recipients,
-        subject: `Time to refresh your ${facilityName} photos`,
-        html: buildPhotoPromptEmail(facilityName),
-      }),
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  const result = await sendEmail({
+    from: SENDERS.notifications,
+    to: recipients,
+    subject: `Time to refresh your ${facilityName} photos`,
+    html: buildPhotoPromptEmail(facilityName),
+    tags: [{ name: "type", value: "photo_refresh" }],
+  });
+  return result.ok;
 }
 
 /**

@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { SENDERS, sendEmail } from "@/lib/email";
+import { sendCronFailureAlert } from "@/lib/cron-runner";
 
 export const maxDuration = 60;
 
@@ -207,39 +209,30 @@ export async function GET(request: NextRequest) {
             `.catch(() => { /* non-fatal */ });
           }
 
-          if (alert.severity === "critical") {
-            const apiKey = process.env.RESEND_API_KEY;
-            if (apiKey) {
-              const recipients = (
-                process.env.AUDIT_NOTIFICATION_EMAILS ||
-                "blake@storageads.com"
-              )
-                .split(",")
-                .map((e) => e.trim());
+          if (alert.severity === "critical" && process.env.RESEND_API_KEY) {
+            const recipients = (
+              process.env.AUDIT_NOTIFICATION_EMAILS ||
+              "blake@storageads.com"
+            )
+              .split(",")
+              .map((e) => e.trim());
 
-              fetch("https://api.resend.com/emails", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${apiKey}`,
-                },
-                body: JSON.stringify({
-                  from: "StorageAds <alerts@storageads.com>",
-                  to: recipients,
-                  subject: `${alert.title} — ${client.fac_name || client.facility_name}`,
-                  html: `<div style="font-family:-apple-system,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+            void sendEmail({
+              from: SENDERS.alerts,
+              to: recipients,
+              subject: `${alert.title} — ${client.fac_name || client.facility_name}`,
+              tags: [{ name: "type", value: "campaign_alert" }],
+              html: `<div style="font-family:-apple-system,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
   <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin-bottom:16px;">
     <h2 style="margin:0 0 8px;color:#dc2626;font-size:16px;">${esc(alert.title)}</h2>
     <p style="margin:0;color:#7f1d1d;font-size:14px;">${esc(alert.detail)}</p>
   </div>
   <p style="color:#666;font-size:13px;">Facility: ${esc(String(client.fac_name || client.facility_name))}</p>
-  <a href="https://storageads.com/admin" style="display:inline-block;padding:10px 20px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:6px;font-size:13px;margin-top:12px;">View in Dashboard</a>
+  <a href="https://storageads.com/admin" style="display:inline-block;padding:10px 20px;background:#141413;color:#faf9f5;text-decoration:none;border-radius:6px;font-size:13px;margin-top:12px;">View in Dashboard</a>
 </div>`,
-                }),
-              }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
+            });
 
-              results.emailsSent++;
-            }
+            results.emailsSent++;
           }
         }
       } catch (err: unknown) {
@@ -274,24 +267,8 @@ export async function GET(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`[CRON:check-campaign-alerts] Fatal error:`, err);
 
-    // Notify admin of cron failure
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds <noreply@storageads.com>",
-          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `[CRON FAILURE] check-campaign-alerts`,
-          html: `<p>The <strong>check-campaign-alerts</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
-        }),
-      }).catch((err) => {
-        console.error("[cron:check-campaign-alerts] Alert email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    // Notify admin of cron failure (centralized; fire-and-forget).
+    sendCronFailureAlert("check-campaign-alerts", message);
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }

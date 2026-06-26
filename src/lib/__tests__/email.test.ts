@@ -294,6 +294,23 @@ describe("sendEmail — success", () => {
     expect(body.scheduled_at).toBe("2030-01-01T00:00:00Z");
   });
 
+  it("maps attachments to Resend's snake_case shape (content_type)", async () => {
+    fetchMock.mockResolvedValueOnce(mockResponse(200, { id: "x" }));
+    await sendEmail(
+      validParams({
+        attachments: [
+          { filename: "report.pdf", content: "YmFzZTY0", contentType: "application/pdf" },
+          { filename: "logo.png", path: "https://cdn.example.com/logo.png" },
+        ],
+      })
+    );
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.attachments).toEqual([
+      { filename: "report.pdf", content: "YmFzZTY0", content_type: "application/pdf" },
+      { filename: "logo.png", path: "https://cdn.example.com/logo.png" },
+    ]);
+  });
+
   it("omits optional fields when not provided", async () => {
     fetchMock.mockResolvedValueOnce(mockResponse(200, { id: "x" }));
     await sendEmail(validParams());

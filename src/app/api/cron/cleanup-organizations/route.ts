@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { sendCronFailureAlert } from "@/lib/cron-runner";
 
 export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request, RATE_LIMIT_TIERS.WEBHOOK, "cron-cleanup-organizations");
@@ -97,21 +98,7 @@ export async function GET(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`[CRON:cleanup-organizations] Fatal error:`, err);
 
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds <noreply@storageads.com>",
-          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `[CRON FAILURE] cleanup-organizations`,
-          html: `<p>The <strong>cleanup-organizations</strong> cron job failed:</p><pre>${message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre><p>Time: ${new Date().toISOString()}</p>`,
-        }),
-      }).catch((err) => console.error("[email] Cron failure notification failed:", err));
-    }
+    sendCronFailureAlert("cleanup-organizations", message);
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }

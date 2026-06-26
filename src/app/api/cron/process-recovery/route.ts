@@ -4,6 +4,8 @@ import { SEQUENCES } from "@/lib/drip-sequences";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { SENDERS, sendEmail, sendEmailOrThrow } from "@/lib/email";
+import { sendCronFailureAlert } from "@/lib/cron-runner";
 
 export const maxDuration = 60;
 
@@ -65,9 +67,9 @@ function getRecoveryBody(
   <div style="margin: 24px 0; padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
     <p style="margin: 0 0 4px; font-weight: 600; color: #166534; font-size: 18px;">Your unit is still available</p>
     <p style="margin: 0 0 16px; font-size: 14px; color: #374151;">Pick up right where you left off — takes less than 60 seconds.</p>
-    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Your Unit</a>
+    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Your Unit</a>
   </div>
-  <p style="font-size: 13px; color: #6b7280;">Questions? Just reply to this email or call us at <a href="tel:2699298541" style="color: #B58B3F;">269-929-8541</a>.</p>
+  <p style="font-size: 13px; color: #6b7280;">Questions? Just reply to this email or call us at <a href="tel:2699298541" style="color: #141413;">269-929-8541</a>.</p>
 </div>`;
 
     case "recovery_24hr":
@@ -79,9 +81,9 @@ function getRecoveryBody(
     <p style="margin: 4px 0 0; font-size: 14px; color: #78350f;">We can not guarantee pricing or availability beyond today. Lock in your rate now.</p>
   </div>
   <div style="margin: 24px 0; text-align: center;">
-    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Now — Keep Your Rate</a>
+    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Now — Keep Your Rate</a>
   </div>
-  <p style="font-size: 13px; color: #6b7280;">Need help deciding? Call us at <a href="tel:2699298541" style="color: #B58B3F;">269-929-8541</a> — we will walk you through options.</p>
+  <p style="font-size: 13px; color: #6b7280;">Need help deciding? Call us at <a href="tel:2699298541" style="color: #141413;">269-929-8541</a> — we will walk you through options.</p>
 </div>`;
 
     case "recovery_72hr":
@@ -92,9 +94,9 @@ function getRecoveryBody(
     <p style="margin: 0 0 4px; font-size: 13px; color: #34d399; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Limited Time Offer</p>
     <p style="margin: 0 0 8px; font-size: 32px; font-weight: 800; color: white;">$1 First Month</p>
     <p style="margin: 0 0 20px; font-size: 14px; color: #94a3b8;">Reserve in the next 48 hours to lock this in.</p>
-    <a href="${returnUrl}${returnUrl.includes("?") ? "&" : "?"}promo=COMEBACK1" style="display: inline-block; padding: 14px 32px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Claim Your $1 First Month</a>
+    <a href="${returnUrl}${returnUrl.includes("?") ? "&" : "?"}promo=COMEBACK1" style="display: inline-block; padding: 14px 32px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Claim Your $1 First Month</a>
   </div>
-  <p style="font-size: 13px; color: #6b7280;">This offer expires in 48 hours and is limited to new reservations only. Questions? Reply to this email or call <a href="tel:2699298541" style="color: #B58B3F;">269-929-8541</a>.</p>
+  <p style="font-size: 13px; color: #6b7280;">This offer expires in 48 hours and is limited to new reservations only. Questions? Reply to this email or call <a href="tel:2699298541" style="color: #141413;">269-929-8541</a>.</p>
 </div>`;
 
     default:
@@ -142,35 +144,19 @@ async function sendRecoveryEmail(
   const subject = getRecoverySubject(step.templateId, lead);
   const html = getRecoveryBody(step.templateId, lead);
 
-  const emailRes = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      from: "Blake at StorageAds <noreply@storageads.com>",
-      to: partialLead.email,
-      reply_to: ["blake@storageads.com"],
-      subject,
-      html,
-    }),
+  // sendEmailOrThrow preserves this function's original throw-on-failure
+  // contract so the caller's retry/failure accounting is unchanged.
+  return sendEmailOrThrow({
+    from: SENDERS.blake,
+    to: partialLead.email as string,
+    replyTo: ["blake@storageads.com"],
+    subject,
+    html,
+    tags: [{ name: "type", value: "recovery_drip" }],
   });
-
-  if (!emailRes.ok) {
-    const text = await emailRes.text();
-    throw new Error(
-      `Recovery email failed (${emailRes.status}): ${text}`
-    );
-  }
-
-  return emailRes.json();
 }
 
 async function sendHotLeadAlert(partialLead: Record<string, unknown>) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return;
-
   const html = `<div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="padding: 16px 20px; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
     <p style="margin: 0; font-weight: 600; color: #991b1b;">Hot Abandoned Lead (Score: ${partialLead.lead_score})</p>
@@ -189,19 +175,13 @@ async function sendHotLeadAlert(partialLead: Record<string, unknown>) {
   <p style="margin-top: 16px; font-size: 12px; color: #999;">Recovery sequence has been started automatically. This lead scored ${partialLead.lead_score}/100 — consider a personal follow-up call.</p>
 </div>`;
 
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      from: "StorageAds <notifications@storageads.com>",
-      to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-      subject: `Hot abandoned lead: ${partialLead.email} (Score: ${partialLead.lead_score})`,
-      html,
-    }),
-  }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
+  void sendEmail({
+    from: SENDERS.notifications,
+    to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
+    subject: `Hot abandoned lead: ${partialLead.email} (Score: ${partialLead.lead_score})`,
+    html,
+    tags: [{ name: "type", value: "hot_lead_alert" }],
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -373,24 +353,8 @@ export async function GET(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`[CRON:process-recovery] Fatal error:`, err);
 
-    // Notify admin of cron failure
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds <noreply@storageads.com>",
-          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `[CRON FAILURE] process-recovery`,
-          html: `<p>The <strong>process-recovery</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
-        }),
-      }).catch((err) => {
-        console.error("[cron:process-recovery] Alert email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    // Notify admin of cron failure (centralized; fire-and-forget).
+    sendCronFailureAlert("process-recovery", message);
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }

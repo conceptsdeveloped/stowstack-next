@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { SENDERS, sendEmail } from "@/lib/email";
+import { sendCronFailureAlert } from "@/lib/cron-runner";
 
 export const maxDuration = 120;
 
@@ -128,7 +130,7 @@ function renderReportHTML(
       : ""
   }
   ${aiNarrative ? `<div style="background:#faf9f5;border:1px solid #e8e6dc;border-radius:12px;padding:16px;margin-bottom:20px;">
-    <h3 style="margin:0 0 8px;font-size:13px;color:#B58B3F;text-transform:uppercase;letter-spacing:0.5px;">What We Did This Month</h3>
+    <h3 style="margin:0 0 8px;font-size:13px;color:#141413;text-transform:uppercase;letter-spacing:0.5px;">What We Did This Month</h3>
     <p style="margin:0;font-size:13px;color:#141413;line-height:1.6;">${esc(aiNarrative)}</p>
   </div>` : ""}
   ${bestCampaign || worstCampaign ? `<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:20px;">
@@ -139,7 +141,7 @@ function renderReportHTML(
     </table>
   </div>` : ""}
   <div style="text-align:center;margin-bottom:24px;">
-    <a href="${baseUrl}/portal" style="display:inline-block;padding:14px 32px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">View Full Dashboard</a>
+    <a href="${baseUrl}/portal" style="display:inline-block;padding:14px 32px;background:#141413;color:#faf9f5;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">View Full Dashboard</a>
   </div>
   <div style="text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:16px;">
     <p style="margin:0;">StorageAds &middot; storageads.com</p>
@@ -453,29 +455,22 @@ export async function GET(request: NextRequest) {
             // PDF generation failed — send without attachment
           }
 
-          const emailRes = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-              from: "StorageAds <reports@storageads.com>",
-              to: client.email,
-              subject: `${client.fac_name || client.facility_name} — ${isWeekly ? "Weekly" : "Monthly"} Performance Report`,
-              html,
-              ...(pdfAttachment ? { attachments: [pdfAttachment] } : {}),
-            }),
+          const result = await sendEmail({
+            from: SENDERS.reports,
+            to: String(client.email),
+            subject: `${client.fac_name || client.facility_name} — ${isWeekly ? "Weekly" : "Monthly"} Performance Report`,
+            html,
+            tags: [{ name: "type", value: "client_report" }],
+            ...(pdfAttachment ? { attachments: [pdfAttachment] } : {}),
           });
 
-          if (emailRes.ok) {
+          if (result.ok) {
             await db.$executeRaw`UPDATE client_reports SET sent_at = NOW(), status = 'sent' WHERE id = ${reportId}::uuid`;
             results.sent++;
           } else {
-            const errText = await emailRes.text();
             await db.$executeRaw`UPDATE client_reports SET status = 'failed' WHERE id = ${reportId}::uuid`;
             results.errors.push(
-              `Email failed for ${client.email}: ${errText}`
+              `Email failed for ${client.email}: ${result.error || result.skipReason}`
             );
           }
         }
@@ -515,24 +510,8 @@ export async function GET(request: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`[CRON:send-client-reports] Fatal error:`, err);
 
-    // Notify admin of cron failure
-    if (process.env.RESEND_API_KEY) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "StorageAds <noreply@storageads.com>",
-          to: process.env.ADMIN_EMAIL || "blake@storageads.com",
-          subject: `[CRON FAILURE] send-client-reports`,
-          html: `<p>The <strong>send-client-reports</strong> cron job failed:</p><pre>${message}</pre><p>Time: ${new Date().toISOString()}</p>`,
-        }),
-      }).catch((err) => {
-        console.error("[cron:send-client-reports] Alert email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    // Notify admin of cron failure (centralized; fire-and-forget).
+    sendCronFailureAlert("send-client-reports", message);
 
     return NextResponse.json({ error: "Cron processing failed", message }, { status: 500 });
   }
