@@ -116,9 +116,25 @@ const GROUPS: ToolGroup[] = [
   },
 ];
 
+const ITEM_LIST_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Free tools for storage operators",
+  itemListElement: GROUPS.flatMap((g) => g.tools).map((t, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: t.label,
+    url: `https://storageads.com${t.href}`,
+  })),
+};
+
 export default function ToolsPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--color-light)" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ITEM_LIST_JSONLD) }}
+      />
       <ToolHeader backHref="/" backLabel="Back to homepage" />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
