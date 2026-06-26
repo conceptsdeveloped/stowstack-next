@@ -206,15 +206,15 @@ flowchart LR
   C -->|landing page| E[partial_leads record<br/>UTM params captured]
 
   D --> F[audits + audit_report_cache<br/>shared_audits]
-  F --> G[/audit/:slug results page<br/>Cal.com CTA]
+  F --> G["/audit/:slug results page<br/>Cal.com CTA"]
   G --> H[Call booked → demo]
 
   E --> I[Enroll in funnel drip<br/>drip_sequences created]
   H --> J[Contract signed<br/>status = client_signed]
 
   J --> K[Access code generated<br/>Resend email sent]
-  K --> L[/portal login]
-  L --> M[/portal/onboarding<br/>facility info + Stripe checkout]
+  K --> L["/portal login"]
+  L --> M["/portal/onboarding<br/>facility info + Stripe checkout"]
   M --> N[clients + client_onboarding<br/>organizations.stripe_customer_id]
 
   N --> O[Active subscription<br/>Stripe webhooks keep state]
@@ -275,7 +275,7 @@ flowchart TB
   M1 --> IMP[Impressions · clicks]
   M2 --> IMP
   M3 --> IMP
-  IMP --> LPGO[/lp/:slug landing page]
+  IMP --> LPGO["/lp/:slug landing page"]
   LPGO --> LC[POST /api/lead-capture]
   LC --> PL2[partial_leads<br/>UTM captured]
 
@@ -355,7 +355,7 @@ flowchart LR
   S3 --> SP
 
   subgraph capture[Lead + Call Capture]
-    L1[/lp/:slug form] --> L2[POST /api/lead-capture]
+    L1["/lp/:slug form"] --> L2[POST /api/lead-capture]
     L2 --> PL[partial_leads<br/>utm_source · utm_campaign · session_id]
     C1[Twilio call webhook] --> C2[POST /api/call-webhook]
     C2 --> CL[call_logs<br/>move_in_linked FK]
@@ -376,8 +376,8 @@ flowchart LR
   S5 --> GFB[Google feedback]
 
   ENG --> OUT[client_campaigns<br/>CPL · CPMI · ROAS · revenue]
-  OUT --> VIZ1[/admin/facilities<br/>Revenue Analytics tab/]
-  OUT --> VIZ2[/portal/reports<br/>monthly HTML + PDF/]
+  OUT --> VIZ1["/admin/facilities<br/>Revenue Analytics tab"]
+  OUT --> VIZ2["/portal/reports<br/>monthly HTML + PDF"]
   OUT --> MR[monthly report cron<br/>/api/cron/send-client-reports]
 ```
 
