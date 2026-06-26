@@ -24,6 +24,7 @@ interface EcriTenant {
   unitType: string | null;
   currentRate: number;
   marketRate: number | null;
+  marketSource: "sensitivity" | "street_rate" | null;
   suggestedRate: number;
   monthlyLift: number;
   liftPct: number | null;
@@ -295,7 +296,21 @@ export default function EcriFinder({
                   <Td align="left">{t.unit || "—"}</Td>
                   <Td align="left">{t.sizeLabel || t.unitType || "—"}</Td>
                   <Td align="right">{money(t.currentRate)}</Td>
-                  <Td align="right">{money(t.suggestedRate)}</Td>
+                  <Td align="right">
+                    <span
+                      title={
+                        t.marketRate
+                          ? `Market ${money(t.marketRate)} · ${
+                              t.marketSource === "street_rate"
+                                ? "posted street rate (no sensitivity score yet)"
+                                : "sensitivity-derived market rate"
+                            }`
+                          : undefined
+                      }
+                    >
+                      {money(t.suggestedRate)}
+                    </span>
+                  </Td>
                   <Td align="right" strong>
                     {money(t.monthlyLift)}
                   </Td>
