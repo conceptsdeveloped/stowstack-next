@@ -27,11 +27,14 @@ const eslintConfig = defineConfig([
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
+    // Default ignores of eslint-config-next — globbed to also catch nested
+    // build output (e.g. "resume webstite/.next", "resume webstite/out").
+    "**/.next/**",
+    "**/out/**",
+    "**/build/**",
     "next-env.d.ts",
+    // Generated/deployed static bundles checked into the repo.
+    "public/resume/**",
   ]),
 ]);
 
