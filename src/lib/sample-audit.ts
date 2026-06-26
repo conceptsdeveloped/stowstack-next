@@ -91,6 +91,22 @@ export interface SampleAuditData {
         consequences: [string, string, string];
       };
     };
+    conversionFunnel?: {
+      stages: Array<{
+        name: string;
+        status: "strong" | "weak" | "critical";
+        evidence: string;
+        leakPercentage: number;
+      }>;
+      biggestLeak: string;
+      narrative: string;
+    };
+    operatorAlignment?: {
+      accuracy: "accurate" | "partially_accurate" | "misdiagnosed";
+      operatorSaid: string;
+      auditFound: string;
+      note: string;
+    };
   };
   facilityName: string;
   createdAt: string;
@@ -595,6 +611,58 @@ function buildSampleAudit(): SampleAuditData {
             "Extra Space and CubeSmart Kalamazoo widen the review-volume gap, pushing your listing further down the local map pack and out of consideration",
           ],
         },
+      },
+      conversionFunnel: {
+        stages: [
+          {
+            name: "Market Awareness",
+            status: "critical",
+            evidence:
+              "$0 paid acquisition and no Google Ads — prospects searching 'storage near Mattawan' never see you.",
+            leakPercentage: 70,
+          },
+          {
+            name: "Website / Online Discovery",
+            status: "weak",
+            evidence:
+              "Site hasn't been updated in 18+ months and has no online reservation — visitors can't self-serve.",
+            leakPercentage: 45,
+          },
+          {
+            name: "Inquiry / Contact",
+            status: "weak",
+            evidence:
+              "Inbound calls go to voicemail after hours with no callback workflow, so off-hours inquiries die.",
+            leakPercentage: 35,
+          },
+          {
+            name: "Reservation",
+            status: "weak",
+            evidence:
+              "24+ dormant leads sit in the CRM with no follow-up sequence reactivating them.",
+            leakPercentage: 30,
+          },
+          {
+            name: "Move-In",
+            status: "strong",
+            evidence:
+              "Once a prospect reaches the counter, close rate is healthy — the front desk converts well.",
+            leakPercentage: 10,
+          },
+        ],
+        biggestLeak:
+          "Market Awareness — with $0 paid spend, ~70% of in-market demand never even reaches your listing, so every downstream stage is starved before it starts.",
+        narrative:
+          "A renter in Mattawan searches 'storage near me,' sees Extra Space and CubeSmart's ads and 200+ reviews first, and books before your listing ever loads. The few who do find you hit a stale site with no online reservation, then a voicemail after hours. Your counter staff close well — but almost no one makes it that far.",
+      },
+      operatorAlignment: {
+        accuracy: "misdiagnosed",
+        operatorSaid:
+          "Owner believes the core problem is too much large-unit (10x20) inventory for a rural market.",
+        auditFound:
+          "The unit mix is a real but secondary issue. The primary leak is zero top-of-funnel demand capture — $0 paid acquisition and no online reservation path.",
+        note:
+          "Filling those 10x20s matters, but you can't fill what never finds you. Fix the demand and discovery leaks first and the large-unit vacancy starts closing as a byproduct.",
       },
     },
     facilityName: FACILITY_NAME,

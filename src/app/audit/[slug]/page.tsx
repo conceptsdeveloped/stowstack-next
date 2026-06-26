@@ -99,6 +99,26 @@ interface NinetyDayProjection {
   };
 }
 
+interface ConversionFunnelStage {
+  name: string;
+  status: "strong" | "weak" | "critical";
+  evidence: string;
+  leakPercentage: number;
+}
+
+interface ConversionFunnel {
+  stages: ConversionFunnelStage[];
+  biggestLeak: string;
+  narrative: string;
+}
+
+interface OperatorAlignment {
+  accuracy: "accurate" | "partially_accurate" | "misdiagnosed";
+  operatorSaid: string;
+  auditFound: string;
+  note: string;
+}
+
 interface DiagnosticAudit {
   generatedAt: string;
   facility: {
@@ -119,6 +139,8 @@ interface DiagnosticAudit {
   revenueOptimization?: RevenueOptimization;
   costOfInaction?: CostOfInaction;
   ninetyDayProjection?: NinetyDayProjection;
+  conversionFunnel?: ConversionFunnel;
+  operatorAlignment?: OperatorAlignment;
   vacancyCost: {
     vacantUnits: number;
     monthlyLoss: number;
@@ -538,7 +560,7 @@ export default async function SharedAuditPage({
     return <LegacyAuditPage data={data} />;
   }
 
-  const { categories, executiveSummary, vacancyCost, overallScore, overallGrade, costOfInaction, ninetyDayProjection, industryBenchmarks, revenueOptimization } = audit;
+  const { categories, executiveSummary, vacancyCost, overallScore, overallGrade, costOfInaction, ninetyDayProjection, industryBenchmarks, revenueOptimization, conversionFunnel, operatorAlignment } = audit;
   const facility = audit.facility;
   const colors = gradeColor(overallGrade);
 
@@ -667,6 +689,59 @@ export default async function SharedAuditPage({
             </div>
           </div>
         </div>
+
+        {/* Operator Alignment — what you said vs what the data shows */}
+        {operatorAlignment && operatorAlignment.auditFound && (() => {
+          const acc = operatorAlignment.accuracy;
+          const tone =
+            acc === "accurate"
+              ? { border: "border-green-500/20", bg: "bg-green-500/5", icon: "text-green-400", iconBg: "bg-green-500/10", label: "On the money", labelCls: "text-green-400", Icon: CheckCircle2 }
+              : acc === "misdiagnosed"
+              ? { border: "border-red-500/20", bg: "bg-red-500/5", icon: "text-red-400", iconBg: "bg-red-500/10", label: "Different root cause", labelCls: "text-red-400", Icon: AlertTriangle }
+              : { border: "border-amber-500/20", bg: "bg-amber-500/5", icon: "text-amber-400", iconBg: "bg-amber-500/10", label: "Partly right", labelCls: "text-amber-400", Icon: AlertCircle };
+          const ToneIcon = tone.Icon;
+          return (
+            <div className={`rounded-2xl border ${tone.border} ${tone.bg} p-6 mb-8`}>
+              <div className="flex items-start gap-3 mb-4">
+                <div className={`w-8 h-8 rounded-lg ${tone.iconBg} flex items-center justify-center shrink-0 mt-0.5`}>
+                  <Target className={`w-4 h-4 ${tone.icon}`} />
+                </div>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                    Your Read vs The Data
+                  </h2>
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-lg ${tone.iconBg} ${tone.labelCls}`}>
+                    <ToneIcon className="w-3.5 h-3.5" />
+                    {tone.label}
+                  </span>
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                <div className="bg-[var(--bg-primary)]/50 rounded-xl border border-[var(--border-subtle)] p-4">
+                  <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1.5">
+                    You said your biggest issue is
+                  </p>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                    {operatorAlignment.operatorSaid}
+                  </p>
+                </div>
+                <div className={`bg-[var(--bg-primary)]/50 rounded-xl border ${tone.border} p-4`}>
+                  <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wide mb-1.5">
+                    The data points to
+                  </p>
+                  <p className="text-sm text-[var(--text-primary)] font-medium leading-relaxed">
+                    {operatorAlignment.auditFound}
+                  </p>
+                </div>
+              </div>
+              {operatorAlignment.note && (
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  {operatorAlignment.note}
+                </p>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Vacancy Cost Alert */}
         {vacancyCost && vacancyCost.vacantUnits > 0 && (
@@ -1103,6 +1178,79 @@ export default async function SharedAuditPage({
                 </span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Conversion Funnel — where prospects leak out */}
+        {conversionFunnel && conversionFunnel.stages && conversionFunnel.stages.length > 0 && (
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 mb-8">
+            <div className="flex items-start gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-[var(--bg-primary)] flex items-center justify-center shrink-0">
+                <TrendingDown className="w-5 h-5 text-orange-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                  Where You&apos;re Losing Move-Ins
+                </h2>
+                <p className="text-sm text-[var(--text-secondary)] mt-0.5">
+                  Every prospect passes through five stages. This is where they fall out.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 mb-5">
+              {conversionFunnel.stages.map((stage, i) => {
+                const leak = Math.max(0, Math.min(100, stage.leakPercentage ?? 0));
+                const tone =
+                  stage.status === "critical"
+                    ? { bar: "bg-red-500", text: "text-red-400", Icon: AlertTriangle }
+                    : stage.status === "weak"
+                    ? { bar: "bg-amber-500", text: "text-amber-400", Icon: AlertCircle }
+                    : { bar: "bg-green-500", text: "text-green-400", Icon: CheckCircle2 };
+                const StageIcon = tone.Icon;
+                return (
+                  <div key={i} className="bg-[var(--bg-primary)]/50 rounded-xl border border-[var(--border-subtle)] p-3.5">
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <StageIcon className={`w-4 h-4 shrink-0 ${tone.text}`} />
+                        <span className="text-sm font-medium text-[var(--text-primary)] truncate">
+                          {stage.name}
+                        </span>
+                      </div>
+                      <span className={`text-xs font-semibold shrink-0 ${tone.text}`}>
+                        {leak}% leak
+                      </span>
+                    </div>
+                    <div className="h-2 bg-[var(--bg-primary)] rounded-full overflow-hidden mb-2">
+                      <div
+                        className={`h-full ${tone.bar} rounded-full`}
+                        style={{ width: `${Math.max(leak, 3)}%`, opacity: 0.75 }}
+                      />
+                    </div>
+                    {stage.evidence && (
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                        {stage.evidence}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {conversionFunnel.biggestLeak && (
+              <div className="flex items-start gap-2.5 bg-orange-500/10 rounded-lg p-3 mb-3">
+                <Swords className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+                <p className="text-sm font-medium text-orange-300 leading-relaxed">
+                  <span className="uppercase tracking-wide text-[10px] text-orange-400/80 mr-1.5">Biggest leak</span>
+                  {conversionFunnel.biggestLeak}
+                </p>
+              </div>
+            )}
+            {conversionFunnel.narrative && (
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                {conversionFunnel.narrative}
+              </p>
+            )}
           </div>
         )}
 

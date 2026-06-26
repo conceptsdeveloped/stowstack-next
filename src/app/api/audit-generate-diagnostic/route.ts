@@ -202,6 +202,26 @@ interface NinetyDayProjection {
   };
 }
 
+interface ConversionFunnelStage {
+  name: string;
+  status: "strong" | "weak" | "critical";
+  evidence: string;
+  leakPercentage: number;
+}
+
+interface ConversionFunnel {
+  stages: ConversionFunnelStage[];
+  biggestLeak: string;
+  narrative: string;
+}
+
+interface OperatorAlignment {
+  accuracy: "accurate" | "partially_accurate" | "misdiagnosed";
+  operatorSaid: string;
+  auditFound: string;
+  note: string;
+}
+
 interface FullDiagnosticAudit {
   generatedAt: string;
   facility: {
@@ -222,6 +242,8 @@ interface FullDiagnosticAudit {
   revenueOptimization: RevenueOptimization;
   costOfInaction: CostOfInaction;
   ninetyDayProjection: NinetyDayProjection;
+  conversionFunnel?: ConversionFunnel;
+  operatorAlignment?: OperatorAlignment;
   vacancyCost: {
     vacantUnits: number;
     monthlyLoss: number;
@@ -661,6 +683,23 @@ IMPORTANT SCORING GUIDELINES:
       "consequences": ["specific consequence #1", "specific consequence #2", "specific consequence #3"]
     }
   },
+  "conversionFunnel": {
+    "stages": [
+      {"name": "Market Awareness", "status": "strong|weak|critical", "evidence": "1 sentence grounded in their data (ad spend, who runs marketing, GBP)", "leakPercentage": <0-100 estimate of how much potential demand is lost at this stage>},
+      {"name": "Website / Online Discovery", "status": "strong|weak|critical", "evidence": "1 sentence (website freshness, online rental capability)", "leakPercentage": <0-100>},
+      {"name": "Inquiry / Contact", "status": "strong|weak|critical", "evidence": "1 sentence (lead volume, call handling)", "leakPercentage": <0-100>},
+      {"name": "Reservation", "status": "strong|weak|critical", "evidence": "1 sentence (follow-up, conversion)", "leakPercentage": <0-100>},
+      {"name": "Move-In", "status": "strong|weak|critical", "evidence": "1 sentence (move-in vs move-out pace)", "leakPercentage": <0-100>}
+    ],
+    "biggestLeak": "Which single stage leaks the most, and why — name the stage",
+    "narrative": "2-3 sentences walking a prospect through this facility's funnel and pinpointing where they fall out"
+  },
+  "operatorAlignment": {
+    "accuracy": "accurate|partially_accurate|misdiagnosed",
+    "operatorSaid": "What the operator named as their biggest issue / what they said they'd fix first (from their answers)",
+    "auditFound": "What THIS audit identifies as the real top problem based on the data",
+    "note": "1-2 sentences on whether the operator's self-diagnosis matches the data — honest but respectful, operator to operator"
+  },
   "categories": [
     {
       "name": "Occupancy & Unit Mix",
@@ -772,7 +811,9 @@ CRITICAL RULES:
 5. Actions must be things they can DO this week or this month — not vague strategies.
 6. Use operator language: "move-ins" not "customers", "units" not "rooms", "street rate" not "price".
 7. The doNothingConsequence should create URGENCY — paint a clear picture of the facility's trajectory if they ignore the findings. Reference competitors by name where provided.
-8. inactionCost should be a realistic annual estimate based on their data (vacancy * rate * 12, lost ECRI revenue, wasted ad spend, etc.).`;
+8. inactionCost should be a realistic annual estimate based on their data (vacancy * rate * 12, lost ECRI revenue, wasted ad spend, etc.).
+9. conversionFunnel: map the prospect's journey across all 5 stages. leakPercentage is your estimate of how much potential demand is lost at each stage (0 = no leak, higher = worse). Ground each status and evidence in their actual answers, and name the single worst stage in biggestLeak.
+10. operatorAlignment: compare what the operator said is their biggest problem against what the data actually shows. Be honest but respectful — if they've misdiagnosed, say so plainly and point to the real issue. This is operator-to-operator, not a lecture.`;
 }
 
 async function generateWithAI(
@@ -953,6 +994,12 @@ export async function POST(req: NextRequest) {
     const revenueOptimization = (aiResult.revenueOptimization || {}) as RevenueOptimization;
     const costOfInaction = (aiResult.costOfInaction || {}) as CostOfInaction;
     const ninetyDayProjection = (aiResult.ninetyDayProjection || {}) as NinetyDayProjection;
+    const conversionFunnel = aiResult.conversionFunnel
+      ? (aiResult.conversionFunnel as ConversionFunnel)
+      : undefined;
+    const operatorAlignment = aiResult.operatorAlignment
+      ? (aiResult.operatorAlignment as OperatorAlignment)
+      : undefined;
 
     const fullAudit: FullDiagnosticAudit = {
       generatedAt: new Date().toISOString(),
@@ -974,6 +1021,8 @@ export async function POST(req: NextRequest) {
       revenueOptimization,
       costOfInaction,
       ninetyDayProjection,
+      ...(conversionFunnel ? { conversionFunnel } : {}),
+      ...(operatorAlignment ? { operatorAlignment } : {}),
       vacancyCost: {
         vacantUnits,
         monthlyLoss: vacantUnits * avgRate,
