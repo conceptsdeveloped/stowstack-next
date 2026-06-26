@@ -53,7 +53,7 @@ graph TB
 | *(Cron)* | `Authorization: Bearer $CRON_SECRET` | per cron handler | `verifyCronSecret()` | env var (fail-closed) |
 | *(V1 API)* | `Authorization: Bearer sk_live_…` | per V1 route | `requireApiAuth()` | `api_keys` table (hash only) |
 
-**Why four?** They guard four different audiences: Blake/Angelo (admin), signed customers (portal), resellers & referral partners (partner), and external API consumers (V1). Clerk is wired but deliberately inert — every route is in `isPublicRoute()`, so `auth.protect()` never actually blocks an app path.
+**Why four?** They guard four different audiences: Blake/Angelo (admin), signed customers (portal), resellers & referral partners (partner), and external API consumers (V1). Clerk is wired but deliberately inert: API routes short-circuit before Clerk runs, and for page routes the finite `isPublicRoute()` matcher lists the app's known routes (marketing, `/portal`, `/partner`, `/admin`, `/api`) as public — so in practice `auth.protect()` guards nothing. (Strictly, a *page* route not in that finite list would be protected when `pk_live_` keys are set; the app doesn't rely on that.)
 
 ---
 

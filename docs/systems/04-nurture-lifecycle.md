@@ -149,7 +149,7 @@ gantt
     section Messaging
     process-drips legacy        :05:00, 30m
     process-nurture primary     :06:00, 30m
-    process-recovery winback    :07:00, 30m
+    process-recovery abandoned :07:00, 30m
     check-campaign-alerts       :08:00, 30m
     section Hourly
     retry-diagnostic-audits     :crit, 00:30, 20m

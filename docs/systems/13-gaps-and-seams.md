@@ -95,7 +95,7 @@ The 5-step win-back sequence sets `next_send_at`, but advancement is manual/batc
 ## Attribution
 
 ### 🟡 `visitor_id` / `source_channel` are unwired scaffold
-`partial_leads.visitor_id`, `source_channel`, `source_subchannel`, `audit_submission_id` are declared and indexed ("Roadmap phase 1 attribution scaffold") but **written nowhere**. The de-facto visitor key today is `partial_leads.session_id`. Don't build reporting on the scaffold columns yet.
+`partial_leads.visitor_id`, `source_channel`, `source_subchannel`, `audit_submission_id` are declared ("Roadmap phase 1 attribution scaffold") but **written nowhere** (only `visitor_id` is even indexed). The de-facto visitor key today is `partial_leads.session_id`. Don't build reporting on the scaffold columns yet.
 → [10 · Attribution & Tracking](10-attribution-tracking.md) §2
 
 ### 🟡 Walk-ins are not auto-matched

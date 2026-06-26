@@ -100,6 +100,7 @@ erDiagram
     facilities ||--o{ facility_pms_rent_roll : "per-unit @ date"
     facilities ||--o{ facility_pms_aging : "delinquency buckets"
     facilities ||--o{ facility_pms_revenue_history : "monthly"
+    facilities ||--o{ facility_pms_rate_history : "rate history"
     facilities ||--o{ facility_pms_tenant_rates : "ECRI source"
     facilities ||--o{ facility_pms_length_of_stay : "tenure"
     facilities ||--o{ facility_pms_specials : "manual promos"
@@ -113,6 +114,7 @@ erDiagram
 | `facility_pms_rent_roll` | Per-unit tenancy line items at a snapshot date | deleteMany + createMany |
 | `facility_pms_aging` | Per-unit buckets 0-30…120+ | deleteMany + createMany |
 | `facility_pms_revenue_history` | Monthly revenue/tax/move-ins/outs. Unique `(facility_id, year, month)` | upsert |
+| `facility_pms_rate_history` | Historical street/web rates by unit-type + effective date | read by `facility-pms` (not CSV/cron-written) |
 | `facility_pms_tenant_rates` | Per-tenant rate + ECRI flags. **Feeds churn/ECRI/NOI** | storedge-import only |
 | `facility_pms_length_of_stay` | Per-tenant tenure | storedge-import only |
 | `facility_pms_specials` | Promos/discounts | manual CRUD (not CSV) |

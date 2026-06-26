@@ -73,7 +73,7 @@ gantt
 | `sync-audiences` | `0 1 * * 0` | Sun 1 AM | Refresh ad-platform custom audiences |
 | `photo-refresh-prompts` | `0 13 1 * *` | 1st of month, 1 PM | Prompt owners to refresh GBP photos |
 
-**Shared plumbing:** `src/lib/cron-runner.ts` (`createCronHandler`) wraps each handler with `verifyCronSecret()` + Sentry tagging + structured logging + failure notification. Most send email by direct `fetch` to `https://api.resend.com/emails` rather than the SDK.
+**Shared plumbing:** all 22 cron handlers call `verifyCronSecret()` **directly inline** (fail-closed; see `src/lib/cron-auth.ts`), and many also call `notifyCronFailure()` on error. Note: `src/lib/cron-runner.ts` exports a `createCronHandler` wrapper (verifyCronSecret + Sentry tagging + structured logging + failure notification), but it is **not currently wired into any handler** — it's defined and unused. Most crons send email by direct `fetch` to `https://api.resend.com/emails` rather than the SDK.
 
 ---
 
@@ -169,7 +169,8 @@ graph LR
 | Concern | File |
 |---------|------|
 | Cron schedules | `vercel.json` |
-| Cron wrapper | `src/lib/cron-runner.ts` (`createCronHandler`) |
+| Cron auth (called inline) | `src/lib/cron-auth.ts` (`verifyCronSecret`, `notifyCronFailure`) |
+| Cron wrapper (defined, unused) | `src/lib/cron-runner.ts` (`createCronHandler`) |
 | Cron auth (fail-closed) | `src/lib/cron-auth.ts` |
 | Env validation | `src/lib/env-check.ts` |
 | Stripe client | `src/lib/stripe.ts` |

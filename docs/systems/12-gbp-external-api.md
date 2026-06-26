@@ -91,7 +91,7 @@ flowchart TD
 | `v1/leads` | `leads:read` / `leads:write` (fires `lead.created`/`lead.updated`) |
 | `v1/tenants` | `tenants:read` / `tenants:write` (triggers lead-matching) |
 | `v1/facilities` | `facilities:read` / `facilities:write` (fires `facility.updated`) |
-| `v1/facility-snapshots`, `-units`, `-availability`, `-specials` | `facilities:read` / `units:read` / `units:write` |
+| `v1/facility-snapshots`, `-units`, `-availability`, `-specials` | `facilities:read` / `facilities:write` / `units:read` / `units:write` |
 | `v1/call-logs` | `calls:read` |
 | `v1/landing-pages` | `pages:read` |
 | `v1/webhooks` | `webhooks:manage` |

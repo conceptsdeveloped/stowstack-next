@@ -56,7 +56,7 @@ The four data-facing perimeters (admin/portal/partner/V1) are documented in deta
 graph LR
     CSP["CSP (Report-Only)"]
     CSP --> D1["default-src 'self'"]
-    CSP --> D2["script-src 'self' 'unsafe-inline'<br/>+ 'unsafe-eval' (DEV only)<br/>+ stripe, facebook, clerk, cal"]
+    CSP --> D2["script-src 'self' 'unsafe-inline'<br/>+ 'unsafe-eval' (DEV only)<br/>+ stripe, facebook, cdnjs, clerk, cal"]
     CSP --> D3["frame-ancestors 'none'<br/>object-src 'none' · base-uri 'self'"]
     CSP --> D4["connect-src: stripe, sentry, upstash<br/>clerk, facebook, fal, cal"]
     CSP --> GAP["⚠️ Report-Only + NO report-uri/report-to<br/>→ violations silently dropped (console only)"]
@@ -103,7 +103,8 @@ The strict (fail-closed) variant guards the 3 expensive **unauthenticated** rout
 | BILLING | 5/60s | | EXPENSIVE_API_HOURLY | 5/hr |
 | AUTHENTICATED | 60/60s | | BILLING_HOURLY | 10/hr |
 | PUBLIC_WRITE | 10/60s | | SIGNUP_HOURLY | 5/hr |
-| PUBLIC_READ | 120/60s | | EXTERNAL_API_HOURLY | 20/hr |
+| PUBLIC_READ | 120/60s | | PUBLIC_WRITE_HOURLY | 10/hr |
+| | | | EXTERNAL_API_HOURLY | 20/hr |
 
 V1 API uses per-key limits keyed `v1:{apiKeyId}` (default 100/60s).
 
@@ -111,7 +112,7 @@ V1 API uses per-key limits keyed `v1:{apiKeyId}` (default 100/60s).
 
 ## 4. Secrets at rest & constant-time compares
 
-Four independent constant-time implementations, all SHA-256-normalizing before compare (so length doesn't leak):
+Four independent constant-time implementations. Two SHA-256-normalize before compare so length can't leak (`safeCompare` for the admin key, `verifyCronSecret` for the cron secret); the Meta callback verifies an HMAC-SHA256 `signed_request` via `timingSafeEqual`; and `validateCsrf` does a plain length check (early-returning on mismatch, so the length *does* leak) followed by a char-code XOR comparison:
 
 ```mermaid
 graph LR

@@ -63,7 +63,7 @@ sequenceDiagram
 - `tracking-params.ts` — **last-touch** model; new URL params overwrite, persisted in localStorage.
 - `partial_leads` capture — raw `INSERT ... ON CONFLICT (session_id) DO UPDATE`, COALESCE-merging utm/click-ids so first-touch survives.
 
-> **⚠️ Scaffold gap:** `partial_leads.visitor_id`, `source_channel`, `source_subchannel`, `audit_submission_id` are declared + indexed but **written nowhere**. The real visitor key today is `session_id`. See [13 · Gaps & Seams](13-gaps-and-seams.md).
+> **⚠️ Scaffold gap:** `partial_leads.visitor_id`, `source_channel`, `source_subchannel`, `audit_submission_id` are declared but **written nowhere** (only `visitor_id` even has an index, `idx_partial_leads_visitor`). The real visitor key today is `session_id`. See [13 · Gaps & Seams](13-gaps-and-seams.md).
 
 ---
 

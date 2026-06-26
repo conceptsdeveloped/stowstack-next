@@ -35,7 +35,7 @@ graph TB
 **Cascade topology you must respect (prod has no staging — see [project safety notes]):**
 - Deleting a **facility** cascades through ~50 tables.
 - Deleting an **organization** cascades to `org_users → sessions`, `api_keys → api_usage_log`, etc.
-- Soft-delete (`deleted_at` / `deleted_by`) exists on `facilities`, `organizations`, `clients`, `tenants`, `partial_leads` — prefer it over hard delete.
+- Soft-delete (`deleted_at` / `deleted_by`) exists on `facilities`, `organizations`, `clients`, `tenants` — prefer it over hard delete. `partial_leads` has only `deleted_at` (no `deleted_by`).
 
 ---
 
