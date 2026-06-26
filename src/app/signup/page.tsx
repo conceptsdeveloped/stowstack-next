@@ -23,7 +23,7 @@ const PLANS: PlanInfo[] = [
     name: "Launch",
     monthlyPrice: 499,
     annualPrice: 399,
-    description: "Perfect for getting started with 1-5 facilities",
+    description: "For independent operators with 1-5 facilities",
     features: [
       "Up to 10 facilities",
       "Google & Meta ad management",
@@ -155,7 +155,7 @@ export default function SignupPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({ general: data.error || "Something went wrong" });
+        setErrors({ general: data.error || "We couldn't create your account. Try again, or email blake@storageads.com." });
         setSubmitting(false);
         return;
       }

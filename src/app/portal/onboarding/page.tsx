@@ -1398,7 +1398,7 @@ function ReviewStep({
         <div className="rounded-lg bg-green-500/[0.08] p-4 text-center">
           <Check className="mx-auto mb-2 h-6 w-6 text-green-400" />
           <p className="text-sm font-medium text-green-400">
-            All steps complete! Your setup has been submitted.
+            All steps complete. Your setup is submitted.
           </p>
         </div>
       ) : (

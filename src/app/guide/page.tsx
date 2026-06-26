@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: "Client Guide",
   description:
-    "Everything you need to know about your StorageAds portal — dashboard, campaign data, and getting the most out of your ad campaigns.",
+    "How to use your StorageAds portal — your dashboard, your campaign data, and how to act on what you see.",
 };
 
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
@@ -184,9 +184,8 @@ export default function GuidePage() {
             Client Guide
           </h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            Everything you need to know about your StorageAds portal — your
-            dashboard, campaign data, and how to get the most out of your ad
-            campaigns.
+            How to use your StorageAds portal — your dashboard, your campaign
+            data, and how to act on what you see.
           </p>
         </div>
 

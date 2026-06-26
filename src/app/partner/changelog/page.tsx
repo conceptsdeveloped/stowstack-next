@@ -224,7 +224,7 @@ export default function ChangelogPage() {
             No updates yet
           </p>
           <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-            Check back soon!
+            New updates will show up here.
           </p>
         </div>
       </div>

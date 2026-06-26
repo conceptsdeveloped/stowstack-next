@@ -6,16 +6,16 @@ import { CAL_BOOKING_URL } from "@/lib/booking";
 
 export const metadata: Metadata = {
   title: "Case Studies — StorageAds",
-  description: "Real results from real storage facilities. See how StorageAds delivers attributed move-ins.",
+  description: "Attributed move-ins from real storage facilities, tracked from ad click to signed lease.",
   openGraph: {
     title: "Case Studies — StorageAds",
-    description: "Real results from real storage facilities. See how StorageAds delivers attributed move-ins.",
+    description: "Attributed move-ins from real storage facilities, tracked from ad click to signed lease.",
     url: "https://storageads.com/case-studies",
   },
   twitter: {
     card: "summary_large_image",
     title: "Case Studies — StorageAds",
-    description: "Real results from real storage facilities.",
+    description: "Attributed move-ins from real storage facilities.",
   },
 };
 
@@ -50,7 +50,7 @@ export default function CaseStudiesIndexPage() {
           className="text-base text-center max-w-xl mx-auto mb-12"
           style={{ fontFamily: "var(--font-body)", color: "var(--color-body-text)" }}
         >
-          Real results from real storage facilities. Every number is tracked from ad click to signed lease.
+          Every number here is tracked from ad click to signed lease.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

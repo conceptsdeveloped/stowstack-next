@@ -2551,8 +2551,8 @@ export default function Hero() {
           and the extra row eats ~40px of above-the-fold real estate without
           delivering signal that's not already implied. Desktop keeps it. */}
       <div className={`hidden sm:flex justify-center pb-3 sm:pb-4 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`} style={{ transitionDelay: "1500ms" }}>
-        <a href="#how-it-works" className="flex flex-col items-center gap-1 group" aria-label="Scroll to learn more">
-          <span className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>Learn more</span>
+        <a href="#how-it-works" className="flex flex-col items-center gap-1 group" aria-label="Jump to How it works">
+          <span className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)" }}>How it works</span>
           <ChevronDown size={16} style={{ color: "var(--text-tertiary)", animation: "hero-scroll-bounce 2s ease-in-out infinite" }} />
         </a>
       </div>

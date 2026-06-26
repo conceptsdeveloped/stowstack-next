@@ -146,7 +146,7 @@ export function ExitIntentPopup({ facilityName, auditScore }: ExitIntentPopupPro
             <p className="text-sm mb-6" style={{ color: "var(--color-body-text)" }}>
               {facilityName
                 ? `We'll email the complete breakdown for ${facilityName}: the fixes that matter most.`
-                : "Enter your email and we'll send you the complete breakdown with actionable recommendations."}
+                : "Enter your email and we'll send the full breakdown: the fixes that matter most and what they're worth."}
             </p>
 
             <form onSubmit={handleSubmit} className="flex gap-2">

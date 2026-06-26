@@ -130,7 +130,7 @@ export default function Comparison() {
           kicker="Vs the alternatives"
           meta="Matrix · 4×8"
           as="h2"
-          lines={["Everyone else does one slice.", "We do the whole thing."]}
+          lines={["Everyone else does one slice.", "We take the renter from ad to signed lease."]}
           headlineWeight="thin"
           size="var(--type-h2)"
           lede={
@@ -296,7 +296,7 @@ export default function Comparison() {
               className="flex items-baseline justify-between gap-3"
               style={{ borderBottom: "1px solid var(--line)", paddingBottom: 10 }}
             >
-              <h3 style={{ fontSize: "var(--type-h3)" }}>Stop waiting. Start filling.</h3>
+              <h3 style={{ fontSize: "var(--type-h3)" }}>The work it takes off your desk.</h3>
               <span className="hidden sm:block" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "var(--track-label)", textTransform: "uppercase", color: "var(--text-faint)" }}>
                 Workflows · 4
               </span>

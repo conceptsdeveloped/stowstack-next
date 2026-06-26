@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Zap } from "lucide-react";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 
 /**
@@ -220,12 +221,9 @@ export default function AuditForm() {
             height: 34,
             background: "var(--text)",
             color: "var(--bg)",
-            fontFamily: "var(--mono)",
-            fontSize: 13,
-            fontWeight: 700,
           }}
         >
-          ⚡
+          <Zap size={16} strokeWidth={2} aria-hidden="true" />
         </span>
         <span className="flex-1 min-w-0">
           <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "var(--text-accent)" }}>

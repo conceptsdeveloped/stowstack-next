@@ -195,7 +195,7 @@ export default function TeamPage() {
           <UserPlus className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
           <p className="text-sm text-[var(--color-body-text)]">No team members yet</p>
           <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-            Invite your first team member to get started
+            Invite your first team member
           </p>
         </div>
       ) : (

@@ -190,7 +190,7 @@ export default function ApiKeysPage() {
           <Key className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
           <p className="text-sm text-[var(--color-body-text)]">No API keys yet</p>
           <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-            Create your first API key to start integrating
+            Create your first API key
           </p>
         </div>
       ) : (
