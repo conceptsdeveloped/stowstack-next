@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 import ToolHeader, { ToolCta } from "@/components/tools/tool-header";
+import RelatedTools from "@/components/tools/related-tools";
 import {
   MoneyField,
   PercentField,
@@ -313,6 +314,8 @@ export default function RateIncreaseClient() {
             />
           </div>
         </div>
+
+        <RelatedTools currentHref="/tools/rate-increase-calculator" />
 
         <p
           className="text-xs mt-12 max-w-2xl leading-relaxed"

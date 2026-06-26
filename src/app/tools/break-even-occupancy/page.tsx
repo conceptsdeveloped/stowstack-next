@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ToolJsonLd from "@/components/tools/tool-jsonld";
 import BreakEvenClient from "./break-even-client";
 
 const title = "Self-Storage Break-Even Occupancy Calculator";
@@ -25,5 +26,14 @@ export const metadata: Metadata = {
 };
 
 export default function BreakEvenOccupancyPage() {
-  return <BreakEvenClient />;
+  return (
+    <>
+      <ToolJsonLd
+        name={title}
+        description={description}
+        url="https://storageads.com/tools/break-even-occupancy"
+      />
+      <BreakEvenClient />
+    </>
+  );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ToolJsonLd from "@/components/tools/tool-jsonld";
 import ValuationClient from "./valuation-client";
 
 const title = "Self-Storage Valuation & Cap Rate Calculator";
@@ -25,5 +26,14 @@ export const metadata: Metadata = {
 };
 
 export default function ValuationCalculatorPage() {
-  return <ValuationClient />;
+  return (
+    <>
+      <ToolJsonLd
+        name={title}
+        description={description}
+        url="https://storageads.com/tools/valuation-calculator"
+      />
+      <ValuationClient />
+    </>
+  );
 }

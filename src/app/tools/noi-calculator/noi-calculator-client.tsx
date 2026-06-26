@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { ArrowRight, Download, Printer, RotateCcw, Info } from "lucide-react";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 import ToolHeader, { ToolCta } from "@/components/tools/tool-header";
+import RelatedTools from "@/components/tools/related-tools";
 import {
   MoneyField,
   PercentField,
@@ -558,6 +559,8 @@ export default function NoiCalculatorClient() {
             />
           </div>
         </div>
+
+        <RelatedTools currentHref="/tools/noi-calculator" />
 
         <p
           className="text-xs mt-12 max-w-2xl leading-relaxed"

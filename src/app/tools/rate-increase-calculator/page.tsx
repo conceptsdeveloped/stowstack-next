@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ToolJsonLd from "@/components/tools/tool-jsonld";
 import RateIncreaseClient from "./rate-increase-client";
 
 const title = "Storage Rate Increase (ECRI) Impact Calculator";
@@ -25,5 +26,14 @@ export const metadata: Metadata = {
 };
 
 export default function RateIncreaseCalculatorPage() {
-  return <RateIncreaseClient />;
+  return (
+    <>
+      <ToolJsonLd
+        name={title}
+        description={description}
+        url="https://storageads.com/tools/rate-increase-calculator"
+      />
+      <RateIncreaseClient />
+    </>
+  );
 }

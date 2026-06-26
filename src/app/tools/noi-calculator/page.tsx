@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ToolJsonLd from "@/components/tools/tool-jsonld";
 import NoiCalculatorClient from "./noi-calculator-client";
 
 const title = "Self-Storage NOI Calculator";
@@ -23,5 +24,14 @@ export const metadata: Metadata = {
 };
 
 export default function NoiCalculatorPage() {
-  return <NoiCalculatorClient />;
+  return (
+    <>
+      <ToolJsonLd
+        name={title}
+        description={description}
+        url="https://storageads.com/tools/noi-calculator"
+      />
+      <NoiCalculatorClient />
+    </>
+  );
 }
