@@ -79,17 +79,6 @@ export function FacilitySwitcher({
     return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
 
-  // Let other chrome (e.g. the "Choose a facility" empty-state prompt) open the
-  // switcher. It is the single facility-scope control in the admin.
-  useEffect(() => {
-    function onOpen() {
-      setOpen(true);
-    }
-    window.addEventListener("admin:open-facility-switcher", onOpen);
-    return () =>
-      window.removeEventListener("admin:open-facility-switcher", onOpen);
-  }, []);
-
   const q = query.trim().toLowerCase();
 
   // Build the display as sections (Recent / Facilities), with a parallel flat
