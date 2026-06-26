@@ -132,6 +132,7 @@ export interface EcriCandidate {
   unitType: string | null;
   currentRate: number;
   marketRate: number | null;
+  marketSource: "sensitivity" | "street_rate" | null;
   suggestedRate: number;
   monthlyLift: number;
   liftPct: number | null;
@@ -178,6 +179,7 @@ export async function computeEcriForFacility(
       s.sensitivity_score AS sensitivity_score,
       s.tenure_months     AS tenure_months,
       s.months_since_last_increase AS months_since_last_increase,
+      pu.street_rate      AS street_rate,
       u.status            AS ecri_status,
       u.sent_at           AS ecri_sent_at
     FROM tenants t
@@ -189,6 +191,17 @@ export async function computeEcriForFacility(
       ORDER BY sf.snapshot_date DESC
       LIMIT 1
     ) s ON true
+    LEFT JOIN LATERAL (
+      -- Fallback market reference: the posted street rate for this unit size,
+      -- used when no sensitivity snapshot exists yet (e.g. scorer hasn't run).
+      SELECT street_rate
+      FROM facility_pms_units fu
+      WHERE fu.facility_id = t.facility_id
+        AND fu.size_label = t.unit_size
+        AND fu.street_rate IS NOT NULL
+      ORDER BY fu.street_rate DESC
+      LIMIT 1
+    ) pu ON true
     LEFT JOIN LATERAL (
       SELECT status, sent_at
       FROM upsell_opportunities uo
@@ -205,7 +218,22 @@ export async function computeEcriForFacility(
 
   for (const r of rows) {
     const current = num(r.current_rate);
-    const market = r.market_rate !== null ? num(r.market_rate) : 0;
+    const sensMarket = r.market_rate !== null ? num(r.market_rate) : 0;
+    const streetMarket = r.street_rate !== null ? num(r.street_rate) : 0;
+
+    // Prefer the sensitivity-derived market rate; fall back to the posted
+    // street rate for the unit size so the tool still surfaces opportunities
+    // before the sensitivity scorer has run.
+    let market = 0;
+    let marketSource: EcriCandidate["marketSource"] = null;
+    if (sensMarket > 0) {
+      market = sensMarket;
+      marketSource = "sensitivity";
+    } else if (streetMarket > 0) {
+      market = streetMarket;
+      marketSource = "street_rate";
+    }
+
     const bucket = (r.bucket as string) || null;
     const { suggested, monthlyLift, eligible } = suggestRate(
       current,
@@ -228,6 +256,7 @@ export async function computeEcriForFacility(
       unitType: (r.unit_type as string) ?? null,
       currentRate: current,
       marketRate: market > 0 ? market : null,
+      marketSource,
       suggestedRate: suggested,
       monthlyLift,
       liftPct:

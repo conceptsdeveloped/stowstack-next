@@ -24,6 +24,7 @@ function row(overrides: Record<string, unknown> = {}) {
     current_rate: 100,
     move_in_date: "2024-01-01",
     market_rate: 150,
+    street_rate: null,
     bucket: "very_low", // 12% cap
     sensitivity_score: 0.2,
     tenure_months: 30,
@@ -104,6 +105,49 @@ describe("GET /api/ecri", () => {
 
     expect(body.totalMonthlyLift).toBe(22);
     expect(body.totalAnnualLift).toBe(264);
+  });
+
+  it("falls back to street_rate as the market reference when sensitivity is missing", async () => {
+    m.$queryRaw.mockResolvedValue([
+      // No sensitivity market_rate/bucket, but a posted street rate exists.
+      row({
+        unit: "no-sens",
+        market_rate: null,
+        bucket: null,
+        street_rate: 150,
+        tenure_months: null,
+        current_rate: 100,
+      }),
+      // Neither market source -> excluded entirely.
+      row({
+        tenant_id: "t-blind",
+        unit: "blind",
+        market_rate: null,
+        bucket: null,
+        street_rate: null,
+        current_rate: 100,
+      }),
+    ]);
+    const res = await GET(createAdminRequest(PATH));
+    const body = await res.json();
+
+    expect(body.count).toBe(1);
+    const t = body.tenants[0];
+    expect(t.unit).toBe("no-sens");
+    expect(t.marketRate).toBe(150);
+    expect(t.marketSource).toBe("street_rate");
+    // default 8% cap (no bucket) on 100 -> 108
+    expect(t.suggestedRate).toBe(108);
+  });
+
+  it("prefers the sensitivity market rate over street_rate when both exist", async () => {
+    m.$queryRaw.mockResolvedValue([
+      row({ market_rate: 150, street_rate: 999, current_rate: 100 }),
+    ]);
+    const res = await GET(createAdminRequest(PATH));
+    const body = await res.json();
+    expect(body.tenants[0].marketSource).toBe("sensitivity");
+    expect(body.tenants[0].marketRate).toBe(150);
   });
 
   it("falls back to tenure-based risk when no sensitivity bucket exists", async () => {
