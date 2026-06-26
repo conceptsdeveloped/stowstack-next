@@ -11,7 +11,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { CAL_BOOKING_URL } from "@/lib/booking";
-import { SEQUENCE_TEMPLATES } from "@/app/api/nurture-sequences/route";
+import { SEQUENCE_TEMPLATES } from "@/lib/nurture-templates";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
