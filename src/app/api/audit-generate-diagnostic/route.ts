@@ -256,7 +256,7 @@ interface FullDiagnosticAudit {
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-const OCCUPANCY_MAP: Record<string, number> = {
+export const OCCUPANCY_MAP: Record<string, number> = {
   "Under 50%": 45,
   "50–59%": 55,
   "60–69%": 65,
@@ -267,7 +267,7 @@ const OCCUPANCY_MAP: Record<string, number> = {
   "95%+": 97,
 };
 
-const UNIT_COUNT_MAP: Record<string, number> = {
+export const UNIT_COUNT_MAP: Record<string, number> = {
   "Under 100": 75,
   "100–199": 150,
   "200–349": 275,
@@ -277,7 +277,7 @@ const UNIT_COUNT_MAP: Record<string, number> = {
   "1,000+": 1100,
 };
 
-function letterGrade(score: number): string {
+export function letterGrade(score: number): string {
   if (score >= 90) return "A";
   if (score >= 80) return "B";
   if (score >= 70) return "C";
@@ -852,7 +852,7 @@ async function generateWithAI(
   }
 }
 
-function generateSlug(facilityName: string): string {
+export function generateSlug(facilityName: string): string {
   const base = (facilityName || "facility")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -866,7 +866,7 @@ function generateSlug(facilityName: string): string {
 /*  CSV Parser (handles quoted fields)                                 */
 /* ------------------------------------------------------------------ */
 
-function parseCSVLine(line: string): string[] {
+export function parseCSVLine(line: string): string[] {
   const fields: string[] = [];
   let current = "";
   let inQuotes = false;
