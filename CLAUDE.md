@@ -27,7 +27,7 @@ For any customer-facing copy, audit-tool insights, blog content, ads, or investo
 
 ```bash
 npm run dev            # Start dev server (localhost:3000) — next dev
-npm run build          # Production build — prisma generate && next build (next build type-checks)
+npm run build          # Production build — generate-changelog + prisma generate && next build (next build type-checks)
 npm run start          # Start production server
 npm run lint           # ESLint
 npm run typecheck      # tsc --noEmit (type-check without building)
@@ -44,7 +44,7 @@ npx prisma generate    # Regenerate Prisma client after schema changes
 
 ## Product Context
 
-**StorageAds.com** — Marketing automation SaaS for the self-storage industry. Per-facility/month pricing with three tiers — **Signal / System / Compound** — plus a custom **Enterprise** tier for 10+ facilities and white-label management companies (tier names live in `src/app/pricing/page.tsx`). Primary buyers: facility owners, operators, managers, and management companies (white-label for management cos).
+**StorageAds.com** — Marketing automation SaaS for the self-storage industry. Two product lines (names live in `src/app/pricing/page.tsx`): per-facility/month subscription tiers — **Launch / Growth / Portfolio** — and one-time site-build packages — **Single Site / Site + Landing Pages / Portfolio Build**. No "Enterprise" tier. Primary buyers: facility owners, operators, managers, and management companies (white-label for management cos).
 
 **Status:** Pre-launch. Finishing build, then alpha testing with Blake's own portfolio of facilities. Not live with paying customers yet.
 
@@ -54,15 +54,15 @@ npx prisma generate    # Regenerate Prisma client after schema changes
 
 **Demo page:** Used for both self-serve demos AND live sales call demos.
 
-**Blog:** Live at `/blog` with RSS at `/blog/feed.xml`. File-based content in `/content/blog/` (6 articles) parsed by `src/lib/blog.ts`.
+**Blog:** Live at `/blog` with RSS at `/blog/feed.xml`. File-based content in `/content/blog/`, parsed by `src/lib/blog.ts`.
 
 ## Architecture
 
-**Stack:** Next.js 16 App Router, React 19, Prisma 5 (PostgreSQL/Neon), Tailwind CSS 4, Clerk (proxy only), Stripe, Resend, Anthropic Claude API, Upstash Redis, Twilio, Sentry (error tracking + route tagging), Vercel Blob (asset storage), recharts (admin charts), lucide-react (icons), sharp (image processing), otpauth (TOTP 2FA), web-push, Vercel deployment.
+**Stack:** Next.js 16 App Router, React 19, Prisma 5 (PostgreSQL/Neon), Tailwind CSS 4, Clerk (proxy only), Stripe, Resend, Anthropic Claude API, Upstash Redis, Twilio, Sentry (error tracking + route tagging), Vercel Blob (asset storage), recharts (admin charts), framer-motion (animations), lucide-react (icons), sharp (image processing), @react-pdf/renderer (PDF reports), cheerio (HTML scraping), otpauth (TOTP 2FA), web-push, Vercel deployment.
 
 ### Authentication — Four Independent Systems
 
-1. **Clerk** — Proxy at `src/proxy.ts` (Next 16 renamed the `middleware` file convention to `proxy`) wraps all routes but marks everything as public. Clerk is not actively enforcing auth on any route; each system gates itself. Keeping Clerk as-is. **`src/proxy.ts` does more than wrap Clerk** — it also sets the Content-Security-Policy (currently `Report-Only`) and security headers, manages the `__csrf_token` cookie + enforces CSRF on mutating methods (`src/lib/csrf.ts`, `requiresCsrf()`), and tags routes for Sentry. Treat it as the security-headers + CSRF layer, not just a Clerk shim.
+1. **Clerk** — Proxy at `src/proxy.ts` (Next 16 renamed the `middleware` convention to `proxy`) wraps all routes but marks everything public; Clerk enforces nothing — each system gates itself. **`proxy.ts` is the security layer, not just a Clerk shim:** it sets the CSP (currently `Report-Only`) and security headers, manages the `__csrf_token` cookie + enforces CSRF on mutating methods (`src/lib/csrf.ts`, `requiresCsrf()`), and tags routes for Sentry.
 2. **Admin key** — `X-Admin-Key` header checked against `ADMIN_SECRET` env var. Used by all `/admin` pages and most `/api/admin-*` routes. Helper: `requireAdminKey()` from `src/lib/api-helpers.ts`. Multiple admins (Blake + Angelo are founders).
 3. **Client portal** — Email + access code login. Access codes are generated when a lead status changes to `client_signed`. Session stored in localStorage. Portal pages at `/portal`.
 4. **Partner/org sessions** — Email + password + org slug login via `POST /api/organizations`. Session tokens (prefixed `ss_`) stored in the **`sessions`** table (Prisma `model sessions`), 30-day expiry (`SESSION_DURATION_DAYS = 30` in `src/lib/session-auth.ts`). Helper: `getSession()` from `src/lib/session-auth.ts`, which uses raw SQL (`$queryRaw`/`$executeRaw`) against that table. Partner pages at `/partner`. Partners = both resellers and referral partners.
@@ -80,15 +80,15 @@ All API routes are in `src/app/api/`. The surface is large (~200 route directori
 
 ### Frontend Structure
 
-- **Marketing site** — Homepage at `src/app/page.tsx` with lazy-loaded chapter components in `src/components/marketing/` (~21 active component files). Light theme, Manrope font, charcoal-and-cream palette. Charcoal-on-light CTAs (no color accent); the only sanctioned gold is the logo's `ads` lockup (see Design System). Copy is governed by the voice docs above (`.claude/copy-voice.md` et al.).
-- **Admin dashboard** — `src/app/admin/` pages wrapped by `src/components/admin/admin-shell.tsx` (sidebar + login gate). Facility manager at `/admin/facilities` has ~60 files in `src/components/admin/facility-tabs/`, including feature subdirs (`ad-studio/`, `ad-publisher/`, `creative-studio/`, `google-ads-lab/`, `tiktok-creator/`, `occupancy-intelligence/`, `revenue-analytics/`, etc.). The ad-creation/publishing split is partially shipped via those subdirs; further menu reorganization is still on the roadmap (see Build Priorities).
+- **Marketing site** — Homepage at `src/app/page.tsx` with lazy-loaded chapter components in `src/components/marketing/` (~24 component files). Light theme, Manrope font, charcoal-and-cream palette. Charcoal-on-light CTAs (no color accent); the only sanctioned gold is the logo's `ads` lockup (see Design System). Copy is governed by the voice docs above (`.claude/copy-voice.md` et al.).
+- **Admin dashboard** — `src/app/admin/` pages wrapped by `src/components/admin/admin-shell.tsx` (sidebar + login gate). Facility manager at `/admin/facilities` has ~48 files (~123 incl. subdirs) in `src/components/admin/facility-tabs/`, including feature subdirs (`ad-studio/`, `ad-publisher/`, `creative-studio/`, `google-ads-lab/`, `tiktok-creator/`, `occupancy-intelligence/`, `revenue-analytics/`, etc.). The ad-creation/publishing split is partially shipped via those subdirs; further menu reorganization is still on the roadmap.
 - **Client portal** — `src/app/portal/page.tsx` with inline login gate. Onboarding wizard at `/portal/onboarding`. Sub-pages: campaigns, billing, reports, messaging, settings.
 - **Partner dashboard** — `src/app/partner/` pages wrapped by `src/components/partner/partner-shell.tsx` (sidebar + login gate).
 - **Landing pages** — Dynamic at `/lp/[slug]`, rendered from DB-stored section configs.
 
 ### Database
 
-Prisma schema at `prisma/schema.prisma` (large — ~90 models; count with `grep -c '^model ' prisma/schema.prisma` rather than trusting a fixed number). All tables use UUID primary keys. Key models: `organizations`, `org_users`, `sessions`, `facilities`, `clients`, `shared_audits`, `landing_pages`, `drip_sequences`, `platform_connections`.
+Prisma schema at `prisma/schema.prisma` (large — ~98 models; count with `grep -c '^model ' prisma/schema.prisma` rather than trusting a fixed number). All tables use UUID primary keys. Key models: `organizations`, `org_users`, `sessions`, `facilities`, `clients`, `shared_audits`, `landing_pages`, `drip_sequences`, `platform_connections`.
 
 Singleton client at `src/lib/db.ts`. Raw SQL (`$queryRaw`/`$executeRaw`) is used in `src/lib/session-auth.ts` for direct `sessions`-table operations; everywhere else, use Prisma client methods.
 
@@ -96,7 +96,7 @@ Singleton client at `src/lib/db.ts`. Raw SQL (`$queryRaw`/`$executeRaw`) is used
 
 **Full reference lives in [.claude/design-system.md](.claude/design-system.md). Read it before any visual/UI work.** Quick summary:
 
-- **Palette:** Anthropic-inspired warm tokens in `src/app/globals.css`. `--color-dark` (#141413) text, `--color-light` (#faf9f5) backgrounds. Never pure #000/#fff, never Tailwind default grays.
+- **Palette:** Anthropic-inspired warm tokens in `src/app/globals.css` (exact values in design-system.md). `--color-dark` text, `--color-light` backgrounds. Never pure #000/#fff, never Tailwind default grays.
 - **CTAs:** charcoal-on-light / light-on-dark — contrast-based, no color accent. Secondary accents `--color-blue` / `--color-green` for categorical use only; `--color-red` for errors only.
 - **Gold:** banned everywhere EXCEPT the logo `ads` lockup (`--brand-gold` #B58B3F). Legacy `--color-gold*` tokens exist but must not be used in new code.
 - **Type:** Manrope variable font only, no second font, no italic. Numerous legacy font vars alias to `--font-manrope`.
@@ -106,7 +106,7 @@ Singleton client at `src/lib/db.ts`. Raw SQL (`$queryRaw`/`$executeRaw`) is used
 
 ### Cron Jobs
 
-Vercel cron jobs are configured in `vercel.json`, all at `src/app/api/cron/` (~21 jobs — read `vercel.json` for the current list rather than assuming a count). Each validates `CRON_SECRET` via shared `src/lib/cron-auth.ts`.
+Vercel cron jobs are configured in `vercel.json`, all at `src/app/api/cron/` (~23 jobs — read `vercel.json` for the current list rather than assuming a count). Each validates `CRON_SECRET` via shared `src/lib/cron-auth.ts`.
 
 ### Key Integrations
 
@@ -133,7 +133,7 @@ Phase 1 (current): Manual upload of facility management reports — **CSV only**
 
 ### Data Scraping Strategy
 
-Occupancy intelligence and market intelligence features should scrape ALL available sources aggressively: Google Maps, competitor websites, RentCafe, SpareFoot, Yardi, Crexi, and any other public data sources. Mix external scraped data with uploaded FMS report data.
+Occupancy intelligence and market intelligence features should scrape ALL available sources aggressively (HTML parsing via `cheerio`): Google Maps, competitor websites, RentCafe, SpareFoot, Yardi, Crexi, and any other public data sources. Mix external scraped data with uploaded FMS report data.
 
 ### Path Alias
 
@@ -141,9 +141,8 @@ Occupancy intelligence and market intelligence features should scrape ALL availa
 
 ## Build Priorities
 
-1. **Customer-facing site** — marketing pages, audit tool, demo, legal pages, blog
-2. **Admin layout/menu reorganization** — separate ad creator, manager, publisher from facility overview; better tab/menu structure
-3. Feature completion across the platform
+1. **Alpha-readiness** — onboarding flow polish, PMS upload UX, audit-funnel conversion (prep for alpha with Blake's own portfolio)
+2. **Feature completion** across the platform
 
 ## Team
 

@@ -6,20 +6,22 @@ Anthropic-inspired warm palette.
 
 ## Core palette
 
-- `--color-dark` (#141413) — primary text, never pure black
-- `--color-light` (#faf9f5) — backgrounds, never pure white
-- `--color-body-text` (#6a6560) — body text
-- `--color-mid-gray` (#b0aea5) — secondary/muted
-- `--color-light-gray` (#e8e6dc) — card fills, borders, surfaces
+The `--color-*` tokens are **palette-aware aliases**, not fixed hexes — they resolve to the active palette in `globals.css` (default: `:root` / `[data-palette="paper"]`). globals.css holds the live values; the paper-palette defaults below are for reference only.
+
+- `--color-dark` → `var(--text)`, default `#1c1a16` — primary text, never pure black
+- `--color-light` → `var(--bg)`, default `#f2ede3` — backgrounds, never pure white
+- `--color-body-text` → `var(--text-dim)`, default `#5a5448` — body text
+- `--color-mid-gray` → `var(--text-faint)`, default `#8a8270` — secondary/muted
+- `--color-light-gray` → `var(--bg-alt)`, default `#ebe5d6` — card fills, borders, surfaces
 
 ## Accent — Charcoal-on-light / Light-on-dark (no primary color accent)
 
-- CTAs use `--color-dark` (#141413) on light surfaces and `--color-light` (#faf9f5) on dark surfaces — contrast-based, not color-based.
+- CTAs use `--color-dark` on light surfaces and `--color-light` on dark surfaces — contrast-based, not color-based.
 - **Sienna gold (`#B58B3F`) is banned everywhere EXCEPT the logo `ads` lockup**, where `--brand-gold` is the only legal use (see Logo below). Do not use `--color-gold`, `--color-gold-hover`, `--color-gold-on-light`, `--color-gold-light`, or any near variant anywhere else — CTAs, links, metrics, charts, generated assets, etc. The older `--color-gold*` tokens still exist in `globals.css` for legacy compatibility but must not be referenced in new code. The A24/Kubrick editorial feel comes from typography and negative space, not a color accent.
 
-**Secondary accents:** `--color-blue` (#6a9bcc, Google/informational), `--color-green` (#788c5d, success/growth) — use sparingly for categorical distinctions (chart series, informational callouts), never as a primary CTA color.
-**Error only:** `--color-red` (#B04A3A) — NEVER for CTAs or decorative use
-**Dashboard surfaces:** `--color-dark-surface` (#1e1d1b) for admin/partner dashboards
+**Secondary accents** (also palette-aware aliases): `--color-blue` (→ `var(--hue-a)`, default `#1f5a6b` deep teal — Google/informational), `--color-green` (→ `var(--hue-c)`, default `#4a6b2e` olive — success/growth) — use sparingly for categorical distinctions (chart series, informational callouts), never as a primary CTA color.
+**Error only:** `--color-red` (→ `var(--accent)`, default `#c0452b` brick) — NEVER for CTAs or decorative use
+**Dashboard surfaces:** `--color-dark-surface` (→ `var(--bg-ink)`, default `#1c1a16`) for admin/partner dashboards
 
 ## Typography
 

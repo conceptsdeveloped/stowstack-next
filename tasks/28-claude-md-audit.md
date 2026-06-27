@@ -4,6 +4,8 @@
 **Audit scope:** Every claim in `CLAUDE.md` (214 lines) verified against the repo as of commit `c3ebc34`.
 **Status:** ✅ **APPLIED 2026-06-06.** Clusters A–E executed against the live repo (facts re-verified first — notably the build script no longer runs `migrate deploy`, and the Enterprise tier does exist alongside Signal/System/Compound). Design System extracted to `.claude/design-system.md`; execution rules moved to `tasks/README.md`; `README.md` boilerplate replaced. Decisions (Cluster D) applied with the recommended defaults documented below: gold banned except the logo lockup; `lucide-react` is the sanctioned icon library; Twilio still "not set up yet" (no CSP/proxy entry). This doc is retained as the audit record. The original planning text follows.
 
+**Re-refresh 2026-06-26.** CLAUDE.md drifted again in the three weeks since 2026-06-06 and was corrected: pricing tiers are now **Launch / Growth / Portfolio** subscriptions + **Single Site / Site + Landing Pages / Portfolio Build** packages (the Signal/System/Compound + Enterprise framing noted above is obsolete — pricing has changed twice); blog count dropped (drift-prone); build command now reflects `generate-changelog`; counts refreshed (models ~98, crons ~23, marketing ~24, facility-tabs ~48); stack gained framer-motion / @react-pdf/renderer / cheerio; Build Priorities replaced with Alpha-readiness + Feature completion. Separately, `.claude/design-system.md` palette hexes were corrected to the live `globals.css` "paper" palette and re-described as palette-aware aliases.
+
 ---
 
 ## How to use this doc
