@@ -9,6 +9,7 @@ import {
   Check,
   ExternalLink,
   AlertCircle,
+  Search,
 } from "lucide-react";
 
 interface QuickResult {
@@ -19,12 +20,30 @@ interface QuickResult {
   overallGrade: string;
 }
 
+interface LookupResult {
+  found: boolean;
+  name?: string;
+  address?: string;
+  website?: string;
+  rating?: number | null;
+  reviewCount?: number;
+  message?: string;
+}
+
 /**
  * Quick Diagnostic — generate a shareable /audit/[slug] link from public data
- * alone (no 40-field intake). Paste what the audit tool already surfaces from
- * the Google lookup, hit generate, copy the link into an outbound message.
+ * alone (no 40-field intake). Look up a facility by name + city to autofill the
+ * Google signals (the same lookup the public audit tool uses), then generate.
  */
 export default function QuickAuditPage() {
+  // Lookup step
+  const [lookupName, setLookupName] = useState("");
+  const [lookupLocation, setLookupLocation] = useState("");
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
+  const [lookedUp, setLookedUp] = useState(false);
+
+  // Diagnostic inputs (autofilled by lookup, still editable)
   const [facilityName, setFacilityName] = useState("");
   const [facilityAddress, setFacilityAddress] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
@@ -32,12 +51,43 @@ export default function QuickAuditPage() {
   const [reviewCount, setReviewCount] = useState("");
   const [contactEmail, setContactEmail] = useState("");
 
+  // Generation
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<QuickResult | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const canLookup = lookupName.trim() && lookupLocation.trim() && !lookupLoading;
   const canSubmit = facilityName.trim() && facilityAddress.trim() && !loading;
+
+  const lookup = useCallback(async () => {
+    setLookupLoading(true);
+    setLookupError(null);
+    try {
+      const data = await adminFetch<LookupResult>("/api/facility-lookup", {
+        method: "POST",
+        body: JSON.stringify({
+          facilityName: lookupName.trim(),
+          location: lookupLocation.trim(),
+        }),
+      });
+      if (!data.found) {
+        setLookupError(data.message || "No matching facility found on Google.");
+        return;
+      }
+      setFacilityName(data.name || lookupName.trim());
+      setFacilityAddress(data.address || "");
+      setWebsiteUrl(data.website || "");
+      setGoogleRating(data.rating != null ? String(data.rating) : "");
+      setReviewCount(data.reviewCount != null ? String(data.reviewCount) : "");
+      setLookedUp(true);
+      setResult(null);
+    } catch (e) {
+      setLookupError(e instanceof Error ? e.message : "Lookup failed");
+    } finally {
+      setLookupLoading(false);
+    }
+  }, [lookupName, lookupLocation]);
 
   const generate = useCallback(async () => {
     setLoading(true);
@@ -82,12 +132,50 @@ export default function QuickAuditPage() {
         <h1 className="text-xl font-semibold text-[var(--ink)]">Quick Diagnostic</h1>
       </div>
       <p className="text-sm text-[var(--ink2)] mb-6">
-        Generate a shareable diagnostic link from public data only. Name and
-        address are required; the rest sharpens the result. Use it for outbound
-        when you don&apos;t have the operator&apos;s full intake yet.
+        Generate a shareable diagnostic link from public data only. Look up a
+        facility to autofill its Google signals, then generate. Use it for
+        outbound when you don&apos;t have the operator&apos;s full intake yet.
       </p>
 
+      {/* Step 1 — look up the facility */}
+      <div className="rounded-lg bg-[var(--card)] border border-[var(--bdr)] p-5 mb-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink2)] mb-3">
+          1 · Find the facility
+        </p>
+        <div className="grid sm:grid-cols-[1fr_1fr_auto] gap-3 items-end">
+          <div>
+            <label className={label} htmlFor="qa-lookup-name">Facility name</label>
+            <input id="qa-lookup-name" className={field} value={lookupName}
+              onChange={(e) => setLookupName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && canLookup) lookup(); }}
+              placeholder="Sunset Self Storage" />
+          </div>
+          <div>
+            <label className={label} htmlFor="qa-lookup-loc">City / state</label>
+            <input id="qa-lookup-loc" className={field} value={lookupLocation}
+              onChange={(e) => setLookupLocation(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && canLookup) lookup(); }}
+              placeholder="Austin, TX" />
+          </div>
+          <button
+            onClick={lookup}
+            disabled={!canLookup}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded text-sm font-semibold bg-[var(--ink)] text-[var(--bg)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {lookupLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+            Look up
+          </button>
+        </div>
+        {lookupError && (
+          <p className="mt-2 text-xs text-[var(--color-red)]">{lookupError}</p>
+        )}
+      </div>
+
+      {/* Step 2 — confirm / edit the details */}
       <div className="rounded-lg bg-[var(--card)] border border-[var(--bdr)] p-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink2)]">
+          2 · Confirm details {lookedUp && <span className="text-[var(--color-green)] normal-case font-normal">· autofilled from Google</span>}
+        </p>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className={label} htmlFor="qa-name">Facility name *</label>
