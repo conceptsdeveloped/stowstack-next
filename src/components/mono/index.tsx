@@ -40,7 +40,8 @@ export type PaletteId =
   | "blueprint"
   | "eames"
   | "amber"
-  | "green";
+  | "green"
+  | "bw";
 
 export const PALETTES: {
   id: PaletteId;
@@ -55,6 +56,7 @@ export const PALETTES: {
   { id: "eames",     label: "Eames Olive",    sub: "Warm olive, cream, rust",         swatches: ["#4a4a2a", "#f0ead5", "#e85a1e"] },
   { id: "amber",     label: "Amber Phosphor", sub: "VT220 terminal",                  swatches: ["#0c0906", "#ffb000", "#ff4a1a"] },
   { id: "green",     label: "Green Phosphor", sub: "VT100 CRT green",                 swatches: ["#040a05", "#33ff66", "#ffcc33"] },
+  { id: "bw",        label: "Black & White",  sub: "High-contrast monochrome",        swatches: ["#ffffff", "#000000", "#5e5e5e"] },
 ];
 
 /* ─── Label — tiny uppercase mono caption ─── */

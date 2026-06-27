@@ -2,7 +2,19 @@
 
 import { createContext, useContext, useState, useCallback } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "light" | "dark" | "bw";
+
+/* Cycle order for the toggle: light → dark → black & white → light. */
+const THEME_CYCLE: Theme[] = ["light", "dark", "bw"];
+
+function isTheme(value: string | null): value is Theme {
+  return value === "light" || value === "dark" || value === "bw";
+}
+
+function nextTheme(current: Theme): Theme {
+  const i = THEME_CYCLE.indexOf(current);
+  return THEME_CYCLE[(i + 1) % THEME_CYCLE.length];
+}
 
 interface ThemeContextValue {
   theme: Theme;
@@ -55,8 +67,8 @@ function applyDarkOverrides(isDark: boolean) {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return "light";
-    const stored = localStorage.getItem("storageads-theme") as Theme | null;
-    if (stored === "dark" || stored === "light") {
+    const stored = localStorage.getItem("storageads-theme");
+    if (isTheme(stored)) {
       document.documentElement.setAttribute("data-theme", stored);
       applyDarkOverrides(stored === "dark");
       return stored;
@@ -67,7 +79,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
-      const next = prev === "light" ? "dark" : "light";
+      const next = nextTheme(prev);
       localStorage.setItem("storageads-theme", next);
       document.documentElement.setAttribute("data-theme", next);
       applyDarkOverrides(next === "dark");

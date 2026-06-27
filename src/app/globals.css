@@ -99,6 +99,41 @@
   --hue-a: #33ddff; --hue-b: #ff5544; --hue-c: #ff88cc; --hue-d: #ffffff;
 }
 
+/* ── BLACK & WHITE — high-contrast monochrome theme ──
+   Reachable through BOTH theme entry points, sharing one token source:
+   the live TweaksPanel palette picker (<html data-palette="bw">, see
+   PALETTES in src/components/mono/index.tsx) and the ThemeProvider toggle
+   (<html data-theme="bw">). Overrides only the core tokens; every
+   legacy/semantic alias below derives from these via var(), so the whole
+   site renders monochrome with no per-component edits. Categorical hues
+   collapse to grayscale. Borders stay visible (--line-dim is a real gray,
+   not near-white). */
+:root[data-theme="bw"],
+:root[data-palette="bw"] {
+  /* Surfaces */
+  --bg: #ffffff;
+  --bg-alt: #f4f4f4;
+  --bg-hi: #e8e8e8;
+  --bg-ink: #000000;
+  /* Lines — strong primary borders, still-visible subtle borders */
+  --line: #000000;
+  --line-hi: #000000;
+  --line-dim: #c4c4c4;
+  /* Type */
+  --text: #000000;
+  --text-dim: #333333;
+  --text-faint: #5e5e5e;
+  --text-accent: #000000;
+  /* Accent + categorical hues all collapse to grayscale */
+  --accent: #000000;
+  --accent-dim: #2b2b2b;
+  --accent-soft: #e0e0e0;
+  --hue-a: #1a1a1a;
+  --hue-b: #3a3a3a;
+  --hue-c: #555555;
+  --hue-d: #767676;
+}
+
 /* Keyframes driving all motion — prefers-reduced-motion override below */
 @keyframes mono-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 @keyframes mono-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
