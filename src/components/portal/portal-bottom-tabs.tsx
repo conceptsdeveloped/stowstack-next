@@ -26,7 +26,7 @@ export function PortalBottomTabs({ onMore }: { onMore: () => void }) {
               aria-current={isActive ? "page" : undefined}
               className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] transition-colors ${
                 isActive
-                  ? "text-[var(--color-gold)] font-medium"
+                  ? "text-[var(--color-dark)] font-medium"
                   : "text-[var(--color-mid-gray)]"
               }`}
             >
