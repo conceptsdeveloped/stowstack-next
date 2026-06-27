@@ -356,7 +356,9 @@ function PortalHeader({ client, onToggle, onLogout }: { client: ClientData; onTo
   const titles: Record<string, string> = {
     "/portal": "Dashboard",
     "/portal/campaigns": "Campaigns",
+    "/portal/gbp": "Reviews",
     "/portal/reports": "Reports",
+    "/portal/upload": "Upload",
     "/portal/messages": "Messages",
     "/portal/billing": "Billing",
     "/portal/onboarding": "Onboarding",

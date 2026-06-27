@@ -104,6 +104,10 @@ export function isCsrfExempt(req: NextRequest): boolean {
   // would otherwise 403 here before reaching the route. Same credential-in-body
   // model as the endpoints above.
   if (path === "/api/portal-upload") return true;
+  // Portal push subscription: client-authenticated by access code + email in the
+  // body (same credential-in-body model as the endpoints above), so the ambient
+  // CSRF token is moot. Abuse is bounded by per-IP rate limits at the route level.
+  if (path === "/api/portal-push-subscribe") return true;
   // ── Adding a new client-authenticated portal mutation route (POST/PATCH/etc)? ──
   // If it authenticates via access code/email in the body or query (not the
   // x-admin-key / Bearer / x-org-token headers handled below), it MUST be added

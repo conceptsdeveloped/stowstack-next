@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Building2,
   MapPin,
@@ -12,11 +12,14 @@ import {
   Loader2,
   Check,
   User,
+  Bell,
+  BellOff,
 } from "lucide-react";
 import { usePortal } from "@/components/portal/portal-shell";
 import {
   clearPortalSession,
 } from "@/lib/portal-helpers";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 
 export default function SettingsPage() {
   const { session, client } = usePortal();
@@ -24,6 +27,44 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [goalError, setGoalError] = useState("");
+
+  // Push notifications (client-authenticated via the portal session).
+  const pushCredentials = useMemo(
+    () => ({ email: session.email, accessCode: session.accessCode }),
+    [session.email, session.accessCode]
+  );
+  const { supported, permission, subscription, subscribe, unsubscribe } =
+    usePushNotifications({
+      endpoint: "/api/portal-push-subscribe",
+      userType: "client",
+      credentials: pushCredentials,
+    });
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState("");
+  const pushEnabled = !!subscription;
+
+  async function handleTogglePush() {
+    setPushBusy(true);
+    setPushError("");
+    try {
+      if (pushEnabled) {
+        await unsubscribe();
+      } else {
+        const sub = await subscribe();
+        if (!sub) {
+          setPushError(
+            permission === "denied"
+              ? "Notifications are blocked in your browser settings."
+              : "Could not enable notifications. Please try again."
+          );
+        }
+      }
+    } catch {
+      setPushError("Something went wrong. Please try again.");
+    } finally {
+      setPushBusy(false);
+    }
+  }
 
   const signedDate = client.signedAt
     ? new Date(client.signedAt).toLocaleDateString("en-US", {
@@ -156,6 +197,51 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">Notifications</h3>
+        {!supported ? (
+          <p className="text-xs text-[var(--color-mid-gray)]">
+            Push notifications aren&apos;t supported in this browser. Install the app to your home
+            screen to enable them.
+          </p>
+        ) : (
+          <>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-gold)]/10">
+                  {pushEnabled ? (
+                    <Bell className="h-5 w-5 text-[var(--color-gold)]" />
+                  ) : (
+                    <BellOff className="h-5 w-5 text-[var(--color-mid-gray)]" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-[var(--color-dark)]">Push notifications</p>
+                  <p className="text-xs text-[var(--color-mid-gray)]">
+                    Get alerted about new leads, messages, and campaign changes.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleTogglePush}
+                disabled={pushBusy}
+                className={`flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium transition-colors disabled:opacity-60 ${
+                  pushEnabled
+                    ? "border border-[var(--border-subtle)] bg-[var(--color-light-gray)] text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)]/70"
+                    : "bg-[var(--color-dark)] text-[var(--color-light)] hover:opacity-90"
+                }`}
+              >
+                {pushBusy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {pushEnabled ? "Turn off" : "Enable"}
+              </button>
+            </div>
+            {pushError && <p className="mt-3 text-xs text-red-400">{pushError}</p>}
+          </>
+        )}
       </div>
 
       {/* Account Manager */}

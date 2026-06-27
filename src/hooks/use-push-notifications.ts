@@ -13,6 +13,10 @@ interface UsePushOptions {
   adminKey?: string;
   userType?: string;
   userId?: string;
+  /** Override the subscribe endpoint. Defaults to the admin-gated /api/push-subscribe. */
+  endpoint?: string;
+  /** Portal-client auth (access code + email in the body) for /api/portal-push-subscribe. */
+  credentials?: { email: string; accessCode: string };
 }
 
 export function usePushNotifications(options: UsePushOptions = {}) {
@@ -56,22 +60,35 @@ export function usePushNotifications(options: UsePushOptions = {}) {
 
     setSubscription(sub);
 
-    // Send subscription to backend in the format the existing API expects
+    // Send subscription to backend in the format the existing API expects.
+    const url = options.endpoint || "/api/push-subscribe";
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (options.adminKey) headers["X-Admin-Key"] = options.adminKey;
 
-    await fetch("/api/push-subscribe", {
+    await fetch(url, {
       method: "POST",
       headers,
       body: JSON.stringify({
         subscription: sub.toJSON(),
         userType: options.userType || "admin",
         userId: options.userId,
+        // Portal-client auth (consumed by /api/portal-push-subscribe).
+        ...(options.credentials && {
+          email: options.credentials.email,
+          code: options.credentials.accessCode,
+        }),
       }),
     });
 
     return sub;
-  }, [supported, options.adminKey, options.userType, options.userId]);
+  }, [
+    supported,
+    options.adminKey,
+    options.userType,
+    options.userId,
+    options.endpoint,
+    options.credentials,
+  ]);
 
   const unsubscribe = useCallback(async () => {
     if (!subscription) return;
@@ -79,15 +96,22 @@ export function usePushNotifications(options: UsePushOptions = {}) {
     await subscription.unsubscribe();
     setSubscription(null);
 
+    const url = options.endpoint || "/api/push-subscribe";
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (options.adminKey) headers["X-Admin-Key"] = options.adminKey;
 
-    await fetch("/api/push-subscribe", {
+    await fetch(url, {
       method: "DELETE",
       headers,
-      body: JSON.stringify({ endpoint: subscription.endpoint }),
+      body: JSON.stringify({
+        endpoint: subscription.endpoint,
+        ...(options.credentials && {
+          email: options.credentials.email,
+          code: options.credentials.accessCode,
+        }),
+      }),
     });
-  }, [subscription, options.adminKey]);
+  }, [subscription, options.adminKey, options.endpoint, options.credentials]);
 
   return { supported, permission, subscription, subscribe, unsubscribe };
 }
