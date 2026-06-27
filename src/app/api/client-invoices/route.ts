@@ -194,14 +194,14 @@ export async function POST(req: NextRequest) {
 
     const lineItems: LineItem[] = [
       {
-        description: `StorageAds ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan — ${row.fac_name || row.facility_name}`,
+        description: `StorageAds ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan: ${row.fac_name || row.facility_name}`,
         amount: planPrice,
       },
     ];
 
     if (adSpend && adSpend > 0) {
       lineItems.push({
-        description: "Ad Spend (Meta + Google) — pass-through",
+        description: "Ad Spend (Meta + Google), pass-through",
         amount: adSpend,
       });
     }
@@ -243,7 +243,7 @@ export async function POST(req: NextRequest) {
       from: SENDERS.billing,
       to: row.email,
       cc: process.env.ADMIN_EMAIL || "blake@storageads.com",
-      subject: `Invoice ${invoiceNumber} — ${row.fac_name || row.facility_name} — ${period}`,
+      subject: `Invoice ${invoiceNumber}: ${row.fac_name || row.facility_name}, ${period}`,
       html,
       tags: [{ name: "type", value: "invoice" }],
     });

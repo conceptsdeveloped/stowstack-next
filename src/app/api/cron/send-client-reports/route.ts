@@ -368,7 +368,7 @@ export async function GET(request: NextRequest) {
 
         const reportData: ReportData = {
           periodLabel: isWeekly
-            ? `Week of ${periodStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })} — ${periodEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+            ? `Week of ${periodStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })} to ${periodEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
             : periodStart.toLocaleDateString("en-US", {
                 month: "long",
                 year: "numeric",
@@ -458,7 +458,7 @@ export async function GET(request: NextRequest) {
           const result = await sendEmail({
             from: SENDERS.reports,
             to: String(client.email),
-            subject: `${client.fac_name || client.facility_name} — ${isWeekly ? "Weekly" : "Monthly"} Performance Report`,
+            subject: `${client.fac_name || client.facility_name}: ${isWeekly ? "Weekly" : "Monthly"} Performance Report`,
             html,
             tags: [{ name: "type", value: "client_report" }],
             ...(pdfAttachment ? { attachments: [pdfAttachment] } : {}),
