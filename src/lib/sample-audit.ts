@@ -124,15 +124,15 @@ const CATEGORIES: SampleCategoryAudit[] = [
     summary:
       "Physical occupancy of 79% trails the 87% Midwest market average. 5x10s and 10x10s are essentially full, but a surplus of 10x20 inventory at 62% occupancy is driving most of the vacancy gap.",
     greenFlags: [
-      "Climate-controlled units running at 91% occupancy — strong demand for the premium product",
+      "Climate-controlled units running at 91% occupancy, strong demand for the premium product",
       "Move-in pace of 6 per month exceeds the typical rural-Michigan facility benchmark of 4–5",
     ],
     yellowFlag:
-      "Large-unit segment (10x20, 10x25) has 14 units vacant — either overbuilt for the rural Mattawan market or under-marketed to the right customer (contractors, U-Haul one-way movers, boat/RV owners).",
+      "Large-unit segment (10x20, 10x25) has 14 units vacant, either overbuilt for the rural Mattawan market or under-marketed to the right customer (contractors, U-Haul one-way movers, boat/RV owners).",
     redFlags: [
       "28 vacant units bleeding $2,576 every month while paid acquisition spend is $0",
-      "No waitlist for 5x10 or 10x10 despite both sizes being at 96%+ occupancy — captured demand is walking out the door",
-      "Net unit growth is -1 per month (6 in, 7 out) — the facility is quietly shrinking, not filling",
+      "No waitlist for 5x10 or 10x10 despite both sizes being at 96%+ occupancy. Captured demand is walking out the door",
+      "Net unit growth is -1 per month (6 in, 7 out). The facility is quietly shrinking, not filling",
     ],
     doNothingConsequence:
       "At the current -1/month net pace, another 12 units will go vacant over the next 12 months and physical occupancy will fall to roughly 70%. Monthly vacancy bleed grows from $2,576 to roughly $3,400 by Q4.",
@@ -163,16 +163,16 @@ const CATEGORIES: SampleCategoryAudit[] = [
     slug: "lead-generation",
     score: 60,
     summary:
-      "Zero paid acquisition. Inbound leads are entirely organic — drive-bys, U-Haul referrals, and the handful of monthly Google searches that happen to land on the GBP. Estimated 8–10 leads per month in a market that should be producing 25–30.",
+      "Zero paid acquisition. Inbound leads are entirely organic: drive-bys, U-Haul referrals, and the handful of monthly Google searches that happen to land on the GBP. Estimated 8–10 leads per month in a market that should be producing 25–30.",
     greenFlags: [
       "U-Haul dealer status produces a steady trickle of foot-traffic leads (~3–4 per month)",
-      "Google Business Profile is claimed and verified — the basic foundation is in place",
+      "Google Business Profile is claimed and verified. The basic foundation is in place",
     ],
     yellowFlag:
-      "No tracked phone number or web form on the GBP — even the organic leads that do arrive can't be attributed or measured. You can't fix what you can't see.",
+      "No tracked phone number or web form on the GBP. Even the organic leads that do arrive can't be attributed or measured. You can't fix what you can't see.",
     redFlags: [
       "$0 in monthly paid acquisition spend in a market where Extra Space and CubeSmart are spending $1,500–$3,000 per month",
-      "No retargeting pixel, no Meta or Google tag on the website — every prospect who doesn't convert on the first visit is gone forever",
+      "No retargeting pixel, no Meta or Google tag on the website. Every prospect who doesn't convert on the first visit is gone forever",
       "Website contact form sends to a generic Gmail inbox with no auto-response, no SMS notification, and no follow-up sequence",
     ],
     doNothingConsequence:
@@ -188,13 +188,13 @@ const CATEGORIES: SampleCategoryAudit[] = [
       {
         title: "Install Meta + Google tracking on the website",
         detail:
-          "Drop the Meta pixel and Google Tag Manager in the site head. Build a 90-day retargeting audience for anyone who viewed the rates page but didn't reserve — retargeting alone typically recovers 8–12% of bounced traffic.",
+          "Drop the Meta pixel and Google Tag Manager in the site head. Build a 90-day retargeting audience for anyone who viewed the rates page but didn't reserve. Retargeting alone typically recovers 8–12% of bounced traffic.",
         priority: "high",
       },
       {
         title: "Replace the Gmail contact form with a real CRM + auto-responder",
         detail:
-          "Web inquiries should hit a CRM with a 30-second auto-reply, an immediate manager SMS, and a 4-touch follow-up over 7 days. Today, leads sit unanswered for hours — the prospect rents from the next facility on the list.",
+          "Web inquiries should hit a CRM with a 30-second auto-reply, an immediate manager SMS, and a 4-touch follow-up over 7 days. Today, leads sit unanswered for hours. The prospect rents from the next facility on the list.",
         priority: "medium",
       },
     ],
@@ -206,15 +206,15 @@ const CATEGORIES: SampleCategoryAudit[] = [
     summary:
       "Inquiries that don't convert on first contact are effectively dead. There's no follow-up cadence, no abandoned-reservation recovery, and no win-back. Top-performing operators recover 15–20% of bounced inquiries through structured follow-up; this facility is recovering near zero.",
     greenFlags: [
-      "Manager answers the phone during business hours — baseline responsiveness is intact",
+      "Manager answers the phone during business hours. Baseline responsiveness is intact",
       "U-Haul counter staff cross-sell storage informally when customers ask about long-distance moves",
     ],
     yellowFlag:
-      "No after-hours coverage — calls between 6pm and 8am go to voicemail and most never get a callback, especially on weekends, when 40% of self-storage decisions actually happen.",
+      "No after-hours coverage. Calls between 6pm and 8am go to voicemail and most never get a callback, especially on weekends, when 40% of self-storage decisions actually happen.",
     redFlags: [
-      "Zero abandoned-reservation recovery — prospects who start but don't finish online don't hear from you again",
-      "Zero structured follow-up on inbound calls that didn't rent — calling back within 24 hours converts those at 20%+",
-      "No call recording or scoring, so the actual inbound conversion rate is unknown — likely 22–25% vs. a top-quartile of 38–45%",
+      "Zero abandoned-reservation recovery. Prospects who start but don't finish online don't hear from you again",
+      "Zero structured follow-up on inbound calls that didn't rent. Calling back within 24 hours converts those at 20%+",
+      "No call recording or scoring, so the actual inbound conversion rate is unknown, likely 22–25% vs. a top-quartile of 38–45%",
     ],
     doNothingConsequence:
       "Of roughly 100 inquiries over the next 12 months, current handling converts 25–30. Structured follow-up alone would push that to 45–50. The other 15–20 move-ins are quietly walking to competitors who do call back.",
@@ -245,17 +245,17 @@ const CATEGORIES: SampleCategoryAudit[] = [
     slug: "marketing",
     score: 58,
     summary:
-      "No active marketing beyond yellow-pages-era roadside signage and the U-Haul dealer placement. Every prospect arrives by accident — no campaigns, no seasonal promotions, no community presence, no referral program, no social.",
+      "No active marketing beyond yellow-pages-era roadside signage and the U-Haul dealer placement. Every prospect arrives by accident: no campaigns, no seasonal promotions, no community presence, no referral program, no social.",
     greenFlags: [
       "U-Haul co-branded signage drives steady free brand impressions to Cole Ave traffic",
-      "Roadside sign with phone number is visible from the road — a baseline lead source is in place",
+      "Roadside sign with phone number is visible from the road. A baseline lead source is in place",
     ],
     yellowFlag:
-      "No seasonal campaigns — the May–September moving peak is when 60% of self-storage decisions happen, and this facility is functionally invisible during it.",
+      "No seasonal campaigns. The May–September moving peak is when 60% of self-storage decisions happen, and this facility is functionally invisible during it.",
     redFlags: [
-      "Zero brand presence on Facebook, Instagram, TikTok, or YouTube — competitors are running $400–800/month in video ads",
-      "No tenant referral program — your highest-converting channel (word of mouth) is uninstrumented and unrewarded",
-      "No partnerships with local realtors, movers, or apartment complexes — those channels feed Kalamazoo competitors for ~$50 per referral",
+      "Zero brand presence on Facebook, Instagram, TikTok, or YouTube. Competitors are running $400–800/month in video ads",
+      "No tenant referral program. Your highest-converting channel (word of mouth) is uninstrumented and unrewarded",
+      "No partnerships with local realtors, movers, or apartment complexes. Those channels feed Kalamazoo competitors for ~$50 per referral",
     ],
     doNothingConsequence:
       "Without seasonal marketing live by April, the May–September moving peak gets missed again. That's 18–25 move-ins walking directly to Kalamazoo competitors, or roughly $20–25K in first-year revenue gone.",
@@ -276,13 +276,13 @@ const CATEGORIES: SampleCategoryAudit[] = [
       {
         title: "Partner with 3 local realtors + 2 apartment complexes",
         detail:
-          "Offer a co-branded $25 storage credit to anyone moving in or out of their property. Mattawan and Paw Paw realtors handle 200+ moves per year combined — a 10% capture rate is 20 move-ins.",
+          "Offer a co-branded $25 storage credit to anyone moving in or out of their property. Mattawan and Paw Paw realtors handle 200+ moves per year combined. A 10% capture rate is 20 move-ins.",
         priority: "medium",
       },
       {
         title: "Start a low-volume Facebook + Instagram presence",
         detail:
-          "Two posts per week: behind-the-scenes facility, U-Haul rental tips, customer spotlights, seasonal storage tips. The goal isn't followers — it's showing up in local search and giving prospects social proof.",
+          "Two posts per week: behind-the-scenes facility, U-Haul rental tips, customer spotlights, seasonal storage tips. The goal isn't followers. It's showing up in local search and giving prospects social proof.",
         priority: "low",
       },
     ],
@@ -292,20 +292,20 @@ const CATEGORIES: SampleCategoryAudit[] = [
     slug: "digital-presence",
     score: 70,
     summary:
-      "GBP is claimed but neglected — 14 reviews at 4.1 stars against competitors carrying 60+ reviews at 4.5+ stars. The website is functional but dated, with no live unit availability and no online reservation. Visible online but not winning the click.",
+      "GBP is claimed but neglected. 14 reviews at 4.1 stars against competitors carrying 60+ reviews at 4.5+ stars. The website is functional but dated, with no live unit availability and no online reservation. Visible online but not winning the click.",
     greenFlags: [
-      "4.1-star GBP rating is above the 3.8 industry floor — base reputation is acceptable",
-      "Website is mobile-responsive and loads under 3 seconds — the technical baseline is fine",
+      "4.1-star GBP rating is above the 3.8 industry floor. Base reputation is acceptable",
+      "Website is mobile-responsive and loads under 3 seconds. The technical baseline is fine",
     ],
     yellowFlag:
       "GBP has had no posts, no new photos, and no Q&A engagement for 8+ months. Google ranks active profiles materially higher in the local pack.",
     redFlags: [
-      "14 reviews vs. CubeSmart Kalamazoo's 287 and Extra Space's 412 — review volume is the single biggest local-SEO signal and you're losing it badly",
-      "Website has no live unit availability, no displayed rates, and no online reservation — prospects compare you to one-click competitors and bounce",
-      "No LocalBusiness schema.org markup on the site — search engines can't parse hours, address, or rates into rich results",
+      "14 reviews vs. CubeSmart Kalamazoo's 287 and Extra Space's 412. Review volume is the single biggest local-SEO signal and you're losing it badly",
+      "Website has no live unit availability, no displayed rates, and no online reservation. Prospects compare you to one-click competitors and bounce",
+      "No LocalBusiness schema.org markup on the site. Search engines can't parse hours, address, or rates into rich results",
     ],
     doNothingConsequence:
-      "Every month without active review solicitation, the gap to Kalamazoo competitors widens. By Q4 the facility will be effectively invisible in 'storage near me' map-pack results within a 12-mile radius — roughly 70% of your addressable market.",
+      "Every month without active review solicitation, the gap to Kalamazoo competitors widens. By Q4 the facility will be effectively invisible in 'storage near me' map-pack results within a 12-mile radius, roughly 70% of your addressable market.",
     inactionCost: 18000,
     actions: [
       {
@@ -335,24 +335,24 @@ const CATEGORIES: SampleCategoryAudit[] = [
     summary:
       "Street rate hasn't moved in 26 months. No existing-customer rate increases in 18+ months. Insurance attach rate is 14% versus an industry top quartile of 80%+. Multiple revenue levers are sitting idle while costs keep climbing.",
     greenFlags: [
-      "Delinquency rate of 3.2% is below the 5.1% industry average — collections discipline is solid",
-      "Auctions run quarterly and recover roughly $1,200 per cycle — the process is mature",
+      "Delinquency rate of 3.2% is below the 5.1% industry average. Collections discipline is solid",
+      "Auctions run quarterly and recover roughly $1,200 per cycle. The process is mature",
     ],
     yellowFlag:
-      "Average tenancy is 14 months but most tenants haven't seen a single rate increase during their entire stay — every existing tenant is paying below current market.",
+      "Average tenancy is 14 months but most tenants haven't seen a single rate increase during their entire stay. Every existing tenant is paying below current market.",
     redFlags: [
-      "No ECRI program — 30+ tenants are paying 2022 rates while street rate is up 8–12%. A conservative 6% increase on tenured units is $480/month recurring left on the table",
+      "No ECRI program. 30+ tenants are paying 2022 rates while street rate is up 8–12%. A conservative 6% increase on tenured units is $480/month recurring left on the table",
       "Tenant insurance attach rate is 14% vs. industry standard 60–90%. Each policy nets ~$8 margin × ~50 missed policies = $400/month forgone",
-      "Late fees are collected on roughly 60% of actual delinquencies because enforcement is discretionary — another $200–300/month walking out",
+      "Late fees are collected on roughly 60% of actual delinquencies because enforcement is discretionary, another $200–300/month walking out",
     ],
     doNothingConsequence:
-      "Every month without ECRI is permanent — those tenants eventually move out and the rate-raise window closes for good. At current pace you'll forgo roughly $5,700 in rate revenue this year plus another $4,800 in unrealized insurance attach.",
+      "Every month without ECRI is permanent. Those tenants eventually move out and the rate-raise window closes for good. At current pace you'll forgo roughly $5,700 in rate revenue this year plus another $4,800 in unrealized insurance attach.",
     inactionCost: 13200,
     actions: [
       {
         title: "Run an ECRI cycle on all 30+ tenured units",
         detail:
-          "6% increase on anyone at the facility 12+ months, communicated 45 days in advance. Industry churn on ECRI is under 8% — net effect after attrition is +$450/month recurring.",
+          "6% increase on anyone at the facility 12+ months, communicated 45 days in advance. Industry churn on ECRI is under 8%. Net effect after attrition is +$450/month recurring.",
         priority: "high",
       },
       {
@@ -374,17 +374,17 @@ const CATEGORIES: SampleCategoryAudit[] = [
     slug: "operations",
     score: 88,
     summary:
-      "Facility is well-maintained, gate access is reliable, lighting is good, and the U-Haul integration runs smoothly. Operational discipline is a clear strength — this is one of the few categories not actively bleeding revenue.",
+      "Facility is well-maintained, gate access is reliable, lighting is good, and the U-Haul integration runs smoothly. Operational discipline is a clear strength. This is one of the few categories not actively bleeding revenue.",
     greenFlags: [
       "Gate access system is functional with 24/7 keypad entry and no recent failures or service complaints",
-      "Property is clean, well-lit, and well-signed — the manager runs a tight operation",
+      "Property is clean, well-lit, and well-signed. The manager runs a tight operation",
     ],
     yellowFlag:
-      "Facility is 15 years old. Original asphalt and perimeter fencing are due for refresh within 24 months — capex planning should start now rather than at the moment of failure.",
+      "Facility is 15 years old. Original asphalt and perimeter fencing are due for refresh within 24 months. Capex planning should start now rather than at the moment of failure.",
     redFlags: [
-      "No security cameras at the front gate or on drive lanes — single biggest liability gap and the most common driver of catastrophic 1-star reviews after a break-in",
+      "No security cameras at the front gate or on drive lanes. Single biggest liability gap and the most common driver of catastrophic 1-star reviews after a break-in",
       "Office hours are M–F 9–5 only, missing the ~30% of prospects who want to tour evenings or weekends",
-      "No automated vacate process — tenants must call the manager to vacate, which delays unit turn and creates manual reconciliation work every month",
+      "No automated vacate process. Tenants must call the manager to vacate, which delays unit turn and creates manual reconciliation work every month",
     ],
     doNothingConsequence:
       "The camera gap is the highest-risk item in the audit. One break-in incident typically generates 4–6 negative reviews that erase 18 months of reputation work, and direct costs (claims, lost tenants, review damage) run $15–30K.",
@@ -417,15 +417,15 @@ const CATEGORIES: SampleCategoryAudit[] = [
     summary:
       "Mattawan/Paw Paw market has only 2 direct competitors within 8 miles and neither is a REIT. Kalamazoo (12 miles east) has Extra Space and CubeSmart marketing aggressively into your radius, but local geography still favors you for Mattawan/Lawton/Decatur customers.",
     greenFlags: [
-      "No REIT competitor within 8 miles — local pricing power is intact",
-      "U-Haul dealer status is a defensible moat — only one U-Haul dealer per zip and you have it",
+      "No REIT competitor within 8 miles. Local pricing power is intact",
+      "U-Haul dealer status is a defensible moat. Only one U-Haul dealer per zip and you have it",
     ],
     yellowFlag:
-      "Two new self-storage development permits were filed in Van Buren County in the last 12 months — local supply could grow 15–20% over the next 18–24 months.",
+      "Two new self-storage development permits were filed in Van Buren County in the last 12 months. Local supply could grow 15–20% over the next 18–24 months.",
     redFlags: [
-      "Extra Space Kalamazoo bids on 'storage Mattawan' and 'storage Paw Paw' in Google Ads — they are intercepting prospects in your own backyard",
-      "CubeSmart's Kalamazoo location has 287 Google reviews and a 4.6 rating — they win the trust comparison every time a Mattawan prospect comparison-shops",
-      "Your street rate is 6–9% below the Kalamazoo market — that trains prospects to expect rural pricing, then you lose them anyway when life pulls them toward Kalamazoo",
+      "Extra Space Kalamazoo bids on 'storage Mattawan' and 'storage Paw Paw' in Google Ads. They are intercepting prospects in your own backyard",
+      "CubeSmart's Kalamazoo location has 287 Google reviews and a 4.6 rating. They win the trust comparison every time a Mattawan prospect comparison-shops",
+      "Your street rate is 6–9% below the Kalamazoo market. That trains prospects to expect rural pricing, then you lose them anyway when life pulls them toward Kalamazoo",
     ],
     doNothingConsequence:
       "When the two permitted facilities come online in 12–18 months, your Mattawan/Paw Paw market share will erode unless paid acquisition, review volume, and brand presence are built now. Defending share is 3–5x cheaper than recapturing it after a new entrant lands.",
@@ -440,7 +440,7 @@ const CATEGORIES: SampleCategoryAudit[] = [
       {
         title: "Build a 'why local beats big-box' content angle",
         detail:
-          "Owner-operator vs. corporate, free U-Haul integration, a manager who knows your name. Bake this positioning into website copy, GBP posts, and Facebook content — it's a story the REITs structurally can't tell.",
+          "Owner-operator vs. corporate, free U-Haul integration, a manager who knows your name. Bake this positioning into website copy, GBP posts, and Facebook content. It's a story the REITs structurally can't tell.",
         priority: "medium",
       },
       {
@@ -477,7 +477,7 @@ function buildSampleAudit(): SampleAuditData {
       overallScore,
       overallGrade: "C",
       executiveSummary:
-        "Midway Self Storage & U-Haul has a strong physical asset and a defensible local moat, but the marketing and revenue-management muscle isn't built — and it's costing roughly $2,576/month in vacancy plus another $1,000+/month in unrealized rate and insurance revenue. Lead generation is effectively unfunded, follow-up systems don't exist, and the Google review gap to Kalamazoo competitors is widening every month. Every issue is fixable in 90 days with a structured plan; doing nothing means dropping from 79% to 73% occupancy by Q4 while two newly permitted competitors prepare to come online within 18 months.",
+        "Midway Self Storage & U-Haul has a strong physical asset and a defensible local moat, but the marketing and revenue-management muscle isn't built, and it's costing roughly $2,576/month in vacancy plus another $1,000+/month in unrealized rate and insurance revenue. Lead generation is effectively unfunded, follow-up systems don't exist, and the Google review gap to Kalamazoo competitors is widening every month. Every issue is fixable in 90 days with a structured plan; doing nothing means dropping from 79% to 73% occupancy by Q4 while two newly permitted competitors prepare to come online within 18 months.",
       categories: CATEGORIES,
       vacancyCost: {
         vacantUnits: 28,
@@ -586,9 +586,9 @@ function buildSampleAudit(): SampleAuditData {
         projectedOccupancy6Months: "73%",
         projectedOccupancy12Months: "67%",
         competitorGapWidening:
-          "Extra Space and CubeSmart Kalamazoo each run aggressive Google Ads and carry 200+ reviews at 4.6+ stars. Every prospect searching 'storage near Mattawan' is intercepted before they ever see your listing — and the review gap compounds every month it isn't closed.",
+          "Extra Space and CubeSmart Kalamazoo each run aggressive Google Ads and carry 200+ reviews at 4.6+ stars. Every prospect searching 'storage near Mattawan' is intercepted before they ever see your listing, and the review gap compounds every month it isn't closed.",
         urgencyStatement:
-          "At the current move-out pace (~4–5/month) and $0 paid acquisition, you'll bleed roughly $31K in vacancy this year plus another $18K in undermarket rates and forgone insurance. Every month without a fix is roughly $4K gone — permanently.",
+          "At the current move-out pace (~4–5/month) and $0 paid acquisition, you'll bleed roughly $31K in vacancy this year plus another $18K in undermarket rates and forgone insurance. Every month without a fix is roughly $4K gone, permanently.",
       },
       ninetyDayProjection: {
         ifYouAct: {
@@ -606,7 +606,7 @@ function buildSampleAudit(): SampleAuditData {
           additionalMoveOuts: 8,
           revenueLost: 9700,
           consequences: [
-            "Net unit count drops by another 8 over 90 days — vacancy bleed grows from $2,576 to $3,100+ per month",
+            "Net unit count drops by another 8 over 90 days. Vacancy bleed grows from $2,576 to $3,100+ per month",
             "$9,700 in lost revenue compounds because every undermarket tenant who stays is another month of rate revenue left on the table",
             "Extra Space and CubeSmart Kalamazoo widen the review-volume gap, pushing your listing further down the local map pack and out of consideration",
           ],
@@ -618,14 +618,14 @@ function buildSampleAudit(): SampleAuditData {
             name: "Market Awareness",
             status: "critical",
             evidence:
-              "$0 paid acquisition and no Google Ads — prospects searching 'storage near Mattawan' never see you.",
+              "$0 paid acquisition and no Google Ads. Prospects searching 'storage near Mattawan' never see you.",
             leakPercentage: 70,
           },
           {
             name: "Website / Online Discovery",
             status: "weak",
             evidence:
-              "Site hasn't been updated in 18+ months and has no online reservation — visitors can't self-serve.",
+              "Site hasn't been updated in 18+ months and has no online reservation. Visitors can't self-serve.",
             leakPercentage: 45,
           },
           {
@@ -646,21 +646,21 @@ function buildSampleAudit(): SampleAuditData {
             name: "Move-In",
             status: "strong",
             evidence:
-              "Once a prospect reaches the counter, close rate is healthy — the front desk converts well.",
+              "Once a prospect reaches the counter, close rate is healthy. The front desk converts well.",
             leakPercentage: 10,
           },
         ],
         biggestLeak:
-          "Market Awareness — with $0 paid spend, ~70% of in-market demand never even reaches your listing, so every downstream stage is starved before it starts.",
+          "Market Awareness: with $0 paid spend, ~70% of in-market demand never even reaches your listing, so every downstream stage is starved before it starts.",
         narrative:
-          "A renter in Mattawan searches 'storage near me,' sees Extra Space and CubeSmart's ads and 200+ reviews first, and books before your listing ever loads. The few who do find you hit a stale site with no online reservation, then a voicemail after hours. Your counter staff close well — but almost no one makes it that far.",
+          "A renter in Mattawan searches 'storage near me,' sees Extra Space and CubeSmart's ads and 200+ reviews first, and books before your listing ever loads. The few who do find you hit a stale site with no online reservation, then a voicemail after hours. Your counter staff close well, but almost no one makes it that far.",
       },
       operatorAlignment: {
         accuracy: "misdiagnosed",
         operatorSaid:
           "Owner believes the core problem is too much large-unit (10x20) inventory for a rural market.",
         auditFound:
-          "The unit mix is a real but secondary issue. The primary leak is zero top-of-funnel demand capture — $0 paid acquisition and no online reservation path.",
+          "The unit mix is a real but secondary issue. The primary leak is zero top-of-funnel demand capture: $0 paid acquisition and no online reservation path.",
         note:
           "Filling those 10x20s matters, but you can't fill what never finds you. Fix the demand and discovery leaks first and the large-unit vacancy starts closing as a byproduct.",
       },

@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
     void sendEmail({
       from: SENDERS.partners,
       to: email,
-      subject: `Welcome to StorageAds — ${escapeHtml(companyName)} Partner Account`,
+      subject: `Welcome to StorageAds: ${escapeHtml(companyName)} Partner Account`,
       tags: [{ name: "type", value: "partner_welcome" }],
       html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; margin: 0 auto; background: #faf9f5;">
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
                   <p style="margin: 0; font-size: 14px; color: #141413;"><strong>Temporary Password:</strong> <code style="background: #e8e6dc; padding: 2px 6px; border-radius: 4px;">${tempPassword}</code></p>
                 </div>
                 <p style="color: #141413; font-size: 14px;">Sign in at <strong>storageads.com/partner</strong> to get started.</p>
-                <p style="color: #b0aea5; font-size: 12px; margin-top: 24px;">— The StorageAds Team</p>
+                <p style="color: #b0aea5; font-size: 12px; margin-top: 24px;">The StorageAds Team</p>
               </div>
             </div>
           `,

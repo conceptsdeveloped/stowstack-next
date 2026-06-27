@@ -42,9 +42,9 @@ function getRecoverySubject(
     case "recovery_1hr":
       return `Still looking for storage${lead.facilityName ? ` near ${lead.facilityName}` : ""}?`;
     case "recovery_24hr":
-      return `Don't miss out — units are filling up${lead.facilityName ? ` at ${lead.facilityName}` : ""}`;
+      return `Don't miss out, units are filling up${lead.facilityName ? ` at ${lead.facilityName}` : ""}`;
     case "recovery_72hr":
-      return `A little something to help you decide${lead.facilityName ? ` — ${lead.facilityName}` : ""}`;
+      return `A little something to help you decide${lead.facilityName ? `, ${lead.facilityName}` : ""}`;
     default:
       return "Your storage unit is still available";
   }
@@ -63,10 +63,10 @@ function getRecoveryBody(
     case "recovery_1hr":
       return `<div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.7; color: #1a1a1a;">
   <p>Hey ${firstName},</p>
-  <p>${lead.unitSize ? `It looks like you were checking out <strong>${esc(lead.unitSize)}</strong> units. ` : ""}Good news — units are still available and we are holding your spot.</p>
+  <p>${lead.unitSize ? `It looks like you were checking out <strong>${esc(lead.unitSize)}</strong> units. ` : ""}Good news, units are still available and we are holding your spot.</p>
   <div style="margin: 24px 0; padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
     <p style="margin: 0 0 4px; font-weight: 600; color: #166534; font-size: 18px;">Your unit is still available</p>
-    <p style="margin: 0 0 16px; font-size: 14px; color: #374151;">Pick up right where you left off — takes less than 60 seconds.</p>
+    <p style="margin: 0 0 16px; font-size: 14px; color: #374151;">Pick up right where you left off. Takes less than 60 seconds.</p>
     <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Your Unit</a>
   </div>
   <p style="font-size: 13px; color: #6b7280;">Questions? Just reply to this email or call us at <a href="tel:2699298541" style="color: #141413;">269-929-8541</a>.</p>
@@ -75,15 +75,15 @@ function getRecoveryBody(
     case "recovery_24hr":
       return `<div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.7; color: #1a1a1a;">
   <p>Hey ${firstName},</p>
-  <p>Just a heads up — we have seen a few units get reserved since yesterday, and availability is getting tighter.</p>
+  <p>Just a heads up, we have seen a few units get reserved since yesterday, and availability is getting tighter.</p>
   <div style="margin: 24px 0; padding: 16px 20px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0;">
     <p style="margin: 0; font-weight: 600; color: #92400e;">Units are going fast</p>
     <p style="margin: 4px 0 0; font-size: 14px; color: #78350f;">We can not guarantee pricing or availability beyond today. Lock in your rate now.</p>
   </div>
   <div style="margin: 24px 0; text-align: center;">
-    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Now — Keep Your Rate</a>
+    <a href="${returnUrl}" style="display: inline-block; padding: 14px 32px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Reserve Now, Keep Your Rate</a>
   </div>
-  <p style="font-size: 13px; color: #6b7280;">Need help deciding? Call us at <a href="tel:2699298541" style="color: #141413;">269-929-8541</a> — we will walk you through options.</p>
+  <p style="font-size: 13px; color: #6b7280;">Need help deciding? Call us at <a href="tel:2699298541" style="color: #141413;">269-929-8541</a>, we will walk you through options.</p>
 </div>`;
 
     case "recovery_72hr":
@@ -172,7 +172,7 @@ async function sendHotLeadAlert(partialLead: Record<string, unknown>) {
     <tr><td style="padding: 6px 12px; color: #666;">Scroll Depth</td><td style="padding: 6px 12px;">${partialLead.scroll_depth}%</td></tr>
     ${partialLead.utm_source ? `<tr><td style="padding: 6px 12px; color: #666;">Source</td><td style="padding: 6px 12px;">${esc(String(partialLead.utm_source))} / ${esc(String(partialLead.utm_medium || ""))}</td></tr>` : ""}
   </table>
-  <p style="margin-top: 16px; font-size: 12px; color: #999;">Recovery sequence has been started automatically. This lead scored ${partialLead.lead_score}/100 — consider a personal follow-up call.</p>
+  <p style="margin-top: 16px; font-size: 12px; color: #999;">Recovery sequence has been started automatically. This lead scored ${partialLead.lead_score}/100. Consider a personal follow-up call.</p>
 </div>`;
 
   void sendEmail({

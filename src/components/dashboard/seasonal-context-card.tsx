@@ -16,19 +16,19 @@ const SEASON_CONFIG: Record<Season, { icon: typeof Sun; label: string; message: 
   peak: {
     icon: Sun,
     label: 'Peak Season',
-    message: "It's peak moving season (May–September). Demand is highest — focus on conversion efficiency over volume.",
+    message: "It's peak moving season (May–September). Demand is highest. Focus on conversion efficiency over volume.",
     suggestion: 'Optimize for cost per move-in, not impressions. Pull back promotions on high-demand unit types.',
   },
   shoulder: {
     icon: Leaf,
     label: 'Shoulder Season',
-    message: "Spring and fall are shoulder months. Demand is building or tapering — a good time for targeted campaigns.",
+    message: "Spring and fall are shoulder months. Demand is building or tapering, a good time for targeted campaigns.",
     suggestion: 'Consider spring cleaning promotions or back-to-school campaigns. Start ramping ad spend 3-4 weeks before peak.',
   },
   slow: {
     icon: Snowflake,
     label: 'Slow Season',
-    message: "November–February is typically slower for self-storage. Cost per move-in often rises 15-20% — this is normal.",
+    message: "November–February is typically slower for self-storage. Cost per move-in often rises 15-20%. This is normal.",
     suggestion: "Focus on retention and rate optimization. It's a good time for first-month-free promotions to fill winter vacancies.",
   },
 };
