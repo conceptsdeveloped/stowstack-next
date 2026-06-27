@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -8,6 +8,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { authenticatePortalRequest } from "@/lib/portal-auth";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -21,28 +22,22 @@ export async function GET(req: NextRequest) {
 
   try {
     const url = new URL(req.url);
-    const accessCode = url.searchParams.get("accessCode");
-    const email = url.searchParams.get("email");
 
-    if (!accessCode || !email) {
-      return errorResponse("Missing accessCode or email", 400, origin);
+    /* ─── resolve client → facility (fail-closed) ─── */
+
+    const scope = await authenticatePortalRequest(req);
+    if (scope instanceof NextResponse) return scope;
+
+    let facilityId: string;
+    if (scope.kind === "admin") {
+      const facilityIdParam = url.searchParams.get("facilityId");
+      if (!facilityIdParam) {
+        return errorResponse("facilityId required", 400, origin);
+      }
+      facilityId = facilityIdParam;
+    } else {
+      facilityId = scope.facilityId;
     }
-
-    /* ─── resolve client → facility ─── */
-
-    const client = await db.clients.findFirst({
-      where: {
-        access_code: accessCode,
-        email: { equals: email.trim(), mode: "insensitive" },
-      },
-      select: { id: true, facility_id: true },
-    });
-
-    if (!client || !client.facility_id) {
-      return errorResponse("Client not found", 404, origin);
-    }
-
-    const facilityId = client.facility_id;
 
     /* ─── GBP connection ─── */
 

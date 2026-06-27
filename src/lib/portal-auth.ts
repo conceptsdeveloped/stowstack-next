@@ -6,12 +6,14 @@ import { isAdminRequest, errorResponse } from "@/lib/api-helpers";
  * Result of authenticating a client-portal API request.
  *  - { kind: "admin" }  — authenticated via X-Admin-Key (founder/staff god-mode;
  *                          may read across facilities).
- *  - { kind: "client", facilityId } — authenticated via a client access code
- *                          (accessCode + email); pinned to that client's facility.
+ *  - { kind: "client", facilityId, clientId } — authenticated via a client access
+ *                          code (accessCode + email); pinned to that client's
+ *                          facility. `clientId` is provided for routes keyed by
+ *                          client (e.g. client_reports, client_goals).
  */
 export type PortalScope =
   | { kind: "admin" }
-  | { kind: "client"; facilityId: string };
+  | { kind: "client"; facilityId: string; clientId: string };
 
 /**
  * Fail-closed authentication for client-portal API routes.
@@ -40,10 +42,10 @@ export async function authenticatePortalRequest(
         access_code: accessCode,
         email: { equals: email.trim(), mode: "insensitive" },
       },
-      select: { facility_id: true },
+      select: { id: true, facility_id: true },
     });
     if (client?.facility_id) {
-      return { kind: "client", facilityId: client.facility_id };
+      return { kind: "client", facilityId: client.facility_id, clientId: client.id };
     }
   }
 

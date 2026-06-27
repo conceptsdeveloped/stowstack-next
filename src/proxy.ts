@@ -99,6 +99,17 @@ export function isCsrfExempt(req: NextRequest): boolean {
   // Portal client messaging authenticates via access code + email in the body
   // (same model as the endpoints above), so the ambient-cookie CSRF token is moot.
   if (path === "/api/client-messages") return true;
+  // Portal report upload: client-authenticated by access code in the body (no
+  // admin/Bearer header), so it is NOT covered by the header exemptions below and
+  // would otherwise 403 here before reaching the route. Same credential-in-body
+  // model as the endpoints above.
+  if (path === "/api/portal-upload") return true;
+  // ── Adding a new client-authenticated portal mutation route (POST/PATCH/etc)? ──
+  // If it authenticates via access code/email in the body or query (not the
+  // x-admin-key / Bearer / x-org-token headers handled below), it MUST be added
+  // here or the proxy will 403 it in prod: no portal client sends x-csrf-token,
+  // so validateCsrf() always fails. Admin-key-gated routes are already covered by
+  // the header checks below and do not need a line here.
   // Session/portal mutation endpoints that enforce CSRF themselves via
   // verifyCsrfOrigin() (an Origin check) rather than the double-submit token.
   // No client sends x-csrf-token, so the proxy's token gate would 403 these

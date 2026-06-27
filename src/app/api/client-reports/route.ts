@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
@@ -9,6 +9,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { authenticatePortalRequest } from "@/lib/portal-auth";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -21,30 +22,22 @@ export async function GET(req: NextRequest) {
 
   try {
     const url = new URL(req.url);
-    const clientId = url.searchParams.get("clientId");
-    const accessCode = url.searchParams.get("accessCode");
-    const email = url.searchParams.get("email");
     const limit = parseInt(url.searchParams.get("limit") || "12") || 12;
 
-    let resolvedClientId = clientId;
+    // Fail-closed auth: clients are pinned to the client their access code
+    // resolves to; admins must name the target client explicitly via ?clientId.
+    const scope = await authenticatePortalRequest(req);
+    if (scope instanceof NextResponse) return scope;
 
-    if (!resolvedClientId && accessCode && email) {
-      const client = await db.clients.findFirst({
-        where: {
-          access_code: accessCode,
-          email: { equals: email.trim(), mode: "insensitive" },
-        },
-        select: { id: true },
-      });
-      if (client) resolvedClientId = client.id;
-    }
-
-    if (clientId && !isAdminRequest(req)) {
-      return errorResponse("Unauthorized", 401, origin);
-    }
-
-    if (!resolvedClientId) {
-      return errorResponse("Missing client identifier", 400, origin);
+    let resolvedClientId: string;
+    if (scope.kind === "admin") {
+      const clientIdParam = url.searchParams.get("clientId");
+      if (!clientIdParam) {
+        return errorResponse("Missing client identifier", 400, origin);
+      }
+      resolvedClientId = clientIdParam;
+    } else {
+      resolvedClientId = scope.clientId;
     }
 
     // Get client's facility for PMS data
