@@ -4,46 +4,20 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
-  Activity,
-  Film,
-  Globe,
-  Image as ImageIcon,
-  Link2,
-  Map as MapIcon,
-  Music2,
-  Share2,
-  BarChart3,
-  BookOpen,
   Building2,
   CornerDownLeft,
-  CreditCard,
-  FileText,
-  FileUp,
-  Flame,
   GitBranch,
-  Inbox,
-  Kanban,
   Layers,
-  LayoutDashboard,
-  LifeBuoy,
-  LineChart,
-  Mail,
-  Megaphone,
-  Palette,
   Phone,
   Plus,
   Search,
-  Send,
-  Settings,
-  ShieldCheck,
   Sparkles,
-  Target,
-  TrendingUp,
   Upload,
-  Users,
 } from "lucide-react";
 import { useCommandPalette } from "@/hooks/use-command-palette";
 import { useFacility } from "@/lib/facility-context";
+import { NAV_GROUPS } from "@/lib/admin-nav";
+import { readFacilityRecents } from "@/lib/facility-recents";
 
 const FONT = "var(--font), var(--font-manrope), system-ui, sans-serif";
 const RECENTS_KEY = "storageads_palette_recents";
@@ -54,55 +28,34 @@ interface Destination {
   href: string;
   group: string;
   icon: LucideIcon;
+  scoped?: boolean;
 }
 
-// Mirrors the current admin sidebar routes. Phase 2 unifies this with the
-// sidebar into one source; kept self-contained here to stay additive.
+function titleCase(s: string): string {
+  return s.charAt(0) + s.slice(1).toLowerCase();
+}
+
+// Palette-only routes: the portfolio ("all facilities") variants of tools the
+// sidebar only lists scoped. Everything else is derived from the spine below.
+const PALETTE_EXTRAS: Destination[] = [
+  { id: "/admin/funnels", label: "Funnels (all facilities)", href: "/admin/funnels", group: "Channels", icon: GitBranch },
+  { id: "/admin/calls", label: "Calls (all facilities)", href: "/admin/calls", group: "Facilities", icon: Phone },
+];
+
+// Route truth comes from the shared admin spine (admin-nav), so the palette can
+// never drift from the sidebar — new tools appear in both automatically.
 const DESTINATIONS: Destination[] = [
-  { id: "console", label: "Operator's Console", href: "/admin/console", group: "Overview", icon: LayoutDashboard },
-  { id: "leads", label: "Lead Pipeline", href: "/admin", group: "Leads", icon: Flame },
-  { id: "kanban", label: "Kanban", href: "/admin/kanban", group: "Leads", icon: Kanban },
-  { id: "consumer", label: "Consumer Leads", href: "/admin/consumer-leads", group: "Leads", icon: Inbox },
-  { id: "recovery", label: "Recovery", href: "/admin/recovery", group: "Leads", icon: LifeBuoy },
-  { id: "facility-pipeline", label: "Facility Pipeline", href: "/admin/pipeline", group: "Facilities", icon: Target },
-  { id: "portfolio", label: "Portfolio", href: "/admin/portfolio", group: "Facilities", icon: BarChart3 },
-  { id: "facilities", label: "Facility Manager", href: "/admin/facilities", group: "Facilities", icon: Building2 },
-  { id: "pms-queue", label: "PMS Queue", href: "/admin/pms-queue", group: "Facilities", icon: FileUp },
-  { id: "funnels", label: "Funnels (all facilities)", href: "/admin/funnels", group: "Marketing", icon: GitBranch },
-  { id: "campaigns", label: "Campaigns", href: "/admin/campaigns", group: "Marketing", icon: Megaphone },
-  { id: "creative-library", label: "Creative Library", href: "/admin/style-references", group: "Marketing", icon: Palette },
-  { id: "sequences", label: "Sequences", href: "/admin/sequences", group: "Marketing", icon: Mail },
-  { id: "insights", label: "Insights", href: "/admin/insights", group: "Marketing", icon: LineChart },
-  { id: "billing", label: "Billing", href: "/admin/billing", group: "Revenue", icon: CreditCard },
-  { id: "activity", label: "Activity", href: "/admin/activity", group: "Operations", icon: Activity },
-  { id: "calls", label: "Calls (all facilities)", href: "/admin/calls", group: "Operations", icon: Phone },
-  { id: "diagnostics", label: "Diagnostics", href: "/admin/audits", group: "Operations", icon: ShieldCheck },
-  { id: "reports", label: "Reports", href: "/admin/reports", group: "Operations", icon: FileText },
-  { id: "partners", label: "Partners", href: "/admin/partners", group: "Operations", icon: Users },
-  { id: "setup", label: "Setup", href: "/admin/onboarding", group: "System", icon: Sparkles },
-  { id: "settings", label: "Settings", href: "/admin/settings", group: "System", icon: Settings },
-  { id: "changelog", label: "Changelog", href: "/admin/changelog", group: "System", icon: BookOpen },
-  // Scope-aware facility tool routes (Phase 3, rendered via FacilityToolPage).
-  { id: "studio-creative", label: "Creative Studio", href: "/admin/studio/creative", group: "Studio", icon: Palette },
-  { id: "studio-ad-generator", label: "Ad Generator", href: "/admin/studio/ad-generator", group: "Studio", icon: Sparkles },
-  { id: "studio-publisher", label: "Publisher", href: "/admin/studio/publisher", group: "Studio", icon: Send },
-  { id: "studio-google-ads", label: "Google Ads Lab", href: "/admin/studio/google-ads", group: "Studio", icon: Search },
-  { id: "studio-tiktok", label: "TikTok Creator", href: "/admin/studio/tiktok", group: "Studio", icon: Music2 },
-  { id: "studio-video", label: "Video Generator", href: "/admin/studio/video", group: "Studio", icon: Film },
-  { id: "studio-media", label: "Media Library", href: "/admin/studio/media", group: "Studio", icon: ImageIcon },
-  { id: "channels-funnels", label: "Funnels", href: "/admin/channels/funnels", group: "Channels", icon: GitBranch },
-  { id: "channels-landing", label: "Landing Pages", href: "/admin/channels/landing-pages", group: "Channels", icon: FileText },
-  { id: "channels-gbp", label: "Google Business", href: "/admin/channels/gbp", group: "Channels", icon: Globe },
-  { id: "channels-social", label: "Social", href: "/admin/channels/social", group: "Channels", icon: Share2 },
-  { id: "channels-automations", label: "Automations", href: "/admin/channels/automations", group: "Channels", icon: Mail },
-  { id: "channels-utm", label: "UTM Links", href: "/admin/channels/utm", group: "Channels", icon: Link2 },
-  { id: "intel-occupancy", label: "Occupancy Intelligence", href: "/admin/intelligence/occupancy", group: "Intelligence", icon: Building2 },
-  { id: "intel-market", label: "Market Intelligence", href: "/admin/intelligence/market", group: "Intelligence", icon: MapIcon },
-  { id: "intel-revenue", label: "Revenue Analytics", href: "/admin/intelligence/revenue", group: "Intelligence", icon: BarChart3 },
-  { id: "intel-ecri", label: "ECRI Finder", href: "/admin/intelligence/ecri", group: "Intelligence", icon: TrendingUp },
-  { id: "fac-tenants", label: "Tenants", href: "/admin/facilities/tenants", group: "Facilities", icon: Users },
-  { id: "fac-pms", label: "PMS Data", href: "/admin/facilities/pms", group: "Facilities", icon: FileText },
-  { id: "fac-calls", label: "Call Tracking", href: "/admin/facilities/call-tracking", group: "Facilities", icon: Phone },
+  ...NAV_GROUPS.flatMap((g) =>
+    g.items.map((item) => ({
+      id: item.href,
+      label: item.label,
+      href: item.href,
+      group: titleCase(g.title),
+      icon: item.icon,
+      scoped: item.scoped,
+    })),
+  ),
+  ...PALETTE_EXTRAS,
 ];
 
 const ACTIONS: Destination[] = [
@@ -118,6 +71,7 @@ type Item = {
   sub: string;
   href: string;
   icon: LucideIcon;
+  scoped?: boolean; // tool operates on a single facility (tagged "Facility")
   facilityId?: string; // for kind "facility": the id to scope to, or "all"
 };
 
@@ -128,8 +82,10 @@ function matches(q: string, label: string, sub?: string) {
 
 /**
  * Global ⌘K command palette for the admin. Built on the existing
- * useCommandPalette hook (⌘K / "/" / Esc). Indexes admin routes, a few actions,
- * and — when you type a facility name — facility scope switches. The
+ * useCommandPalette hook (⌘K / "/" / Esc). Its route list is derived from the
+ * shared admin spine (admin-nav) so it never drifts from the sidebar. It also
+ * switches facility scope: recently-used facilities surface in the default view
+ * for one-keystroke switching, and typing matches the full facility list. The
  * FacilitySwitcher in the sidebar remains the primary scope control; the palette
  * is just a fast keyboard path to it. Switching scope only rewrites the
  * `?facility=` param via setFacility (no API call, so no CSRF concern).
@@ -149,14 +105,16 @@ export function CommandPalette() {
       return [];
     }
   });
+  const [facRecents, setFacRecents] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset query/cursor when the palette opens
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset query/cursor + refresh facility recents when the palette opens
       setQuery("");
       setCursor(0);
+      setFacRecents(readFacilityRecents());
       const t = setTimeout(() => inputRef.current?.focus(), 20);
       return () => clearTimeout(t);
     }
@@ -181,7 +139,7 @@ export function CommandPalette() {
   }, [open]);
 
   const toolItems = useMemo<Item[]>(
-    () => DESTINATIONS.map((d) => ({ kind: "tool", id: d.id, label: d.label, sub: d.group, href: d.href, icon: d.icon })),
+    () => DESTINATIONS.map((d) => ({ kind: "tool", id: d.id, label: d.label, sub: d.group, href: d.href, icon: d.icon, scoped: d.scoped })),
     [],
   );
   const actionItems = useMemo<Item[]>(
@@ -226,16 +184,29 @@ export function CommandPalette() {
       const recents = recentIds.map((id) => byId.get(id)).filter((x): x is Item => Boolean(x)).slice(0, 5);
       if (recents.length) out.push({ title: "Recent", items: recents });
     }
-    // Facility scope switches surface only when you type — browsing the full
-    // facility list is the sidebar switcher's job; here we match by name.
-    const facs = q ? facilityItems.filter((i) => matches(q, i.label, i.sub)) : [];
+    // When typing, match the whole facility list by name. With no query, offer a
+    // quick-switch shortlist (jump to the portfolio + recently-used facilities)
+    // so you can change scope without typing — the full browse is still the
+    // sidebar switcher's job.
+    let facs: Item[];
+    if (q) {
+      facs = facilityItems.filter((i) => matches(q, i.label, i.sub));
+    } else {
+      const byFacilityId = new Map(facilityItems.map((i) => [i.facilityId, i]));
+      const allItem = currentId !== "all" ? byFacilityId.get("all") : undefined;
+      const recentFacs = facRecents
+        .map((id) => byFacilityId.get(id))
+        .filter((x): x is Item => Boolean(x) && x!.facilityId !== currentId)
+        .slice(0, 3);
+      facs = [...(allItem ? [allItem] : []), ...recentFacs];
+    }
     const tools = toolItems.filter((i) => matches(q, i.label, i.sub));
     const acts = actionItems.filter((i) => matches(q, i.label, i.sub));
     if (facs.length) out.push({ title: "Switch facility", items: facs });
     if (tools.length) out.push({ title: "Go to", items: tools });
     if (acts.length) out.push({ title: "Actions", items: acts });
     return out;
-  }, [q, recentIds, byId, toolItems, actionItems, facilityItems]);
+  }, [q, recentIds, byId, toolItems, actionItems, facilityItems, facRecents, currentId]);
 
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
   const activeIndex = flat.length ? Math.min(Math.max(cursor, 0), flat.length - 1) : 0;
@@ -278,8 +249,14 @@ export function CommandPalette() {
 
   if (!open) return null;
 
-  const tag = (kind: Item["kind"]) =>
-    kind === "action" ? "Action" : kind === "facility" ? "Scope" : "Tool";
+  const tag = (item: Item) =>
+    item.kind === "action"
+      ? "Action"
+      : item.kind === "facility"
+        ? "Scope"
+        : item.scoped
+          ? "Facility"
+          : "Tool";
 
   // Pair each row with its absolute position in `flat` so the active-row
   // highlight stays correct even when an item appears in two groups (Recent + its category).
@@ -381,7 +358,7 @@ export function CommandPalette() {
                           </span>
                         )}
                       </span>
-                      <span style={tagStyle}>{tag(item.kind)}</span>
+                      <span style={tagStyle}>{tag(item)}</span>
                       {active && <CornerDownLeft className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--ink2)" }} />}
                     </button>
                   );
