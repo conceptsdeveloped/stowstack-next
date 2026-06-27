@@ -220,7 +220,7 @@ export async function GET(request: NextRequest) {
             void sendEmail({
               from: SENDERS.alerts,
               to: recipients,
-              subject: `${alert.title} — ${client.fac_name || client.facility_name}`,
+              subject: `${alert.title}: ${client.fac_name || client.facility_name}`,
               tags: [{ name: "type", value: "campaign_alert" }],
               html: `<div style="font-family:-apple-system,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
   <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin-bottom:16px;">

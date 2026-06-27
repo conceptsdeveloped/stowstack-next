@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
                       </a>
                     </div>
                     <p style="color: #6a6560; font-size: 13px;">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
-                    <p style="color: #b0aea5; font-size: 12px; margin-top: 24px;">— The StorageAds Team</p>
+                    <p style="color: #b0aea5; font-size: 12px; margin-top: 24px;">The StorageAds Team</p>
                   </div>
                 </div>
               `,

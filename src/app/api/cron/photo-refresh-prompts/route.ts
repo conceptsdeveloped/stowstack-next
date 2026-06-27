@@ -30,7 +30,7 @@ function buildPhotoPromptEmail(facilityName: string): string {
   </div>
   <div style="background:#ffffff;border:1px solid #e8e6dc;border-radius:8px;padding:28px 24px;">
     <h1 style="margin:0 0 8px;font-size:18px;font-weight:600;color:#141413;">Time for fresh photos</h1>
-    <p style="margin:0 0 16px;font-size:14px;color:#6a6560;line-height:1.6;">Google rewards profiles that post new photos regularly. Snap two quick photos of <strong>${esc(facilityName)}</strong> on your phone — a clean drive aisle, a freshly swept unit, the gate, the signage — and upload them so we can push them to your Business Profile.</p>
+    <p style="margin:0 0 16px;font-size:14px;color:#6a6560;line-height:1.6;">Google rewards profiles that post new photos regularly. Snap two quick photos of <strong>${esc(facilityName)}</strong> on your phone (a clean drive aisle, a freshly swept unit, the gate, the signage) and upload them so we can push them to your Business Profile.</p>
     <div style="text-align:center;margin-top:20px;">
       <a href="${adminUrl}" style="display:inline-block;background:#141413;color:#faf9f5;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:500;">Upload photos</a>
     </div>

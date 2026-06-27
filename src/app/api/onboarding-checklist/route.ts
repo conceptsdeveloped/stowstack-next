@@ -33,7 +33,7 @@ const ONBOARDING_STEPS = [
   {
     id: "google_access",
     label: "Google Ads account access granted",
-    description: "If applicable — MCC or direct access",
+    description: "If applicable: MCC or direct access",
   },
   {
     id: "brand_assets",
