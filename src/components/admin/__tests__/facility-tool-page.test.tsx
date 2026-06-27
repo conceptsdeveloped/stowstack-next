@@ -24,6 +24,14 @@ const FACS: Facility[] = [
   { id: "b", name: "Lakeside", location: "Kalamazoo, MI", status: "intake" },
 ];
 
+// >6 facilities so the picker's search field appears.
+const MANY: Facility[] = Array.from({ length: 8 }, (_, i) => ({
+  id: `f${i}`,
+  name: `Facility ${i}`,
+  location: `City ${i}`,
+  status: i % 2 ? "intake" : "active",
+}));
+
 function renderTool(facilities: Facility[]) {
   return render(
     <AdminProvider initialKey="test-key">
@@ -72,5 +80,35 @@ describe("FacilityToolPage", () => {
     fireEvent.click(screen.getByText("Riverside"));
     expect(nav.replace).toHaveBeenCalled();
     expect(String(nav.replace.mock.calls[0][0])).toContain("facility=a");
+  });
+
+  it("shows a search field once there are more than six facilities, and filters", () => {
+    renderTool(MANY);
+    const search = screen.getByPlaceholderText("Search facilities");
+    expect(search).toBeTruthy();
+    fireEvent.change(search, { target: { value: "Facility 3" } });
+    expect(screen.getByText("Facility 3")).toBeTruthy();
+    expect(screen.queryByText("Facility 4")).toBeNull();
+  });
+
+  it("does not show a search field for a short facility list", () => {
+    renderTool(FACS);
+    expect(screen.queryByPlaceholderText("Search facilities")).toBeNull();
+  });
+
+  it("surfaces recently-used facilities in a Recent section", () => {
+    localStorage.setItem("storageads_facility_recents", JSON.stringify(["b"]));
+    renderTool(FACS);
+    expect(screen.getByText("Recent")).toBeTruthy();
+    // With a Recent section, the non-recent rows sit under "All facilities".
+    expect(screen.getByText("All facilities")).toBeTruthy();
+  });
+
+  it("shows a no-match message when the search excludes everything", () => {
+    renderTool(MANY);
+    fireEvent.change(screen.getByPlaceholderText("Search facilities"), {
+      target: { value: "zzzzz-nope" },
+    });
+    expect(screen.getByText(/No facility matches/)).toBeTruthy();
   });
 });
