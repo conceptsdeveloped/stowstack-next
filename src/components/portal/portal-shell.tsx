@@ -192,10 +192,11 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
         {step === "email" ? (
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[var(--color-body-text)]">Email</label>
+              <label htmlFor="portal-login-email" className="mb-1.5 block text-xs font-medium text-[var(--color-body-text)]">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-mid-gray)]" />
                 <input
+                  id="portal-login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -223,7 +224,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
           </form>
         ) : (
           <div className="space-y-4">
-            <div className="flex justify-center gap-3">
+            <div role="group" aria-label="4-digit login code" className="flex justify-center gap-3">
               {[0, 1, 2, 3].map((i) => (
                 <input
                   key={i}
@@ -231,6 +232,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
                   type="text"
                   inputMode="numeric"
                   maxLength={1}
+                  aria-label={`Login code digit ${i + 1} of 4`}
                   value={code[i]}
                   onChange={(e) => handleCodeInput(i, e.target.value)}
                   onKeyDown={(e) => handleCodeKeyDown(i, e)}
@@ -349,12 +351,12 @@ function Sidebar({ client, mobileOpen, onClose, showOnboarding }: { client: Clie
 
 /* ─── header ─── */
 
-function PortalHeader({ client, onToggle, onLogout, expanded }: { client: ClientData; onToggle: () => void; onLogout: () => void; expanded: boolean }) {
+function PortalHeader({ client, onToggle, onLogout, expanded, toggleRef }: { client: ClientData; onToggle: () => void; onLogout: () => void; expanded: boolean; toggleRef: React.RefObject<HTMLButtonElement | null> }) {
   const pathname = usePathname();
 
   return (
     <header className="safe-top sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 px-4 backdrop-blur-xl md:px-6">
-      <button type="button" onClick={onToggle} aria-label="Open navigation menu" aria-expanded={expanded} aria-controls="portal-mobile-nav" className="rounded-lg p-2 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] md:hidden">
+      <button ref={toggleRef} type="button" onClick={onToggle} aria-label="Open navigation menu" aria-expanded={expanded} aria-controls="portal-mobile-nav" className="rounded-lg p-2 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] md:hidden">
         <Menu className="h-5 w-5" />
       </button>
       <h1 className="text-base font-semibold text-[var(--color-dark)]">{portalNavTitle(pathname)}</h1>
@@ -377,6 +379,16 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
   const [authError, setAuthError] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const prevMobileOpen = useRef(false);
+
+  // Return focus to the hamburger when the drawer closes, so keyboard users
+  // land back on the control that opened it (WCAG 2.4.3). Skip the initial
+  // mount (false -> false) and only act on a true -> false transition.
+  useEffect(() => {
+    if (prevMobileOpen.current && !mobileOpen) toggleRef.current?.focus();
+    prevMobileOpen.current = mobileOpen;
+  }, [mobileOpen]);
 
   useEffect(() => {
     if (!session) {
@@ -464,7 +476,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen overflow-hidden bg-[var(--color-light)]">
         <Sidebar client={client} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} showOnboarding={showOnboarding} />
         <div className="flex flex-1 flex-col overflow-hidden">
-          <PortalHeader client={client} onToggle={() => { haptic("light"); setMobileOpen((v) => !v); }} onLogout={handleLogout} expanded={mobileOpen} />
+          <PortalHeader client={client} onToggle={() => { haptic("light"); setMobileOpen((v) => !v); }} onLogout={handleLogout} expanded={mobileOpen} toggleRef={toggleRef} />
           <main id="portal-main" tabIndex={-1} className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</main>
         </div>
         <PortalBottomTabs onMore={() => { haptic("light"); setMobileOpen(true); }} />
