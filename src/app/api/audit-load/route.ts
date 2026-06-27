@@ -7,6 +7,8 @@ import {
   corsResponse,
 } from "@/lib/api-helpers";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sendEmail, SENDERS } from "@/lib/email";
+import { escapeHtml } from "@/lib/validation";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -47,50 +49,46 @@ export async function GET(req: NextRequest) {
       })
       .catch((err) => console.error("[audit_view] Fire-and-forget failed:", err));
 
-    // View-based notification emails
-    const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey) {
+    // View-based notification emails via the canonical email layer: validates,
+    // retries, honors EMAIL_DRY_RUN / EMAIL_REDIRECT_TO, skips cleanly when
+    // RESEND_API_KEY is unset, and dedups on idempotencyKey — which matters here
+    // because the view increment is fire-and-forget, so a fast double-load could
+    // otherwise fire two "first view" alerts.
+    {
       const auditJson = record.audit_json as Record<string, unknown> | null;
-      const overallScore = auditJson?.overallScore ?? "N/A";
-      const facilityName = record.facility_name || "Unknown Facility";
+      const overallScore = escapeHtml(String(auditJson?.overallScore ?? "N/A"));
+      const facilityName = escapeHtml(record.facility_name || "Unknown Facility");
+      const adminEmail = process.env.ADMIN_EMAIL || "blake@storageads.com";
+      const auditUrl = `https://storageads.com/audit/${slug}`;
 
       if (currentViews === 0) {
         // First view — operator just opened their audit
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${resendKey}`,
-          },
-          body: JSON.stringify({
-            from: "StorageAds <notifications@storageads.com>",
-            to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-            subject: `Audit Opened: ${facilityName} (Score: ${overallScore}/100)`,
-            html: `
+        void sendEmail({
+          from: SENDERS.notifications,
+          to: adminEmail,
+          subject: `Audit Opened: ${facilityName} (Score: ${overallScore}/100)`,
+          tags: [{ name: "type", value: "audit_first_view" }],
+          idempotencyKey: `audit-first-view:${record.id}`,
+          html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="margin: 0 0 12px; color: #1a1a1a;">Audit First View</h2>
                 <p style="color: #333; font-size: 15px;">${facilityName} just opened their diagnostic audit for the first time.</p>
                 <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
                   <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Facility</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${facilityName}</strong></td></tr>
                   <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Score</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${overallScore}/100</strong></td></tr>
-                  <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Audit Link</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><a href="https://storageads.com/audit/${slug}">View Audit</a></td></tr>
+                  <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Audit Link</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><a href="${auditUrl}">View Audit</a></td></tr>
                 </table>
               </div>`,
-          }),
-        }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
+        }).catch((err) => console.error("[audit-load] first-view notify failed:", err));
       } else if (currentViews + 1 >= 3 && currentViews < 3) {
         // Just hit 3 views — hot lead signal (only fire once when crossing threshold)
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${resendKey}`,
-          },
-          body: JSON.stringify({
-            from: "StorageAds <notifications@storageads.com>",
-            to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-            subject: `Hot Lead: ${facilityName} — ${currentViews + 1} audit views`,
-            html: `
+        void sendEmail({
+          from: SENDERS.notifications,
+          to: adminEmail,
+          subject: `Hot Lead: ${facilityName} — ${currentViews + 1} audit views`,
+          tags: [{ name: "type", value: "audit_hot_lead" }],
+          idempotencyKey: `audit-hot-lead:${record.id}`,
+          html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="margin: 0 0 12px; color: #1a1a1a;">Hot Lead Alert</h2>
                 <p style="color: #333; font-size: 15px;">${facilityName} has viewed their audit <strong>${currentViews + 1} times</strong> — this is a hot lead.</p>
@@ -101,8 +99,7 @@ export async function GET(req: NextRequest) {
                 </table>
                 <p style="margin-top: 16px; color: #333;">Consider reaching out — they're engaged with the report.</p>
               </div>`,
-          }),
-        }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
+        }).catch((err) => console.error("[audit-load] hot-lead notify failed:", err));
       }
     }
 
