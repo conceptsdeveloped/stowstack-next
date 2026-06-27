@@ -7,6 +7,8 @@ import {
   buildNoiCsvRows,
   rowsToCsv,
   noiCsvFileName,
+  noiToParams,
+  paramsToNoi,
   type NoiState,
 } from "../tools/noi";
 
@@ -181,5 +183,44 @@ describe("noiCsvFileName", () => {
   it("falls back to a default when blank", () => {
     expect(noiCsvFileName("")).toBe("noi-storage.csv");
     expect(noiCsvFileName("   ")).toBe("noi-storage.csv");
+  });
+});
+
+describe("noiToParams / paramsToNoi round-trip", () => {
+  function noiState(overrides: Partial<NoiState> = {}): NoiState {
+    return { ...NOI_DEFAULTS, ...overrides };
+  }
+
+  it("round-trips numeric fields, the facility name, and the basis", () => {
+    const s = noiState({
+      facilityName: "Pawpaw Storage",
+      totalUnits: 400,
+      gpr: 600_000,
+      vacancyPct: 8,
+      payroll: 70_000,
+      capRatePct: 6,
+    });
+    const params = new URLSearchParams(
+      noiToParams(s, "monthly") as Record<string, string>,
+    );
+    expect(params.get("basis")).toBe("monthly");
+    expect(params.get("name")).toBe("Pawpaw Storage");
+
+    const parsed = paramsToNoi(params);
+    expect(parsed.facilityName).toBe("Pawpaw Storage");
+    expect(parsed.totalUnits).toBe(400);
+    expect(parsed.gpr).toBe(600_000);
+    expect(parsed.vacancyPct).toBe(8);
+    expect(parsed.payroll).toBe(70_000);
+    expect(parsed.capRatePct).toBe(6);
+  });
+
+  it("omits the name key when the facility is unnamed", () => {
+    const params = noiToParams(noiState({ facilityName: "" }), "annual");
+    expect("name" in params).toBe(false);
+  });
+
+  it("returns an empty partial when no relevant params are present", () => {
+    expect(paramsToNoi(new URLSearchParams("foo=bar"))).toEqual({});
   });
 });

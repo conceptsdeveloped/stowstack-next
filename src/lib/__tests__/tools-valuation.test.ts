@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   deriveValuation,
+  buildValuationCsvRows,
   VALUATION_DEFAULTS,
   type ValuationState,
 } from "../tools/valuation";
@@ -62,5 +63,25 @@ describe("deriveValuation", () => {
       state({ solveFor: "cap", noi: 250_000, value: v.value }),
     );
     expect(c.capPct).toBeCloseTo(5.5, 5);
+  });
+});
+
+describe("buildValuationCsvRows", () => {
+  it("returns a header row plus the key metrics with the right solve label", () => {
+    const s = state({ solveFor: "value", noi: 300_000, capPct: 6 });
+    const rows = buildValuationCsvRows(s, deriveValuation(s));
+    expect(rows[0]).toEqual(["Metric", "Value"]);
+    const solveRow = rows.find((r) => r[0] === "Solving for");
+    expect(solveRow?.[1]).toBe("Facility value");
+    const labels = rows.map((r) => r[0]);
+    expect(labels).toContain("Facility value");
+    expect(labels).toContain("Cap rate");
+  });
+
+  it("marks per-unit comps n/a when units/sqft are absent", () => {
+    const s = state({ solveFor: "value", noi: 300_000, capPct: 6 });
+    const rows = buildValuationCsvRows(s, deriveValuation(s));
+    expect(rows.find((r) => r[0] === "Value per unit")?.[1]).toBe("n/a");
+    expect(rows.find((r) => r[0] === "Value per rentable sq ft")?.[1]).toBe("n/a");
   });
 });

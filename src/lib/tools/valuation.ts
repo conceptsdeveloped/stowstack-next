@@ -3,7 +3,8 @@
  * Solve for whichever of {value, cap, noi} is unknown from the other two.
  */
 
-import { clampPct, nonNeg } from "./format";
+import { clampPct, nonNeg, usd0, usd2, pct } from "./format";
+import type { CsvRow } from "./csv";
 
 export type SolveFor = "value" | "cap" | "noi";
 
@@ -62,4 +63,29 @@ export function deriveValuation(s: ValuationState): ValuationResult {
     valuePerSqft: sqft > 0 ? value / sqft : 0,
     noiMonthly: noi / 12,
   };
+}
+
+/** Rows for the CSV export. Pure (no DOM) so it can be unit-tested. */
+export function buildValuationCsvRows(
+  s: ValuationState,
+  d: ValuationResult,
+): CsvRow[] {
+  const solveLabel =
+    s.solveFor === "value"
+      ? "Facility value"
+      : s.solveFor === "cap"
+        ? "Cap rate"
+        : "Annual NOI";
+  return [
+    ["Metric", "Value"],
+    ["Solving for", solveLabel],
+    ["Annual NOI", d.noi > 0 ? usd0(d.noi) : "n/a"],
+    ["Cap rate", d.capPct > 0 ? pct(d.capPct) : "n/a"],
+    ["Facility value", d.value > 0 ? usd0(d.value) : "n/a"],
+    ["Value per unit", s.units > 0 && d.value > 0 ? usd0(d.valuePerUnit) : "n/a"],
+    [
+      "Value per rentable sq ft",
+      s.sqft > 0 && d.value > 0 ? usd2(d.valuePerSqft) : "n/a",
+    ],
+  ];
 }

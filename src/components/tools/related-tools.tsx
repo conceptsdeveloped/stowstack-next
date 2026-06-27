@@ -32,6 +32,26 @@ const ALL_TOOLS: RelatedTool[] = [
     blurb: "Value, cap rate, or NOI from the other two.",
   },
   {
+    href: "/tools/dscr-calculator",
+    label: "DSCR & Loan Sizing",
+    blurb: "The loan your NOI supports, and the DSCR on a loan you're weighing.",
+  },
+  {
+    href: "/tools/lease-up-calculator",
+    label: "Lease-Up & Stabilization",
+    blurb: "Months to stabilized occupancy from your move-in pace and churn.",
+  },
+  {
+    href: "/tools/expansion-calculator",
+    label: "Expansion ROI",
+    blurb: "Yield on cost vs cap rate on units you're thinking of building.",
+  },
+  {
+    href: "/tools/concession-calculator",
+    label: "Concession True-Cost",
+    blurb: "What a free month really costs over a tenant's lifetime.",
+  },
+  {
     href: "/calculator",
     label: "Marketing ROI Calculator",
     blurb: "Move-ins and return on ad spend from your budget.",

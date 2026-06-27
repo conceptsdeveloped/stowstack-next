@@ -2029,3 +2029,73 @@ model photo_refresh_prompts {
   @@unique([facility_id, prompt_month])
   @@index([status, prompt_sent_at], map: "idx_photo_prompts_due")
 }
+
+// ─── Rich changelog (developer commit log) ───
+// Admin-only commit log synced from GitHub with AI-generated summaries.
+// Restored from 2a5eb19~1; the original prod tables were left in place when the
+// schema models were deleted, so these bind back to the existing tables.
+
+model commit_enrichments {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash       String    @unique
+  subject           String?
+  body              String?
+  dev_note          String?
+  dev_name          String?
+  commit_type       String?   @default("improvement")
+  laymans_summary   String?
+  technical_summary String?
+  committed_at      DateTime? @db.Timestamptz(6)
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@index([commit_hash], map: "idx_commit_enrichments_hash")
+}
+
+model commit_flags {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash String
+  flag_type   String
+  reason      String?  @default("")
+  flagged_by  String
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([commit_hash], map: "idx_commit_flags_hash")
+}
+
+model commit_reviews {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash String
+  reviewed_by String
+  status      String   @default("reviewed")
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([commit_hash, reviewed_by], map: "idx_commit_reviews_unique")
+}
+
+model deployment_tags {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commit_hash String
+  environment String   @default("production")
+  deployed_by String
+  version     String?
+  notes       String?
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([environment], map: "idx_deployment_tags_env")
+  @@index([commit_hash], map: "idx_deployment_tags_hash")
+}
+
+model dev_handoffs {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  from_dev    String
+  to_dev      String?
+  title       String
+  body        String
+  commit_hash String?
+  status      String   @default("active")
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@index([status], map: "idx_dev_handoffs_status")
+}

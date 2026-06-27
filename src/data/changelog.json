@@ -1,6 +1,153 @@
 {
   "entries": [
     {
+      "id": "66c7c52377",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Facility lookup + autofill on Quick Diagnostic"
+    },
+    {
+      "id": "1522107479",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Add Quick Diagnostic to the admin nav"
+    },
+    {
+      "id": "693295fcec",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "audit",
+      "title": "One-step diagnostic generation from public data"
+    },
+    {
+      "id": "553d340e90",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "admin",
+      "title": "Repair the undefined --burgundy token in the facility chooser"
+    },
+    {
+      "id": "3111195f7b",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "pricing",
+      "title": "Align stale tier names to canonical Launch/Growth/Portfolio + test the lead-capture path"
+    },
+    {
+      "id": "9ec3fbf1d0",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "admin",
+      "title": "Keep Facility Manager as the portfolio chooser under sticky scope"
+    },
+    {
+      "id": "e09c0f40f6",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "funnel",
+      "title": "Repair audit-tool lead capture + CSRF-gated funnel hops"
+    },
+    {
+      "id": "36525683ca",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "admin",
+      "title": "Make the active facility scope survive navigation"
+    },
+    {
+      "id": "a7994d4aaa",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "email",
+      "title": "Add centralized email layer with validation, retry, and tests"
+    },
+    {
+      "id": "6bff68767e",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "audit",
+      "title": "Add conversion-funnel + operator-alignment to diagnostic"
+    },
+    {
+      "id": "0048afa024",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Contextual facility scope flow for the admin shell"
+    },
+    {
+      "id": "3eb9d969f8",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": null,
+      "title": "Resolve merge artifacts from mass branch merge"
+    },
+    {
+      "id": "3482ec778c",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "blog",
+      "title": "Related posts on each article by shared tags + pillar"
+    },
+    {
+      "id": "8e55b87ca7",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "partner",
+      "title": "Wire partner revenue-share backend end to end"
+    },
+    {
+      "id": "8751fc6c6b",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "blog",
+      "title": "Link post tags and pillar into the filtered index"
+    },
+    {
+      "id": "cb9569561d",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "ecri",
+      "title": "Street_rate fallback so the finder works before sensitivity scoring"
+    },
+    {
+      "id": "a297eb25af",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "blog",
+      "title": "Full search/filter/sort blog system on the index"
+    },
+    {
+      "id": "26577d4a5c",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "safety",
+      "title": "Scope data-loss guard to command surfaces, not changelog prose"
+    },
+    {
+      "id": "06abf6b086",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "ecri",
+      "title": "Land street_rate fallback that a prior race dropped from the engine"
+    },
+    {
+      "id": "04b8a31a48",
+      "date": "2026-06-26",
+      "category": "fix",
+      "scope": "billing",
+      "title": "Persist stripe_subscription_id so deleted orgs stop billing"
+    },
+    {
+      "id": "322feca5d2",
+      "date": "2026-06-26",
+      "category": "feature",
+      "scope": "ecri",
+      "title": "Fall back to posted street_rate when no sensitivity score exists"
+    },
+    {
       "id": "9c9579e726",
       "date": "2026-06-26",
       "category": "fix",
@@ -288,6 +435,48 @@
       "title": "Move Cost of Inaction onto its own /cost-of-inaction page"
     },
     {
+      "id": "ef864e4ed1",
+      "date": "2026-05-29",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Owner-scope the deferred write + dual-auth routes"
+    },
+    {
+      "id": "fecda3afef",
+      "date": "2026-05-29",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Extend owner auth to remaining tool routes"
+    },
+    {
+      "id": "38be4a48f0",
+      "date": "2026-05-29",
+      "category": "fix",
+      "scope": "env",
+      "title": "Don't 500 the whole preview when non-critical env vars are unset"
+    },
+    {
+      "id": "78ca5e2d70",
+      "date": "2026-05-28",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Phase 1b — gate facility-tool routes with requireFacilityAccess"
+    },
+    {
+      "id": "3c1acc5dda",
+      "date": "2026-05-28",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Phase 1a — collapse session to httpOnly cookie"
+    },
+    {
+      "id": "5fedab508b",
+      "date": "2026-05-28",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Phase 0 — port /manage owner slice onto clean branch"
+    },
+    {
       "id": "74542fbb3b",
       "date": "2026-05-28",
       "category": "feature",
@@ -321,6 +510,90 @@
       "category": "fix",
       "scope": "hero",
       "title": "Mobile overlap on iPhone 17 Pro Max (nav, status strip, typewriter)"
+    },
+    {
+      "id": "457bb84c43",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Full tabbed dashboard — all 21 tools on the owner shell (Task 7)"
+    },
+    {
+      "id": "c268af4d2f",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Owner writes across remaining facility tools (Task 6 write pass 2)"
+    },
+    {
+      "id": "a4ba2c7afe",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Owner writes for funnels + social-posts (Task 6 write pass 1)"
+    },
+    {
+      "id": "933f6c26c5",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Scope tenants/utm-links/churn-predictions reads to facility access (Task 6 batch 3)"
+    },
+    {
+      "id": "3b3f44b451",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Scope facility tool APIs to requireFacilityAccess (Task 6 batch 2)"
+    },
+    {
+      "id": "be5bee4a92",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Scope occupancy-intelligence + revenue-intelligence to facility access (Task 6 batch 1)"
+    },
+    {
+      "id": "4ef891d284",
+      "date": "2026-05-27",
+      "category": "fix",
+      "scope": "manage",
+      "title": "Temp fallback to ADMIN_SECRET for scratch invite gate"
+    },
+    {
+      "id": "a849b97c82",
+      "date": "2026-05-27",
+      "category": "fix",
+      "scope": "manage",
+      "title": "Allow same-origin requests in verifyCsrfOrigin"
+    },
+    {
+      "id": "ad8ccaa3ec",
+      "date": "2026-05-27",
+      "category": "fix",
+      "scope": "manage",
+      "title": "Use imported FormEvent type at call sites (build fix)"
+    },
+    {
+      "id": "d5f39e496c",
+      "date": "2026-05-27",
+      "category": "fix",
+      "scope": "manage",
+      "title": "Resolve build errors (React namespace import, unused var)"
+    },
+    {
+      "id": "2dcc640bb0",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "manage",
+      "title": "/manage owner entry + Facility Overview vertical slice"
+    },
+    {
+      "id": "458359720c",
+      "date": "2026-05-27",
+      "category": "feature",
+      "scope": "manage",
+      "title": "Facility-scoped manage session + requireFacilityAccess guard"
     },
     {
       "id": "6a5ffa6080",
@@ -499,6 +772,20 @@
     },
     {
       "id": "9a6e3d8d1c",
+      "date": "2026-05-04",
+      "category": "fix",
+      "scope": "hero",
+      "title": "Stop §00·NUMBERS card headers from overlapping on mobile"
+    },
+    {
+      "id": "e851d42479",
+      "date": "2026-05-04",
+      "category": "fix",
+      "scope": "hero",
+      "title": "Bulletproof stat-cell header layout + tighten channel chart"
+    },
+    {
+      "id": "a916069048",
       "date": "2026-05-04",
       "category": "fix",
       "scope": "hero",

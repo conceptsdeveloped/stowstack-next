@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 import ToolHeader, { ToolCta } from "@/components/tools/tool-header";
 import RelatedTools from "@/components/tools/related-tools";
+import { ShareButton, CsvButton, ResetButton } from "@/components/tools/tool-toolbar";
 import {
   MoneyField,
   PercentField,
@@ -18,7 +19,13 @@ import {
   pct,
   clampPct,
 } from "@/components/tools/fields";
-import { deriveRateIncrease } from "@/lib/tools/rate-increase";
+import {
+  deriveRateIncrease,
+  buildRateIncreaseCsvRows,
+} from "@/lib/tools/rate-increase";
+import { csvFileName } from "@/lib/tools/csv";
+import { numParam, hasAnyParam } from "@/lib/tools/share";
+import { RATE_INCREASE_FAQS } from "@/lib/tools/faqs";
 
 /* ──────────────────────────────────────────────────────────────────────────
    Existing-customer rate increase (ECRI) impact. Math lives in
@@ -32,10 +39,34 @@ export default function RateIncreaseClient() {
   const [churnPct, setChurnPct] = useState(4);
   const [capRatePct, setCapRatePct] = useState(6.5);
 
+  // Seed from a shared link's query params once on mount (post-hydration).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (
+      !hasAnyParam(params, [
+        "occupied",
+        "currentRate",
+        "increasePct",
+        "churnPct",
+        "capRatePct",
+      ])
+    )
+      return;
+    /* eslint-disable react-hooks/set-state-in-effect -- one-time seed from a shared link, not a render loop */
+    if (params.has("occupied")) setOccupied(numParam(params, "occupied"));
+    if (params.has("currentRate")) setCurrentRate(numParam(params, "currentRate"));
+    if (params.has("increasePct")) setIncreasePct(numParam(params, "increasePct", 8));
+    if (params.has("churnPct")) setChurnPct(numParam(params, "churnPct", 4));
+    if (params.has("capRatePct")) setCapRatePct(numParam(params, "capRatePct", 6.5));
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
   const inc = clampPct(increasePct);
   const churn = clampPct(churnPct);
   const cap = clampPct(capRatePct);
 
+  const state = { occupied, currentRate, increasePct, churnPct, capRatePct };
+  const result = deriveRateIncrease(state);
   const {
     newRate,
     perUnitIncrease,
@@ -47,15 +78,19 @@ export default function RateIncreaseClient() {
     grossAnnualLift,
     breakEvenChurnPct: breakEvenChurn,
     valueLift,
-  } = deriveRateIncrease({
-    occupied,
-    currentRate,
-    increasePct,
-    churnPct,
-    capRatePct,
-  });
+  } = result;
 
   const hasInputs = occupied > 0 && currentRate > 0;
+  const shareParams = state;
+  const csvRows = buildRateIncreaseCsvRows(state, result);
+
+  const reset = () => {
+    setOccupied(0);
+    setCurrentRate(0);
+    setIncreasePct(8);
+    setChurnPct(4);
+    setCapRatePct(6.5);
+  };
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-light)" }}>
@@ -85,6 +120,12 @@ export default function RateIncreaseClient() {
             rate: how many tenants could leave before the increase stops paying
             off. The math runs in your browser.
           </p>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 mb-6 print:hidden">
+          <ShareButton params={shareParams} />
+          <CsvButton rows={csvRows} filename={csvFileName("rate-increase")} />
+          <ResetButton onReset={reset} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8 items-start">
@@ -121,7 +162,7 @@ export default function RateIncreaseClient() {
                 />
                 <PercentField
                   label="Expected move-outs from the increase"
-                  help="Share of these tenants you expect to leave because of it. Storage ECRI churn is often low — a few percent."
+                  help="Share of these tenants you expect to leave because of it. Storage ECRI churn is often low, a few percent."
                   value={churnPct}
                   onChange={setChurnPct}
                 />
@@ -156,7 +197,7 @@ export default function RateIncreaseClient() {
               >
                 Net annual revenue lift
               </span>
-              <div className="mt-2 mb-1">
+              <div className="mt-2 mb-1" role="status" aria-live="polite">
                 <span
                   className="text-4xl font-bold tabular-nums"
                   style={{
@@ -164,6 +205,7 @@ export default function RateIncreaseClient() {
                       netAnnualLift < 0 ? "var(--color-red)" : "var(--color-light)",
                     letterSpacing: "-0.03em",
                   }}
+                  aria-label={`Net annual revenue lift: ${usd0(netAnnualLift)}`}
                 >
                   {usd0(netAnnualLift)}
                 </span>
@@ -281,30 +323,11 @@ export default function RateIncreaseClient() {
             How to read this
           </h2>
           <div className="flex flex-col gap-6">
-            <Faq q="What's a break-even move-out rate?">
-              It&apos;s the share of tenants who could leave before the increase
-              nets you zero. For an X% increase it works out to X ÷ (100 + X). An
-              8% increase break-evens at about 7.4% move-outs — so as long as
-              fewer than ~7 in 100 leave, you&apos;re ahead.
-            </Faq>
-            <Faq q="Why does the model assume vacated units sit empty?">
-              To keep the number conservative. In practice you backfill many
-              vacated units at street rate — often higher than the rate the
-              leaving tenant paid — so real lift usually beats this floor. We&apos;d
-              rather under-promise.
-            </Faq>
-            <Faq q="Why do rate increases beat chasing new move-ins?">
-              An increase has no acquisition cost and flows almost entirely to
-              NOI. The risk is purely move-outs, which is why the safe way to push
-              ECRIs harder is to keep your marketing funnel full enough to replace
-              anyone who leaves.
-            </Faq>
-            <Faq q="How often can I raise rates?">
-              Many operators run ECRIs on a rolling 6–12 month cadence per tenant,
-              subject to your state&apos;s notice rules and any local caps. This
-              tool models a single increase event; check local regulations before
-              scheduling.
-            </Faq>
+            {RATE_INCREASE_FAQS.map((f) => (
+              <Faq key={f.q} q={f.q}>
+                {f.a}
+              </Faq>
+            ))}
           </div>
 
           <div className="mt-12">

@@ -5,6 +5,8 @@ import { ArrowRight, Download, Printer, RotateCcw, Info } from "lucide-react";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 import ToolHeader, { ToolCta } from "@/components/tools/tool-header";
 import RelatedTools from "@/components/tools/related-tools";
+import { ShareButton } from "@/components/tools/tool-toolbar";
+import ToolHandoff, { type HandoffLink } from "@/components/tools/tool-handoff";
 import {
   MoneyField,
   PercentField,
@@ -26,8 +28,12 @@ import {
   buildNoiCsvRows,
   rowsToCsv,
   noiCsvFileName,
+  noiToParams,
+  paramsToNoi,
   type NoiState,
+  type NoiResult,
 } from "@/lib/tools/noi";
+import { NOI_FAQS } from "@/lib/tools/faqs";
 
 /* ──────────────────────────────────────────────────────────────────────────
    Self-storage NOI calculator
@@ -53,16 +59,26 @@ export default function NoiCalculatorClient() {
   const [basis, setBasis] = useState<Basis>("annual");
   const [loaded, setLoaded] = useState(false);
 
-  // Load persisted state once on mount. Must run in an effect (not a lazy
-  // initializer) so server and first client render both start from NOI_DEFAULTS
-  // and hydration matches; localStorage is then read client-side only.
+  // Seed state once on mount. Must run in an effect (not a lazy initializer)
+  // so server and first client render both start from NOI_DEFAULTS and
+  // hydration matches. A shared link's query params win over localStorage so a
+  // link always reopens the exact numbers it encodes.
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- one-time seed from a link or localStorage, not a render loop */
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = paramsToNoi(params);
+    if (Object.keys(fromUrl).length > 0) {
+      setS({ ...NOI_DEFAULTS, ...fromUrl });
+      const b = params.get("basis");
+      if (b === "monthly" || b === "annual") setBasis(b);
+      setLoaded(true);
+      return;
+    }
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === "object") {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setS({ ...NOI_DEFAULTS, ...parsed.state });
           if (parsed.basis === "monthly" || parsed.basis === "annual")
             setBasis(parsed.basis);
@@ -72,6 +88,7 @@ export default function NoiCalculatorClient() {
       /* ignore corrupt storage */
     }
     setLoaded(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   useEffect(() => {
@@ -105,6 +122,9 @@ export default function NoiCalculatorClient() {
       localStorage.removeItem(STORAGE_KEY);
     } catch {
       /* ignore */
+    }
+    if (typeof window !== "undefined" && window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
     }
   }, []);
 
@@ -180,6 +200,7 @@ export default function NoiCalculatorClient() {
             ))}
           </div>
           <div className="flex items-center gap-2">
+            <ShareButton params={noiToParams(s, basis)} />
             <ToolbarButton onClick={downloadCsv} icon={<Download className="h-4 w-4" />}>
               CSV
             </ToolbarButton>
@@ -269,7 +290,7 @@ export default function NoiCalculatorClient() {
             <SectionCard
               step="Step 3"
               title="Operating expenses"
-              subtitle="Storage-specific operating costs only. Leave out your mortgage, capital improvements, depreciation, and income taxes — those sit below NOI."
+              subtitle="Storage-specific operating costs only. Leave out your mortgage, capital improvements, depreciation, and income taxes, which sit below NOI."
             >
               <div className="mb-5">
                 <PercentField
@@ -327,13 +348,14 @@ export default function NoiCalculatorClient() {
               >
                 Your NOI
               </span>
-              <div className="mt-2 mb-1">
+              <div className="mt-2 mb-1" role="status" aria-live="polite">
                 <span
                   className="text-4xl font-bold tabular-nums"
                   style={{
                     color: d.noi < 0 ? "var(--color-red)" : "var(--color-light)",
                     letterSpacing: "-0.03em",
                   }}
+                  aria-label={`Your NOI: ${usd0(d.noi / divisor)} ${basisLabel}`}
                 >
                   {usd0(d.noi / divisor)}
                 </span>
@@ -403,6 +425,15 @@ export default function NoiCalculatorClient() {
                 the line StorageAds is built to move.
               </p>
             </div>
+
+            {/* Cross-tool handoff — carry this NOI into the next calculation */}
+            {d.noi > 0 && (
+              <ToolHandoff
+                title="Use this NOI"
+                subtitle={`Carry ${usd0(d.noi)}/yr into the next calculation. Your numbers come pre-filled.`}
+                links={noiHandoffLinks(s, d)}
+              />
+            )}
 
             {/* P&L breakdown */}
             <div
@@ -484,41 +515,11 @@ export default function NoiCalculatorClient() {
             How NOI works for storage
           </h2>
           <div className="flex flex-col gap-6">
-            <Faq q="What exactly is NOI?">
-              Net operating income is your effective gross income minus your
-              operating expenses. It is the cash the property throws off before
-              financing and taxes. Formula: EGI − operating expenses = NOI.
-            </Faq>
-            <Faq q="What is effective gross income (EGI)?">
-              Gross potential rent (every unit full at street rate) minus vacancy
-              and credit loss, plus other income like tenant insurance
-              commissions, late fees, admin fees, retail, and truck rental. It is
-              the income you actually collect.
-            </Faq>
-            <Faq q="Which expenses belong in NOI?">
-              Only operating costs of running the facility: payroll, property
-              taxes, insurance, utilities, repairs, marketing, management fees,
-              office/software, processing fees, security, grounds, and
-              professional fees. Keep them storage-specific.
-            </Faq>
-            <Faq q="What should I leave out?">
-              Your mortgage and interest, capital expenditures (new roof, paving,
-              door replacement), depreciation, amortization, and income taxes.
-              Those sit below NOI. Folding them in understates your NOI and
-              distorts your valuation.
-            </Faq>
-            <Faq q="How does NOI drive my facility's value?">
-              Buyers value storage on a cap rate: value = NOI ÷ cap rate. At a
-              6.5% cap, every extra $10,000 of annual NOI adds roughly $154,000 of
-              value. Filling units and raising rates is the fastest lever, which
-              is exactly what marketing should be measured against.
-            </Faq>
-            <Faq q="What's a healthy expense ratio?">
-              Self-storage operating expense ratios commonly land in the 35–45%
-              range of EGI, varying with management model, climate control, taxes,
-              and market. Your number is a starting point for a conversation, not
-              a verdict.
-            </Faq>
+            {NOI_FAQS.map((f) => (
+              <Faq key={f.q} q={f.q}>
+                {f.a}
+              </Faq>
+            ))}
           </div>
 
           <div className="mt-12">
@@ -570,6 +571,39 @@ function Subtotal({
       </span>
     </div>
   );
+}
+
+/* Build the deep links that carry this NOI (and any facility detail we have)
+   into the Valuation, DSCR, and Break-Even tools, pre-filled via URL params. */
+function noiHandoffLinks(s: NoiState, d: NoiResult): HandoffLink[] {
+  const noi = Math.round(d.noi);
+  const links: HandoffLink[] = [
+    {
+      href: `/tools/valuation-calculator?solveFor=value&noi=${noi}&capPct=${s.capRatePct}${
+        s.totalUnits > 0 ? `&units=${s.totalUnits}` : ""
+      }${s.rentableSqft > 0 ? `&sqft=${s.rentableSqft}` : ""}`,
+      label: "Value it at a cap rate",
+    },
+    {
+      href: `/tools/dscr-calculator?mode=size&noi=${noi}&targetDscr=1.25&interestRatePct=6.5&amortYears=25${
+        s.capRatePct > 0 && d.impliedValue > 0
+          ? `&purchasePrice=${Math.round(d.impliedValue)}`
+          : ""
+      }`,
+      label: "Size a loan against it",
+    },
+  ];
+  // Break-even needs total units, an average monthly rate, and monthly opex —
+  // all derivable here once we know units, gross potential rent, and opex.
+  if (s.totalUnits > 0 && s.gpr > 0 && d.opexTotal > 0) {
+    const avgMonthlyRate = Math.round(s.gpr / s.totalUnits / 12);
+    const monthlyOpex = Math.round(d.opexTotal / 12);
+    links.push({
+      href: `/tools/break-even-occupancy?totalUnits=${s.totalUnits}&avgRate=${avgMonthlyRate}&monthlyOpex=${monthlyOpex}`,
+      label: "Find its break-even occupancy",
+    });
+  }
+  return links;
 }
 
 function ToolbarButton({

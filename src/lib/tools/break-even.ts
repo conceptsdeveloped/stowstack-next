@@ -6,7 +6,8 @@
  *   units = monthly cost / average monthly rate
  */
 
-import { nonNeg } from "./format";
+import { nonNeg, usd0, pct } from "./format";
+import type { CsvRow } from "./csv";
 
 export interface BreakEvenState {
   totalUnits: number;
@@ -63,4 +64,43 @@ export function deriveBreakEven(s: BreakEvenState): BreakEvenResult {
     cushionUnits,
     cushionPct,
   };
+}
+
+/** Rows for the CSV export. Pure (no DOM) so it can be unit-tested. */
+export function buildBreakEvenCsvRows(
+  s: BreakEvenState,
+  d: BreakEvenResult,
+): CsvRow[] {
+  const units = (n: number) => String(Math.ceil(Math.max(0, n)));
+  return [
+    ["Metric", "Value"],
+    ["Total units", String(Math.round(nonNeg(s.totalUnits)))],
+    ["Average monthly rate", usd0(s.avgRate)],
+    ["Monthly operating expenses", usd0(s.monthlyOpex)],
+    ["Monthly debt service", usd0(s.monthlyDebt)],
+    ["Operating break-even units", units(d.opBreakEvenUnits)],
+    [
+      "Operating break-even occupancy",
+      s.totalUnits > 0 ? pct(d.opBreakEvenPct) : "n/a",
+    ],
+    ["All-in break-even units", units(d.allInBreakEvenUnits)],
+    [
+      "All-in break-even occupancy",
+      s.totalUnits > 0 ? pct(d.allInBreakEvenPct) : "n/a",
+    ],
+    [
+      "Currently occupied units",
+      s.currentOccupied > 0 ? String(Math.round(nonNeg(s.currentOccupied))) : "n/a",
+    ],
+    [
+      "Current occupancy",
+      s.currentOccupied > 0 && s.totalUnits > 0 ? pct(d.currentPct) : "n/a",
+    ],
+    [
+      "Cushion above all-in break-even (units)",
+      s.currentOccupied > 0 && s.totalUnits > 0
+        ? String(Math.round(d.cushionUnits))
+        : "n/a",
+    ],
+  ];
 }

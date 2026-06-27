@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 import ToolHeader, { ToolCta } from "@/components/tools/tool-header";
 import RelatedTools from "@/components/tools/related-tools";
+import { ShareButton, CsvButton, ResetButton } from "@/components/tools/tool-toolbar";
 import {
   MoneyField,
   PlainNumber,
@@ -15,7 +16,10 @@ import {
   usd0,
   pct,
 } from "@/components/tools/fields";
-import { deriveBreakEven } from "@/lib/tools/break-even";
+import { deriveBreakEven, buildBreakEvenCsvRows } from "@/lib/tools/break-even";
+import { csvFileName } from "@/lib/tools/csv";
+import { numParam, hasAnyParam } from "@/lib/tools/share";
+import { BREAK_EVEN_FAQS } from "@/lib/tools/faqs";
 
 /* ──────────────────────────────────────────────────────────────────────────
    Break-even occupancy. Math lives in @/lib/tools/break-even (pure,
@@ -29,6 +33,37 @@ export default function BreakEvenClient() {
   const [monthlyDebt, setMonthlyDebt] = useState(0);
   const [currentOccupied, setCurrentOccupied] = useState(0);
 
+  // Seed from a shared link's query params once on mount (post-hydration).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (
+      !hasAnyParam(params, [
+        "totalUnits",
+        "avgRate",
+        "monthlyOpex",
+        "monthlyDebt",
+        "currentOccupied",
+      ])
+    )
+      return;
+    /* eslint-disable react-hooks/set-state-in-effect -- one-time seed from a shared link, not a render loop */
+    if (params.has("totalUnits")) setTotalUnits(numParam(params, "totalUnits"));
+    if (params.has("avgRate")) setAvgRate(numParam(params, "avgRate"));
+    if (params.has("monthlyOpex")) setMonthlyOpex(numParam(params, "monthlyOpex"));
+    if (params.has("monthlyDebt")) setMonthlyDebt(numParam(params, "monthlyDebt"));
+    if (params.has("currentOccupied"))
+      setCurrentOccupied(numParam(params, "currentOccupied"));
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
+  const state = {
+    totalUnits,
+    avgRate,
+    monthlyOpex,
+    monthlyDebt,
+    currentOccupied,
+  };
+  const result = deriveBreakEven(state);
   const {
     opBreakEvenUnits,
     allInBreakEvenUnits,
@@ -37,15 +72,19 @@ export default function BreakEvenClient() {
     currentPct,
     cushionUnits,
     cushionPct,
-  } = deriveBreakEven({
-    totalUnits,
-    avgRate,
-    monthlyOpex,
-    monthlyDebt,
-    currentOccupied,
-  });
+  } = result;
 
+  const shareParams = state;
+  const csvRows = buildBreakEvenCsvRows(state, result);
   const hasCore = avgRate > 0 && monthlyOpex > 0;
+
+  const reset = () => {
+    setTotalUnits(0);
+    setAvgRate(0);
+    setMonthlyOpex(0);
+    setMonthlyDebt(0);
+    setCurrentOccupied(0);
+  };
   const hasCurrent = currentOccupied > 0 && totalUnits > 0;
   const above = cushionUnits >= 0;
 
@@ -79,6 +118,12 @@ export default function BreakEvenClient() {
             covers operating expenses — and the higher one that covers your loan
             too. Then see how much cushion you have above it today.
           </p>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 mb-6 print:hidden">
+          <ShareButton params={shareParams} />
+          <CsvButton rows={csvRows} filename={csvFileName("break-even")} />
+          <ResetButton onReset={reset} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8 items-start">
@@ -148,10 +193,13 @@ export default function BreakEvenClient() {
               >
                 All-in break-even occupancy
               </span>
-              <div className="mt-2 mb-1">
+              <div className="mt-2 mb-1" role="status" aria-live="polite">
                 <span
                   className="text-4xl font-bold tabular-nums"
                   style={{ color: "var(--color-light)", letterSpacing: "-0.03em" }}
+                  aria-label={`All-in break-even occupancy: ${
+                    hasCore && totalUnits > 0 ? pct(allInBreakEvenPct) : "not set"
+                  }`}
                 >
                   {hasCore && totalUnits > 0 ? pct(allInBreakEvenPct) : "—"}
                 </span>
@@ -276,28 +324,11 @@ export default function BreakEvenClient() {
             How to read this
           </h2>
           <div className="flex flex-col gap-6">
-            <Faq q="Operating vs all-in break-even — what's the difference?">
-              Operating break-even is the occupancy that covers the cost of
-              running the facility. All-in adds your debt service, so it&apos;s
-              the occupancy you need to avoid feeding the property out of pocket.
-              All-in is the number that keeps you up at night.
-            </Faq>
-            <Faq q="Why use average rate instead of unit-by-unit?">
-              For a break-even read, blended average rate is close enough and far
-              simpler. If your mix is unusual, run it with a conservative average
-              and treat the result as a floor.
-            </Faq>
-            <Faq q="What's a comfortable cushion?">
-              The bigger the gap between current occupancy and all-in break-even,
-              the more resilient you are to a soft quarter or a rate war. A thin
-              cushion means a few move-outs can flip you cash-flow negative — that
-              is exactly when filling units fast matters most.
-            </Faq>
-            <Faq q="Does this include capital expenditures?">
-              No. Break-even here is operating costs plus debt. Big one-time
-              capital projects (paving, roofs, door replacement) sit outside this
-              and should be reserved for separately.
-            </Faq>
+            {BREAK_EVEN_FAQS.map((f) => (
+              <Faq key={f.q} q={f.q}>
+                {f.a}
+              </Faq>
+            ))}
           </div>
 
           <div className="mt-12">

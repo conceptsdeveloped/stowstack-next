@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 import ToolHeader, { ToolCta } from "@/components/tools/tool-header";
 import RelatedTools from "@/components/tools/related-tools";
+import { ShareButton, CsvButton, ResetButton } from "@/components/tools/tool-toolbar";
+import ToolHandoff from "@/components/tools/tool-handoff";
 import {
   MoneyField,
   PercentField,
@@ -17,7 +19,14 @@ import {
   usd2,
   pct,
 } from "@/components/tools/fields";
-import { deriveValuation, type SolveFor } from "@/lib/tools/valuation";
+import {
+  deriveValuation,
+  buildValuationCsvRows,
+  type SolveFor,
+} from "@/lib/tools/valuation";
+import { csvFileName } from "@/lib/tools/csv";
+import { numParam, hasAnyParam } from "@/lib/tools/share";
+import { VALUATION_FAQS } from "@/lib/tools/faqs";
 
 /* ──────────────────────────────────────────────────────────────────────────
    Storage valuation by cap rate.   value = NOI / cap rate
@@ -38,6 +47,25 @@ export default function ValuationClient() {
   const [units, setUnits] = useState(0);
   const [sqft, setSqft] = useState(0);
 
+  // Seed from a shared link's query params once on mount. Runs in an effect
+  // (after hydration) so server and first client render both start from the
+  // defaults and hydration matches.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!hasAnyParam(params, ["solveFor", "noi", "value", "capPct", "units", "sqft"]))
+      return;
+    const sf = params.get("solveFor");
+    /* eslint-disable react-hooks/set-state-in-effect -- one-time seed from a shared link, not a render loop */
+    if (sf === "value" || sf === "cap" || sf === "noi") setSolveFor(sf);
+    if (params.has("noi")) setNoi(numParam(params, "noi"));
+    if (params.has("value")) setValue(numParam(params, "value"));
+    if (params.has("capPct")) setCapPct(numParam(params, "capPct", 6.5));
+    if (params.has("units")) setUnits(numParam(params, "units"));
+    if (params.has("sqft")) setSqft(numParam(params, "sqft"));
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
+  const valuation = deriveValuation({ solveFor, noi, value, capPct, units, sqft });
   const {
     noi: rNoi,
     value: rValue,
@@ -45,7 +73,7 @@ export default function ValuationClient() {
     valuePerUnit,
     valuePerSqft,
     noiMonthly,
-  } = deriveValuation({ solveFor, noi, value, capPct, units, sqft });
+  } = valuation;
 
   const answer =
     solveFor === "value"
@@ -59,6 +87,21 @@ export default function ValuationClient() {
       : solveFor === "cap"
         ? "Implied cap rate"
         : "Implied annual NOI";
+
+  const shareParams = { solveFor, noi, value, capPct, units, sqft };
+  const csvRows = buildValuationCsvRows(
+    { solveFor, noi, value, capPct, units, sqft },
+    valuation,
+  );
+
+  const reset = () => {
+    setSolveFor("value");
+    setNoi(0);
+    setValue(0);
+    setCapPct(6.5);
+    setUnits(0);
+    setSqft(0);
+  };
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-light)" }}>
@@ -94,6 +137,12 @@ export default function ValuationClient() {
             </a>{" "}
             if you need the NOI first.
           </p>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 mb-6 print:hidden">
+          <ShareButton params={shareParams} />
+          <CsvButton rows={csvRows} filename={csvFileName("valuation")} />
+          <ResetButton onReset={reset} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8 items-start">
@@ -168,7 +217,7 @@ export default function ValuationClient() {
             <SectionCard
               step="Step 3"
               title="Per-unit detail (optional)"
-              subtitle="Add units and rentable square footage to get value per unit and per square foot — useful comps when you're buying or selling."
+              subtitle="Add units and rentable square footage to get value per unit and per square foot, useful comps when you're buying or selling."
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <PlainNumber label="Total units" value={units} onChange={setUnits} />
@@ -193,10 +242,11 @@ export default function ValuationClient() {
               >
                 {answerLabel}
               </span>
-              <div className="mt-2 mb-1">
+              <div className="mt-2 mb-1" role="status" aria-live="polite">
                 <span
                   className="text-4xl font-bold tabular-nums"
                   style={{ color: "var(--color-light)", letterSpacing: "-0.03em" }}
+                  aria-label={`${answerLabel}: ${answer}`}
                 >
                   {answer}
                 </span>
@@ -256,6 +306,24 @@ export default function ValuationClient() {
               </p>
             </div>
 
+            {/* Cross-tool handoff — size a loan against this value */}
+            {rNoi > 0 && rValue > 0 && (
+              <ToolHandoff
+                title="Use this valuation"
+                subtitle={`Carry ${usd0(rNoi)}/yr NOI and ${usd0(rValue)} value into the next calculation.`}
+                links={[
+                  {
+                    href: `/tools/dscr-calculator?mode=size&noi=${Math.round(
+                      rNoi,
+                    )}&purchasePrice=${Math.round(
+                      rValue,
+                    )}&targetDscr=1.25&interestRatePct=6.5&amortYears=25`,
+                    label: "Size a loan against this value",
+                  },
+                ]}
+              />
+            )}
+
             {/* breakdown */}
             <div
               className="rounded-2xl p-6 mt-6"
@@ -298,28 +366,11 @@ export default function ValuationClient() {
             How storage valuation works
           </h2>
           <div className="flex flex-col gap-6">
-            <Faq q="What is a cap rate?">
-              The capitalization rate is the annual NOI as a percentage of the
-              price. A facility with $300,000 NOI selling at a 6% cap is worth
-              $5,000,000 ($300,000 ÷ 0.06). Lower cap rate = higher price for the
-              same NOI.
-            </Faq>
-            <Faq q="Why does a lower cap rate mean a higher value?">
-              Cap rate is the buyer&apos;s required yield. When buyers accept a
-              lower yield — because the market is hot or the asset is strong —
-              they pay more for each dollar of NOI, so value rises.
-            </Faq>
-            <Faq q="What cap rate should I use?">
-              Use what comparable facilities in your market are actually trading
-              at. Storage broadly runs in the mid-5% to mid-7% range, but it moves
-              with interest rates, asset quality, and location. A broker&apos;s
-              recent comps beat a rule of thumb.
-            </Faq>
-            <Faq q="How do I grow the value?">
-              Grow NOI. At a fixed cap rate, value moves one-for-one with NOI, and
-              NOI grows when you fill units and hold rate. That is the entire case
-              for treating marketing as a value-creation lever, not a cost.
-            </Faq>
+            {VALUATION_FAQS.map((f) => (
+              <Faq key={f.q} q={f.q}>
+                {f.a}
+              </Faq>
+            ))}
           </div>
 
           <div className="mt-12">

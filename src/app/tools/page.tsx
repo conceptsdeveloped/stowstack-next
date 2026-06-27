@@ -9,12 +9,17 @@ import {
   Percent,
   Gauge,
   Building2,
+  Landmark,
+  CalendarClock,
+  Hammer,
+  TicketPercent,
 } from "lucide-react";
 import ToolHeader, { ToolCta } from "@/components/tools/tool-header";
+import { BreadcrumbJsonLd } from "@/components/tools/tool-jsonld";
 
 const title = "Free Tools for Storage Operators";
 const description =
-  "Free, no-signup calculators for self-storage operators: NOI, rate-increase (ECRI) impact, break-even occupancy, valuation by cap rate, marketing ROI, and a free facility audit. Built by an operator.";
+  "Free, no-signup calculators for self-storage operators: NOI, rate-increase (ECRI) impact, break-even occupancy, valuation by cap rate, DSCR & loan sizing, lease-up, expansion ROI, concession cost, marketing ROI, and a free facility audit. Built by an operator.";
 
 export const metadata: Metadata = {
   title,
@@ -55,7 +60,7 @@ const GROUPS: ToolGroup[] = [
         href: "/tools/noi-calculator",
         label: "NOI Calculator",
         blurb:
-          "Tally storage-specific income and operating expenses — labor, property tax, utilities, insurance, management — and triangulate net operating income, your expense ratio, per-unit economics, and what it implies your facility is worth.",
+          "Tally storage-specific income and operating expenses (labor, property tax, utilities, insurance, management), then triangulate net operating income, your expense ratio, per-unit economics, and what it implies your facility is worth.",
         cta: "Open calculator",
         icon: Calculator,
       },
@@ -71,7 +76,7 @@ const GROUPS: ToolGroup[] = [
         href: "/tools/break-even-occupancy",
         label: "Break-Even Occupancy",
         blurb:
-          "Find the occupancy you need to cover operating expenses — and the higher one that covers your loan too — then see how much cushion you have above it today.",
+          "Find the occupancy you need to cover operating expenses, and the higher one that covers your loan too, then see how much cushion you have above it today.",
         cta: "Open calculator",
         icon: Gauge,
       },
@@ -82,6 +87,38 @@ const GROUPS: ToolGroup[] = [
           "Value a facility on a cap rate. Solve for value, cap rate, or NOI from the other two, plus value per unit and per square foot for quick comps.",
         cta: "Open calculator",
         icon: Building2,
+      },
+      {
+        href: "/tools/dscr-calculator",
+        label: "DSCR & Loan Sizing",
+        blurb:
+          "Size the largest loan your NOI supports at a target debt service coverage ratio, or check the DSCR, debt yield, LTV, and post-debt cash flow on a loan you're weighing.",
+        cta: "Open calculator",
+        icon: Landmark,
+      },
+      {
+        href: "/tools/lease-up-calculator",
+        label: "Lease-Up & Stabilization",
+        blurb:
+          "Estimate months to stabilized occupancy from your current fill, monthly move-in pace, and move-out rate, and see when your pace can't reach the target at all.",
+        cta: "Open calculator",
+        icon: CalendarClock,
+      },
+      {
+        href: "/tools/expansion-calculator",
+        label: "Expansion ROI",
+        blurb:
+          "Test whether building more units pays. Yield on cost versus your cap rate, added NOI, value created, and the development spread that is your profit.",
+        cta: "Open calculator",
+        icon: Hammer,
+      },
+      {
+        href: "/tools/concession-calculator",
+        label: "Concession True-Cost",
+        blurb:
+          "See what a first-month-free or move-in discount really costs, per move-in, per year, and as a share of a tenant's lifetime revenue.",
+        cta: "Open calculator",
+        icon: TicketPercent,
       },
       {
         href: "/calculator",
@@ -100,7 +137,7 @@ const GROUPS: ToolGroup[] = [
         href: "/audit-tool",
         label: "Free Facility Marketing Audit",
         blurb:
-          "Enter your facility and get a marketing diagnostic in minutes — how you show up on Google, where you're leaking move-ins, and the gaps a competitor is using against you.",
+          "Enter your facility and get a marketing diagnostic in minutes: how you show up on Google, where you're leaking move-ins, and the gaps a competitor is using against you.",
         cta: "Run the audit",
         icon: ClipboardCheck,
       },
@@ -134,6 +171,12 @@ export default function ToolsPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ITEM_LIST_JSONLD) }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "https://storageads.com" },
+          { name: "Tools", url: "https://storageads.com/tools" },
+        ]}
       />
       <ToolHeader backHref="/" backLabel="Back to homepage" />
 

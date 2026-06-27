@@ -8,7 +8,8 @@
  *   (1 − c)(1 + i) = 1  →  c = i / (1 + i)
  */
 
-import { clampPct, nonNeg } from "./format";
+import { clampPct, nonNeg, usd0, usd2, pct } from "./format";
+import type { CsvRow } from "./csv";
 
 export interface RateIncreaseState {
   occupied: number;
@@ -75,4 +76,28 @@ export function deriveRateIncrease(s: RateIncreaseState): RateIncreaseResult {
     breakEvenChurnPct,
     valueLift,
   };
+}
+
+/** Rows for the CSV export. Pure (no DOM) so it can be unit-tested. */
+export function buildRateIncreaseCsvRows(
+  s: RateIncreaseState,
+  d: RateIncreaseResult,
+): CsvRow[] {
+  return [
+    ["Metric", "Value"],
+    ["Occupied units getting the increase", String(Math.round(nonNeg(s.occupied)))],
+    ["Average current monthly rate", usd2(s.currentRate)],
+    ["Rate increase", pct(clampPct(s.increasePct))],
+    ["Expected move-outs", pct(clampPct(s.churnPct))],
+    ["New average monthly rate", usd2(d.newRate)],
+    ["Increase per unit / month", usd2(d.perUnitIncrease)],
+    ["Net monthly revenue lift", usd0(d.netMonthlyLift)],
+    ["Net annual revenue lift", usd0(d.netAnnualLift)],
+    ["Annual lift if 0 move-outs", usd0(d.grossAnnualLift)],
+    ["Break-even move-out rate", pct(d.breakEvenChurnPct)],
+    [
+      `Implied value lift @ ${pct(clampPct(s.capRatePct))} cap`,
+      s.capRatePct > 0 ? usd0(d.valueLift) : "n/a",
+    ],
+  ];
 }

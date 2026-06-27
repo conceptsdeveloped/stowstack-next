@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   deriveBreakEven,
+  buildBreakEvenCsvRows,
   BREAK_EVEN_DEFAULTS,
   type BreakEvenState,
 } from "../tools/break-even";
@@ -74,5 +75,23 @@ describe("deriveBreakEven", () => {
     );
     expect(d.opBreakEvenUnits).toBe(0);
     expect(d.allInBreakEvenUnits).toBe(0);
+  });
+});
+
+describe("buildBreakEvenCsvRows", () => {
+  it("returns a header row plus the key metrics", () => {
+    const s = state({ totalUnits: 200, avgRate: 100, monthlyOpex: 8000, monthlyDebt: 4000 });
+    const rows = buildBreakEvenCsvRows(s, deriveBreakEven(s));
+    expect(rows[0]).toEqual(["Metric", "Value"]);
+    const labels = rows.map((r) => r[0]);
+    expect(labels).toContain("All-in break-even units");
+    expect(labels).toContain("Operating break-even units");
+  });
+
+  it("marks current-occupancy rows n/a when no current count is given", () => {
+    const s = state({ totalUnits: 200, avgRate: 100, monthlyOpex: 8000, currentOccupied: 0 });
+    const rows = buildBreakEvenCsvRows(s, deriveBreakEven(s));
+    const cushionRow = rows.find((r) => r[0].startsWith("Cushion above"));
+    expect(cushionRow?.[1]).toBe("n/a");
   });
 });

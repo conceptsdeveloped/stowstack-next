@@ -162,6 +162,76 @@ export function PercentField({
   );
 }
 
+/* ── Decimal input (no $ prefix, optional unit suffix e.g. "x", "yrs") ───── */
+export function DecimalField({
+  label,
+  help,
+  value,
+  onChange,
+  suffix,
+}: {
+  label: string;
+  help?: string;
+  value: number;
+  onChange: (n: number) => void;
+  suffix?: string;
+}) {
+  const [text, setText] = useState(() => (value ? String(round2(value)) : ""));
+  const [synced, setSynced] = useState(value);
+  if (value !== synced) {
+    setSynced(value);
+    const parsed = text === "" || text === "." ? 0 : parseFloat(text) || 0;
+    if (Math.abs(parsed - value) > 0.005) {
+      setText(value ? String(round2(value)) : "");
+    }
+  }
+
+  return (
+    <label className="block">
+      <span
+        className="text-sm font-medium block mb-1.5"
+        style={{ color: "var(--color-dark)" }}
+      >
+        {label}
+      </span>
+      <div
+        className="flex items-center rounded-lg overflow-hidden focus-within:ring-2"
+        style={{
+          border: "1px solid var(--color-light-gray)",
+          background: "var(--color-light)",
+          ["--tw-ring-color" as string]: "var(--color-dark)",
+        }}
+      >
+        <input
+          type="text"
+          inputMode="decimal"
+          value={text}
+          placeholder="0"
+          onChange={(e) => {
+            const raw = e.target.value.replace(/[^0-9.]/g, "");
+            setText(raw);
+            const n = raw === "" || raw === "." ? 0 : parseFloat(raw);
+            const safe = Number.isFinite(n) ? n : 0;
+            setSynced(safe);
+            onChange(safe);
+          }}
+          className="w-full bg-transparent py-2.5 pl-3 text-sm tabular-nums outline-none"
+          style={{ color: "var(--color-dark)" }}
+        />
+        {suffix && (
+          <span
+            className="pr-3 pl-1 text-sm select-none"
+            style={{ color: "var(--color-mid-gray)" }}
+          >
+            {suffix}
+          </span>
+        )}
+      </div>
+      {help && <FieldHelp>{help}</FieldHelp>}
+    </label>
+  );
+}
+
 /* ── Plain integer input ────────────────────────────────────────────────── */
 export function PlainNumber({
   label,
@@ -253,6 +323,64 @@ export function TextField({
         }}
       />
     </label>
+  );
+}
+
+/* ── Range slider (label + live value + min/max ticks) ──────────────────── */
+export function SliderField({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  format,
+  help,
+}: {
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+  min: number;
+  max: number;
+  step: number;
+  format: (n: number) => string;
+  help?: string;
+}) {
+  return (
+    <div className="block">
+      <div className="flex items-center justify-between mb-2">
+        <span
+          className="text-sm font-medium"
+          style={{ color: "var(--color-dark)" }}
+        >
+          {label}
+        </span>
+        <span
+          className="text-sm font-semibold tabular-nums"
+          style={{ color: "var(--color-dark)" }}
+        >
+          {format(value)}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full accent-[var(--color-dark)]"
+        aria-label={label}
+      />
+      <div
+        className="flex justify-between text-xs mt-1 tabular-nums"
+        style={{ color: "var(--color-mid-gray)" }}
+      >
+        <span>{format(min)}</span>
+        <span>{format(max)}</span>
+      </div>
+      {help && <FieldHelp>{help}</FieldHelp>}
+    </div>
   );
 }
 

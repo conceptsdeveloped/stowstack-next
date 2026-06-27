@@ -126,7 +126,7 @@ describe("buildRateIncreaseLetter", () => {
 
   it("produces a subject scoped to the unit", () => {
     expect(buildRateIncreaseLetter(base).subject).toBe(
-      "Notice of Rate Adjustment — Unit B12",
+      "Notice of Rate Adjustment: Unit B12",
     );
   });
 

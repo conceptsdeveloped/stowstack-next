@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   deriveRateIncrease,
+  buildRateIncreaseCsvRows,
   RATE_INCREASE_DEFAULTS,
   type RateIncreaseState,
 } from "../tools/rate-increase";
@@ -82,5 +83,23 @@ describe("deriveRateIncrease", () => {
     );
     expect(r.oldMonthlyRev).toBe(0);
     expect(r.netAnnualLift).toBe(0);
+  });
+});
+
+describe("buildRateIncreaseCsvRows", () => {
+  it("returns a header row plus the key metrics", () => {
+    const s = state({ occupied: 100, currentRate: 100, increasePct: 8, churnPct: 4 });
+    const rows = buildRateIncreaseCsvRows(s, deriveRateIncrease(s));
+    expect(rows[0]).toEqual(["Metric", "Value"]);
+    const labels = rows.map((r) => r[0]);
+    expect(labels).toContain("Net annual revenue lift");
+    expect(labels).toContain("Break-even move-out rate");
+  });
+
+  it("marks the value lift n/a when no cap rate is given", () => {
+    const s = state({ occupied: 100, currentRate: 100, capRatePct: 0 });
+    const rows = buildRateIncreaseCsvRows(s, deriveRateIncrease(s));
+    const valueLiftRow = rows.find((r) => r[0].startsWith("Implied value lift"));
+    expect(valueLiftRow?.[1]).toBe("n/a");
   });
 });

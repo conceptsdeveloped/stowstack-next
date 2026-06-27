@@ -10,6 +10,12 @@
  */
 
 import { clampPct, usd0, usd2, pct } from "./format";
+import { rowsToCsv, csvFileName, type CsvRow } from "./csv";
+import { numParam, type ParamValue } from "./share";
+
+// Re-exported so the NOI client can pull serialization from one place.
+export { rowsToCsv };
+export type { CsvRow };
 
 export interface FieldDef {
   key: string;
@@ -74,7 +80,7 @@ export const EXPENSE_FIELDS: FieldDef[] = [
   {
     key: "utilities",
     label: "Utilities",
-    help: "Electric, water, sewer, gas, trash — lights, gate, climate control.",
+    help: "Electric, water, sewer, gas, trash. Lights, gate, climate control.",
   },
   {
     key: "repairs",
@@ -261,8 +267,6 @@ export function deriveNoi(s: NoiState): NoiResult {
   };
 }
 
-export type CsvRow = [string, string, string];
-
 /**
  * Build the rows for a NOI export. Pure (no DOM) so it can be unit-tested; the
  * client wraps the result in a Blob and triggers the download.
@@ -296,18 +300,61 @@ export function buildNoiCsvRows(s: NoiState, d: NoiResult): CsvRow[] {
   ];
 }
 
-/** Serialize rows to RFC-4180-ish CSV text, quoting every cell. */
-export function rowsToCsv(rows: CsvRow[]): string {
-  return rows
-    .map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-    .join("\n");
-}
-
 /** Derive a safe download filename from the facility name. */
 export function noiCsvFileName(facilityName: string): string {
-  const slug = facilityName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return `noi-${slug || "storage"}.csv`;
+  return csvFileName("noi", facilityName);
+}
+
+/** Keys that round-trip through a shareable URL for the NOI calculator. */
+const NOI_NUMERIC_KEYS: (keyof NoiState)[] = [
+  "totalUnits",
+  "rentableSqft",
+  "gpr",
+  "vacancyPct",
+  "tenantInsurance",
+  "lateFees",
+  "adminFees",
+  "merchandise",
+  "truckRental",
+  "otherIncome",
+  "managementPct",
+  "payroll",
+  "payrollTaxesBenefits",
+  "propertyTax",
+  "insurance",
+  "utilities",
+  "repairs",
+  "marketing",
+  "adminOffice",
+  "merchantFees",
+  "security",
+  "grounds",
+  "professionalFees",
+  "merchandiseCogs",
+  "licensesMisc",
+  "capRatePct",
+];
+
+/** Serialize NOI state into a flat params map for a shareable link. */
+export function noiToParams(
+  s: NoiState,
+  basis: "annual" | "monthly",
+): Record<string, ParamValue> {
+  const out: Record<string, ParamValue> = { basis };
+  if (s.facilityName) out.name = s.facilityName;
+  for (const k of NOI_NUMERIC_KEYS) out[k] = s[k] as number;
+  return out;
+}
+
+/** Parse a shareable link's params back into a partial NOI state. */
+export function paramsToNoi(params: URLSearchParams): Partial<NoiState> {
+  const out: Partial<NoiState> = {};
+  const name = params.get("name");
+  if (name) out.facilityName = name;
+  for (const k of NOI_NUMERIC_KEYS) {
+    if (params.has(k)) {
+      (out as Record<string, number>)[k] = numParam(params, k, NOI_DEFAULTS[k] as number);
+    }
+  }
+  return out;
 }
