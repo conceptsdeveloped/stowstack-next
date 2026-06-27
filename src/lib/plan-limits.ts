@@ -37,12 +37,12 @@ export function isSubscriptionActive(status: string | null | undefined, trialEnd
   if (status === "active") return { ok: true };
   if (status === "trialing") {
     if (trialEndsAt && trialEndsAt < new Date()) {
-      return { ok: false, code: "trial_expired", reason: "Trial has expired — please add a payment method" };
+      return { ok: false, code: "trial_expired", reason: "Trial has expired. Please add a payment method" };
     }
     return { ok: true };
   }
   if (status === "past_due") {
-    return { ok: false, code: "subscription_inactive", reason: "Payment past due — update billing to continue" };
+    return { ok: false, code: "subscription_inactive", reason: "Payment past due. Update billing to continue" };
   }
   if (status === "canceled") {
     return { ok: false, code: "subscription_inactive", reason: "Subscription canceled" };

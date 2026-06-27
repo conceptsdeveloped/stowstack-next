@@ -381,7 +381,7 @@ export function buildRateIncreaseLetter(input: {
     letterDate,
   } = input;
 
-  const subject = `Notice of Rate Adjustment — Unit ${unit}`;
+  const subject = `Notice of Rate Adjustment: Unit ${unit}`;
   const contactLine = facilityPhone
     ? `If you have any questions, please reach us at ${facilityPhone}.`
     : `If you have any questions, please contact the office.`;

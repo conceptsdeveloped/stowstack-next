@@ -86,7 +86,7 @@ async function sendWelcomeEmail(
   const result = await sendEmail({
     from: SENDERS.noreply,
     to: email,
-    subject: `Welcome to StorageAds — Your ${facilityName || "Facility"} Portal is Ready`,
+    subject: `Welcome to StorageAds: Your ${facilityName || "Facility"} Portal is Ready`,
     tags: [{ name: "type", value: "portal_welcome" }],
     html: `
           <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 560px; margin: 0 auto; background: #faf9f5; color: #141413;">

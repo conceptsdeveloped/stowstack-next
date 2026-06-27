@@ -42,7 +42,7 @@ export function funnelConfigToDripSteps(
     return {
       ...delay,
       templateId: step.channel === 'sms' ? 'funnel_sms' : 'funnel_email',
-      label: `${step.channel.toUpperCase()} — ${step.timing}`,
+      label: `${step.channel.toUpperCase()}: ${step.timing}`,
       channel: step.channel,
       customMessage: step.message,
     };
