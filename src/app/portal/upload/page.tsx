@@ -78,7 +78,7 @@ function statusBadge(status: string) {
     uploaded:
       "bg-[var(--color-light-gray)] text-[var(--color-body-text)]",
     processing:
-      "bg-[var(--color-gold-light)] text-[var(--color-gold)]",
+      "bg-[var(--color-light-gray)] text-[var(--color-dark)]",
     processed:
       "bg-[var(--color-green)]/10 text-[var(--color-green)]",
     error:
@@ -221,8 +221,8 @@ export default function UploadPage() {
       <div
         className={`relative rounded-xl border-2 border-dashed p-10 text-center transition-colors cursor-pointer ${
           dragOver
-            ? "border-[var(--color-gold)] bg-[var(--color-gold-light)]"
-            : "border-[var(--color-light-gray)] hover:border-[var(--color-gold)]/40 bg-[var(--bg-elevated)]"
+            ? "border-[var(--color-dark)] bg-[var(--color-light-gray)]"
+            : "border-[var(--color-light-gray)] hover:border-[var(--color-dark)]/40 bg-[var(--bg-elevated)]"
         }`}
         onClick={() => fileRef.current?.click()}
         onDragOver={(e) => {
@@ -295,7 +295,7 @@ export default function UploadPage() {
                   </p>
                 </div>
                 {q.state === "uploading" && (
-                  <Loader2 className="h-4 w-4 animate-spin text-[var(--color-gold)]" />
+                  <Loader2 className="h-4 w-4 animate-spin text-[var(--color-dark)]" />
                 )}
                 {q.state === "done" && (
                   <CheckCircle2 className="h-4 w-4 text-[var(--color-green)]" />
@@ -325,7 +325,7 @@ export default function UploadPage() {
               type="button"
               onClick={uploadAll}
               disabled={uploading}
-              className="flex items-center gap-2 rounded-lg bg-[var(--color-gold)] px-6 py-2.5 text-sm font-medium text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-[var(--color-dark)] px-6 py-2.5 text-sm font-medium text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
             >
               {uploading ? (
                 <>

@@ -131,7 +131,7 @@ export default function ReportsPage() {
       {!loading && trend && trend.length > 1 && (
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
           <div className="mb-4 flex items-center gap-2">
-            <Activity className="h-4 w-4 text-[var(--color-gold)]" />
+            <Activity className="h-4 w-4 text-[var(--color-dark)]" />
             <h3 className="text-sm font-semibold text-[var(--color-dark)]">Occupancy Trend</h3>
           </div>
           <ResponsiveChart mobileHeight={200} desktopHeight={240}>
@@ -155,18 +155,18 @@ export default function ReportsPage() {
               {signedAt && (
                 <ReferenceLine
                   x={signedAt}
-                  stroke="var(--color-gold)"
+                  stroke="var(--color-blue)"
                   strokeDasharray="4 4"
-                  label={{ value: "StorageAds Started", position: "top", fontSize: 10, fill: "var(--color-gold)" }}
+                  label={{ value: "StorageAds Started", position: "top", fontSize: 10, fill: "var(--color-blue)" }}
                 />
               )}
               <Line
                 type="monotone"
                 dataKey="occupancy_pct"
-                stroke="var(--color-gold)"
+                stroke="var(--color-blue)"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 4, fill: "var(--color-gold)" }}
+                activeDot={{ r: 4, fill: "var(--color-blue)" }}
               />
             </LineChart>
           </ResponsiveChart>
@@ -188,7 +188,7 @@ export default function ReportsPage() {
               {/* Occupancy */}
               <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-[var(--color-gold)]" />
+                  <Building2 className="h-4 w-4 text-[var(--color-dark)]" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Occupancy</span>
                 </div>
                 <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.occupancy_pct.toFixed(1)}%</p>
@@ -200,7 +200,7 @@ export default function ReportsPage() {
               {/* Total Units */}
               <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <Package className="h-4 w-4 text-[var(--color-gold)]" />
+                  <Package className="h-4 w-4 text-[var(--color-dark)]" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Total Units</span>
                 </div>
                 <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.total_units}</p>
@@ -209,7 +209,7 @@ export default function ReportsPage() {
               {/* Occupied */}
               <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-[var(--color-gold)]" />
+                  <Users className="h-4 w-4 text-[var(--color-dark)]" />
                   <span className="text-xs text-[var(--color-mid-gray)]">Occupied Units</span>
                 </div>
                 <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.occupied_units}</p>

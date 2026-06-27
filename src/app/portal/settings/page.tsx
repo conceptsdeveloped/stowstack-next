@@ -120,35 +120,35 @@ export default function SettingsPage() {
         <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">Facility Information</h3>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
+            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-dark)]" />
             <div>
               <p className="text-xs text-[var(--color-mid-gray)]">Facility Name</p>
               <p className="text-sm text-[var(--color-dark)]">{client.facilityName}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <MapPin className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
+            <MapPin className="h-4 w-4 shrink-0 text-[var(--color-dark)]" />
             <div>
               <p className="text-xs text-[var(--color-mid-gray)]">Location</p>
               <p className="text-sm text-[var(--color-dark)]">{client.location}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Mail className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
+            <Mail className="h-4 w-4 shrink-0 text-[var(--color-dark)]" />
             <div>
               <p className="text-xs text-[var(--color-mid-gray)]">Email</p>
               <p className="text-sm text-[var(--color-dark)]">{client.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
+            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-dark)]" />
             <div>
               <p className="text-xs text-[var(--color-mid-gray)]">Occupancy Range</p>
               <p className="text-sm text-[var(--color-dark)]">{client.occupancyRange}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
+            <Building2 className="h-4 w-4 shrink-0 text-[var(--color-dark)]" />
             <div>
               <p className="text-xs text-[var(--color-mid-gray)]">Total Units</p>
               <p className="text-sm text-[var(--color-dark)]">{client.totalUnits}</p>
@@ -161,7 +161,7 @@ export default function SettingsPage() {
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
         <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">Monthly Goal</h3>
         <div className="flex items-center gap-3">
-          <Target className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
+          <Target className="h-4 w-4 shrink-0 text-[var(--color-dark)]" />
           <div className="flex-1">
             <label className="mb-1 block text-xs text-[var(--color-mid-gray)]">
               Target move-ins per month
@@ -176,13 +176,13 @@ export default function SettingsPage() {
                   setGoalError("");
                 }}
                 min={0}
-                className="w-32 rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light)] px-3 py-2 text-sm text-[var(--color-dark)] outline-none focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
+                className="w-32 rounded-lg border border-[var(--border-subtle)] bg-[var(--color-light)] px-3 py-2 text-sm text-[var(--color-dark)] outline-none focus:border-[var(--color-dark)]/50 focus:ring-1 focus:ring-[var(--color-dark)]/25"
               />
               <button
                 type="button"
                 onClick={handleSaveGoal}
                 disabled={saving}
-                className="flex items-center gap-1.5 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-xs font-medium text-[var(--color-dark)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg bg-[var(--color-dark)] px-4 py-2 text-xs font-medium text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -211,9 +211,9 @@ export default function SettingsPage() {
           <>
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-gold)]/10">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-dark)]/[0.06]">
                   {pushEnabled ? (
-                    <Bell className="h-5 w-5 text-[var(--color-gold)]" />
+                    <Bell className="h-5 w-5 text-[var(--color-dark)]" />
                   ) : (
                     <BellOff className="h-5 w-5 text-[var(--color-mid-gray)]" />
                   )}
@@ -248,8 +248,8 @@ export default function SettingsPage() {
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
         <h3 className="mb-4 text-sm font-semibold text-[var(--color-dark)]">Your Account Manager</h3>
         <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-gold)]/10">
-            <User className="h-5 w-5 text-[var(--color-gold)]" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-dark)]/[0.06]">
+            <User className="h-5 w-5 text-[var(--color-dark)]" />
           </div>
           <div className="space-y-2">
             <p className="text-sm font-medium text-[var(--color-dark)]">Blake</p>
@@ -257,14 +257,14 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-1 pt-1">
               <a
                 href="mailto:blake@storageads.com"
-                className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-gold)]"
+                className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)]"
               >
                 <Mail className="h-3.5 w-3.5" />
                 blake@storageads.com
               </a>
               <a
                 href="tel:+12699298541"
-                className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-gold)]"
+                className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)]"
               >
                 <Phone className="h-3.5 w-3.5" />
                 (269) 929-8541
@@ -278,7 +278,7 @@ export default function SettingsPage() {
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Calendar className="h-4 w-4 text-[var(--color-gold)]" />
+            <Calendar className="h-4 w-4 text-[var(--color-dark)]" />
             <div>
               <p className="text-xs text-[var(--color-mid-gray)]">Client Since</p>
               <p className="text-sm text-[var(--color-dark)]">{signedDate ?? "N/A"}</p>

@@ -178,8 +178,8 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)] px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-gold)]/10">
-            <Building2 className="h-7 w-7 text-[var(--color-gold)]" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-dark)]/[0.06]">
+            <Building2 className="h-7 w-7 text-[var(--color-dark)]" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-dark)]">Client Portal</h1>
           <p className="mt-2 text-sm text-[var(--color-mid-gray)]">
@@ -202,7 +202,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
                   placeholder="you@facility.com"
                   required
                   autoFocus
-                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-3 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-3 pl-10 pr-4 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-dark)]/50 focus:ring-1 focus:ring-[var(--color-dark)]/25"
                 />
               </div>
             </div>
@@ -215,7 +215,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
             <button
               type="submit"
               disabled={resending}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-gold)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-dark)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
             >
               {resending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               {resending ? "Sending Code..." : "Send Login Code"}
@@ -236,7 +236,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
                   onKeyDown={(e) => handleCodeKeyDown(i, e)}
                   onPaste={handleCodePaste}
                   autoFocus={i === 0}
-                  className="h-14 w-14 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-center text-2xl font-semibold text-[var(--color-dark)] outline-none transition-all focus:border-[var(--color-gold)] focus:ring-2 focus:ring-[var(--color-gold)]/25"
+                  className="h-14 w-14 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-center text-2xl font-semibold text-[var(--color-dark)] outline-none transition-all focus:border-[var(--color-dark)] focus:ring-2 focus:ring-[var(--color-dark)]/25"
                 />
               ))}
             </div>
@@ -284,7 +284,7 @@ function Sidebar({ client, mobileOpen, onClose, showOnboarding }: { client: Clie
   const content = (
     <div className="flex h-full flex-col">
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] px-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-gold)]/10 text-sm font-semibold text-[var(--color-gold)]">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-dark)]/[0.06] text-sm font-semibold text-[var(--color-dark)]">
           {firstName(client.name).charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
@@ -308,11 +308,11 @@ function Sidebar({ client, mobileOpen, onClose, showOnboarding }: { client: Clie
                       aria-current={isActive ? "page" : undefined}
                       className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
                         isActive
-                          ? "bg-[var(--color-gold)]/15 font-medium text-[var(--color-dark)]"
+                          ? "bg-[var(--color-dark)]/[0.08] font-medium text-[var(--color-dark)]"
                           : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)]"
                       }`}
                     >
-                      <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[var(--color-gold)]" : ""}`} />
+                      <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[var(--color-dark)]" : ""}`} />
                       <span>{item.label}</span>
                     </Link>
                   </li>
@@ -328,7 +328,7 @@ function Sidebar({ client, mobileOpen, onClose, showOnboarding }: { client: Clie
   return (
     <>
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden" onClick={onClose} aria-hidden="true" />
+        <div className="fixed inset-0 z-40 bg-[var(--color-dark)]/60 backdrop-blur-sm md:hidden" onClick={onClose} aria-hidden="true" />
       )}
       <aside
         id="portal-mobile-nav"
@@ -435,7 +435,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--color-light)]">
-        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-gold)]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-dark)]" />
       </div>
     );
   }

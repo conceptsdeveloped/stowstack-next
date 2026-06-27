@@ -45,8 +45,8 @@ function statusBadge(status: string) {
       label: "Paid",
     },
     sent: {
-      bg: "bg-[var(--color-gold)]/[0.08]",
-      text: "text-[var(--color-gold)]",
+      bg: "bg-[var(--color-dark)]/[0.08]",
+      text: "text-[var(--color-dark)]",
       icon: <FileText className="h-3 w-3" />,
       label: "Sent",
     },
@@ -119,11 +119,13 @@ export default function BillingPage() {
   async function openBillingPortal() {
     setPortalLoading(true);
     try {
-      const res = await fetch("/api/create-billing-portal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: session.email }),
-      });
+      const res = await fetch(
+        `/api/create-billing-portal?accessCode=${encodeURIComponent(session.accessCode)}&email=${encodeURIComponent(session.email)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       if (res.ok) {
         const { url } = await res.json();
         if (url) {
@@ -203,7 +205,7 @@ export default function BillingPage() {
           </div>
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
             <div className="mb-2 flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-[var(--color-gold)]" />
+              <DollarSign className="h-4 w-4 text-[var(--color-dark)]" />
               <span className="text-xs text-[var(--color-mid-gray)]">Total Ad Spend</span>
             </div>
             <p className="text-xl font-semibold text-[var(--color-dark)]">{fmtCurrency(totalAdSpend)}</p>
@@ -282,7 +284,7 @@ export default function BillingPage() {
           </p>
           <p>
             For billing questions, contact{" "}
-            <a href="mailto:blake@storageads.com" className="text-[var(--color-gold)] hover:underline">
+            <a href="mailto:blake@storageads.com" className="text-[var(--color-dark)] hover:underline">
               blake@storageads.com
             </a>
           </p>

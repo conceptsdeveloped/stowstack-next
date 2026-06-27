@@ -47,7 +47,7 @@ function Stars({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg" }) 
           key={i}
           className={`${sizeClass} ${
             i < Math.round(rating)
-              ? "fill-[var(--color-gold)] text-[var(--color-gold)]"
+              ? "fill-[var(--color-dark)] text-[var(--color-dark)]"
               : "fill-none text-[var(--color-mid-gray)]"
           }`}
         />
@@ -99,7 +99,7 @@ export default function GbpPage() {
           </p>
         </div>
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-[var(--color-gold)]" />
+          <Loader2 className="h-6 w-6 animate-spin text-[var(--color-dark)]" />
         </div>
       </div>
     );
@@ -122,7 +122,7 @@ export default function GbpPage() {
           <p className="mb-3 text-sm text-[var(--color-body-text)]">{error}</p>
           <button
             onClick={fetchData}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-gold)] px-4 py-2 text-sm font-medium text-[var(--color-light)] hover:bg-[var(--color-gold-hover)] transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-dark)] px-4 py-2 text-sm font-medium text-[var(--color-light)] hover:opacity-90 transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             Retry
@@ -185,7 +185,7 @@ export default function GbpPage() {
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <MapPin className="h-5 w-5 text-[var(--color-gold)]" />
+            <MapPin className="h-5 w-5 text-[var(--color-dark)]" />
             <div>
               <h3 className="text-base font-semibold text-[var(--color-dark)]">
                 {data.locationName || "Your Facility"}
@@ -207,7 +207,7 @@ export default function GbpPage() {
         {/* Average rating */}
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5 text-center">
           <p className="mb-1 text-xs text-[var(--color-mid-gray)]">Average Rating</p>
-          <p className="text-3xl font-semibold text-[var(--color-gold)]">
+          <p className="text-3xl font-semibold text-[var(--color-dark)]">
             {data.averageRating.toFixed(1)}
           </p>
           <div className="mt-2 flex justify-center">
@@ -234,7 +234,7 @@ export default function GbpPage() {
           </p>
           <div className="mx-auto mt-2 h-1.5 w-24 overflow-hidden rounded-full bg-[var(--color-light-gray)]">
             <div
-              className="h-full rounded-full bg-[var(--color-gold)]"
+              className="h-full rounded-full bg-[var(--color-dark)]"
               style={{ width: `${Math.min(data.responseRate, 100)}%` }}
             />
           </div>

@@ -197,7 +197,7 @@ function TextInput({
       placeholder={placeholder}
       maxLength={maxLength}
       aria-label={ariaLabel || placeholder}
-      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
+      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-dark)]/50 focus:ring-1 focus:ring-[var(--color-dark)]/25"
     />
   );
 }
@@ -222,7 +222,7 @@ function TextArea({
       placeholder={placeholder}
       rows={rows}
       aria-label={ariaLabel || placeholder}
-      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25 resize-none"
+      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-dark)]/50 focus:ring-1 focus:ring-[var(--color-dark)]/25 resize-none"
     />
   );
 }
@@ -251,7 +251,7 @@ function NumberInput({
       max={max}
       placeholder={placeholder}
       aria-label={ariaLabel || placeholder}
-      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
+      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-dark)]/50 focus:ring-1 focus:ring-[var(--color-dark)]/25"
     />
   );
 }
@@ -272,7 +272,7 @@ function SelectInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       aria-label={ariaLabel}
-      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
+      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--color-dark)] outline-none transition-colors focus:border-[var(--color-dark)]/50 focus:ring-1 focus:ring-[var(--color-dark)]/25"
     >
       <option value="">Select...</option>
       {options.map((o) => (
@@ -301,11 +301,11 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-11 rounded-full transition-colors ${
-          checked ? "bg-[var(--color-gold)]" : "bg-[var(--color-light-gray)]"
+          checked ? "bg-[var(--color-dark)]" : "bg-[var(--color-light-gray)]"
         }`}
       >
         <span
-          className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+          className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-[var(--color-light)] transition-transform ${
             checked ? "translate-x-5" : "translate-x-0"
           }`}
         />
@@ -334,7 +334,7 @@ export default function OnboardingPage() {
   if (loading || !session) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-gold)]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-dark)]" />
       </div>
     );
   }
@@ -469,7 +469,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
                   }}
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
                     isActive
-                      ? "bg-[var(--color-gold)] text-[var(--color-light)]"
+                      ? "bg-[var(--color-dark)] text-[var(--color-light)]"
                       : isComplete
                         ? "bg-green-500/20 text-green-400"
                         : isPast
@@ -487,7 +487,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
                   <div
                     className={`mx-1 h-px flex-1 ${
                       isComplete || isPast
-                        ? "bg-[var(--color-gold)]/30"
+                        ? "bg-[var(--color-dark)]/[0.06]"
                         : "bg-[var(--color-light-gray)]"
                     }`}
                   />
@@ -671,7 +671,7 @@ function FacilityDetailsStep({
             <button
               type="button"
               onClick={addPoint}
-              className="flex items-center gap-1 text-xs text-[var(--color-gold)] transition-colors hover:text-[var(--color-gold)]"
+              className="flex items-center gap-1 text-xs text-[var(--color-dark)] transition-colors hover:text-[var(--color-dark)]"
             >
               <Plus className="h-3 w-3" />
               Add selling point
@@ -685,7 +685,7 @@ function FacilityDetailsStep({
           onSave({ brandDescription, brandColors, sellingPoints })
         }
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-gold)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-dark)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -804,7 +804,7 @@ function TargetDemographicsStep({
           })
         }
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-gold)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-dark)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -926,7 +926,7 @@ function UnitMixStep({
           <button
             type="button"
             onClick={addUnit}
-            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-[var(--border-medium)] py-3 text-xs text-[var(--color-mid-gray)] transition-colors hover:border-[var(--color-gold)]/30 hover:text-[var(--color-gold)]"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-[var(--border-medium)] py-3 text-xs text-[var(--color-mid-gray)] transition-colors hover:border-[var(--color-dark)]/30 hover:text-[var(--color-dark)]"
           >
             <Plus className="h-3 w-3" />
             Add unit type
@@ -946,7 +946,7 @@ function UnitMixStep({
       <button
         onClick={() => onSave({ units, specials })}
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-gold)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-dark)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1070,7 +1070,7 @@ function CompetitorIntelStep({
           <button
             type="button"
             onClick={addCompetitor}
-            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-[var(--border-medium)] py-3 text-xs text-[var(--color-mid-gray)] transition-colors hover:border-[var(--color-gold)]/30 hover:text-[var(--color-gold)]"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-[var(--border-medium)] py-3 text-xs text-[var(--color-mid-gray)] transition-colors hover:border-[var(--color-dark)]/30 hover:text-[var(--color-dark)]"
           >
             <Plus className="h-3 w-3" />
             Add competitor
@@ -1091,7 +1091,7 @@ function CompetitorIntelStep({
       <button
         onClick={() => onSave({ competitors, differentiation })}
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-gold)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-dark)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1190,7 +1190,7 @@ function AdPreferencesStep({
           })
         }
         disabled={saving}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-gold)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-dark)] py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1336,13 +1336,13 @@ function ReviewStep({
         </p>
         <div
           className="mt-4 mx-auto max-w-sm rounded-lg px-4 py-3 text-sm font-medium"
-          style={{ backgroundColor: "var(--color-gold-light)", color: "var(--color-gold)" }}
+          style={{ backgroundColor: "var(--bg-hi)", color: "var(--color-dark)" }}
         >
           Your campaigns will be live within 48 hours.
         </div>
         <a
           href="/portal"
-          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[var(--color-gold)] px-6 py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)]"
+          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[var(--color-dark)] px-6 py-3 text-sm font-semibold text-[var(--color-light)] transition-colors hover:opacity-90"
         >
           Back to Dashboard
         </a>

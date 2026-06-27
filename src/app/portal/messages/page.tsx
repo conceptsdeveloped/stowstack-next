@@ -31,7 +31,7 @@ export default function MessagesPage() {
   const fetchMessages = useCallback(async () => {
     try {
       const res = await fetch(
-        `/api/client-messages?code=${session.accessCode}&email=${encodeURIComponent(session.email)}`
+        `/api/client-messages?accessCode=${encodeURIComponent(session.accessCode)}&email=${encodeURIComponent(session.email)}`
       );
       if (!res.ok) throw new Error("Failed to fetch");
       const json = await res.json();
@@ -59,12 +59,12 @@ export default function MessagesPage() {
 
     setSending(true);
     try {
-      const res = await fetch("/api/client-messages", {
+      const res = await fetch(
+        `/api/client-messages?accessCode=${encodeURIComponent(session.accessCode)}&email=${encodeURIComponent(session.email)}`,
+        {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          code: session.accessCode,
-          email: session.email,
           text: trimmed,
           from: "client",
         }),
@@ -110,7 +110,7 @@ export default function MessagesPage() {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                     msg.from === "client"
-                      ? "rounded-br-md bg-[var(--color-gold)] text-[var(--color-light)]"
+                      ? "rounded-br-md bg-[var(--color-dark)] text-[var(--color-light)]"
                       : "rounded-bl-md border border-[var(--border-subtle)] bg-[var(--color-light-gray)] text-[var(--color-dark)]"
                   }`}
                 >
@@ -144,12 +144,12 @@ export default function MessagesPage() {
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-gold)]/50 focus:ring-1 focus:ring-[var(--color-gold)]/25"
+            className="flex-1 resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-dark)]/50 focus:ring-1 focus:ring-[var(--color-dark)]/25"
           />
           <button
             type="submit"
             disabled={!text.trim() || sending}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-gold)] text-[var(--color-light)] transition-colors hover:bg-[var(--color-gold-hover)] disabled:opacity-40"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-dark)] text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-40"
           >
             {sending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

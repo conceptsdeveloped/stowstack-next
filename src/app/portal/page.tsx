@@ -99,7 +99,7 @@ function WelcomeBanner() {
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-gradient-to-br from-[var(--color-gold)]/[0.08] to-transparent p-5">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--color-light-gray)]/40 p-5">
       <h1 className="text-xl font-semibold tracking-tight">
         {greeting}, {firstName(client.name)}
       </h1>
@@ -279,7 +279,7 @@ function CampaignAlerts() {
   if (alerts.length === 0) return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <Bell className="h-4 w-4 text-[var(--color-gold)]" />
+        <Bell className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Campaign Alerts</h2>
       </div>
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
@@ -292,13 +292,13 @@ function CampaignAlerts() {
   const severityConfig = {
     critical: { bg: "bg-red-500/[0.06]", border: "border-red-500/20", text: "text-red-400", icon: <ShieldAlert className="h-4 w-4" /> },
     warning: { bg: "bg-amber-500/[0.06]", border: "border-amber-500/20", text: "text-amber-400", icon: <AlertTriangle className="h-4 w-4" /> },
-    info: { bg: "bg-[var(--color-gold)]/[0.06]", border: "border-[var(--color-gold)]/20", text: "text-[var(--color-gold)]", icon: <Info className="h-4 w-4" /> },
+    info: { bg: "bg-[var(--color-dark)]/[0.06]", border: "border-[var(--color-dark)]/20", text: "text-[var(--color-dark)]", icon: <Info className="h-4 w-4" /> },
   };
 
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <Bell className="h-4 w-4 text-[var(--color-gold)]" />
+        <Bell className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Campaign Alerts</h2>
       </div>
       <div className="space-y-2">
@@ -347,7 +347,7 @@ function RecentActivity() {
   if (items.length === 0) return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <Activity className="h-4 w-4 text-[var(--color-gold)]" />
+        <Activity className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Recent Activity</h2>
       </div>
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
@@ -371,7 +371,7 @@ function RecentActivity() {
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <Activity className="h-4 w-4 text-[var(--color-gold)]" />
+        <Activity className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Recent Activity</h2>
       </div>
       <div className="max-h-96 overflow-y-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
@@ -404,12 +404,12 @@ function ContactCard() {
   return (
     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
       <div className="mb-3 flex items-center gap-2">
-        <Phone className="h-4 w-4 text-[var(--color-gold)]" />
+        <Phone className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Your Team</h2>
       </div>
       <div className="space-y-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-gold)]/10 text-sm font-semibold text-[var(--color-gold)]">B</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-dark)]/[0.06] text-sm font-semibold text-[var(--color-dark)]">B</div>
           <div>
             <p className="text-sm font-medium">Blake</p>
             <p className="text-xs text-[var(--color-mid-gray)]">Account Manager</p>

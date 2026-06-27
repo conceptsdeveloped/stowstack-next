@@ -18,10 +18,10 @@ export function PullIndicator({ pullDistance, refreshing, threshold }: PullIndic
       style={{ height: refreshing ? 48 : pullDistance }}
     >
       {refreshing ? (
-        <Loader2 className="h-5 w-5 animate-spin text-[var(--color-gold)]" />
+        <Loader2 className="h-5 w-5 animate-spin text-[var(--color-dark)]" />
       ) : (
         <svg
-          className="h-5 w-5 text-[var(--color-gold)] transition-transform"
+          className="h-5 w-5 text-[var(--color-dark)] transition-transform"
           style={{ transform: `rotate(${rotation}deg)`, opacity: progress }}
           viewBox="0 0 24 24"
           fill="none"

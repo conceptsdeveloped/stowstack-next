@@ -11,9 +11,9 @@ export default function PortalError({
     <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
       <div
         className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
-        style={{ backgroundColor: "rgba(239,68,68,0.1)" }}
+        style={{ backgroundColor: "color-mix(in srgb, var(--color-red) 10%, transparent)" }}
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="8" x2="12" y2="12" />
           <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -28,7 +28,7 @@ export default function PortalError({
       <button
         onClick={reset}
         className="px-6 py-2.5 text-sm font-medium rounded-lg transition-colors"
-        style={{ backgroundColor: "var(--color-gold)", color: "#fff" }}
+        style={{ backgroundColor: "var(--color-dark)", color: "var(--color-light)" }}
       >
         Try again
       </button>
