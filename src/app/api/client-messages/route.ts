@@ -1,16 +1,15 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   jsonResponse,
   errorResponse,
   corsResponse,
   getOrigin,
-  isAdminRequest,
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { authenticatePortalRequest } from "@/lib/portal-auth";
 
 interface RedisClient {
-  get(key: string): Promise<unknown>;
   lrange(key: string, start: number, stop: number): Promise<unknown[]>;
   lpush(key: string, value: string): Promise<number>;
   ltrim(key: string, start: number, stop: number): Promise<string>;
@@ -31,24 +30,6 @@ async function getRedis(): Promise<RedisClient | null> {
   }
 }
 
-async function verifyClient(
-  redis: RedisClient,
-  code: string,
-  email: string
-): Promise<boolean> {
-  if (!code || !email) return false;
-  const raw = await redis.get(`client:${code}`);
-  if (!raw) return false;
-  const client =
-    typeof raw === "string"
-      ? JSON.parse(raw)
-      : (raw as Record<string, unknown>);
-  return (
-    !!client.email &&
-    (client.email as string).toLowerCase() === email.toLowerCase()
-  );
-}
-
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
@@ -57,27 +38,22 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "client-messages");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const url = new URL(req.url);
-  const code = url.searchParams.get("code");
-  const email = url.searchParams.get("email");
 
-  if (!code) {
-    return errorResponse("Missing access code", 400, origin);
-  }
+  // Canonical portal auth (Postgres). The old path read a Redis `client:*` key
+  // the Postgres app never populates, so a real client always 401'd (or silently
+  // succeeded when Upstash was unset). A client is validated to their own access
+  // code; an admin (x-admin-key) may read any thread by passing accessCode.
+  const scope = await authenticatePortalRequest(req);
+  if (scope instanceof NextResponse) return scope;
+
+  const accessCode = new URL(req.url).searchParams.get("accessCode");
+  if (!accessCode) return errorResponse("Missing access code", 400, origin);
 
   const redis = await getRedis();
-  const isAdmin = isAdminRequest(req);
-
-  if (!isAdmin) {
-    if (!redis) return jsonResponse({ messages: [] }, 200, origin);
-    const valid = await verifyClient(redis, code, email || "");
-    if (!valid) return errorResponse("Unauthorized", 401, origin);
-  }
-
   if (!redis) return jsonResponse({ messages: [] }, 200, origin);
 
   try {
-    const raw = await redis.lrange(`messages:${code}`, 0, 199);
+    const raw = await redis.lrange(`messages:${accessCode}`, 0, 199);
     const messages = (raw || []).map((entry) =>
       typeof entry === "string" ? JSON.parse(entry) : entry
     );
@@ -93,6 +69,14 @@ export async function POST(req: NextRequest) {
   if (limited) return limited;
   const origin = getOrigin(req);
 
+  // Auth before parsing the body. Credentials (accessCode + email) ride in the
+  // query so the shared helper can validate them; the body carries only content.
+  const scope = await authenticatePortalRequest(req);
+  if (scope instanceof NextResponse) return scope;
+
+  const accessCode = new URL(req.url).searchParams.get("accessCode");
+  if (!accessCode) return errorResponse("Missing access code", 400, origin);
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -100,15 +84,10 @@ export async function POST(req: NextRequest) {
     return errorResponse("Invalid JSON body", 400, origin);
   }
 
-  const { code, email, text, from } = body as {
-    code?: string;
-    email?: string;
-    text?: string;
-    from?: string;
-  };
+  const { text, from } = body as { text?: string; from?: string };
 
-  if (!code || !text || !from) {
-    return errorResponse("Missing code, text, or from", 400, origin);
+  if (!text || !from) {
+    return errorResponse("Missing text or from", 400, origin);
   }
   if (!["client", "admin"].includes(from)) {
     return errorResponse('from must be "client" or "admin"', 400, origin);
@@ -116,19 +95,12 @@ export async function POST(req: NextRequest) {
   if (text.length > 2000) {
     return errorResponse("Message too long (max 2000 chars)", 400, origin);
   }
-
-  const redis = await getRedis();
-  const isAdmin = isAdminRequest(req);
-
-  if (from === "admin" && !isAdmin) {
+  // Only an admin may speak as "admin"; a portal client can only post as a client.
+  if (from === "admin" && scope.kind !== "admin") {
     return errorResponse("Unauthorized", 401, origin);
   }
-  if (from === "client") {
-    if (!redis) return jsonResponse({ success: true }, 200, origin);
-    const valid = await verifyClient(redis, code, email || "");
-    if (!valid) return errorResponse("Unauthorized", 401, origin);
-  }
 
+  const redis = await getRedis();
   if (!redis) return jsonResponse({ success: true }, 200, origin);
 
   try {
@@ -139,8 +111,8 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString(),
     };
 
-    await redis.lpush(`messages:${code}`, JSON.stringify(message));
-    await redis.ltrim(`messages:${code}`, 0, 199);
+    await redis.lpush(`messages:${accessCode}`, JSON.stringify(message));
+    await redis.ltrim(`messages:${accessCode}`, 0, 199);
 
     return jsonResponse({ success: true, message }, 200, origin);
   } catch {
