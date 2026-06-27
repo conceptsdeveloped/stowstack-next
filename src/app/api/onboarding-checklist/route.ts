@@ -11,6 +11,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 const ONBOARDING_STEPS = [
   {
@@ -314,25 +315,19 @@ export async function PATCH(req: NextRequest) {
 
     // Send notification email to client when a step is completed
     if (completed !== false) {
-      const apiKey = process.env.RESEND_API_KEY;
       const client = await db.clients.findUnique({
         where: { id: clientId },
         select: { email: true, name: true, facility_name: true },
       });
 
-      if (apiKey && client) {
+      if (client) {
         const stepLabel = validStep.label;
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            from: "StorageAds <notifications@storageads.com>",
-            to: client.email,
-            subject: `Onboarding update: ${stepLabel}`,
-            html: `
+        void sendEmail({
+          from: SENDERS.notifications,
+          to: client.email,
+          subject: `Onboarding update: ${stepLabel}`,
+          tags: [{ name: "type", value: "onboarding_update" }],
+          html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="margin: 0 0 12px; color: #1a1a1a;">Your StorageAds onboarding: ${esc(stepLabel)}</h2>
                 <p style="color: #666; margin: 0 0 20px;">Hey ${esc(client.name.split(" ")[0])}, just a quick update on your ${esc(client.facility_name || "")} campaign setup.</p>
@@ -342,8 +337,7 @@ export async function PATCH(req: NextRequest) {
                 <p style="color: #666; margin: 0 0 20px;">Log in to your portal to see the full progress: <a href="https://storageads.com/portal" style="color: #16a34a;">storageads.com/portal</a></p>
                 <p style="color: #999; font-size: 12px; margin-top: 24px;">StorageAds &middot; storageads.com</p>
               </div>`,
-          }),
-        }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
+        });
       }
     }
 

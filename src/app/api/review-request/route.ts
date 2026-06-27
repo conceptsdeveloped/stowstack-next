@@ -9,6 +9,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { facilitySender, sendEmail } from "@/lib/email";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -55,25 +56,18 @@ export async function POST(req: NextRequest) {
     const reviewUrl = googleMapsUrl;
 
     if ((!channel || channel === "email") && tenantEmail) {
-      const apiKey = process.env.RESEND_API_KEY;
-      if (apiKey) {
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            from: `${facilityName} <notifications@storageads.com>`,
-            to: tenantEmail.trim(),
-            subject: `How's your experience at ${facilityName}?`,
-            html: `
+      await sendEmail({
+        from: facilitySender(facilityName, "notifications"),
+        to: tenantEmail.trim(),
+        subject: `How's your experience at ${facilityName}?`,
+        tags: [{ name: "type", value: "review_request" }],
+        html: `
               <div style="font-family:-apple-system,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:20px;line-height:1.7;color:#1a1a1a;">
                 <p>Hey ${esc(firstName)},</p>
                 <p>Thanks for choosing <strong>${esc(facilityName)}</strong> for your storage needs. We hope everything has been going well.</p>
                 <p>If you have a minute, we would really appreciate a quick Google review. It helps other people in the area find us, and it means a lot to our team.</p>
                 <p style="margin:24px 0;">
-                  <a href="${reviewUrl}" style="display:inline-block;padding:14px 28px;background:#B58B3F;color:#faf9f5;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;">Leave a Review</a>
+                  <a href="${reviewUrl}" style="display:inline-block;padding:14px 28px;background:#141413;color:#faf9f5;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;">Leave a Review</a>
                 </p>
                 <p>Takes about 30 seconds. Thank you for being a great tenant.</p>
                 <p style="margin-top:24px;color:#666;">
@@ -81,9 +75,7 @@ export async function POST(req: NextRequest) {
                   ${esc(fac.location || "")}
                 </p>
               </div>`,
-          }),
-        });
-      }
+      });
     }
 
     if (channel === "sms" && tenantPhone) {

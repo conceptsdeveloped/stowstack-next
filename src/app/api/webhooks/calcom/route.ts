@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { db } from "@/lib/db";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 const WEBHOOK_SECRET = process.env.CALCOM_WEBHOOK_SECRET;
 
@@ -93,22 +94,17 @@ export async function POST(req: NextRequest) {
             },
           });
 
-          // Send pre-call context email to Blake
-          if (process.env.RESEND_API_KEY) {
+          // Send pre-call context email to Blake (non-blocking).
+          {
             const adminEmail = process.env.ADMIN_EMAIL || "blake@storageads.com";
-            fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                from: "StorageAds <noreply@storageads.com>",
-                to: adminEmail,
-                subject: `Call Booked: ${facility.name} — ${attendeeName || attendeeEmail}`,
-                html: `
+            void sendEmail({
+              from: SENDERS.noreply,
+              to: adminEmail,
+              subject: `Call Booked: ${facility.name} — ${attendeeName || attendeeEmail}`,
+              tags: [{ name: "type", value: "call_booked" }],
+              html: `
                   <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; color: #141413;">
-                    <h2 style="color: #B58B3F; margin: 0 0 12px;">New Call Booked</h2>
+                    <h2 style="color: #141413; margin: 0 0 12px;">New Call Booked</h2>
                     <table style="width: 100%; border-collapse: collapse;">
                       <tr><td style="padding: 6px 0; color: #6a6560;">Facility</td><td style="padding: 6px 0;"><strong>${facility.name}</strong></td></tr>
                       <tr><td style="padding: 6px 0; color: #6a6560;">Contact</td><td style="padding: 6px 0;">${attendeeName || "N/A"} (${attendeeEmail})</td></tr>
@@ -120,13 +116,12 @@ export async function POST(req: NextRequest) {
                       <tr><td style="padding: 6px 0; color: #6a6560;">Pipeline</td><td style="padding: 6px 0;">call_booked</td></tr>
                       ${startTime ? `<tr><td style="padding: 6px 0; color: #6a6560;">Call Time</td><td style="padding: 6px 0;">${new Date(startTime).toLocaleString("en-US", { timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short" })}</td></tr>` : ""}
                     </table>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com"}/admin/facilities" style="display: inline-block; background: #B58B3F; color: #faf9f5; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-size: 14px; margin-top: 16px;">
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com"}/admin/facilities" style="display: inline-block; background: #141413; color: #faf9f5; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-size: 14px; margin-top: 16px;">
                       View in Admin
                     </a>
                   </div>
                 `,
-              }),
-            }).catch(() => { /* non-critical */ });
+            });
           }
         }
       }

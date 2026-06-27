@@ -12,6 +12,7 @@ import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { CAL_BOOKING_URL } from "@/lib/booking";
 import { SEQUENCE_TEMPLATES } from "@/lib/nurture-templates";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 function esc(str: string | null | undefined): string {
   if (!str) return "";
@@ -202,25 +203,20 @@ export async function POST(req: NextRequest) {
           ? rl.annual_loss
           : viewAudit.vacancyCost.annualLoss;
 
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendKey}`,
-        },
-        body: JSON.stringify({
-          from: "Blake at StorageAds <noreply@storageads.com>",
-          to: facility.contact_email,
-          cc: "anna@storageads.com",
-          reply_to: ["blake@storageads.com", "anna@storageads.com"],
-          subject: `Your ${facility.name} facility audit is ready`,
-          html: `
+      void sendEmail({
+        from: SENDERS.blake,
+        to: facility.contact_email,
+        cc: "anna@storageads.com",
+        replyTo: ["blake@storageads.com", "anna@storageads.com"],
+        subject: `Your ${facility.name} facility audit is ready`,
+        tags: [{ name: "type", value: "audit_ready" }],
+        html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.7; color: #1a1a1a;">
               <p>Hey ${esc(firstName)},</p>
               <p>Your facility audit for <strong>${esc(facility.name)}</strong> is done. I went through your market, competitors, digital presence, and revenue numbers.</p>
               ${annualLoss > 0 ? `<p>Quick headline: your vacancy is costing you an estimated <strong style="color: #dc2626;">$${annualLoss.toLocaleString()}/year</strong> in lost revenue. The audit breaks down exactly where that is coming from and what to do about it.</p>` : ""}
               <p style="margin: 24px 0;">
-                <a href="${auditUrl}" style="display: inline-block; padding: 14px 28px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">View Your Audit Report</a>
+                <a href="${auditUrl}" style="display: inline-block; padding: 14px 28px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">View Your Audit Report</a>
               </p>
               <p>The report covers:</p>
               <ul style="padding-left: 20px; margin: 12px 0;">
@@ -232,7 +228,7 @@ export async function POST(req: NextRequest) {
               </ul>
               <p>I would love to walk you through the findings on a quick call. <strong>Pick a time that works for you:</strong></p>
               <p style="margin: 20px 0;">
-                <a href="${CAL_BOOKING_URL}" style="display: inline-block; padding: 12px 24px; background: #9E7A36; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Book a 20-Minute Walkthrough</a>
+                <a href="${CAL_BOOKING_URL}" style="display: inline-block; padding: 12px 24px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Book a 20-Minute Walkthrough</a>
               </p>
               <p>The report link is active for 90 days. If you have any questions before we talk, just reply to this email.</p>
               <p style="margin-top: 24px;">
@@ -241,8 +237,7 @@ export async function POST(req: NextRequest) {
                 <a href="tel:2699298541" style="color: #16a34a; text-decoration: none;">269-929-8541</a>
               </p>
             </div>`,
-        }),
-      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
+      });
     }
 
     // Update facility pipeline

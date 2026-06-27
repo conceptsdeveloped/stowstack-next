@@ -6,6 +6,7 @@ import {
   getOrigin,
   corsResponse,
 } from "@/lib/api-helpers";
+import { SENDERS, sendEmail } from "@/lib/email";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidEmail, escapeHtml } from "@/lib/validation";
@@ -188,6 +189,15 @@ export async function POST(req: NextRequest) {
       responses,
     } = body || {};
 
+    // Bound the (billed) downstream Anthropic call: reject oversized public
+    // submissions before the free-text answers reach the AI prompt. This
+    // public route is the one un-gated entry to the diagnostic engine, so the
+    // size cap lives here (mirrors the guard the deleted diagnostic-analyze
+    // endpoint carried).
+    if (responses && JSON.stringify(responses).length > 50_000) {
+      return errorResponse("Submission too large", 413, origin);
+    }
+
     if (!facilityName || !contactEmail) {
       return errorResponse(
         "facilityName and contactEmail are required",
@@ -307,20 +317,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send notification email
-    const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendKey}`,
-        },
-        body: JSON.stringify({
-          from: "StorageAds <notifications@storageads.com>",
-          to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-          subject: `[Score: ${leadScore}] New Diagnostic: ${escapeHtml(facilityName)}`,
-          html: `
+    // Send notification email (fire-and-forget).
+    void sendEmail({
+      from: SENDERS.notifications,
+      to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
+      subject: `[Score: ${leadScore}] New Diagnostic: ${escapeHtml(facilityName)}`,
+      tags: [{ name: "type", value: "diagnostic_intake" }],
+      html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <h2 style="margin: 0 0 12px; color: #1a1a1a;">New Diagnostic Form Submission</h2>
               <table style="width: 100%; border-collapse: collapse;">
@@ -335,14 +338,10 @@ export async function POST(req: NextRequest) {
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Aggressiveness</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(aggressivenessRaw || "N/A")}</td></tr>
               </table>
               <p style="margin-top: 20px;">
-                <a href="https://storageads.com/admin/audits" style="display: inline-block; padding: 12px 24px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Generate Audit</a>
+                <a href="https://storageads.com/admin/audits" style="display: inline-block; padding: 12px 24px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">Generate Audit</a>
               </p>
             </div>`,
-        }),
-      }).catch((err) => {
-        console.error("[diagnostic-intake] Notification email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    });
 
     // Log activity
     db.activity_log

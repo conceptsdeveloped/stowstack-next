@@ -12,6 +12,7 @@ import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import type { ReportType, ExportFormat } from "@/types/reports";
 import { generatePdfReport } from "@/lib/pdf-report";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -465,28 +466,22 @@ export async function PATCH(req: NextRequest) {
     const isWeekly = report.report_type === "weekly";
     const subject = `${facilityName} — ${isWeekly ? "Weekly" : "Monthly"} Performance Report`;
 
-    const emailRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        from: "StorageAds <reports@storageads.com>",
-        to: clientEmail,
-        subject,
-        html: report.report_html || "",
-      }),
+    const emailResult = await sendEmail({
+      from: SENDERS.reports,
+      to: clientEmail,
+      subject,
+      html: report.report_html || "",
+      tags: [{ name: "type", value: "client_report" }],
     });
 
-    if (!emailRes.ok) {
-      const errText = await emailRes.text();
+    if (!emailResult.ok) {
       await db.client_reports.update({
         where: { id },
         data: { status: "failed" },
       });
-      console.error("Report email send failed:", errText);
-      return errorResponse(`Email send failed: ${errText}`, 500, origin);
+      const detail = emailResult.error || emailResult.skipReason || "unknown error";
+      console.error("Report email send failed:", detail);
+      return errorResponse(`Email send failed: ${detail}`, 500, origin);
     }
 
     // Mark as sent

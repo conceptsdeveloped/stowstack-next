@@ -7,6 +7,7 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { SENDERS, sendEmail } from "@/lib/email";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidEmail, sanitizeString, escapeHtml } from "@/lib/validation";
@@ -89,19 +90,12 @@ export async function POST(req: NextRequest) {
       data: { pms_uploaded: true, updated_at: new Date() },
     });
 
-    const apiKey = process.env.RESEND_API_KEY;
-    if (apiKey) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          from: "StorageAds <notifications@storageads.com>",
-          to: [process.env.ADMIN_EMAIL || "blake@storageads.com", "anna@storageads.com"],
-          subject: `PMS Report Uploaded: ${escapeHtml(facilityName)}`,
-          html: `<div style="font-family: sans-serif; padding: 20px;">
+    void sendEmail({
+      from: SENDERS.notifications,
+      to: [process.env.ADMIN_EMAIL || "blake@storageads.com", "anna@storageads.com"],
+      subject: `PMS Report Uploaded: ${escapeHtml(facilityName)}`,
+      tags: [{ name: "type", value: "pms_upload" }],
+      html: `<div style="font-family: sans-serif; padding: 20px;">
             <h2>New PMS Report Upload</h2>
             <p><strong>Facility:</strong> ${escapeHtml(facilityName)}</p>
             <p><strong>Email:</strong> ${escapeHtml(email)}</p>
@@ -109,11 +103,7 @@ export async function POST(req: NextRequest) {
             <p><strong>File:</strong> ${escapeHtml(fileName || "report.csv")}</p>
             <p style="color: #666; font-size: 13px;">Uploaded: ${new Date().toISOString()}</p>
           </div>`,
-        }),
-      }).catch((err) => {
-        console.error("[pms-upload] Notification email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    });
 
     return jsonResponse({ id: report.id, success: true }, 200, origin);
   } catch {

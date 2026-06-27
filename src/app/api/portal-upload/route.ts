@@ -8,6 +8,7 @@ import {
   corsResponse,
   isAdminRequest,
 } from "@/lib/api-helpers";
+import { SENDERS, sendEmail } from "@/lib/email";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { escapeHtml } from "@/lib/validation";
@@ -138,20 +139,13 @@ export async function POST(req: NextRequest) {
       data: { pms_uploaded: true, updated_at: new Date() },
     });
 
-    // Send admin notification (fire-and-forget)
-    const apiKey = process.env.RESEND_API_KEY;
-    if (apiKey) {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          from: "StorageAds <notifications@storageads.com>",
-          to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-          subject: `PMS Report Uploaded: ${escapeHtml(facility?.name ?? "Unknown")}`,
-          html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; max-width: 480px;">
+    // Send admin notification (fire-and-forget).
+    void sendEmail({
+      from: SENDERS.notifications,
+      to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
+      subject: `PMS Report Uploaded: ${escapeHtml(facility?.name ?? "Unknown")}`,
+      tags: [{ name: "type", value: "portal_upload" }],
+      html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; max-width: 480px;">
             <h2 style="color: #141413; margin: 0 0 16px;">New PMS Report Upload</h2>
             <table style="font-size: 14px; color: #6a6560; line-height: 1.6;">
               <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">Facility</td><td>${escapeHtml(facility?.name ?? "Unknown")}</td></tr>
@@ -160,13 +154,9 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">Size</td><td>${(file.size / 1024).toFixed(1)} KB</td></tr>
               <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">From</td><td>${escapeHtml(resolved.clientEmail)}</td></tr>
             </table>
-            <p style="margin-top: 16px;"><a href="${blob.url}" style="color: #B58B3F;">View File</a></p>
+            <p style="margin-top: 16px;"><a href="${blob.url}" style="color: #141413;">View File</a></p>
           </div>`,
-        }),
-      }).catch((err) => {
-        console.error("[portal-upload] Notification email failed:", err instanceof Error ? err.message : err);
-      });
-    }
+    });
 
     return jsonResponse({ id: report.id, file_url: blob.url, success: true }, 200, origin);
   } catch (err) {

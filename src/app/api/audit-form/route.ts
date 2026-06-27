@@ -4,6 +4,7 @@ import { corsResponse, getOrigin } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidEmail, sanitizeString, escapeHtml } from "@/lib/validation";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 export async function OPTIONS(request: NextRequest) {
   return corsResponse(getOrigin(request));
@@ -61,20 +62,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send email notification via Resend (if configured)
-    if (process.env.RESEND_API_KEY) {
-      try {
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "StorageAds <noreply@storageads.com>",
-            to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-            subject: `New Audit Request: ${escapeHtml(facilityName)} (${escapeHtml(location)})`,
-            html: `
+    // Send email notification (non-blocking; sendEmail never throws).
+    await sendEmail({
+      from: SENDERS.noreply,
+      to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
+      subject: `New Audit Request: ${escapeHtml(facilityName)} (${escapeHtml(location)})`,
+      tags: [{ name: "type", value: "audit_request" }],
+      html: `
               <h2>New Facility Audit Request</h2>
               <p><strong>Name:</strong> ${escapeHtml(name)}</p>
               <p><strong>Email:</strong> ${escapeHtml(email)}</p>
@@ -87,12 +81,7 @@ export async function POST(request: NextRequest) {
               <p><strong>Biggest Challenge:</strong> ${escapeHtml(biggestChallenge || "N/A")}</p>
               <p><strong>How Heard:</strong> ${escapeHtml(howHeard || "N/A")}</p>
             `,
-          }),
-        });
-      } catch {
-        // Email failure should not block the response
-      }
-    }
+    });
 
     return NextResponse.json({
       success: true,

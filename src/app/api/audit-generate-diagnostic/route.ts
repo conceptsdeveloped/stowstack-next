@@ -10,6 +10,8 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { sendEmail, SENDERS } from "@/lib/email";
+import { escapeHtml } from "@/lib/validation";
 
 // Claude API call needs 30-60s for full diagnostic audit generation
 export const maxDuration = 120;
@@ -1073,20 +1075,25 @@ export async function POST(req: NextRequest) {
 
     const auditUrl = `https://storageads.com/audit/${slug}`;
 
-    // Send email to operator with their diagnostic results
-    const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey && diagnostic.contactEmail) {
+    // Diagnostic emails via the canonical email layer (validates, retries,
+    // honors EMAIL_DRY_RUN / EMAIL_REDIRECT_TO, skips cleanly when RESEND_API_KEY
+    // is unset, dedups on idempotencyKey).
+    const gradeText = letterGrade(overallScore);
+    const annualVacancyCost = fullAudit.vacancyCost.annualLoss;
+    const facilityNameSafe = escapeHtml(diagnostic.facilityName || "Your facility");
+    const adminEmail = process.env.ADMIN_EMAIL || "blake@storageads.com";
+
+    // Operator email — only when we captured an address to send it to.
+    if (diagnostic.contactEmail) {
       const scoreColor =
         overallScore >= 80
           ? "#22c55e"
           : overallScore >= 60
-            ? "#B58B3F"
+            ? "#6a9bcc"
             : overallScore >= 40
               ? "#f59e0b"
               : "#ef4444";
-      const gradeText = letterGrade(overallScore);
-      const summaryExcerpt = (fullAudit.executiveSummary || "").slice(0, 300);
-      const annualVacancyCost = fullAudit.vacancyCost.annualLoss;
+      const summaryExcerpt = escapeHtml((fullAudit.executiveSummary || "").slice(0, 300));
 
       const operatorHtml = `
 <!DOCTYPE html>
@@ -1097,7 +1104,7 @@ export async function POST(req: NextRequest) {
     <!-- Header -->
     <div style="text-align: center; margin-bottom: 32px;">
       <h1 style="color: #141413; font-size: 22px; font-weight: 700; margin: 0 0 8px;">Your Facility Diagnostic is Ready</h1>
-      <p style="color: #6a6560; font-size: 14px; margin: 0;">${diagnostic.facilityName}</p>
+      <p style="color: #6a6560; font-size: 14px; margin: 0;">${facilityNameSafe}</p>
     </div>
 
     <!-- Score Ring -->
@@ -1135,7 +1142,7 @@ export async function POST(req: NextRequest) {
 
     <!-- CTA Button -->
     <div style="text-align: center; margin-bottom: 40px;">
-      <a href="${auditUrl}" style="display: inline-block; padding: 16px 40px; background-color: #B58B3F; color: #faf9f5; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 10px;">View Your Full Diagnostic</a>
+      <a href="${auditUrl}" style="display: inline-block; padding: 16px 40px; background-color: #141413; color: #faf9f5; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 10px;">View Your Full Diagnostic</a>
     </div>
 
     <!-- Footer -->
@@ -1147,48 +1154,38 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
 
-      // Send to operator
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendKey}`,
-        },
-        body: JSON.stringify({
-          from: "StorageAds <notifications@storageads.com>",
-          to: [diagnostic.contactEmail],
-          subject: `Your StorageAds Facility Diagnostic is Ready: ${diagnostic.facilityName}`,
-          html: operatorHtml,
-        }),
-      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
+      void sendEmail({
+        from: SENDERS.notifications,
+        to: diagnostic.contactEmail,
+        subject: `Your StorageAds Facility Diagnostic is Ready: ${diagnostic.facilityName}`,
+        tags: [{ name: "type", value: "diagnostic_operator" }],
+        idempotencyKey: `diagnostic-operator:${slug}`,
+        html: operatorHtml,
+      }).catch((err) => console.error("[audit-generate] operator email failed:", err));
+    }
 
-      // Send notification to Blake
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendKey}`,
-        },
-        body: JSON.stringify({
-          from: "StorageAds <notifications@storageads.com>",
-          to: [process.env.ADMIN_EMAIL || "blake@storageads.com"],
-          subject: `Audit Generated: ${diagnostic.facilityName} (Score: ${overallScore}/100)`,
-          html: `
+    // Always notify Blake that a diagnostic was generated — including quick
+    // diagnostics with no operator email — so generation is visible in the funnel.
+    void sendEmail({
+      from: SENDERS.notifications,
+      to: adminEmail,
+      subject: `Audit Generated: ${diagnostic.facilityName} (Score: ${overallScore}/100)`,
+      tags: [{ name: "type", value: "diagnostic_generated" }],
+      idempotencyKey: `diagnostic-generated:${slug}`,
+      html: `
             <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2 style="margin: 0 0 12px; color: #1a1a1a;">Diagnostic Audit Generated</h2>
+              <h2 style="margin: 0 0 12px; color: #141413;">Diagnostic Audit Generated</h2>
               <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Facility</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${diagnostic.facilityName}</strong></td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Facility</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${facilityNameSafe}</strong></td></tr>
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Score</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;"><strong>${overallScore}/100 (${gradeText})</strong></td></tr>
-                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Contact</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${diagnostic.contactName || "N/A"} (${diagnostic.contactEmail})</td></tr>
+                <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Contact</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">${escapeHtml(diagnostic.contactName || "N/A")} (${escapeHtml(diagnostic.contactEmail || "no email provided")})</td></tr>
                 <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5; color: #666;">Vacancy Cost</td><td style="padding: 8px 12px; border-bottom: 1px solid #e5e5e5;">$${annualVacancyCost.toLocaleString()}/yr</td></tr>
               </table>
               <p style="margin-top: 20px;">
-                <a href="${auditUrl}" style="display: inline-block; padding: 12px 24px; background: #B58B3F; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">View Audit</a>
+                <a href="${auditUrl}" style="display: inline-block; padding: 12px 24px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 600;">View Audit</a>
               </p>
             </div>`,
-        }),
-      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
-    }
+    }).catch((err) => console.error("[audit-generate] admin notify failed:", err));
 
     return jsonResponse(
       {

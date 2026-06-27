@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session-auth";
 import { jsonResponse, errorResponse, getOrigin, corsResponse, verifyCsrfOrigin } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { SENDERS, sendEmail } from "@/lib/email";
 
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
@@ -126,40 +127,28 @@ async function sendInviteEmail(
   orgSlug: string,
   inviterName: string,
 ): Promise<void> {
-  const resendKey = process.env.RESEND_API_KEY;
-  if (!resendKey) {
-    console.warn("RESEND_API_KEY not set, skipping invite email");
-    return;
-  }
-
   const safeOrgName = escapeHtml(orgName);
   const safeInviterName = escapeHtml(inviterName);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com";
   const acceptUrl = `${baseUrl}/partner?invite=${encodeURIComponent(token)}&org=${encodeURIComponent(orgSlug)}&email=${encodeURIComponent(email)}`;
 
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: "StorageAds <noreply@storageads.com>",
-      to: [email],
-      subject: `You've been invited to ${orgName} on StorageAds`,
-      html: `
+  await sendEmail({
+    from: SENDERS.noreply,
+    to: [email],
+    subject: `You've been invited to ${orgName} on StorageAds`,
+    tags: [{ name: "type", value: "org_invite" }],
+    html: `
         <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
           <h2 style="color: #141413; font-size: 20px; margin-bottom: 16px;">You're invited!</h2>
           <p style="color: #6a6560; font-size: 14px; line-height: 1.6;">
             ${safeInviterName} has invited you to join <strong>${safeOrgName}</strong> on StorageAds.
           </p>
-          <a href="${acceptUrl}" style="display: inline-block; margin: 24px 0; padding: 12px 24px; background: #B58B3F; color: #141413; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+          <a href="${acceptUrl}" style="display: inline-block; margin: 24px 0; padding: 12px 24px; background: #141413; color: #faf9f5; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
             Accept Invitation
           </a>
           <p style="color: #b0aea5; font-size: 12px;">This invitation expires in 7 days.</p>
         </div>
       `,
-    }),
   });
 }
 

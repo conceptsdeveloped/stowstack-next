@@ -11,6 +11,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { sendEmail, SENDERS } from "@/lib/email";
 
 const VALID_STEPS = [
   "facilityDetails",
@@ -342,19 +343,14 @@ export async function PATCH(req: NextRequest) {
       });
       if (client) {
         const adminEmail = process.env.ADMIN_EMAIL || "blake@storageads.com";
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "StorageAds <noreply@storageads.com>",
-            to: adminEmail,
-            subject: `Onboarding Complete: ${client.facility_name || client.name}`,
-            html: `
+        void sendEmail({
+          from: SENDERS.noreply,
+          to: adminEmail,
+          subject: `Onboarding Complete: ${client.facility_name || client.name}`,
+          tags: [{ name: "type", value: "onboarding_complete" }],
+          html: `
               <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 500px; color: #141413;">
-                <h2 style="color: #B58B3F; margin: 0 0 12px;">Onboarding Complete</h2>
+                <h2 style="color: #141413; margin: 0 0 12px;">Onboarding Complete</h2>
                 <p><strong>${client.name}</strong> (${client.email}) has completed all 5 onboarding steps for <strong>${client.facility_name || "their facility"}</strong>.</p>
                 <p style="margin-top: 16px;">Next steps:</p>
                 <ol>
@@ -362,13 +358,12 @@ export async function PATCH(req: NextRequest) {
                   <li>Build their campaigns</li>
                   <li>Launch within 48 hours</li>
                 </ol>
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com"}/admin/facilities" style="display: inline-block; background: #B58B3F; color: #faf9f5; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-size: 14px; margin-top: 12px;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://storageads.com"}/admin/facilities" style="display: inline-block; background: #141413; color: #faf9f5; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-size: 14px; margin-top: 12px;">
                   Review in Admin
                 </a>
               </div>
             `,
-          }),
-        }).catch(() => { /* non-critical */ });
+        });
       }
     }
 

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { jsonResponse, errorResponse, getOrigin, corsResponse } from "@/lib/api-helpers";
+import { SENDERS, sendEmail } from "@/lib/email";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isValidEmail, sanitizeString } from "@/lib/validation";
 import { fireMetaCapi } from "@/lib/meta-capi";
@@ -230,19 +231,13 @@ export async function POST(req: NextRequest) {
         recipients.push(facility.contact_email);
       }
 
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          from: "StorageAds <notifications@storageads.com>",
-          to: [...new Set(recipients)],
-          subject: `New Lead: ${name.trim()} — ${facilityName}`,
-          html: notificationHtml,
-        }),
-      }).catch((err) => console.error("[email] Fire-and-forget failed:", err));
+      void sendEmail({
+        from: SENDERS.notifications,
+        to: [...new Set(recipients)],
+        subject: `New Lead: ${name.trim()} — ${facilityName}`,
+        html: notificationHtml,
+        tags: [{ name: "type", value: "new_lead" }],
+      });
     }
 
     return jsonResponse({ success: true }, 200, origin);
