@@ -2,17 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Megaphone, MessageSquare, BarChart3, Settings, Upload, MapPin } from "lucide-react";
-
-const TABS = [
-  { label: "Home",      href: "/portal",           icon: LayoutDashboard },
-  { label: "Campaigns", href: "/portal/campaigns",  icon: Megaphone },
-  { label: "Reviews",   href: "/portal/gbp",        icon: MapPin },
-  { label: "Reports",   href: "/portal/reports",    icon: BarChart3 },
-  { label: "Upload",    href: "/portal/upload",     icon: Upload },
-  { label: "Messages",  href: "/portal/messages",   icon: MessageSquare },
-  { label: "Settings",  href: "/portal/settings",   icon: Settings },
-];
+import { PORTAL_BOTTOM_TABS, isNavItemActive } from "./portal-nav";
 
 export function PortalBottomTabs() {
   const pathname = usePathname();
@@ -23,10 +13,8 @@ export function PortalBottomTabs() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex items-stretch">
-        {TABS.map((tab) => {
-          const isActive = tab.href === "/portal"
-            ? pathname === "/portal"
-            : pathname.startsWith(tab.href);
+        {PORTAL_BOTTOM_TABS.map((tab) => {
+          const isActive = isNavItemActive(tab.href, pathname);
           const Icon = tab.icon;
 
           return (
@@ -40,7 +28,7 @@ export function PortalBottomTabs() {
               }`}
             >
               <Icon className="h-5 w-5" />
-              <span>{tab.label}</span>
+              <span>{tab.tabLabel}</span>
             </Link>
           );
         })}

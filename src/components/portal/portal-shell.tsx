@@ -5,20 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Building2,
-  LayoutDashboard,
-  Megaphone,
-  MessageSquare,
-  BarChart3,
-  Settings,
   Mail,
   Send,
   Loader2,
   AlertCircle,
   Menu,
-  ClipboardCheck,
-  CreditCard,
-  MapPin,
-  Upload,
 } from "lucide-react";
 import {
   type PortalSession,
@@ -29,6 +20,7 @@ import {
   firstName,
 } from "@/lib/portal-helpers";
 import { PortalBottomTabs } from "./portal-bottom-tabs";
+import { PORTAL_NAV, PORTAL_TITLES, isNavItemActive } from "./portal-nav";
 import { haptic } from "@/lib/haptics";
 
 /* ─── context ─── */
@@ -46,20 +38,6 @@ export function usePortal() {
   if (!ctx) throw new Error("usePortal must be used within PortalShell");
   return ctx;
 }
-
-/* ─── nav items ─── */
-
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
-  { label: "Campaigns", href: "/portal/campaigns", icon: Megaphone },
-  { label: "GBP", href: "/portal/gbp", icon: MapPin },
-  { label: "Reports", href: "/portal/reports", icon: BarChart3 },
-  { label: "Upload", href: "/portal/upload", icon: Upload },
-  { label: "Messages", href: "/portal/messages", icon: MessageSquare },
-  { label: "Billing", href: "/portal/billing", icon: CreditCard },
-  { label: "Onboarding", href: "/portal/onboarding", icon: ClipboardCheck },
-  { label: "Settings", href: "/portal/settings", icon: Settings },
-];
 
 /* ─── login form ─── */
 
@@ -307,10 +285,8 @@ function Sidebar({ client, mobileOpen, onClose }: { client: ClientData; mobileOp
       </div>
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         <ul className="space-y-0.5">
-          {NAV_ITEMS.map((item) => {
-            const isActive = item.href === "/portal"
-              ? pathname === "/portal"
-              : pathname.startsWith(item.href);
+          {PORTAL_NAV.map((item) => {
+            const isActive = isNavItemActive(item.href, pathname);
             const Icon = item.icon;
             return (
               <li key={item.href}>
@@ -324,7 +300,7 @@ function Sidebar({ client, mobileOpen, onClose }: { client: ClientData; mobileOp
                   }`}
                 >
                   <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[var(--color-gold)]" : ""}`} />
-                  <span>{item.label}</span>
+                  <span>{item.sidebarLabel}</span>
                 </Link>
               </li>
             );
@@ -353,24 +329,13 @@ function Sidebar({ client, mobileOpen, onClose }: { client: ClientData; mobileOp
 
 function PortalHeader({ client, onToggle, onLogout }: { client: ClientData; onToggle: () => void; onLogout: () => void }) {
   const pathname = usePathname();
-  const titles: Record<string, string> = {
-    "/portal": "Dashboard",
-    "/portal/campaigns": "Campaigns",
-    "/portal/gbp": "Reviews",
-    "/portal/reports": "Reports",
-    "/portal/upload": "Upload",
-    "/portal/messages": "Messages",
-    "/portal/billing": "Billing",
-    "/portal/onboarding": "Onboarding",
-    "/portal/settings": "Settings",
-  };
 
   return (
     <header className="safe-top sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 px-4 backdrop-blur-xl md:px-6">
       <button type="button" onClick={onToggle} className="rounded-lg p-2 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] md:hidden">
         <Menu className="h-5 w-5" />
       </button>
-      <h1 className="text-base font-semibold text-[var(--color-dark)]">{titles[pathname] ?? "Portal"}</h1>
+      <h1 className="text-base font-semibold text-[var(--color-dark)]">{PORTAL_TITLES[pathname] ?? "Portal"}</h1>
       <div className="ml-auto flex items-center gap-3">
         <span className="hidden text-xs text-[var(--color-mid-gray)] sm:inline">{client.email}</span>
         <button type="button" onClick={onLogout} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs text-[var(--color-body-text)] hover:text-[var(--color-dark)]">
@@ -423,7 +388,12 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
     const s = getPortalSession();
     if (!s) throw new Error("Not authenticated");
     const separator = url.includes("?") ? "&" : "?";
-    return fetch(`${url}${separator}code=${s.accessCode}&email=${encodeURIComponent(s.email)}`, init);
+    // Portal routes are inconsistent about the auth param name: some read
+    // `code` (onboarding), some `accessCode` (attribution). Send both (same
+    // value) plus `email` so any portal endpoint authenticates regardless.
+    const code = encodeURIComponent(s.accessCode);
+    const email = encodeURIComponent(s.email);
+    return fetch(`${url}${separator}code=${code}&accessCode=${code}&email=${email}`, init);
   }, []);
 
   if (loading) {
