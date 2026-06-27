@@ -197,7 +197,7 @@ export default function RevenuePage() {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-[var(--color-dark)]">
-                Unlock {nextTier.name} — {nextTier.pct}% Revenue Share
+                Reach {nextTier.name}: {nextTier.pct}% Revenue Share
               </h3>
               <p className="mt-1 text-sm text-[var(--color-body-text)]">
                 Add{" "}

@@ -119,7 +119,7 @@ export default function ApiKeysPage() {
       {createdKey && (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
           <p className="mb-2 text-sm font-medium text-emerald-400">
-            New API Key Created — copy it now, it will not be shown again:
+            New API Key Created. Copy it now, it will not be shown again:
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 break-all rounded-lg border border-emerald-500/20 bg-[var(--color-light)] px-3 py-2 font-mono text-sm text-[var(--color-dark)]">

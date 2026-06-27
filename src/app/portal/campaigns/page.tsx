@@ -98,7 +98,7 @@ export default function CampaignsPage() {
     } else if (highestSpend.roas < 1) {
       tip = `Your highest-spend campaign (${spendName}) is underperforming on ROAS. Review targeting or creative to improve returns.`;
     } else {
-      tip = `No big shifts this period. ${bestName} is your top performer — keep its budget where it is.`;
+      tip = `No big shifts this period. ${bestName} is your top performer, so keep its budget where it is.`;
     }
 
     return { bestRoas, highestSpend, tip };

@@ -179,7 +179,7 @@ export default function WebhooksPage() {
       {webhookSecret && (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
           <p className="mb-2 text-sm font-medium text-emerald-400">
-            Webhook signing secret — copy it now:
+            Webhook signing secret. Copy it now:
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 break-all rounded-lg border border-emerald-500/20 bg-[var(--color-light)] px-3 py-2 font-mono text-xs text-[var(--color-dark)]">
