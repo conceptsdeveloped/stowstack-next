@@ -231,6 +231,32 @@ describe("validateEmailParams", () => {
     expect(validateEmailParams(validParams({ subject: "  " }))).toMatch(/Missing 'subject'/);
   });
 
+  it("validates attachments: filename required, exactly one of content/path", () => {
+    expect(
+      validateEmailParams(validParams({ attachments: [{ filename: "", content: "x" }] }))
+    ).toMatch(/missing a filename/);
+    // neither content nor path
+    expect(
+      validateEmailParams(validParams({ attachments: [{ filename: "a.pdf" }] }))
+    ).toMatch(/exactly one of 'content' or 'path'/);
+    // both content and path
+    expect(
+      validateEmailParams(
+        validParams({ attachments: [{ filename: "a.pdf", content: "x", path: "https://h/a" }] })
+      )
+    ).toMatch(/exactly one of 'content' or 'path'/);
+    // valid: content only
+    expect(
+      validateEmailParams(validParams({ attachments: [{ filename: "a.pdf", content: "x" }] }))
+    ).toBeNull();
+    // valid: path only
+    expect(
+      validateEmailParams(
+        validParams({ attachments: [{ filename: "a.pdf", path: "https://h/a.pdf" }] })
+      )
+    ).toBeNull();
+  });
+
   it("requires html or text content", () => {
     expect(
       validateEmailParams(validParams({ html: undefined, text: undefined }))

@@ -256,6 +256,22 @@ export function validateEmailParams(params: SendEmailParams): string | null {
     return "Email must include 'html' or 'text' content";
   }
 
+  // attachments — each must carry exactly one of content/path and a filename,
+  // otherwise Resend silently drops it (or the whole send).
+  if (params.attachments) {
+    for (let i = 0; i < params.attachments.length; i++) {
+      const a = params.attachments[i];
+      if (!a.filename || !a.filename.trim()) {
+        return `Attachment ${i} is missing a filename`;
+      }
+      const hasContent = typeof a.content === "string" && a.content.length > 0;
+      const hasPath = typeof a.path === "string" && a.path.length > 0;
+      if (hasContent === hasPath) {
+        return `Attachment "${a.filename}" must have exactly one of 'content' or 'path'`;
+      }
+    }
+  }
+
   return null;
 }
 
