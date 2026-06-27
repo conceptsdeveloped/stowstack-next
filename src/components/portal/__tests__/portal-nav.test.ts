@@ -1,69 +1,89 @@
 import { describe, it, expect } from "vitest";
 import {
-  PORTAL_NAV,
+  PORTAL_NAV_GROUPS,
+  PORTAL_NAV_ITEMS,
   PORTAL_BOTTOM_TABS,
+  PORTAL_ONBOARDING_ITEM,
   PORTAL_TITLES,
+  portalNavTitle,
+  portalNavGroups,
   isNavItemActive,
 } from "../portal-nav";
 
+// These tests lock the *invariants* of the single portal nav source rather than
+// exact labels, so they protect against drift (a second nav array, a bottom tab
+// that isn't a real route, a title that can't resolve) without fighting ongoing
+// IA/label iteration.
+
 describe("portal nav source", () => {
-  it("lists all nine portal routes in sidebar order", () => {
-    expect(PORTAL_NAV.map((i) => i.href)).toEqual([
-      "/portal",
-      "/portal/campaigns",
-      "/portal/gbp",
-      "/portal/reports",
-      "/portal/upload",
-      "/portal/messages",
-      "/portal/billing",
-      "/portal/onboarding",
-      "/portal/settings",
-    ]);
+  it("has at least one group and every group has items", () => {
+    expect(PORTAL_NAV_GROUPS.length).toBeGreaterThan(0);
+    for (const group of PORTAL_NAV_GROUPS) {
+      expect(group.label.length).toBeGreaterThan(0);
+      expect(group.items.length).toBeGreaterThan(0);
+    }
   });
 
-  it("every item has a non-empty sidebar label, header title, and icon", () => {
-    for (const item of PORTAL_NAV) {
-      expect(item.sidebarLabel.length).toBeGreaterThan(0);
-      expect(item.headerTitle.length).toBeGreaterThan(0);
+  it("PORTAL_NAV_ITEMS is exactly the flattened group items, in order", () => {
+    expect(PORTAL_NAV_ITEMS).toEqual(PORTAL_NAV_GROUPS.flatMap((g) => g.items));
+  });
+
+  it("every nav item (incl. onboarding) has a unique href, non-empty label, and icon", () => {
+    const all = [...PORTAL_NAV_ITEMS, PORTAL_ONBOARDING_ITEM];
+    const hrefs = all.map((i) => i.href);
+    expect(new Set(hrefs).size).toBe(hrefs.length);
+    for (const item of all) {
+      expect(item.href.startsWith("/portal")).toBe(true);
+      expect(item.label.length).toBeGreaterThan(0);
       expect(item.icon).toBeTypeOf("object");
     }
   });
 
-  it("bottom tabs are the seven expected items in order, omitting billing + onboarding", () => {
-    expect(PORTAL_BOTTOM_TABS.map((i) => i.href)).toEqual([
-      "/portal",
-      "/portal/campaigns",
-      "/portal/gbp",
-      "/portal/reports",
-      "/portal/upload",
-      "/portal/messages",
-      "/portal/settings",
-    ]);
-    expect(PORTAL_BOTTOM_TABS.map((i) => i.href)).not.toContain("/portal/billing");
-    expect(PORTAL_BOTTOM_TABS.map((i) => i.href)).not.toContain("/portal/onboarding");
+  it("onboarding is conditional, not part of the always-on primary items", () => {
+    expect(PORTAL_NAV_ITEMS.map((i) => i.href)).not.toContain(PORTAL_ONBOARDING_ITEM.href);
   });
 
-  it("every bottom tab has a tabLabel", () => {
-    for (const item of PORTAL_BOTTOM_TABS) {
-      expect(item.tabLabel && item.tabLabel.length).toBeGreaterThan(0);
+  it("bottom tabs are a real subset of nav items and stay within the native cap", () => {
+    const navHrefs = new Set(PORTAL_NAV_ITEMS.map((i) => i.href));
+    expect(PORTAL_BOTTOM_TABS.length).toBeGreaterThan(0);
+    expect(PORTAL_BOTTOM_TABS.length).toBeLessThanOrEqual(5);
+    for (const tab of PORTAL_BOTTOM_TABS) {
+      expect(navHrefs.has(tab.href)).toBe(true);
     }
   });
 
-  it("preserves the per-surface relabels (Dashboard->Home, GBP->Reviews)", () => {
-    const dashboard = PORTAL_NAV.find((i) => i.href === "/portal")!;
-    expect(dashboard.sidebarLabel).toBe("Dashboard");
-    expect(dashboard.tabLabel).toBe("Home");
-
-    const gbp = PORTAL_NAV.find((i) => i.href === "/portal/gbp")!;
-    expect(gbp.sidebarLabel).toBe("GBP");
-    expect(gbp.headerTitle).toBe("Reviews");
-    expect(gbp.tabLabel).toBe("Reviews");
+  it("the dashboard root is the first bottom tab", () => {
+    expect(PORTAL_BOTTOM_TABS[0].href).toBe("/portal");
   });
 
-  it("title lookup maps each route to its header title", () => {
-    expect(PORTAL_TITLES["/portal"]).toBe("Dashboard");
-    expect(PORTAL_TITLES["/portal/gbp"]).toBe("Reviews");
-    expect(PORTAL_TITLES["/portal/billing"]).toBe("Billing");
+  describe("PORTAL_TITLES + portalNavTitle", () => {
+    it("titles map covers every nav item and the onboarding route", () => {
+      for (const item of [...PORTAL_NAV_ITEMS, PORTAL_ONBOARDING_ITEM]) {
+        expect(PORTAL_TITLES[item.href]).toBe(item.label);
+      }
+    });
+
+    it("resolves a title for known routes and falls back to 'Portal'", () => {
+      expect(portalNavTitle("/portal")).toBe(PORTAL_TITLES["/portal"]);
+      expect(portalNavTitle("/portal/campaigns/123")).toBe(PORTAL_TITLES["/portal/campaigns"]);
+      expect(portalNavTitle("/not-a-portal-route")).toBe("Portal");
+    });
+  });
+
+  describe("portalNavGroups", () => {
+    it("omits the onboarding group when setup is complete", () => {
+      const groups = portalNavGroups(false);
+      const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
+      expect(hrefs).not.toContain(PORTAL_ONBOARDING_ITEM.href);
+      expect(groups).toEqual(PORTAL_NAV_GROUPS);
+    });
+
+    it("appends an onboarding group when setup is incomplete", () => {
+      const groups = portalNavGroups(true);
+      const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
+      expect(hrefs).toContain(PORTAL_ONBOARDING_ITEM.href);
+      expect(groups.length).toBe(PORTAL_NAV_GROUPS.length + 1);
+    });
   });
 
   describe("isNavItemActive", () => {
