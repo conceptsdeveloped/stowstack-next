@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
         where: { facility_id: client.facility_id },
         orderBy: { snapshot_date: "asc" },
         take: 90,
-        select: { snapshot_date: true, occupancy_pct: true, total_units: true, occupied_units: true },
+        select: { snapshot_date: true, occupancy_pct: true, total_units: true, occupied_units: true, delinquency_pct: true },
       });
 
       if (snapshots.length > 0) {
@@ -70,13 +70,39 @@ export async function GET(req: NextRequest) {
         const latest = snapshots[snapshots.length - 1];
         const totalUnits = latest.total_units || 0;
         const occupiedUnits = latest.occupied_units || 0;
+
+        // Real MTD move-in / move-out counts from lead status events — the same
+        // source the goal tracker uses, so the dashboard stays internally
+        // consistent — scoped to this client's facility. Delinquency comes
+        // straight from the latest PMS snapshot. (Previously hardcoded to 0.)
+        const now = new Date();
+        const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+        const nextMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+        const mtdWindow = { gte: monthStart, lt: nextMonthStart };
+        const [moveInsMtd, moveOutsMtd] = await Promise.all([
+          db.lead_status_events.count({
+            where: {
+              to_status: "moved_in",
+              changed_at: mtdWindow,
+              partial_leads: { is: { facility_id: client.facility_id } },
+            },
+          }),
+          db.lead_status_events.count({
+            where: {
+              to_status: "moved_out",
+              changed_at: mtdWindow,
+              partial_leads: { is: { facility_id: client.facility_id } },
+            },
+          }),
+        ]);
+
         occupancy = {
           total_units: totalUnits,
           occupied_units: occupiedUnits,
           occupancy_pct: totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0,
-          move_ins_mtd: 0,
-          move_outs_mtd: 0,
-          delinquency_pct: 0,
+          move_ins_mtd: moveInsMtd,
+          move_outs_mtd: moveOutsMtd,
+          delinquency_pct: Number(latest.delinquency_pct) || 0,
         };
       }
 
