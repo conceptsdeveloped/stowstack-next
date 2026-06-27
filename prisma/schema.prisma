@@ -307,6 +307,7 @@ model clients {
   signed_at           DateTime?          @default(now()) @db.Timestamptz(6)
   created_at          DateTime           @default(now()) @db.Timestamptz(6)
   client_campaigns    client_campaigns[]
+  client_goals        client_goals[]
   client_onboarding   client_onboarding?
   client_reports      client_reports[]
   facilities          facilities         @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -317,6 +318,23 @@ model clients {
   @@index([access_code], map: "idx_clients_access_code")
   @@index([facility_id], map: "idx_clients_facility")
   @@index([deleted_at], map: "idx_clients_deleted_at")
+}
+
+// Per-month goal history for the portal results dashboard. `monthly_goal` on
+// clients is a single scalar seed; this table records the target set for each
+// month plus a snapshot of actual move-ins so the goal tracker can show trend.
+model client_goals {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_id    String   @db.Uuid
+  period_month DateTime @db.Date // first day of the month this goal covers
+  target       Int      @default(0)
+  actual       Int      @default(0) // snapshot of move-ins counted for the month
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  clients      clients  @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([client_id, period_month], map: "uniq_client_goal_month")
+  @@index([client_id, period_month(sort: Desc)], map: "idx_client_goals_client")
 }
 
 model creative_briefs {

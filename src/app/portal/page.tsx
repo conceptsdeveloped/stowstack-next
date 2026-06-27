@@ -182,46 +182,74 @@ function OnboardingProgress() {
 /* ─── campaign goal progress ─── */
 
 function CampaignGoalProgress() {
-  const { session, client } = usePortal();
-  const [moveIns, setMoveIns] = useState<number | null>(null);
-  const [goalLoading, setGoalLoading] = useState(!!client.monthlyGoal);
+  const { session } = usePortal();
+  const [goal, setGoal] = useState<{ target: number; actual: number; pct: number | null } | null>(null);
+  const [goalLoading, setGoalLoading] = useState(true);
 
   useEffect(() => {
-    if (!client.monthlyGoal) return;
-    const now = new Date();
-    const start = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-    const end = now.toISOString().split("T")[0];
-    fetch(`/api/attribution?accessCode=${session.accessCode}&startDate=${start}&endDate=${end}`)
+    fetch(`/api/client-goals?accessCode=${session.accessCode}&email=${encodeURIComponent(session.email)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (data?.totals) setMoveIns(data.totals.move_ins ?? 0); })
-      .catch(() => setMoveIns(0))
+      .then((data) => {
+        if (data?.current) {
+          setGoal({ target: data.current.target ?? 0, actual: data.current.actual ?? 0, pct: data.current.pct ?? null });
+        } else {
+          setGoal({ target: 0, actual: 0, pct: null });
+        }
+      })
+      .catch(() => setGoal({ target: 0, actual: 0, pct: null }))
       .finally(() => setGoalLoading(false));
-  }, [session.accessCode, client.monthlyGoal]);
+  }, [session.accessCode, session.email]);
 
-  if (!client.monthlyGoal) return null;
   if (goalLoading) return <SectionSkeleton />;
-  if (moveIns === null) return null;
+  if (!goal) return null;
 
-  const pct = Math.min(100, Math.round((moveIns / client.monthlyGoal) * 100));
-  const onTrack = pct >= 50;
+  // No goal set yet: prompt rather than divide-by-zero.
+  if (goal.target <= 0) {
+    return (
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+        <div className="mb-2 flex items-center gap-2">
+          <Target className="h-4 w-4 text-[var(--color-mid-gray)]" />
+          <h2 className="text-sm font-semibold">Monthly Goal</h2>
+        </div>
+        <p className="text-sm text-[var(--color-body-text)]">
+          {goal.actual} move-in{goal.actual === 1 ? "" : "s"} this month.
+        </p>
+        <a href="/portal/settings" className="mt-1 inline-block text-xs font-medium text-[var(--color-body-text)] underline">
+          Set a monthly goal
+        </a>
+      </div>
+    );
+  }
+
+  const pct = goal.pct ?? Math.min(100, Math.round((goal.actual / goal.target) * 100));
+
+  // Pace: how far through the month we are vs. how far toward the goal we are.
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const dayOfMonth = now.getDate();
+  const daysLeft = daysInMonth - dayOfMonth;
+  const expectedByNow = goal.target * (dayOfMonth / daysInMonth);
+  const onTrack = goal.actual >= expectedByNow;
 
   return (
     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
       <div className="mb-3 flex items-center gap-2">
-        <Target className="h-4 w-4 text-[var(--color-gold)]" />
+        <Target className="h-4 w-4 text-[var(--color-body-text)]" />
         <h2 className="text-sm font-semibold">Monthly Goal</h2>
       </div>
       <div className="mb-2 flex items-end justify-between">
         <div>
-          <span className="text-3xl font-semibold">{moveIns}</span>
-          <span className="text-lg text-[var(--color-mid-gray)]"> / {client.monthlyGoal}</span>
+          <span className="text-3xl font-semibold">{goal.actual}</span>
+          <span className="text-lg text-[var(--color-mid-gray)]"> / {goal.target}</span>
         </div>
-        <span className={`text-xs font-medium ${onTrack ? "text-green-400" : "text-amber-400"}`}>{pct}%</span>
+        <span className={`text-xs font-medium ${onTrack ? "text-green-600" : "text-amber-600"}`}>{pct}%</span>
       </div>
       <div className="h-2.5 overflow-hidden rounded-full bg-[var(--color-light-gray)]">
         <div className={`h-full rounded-full transition-all duration-700 ${onTrack ? "bg-green-500" : "bg-amber-500"}`} style={{ width: `${pct}%` }} />
       </div>
-      <p className="mt-2 text-xs text-[var(--color-mid-gray)]">Move-ins this month toward your target</p>
+      <p className="mt-2 text-xs text-[var(--color-mid-gray)]">
+        {onTrack ? "On pace" : "Behind pace"} &middot; {daysLeft} day{daysLeft === 1 ? "" : "s"} left this month
+      </p>
     </div>
   );
 }
