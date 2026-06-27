@@ -177,14 +177,14 @@ export function dateRangeParams(
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded bg-black/[0.03] ${className}`}
+      className={`animate-pulse rounded bg-[var(--color-light-gray)] ${className}`}
     />
   );
 }
 
 export function CardSkeleton() {
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5">
       <Skeleton className="mb-2 h-4 w-24" />
       <Skeleton className="h-7 w-16" />
       <Skeleton className="mt-2 h-3 w-32" />
@@ -194,7 +194,7 @@ export function CardSkeleton() {
 
 export function SectionSkeleton() {
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white p-5">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5">
       <Skeleton className="mb-4 h-5 w-32" />
       <div className="space-y-3">
         <Skeleton className="h-10 w-full" />
@@ -213,12 +213,12 @@ export function ErrorState({
   onRetry?: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-red-500/20 bg-red-500/[0.05] p-5 text-center">
-      <p className="text-sm text-red-400">{message}</p>
+    <div className="rounded-xl border border-[var(--color-red)]/20 bg-[var(--color-red-light)] p-5 text-center">
+      <p className="text-sm text-[var(--color-red)]">{message}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-2 text-xs text-[#6B7280] underline transition-colors hover:text-[#111827]"
+          className="mt-2 text-xs text-[var(--color-mid-gray)] underline transition-colors hover:text-[var(--color-dark)]"
         >
           Try again
         </button>
