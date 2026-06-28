@@ -101,7 +101,7 @@ export default function CampaignsPage() {
 
     let tip = "";
     if (bestRoas.roas >= 2) {
-      tip = `Your ${bestName} campaign has the best ROAS at ${bestRoas.roas.toFixed(1)}x — consider shifting more budget there.`;
+      tip = `Your ${bestName} campaign has the best ROAS at ${bestRoas.roas.toFixed(1)}x. Consider shifting more budget there.`;
     } else if (highestSpend.roas < 1) {
       tip = `Your highest-spend campaign (${spendName}) is underperforming on ROAS. Review targeting or creative to improve returns.`;
     } else {
