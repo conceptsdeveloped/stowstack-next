@@ -45,6 +45,13 @@ interface Invoice {
   status: "paid" | "pending" | "overdue";
 }
 
+interface ClientOption {
+  id: string;
+  name: string;
+  email: string;
+  facilityName: string | null;
+}
+
 interface Organization {
   id: string;
   name: string;
@@ -259,27 +266,56 @@ function OverviewTab() {
 function InvoicesTab() {
   const { data: rawData, loading, error, refetch } = useAdminFetch<{ success: boolean; data: Invoice[] }>("/api/client-invoices");
   const invoices = rawData?.data ?? [];
+  const { data: clientsData } = useAdminFetch<{ clients: ClientOption[] }>("/api/admin-clients");
+  const clientOptions = clientsData?.clients ?? [];
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ client: "", amount: "", due_date: "", line_items: "" });
+  const [formData, setFormData] = useState({ clientId: "", adSpend: "", lineItems: "", stripeInvoiceId: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
+
+  // Each non-empty "Description: amount" line becomes a structured add-on item
+  // for the route (which requires both); lines without a numeric amount are skipped.
+  const parseLineItems = (raw: string) =>
+    raw
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .map((l) => {
+        const idx = l.lastIndexOf(":");
+        if (idx === -1) return null;
+        const description = l.slice(0, idx).trim();
+        const amount = parseFloat(l.slice(idx + 1).replace(/[^0-9.]/g, ""));
+        return description && Number.isFinite(amount) ? { description, amount } : null;
+      })
+      .filter((x): x is { description: string; amount: number } => x !== null);
 
   const handleCreate = async () => {
+    if (!formData.clientId) {
+      setFormError("Select a client.");
+      return;
+    }
     setSubmitting(true);
+    setFormError("");
     try {
+      // Contract matches /api/client-invoices POST: the route auto-computes the
+      // plan-based total + due date; we supply the client, ad-spend pass-through,
+      // any add-on items, and an optional Stripe link for M5 webhook auto-sync.
       await adminFetch("/api/client-invoices", {
         method: "POST",
         body: JSON.stringify({
-          client: formData.client,
-          amount: parseFloat(formData.amount),
-          due_date: formData.due_date,
-          line_items: formData.line_items.split("\n").filter(Boolean),
+          clientId: formData.clientId,
+          adSpend: formData.adSpend ? parseFloat(formData.adSpend) : 0,
+          additionalItems: parseLineItems(formData.lineItems),
+          ...(formData.stripeInvoiceId.trim()
+            ? { stripeInvoiceId: formData.stripeInvoiceId.trim() }
+            : {}),
         }),
       });
-      setFormData({ client: "", amount: "", due_date: "", line_items: "" });
+      setFormData({ clientId: "", adSpend: "", lineItems: "", stripeInvoiceId: "" });
       setShowForm(false);
       refetch();
     } catch {
-      // Error handling via UI
+      setFormError("Could not create the invoice. Check the fields and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -287,7 +323,7 @@ function InvoicesTab() {
 
   if (error) {
     return (
-      <div className="rounded-lg border p-4 text-sm" style={{ backgroundColor: "rgba(239,68,68,0.1)", borderColor: "rgba(239,68,68,0.2)", color: "#EF4444" }}>
+      <div className="rounded-lg border p-4 text-sm" style={{ backgroundColor: "var(--color-red-light)", borderColor: "var(--color-red)", color: "var(--color-red)" }}>
         Failed to load invoices: {error}
       </div>
     );
@@ -300,7 +336,7 @@ function InvoicesTab() {
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
-          style={{ backgroundColor: "var(--color-gold)", color: "var(--color-light)" }}
+          style={{ backgroundColor: "var(--color-dark)", color: "var(--color-light)" }}
         >
           <Plus size={14} />
           New Invoice
@@ -309,42 +345,70 @@ function InvoicesTab() {
 
       {showForm && (
         <div className="rounded-xl border p-5 space-y-4" style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--color-mid-gray)" }}>
+              Client
+              <select
+                value={formData.clientId}
+                onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
+                className="rounded-lg border px-3 py-2 text-sm outline-none"
+                style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
+              >
+                <option value="">Select a client</option>
+                {clientOptions.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.facilityName ? `${c.facilityName} (${c.email})` : c.email}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--color-mid-gray)" }}>
+              Ad spend (pass-through, optional)
+              <input
+                type="number"
+                min={0}
+                placeholder="0"
+                value={formData.adSpend}
+                onChange={(e) => setFormData({ ...formData, adSpend: e.target.value })}
+                className="rounded-lg border px-3 py-2 text-sm outline-none"
+                style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
+              />
+            </label>
+          </div>
+          <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--color-mid-gray)" }}>
+            Additional line items (one per line, &quot;Description: amount&quot;)
+            <textarea
+              placeholder={"Setup fee: 250\nExtra creative: 100"}
+              value={formData.lineItems}
+              onChange={(e) => setFormData({ ...formData, lineItems: e.target.value })}
+              rows={3}
+              className="w-full rounded-lg border px-3 py-2 text-sm outline-none resize-none"
+              style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--color-mid-gray)" }}>
+            Stripe invoice ID (optional, links the invoice so payment auto-syncs)
             <input
               type="text"
-              placeholder="Client name"
-              value={formData.client}
-              onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+              placeholder="in_1AbC..."
+              value={formData.stripeInvoiceId}
+              onChange={(e) => setFormData({ ...formData, stripeInvoiceId: e.target.value })}
               className="rounded-lg border px-3 py-2 text-sm outline-none"
               style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
             />
-            <input
-              type="number"
-              placeholder="Amount"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="rounded-lg border px-3 py-2 text-sm outline-none"
-              style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
-            />
-            <input
-              type="date"
-              value={formData.due_date}
-              onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-              className="rounded-lg border px-3 py-2 text-sm outline-none"
-              style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
-            />
-          </div>
-          <textarea
-            placeholder="Line items (one per line)"
-            value={formData.line_items}
-            onChange={(e) => setFormData({ ...formData, line_items: e.target.value })}
-            rows={3}
-            className="w-full rounded-lg border px-3 py-2 text-sm outline-none resize-none"
-            style={{ backgroundColor: "var(--color-light)", borderColor: "var(--border-subtle)", color: "var(--color-dark)" }}
-          />
+          </label>
+          <p className="text-xs" style={{ color: "var(--color-mid-gray)" }}>
+            The plan fee and due date are set automatically from the client&apos;s subscription.
+          </p>
+          {formError && (
+            <p className="text-xs" style={{ color: "var(--color-red)" }}>{formError}</p>
+          )}
           <div className="flex gap-2 justify-end">
             <button
-              onClick={() => setShowForm(false)}
+              onClick={() => {
+                setShowForm(false);
+                setFormError("");
+              }}
               className="text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-[var(--color-dark)]/5"
               style={{ color: "var(--color-body-text)" }}
             >
@@ -352,11 +416,11 @@ function InvoicesTab() {
             </button>
             <button
               onClick={handleCreate}
-              disabled={submitting || !formData.client || !formData.amount}
+              disabled={submitting || !formData.clientId}
               className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-              style={{ backgroundColor: "var(--color-gold)", color: "var(--color-light)" }}
+              style={{ backgroundColor: "var(--color-dark)", color: "var(--color-light)" }}
             >
-              {submitting ? "Creating..." : "Create Invoice"}
+              {submitting ? "Creating..." : "Create & email invoice"}
             </button>
           </div>
         </div>
