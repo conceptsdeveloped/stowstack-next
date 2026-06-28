@@ -10,6 +10,7 @@ import { Button } from "../button";
 import { EmptyState } from "../empty-state";
 import { Card } from "../card";
 import { PageHeader } from "../page-header";
+import { PortalPage } from "../portal-page";
 
 const TAB_OPTS = [
   { value: "7d", label: "7D" },
@@ -143,5 +144,71 @@ describe("EmptyState / Card / PageHeader", () => {
     expect(screen.getByRole("heading", { name: "Reports" })).toBeInTheDocument();
     expect(screen.getByText("Last 30 days")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export" })).toBeInTheDocument();
+  });
+});
+
+describe("PortalPage", () => {
+  it("renders an optional header (title/subtitle/actions) above its children", () => {
+    render(
+      <PortalPage title="Billing" subtitle="History" actions={<button>Export</button>}>
+        <p>body</p>
+      </PortalPage>,
+    );
+    expect(screen.getByRole("heading", { name: "Billing" })).toBeInTheDocument();
+    expect(screen.getByText("History")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Export" })).toBeInTheDocument();
+    expect(screen.getByText("body")).toBeInTheDocument();
+  });
+
+  it("omits the header entirely when no title is given", () => {
+    render(
+      <PortalPage>
+        <p>just body</p>
+      </PortalPage>,
+    );
+    expect(screen.getByText("just body")).toBeInTheDocument();
+    expect(screen.queryByRole("heading")).toBeNull();
+  });
+
+  it("defaults to the 6xl max-width", () => {
+    const { container } = render(
+      <PortalPage>
+        <p>x</p>
+      </PortalPage>,
+    );
+    const root = container.firstChild as HTMLElement;
+    expect(root.className).toContain("max-w-6xl");
+  });
+
+  // Guards the Tailwind v4 class-map fix: exactly one max-width class, chosen by
+  // the prop — never the default appended alongside an override.
+  it.each([
+    ["2xl", "max-w-2xl"],
+    ["4xl", "max-w-4xl"],
+    ["5xl", "max-w-5xl"],
+    ["6xl", "max-w-6xl"],
+  ] as const)("applies a single max-width class for maxWidth=%s", (maxWidth, cls) => {
+    const { container } = render(
+      <PortalPage maxWidth={maxWidth}>
+        <p>x</p>
+      </PortalPage>,
+    );
+    const root = container.firstChild as HTMLElement;
+    const widths = root.className.split(/\s+/).filter((c) => c.startsWith("max-w-"));
+    expect(widths).toEqual([cls]);
+  });
+});
+
+describe("Badge tones", () => {
+  it.each([
+    ["neutral", "--color-light-gray"],
+    ["success", "--color-green-light"],
+    ["warn", "--bg-hi"],
+    ["danger", "--color-red-light"],
+    ["info", "--color-blue-light"],
+  ] as const)("maps tone=%s to a token background (no raw color)", (tone, token) => {
+    const { container } = render(<Badge tone={tone}>x</Badge>);
+    const el = container.firstChild as HTMLElement;
+    expect(el.className).toContain(token);
   });
 });
