@@ -75,6 +75,43 @@ describe("GET /api/client-reports", () => {
     expect(outWhere.partial_leads.is.facility_id).toBe("f1");
   });
 
+  it("returns delinquency as null (not a fake 0) when the snapshot lacks it", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.clients = {
+      findFirst: vi.fn().mockResolvedValue({ id: "c1", facility_id: "f1" }),
+      findUnique: vi
+        .fn()
+        .mockResolvedValue({ facility_id: "f1", signed_at: null }),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.facility_pms_snapshots = {
+      findMany: vi.fn().mockResolvedValue([
+        {
+          snapshot_date: new Date("2026-06-01T00:00:00Z"),
+          occupancy_pct: 90,
+          total_units: 100,
+          occupied_units: 90,
+          delinquency_pct: null,
+        },
+      ]),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.lead_status_events = {
+      count: vi.fn().mockResolvedValueOnce(0).mockResolvedValueOnce(0),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.facility_pms_units = { findMany: vi.fn().mockResolvedValue([]) };
+
+    const res = await GET(
+      createMockRequest("/api/client-reports?accessCode=AC&email=o@e.com")
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.occupancy.delinquency_pct).toBeNull();
+    // Move-in/out 0 is a legitimate count, not a fake — they stay numeric.
+    expect(body.occupancy.move_ins_mtd).toBe(0);
+  });
+
   it("leaves occupancy null when the facility has no PMS snapshots", async () => {
     // @ts-expect-error — db is a vi mock
     mockDb.clients = {

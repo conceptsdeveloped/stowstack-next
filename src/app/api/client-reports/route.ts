@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
 
     // Fetch PMS snapshots for occupancy trend chart
     let occupancyTrend: { date: string; occupancy_pct: number }[] = [];
-    let occupancy: { total_units: number; occupied_units: number; occupancy_pct: number; move_ins_mtd: number; move_outs_mtd: number; delinquency_pct: number } | null = null;
+    let occupancy: { total_units: number; occupied_units: number; occupancy_pct: number; move_ins_mtd: number; move_outs_mtd: number; delinquency_pct: number | null } | null = null;
     let unitMix: { type: string; size: string; total: number; occupied: number; rate: number }[] = [];
 
     if (client?.facility_id) {
@@ -102,7 +102,11 @@ export async function GET(req: NextRequest) {
           occupancy_pct: totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0,
           move_ins_mtd: moveInsMtd,
           move_outs_mtd: moveOutsMtd,
-          delinquency_pct: Number(latest.delinquency_pct) || 0,
+          // Null (not 0) when the snapshot carries no delinquency — absence of
+          // PMS aging data is not "0% delinquent". The portal hides the card
+          // rather than showing a fake zero (M2).
+          delinquency_pct:
+            latest.delinquency_pct != null ? Number(latest.delinquency_pct) : null,
         };
       }
 
