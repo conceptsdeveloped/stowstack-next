@@ -19,6 +19,7 @@ import {
   Mail,
   Map as MapIcon,
   Megaphone,
+  MessageSquare,
   Music2,
   Palette,
   Phone,
@@ -134,6 +135,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "REVENUE",
     items: [
       { label: "Billing", href: "/admin/billing", icon: CreditCard },
+      { label: "Messages", href: "/admin/messages", icon: MessageSquare },
       { label: "Partners", href: "/admin/partners", icon: Users },
     ],
   },
