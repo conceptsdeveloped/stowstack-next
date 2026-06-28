@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import {
   jsonResponse,
   errorResponse,
@@ -11,28 +12,78 @@ import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { authenticatePortalRequest } from "@/lib/portal-auth";
 
-interface Invoice {
+/**
+ * Invoices (M5). Single Postgres system of record (`client_invoices`) — replaces
+ * the old ephemeral Redis `billing:<code>` blob. The portal wire contract is
+ * unchanged: { invoices: [{ id, month, amount, adSpend, managementFee, status,
+ * dueDate, paidDate, notes, createdAt }] }.
+ *
+ * GET  — client reads own invoices; admin reads any (?code) or all (?all=true).
+ * POST — admin authors an invoice.
+ * PATCH— admin updates status / paid date / notes (e.g. mark paid).
+ */
+
+interface InvoiceRow {
   id: string;
-  month: string;
-  amount: number;
-  adSpend: number;
-  managementFee: number;
+  amount: unknown;
+  ad_spend: unknown;
+  fee: unknown;
   status: string;
-  dueDate: string;
-  paidDate: string | null;
-  notes: string;
-  createdAt: string;
-  code?: string;
+  period: string | null;
+  description: string | null;
+  due_at: Date | null;
+  paid_at: Date | null;
+  issued_at: Date;
+  created_at: Date;
 }
 
-async function loadRedis() {
-  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN)
-    return null;
-  const { Redis } = await import("@upstash/redis");
-  return new Redis({
-    url: process.env.KV_REST_API_URL,
-    token: process.env.KV_REST_API_TOKEN,
+function dec(v: unknown): number {
+  if (v == null) return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function toInvoice(row: InvoiceRow, code?: string) {
+  return {
+    id: row.id,
+    month:
+      row.period ||
+      row.issued_at.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+    amount: dec(row.amount),
+    adSpend: dec(row.ad_spend),
+    managementFee: dec(row.fee),
+    status: row.status,
+    dueDate: row.due_at ? row.due_at.toISOString() : "",
+    paidDate: row.paid_at ? row.paid_at.toISOString() : null,
+    notes: row.description ?? "",
+    createdAt: row.created_at.toISOString(),
+    ...(code ? { code } : {}),
+  };
+}
+
+const INVOICE_SELECT = {
+  id: true,
+  amount: true,
+  ad_spend: true,
+  fee: true,
+  status: true,
+  period: true,
+  description: true,
+  due_at: true,
+  paid_at: true,
+  issued_at: true,
+  created_at: true,
+} as const;
+
+const VALID_STATUSES = ["draft", "sent", "paid", "overdue", "void"];
+
+/** Resolve an access code to a client id (admin paths address clients by code). */
+async function clientIdForCode(code: string): Promise<string | null> {
+  const client = await db.clients.findUnique({
+    where: { access_code: code },
+    select: { id: true },
   });
+  return client?.id ?? null;
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -47,50 +98,48 @@ export async function GET(req: NextRequest) {
   const code = url.searchParams.get("accessCode") ?? url.searchParams.get("code");
   const all = url.searchParams.get("all");
 
-  // Canonical portal auth: a client is validated to their own access code; an
-  // admin (X-Admin-Key) may read any client's invoices. Replaces the route's
-  // private verifyClientAuth copy.
   const scope = await authenticatePortalRequest(req);
   if (scope instanceof NextResponse) return scope;
-  const isAdmin = scope.kind === "admin";
-
-  const redis = await loadRedis();
-  if (!redis) {
-    return jsonResponse({ invoices: [] }, 200, origin);
-  }
-
-  // Admin can list all invoices
-  if (isAdmin && all === "true") {
-    try {
-      const keys = await redis.keys("billing:*");
-      const results: Invoice[] = [];
-      for (const key of keys) {
-        const clientCodeKey = key.replace("billing:", "");
-        const raw = await redis.get(key);
-        const invoices: Invoice[] =
-          typeof raw === "string" ? JSON.parse(raw) : (raw as Invoice[]) || [];
-        for (const inv of invoices) {
-          results.push({ ...inv, code: clientCodeKey });
-        }
-      }
-      return jsonResponse({ invoices: results }, 200, origin);
-    } catch {
-      return errorResponse("Failed to get invoices", 500, origin);
-    }
-  }
-
-  // Get invoices for a specific client. For a client this is their own access
-  // code (already validated above); for an admin it is the requested ?code.
-  const lookupCode = code;
-  if (!lookupCode) {
-    return errorResponse("Missing access code", 400, origin);
-  }
 
   try {
-    const raw = await redis.get(`billing:${lookupCode}`);
-    const invoices: Invoice[] =
-      typeof raw === "string" ? JSON.parse(raw) : (raw as Invoice[]) || [];
-    return jsonResponse({ invoices }, 200, origin);
+    // Admin: list every invoice, each tagged with its client's access code.
+    if (scope.kind === "admin" && all === "true") {
+      const rows = await db.client_invoices.findMany({
+        orderBy: { issued_at: "desc" },
+        take: 200,
+        select: { ...INVOICE_SELECT, client_id: true },
+      });
+      const clientIds = [...new Set(rows.map((r) => r.client_id))];
+      const clients = clientIds.length
+        ? await db.clients.findMany({
+            where: { id: { in: clientIds } },
+            select: { id: true, access_code: true },
+          })
+        : [];
+      const codeById = new Map(clients.map((c) => [c.id, c.access_code]));
+      const invoices = rows.map((r) =>
+        toInvoice(r, codeById.get(r.client_id) ?? undefined),
+      );
+      return jsonResponse({ invoices }, 200, origin);
+    }
+
+    // Resolve the target client: own thread for a client, ?code for an admin.
+    let clientId: string | null;
+    if (scope.kind === "client") {
+      clientId = scope.clientId;
+    } else {
+      if (!code) return errorResponse("Missing access code", 400, origin);
+      clientId = await clientIdForCode(code);
+    }
+    if (!clientId) return errorResponse("Client not found", 404, origin);
+
+    const rows = await db.client_invoices.findMany({
+      where: { client_id: clientId },
+      orderBy: { issued_at: "desc" },
+      take: 100,
+      select: INVOICE_SELECT,
+    });
+    return jsonResponse({ invoices: rows.map((r) => toInvoice(r)) }, 200, origin);
   } catch {
     return errorResponse("Failed to get invoices", 500, origin);
   }
@@ -105,14 +154,9 @@ export async function POST(req: NextRequest) {
   const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
-  const redis = await loadRedis();
-  if (!redis) {
-    return errorResponse("Redis not configured", 500, origin);
-  }
-
   try {
     const body = await req.json();
-    const { code, month, amount, adSpend, managementFee, dueDate, notes } =
+    const { code, month, amount, adSpend, managementFee, dueDate, notes, status } =
       body || {};
 
     if (
@@ -126,32 +170,28 @@ export async function POST(req: NextRequest) {
       return errorResponse(
         "Missing required fields: code, month, amount, adSpend, managementFee, dueDate",
         400,
-        origin
+        origin,
       );
     }
 
-    const raw = await redis.get(`billing:${code}`);
-    const invoices: Invoice[] =
-      typeof raw === "string" ? JSON.parse(raw) : (raw as Invoice[]) || [];
+    const clientId = await clientIdForCode(code);
+    if (!clientId) return errorResponse("Client not found", 404, origin);
 
-    const invoice: Invoice = {
-      id: `inv-${Date.now()}`,
-      month,
-      amount: Number(amount),
-      adSpend: Number(adSpend),
-      managementFee: Number(managementFee),
-      status: "draft",
-      dueDate,
-      paidDate: null,
-      notes: notes || "",
-      createdAt: new Date().toISOString(),
-    };
+    const row = await db.client_invoices.create({
+      data: {
+        client_id: clientId,
+        amount: Number(amount),
+        ad_spend: Number(adSpend),
+        fee: Number(managementFee),
+        status: status && VALID_STATUSES.includes(status) ? status : "draft",
+        period: month,
+        description: notes || null,
+        due_at: new Date(dueDate),
+      },
+      select: INVOICE_SELECT,
+    });
 
-    invoices.unshift(invoice);
-    if (invoices.length > 100) invoices.length = 100;
-
-    await redis.set(`billing:${code}`, JSON.stringify(invoices));
-    return jsonResponse({ success: true, invoice }, 200, origin);
+    return jsonResponse({ success: true, invoice: toInvoice(row) }, 200, origin);
   } catch {
     return errorResponse("Failed to create invoice", 500, origin);
   }
@@ -164,43 +204,48 @@ export async function PATCH(req: NextRequest) {
   const authErr = await requireAdminKey(req);
   if (authErr) return authErr;
 
-  const redis = await loadRedis();
-  if (!redis) {
-    return errorResponse("Redis not configured", 500, origin);
-  }
-
   try {
     const body = await req.json();
-    const { code, invoiceId, status, paidDate, notes } = body || {};
+    const { invoiceId, status, paidDate, notes } = body || {};
 
-    if (!code || !invoiceId) {
-      return errorResponse("Missing code or invoiceId", 400, origin);
+    if (!invoiceId) {
+      return errorResponse("Missing invoiceId", 400, origin);
     }
-
-    const validStatuses = ["draft", "sent", "paid", "overdue"];
-    if (status && !validStatuses.includes(status)) {
+    if (status && !VALID_STATUSES.includes(status)) {
       return errorResponse(
-        `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+        `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}`,
         400,
-        origin
+        origin,
       );
     }
 
-    const raw = await redis.get(`billing:${code}`);
-    const invoices: Invoice[] =
-      typeof raw === "string" ? JSON.parse(raw) : (raw as Invoice[]) || [];
+    const existing = await db.client_invoices.findUnique({
+      where: { id: invoiceId },
+      select: { id: true },
+    });
+    if (!existing) return errorResponse("Invoice not found", 404, origin);
 
-    const idx = invoices.findIndex((inv) => inv.id === invoiceId);
-    if (idx === -1) {
-      return errorResponse("Invoice not found", 404, origin);
-    }
+    // Marking paid stamps paid_at automatically unless an explicit date is given.
+    const paid_at =
+      paidDate !== undefined
+        ? paidDate
+          ? new Date(paidDate)
+          : null
+        : status === "paid"
+          ? new Date()
+          : undefined;
 
-    if (status !== undefined) invoices[idx].status = status;
-    if (paidDate !== undefined) invoices[idx].paidDate = paidDate;
-    if (notes !== undefined) invoices[idx].notes = notes;
+    const row = await db.client_invoices.update({
+      where: { id: invoiceId },
+      data: {
+        ...(status !== undefined ? { status } : {}),
+        ...(paid_at !== undefined ? { paid_at } : {}),
+        ...(notes !== undefined ? { description: notes } : {}),
+      },
+      select: INVOICE_SELECT,
+    });
 
-    await redis.set(`billing:${code}`, JSON.stringify(invoices));
-    return jsonResponse({ success: true, invoice: invoices[idx] }, 200, origin);
+    return jsonResponse({ success: true, invoice: toInvoice(row) }, 200, origin);
   } catch {
     return errorResponse("Failed to update invoice", 500, origin);
   }

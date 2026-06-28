@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS client_invoices (
   amount            numeric(12,2) NOT NULL,
   ad_spend          numeric(12,2),
   fee               numeric(12,2),
-  status            text NOT NULL DEFAULT 'outstanding',  -- outstanding | paid | void
+  status            text NOT NULL DEFAULT 'draft',  -- draft | sent | paid | overdue | void
+  period            text,                           -- billing-period label, e.g. 'June 2026'
   description       text,
   stripe_invoice_id text,
   issued_at         timestamptz NOT NULL DEFAULT now(),

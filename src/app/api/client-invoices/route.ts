@@ -248,6 +248,24 @@ export async function POST(req: NextRequest) {
       tags: [{ name: "type", value: "invoice" }],
     });
 
+    // Persist to the canonical invoice store (M5) so emailed invoices show up in
+    // the portal alongside admin-authored ones. Fire-and-forget; the email is
+    // the user-visible action, this is record-keeping.
+    db.client_invoices
+      .create({
+        data: {
+          client_id: clientId,
+          amount: total,
+          ad_spend: adSpend || 0,
+          fee: planPrice,
+          status: "sent",
+          period,
+          description: `Invoice ${invoiceNumber}`,
+          due_at: new Date(now.getFullYear(), now.getMonth() + 1, 1),
+        },
+      })
+      .catch((err) => console.error("[client_invoices] persist failed:", err));
+
     // Log activity (fire-and-forget)
     db.activity_log
       .create({
