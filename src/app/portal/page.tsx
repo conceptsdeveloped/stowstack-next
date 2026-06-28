@@ -27,9 +27,8 @@ import {
   firstName,
   fmt,
   relativeTime,
-  SectionSkeleton,
-  ErrorState,
 } from "@/lib/portal-helpers";
+import { Card, EmptyState, SectionSkeleton, ErrorState } from "@/components/portal/ui";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
 import { PullIndicator } from "@/components/ui/pull-indicator";
 
@@ -105,7 +104,7 @@ function WelcomeBanner() {
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--color-light-gray)]/40 p-5">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-hi)] p-5">
       <h1 className="text-xl font-semibold tracking-tight">
         {greeting}, {firstName(client.name)}
       </h1>
@@ -164,24 +163,24 @@ function OnboardingProgress() {
   const completedSteps = Object.values(steps).filter((s) => s.completed).length;
 
   return (
-    <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-5">
+    <Card as="section">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ClipboardCheck className="h-4 w-4 text-amber-400" />
+          <ClipboardCheck className="h-4 w-4 text-[var(--color-dark)]" />
           <h2 className="text-sm font-semibold">Onboarding</h2>
         </div>
         <span className="text-xs text-[var(--color-body-text)]">{completedSteps}/{totalSteps} steps</span>
       </div>
       <div className="mb-3 h-2 overflow-hidden rounded-full bg-[var(--color-light-gray)]">
-        <div className="h-full rounded-full bg-amber-400 transition-all duration-500" style={{ width: `${data.completionPct}%` }} />
+        <div className="h-full rounded-full bg-[var(--color-dark)] transition-all duration-500" style={{ width: `${data.completionPct}%` }} />
       </div>
       <div className="flex items-center justify-between">
         <p className="text-xs text-[var(--color-mid-gray)]">{data.completionPct}% complete</p>
-        <a href="/portal/onboarding" className="inline-flex items-center gap-1 text-xs font-medium text-amber-400 hover:text-amber-300">
+        <a href="/portal/onboarding" className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-dark)] hover:opacity-80">
           Continue Setup <ChevronRight className="h-3 w-3" />
         </a>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -212,7 +211,7 @@ function CampaignGoalProgress() {
   // No goal set yet: prompt rather than divide-by-zero.
   if (goal.target <= 0) {
     return (
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+      <Card as="section">
         <div className="mb-2 flex items-center gap-2">
           <Target className="h-4 w-4 text-[var(--color-mid-gray)]" />
           <h2 className="text-sm font-semibold">Monthly Goal</h2>
@@ -223,7 +222,7 @@ function CampaignGoalProgress() {
         <a href="/portal/settings" className="mt-1 inline-block text-xs font-medium text-[var(--color-body-text)] underline">
           Set a monthly goal
         </a>
-      </div>
+      </Card>
     );
   }
 
@@ -238,7 +237,7 @@ function CampaignGoalProgress() {
   const onTrack = goal.actual >= expectedByNow;
 
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+    <Card as="section">
       <div className="mb-3 flex items-center gap-2">
         <Target className="h-4 w-4 text-[var(--color-body-text)]" />
         <h2 className="text-sm font-semibold">Monthly Goal</h2>
@@ -248,15 +247,15 @@ function CampaignGoalProgress() {
           <span className="text-3xl font-semibold">{goal.actual}</span>
           <span className="text-lg text-[var(--color-mid-gray)]"> / {goal.target}</span>
         </div>
-        <span className={`text-xs font-medium ${onTrack ? "text-green-600" : "text-amber-600"}`}>{pct}%</span>
+        <span className={`text-xs font-medium ${onTrack ? "text-[var(--color-green)]" : "text-[var(--color-dark)]"}`}>{pct}%</span>
       </div>
       <div className="h-2.5 overflow-hidden rounded-full bg-[var(--color-light-gray)]">
-        <div className={`h-full rounded-full transition-all duration-700 ${onTrack ? "bg-green-500" : "bg-amber-500"}`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full transition-all duration-700 ${onTrack ? "bg-[var(--color-green)]" : "bg-[var(--color-dark)]"}`} style={{ width: `${pct}%` }} />
       </div>
       <p className="mt-2 text-xs text-[var(--color-mid-gray)]">
         {onTrack ? "On pace" : "Behind pace"} &middot; {daysLeft} day{daysLeft === 1 ? "" : "s"} left this month
       </p>
-    </div>
+    </Card>
   );
 }
 
@@ -288,16 +287,19 @@ function CampaignAlerts() {
         <Bell className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Campaign Alerts</h2>
       </div>
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
-        <CheckCircle2 className="mx-auto h-6 w-6 text-[var(--color-green)]" />
-        <p className="mt-2 text-sm text-[var(--color-mid-gray)]">No active alerts.</p>
-      </div>
+      <EmptyState
+        icon={<CheckCircle2 className="h-6 w-6 text-[var(--color-green)]" />}
+        title="No active alerts"
+        message="You're all caught up. We'll surface campaign issues here as they come up."
+      />
     </div>
   );
 
+  // No amber token in the design system: critical -> red (alarm), warning ->
+  // blue (heads-up), info -> charcoal. Color is paired with a distinct icon.
   const severityConfig = {
-    critical: { bg: "bg-red-500/[0.06]", border: "border-red-500/20", text: "text-red-400", icon: <ShieldAlert className="h-4 w-4" /> },
-    warning: { bg: "bg-amber-500/[0.06]", border: "border-amber-500/20", text: "text-amber-400", icon: <AlertTriangle className="h-4 w-4" /> },
+    critical: { bg: "bg-[var(--color-red)]/[0.06]", border: "border-[var(--color-red)]/20", text: "text-[var(--color-red)]", icon: <ShieldAlert className="h-4 w-4" /> },
+    warning: { bg: "bg-[var(--color-blue)]/[0.06]", border: "border-[var(--color-blue)]/20", text: "text-[var(--color-blue)]", icon: <AlertTriangle className="h-4 w-4" /> },
     info: { bg: "bg-[var(--color-dark)]/[0.06]", border: "border-[var(--color-dark)]/20", text: "text-[var(--color-dark)]", icon: <Info className="h-4 w-4" /> },
   };
 
@@ -356,9 +358,7 @@ function RecentActivity() {
         <Activity className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Recent Activity</h2>
       </div>
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
-        <p className="text-sm text-[var(--color-mid-gray)]">No recent activity yet</p>
-      </div>
+      <EmptyState icon={<Activity className="h-6 w-6" />} title="No recent activity yet" />
     </div>
   );
 
@@ -380,7 +380,7 @@ function RecentActivity() {
         <Activity className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Recent Activity</h2>
       </div>
-      <div className="max-h-96 overflow-y-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
+      <div className="max-h-96 overflow-y-auto rounded-[6px] border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
         {items.map((item, i) => (
           <div key={item.id} className={`flex items-start gap-3 px-4 py-3 ${i < items.length - 1 ? "border-b border-[var(--border-subtle)]" : ""}`}>
             <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--color-light-gray)] text-[var(--color-body-text)]">
@@ -408,7 +408,7 @@ function ContactCard() {
     : null;
 
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+    <Card as="section">
       <div className="mb-3 flex items-center gap-2">
         <Phone className="h-4 w-4 text-[var(--color-dark)]" />
         <h2 className="text-sm font-semibold">Your Team</h2>
@@ -437,6 +437,6 @@ function ContactCard() {
         </div>
         {signedDate && <p className="mt-1 text-xs text-[var(--color-mid-gray)]">Client since {signedDate}</p>}
       </div>
-    </div>
+    </Card>
   );
 }
