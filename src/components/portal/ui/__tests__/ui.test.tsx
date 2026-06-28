@@ -212,3 +212,87 @@ describe("Badge tones", () => {
     expect(el.className).toContain(token);
   });
 });
+
+describe("Button variants/sizes/icon", () => {
+  it.each([
+    ["primary", "bg-[var(--color-dark)]"],
+    ["secondary", "border-[var(--border-medium)]"],
+    ["ghost", "hover:bg-[var(--color-light-gray)]"],
+    ["danger", "bg-[var(--color-red)]"],
+  ] as const)("variant=%s applies its token classes", (variant, cls) => {
+    render(<Button variant={variant}>x</Button>);
+    expect(screen.getByRole("button", { name: "x" }).className).toContain(cls);
+  });
+
+  it.each([
+    ["sm", "px-3"],
+    ["md", "px-4"],
+  ] as const)("size=%s applies its padding", (size, cls) => {
+    render(<Button size={size}>x</Button>);
+    expect(screen.getByRole("button", { name: "x" }).className).toContain(cls);
+  });
+
+  it("renders the icon when not loading, swaps to a spinner when loading", () => {
+    const { container, rerender } = render(
+      <Button icon={<span data-testid="ico">i</span>}>Go</Button>,
+    );
+    expect(screen.getByTestId("ico")).toBeInTheDocument();
+    expect(container.querySelector(".animate-spin")).toBeFalsy();
+
+    rerender(
+      <Button loading icon={<span data-testid="ico">i</span>}>
+        Go
+      </Button>,
+    );
+    expect(screen.queryByTestId("ico")).toBeNull();
+    expect(container.querySelector(".animate-spin")).toBeTruthy();
+  });
+
+  it("forwards arbitrary button attributes (type)", () => {
+    render(<Button type="submit">Save</Button>);
+    expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute("type", "submit");
+  });
+});
+
+describe("StatCard hint/icon/value", () => {
+  it("renders a hint string and an icon node", () => {
+    render(
+      <StatCard label="Occupancy" value="92%" hint="120 / 130 units" icon={<span data-testid="ico">i</span>} />,
+    );
+    expect(screen.getByText("120 / 130 units")).toBeInTheDocument();
+    expect(screen.getByTestId("ico")).toBeInTheDocument();
+  });
+
+  it("accepts a ReactNode value", () => {
+    render(<StatCard label="Status" value={<strong>Live</strong>} />);
+    expect(screen.getByText("Live").tagName).toBe("STRONG");
+  });
+});
+
+describe("Card element/className/rest", () => {
+  it("renders the requested element and forwards className + rest props", () => {
+    const { container } = render(
+      <Card as="article" className="custom-x" aria-label="panel">
+        body
+      </Card>,
+    );
+    const el = container.querySelector("article") as HTMLElement;
+    expect(el).toBeTruthy();
+    expect(el.className).toContain("custom-x");
+    expect(el).toHaveAttribute("aria-label", "panel");
+  });
+
+  it("defaults to a div surface", () => {
+    const { container } = render(<Card>body</Card>);
+    expect((container.firstChild as HTMLElement).tagName).toBe("DIV");
+  });
+});
+
+describe("EmptyState minimal", () => {
+  it("renders with only a title (no icon/message/action)", () => {
+    const { container } = render(<EmptyState title="Nothing here" />);
+    expect(screen.getByText("Nothing here")).toBeInTheDocument();
+    // no buttons/links rendered when action is omitted
+    expect(container.querySelector("button")).toBeNull();
+  });
+});
