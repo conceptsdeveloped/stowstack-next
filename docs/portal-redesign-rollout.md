@@ -145,10 +145,11 @@ partner auth surface, not the client portal. The portal cohort flag must live on
     on the canonical store, and the Postgres path would need a prod migration.
     Each system is internally consistent today, so this is cleanup, not a broken
     user path. Deferred pending that decision.
-  - `client-onboarding` + `portal-upload` auth — still hand-rolled (query-based,
-    so the helper would fit), but they are multi-method, alpha-critical flows
-    the peer also left unmigrated. Migrate with care; regression risk > dedup
-    value right now.
+  - ~~`client-onboarding` + `portal-upload` auth~~ — **DONE** (`faaaec8`, task 29).
+    Both migrated onto the shared helper; PATCH creds moved to the query. Every
+    portal-client route is now on `authenticatePortalRequest` except the
+    intentional exceptions (client-data, client-campaigns). Manual portal walk
+    still recommended before alpha.
   - Messaging **durability** (Redis→Postgres, backend M4/M5) — needs a new table
     → prod DDL approval. Auth is fixed; persistence is the remaining half.
   - Campaigns reachability — **Angelo's domain** (attribution); coordinate first.

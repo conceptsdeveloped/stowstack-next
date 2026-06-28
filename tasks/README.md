@@ -13,7 +13,7 @@ Each task is self-contained per the execution rules below. Run one at a time. Do
 | 26 | Decide: keep or kill partner/referral program | **CLOSED — KEEP** (CLAUDE.md lists management cos as buyers) | — |
 | 27 | Decide: keep or kill premature tenant lifecycle features | **CLOSED — KEEP** (tied to PMS moat) | — |
 | 28 | CLAUDE.md full audit & refresh | Audit doc; refresh applied 2026-06-06 | — |
-| 29 | Migrate client-onboarding + portal-upload onto shared portal auth helper | **DEFERRED** — alpha-critical flows, not a clean drop-in (PATCH body-auth; upload needs email) | Medium-High |
+| 29 | Migrate client-onboarding + portal-upload onto shared portal auth helper | **DONE** (`faaaec8`) — both migrated +11 tests; manual portal walk still recommended | Medium-High |
 
 ## Execution Rules
 

@@ -1,6 +1,6 @@
 # Task 29: Migrate client-onboarding + portal-upload onto the shared portal auth helper
 
-## Status: DEFERRED — alpha-critical flows, not a clean drop-in (see risks). Needs care + manual verification.
+## Status: DONE (`faaaec8`) — both routes migrated, +11 tests, build green. Decisions: portal-upload resolves email via clientId (option 2b); client-onboarding PATCH credentials moved to the query and the onboarding page updated to match. **One open item:** the manual portal walk in Step 5 (upload a CSV, save an onboarding step with a real session) is still recommended before relying on it in alpha — mock tests can't catch a prod param mismatch.
 
 ## Goal
 
