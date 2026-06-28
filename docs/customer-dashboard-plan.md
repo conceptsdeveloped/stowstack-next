@@ -89,8 +89,10 @@ Each milestone ships independently and is demoable on its own. Order is by **dat
 
 ---
 
-## M4 — Two-way messaging: move off Redis to Postgres
+## M4 — Two-way messaging: move off Redis to Postgres  ✅ DONE (commits 5451cae, feebaa6)
 **Goal:** messages are durable, threaded, and admin-visible — the current Redis list (capped 200, ephemeral) is not acceptable for a paying customer.
+
+**Shipped:** `client_messages` table; `/api/client-messages` rewritten onto Postgres (wire contract unchanged, reading a thread marks the other party's messages read); admin inbox at `/admin/messages` + `/api/admin-message-threads` (thread list, unread counts) with a REVENUE nav entry. Notification-on-new-message reuses the M6 push/email layer (follow-on). **Requires the prod DDL apply** (see end of doc).
 
 - New schema: `client_messages` (`id`, `client_id`, `sender` enum `client|team`, `body`, `read_at`, `created_at`) and optional `message_threads` if multi-topic is wanted (defer; single thread per client is fine for alpha).
 - Rewrite `/api/client-messages` to read/write Postgres; migrate any existing Redis content (or accept a clean cutover for alpha).
@@ -104,8 +106,10 @@ Each milestone ships independently and is demoable on its own. Order is by **dat
 
 ---
 
-## M5 — Billing & invoices: consolidate on Stripe + Postgres
+## M5 — Billing & invoices: consolidate on Stripe + Postgres  ✅ DONE (commit 6677189)
 **Goal:** one invoice system of record; kill the Redis/`activity_log` split.
+
+**Shipped:** `client_invoices` table is the single source of record. `/api/client-billing` rewritten off Redis (GET client/admin, POST author, PATCH mark-paid with auto `paid_at`); the `client-invoices` emailer now also persists each emailed invoice. Portal UI contract unchanged. **Stripe-webhook auto-sync left as an explicit follow-on** (touches the shared webhook handler); admins mark paid via PATCH today. **Requires the prod DDL apply** (see end of doc).
 
 - Today there are **two** competing sources: `client-billing` (invoices in Redis) and `client-invoices` (derived from `activity_log`). Pick one model.
 - **Recommended:** persist invoices in Postgres (`client_invoices` table: `id`, `client_id`, `amount`, `ad_spend`, `fee`, `status`, `stripe_invoice_id?`, `issued_at`, `paid_at`), authored by admin, optionally synced from Stripe invoices/webhooks.
@@ -151,8 +155,10 @@ Each milestone ships independently and is demoable on its own. Order is by **dat
 
 ---
 
-## M8 — Polish, design compliance, downloadable PDF
+## M8 — Polish, design compliance, downloadable PDF  ◑ MOSTLY DONE (commit 7d95b6e)
 **Goal:** the dashboard looks and feels finished for alpha.
+
+**Shipped:** PDF report download (`/api/client-report-pdf` + `src/lib/occupancy-pdf.tsx`, "Download PDF" on /portal/reports). Gold-token cleanup: portal is already token-clean (no `--color-gold`/amber). Empty/loading/error states: covered by the portal UI kit. **Remaining:** the operator-voice copy pass (subjective, no functional defect) — the one open polish item.
 
 - Design-system pass: remove `--color-gold` usage outside the logo across all portal components; replace with charcoal/light tokens (see `.claude/design-system.md`).
 - Downloadable report as PDF (reuses `@react-pdf/renderer` already in the stack) in addition to the JSON export.
@@ -197,3 +203,13 @@ M8 (polish) ──────> last, across everything
 ## Verification per milestone
 
 After each milestone: `npx prisma validate && npm run typecheck && npm run test && npm run build`. For mutation routes, manually verify in prod after deploy (CSRF + auth). For PWA (M6), test on a real installed instance including iOS Safari.
+
+## ⚠️ Required prod step (M4 + M5)
+
+The `client_messages` and `client_invoices` tables (M4/M5) are defined in the schema and generated client, but the **tables must be created in prod** before those features work live. The migration is additive and idempotent (no data-loss ops). Run from a shell that has `DATABASE_URL`:
+
+```bash
+npx prisma db execute --file prisma/manual/2026-06-28-customer-dashboard-tables.sql --schema prisma/schema.prisma
+```
+
+Then deploy (the build runs `prisma generate`). Until this runs, `/api/client-messages` and `/api/client-billing` will error against the missing tables. `client_goals` (M1) is owned by the client-goals feature and is intentionally not in this file.
