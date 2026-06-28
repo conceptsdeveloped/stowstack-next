@@ -7,12 +7,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { usePortal } from "@/components/portal/portal-shell";
-import {
-  type Message,
-  relativeTime,
-  SectionSkeleton,
-  ErrorState,
-} from "@/lib/portal-helpers";
+import { type Message, relativeTime } from "@/lib/portal-helpers";
+import { EmptyState, SectionSkeleton, ErrorState } from "@/components/portal/ui";
 
 export default function MessagesPage() {
   const { session } = usePortal();
@@ -97,10 +93,11 @@ export default function MessagesPage() {
           ) : error && messages.length === 0 ? (
             <ErrorState message={error} onRetry={fetchMessages} />
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <MessageSquare className="mb-3 h-10 w-10 text-[var(--color-mid-gray)]" />
-              <p className="text-sm text-[var(--color-body-text)]">No messages yet. Send your account manager a note below.</p>
-            </div>
+            <EmptyState
+              icon={<MessageSquare className="h-10 w-10" />}
+              title="No messages yet"
+              message="Send your account manager a note below."
+            />
           ) : (
             messages.map((msg) => (
               <div
@@ -142,6 +139,7 @@ export default function MessagesPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
+            aria-label="Message"
             placeholder="Type a message..."
             rows={1}
             className="flex-1 resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--color-dark)] placeholder-[var(--color-mid-gray)] outline-none transition-colors focus:border-[var(--color-dark)]/50 focus:ring-1 focus:ring-[var(--color-dark)]/25"
@@ -149,6 +147,7 @@ export default function MessagesPage() {
           <button
             type="submit"
             disabled={!text.trim() || sending}
+            aria-label="Send message"
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-dark)] text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-40"
           >
             {sending ? (
