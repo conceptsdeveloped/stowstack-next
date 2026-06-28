@@ -21,12 +21,17 @@ import {
 } from "recharts";
 import { ResponsiveChart } from "@/components/ui/responsive-chart";
 import { usePortal } from "@/components/portal/portal-shell";
+import { fmtCurrency } from "@/lib/portal-helpers";
 import {
-  fmtCurrency,
+  PortalPage,
+  Card,
+  StatCard,
+  EmptyState,
+  Button,
   CardSkeleton,
   SectionSkeleton,
   ErrorState,
-} from "@/lib/portal-helpers";
+} from "@/components/portal/ui";
 
 /* ─── types ─── */
 
@@ -93,212 +98,164 @@ export default function ReportsPage() {
   const trend = data?.occupancyTrend;
   const signedAt = data?.signedAt?.slice(0, 10);
 
+  function downloadReport() {
+    if (!data) return;
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${client.facilityName || "report"}-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--color-dark)]">Reports &amp; Analytics</h2>
-          <p className="text-sm text-[var(--color-mid-gray)]">
-            PMS data and unit performance for {client.facilityName}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            if (!data) return;
-            const jsonStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${client.facilityName || "report"}-${new Date().toISOString().slice(0, 10)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
+    <PortalPage
+      title="Reports & Analytics"
+      subtitle={`PMS data and unit performance for ${client.facilityName}`}
+      maxWidth="5xl"
+      actions={
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={downloadReport}
           disabled={!data}
-          className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-2 text-xs font-medium text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)] disabled:opacity-40"
+          icon={<Download className="h-3.5 w-3.5" />}
         >
-          <Download className="h-3.5 w-3.5" />
           Download Report
-        </button>
-      </div>
+        </Button>
+      }
+    >
+      <div className="space-y-6">
+        {/* Error */}
+        {error && <ErrorState message={error} onRetry={fetchData} />}
 
-      {/* Error */}
-      {error && <ErrorState message={error} onRetry={fetchData} />}
-
-      {/* Occupancy Trend Chart */}
-      {!loading && trend && trend.length > 1 && (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Activity className="h-4 w-4 text-[var(--color-dark)]" />
-            <h3 className="text-sm font-semibold text-[var(--color-dark)]">Occupancy Trend</h3>
-          </div>
-          <ResponsiveChart mobileHeight={200} desktopHeight={240}>
-            <LineChart data={trend} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }}
-                tickFormatter={(d: string) => d.slice(5)}
-                interval="preserveStartEnd"
-              />
-              <YAxis
-                domain={[0, 100]}
-                tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }}
-                tickFormatter={(v: number) => `${v}%`}
-                width={40}
-              />
-              <Tooltip
-                formatter={(v) => [`${Number(v).toFixed(1)}%`, "Occupancy"]}
-                contentStyle={{ background: "var(--color-light)", border: "1px solid var(--color-light-gray)", borderRadius: "8px", fontSize: "12px" }}
-              />
-              {signedAt && (
-                <ReferenceLine
-                  x={signedAt}
-                  stroke="var(--color-blue)"
-                  strokeDasharray="4 4"
-                  label={{ value: "StorageAds Started", position: "top", fontSize: 10, fill: "var(--color-blue)" }}
+        {/* Occupancy trend chart */}
+        {!loading && trend && trend.length > 1 && (
+          <Card as="section">
+            <div className="mb-4 flex items-center gap-2">
+              <Activity className="h-4 w-4 text-[var(--color-dark)]" />
+              <h3 className="text-sm font-semibold text-[var(--color-dark)]">Occupancy Trend</h3>
+            </div>
+            <ResponsiveChart mobileHeight={200} desktopHeight={240}>
+              <LineChart data={trend} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }}
+                  tickFormatter={(d: string) => d.slice(5)}
+                  interval="preserveStartEnd"
                 />
-              )}
-              <Line
-                type="monotone"
-                dataKey="occupancy_pct"
-                stroke="var(--color-blue)"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4, fill: "var(--color-blue)" }}
-              />
-            </LineChart>
-          </ResponsiveChart>
-        </div>
-      )}
+                <YAxis
+                  domain={[0, 100]}
+                  tick={{ fontSize: 11, fill: "var(--color-mid-gray)" }}
+                  tickFormatter={(v: number) => `${v}%`}
+                  width={40}
+                />
+                <Tooltip
+                  formatter={(v) => [`${Number(v).toFixed(1)}%`, "Occupancy"]}
+                  contentStyle={{ background: "var(--color-light)", border: "1px solid var(--color-light-gray)", borderRadius: "8px", fontSize: "12px" }}
+                />
+                {signedAt && (
+                  <ReferenceLine
+                    x={signedAt}
+                    stroke="var(--color-blue)"
+                    strokeDasharray="4 4"
+                    label={{ value: "StorageAds Started", position: "top", fontSize: 10, fill: "var(--color-blue)" }}
+                  />
+                )}
+                <Line
+                  type="monotone"
+                  dataKey="occupancy_pct"
+                  stroke="var(--color-blue)"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4, fill: "var(--color-blue)" }}
+                />
+              </LineChart>
+            </ResponsiveChart>
+          </Card>
+        )}
 
-      {/* Occupancy Snapshot */}
-      {loading ? (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <CardSkeleton key={i} />
-          ))}
-        </div>
-      ) : occ ? (
-        <>
+        {/* Occupancy snapshot */}
+        {loading ? (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        ) : occ ? (
           <div>
             <h3 className="mb-3 text-sm font-semibold text-[var(--color-dark)]">Occupancy Snapshot</h3>
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-              {/* Occupancy */}
-              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-[var(--color-dark)]" />
-                  <span className="text-xs text-[var(--color-mid-gray)]">Occupancy</span>
-                </div>
-                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.occupancy_pct.toFixed(1)}%</p>
-                <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-                  {occ.occupied_units} / {occ.total_units} units
-                </p>
-              </div>
-
-              {/* Total Units */}
-              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <Package className="h-4 w-4 text-[var(--color-dark)]" />
-                  <span className="text-xs text-[var(--color-mid-gray)]">Total Units</span>
-                </div>
-                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.total_units}</p>
-              </div>
-
-              {/* Occupied */}
-              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-[var(--color-dark)]" />
-                  <span className="text-xs text-[var(--color-mid-gray)]">Occupied Units</span>
-                </div>
-                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.occupied_units}</p>
-              </div>
-
-              {/* Move-Ins MTD */}
-              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-emerald-400" />
-                  <span className="text-xs text-[var(--color-mid-gray)]">Move-Ins (MTD)</span>
-                </div>
-                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.move_ins_mtd}</p>
-              </div>
-
-              {/* Move-Outs MTD */}
-              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-red-400" />
-                  <span className="text-xs text-[var(--color-mid-gray)]">Move-Outs (MTD)</span>
-                </div>
-                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.move_outs_mtd}</p>
-              </div>
-
-              {/* Delinquency */}
-              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-amber-400" />
-                  <span className="text-xs text-[var(--color-mid-gray)]">Delinquency</span>
-                </div>
-                <p className="text-xl font-semibold text-[var(--color-dark)]">{occ.delinquency_pct.toFixed(1)}%</p>
-              </div>
+              <StatCard
+                label="Occupancy"
+                value={`${occ.occupancy_pct.toFixed(1)}%`}
+                icon={<Building2 className="h-4 w-4" />}
+                hint={`${occ.occupied_units} / ${occ.total_units} units`}
+              />
+              <StatCard label="Total Units" value={occ.total_units} icon={<Package className="h-4 w-4" />} />
+              <StatCard label="Occupied Units" value={occ.occupied_units} icon={<Users className="h-4 w-4" />} />
+              <StatCard label="Move-Ins (MTD)" value={occ.move_ins_mtd} icon={<TrendingUp className="h-4 w-4" />} />
+              <StatCard label="Move-Outs (MTD)" value={occ.move_outs_mtd} icon={<TrendingDown className="h-4 w-4" />} />
+              <StatCard label="Delinquency" value={`${occ.delinquency_pct.toFixed(1)}%`} icon={<BarChart3 className="h-4 w-4" />} />
             </div>
           </div>
-        </>
-      ) : !error ? (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-8 text-center">
-          <BarChart3 className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
-          <p className="text-sm text-[var(--color-body-text)]">
-            No PMS data available yet. Data will appear once your property management system is connected.
-          </p>
-        </div>
-      ) : null}
+        ) : !error ? (
+          <EmptyState
+            icon={<BarChart3 className="h-8 w-8" />}
+            title="No PMS data available yet"
+            message="Data will appear once your property management system is connected."
+          />
+        ) : null}
 
-      {/* Unit Mix Table */}
-      {loading ? (
-        <SectionSkeleton />
-      ) : unitMix && unitMix.length > 0 ? (
-        <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
-          <div className="border-b border-[var(--border-subtle)] px-5 py-4">
-            <h3 className="text-sm font-semibold text-[var(--color-dark)]">Unit Mix</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-[var(--border-subtle)] text-[var(--color-mid-gray)]">
-                  <th className="px-5 py-3 font-medium">Type</th>
-                  <th className="px-4 py-3 font-medium">Size</th>
-                  <th className="px-4 py-3 text-right font-medium">Total</th>
-                  <th className="px-4 py-3 text-right font-medium">Occupied</th>
-                  <th className="px-4 py-3 text-right font-medium">Occ %</th>
-                  <th className="px-4 py-3 text-right font-medium">Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {unitMix.map((row, i) => {
-                  const occPct = row.total > 0 ? (row.occupied / row.total) * 100 : 0;
-                  return (
-                    <tr
-                      key={i}
-                      className="border-b border-[var(--border-subtle)] last:border-0 hover:bg-[var(--color-light-gray)]/20"
-                    >
-                      <td className="px-5 py-3 font-medium text-[var(--color-dark)]">{row.type}</td>
-                      <td className="px-4 py-3 text-[var(--color-body-text)]">{row.size}</td>
-                      <td className="px-4 py-3 text-right text-[var(--color-body-text)]">{row.total}</td>
-                      <td className="px-4 py-3 text-right text-[var(--color-body-text)]">{row.occupied}</td>
-                      <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
-                        {occPct.toFixed(1)}%
-                      </td>
-                      <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
-                        {fmtCurrency(row.rate)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : null}
-    </div>
+        {/* Unit mix table */}
+        {loading ? (
+          <SectionSkeleton />
+        ) : unitMix && unitMix.length > 0 ? (
+          <section className="overflow-hidden rounded-[6px] border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+            <div className="border-b border-[var(--border-subtle)] px-5 py-4">
+              <h3 className="text-sm font-semibold text-[var(--color-dark)]">Unit Mix</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)] text-[var(--color-mid-gray)]">
+                    <th className="px-5 py-3 font-medium">Type</th>
+                    <th className="px-4 py-3 font-medium">Size</th>
+                    <th className="px-4 py-3 text-right font-medium">Total</th>
+                    <th className="px-4 py-3 text-right font-medium">Occupied</th>
+                    <th className="px-4 py-3 text-right font-medium">Occ %</th>
+                    <th className="px-4 py-3 text-right font-medium">Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {unitMix.map((row, i) => {
+                    const occPct = row.total > 0 ? (row.occupied / row.total) * 100 : 0;
+                    return (
+                      <tr
+                        key={i}
+                        className="border-b border-[var(--border-subtle)] last:border-0 hover:bg-[var(--color-light-gray)]/20"
+                      >
+                        <td className="px-5 py-3 font-medium text-[var(--color-dark)]">{row.type}</td>
+                        <td className="px-4 py-3 text-[var(--color-body-text)]">{row.size}</td>
+                        <td className="px-4 py-3 text-right text-[var(--color-body-text)]">{row.total}</td>
+                        <td className="px-4 py-3 text-right text-[var(--color-body-text)]">{row.occupied}</td>
+                        <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
+                          {occPct.toFixed(1)}%
+                        </td>
+                        <td className="px-4 py-3 text-right text-[var(--color-body-text)]">
+                          {fmtCurrency(row.rate)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : null}
+      </div>
+    </PortalPage>
   );
 }
