@@ -89,7 +89,13 @@ function WelcomeBanner() {
     fetch(`/api/attribution?accessCode=${session.accessCode}&startDate=${start}&endDate=${end}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (data?.totals) setStats({ leads: data.totals.leads, moveIns: data.totals.move_ins });
+        // move_ins_actual = move-ins by event date (reconciles with the goal
+        // tracker); fall back to the cohort count for older API shapes.
+        if (data?.totals)
+          setStats({
+            leads: data.totals.leads,
+            moveIns: data.totals.move_ins_actual ?? data.totals.move_ins,
+          });
       })
       .catch(() => setStatsError(true))
       .finally(() => setStatsLoading(false));

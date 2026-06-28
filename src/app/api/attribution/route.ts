@@ -110,6 +110,10 @@ export async function GET(req: NextRequest) {
         clicks: 0,
         leads: 0,
         move_ins: 0,
+        // Authoritative move-in count by EVENT date (computed below). `move_ins`
+        // above stays the campaign-cohort count fused with Angelo's
+        // campaign_spend join and must not change.
+        move_ins_actual: 0,
         revenue: 0,
         cpl: 0,
         cost_per_move_in: 0,
@@ -168,6 +172,22 @@ export async function GET(req: NextRequest) {
       FULL OUTER JOIN monthly_leads l ON s.month = l.month
       ORDER BY COALESCE(s.month, l.month)
     `);
+
+    // Authoritative move-in total by move-in EVENT date — the same basis the
+    // goal tracker (/api/client-goals) uses, so the dashboard hero KPI and the
+    // goal card reconcile. This counts a tenant who moved in inside the window
+    // even if the lead was created earlier or has since churned (current
+    // lead_status no longer 'moved_in'), which the cohort `move_ins` misses.
+    const startBound = new Date(`${startDate}T00:00:00.000Z`);
+    const endBound = new Date(`${endDate}T00:00:00.000Z`);
+    endBound.setUTCDate(endBound.getUTCDate() + 1); // make end date inclusive
+    totals.move_ins_actual = await db.lead_status_events.count({
+      where: {
+        to_status: "moved_in",
+        changed_at: { gte: startBound, lt: endBound },
+        partial_leads: { is: { facility_id: facilityId } },
+      },
+    });
 
     return jsonResponse(
       {
