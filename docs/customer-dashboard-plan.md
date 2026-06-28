@@ -135,8 +135,10 @@ Each milestone ships independently and is demoable on its own. Order is by **dat
 
 ---
 
-## M7 — PMS upload → parse pipeline
+## M7 — PMS upload → parse pipeline  ✅ DONE (commit 71b1cf7)
 **Goal:** uploaded reports actually populate the data the dashboard reads, instead of sitting in Blob with status `uploaded`.
+
+**Shipped:** one shared importer `src/lib/pms-import.ts` (detect → map → anomaly-gate → write to `facility_pms_*`, including unit-mix derivation), used by all three surfaces — `/api/portal-upload` (sync auto-import on clean CSV; `needs_review` staging otherwise), `/api/pms-data` (admin import + `process_report` approval action + tab "Approve & Import" button), and `/api/cron/process-pms-uploads` (batch backstop, now delegating to the lib instead of its own copy). No schema change needed (`pms_reports.report_data/status/notes/processed_*` already existed). This unblocks M2's delinquency field. 16 new tests; full suite + build green.
 
 - Today `/api/portal-upload` stores files (CSV/PDF/Excel) to Vercel Blob + a `pms_reports` row, status `uploaded`. **No parser runs.** The `facility_pms_*` tables are populated manually by admin.
 - Build a parser (start CSV-only, the format Section 8 / admin upload already targets) that reads rent roll, occupancy, aging, unit mix into `facility_pms_snapshots`, `facility_pms_units`, `facility_pms_aging`, etc., using the existing smart column-matching approach.
