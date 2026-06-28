@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { clientId, adSpend, additionalItems } = body || {};
+    const { clientId, adSpend, additionalItems, stripeInvoiceId } = body || {};
 
     if (!clientId) {
       return errorResponse("Missing clientId", 400, origin);
@@ -262,6 +262,11 @@ export async function POST(req: NextRequest) {
           period,
           description: `Invoice ${invoiceNumber}`,
           due_at: new Date(now.getFullYear(), now.getMonth() + 1, 1),
+          // Optional link to the Stripe invoice so the webhook can auto-reconcile
+          // this row to paid/overdue (M5 auto-sync) without an admin PATCH.
+          ...(typeof stripeInvoiceId === "string" && stripeInvoiceId
+            ? { stripe_invoice_id: stripeInvoiceId }
+            : {}),
         },
       })
       .catch((err) => console.error("[client_invoices] persist failed:", err));

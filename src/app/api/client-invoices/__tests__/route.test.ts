@@ -100,6 +100,47 @@ describe("POST /api/client-invoices (admin-only authoring)", () => {
     expect(persisted.status).toBe("sent");
   });
 
+  it("links the persisted row to a Stripe invoice when stripeInvoiceId is given (M5 auto-sync)", async () => {
+    mockQueryRaw.mockResolvedValue([clientRow()] as never);
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_invoices = { create: vi.fn().mockResolvedValue({}) };
+    // @ts-expect-error — db is a vi mock
+    mockDb.activity_log = { create: vi.fn().mockResolvedValue({}) };
+
+    const res = await POST(
+      createAdminRequest("/api/client-invoices", {
+        method: "POST",
+        body: { clientId: "client-1", adSpend: 100, stripeInvoiceId: "in_stripe_1" },
+      })
+    );
+
+    expect(res.status).toBe(200);
+    // The link is what the Stripe webhook reconciles on; without it auto-sync is dead.
+    // @ts-expect-error — inspecting the mock
+    const persisted = mockDb.client_invoices.create.mock.calls[0][0].data;
+    expect(persisted.stripe_invoice_id).toBe("in_stripe_1");
+  });
+
+  it("leaves the row unlinked when no (or a non-string) stripeInvoiceId is given", async () => {
+    mockQueryRaw.mockResolvedValue([clientRow()] as never);
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_invoices = { create: vi.fn().mockResolvedValue({}) };
+    // @ts-expect-error — db is a vi mock
+    mockDb.activity_log = { create: vi.fn().mockResolvedValue({}) };
+
+    const res = await POST(
+      createAdminRequest("/api/client-invoices", {
+        method: "POST",
+        body: { clientId: "client-1", stripeInvoiceId: 12345 },
+      })
+    );
+
+    expect(res.status).toBe(200);
+    // @ts-expect-error — inspecting the mock
+    const persisted = mockDb.client_invoices.create.mock.calls[0][0].data;
+    expect(persisted.stripe_invoice_id).toBeUndefined();
+  });
+
   it("defaults to the launch price when the org has no plan", async () => {
     mockQueryRaw.mockResolvedValue([clientRow({ plan: null })] as never);
     // @ts-expect-error — db is a vi mock
