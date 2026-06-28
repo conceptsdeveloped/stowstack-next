@@ -3,13 +3,23 @@ import { db } from "@/lib/db";
 import { createMockRequest, createAdminRequest } from "@/test/helpers";
 
 vi.mock("@/lib/push", () => ({ sendPushToAll: vi.fn().mockResolvedValue(undefined) }));
+vi.mock("@/lib/email", () => ({
+  sendEmail: vi.fn().mockResolvedValue({ ok: true }),
+  SENDERS: {
+    team: "StorageAds <team@storageads.com>",
+    notifications: "StorageAds <notifications@storageads.com>",
+  },
+  resolveSiteUrl: () => "https://storageads.com",
+}));
 import { sendPushToAll } from "@/lib/push";
+import { sendEmail } from "@/lib/email";
 import { GET, POST } from "../route";
 
 // M4: messaging is now Postgres-backed (client_messages). These tests cover the
 // auth boundary AND the durable read/write contract ({id, from, text, timestamp}).
 const mockDb = vi.mocked(db, true);
 const mockSendPush = vi.mocked(sendPushToAll);
+const mockSendEmail = vi.mocked(sendEmail);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -280,6 +290,138 @@ describe("POST /api/client-messages — D6 push notifications", () => {
       })
     );
     // The message persisted; the failed push must not surface to the caller.
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+  });
+});
+
+describe("POST /api/client-messages — D6 email notifications", () => {
+  // Email fires AFTER the response returns (post-await client lookup), so each
+  // assertion polls with vi.waitFor rather than checking synchronously.
+  it("emails the client when an admin replies, reply-to the founder inbox", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.clients = {
+      findUnique: vi.fn().mockResolvedValue({
+        id: "c9",
+        email: "owner@acme.com",
+        name: "Dana",
+        facility_name: "Acme Storage",
+      }),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_messages = {
+      create: vi.fn().mockResolvedValue({
+        id: "m3",
+        sender: "admin",
+        body: "Your campaign is live.",
+        created_at: new Date("2026-06-03T00:00:00Z"),
+      }),
+    };
+    const res = await POST(
+      createAdminRequest("/api/client-messages?accessCode=AC", {
+        method: "POST",
+        body: { text: "Your campaign is live.", from: "admin" },
+      })
+    );
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => expect(mockSendEmail).toHaveBeenCalledTimes(1));
+    const params = mockSendEmail.mock.calls[0][0];
+    expect(params.to).toBe("owner@acme.com");
+    expect(params.replyTo).toBe("blake@storageads.com");
+    expect(params.subject).toContain("StorageAds team");
+    // Idempotency keyed on the message id so a retry can't double-send.
+    expect(params.idempotencyKey).toBe("msg-notify-client-m3");
+    expect(params.html).toContain("Your campaign is live.");
+  });
+
+  it("does not email a client that has no address on file", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.clients = {
+      findUnique: vi.fn().mockResolvedValue({ id: "c9", email: "", name: "Dana", facility_name: "Acme" }),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_messages = {
+      create: vi.fn().mockResolvedValue({
+        id: "m3",
+        sender: "admin",
+        body: "hi",
+        created_at: new Date("2026-06-03T00:00:00Z"),
+      }),
+    };
+    const res = await POST(
+      createAdminRequest("/api/client-messages?accessCode=AC", {
+        method: "POST",
+        body: { text: "hi", from: "admin" },
+      })
+    );
+    expect(res.status).toBe(200);
+    // Give the post-response notify path a tick; it must not send.
+    await new Promise((r) => setTimeout(r, 10));
+    expect(mockSendEmail).not.toHaveBeenCalled();
+  });
+
+  it("emails the founder inbox when a client writes in, reply-to the client", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.clients = {
+      findFirst: vi.fn().mockResolvedValue({ id: "c1", facility_id: "f1" }),
+      findUnique: vi.fn().mockResolvedValue({
+        id: "c1",
+        email: "owner@acme.com",
+        name: "Dana",
+        facility_name: "Acme Storage",
+      }),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_messages = {
+      create: vi.fn().mockResolvedValue({
+        id: "m2",
+        sender: "client",
+        body: "Quick question",
+        created_at: new Date("2026-06-02T00:00:00Z"),
+      }),
+    };
+    const res = await POST(
+      createMockRequest("/api/client-messages?accessCode=AC&email=o@e.com", {
+        method: "POST",
+        body: { text: "Quick question", from: "client" },
+      })
+    );
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => expect(mockSendEmail).toHaveBeenCalledTimes(1));
+    const params = mockSendEmail.mock.calls[0][0];
+    expect(params.to).toBe("blake@storageads.com");
+    expect(params.replyTo).toBe("owner@acme.com");
+    expect(params.subject).toContain("Acme Storage");
+    expect(params.idempotencyKey).toBe("msg-notify-admin-m2");
+  });
+
+  it("still returns 200 when email delivery throws (fire-and-forget)", async () => {
+    mockSendEmail.mockRejectedValueOnce(new Error("resend down"));
+    // @ts-expect-error — db is a vi mock
+    mockDb.clients = {
+      findUnique: vi.fn().mockResolvedValue({
+        id: "c9",
+        email: "owner@acme.com",
+        name: "Dana",
+        facility_name: "Acme",
+      }),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_messages = {
+      create: vi.fn().mockResolvedValue({
+        id: "m6",
+        sender: "admin",
+        body: "hi",
+        created_at: new Date("2026-06-06T00:00:00Z"),
+      }),
+    };
+    const res = await POST(
+      createAdminRequest("/api/client-messages?accessCode=AC", {
+        method: "POST",
+        body: { text: "hi", from: "admin" },
+      })
+    );
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
