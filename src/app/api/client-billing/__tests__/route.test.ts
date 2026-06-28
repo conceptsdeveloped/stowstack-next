@@ -149,6 +149,28 @@ describe("POST /api/client-billing", () => {
     const data = mockDb.client_invoices.create.mock.calls[0][0].data;
     expect(data.client_id).toBe("c1");
     expect(data.period).toBe("June 2026");
+    // No link given -> stripe_invoice_id is not written (stays null by default).
+    expect(data.stripe_invoice_id).toBeUndefined();
+  });
+
+  it("persists stripe_invoice_id when an invoice is linked to its Stripe counterpart", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.clients = { findUnique: vi.fn().mockResolvedValue({ id: "c1" }) };
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_invoices = {
+      create: vi.fn().mockResolvedValue({ ...ROW, stripe_invoice_id: "in_stripe_1" }),
+    };
+    const res = await POST(
+      createAdminRequest("/api/client-billing", {
+        method: "POST",
+        body: { ...valid, stripeInvoiceId: "in_stripe_1" },
+      })
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.invoice.stripeInvoiceId).toBe("in_stripe_1");
+    // @ts-expect-error — inspecting the mock
+    expect(mockDb.client_invoices.create.mock.calls[0][0].data.stripe_invoice_id).toBe("in_stripe_1");
   });
 });
 
@@ -190,5 +212,32 @@ describe("PATCH /api/client-billing", () => {
     // paid_at auto-stamped when marking paid without an explicit date.
     // @ts-expect-error — inspecting the mock
     expect(mockDb.client_invoices.update.mock.calls[0][0].data.paid_at).toBeInstanceOf(Date);
+  });
+
+  it("links or unlinks the Stripe invoice id on PATCH (empty string clears it)", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_invoices = {
+      findUnique: vi.fn().mockResolvedValue({ id: "i1" }),
+      update: vi.fn().mockResolvedValue({ ...ROW, stripe_invoice_id: "in_stripe_9" }),
+    };
+    // Linking.
+    await PATCH(
+      createAdminRequest("/api/client-billing", {
+        method: "PATCH",
+        body: { invoiceId: "i1", stripeInvoiceId: "in_stripe_9" },
+      })
+    );
+    // @ts-expect-error — inspecting the mock
+    expect(mockDb.client_invoices.update.mock.calls[0][0].data.stripe_invoice_id).toBe("in_stripe_9");
+
+    // Clearing: an explicit empty string nulls the link.
+    await PATCH(
+      createAdminRequest("/api/client-billing", {
+        method: "PATCH",
+        body: { invoiceId: "i1", stripeInvoiceId: "" },
+      })
+    );
+    // @ts-expect-error — inspecting the mock
+    expect(mockDb.client_invoices.update.mock.calls[1][0].data.stripe_invoice_id).toBeNull();
   });
 });
