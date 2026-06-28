@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import {
   jsonResponse,
   errorResponse,
@@ -9,25 +10,52 @@ import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { authenticatePortalRequest } from "@/lib/portal-auth";
 
-interface RedisClient {
-  lrange(key: string, start: number, stop: number): Promise<unknown[]>;
-  lpush(key: string, value: string): Promise<number>;
-  ltrim(key: string, start: number, stop: number): Promise<string>;
+/**
+ * Two-way messaging (M4). Durable Postgres backend (`client_messages`) behind
+ * the finished portal UI — replaces the old ephemeral Redis list (capped 200,
+ * lost on eviction). The wire contract is unchanged: messages are
+ * `{ id, from: "client"|"admin", text, timestamp }`.
+ *
+ * Auth is the canonical portal helper: a client is pinned to their own thread;
+ * an admin (X-Admin-Key) addresses a thread by passing the client's accessCode.
+ */
+
+interface WireMessage {
+  id: string;
+  from: string;
+  text: string;
+  timestamp: string;
 }
 
-async function getRedis(): Promise<RedisClient | null> {
-  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-    return null;
-  }
-  try {
-    const { Redis } = await import("@upstash/redis");
-    return new Redis({
-      url: process.env.KV_REST_API_URL,
-      token: process.env.KV_REST_API_TOKEN,
-    }) as unknown as RedisClient;
-  } catch {
-    return null;
-  }
+function toWire(row: {
+  id: string;
+  sender: string;
+  body: string;
+  created_at: Date;
+}): WireMessage {
+  return {
+    id: row.id,
+    from: row.sender,
+    text: row.body,
+    timestamp: row.created_at.toISOString(),
+  };
+}
+
+/**
+ * Resolve the thread's client id from the scope. A client owns exactly one
+ * thread (their own); an admin names the target via accessCode. Returns null if
+ * the accessCode doesn't resolve (admin addressing a bad code).
+ */
+async function resolveThreadClientId(
+  scope: { kind: "admin" } | { kind: "client"; clientId: string },
+  accessCode: string,
+): Promise<string | null> {
+  if (scope.kind === "client") return scope.clientId;
+  const client = await db.clients.findUnique({
+    where: { access_code: accessCode },
+    select: { id: true },
+  });
+  return client?.id ?? null;
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -39,26 +67,35 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
   const origin = getOrigin(req);
 
-  // Canonical portal auth (Postgres). The old path read a Redis `client:*` key
-  // the Postgres app never populates, so a real client always 401'd (or silently
-  // succeeded when Upstash was unset). A client is validated to their own access
-  // code; an admin (x-admin-key) may read any thread by passing accessCode.
   const scope = await authenticatePortalRequest(req);
   if (scope instanceof NextResponse) return scope;
 
-  const accessCode = new URL(req.url).searchParams.get("accessCode");
-  if (!accessCode) return errorResponse("Missing access code", 400, origin);
+  const accessCode = new URL(req.url).searchParams.get("accessCode") ?? "";
+  if (scope.kind === "admin" && !accessCode) {
+    return errorResponse("Missing access code", 400, origin);
+  }
 
-  const redis = await getRedis();
-  if (!redis) return jsonResponse({ messages: [] }, 200, origin);
+  const clientId = await resolveThreadClientId(scope, accessCode);
+  if (!clientId) return errorResponse("Client not found", 404, origin);
 
   try {
-    const raw = await redis.lrange(`messages:${accessCode}`, 0, 199);
-    const messages = (raw || []).map((entry) =>
-      typeof entry === "string" ? JSON.parse(entry) : entry
-    );
-    messages.reverse();
-    return jsonResponse({ messages }, 200, origin);
+    const rows = await db.client_messages.findMany({
+      where: { client_id: clientId },
+      orderBy: { created_at: "asc" },
+      take: 500,
+      select: { id: true, sender: true, body: true, created_at: true },
+    });
+
+    // Mark the other party's messages as read now that this side has loaded the
+    // thread (powers unread counts / new-message notifications without changing
+    // the wire shape).
+    const counterpart = scope.kind === "admin" ? "client" : "admin";
+    await db.client_messages.updateMany({
+      where: { client_id: clientId, sender: counterpart, read_at: null },
+      data: { read_at: new Date() },
+    });
+
+    return jsonResponse({ messages: rows.map(toWire) }, 200, origin);
   } catch {
     return errorResponse("Failed to read messages", 500, origin);
   }
@@ -69,13 +106,13 @@ export async function POST(req: NextRequest) {
   if (limited) return limited;
   const origin = getOrigin(req);
 
-  // Auth before parsing the body. Credentials (accessCode + email) ride in the
-  // query so the shared helper can validate them; the body carries only content.
   const scope = await authenticatePortalRequest(req);
   if (scope instanceof NextResponse) return scope;
 
-  const accessCode = new URL(req.url).searchParams.get("accessCode");
-  if (!accessCode) return errorResponse("Missing access code", 400, origin);
+  const accessCode = new URL(req.url).searchParams.get("accessCode") ?? "";
+  if (scope.kind === "admin" && !accessCode) {
+    return errorResponse("Missing access code", 400, origin);
+  }
 
   let body: Record<string, unknown>;
   try {
@@ -99,22 +136,21 @@ export async function POST(req: NextRequest) {
   if (from === "admin" && scope.kind !== "admin") {
     return errorResponse("Unauthorized", 401, origin);
   }
+  // A client may only ever post as a client.
+  if (scope.kind === "client" && from !== "client") {
+    return errorResponse("Unauthorized", 401, origin);
+  }
 
-  const redis = await getRedis();
-  if (!redis) return jsonResponse({ success: true }, 200, origin);
+  const clientId = await resolveThreadClientId(scope, accessCode);
+  if (!clientId) return errorResponse("Client not found", 404, origin);
 
   try {
-    const message = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      from,
-      text: text.slice(0, 2000),
-      timestamp: new Date().toISOString(),
-    };
+    const row = await db.client_messages.create({
+      data: { client_id: clientId, sender: from, body: text.slice(0, 2000) },
+      select: { id: true, sender: true, body: true, created_at: true },
+    });
 
-    await redis.lpush(`messages:${accessCode}`, JSON.stringify(message));
-    await redis.ltrim(`messages:${accessCode}`, 0, 199);
-
-    return jsonResponse({ success: true, message }, 200, origin);
+    return jsonResponse({ success: true, message: toWire(row) }, 200, origin);
   } catch {
     return errorResponse("Failed to send message", 500, origin);
   }
