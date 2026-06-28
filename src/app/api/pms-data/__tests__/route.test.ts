@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { db } from "@/lib/db";
 import { createMockRequest, createAdminRequest } from "@/test/helpers";
+
+vi.mock("@/lib/report-notify", () => ({ notifyClientsReportReady: vi.fn() }));
+import { notifyClientsReportReady } from "@/lib/report-notify";
 import { POST } from "../route";
+
+const mockNotify = vi.mocked(notifyClientsReportReady);
 
 // Focus: the M7 `process_report` founder-approval action — its authz/tenant
 // isolation (an admin importing a report into a facility is an IDOR surface)
@@ -134,6 +139,21 @@ describe("POST /api/pms-data — process_report (approval gate)", () => {
     expect(update.where.id).toBe("r1");
     expect(update.data.status).toBe("processed");
     expect(update.data.processed_by).toBe("admin");
+    // Client(s) notified that fresh portal data is live.
+    expect(mockNotify).toHaveBeenCalledWith("f1");
+  });
+
+  it("does NOT notify clients when the report belongs to another facility (IDOR)", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.pms_reports = {
+      findUnique: vi.fn().mockResolvedValue({ id: "r1", facility_id: "f2" }),
+      update: vi.fn(),
+    };
+    const res = await POST(
+      adminPost({ action: "process_report", facility_id: "f1", report_id: "r1" })
+    );
+    expect(res.status).toBe(404);
+    expect(mockNotify).not.toHaveBeenCalled();
   });
 
   it("rejects an unknown action", async () => {

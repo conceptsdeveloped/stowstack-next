@@ -20,6 +20,7 @@ import {
   parseReport,
   reportTypeLabel,
 } from "@/lib/pms-import";
+import { notifyClientsReportReady } from "@/lib/report-notify";
 
 /* ── Auth helper: admin key OR client bearer token ── */
 async function authorizeRequest(
@@ -211,6 +212,10 @@ export async function POST(req: NextRequest) {
         rows,
       );
 
+      // Fresh occupancy/unit-mix data is now live in the portal — tell the
+      // client(s). Admin/owner-only path, so this never emails a self-upload.
+      void notifyClientsReportReady(facilityId);
+
       return jsonResponse(
         { ok: true, imported, snapshot: "upserted" },
         200,
@@ -322,6 +327,11 @@ export async function POST(req: NextRequest) {
           notes: `Approved & imported ${result.imported} rows (${reportTypeLabel(result.type)}).`,
         },
       });
+
+      // Founder just approved & published this report → the client's portal now
+      // has new data. Notify them (idempotency-keyed, so it won't double up with
+      // a same-day rent-roll import notice).
+      void notifyClientsReportReady(facilityId);
 
       return jsonResponse(
         { ok: true, imported: result.imported, type: result.type },
