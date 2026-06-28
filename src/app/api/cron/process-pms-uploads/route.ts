@@ -40,6 +40,65 @@ function classifyReport(
   return null;
 }
 
+/**
+ * Pre-publish sanity checks. Clean reports auto-process; anything that smells
+ * like a bad parse or truncated upload is held for human review instead of
+ * silently publishing wrong occupancy/delinquency to the customer portal.
+ * Returns human-readable anomaly notes (empty array = clean).
+ *
+ * Number("") === 0 and Number(undefined)/Number("abc") === NaN, and NaN
+ * comparisons are always false, so missing/blank cells never trip a check.
+ */
+export function detectPmsAnomalies(
+  kind: UploadType,
+  rows: Record<string, string>[]
+): string[] {
+  const problems: string[] = [];
+  if (rows.length === 0) {
+    problems.push("no data rows");
+    return problems;
+  }
+
+  if (kind === "rent_roll") {
+    const totalUnits = rows.length;
+    if (totalUnits > 100000) {
+      problems.push(`implausible unit count (${totalUnits})`);
+    }
+    const occupied = rows.filter((r) => (r.tenant_name ?? "").trim() !== "").length;
+    if (totalUnits >= 10 && occupied === 0) {
+      problems.push(
+        `0% occupancy across ${totalUnits} units (likely a tenant-name column mismatch)`
+      );
+    }
+    const negativeRent = rows.filter((r) => Number(r.rent_rate) < 0).length;
+    if (negativeRent > 0) {
+      problems.push(`${negativeRent} row(s) with negative rent`);
+    }
+    const negativePastDue = rows.filter((r) => Number(r.days_past_due) < 0).length;
+    if (negativePastDue > 0) {
+      problems.push(`${negativePastDue} row(s) with negative days-past-due`);
+    }
+  }
+
+  if (kind === "aging") {
+    const buckets = [
+      "bucket_0_30",
+      "bucket_31_60",
+      "bucket_61_90",
+      "bucket_91_120",
+      "bucket_120_plus",
+    ];
+    const negativeBuckets = rows.filter((r) =>
+      buckets.some((b) => Number(r[b]) < 0)
+    ).length;
+    if (negativeBuckets > 0) {
+      problems.push(`${negativeBuckets} row(s) with negative aging amounts`);
+    }
+  }
+
+  return problems;
+}
+
 async function ingestRentRoll(
   facilityId: string,
   snapshotDate: Date,
@@ -212,6 +271,17 @@ async function processReport(report: {
   }
 
   const mapped = mapRows(rows, columnMap, expected);
+
+  // Anomaly gate: hold suspicious data for human review rather than publishing
+  // wrong occupancy/delinquency straight to the customer portal.
+  const anomalies = detectPmsAnomalies(kind, mapped);
+  if (anomalies.length > 0) {
+    return {
+      status: "needs_review",
+      note: `Held for review (anomaly check): ${anomalies.join("; ")}`,
+    };
+  }
+
   const snapshotDate = new Date(); // today — rent roll + aging are point-in-time
 
   try {
