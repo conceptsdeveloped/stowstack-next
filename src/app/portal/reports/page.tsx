@@ -41,7 +41,7 @@ interface OccupancySnapshot {
   occupancy_pct: number;
   move_ins_mtd: number;
   move_outs_mtd: number;
-  delinquency_pct: number;
+  delinquency_pct: number | null;
 }
 
 interface UnitMixRow {
@@ -198,7 +198,9 @@ export default function ReportsPage() {
               <StatCard label="Occupied Units" value={occ.occupied_units} icon={<Users className="h-4 w-4" />} />
               <StatCard label="Move-Ins (MTD)" value={occ.move_ins_mtd} icon={<TrendingUp className="h-4 w-4" />} />
               <StatCard label="Move-Outs (MTD)" value={occ.move_outs_mtd} icon={<TrendingDown className="h-4 w-4" />} />
-              <StatCard label="Delinquency" value={`${occ.delinquency_pct.toFixed(1)}%`} icon={<BarChart3 className="h-4 w-4" />} />
+              {occ.delinquency_pct != null && (
+                <StatCard label="Delinquency" value={`${occ.delinquency_pct.toFixed(1)}%`} icon={<BarChart3 className="h-4 w-4" />} />
+              )}
             </div>
           </div>
         ) : !error ? (
