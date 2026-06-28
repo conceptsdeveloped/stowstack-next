@@ -208,7 +208,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
               </div>
             </div>
             {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-red-500/[0.08] p-3 text-sm text-red-400">
+              <div className="flex items-center gap-2 rounded-lg bg-[var(--color-red-light)] p-3 text-sm text-[var(--color-red)]">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 {error}
               </div>
@@ -249,7 +249,7 @@ function LoginForm({ onSuccess }: { onSuccess: (client: ClientData) => void }) {
               </div>
             )}
             {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-red-500/[0.08] p-3 text-sm text-red-400">
+              <div className="flex items-center gap-2 rounded-lg bg-[var(--color-red-light)] p-3 text-sm text-[var(--color-red)]">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 {error}
               </div>
@@ -457,7 +457,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen bg-[var(--color-light)]">
         {authError && (
           <div className="mx-auto max-w-sm px-4 pt-6">
-            <div role="alert" className="flex items-center gap-2 rounded-lg bg-amber-500/[0.08] p-3 text-sm text-amber-400">
+            <div role="alert" className="flex items-center gap-2 rounded-lg bg-[var(--color-blue)]/[0.08] p-3 text-sm text-[var(--color-blue)]">
               <AlertCircle className="h-4 w-4 shrink-0" />
               Session expired. Please sign in again.
             </div>
