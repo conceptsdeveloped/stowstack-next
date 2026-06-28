@@ -11,6 +11,15 @@ import {
 import { getManageScope, manageScopeAllows } from "@/lib/manage-session";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import {
+  type UploadType,
+  importRentRoll,
+  importAging,
+  importRevenue,
+  importParsed,
+  parseReport,
+  reportTypeLabel,
+} from "@/lib/pms-import";
 
 /* ── Auth helper: admin key OR client bearer token ── */
 async function authorizeRequest(
@@ -133,6 +142,8 @@ export async function GET(req: NextRequest) {
         report_type: true,
         file_name: true,
         uploaded_at: true,
+        status: true,
+        notes: true,
       },
     });
 
@@ -184,7 +195,8 @@ export async function POST(req: NextRequest) {
   if (denied) return denied;
 
   try {
-    /* ── Import Rent Roll ── */
+    /* ── Import Rent Roll ── (delegates to the shared importer in pms-import.ts,
+       which also derives the unit mix into facility_pms_units) */
     if (action === "import_rent_roll") {
       const snapshotDate = body.snapshot_date as string;
       const rows = body.rows as Array<Record<string, unknown>>;
@@ -193,81 +205,14 @@ export async function POST(req: NextRequest) {
         return errorResponse("snapshot_date and rows[] are required", 400, origin);
       }
 
-      // Delete existing rows for this facility + date, then bulk create
-      await db.facility_pms_rent_roll.deleteMany({
-        where: {
-          facility_id: facilityId,
-          snapshot_date: new Date(snapshotDate),
-        },
-      });
-
-      await db.facility_pms_rent_roll.createMany({
-        data: rows.map((r) => ({
-          facility_id: facilityId,
-          snapshot_date: new Date(snapshotDate),
-          unit: String(r.unit || ""),
-          size_label: r.size_label ? String(r.size_label) : null,
-          tenant_name: r.tenant_name ? String(r.tenant_name) : null,
-          account: r.account ? String(r.account) : null,
-          rental_start: r.rental_start ? new Date(r.rental_start as string) : null,
-          paid_thru: r.paid_thru ? new Date(r.paid_thru as string) : null,
-          rent_rate: r.rent_rate != null ? Number(r.rent_rate) : null,
-          insurance_premium: r.insurance_premium != null ? Number(r.insurance_premium) : null,
-          total_due: r.total_due != null ? Number(r.total_due) : 0,
-          days_past_due: r.days_past_due != null ? Number(r.days_past_due) : 0,
-        })),
-      });
-
-      // Generate snapshot summary from rent roll
-      const totalUnits = rows.length;
-      const occupied = rows.filter(
-        (r) => r.tenant_name && String(r.tenant_name).trim() !== ""
-      ).length;
-      const occupancyPct = totalUnits > 0 ? (occupied / totalUnits) * 100 : 0;
-      const grossPotential = rows.reduce(
-        (sum, r) => sum + (Number(r.rent_rate) || 0),
-        0
+      const { imported } = await importRentRoll(
+        facilityId,
+        new Date(snapshotDate),
+        rows,
       );
-      const actualRevenue = rows.reduce(
-        (sum, r) => sum + (Number(r.total_due) || 0),
-        0
-      );
-      const delinquentUnits = rows.filter(
-        (r) => (Number(r.days_past_due) || 0) > 0
-      ).length;
-      const delinquencyPct =
-        totalUnits > 0 ? (delinquentUnits / totalUnits) * 100 : 0;
-
-      await db.facility_pms_snapshots.upsert({
-        where: {
-          facility_id_snapshot_date: {
-            facility_id: facilityId,
-            snapshot_date: new Date(snapshotDate),
-          },
-        },
-        update: {
-          total_units: totalUnits,
-          occupied_units: occupied,
-          occupancy_pct: occupancyPct,
-          gross_potential: grossPotential,
-          actual_revenue: actualRevenue,
-          delinquency_pct: delinquencyPct,
-          updated_at: new Date(),
-        },
-        create: {
-          facility_id: facilityId,
-          snapshot_date: new Date(snapshotDate),
-          total_units: totalUnits,
-          occupied_units: occupied,
-          occupancy_pct: occupancyPct,
-          gross_potential: grossPotential,
-          actual_revenue: actualRevenue,
-          delinquency_pct: delinquencyPct,
-        },
-      });
 
       return jsonResponse(
-        { ok: true, imported: rows.length, snapshot: "upserted" },
+        { ok: true, imported, snapshot: "upserted" },
         200,
         origin
       );
@@ -282,34 +227,13 @@ export async function POST(req: NextRequest) {
         return errorResponse("snapshot_date and rows[] are required", 400, origin);
       }
 
-      // Delete existing rows for this facility + date, then bulk insert
-      await db.facility_pms_aging.deleteMany({
-        where: {
-          facility_id: facilityId,
-          snapshot_date: new Date(snapshotDate),
-        },
-      });
-
-      await db.facility_pms_aging.createMany({
-        data: rows.map((r) => ({
-          facility_id: facilityId,
-          snapshot_date: new Date(snapshotDate),
-          unit: String(r.unit || ""),
-          tenant_name: r.tenant_name ? String(r.tenant_name) : null,
-          bucket_0_30: r.bucket_0_30 != null ? Number(r.bucket_0_30) : 0,
-          bucket_31_60: r.bucket_31_60 != null ? Number(r.bucket_31_60) : 0,
-          bucket_61_90: r.bucket_61_90 != null ? Number(r.bucket_61_90) : 0,
-          bucket_91_120: r.bucket_91_120 != null ? Number(r.bucket_91_120) : 0,
-          bucket_120_plus: r.bucket_120_plus != null ? Number(r.bucket_120_plus) : 0,
-          total: r.total != null ? Number(r.total) : 0,
-        })),
-      });
-
-      return jsonResponse(
-        { ok: true, imported: rows.length },
-        200,
-        origin
+      const { imported } = await importAging(
+        facilityId,
+        new Date(snapshotDate),
+        rows,
       );
+
+      return jsonResponse({ ok: true, imported }, 200, origin);
     }
 
     /* ── Import Revenue ── */
@@ -320,40 +244,87 @@ export async function POST(req: NextRequest) {
         return errorResponse("rows[] is required", 400, origin);
       }
 
-      // Upsert each row (unique on facility_id + year + month)
-      let upserted = 0;
-      for (const r of rows) {
-        const year = Number(r.year);
-        const month = String(r.month);
-        await db.facility_pms_revenue_history.upsert({
-          where: {
-            facility_id_year_month: {
-              facility_id: facilityId,
-              year,
-              month,
-            },
-          },
-          update: {
-            revenue: r.revenue != null ? Number(r.revenue) : 0,
-            monthly_tax: r.monthly_tax != null ? Number(r.monthly_tax) : 0,
-            move_ins: r.move_ins != null ? Number(r.move_ins) : 0,
-            move_outs: r.move_outs != null ? Number(r.move_outs) : 0,
-          },
-          create: {
-            facility_id: facilityId,
-            year,
-            month,
-            revenue: r.revenue != null ? Number(r.revenue) : 0,
-            monthly_tax: r.monthly_tax != null ? Number(r.monthly_tax) : 0,
-            move_ins: r.move_ins != null ? Number(r.move_ins) : 0,
-            move_outs: r.move_outs != null ? Number(r.move_outs) : 0,
-          },
-        });
-        upserted++;
+      const { upserted } = await importRevenue(facilityId, rows);
+
+      return jsonResponse({ ok: true, upserted }, 200, origin);
+    }
+
+    /* ── Process Report (M7 founder-approval gate) ──
+       Publish a previously-uploaded report into facility_pms_*. Used by the
+       admin upload tab to approve files the portal auto-parser held for review
+       (status "needs_review"), or to (re)process any uploaded CSV. Prefers the
+       rows the portal already parsed and staged in pms_reports.report_data;
+       falls back to re-fetching + parsing the stored Blob file. */
+    if (action === "process_report") {
+      const reportId = body.report_id as string;
+      if (!reportId) {
+        return errorResponse("report_id is required", 400, origin);
       }
 
+      const report = await db.pms_reports.findUnique({
+        where: { id: reportId },
+      });
+      if (!report || report.facility_id !== facilityId) {
+        return errorResponse("Report not found", 404, origin);
+      }
+
+      // Source the rows: staged parse first, then the Blob file as a fallback.
+      let type: UploadType | undefined;
+      let snapshotDate: Date | undefined;
+      let mappedRows: Array<Record<string, unknown>> | undefined;
+
+      const staged = report.report_data as {
+        type?: UploadType;
+        snapshotDate?: string;
+        mappedRows?: Array<Record<string, unknown>>;
+      } | null;
+
+      if (staged?.type && staged.mappedRows?.length) {
+        type = staged.type;
+        mappedRows = staged.mappedRows;
+        snapshotDate = staged.snapshotDate
+          ? new Date(staged.snapshotDate)
+          : new Date();
+      } else if (report.file_url && report.mime_type === "text/csv") {
+        const text = await fetch(report.file_url).then((r) => r.text());
+        const parsed = parseReport(text);
+        if (!parsed || parsed.missingRequired.length) {
+          return errorResponse(
+            "Could not parse this report — required columns are missing.",
+            422,
+            origin,
+          );
+        }
+        type = parsed.type;
+        mappedRows = parsed.mappedRows;
+        snapshotDate = report.uploaded_at ?? new Date();
+      } else {
+        return errorResponse(
+          "This report has no parsable CSV data to process.",
+          422,
+          origin,
+        );
+      }
+
+      const result = await importParsed(
+        facilityId,
+        type,
+        snapshotDate ?? new Date(),
+        mappedRows,
+      );
+
+      await db.pms_reports.update({
+        where: { id: reportId },
+        data: {
+          status: "processed",
+          processed_at: new Date(),
+          processed_by: "admin",
+          notes: `Approved & imported ${result.imported} rows (${reportTypeLabel(result.type)}).`,
+        },
+      });
+
       return jsonResponse(
-        { ok: true, upserted },
+        { ok: true, imported: result.imported, type: result.type },
         200,
         origin
       );

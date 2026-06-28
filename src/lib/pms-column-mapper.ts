@@ -68,10 +68,14 @@ export function autoMapColumns(
 ): Record<string, string> {
   const map: Record<string, string> = {};
 
+  // Normalize away every non-alphanumeric character (underscores, spaces,
+  // hyphens, slashes, "+") so canonical names like "bucket_0_30" still match
+  // real-world headers like "0-30" or "120+".
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
   for (const exp of expectedColumns) {
-    const normalized = exp.toLowerCase().replace(/[_\s]/g, "");
+    const normalized = norm(exp);
     const match = headers.find((h) => {
-      const hn = h.toLowerCase().replace(/[_\s]/g, "");
+      const hn = norm(h);
       return hn === normalized || hn.includes(normalized) || normalized.includes(hn);
     });
     if (match) {

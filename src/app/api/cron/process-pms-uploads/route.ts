@@ -5,243 +5,33 @@ import { notifyCronFailure } from "@/lib/cron-runner";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import {
-  parseCSVText,
-  autoMapColumns,
-  mapRows,
-  EXPECTED_COLUMNS,
+  parseReport,
+  detectAnomalies,
+  importParsed,
+  summarizeRentRoll,
   type UploadType,
-} from "@/lib/pms-column-mapper";
+} from "@/lib/pms-import";
 
 export const maxDuration = 300;
 
 const BATCH_SIZE = 10;
 
 /**
- * Guess the upload type from the report_type string or by sniffing CSV headers.
- * Returns null if we can't confidently classify — caller should mark needs_review.
+ * Backward-compatible re-exports. The parsing/anomaly/summary logic now lives in
+ * the single shared importer (`@/lib/pms-import`) so the portal sync-upload,
+ * admin approval action, and this cron sweep all run identical code. These
+ * aliases keep existing imports (and tests) pointed here working.
  */
-function classifyReport(
-  declaredType: string | null | undefined,
-  headers: string[]
-): UploadType | null {
+export const detectPmsAnomalies = detectAnomalies;
+export const computeRentRollSnapshot = summarizeRentRoll;
+
+/** Map a declared report_type string to an UploadType hint, when meaningful. */
+function classifyHint(declaredType: string | null | undefined): UploadType | undefined {
   const declared = (declaredType || "").toLowerCase();
   if (declared.includes("rent")) return "rent_roll";
   if (declared.includes("aging") || declared.includes("receivable")) return "aging";
   if (declared.includes("revenue") || declared.includes("income")) return "revenue";
-
-  // Header-based sniff
-  const lower = headers.map((h) => h.toLowerCase().replace(/[_\s]/g, ""));
-  const has = (needle: string) => lower.some((h) => h.includes(needle));
-
-  if (has("daypastdue") || has("paidthru") || has("tenantname")) return "rent_roll";
-  if (has("bucket030") || has("bucket3160") || has("bucket91")) return "aging";
-  if (has("moveins") || has("moveouts") || (has("revenue") && has("month"))) return "revenue";
-
-  return null;
-}
-
-/**
- * Pre-publish sanity checks. Clean reports auto-process; anything that smells
- * like a bad parse or truncated upload is held for human review instead of
- * silently publishing wrong occupancy/delinquency to the customer portal.
- * Returns human-readable anomaly notes (empty array = clean).
- *
- * Number("") === 0 and Number(undefined)/Number("abc") === NaN, and NaN
- * comparisons are always false, so missing/blank cells never trip a check.
- */
-export function detectPmsAnomalies(
-  kind: UploadType,
-  rows: Record<string, string>[]
-): string[] {
-  const problems: string[] = [];
-  if (rows.length === 0) {
-    problems.push("no data rows");
-    return problems;
-  }
-
-  if (kind === "rent_roll") {
-    const totalUnits = rows.length;
-    if (totalUnits > 100000) {
-      problems.push(`implausible unit count (${totalUnits})`);
-    }
-    const occupied = rows.filter((r) => (r.tenant_name ?? "").trim() !== "").length;
-    if (totalUnits >= 10 && occupied === 0) {
-      problems.push(
-        `0% occupancy across ${totalUnits} units (likely a tenant-name column mismatch)`
-      );
-    }
-    const negativeRent = rows.filter((r) => Number(r.rent_rate) < 0).length;
-    if (negativeRent > 0) {
-      problems.push(`${negativeRent} row(s) with negative rent`);
-    }
-    const negativePastDue = rows.filter((r) => Number(r.days_past_due) < 0).length;
-    if (negativePastDue > 0) {
-      problems.push(`${negativePastDue} row(s) with negative days-past-due`);
-    }
-  }
-
-  if (kind === "aging") {
-    const buckets = [
-      "bucket_0_30",
-      "bucket_31_60",
-      "bucket_61_90",
-      "bucket_91_120",
-      "bucket_120_plus",
-    ];
-    const negativeBuckets = rows.filter((r) =>
-      buckets.some((b) => Number(r[b]) < 0)
-    ).length;
-    if (negativeBuckets > 0) {
-      problems.push(`${negativeBuckets} row(s) with negative aging amounts`);
-    }
-  }
-
-  return problems;
-}
-
-/**
- * Pure rollup of a rent-roll into the headline snapshot metrics the customer
- * portal shows (occupancy %, delinquency %, gross potential, actual revenue).
- * Extracted and exported so the math that drives customer-facing numbers is
- * unit-tested independently of the DB write.
- *
- * Definitions:
- *  - occupied   = rows with a non-blank tenant_name
- *  - delinquent = rows with days_past_due > 0 (binary per unit, not dollars)
- * Both percentages are 0 (not NaN) for an empty roll — no divide-by-zero.
- * Blank/non-numeric numeric cells coerce to 0 via `Number(x) || 0`.
- */
-export function computeRentRollSnapshot(rows: Record<string, string>[]): {
-  totalUnits: number;
-  occupied: number;
-  occupancyPct: number;
-  grossPotential: number;
-  actualRevenue: number;
-  delinquencyPct: number;
-} {
-  const totalUnits = rows.length;
-  const occupied = rows.filter((r) => r.tenant_name && r.tenant_name.trim() !== "").length;
-  const occupancyPct = totalUnits > 0 ? (occupied / totalUnits) * 100 : 0;
-  const grossPotential = rows.reduce((sum, r) => sum + (Number(r.rent_rate) || 0), 0);
-  const actualRevenue = rows.reduce((sum, r) => sum + (Number(r.total_due) || 0), 0);
-  const delinquentUnits = rows.filter((r) => (Number(r.days_past_due) || 0) > 0).length;
-  const delinquencyPct = totalUnits > 0 ? (delinquentUnits / totalUnits) * 100 : 0;
-  return { totalUnits, occupied, occupancyPct, grossPotential, actualRevenue, delinquencyPct };
-}
-
-async function ingestRentRoll(
-  facilityId: string,
-  snapshotDate: Date,
-  rows: Record<string, string>[]
-): Promise<number> {
-  await db.facility_pms_rent_roll.deleteMany({
-    where: { facility_id: facilityId, snapshot_date: snapshotDate },
-  });
-
-  await db.facility_pms_rent_roll.createMany({
-    data: rows.map((r) => ({
-      facility_id: facilityId,
-      snapshot_date: snapshotDate,
-      unit: String(r.unit || ""),
-      size_label: r.size_label || null,
-      tenant_name: r.tenant_name || null,
-      account: r.account || null,
-      rental_start: r.rental_start ? new Date(r.rental_start) : null,
-      paid_thru: r.paid_thru ? new Date(r.paid_thru) : null,
-      rent_rate: r.rent_rate ? Number(r.rent_rate) : null,
-      insurance_premium: r.insurance_premium ? Number(r.insurance_premium) : null,
-      total_due: r.total_due ? Number(r.total_due) : 0,
-      days_past_due: r.days_past_due ? Number(r.days_past_due) : 0,
-    })),
-  });
-
-  // Rollup into facility_pms_snapshots (headline metrics shown in the portal)
-  const { totalUnits, occupied, occupancyPct, grossPotential, actualRevenue, delinquencyPct } =
-    computeRentRollSnapshot(rows);
-
-  await db.facility_pms_snapshots.upsert({
-    where: {
-      facility_id_snapshot_date: { facility_id: facilityId, snapshot_date: snapshotDate },
-    },
-    update: {
-      total_units: totalUnits,
-      occupied_units: occupied,
-      occupancy_pct: occupancyPct,
-      gross_potential: grossPotential,
-      actual_revenue: actualRevenue,
-      delinquency_pct: delinquencyPct,
-      updated_at: new Date(),
-    },
-    create: {
-      facility_id: facilityId,
-      snapshot_date: snapshotDate,
-      total_units: totalUnits,
-      occupied_units: occupied,
-      occupancy_pct: occupancyPct,
-      gross_potential: grossPotential,
-      actual_revenue: actualRevenue,
-      delinquency_pct: delinquencyPct,
-    },
-  });
-
-  return rows.length;
-}
-
-async function ingestAging(
-  facilityId: string,
-  snapshotDate: Date,
-  rows: Record<string, string>[]
-): Promise<number> {
-  await db.facility_pms_aging.deleteMany({
-    where: { facility_id: facilityId, snapshot_date: snapshotDate },
-  });
-  await db.facility_pms_aging.createMany({
-    data: rows.map((r) => ({
-      facility_id: facilityId,
-      snapshot_date: snapshotDate,
-      unit: String(r.unit || ""),
-      tenant_name: r.tenant_name || null,
-      bucket_0_30: r.bucket_0_30 ? Number(r.bucket_0_30) : 0,
-      bucket_31_60: r.bucket_31_60 ? Number(r.bucket_31_60) : 0,
-      bucket_61_90: r.bucket_61_90 ? Number(r.bucket_61_90) : 0,
-      bucket_91_120: r.bucket_91_120 ? Number(r.bucket_91_120) : 0,
-      bucket_120_plus: r.bucket_120_plus ? Number(r.bucket_120_plus) : 0,
-      total: r.total ? Number(r.total) : 0,
-    })),
-  });
-  return rows.length;
-}
-
-async function ingestRevenue(
-  facilityId: string,
-  rows: Record<string, string>[]
-): Promise<number> {
-  let count = 0;
-  for (const r of rows) {
-    const year = Number(r.year);
-    const month = String(r.month || "").trim();
-    if (!year || !month) continue;
-    await db.facility_pms_revenue_history.upsert({
-      where: { facility_id_year_month: { facility_id: facilityId, year, month } },
-      update: {
-        revenue: r.revenue ? Number(r.revenue) : 0,
-        monthly_tax: r.monthly_tax ? Number(r.monthly_tax) : 0,
-        move_ins: r.move_ins ? Number(r.move_ins) : 0,
-        move_outs: r.move_outs ? Number(r.move_outs) : 0,
-      },
-      create: {
-        facility_id: facilityId,
-        year,
-        month,
-        revenue: r.revenue ? Number(r.revenue) : 0,
-        monthly_tax: r.monthly_tax ? Number(r.monthly_tax) : 0,
-        move_ins: r.move_ins ? Number(r.move_ins) : 0,
-        move_outs: r.move_outs ? Number(r.move_outs) : 0,
-      },
-    });
-    count++;
-  }
-  return count;
+  return undefined;
 }
 
 async function processReport(report: {
@@ -251,7 +41,7 @@ async function processReport(report: {
   report_type: string | null;
   mime_type: string | null;
 }): Promise<{ status: "processed" | "needs_review" | "failed"; note: string }> {
-  // Non-CSV files need human review (PDF, XLSX parsing not implemented here)
+  // Non-CSV files need human review (PDF, XLSX parsing not implemented yet).
   const isCsv =
     report.mime_type === "text/csv" ||
     (report.file_url || "").toLowerCase().endsWith(".csv");
@@ -272,34 +62,23 @@ async function processReport(report: {
   }
   const text = await res.text();
 
-  const { headers, rows } = parseCSVText(text);
-  if (headers.length === 0 || rows.length === 0) {
-    return { status: "failed", note: "CSV empty or unparseable" };
-  }
-
-  const kind = classifyReport(report.report_type, headers);
-  if (!kind) {
+  const parsed = parseReport(text, classifyHint(report.report_type));
+  if (!parsed) {
     return {
       status: "needs_review",
-      note: `Could not classify report type from declared="${report.report_type}" and headers=${headers.slice(0, 5).join(",")}`,
+      note: `Could not classify report type (declared="${report.report_type}")`,
     };
   }
-
-  const expected = EXPECTED_COLUMNS[kind];
-  const columnMap = autoMapColumns(headers, expected);
-  const missing = expected.filter((e) => !columnMap[e]);
-  if (missing.length > 0) {
+  if (parsed.missingRequired.length > 0) {
     return {
       status: "needs_review",
-      note: `Auto-map missing ${kind} columns: ${missing.join(", ")}`,
+      note: `Auto-map missing required ${parsed.type} columns: ${parsed.missingRequired.join(", ")}`,
     };
   }
-
-  const mapped = mapRows(rows, columnMap, expected);
 
   // Anomaly gate: hold suspicious data for human review rather than publishing
   // wrong occupancy/delinquency straight to the customer portal.
-  const anomalies = detectPmsAnomalies(kind, mapped);
+  const anomalies = detectAnomalies(parsed.type, parsed.mappedRows);
   if (anomalies.length > 0) {
     return {
       status: "needs_review",
@@ -307,21 +86,23 @@ async function processReport(report: {
     };
   }
 
-  const snapshotDate = new Date(); // today — rent roll + aging are point-in-time
-
   try {
-    let count = 0;
-    if (kind === "rent_roll") count = await ingestRentRoll(report.facility_id, snapshotDate, mapped);
-    else if (kind === "aging") count = await ingestAging(report.facility_id, snapshotDate, mapped);
-    else if (kind === "revenue") count = await ingestRevenue(report.facility_id, mapped);
+    // snapshot date = today; rent roll + aging are point-in-time. importParsed
+    // also derives the unit mix into facility_pms_units for rent rolls.
+    const result = await importParsed(
+      report.facility_id,
+      parsed.type,
+      new Date(),
+      parsed.mappedRows,
+    );
     return {
       status: "processed",
-      note: `Auto-processed ${kind}: ${count} rows`,
+      note: `Auto-processed ${parsed.type}: ${result.imported} rows`,
     };
   } catch (err) {
     return {
       status: "failed",
-      note: `Ingest error (${kind}): ${err instanceof Error ? err.message : String(err)}`,
+      note: `Ingest error (${parsed.type}): ${err instanceof Error ? err.message : String(err)}`,
     };
   }
 }
@@ -388,4 +169,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

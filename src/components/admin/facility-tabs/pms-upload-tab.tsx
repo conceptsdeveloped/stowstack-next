@@ -407,8 +407,30 @@ export function UploadTab({
 }
 
 function RecentUploads({ facilityId }: { facilityId: string }) {
-  const { data } = useAdminFetch<PmsData>("/api/pms-data", { facilityId });
+  const { data, refetch } = useAdminFetch<PmsData>("/api/pms-data", { facilityId });
   const reports = data?.pmsReports ?? [];
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [rowError, setRowError] = useState<string | null>(null);
+
+  const processReport = async (reportId: string) => {
+    setProcessingId(reportId);
+    setRowError(null);
+    try {
+      await adminFetch("/api/pms-data", {
+        method: "POST",
+        body: JSON.stringify({
+          action: "process_report",
+          facility_id: facilityId,
+          report_id: reportId,
+        }),
+      });
+      refetch?.();
+    } catch (err) {
+      setRowError(err instanceof Error ? err.message : "Failed to process report");
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   if (reports.length === 0) {
     return (
@@ -418,23 +440,63 @@ function RecentUploads({ facilityId }: { facilityId: string }) {
 
   return (
     <div className="space-y-2">
-      {reports.map((r) => (
-        <div
-          key={r.id}
-          className="flex items-center gap-3 px-3 py-2 bg-[var(--color-light-gray)] rounded-lg"
-        >
-          <FileSpreadsheet className="w-4 h-4 text-[var(--color-mid-gray)]" />
-          <span className="text-sm text-[var(--color-dark)] flex-1">
-            {r.file_name ?? "report.csv"}
-          </span>
-          <span className="text-xs text-[var(--color-mid-gray)] px-2 py-0.5 bg-[var(--color-light-gray)] rounded">
-            {r.report_type ?? "unknown"}
-          </span>
-          <span className="text-xs text-[var(--color-mid-gray)]">
-            {fmtDate(r.uploaded_at)}
-          </span>
-        </div>
-      ))}
+      {rowError && (
+        <p className="text-xs text-red-400">{rowError}</p>
+      )}
+      {reports.map((r) => {
+        const status = r.status ?? "uploaded";
+        const canProcess = status === "needs_review" || status === "uploaded";
+        return (
+          <div
+            key={r.id}
+            className="flex flex-wrap items-center gap-3 px-3 py-2 bg-[var(--color-light-gray)] rounded-lg"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-[var(--color-mid-gray)]" />
+            <span className="text-sm text-[var(--color-dark)] flex-1 min-w-[120px]">
+              {r.file_name ?? "report.csv"}
+            </span>
+            <span className="text-xs text-[var(--color-mid-gray)] px-2 py-0.5 bg-[var(--color-light-gray)] rounded">
+              {r.report_type ?? "unknown"}
+            </span>
+            <StatusPill status={status} />
+            <span className="text-xs text-[var(--color-mid-gray)]">
+              {fmtDate(r.uploaded_at)}
+            </span>
+            {canProcess && (
+              <button
+                onClick={() => processReport(r.id)}
+                disabled={processingId === r.id}
+                className="text-xs px-2.5 py-1 rounded-md bg-[var(--color-dark)] text-[var(--color-light)] hover:opacity-90 transition disabled:opacity-50 flex items-center gap-1"
+              >
+                {processingId === r.id ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : null}
+                {status === "needs_review" ? "Approve & Import" : "Process"}
+              </button>
+            )}
+            {r.notes && (
+              <span className="basis-full text-[11px] text-[var(--color-mid-gray)]">
+                {r.notes}
+              </span>
+            )}
+          </div>
+        );
+      })}
     </div>
+  );
+}
+
+function StatusPill({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    processed: "text-green-500 bg-green-500/10",
+    needs_review: "text-yellow-500 bg-yellow-500/10",
+    uploaded: "text-[var(--color-mid-gray)] bg-[var(--color-light-gray)]",
+    error: "text-red-400 bg-red-500/10",
+  };
+  const cls = map[status] ?? map.uploaded;
+  return (
+    <span className={`text-xs px-2 py-0.5 rounded capitalize ${cls}`}>
+      {status.replace(/_/g, " ")}
+    </span>
   );
 }

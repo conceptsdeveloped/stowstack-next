@@ -67,6 +67,8 @@ export interface PmsReport {
   report_type: string | null;
   file_name: string | null;
   uploaded_at: string | null;
+  status?: string | null;
+  notes?: string | null;
 }
 
 export interface PmsData {
