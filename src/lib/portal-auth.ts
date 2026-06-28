@@ -25,7 +25,9 @@ export type PortalScope =
  * clients are pinned to the facility their access code resolves to.
  *
  * Credentials are read from query params (accessCode + email) to match the
- * existing portal GET routes; the admin key is the X-Admin-Key header.
+ * existing portal GET routes; `code` is accepted as an alias for `accessCode`
+ * so legacy callers (client-billing, client-messages) work unchanged. The admin
+ * key is the X-Admin-Key header.
  */
 export async function authenticatePortalRequest(
   req: NextRequest
@@ -33,7 +35,8 @@ export async function authenticatePortalRequest(
   if (isAdminRequest(req)) return { kind: "admin" };
 
   const url = new URL(req.url);
-  const accessCode = url.searchParams.get("accessCode");
+  const accessCode =
+    url.searchParams.get("accessCode") ?? url.searchParams.get("code");
   const email = url.searchParams.get("email");
 
   if (accessCode && email) {

@@ -1,5 +1,4 @@
-import { NextRequest } from "next/server";
-import { db } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 import {
   jsonResponse,
   errorResponse,
@@ -10,6 +9,7 @@ import {
 } from "@/lib/api-helpers";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { authenticatePortalRequest } from "@/lib/portal-auth";
 
 interface Invoice {
   id: string;
@@ -35,47 +35,6 @@ async function loadRedis() {
   });
 }
 
-/**
- * Verify portal client auth via access code + email.
- * Returns the client's access_code if valid, null otherwise.
- */
-async function verifyClientAuth(
-  code: string | null,
-  email: string | null
-): Promise<string | null> {
-  if (!code || !email) return null;
-  const sanitizedEmail = email.trim().toLowerCase();
-
-  // Try 4-digit login code
-  if (/^\d{4}$/.test(code)) {
-    const loginCode = await db.portal_login_codes.findFirst({
-      where: {
-        email: { equals: sanitizedEmail, mode: "insensitive" },
-        code,
-        expires_at: { gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-      },
-    });
-    if (loginCode) {
-      const client = await db.clients.findFirst({
-        where: { email: { equals: sanitizedEmail, mode: "insensitive" } },
-        select: { access_code: true },
-      });
-      return client?.access_code ?? null;
-    }
-  }
-
-  // Legacy access code
-  const client = await db.clients.findUnique({
-    where: { access_code: code },
-    select: { access_code: true, email: true },
-  });
-  if (client && client.email.toLowerCase() === sanitizedEmail) {
-    return client.access_code;
-  }
-
-  return null;
-}
-
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
@@ -85,21 +44,15 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
   const origin = getOrigin(req);
   const url = new URL(req.url);
-  const code = url.searchParams.get("code");
-  const email = url.searchParams.get("email");
+  const code = url.searchParams.get("accessCode") ?? url.searchParams.get("code");
   const all = url.searchParams.get("all");
 
-  // Admin path: requires admin key
-  const isAdmin = !(await requireAdminKey(req));
-
-  // Client path: verify portal auth
-  const clientCode = !isAdmin
-    ? await verifyClientAuth(code, email)
-    : null;
-
-  if (!isAdmin && !clientCode) {
-    return errorResponse("Unauthorized", 401, origin);
-  }
+  // Canonical portal auth: a client is validated to their own access code; an
+  // admin (X-Admin-Key) may read any client's invoices. Replaces the route's
+  // private verifyClientAuth copy.
+  const scope = await authenticatePortalRequest(req);
+  if (scope instanceof NextResponse) return scope;
+  const isAdmin = scope.kind === "admin";
 
   const redis = await loadRedis();
   if (!redis) {
@@ -126,8 +79,9 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Get invoices for specific client
-  const lookupCode = isAdmin ? code : clientCode;
+  // Get invoices for a specific client. For a client this is their own access
+  // code (already validated above); for an admin it is the requested ?code.
+  const lookupCode = code;
   if (!lookupCode) {
     return errorResponse("Missing access code", 400, origin);
   }
