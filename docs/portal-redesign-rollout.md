@@ -133,11 +133,24 @@ partner auth surface, not the client portal. The portal cohort flag must live on
     delinquency from the latest PMS snapshot. No more hardcoded `0` cards.
   - All three landed on the peer's shared `authenticatePortalRequest` helper
     rather than a competing one, with route-level tests (16 new).
+  - Auth consolidation finished (`b70440a`) — `client-billing`, the last portal
+    route on a private `verifyClientAuth` copy, migrated onto the shared helper;
+    the helper now accepts the legacy `code` query param as an alias for
+    `accessCode`. Every query-based portal data route now shares one auth
+    surface (client-data is intentionally separate — it consumes single-use
+    login codes). +5 tests; the peer's 7 helper tests still pass.
 - **REMAINING:**
-  - Invoice consolidation (Redis `billing:*` vs Postgres `activity_log`) — left
-    open: `client-billing` works on its own auth helper, and the peer is active
-    in that surface. Converge `client-billing` onto `authenticatePortalRequest`
-    when claiming this.
+  - Invoice **storage** consolidation (Redis `billing:*` via `client-billing`
+    vs Postgres `activity_log` via `client-invoices`) — needs a product decision
+    on the canonical store, and the Postgres path would need a prod migration.
+    Each system is internally consistent today, so this is cleanup, not a broken
+    user path. Deferred pending that decision.
+  - `client-onboarding` + `portal-upload` auth — still hand-rolled (query-based,
+    so the helper would fit), but they are multi-method, alpha-critical flows
+    the peer also left unmigrated. Migrate with care; regression risk > dedup
+    value right now.
+  - Messaging **durability** (Redis→Postgres, backend M4/M5) — needs a new table
+    → prod DDL approval. Auth is fixed; persistence is the remaining half.
   - Campaigns reachability — **Angelo's domain** (attribution); coordinate first.
 
 ### R5 — Cohort cutover & retire v1
