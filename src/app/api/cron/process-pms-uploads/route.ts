@@ -11,6 +11,7 @@ import {
   summarizeRentRoll,
   type UploadType,
 } from "@/lib/pms-import";
+import { notifyClientsReportReady } from "@/lib/report-notify";
 
 export const maxDuration = 300;
 
@@ -148,8 +149,14 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      if (status === "processed") results.processed++;
-      else if (status === "needs_review") results.needsReview++;
+      if (status === "processed") {
+        results.processed++;
+        // Fresh occupancy/delinquency is now live in the portal — tell the
+        // client(s). Same "report ready" moment as the /api/pms-data import
+        // paths; idempotency-keyed per client per day, so processing several of
+        // a facility's reports in one sweep can't spam. Fire-and-forget.
+        void notifyClientsReportReady(report.facility_id);
+      } else if (status === "needs_review") results.needsReview++;
       else results.failed++;
 
       results.items.push({ id: report.id, status, note });
