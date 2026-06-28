@@ -16,7 +16,7 @@ import {
   BellOff,
 } from "lucide-react";
 import { usePortal } from "@/components/portal/portal-shell";
-import { clearPortalSession } from "@/lib/portal-helpers";
+import { clearPortalSession, accountManagerOf, telHref } from "@/lib/portal-helpers";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { PortalPage, Card, Button } from "@/components/portal/ui";
 
@@ -65,6 +65,8 @@ export default function SettingsPage() {
     }
   }
 
+  const manager = accountManagerOf(client);
+  const managerTel = telHref(manager.phone);
   const signedDate = client.signedAt
     ? new Date(client.signedAt).toLocaleDateString("en-US", {
         month: "long",
@@ -241,23 +243,25 @@ export default function SettingsPage() {
               <User className="h-5 w-5 text-[var(--color-dark)]" />
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-[var(--color-dark)]">Blake</p>
+              <p className="text-sm font-medium text-[var(--color-dark)]">{manager.name}</p>
               <p className="text-xs text-[var(--color-mid-gray)]">Account Manager</p>
               <div className="flex flex-col gap-1 pt-1">
                 <a
-                  href="mailto:blake@storageads.com"
+                  href={`mailto:${manager.email}`}
                   className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)]"
                 >
                   <Mail className="h-3.5 w-3.5" />
-                  blake@storageads.com
+                  {manager.email}
                 </a>
-                <a
-                  href="tel:+12699298541"
-                  className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)]"
-                >
-                  <Phone className="h-3.5 w-3.5" />
-                  (269) 929-8541
-                </a>
+                {manager.phone && managerTel && (
+                  <a
+                    href={managerTel}
+                    className="flex items-center gap-2 text-xs text-[var(--color-body-text)] transition-colors hover:text-[var(--color-dark)]"
+                  >
+                    <Phone className="h-3.5 w-3.5" />
+                    {manager.phone}
+                  </a>
+                )}
               </div>
             </div>
           </div>

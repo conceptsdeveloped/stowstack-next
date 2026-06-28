@@ -27,6 +27,8 @@ import {
   firstName,
   fmt,
   relativeTime,
+  accountManagerOf,
+  telHref,
 } from "@/lib/portal-helpers";
 import { Card, EmptyState, SectionSkeleton, ErrorState } from "@/components/portal/ui";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
@@ -403,6 +405,8 @@ function RecentActivity() {
 
 function ContactCard() {
   const { client } = usePortal();
+  const manager = accountManagerOf(client);
+  const managerTel = telHref(manager.phone);
   const signedDate = client.signedAt
     ? new Date(client.signedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })
     : null;
@@ -415,19 +419,21 @@ function ContactCard() {
       </div>
       <div className="space-y-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-dark)]/[0.06] text-sm font-semibold text-[var(--color-dark)]">B</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-dark)]/[0.06] text-sm font-semibold text-[var(--color-dark)]">{manager.initial}</div>
           <div>
-            <p className="text-sm font-medium">Blake</p>
+            <p className="text-sm font-medium">{manager.name}</p>
             <p className="text-xs text-[var(--color-mid-gray)]">Account Manager</p>
           </div>
         </div>
         <div className="space-y-2">
-          <a href="mailto:blake@storageads.com" className="flex items-center gap-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)]">
-            <Mail className="h-3.5 w-3.5" /> blake@storageads.com
+          <a href={`mailto:${manager.email}`} className="flex items-center gap-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)]">
+            <Mail className="h-3.5 w-3.5" /> {manager.email}
           </a>
-          <a href="tel:+12699298541" className="flex items-center gap-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)]">
-            <Phone className="h-3.5 w-3.5" /> (269) 929-8541
-          </a>
+          {manager.phone && managerTel && (
+            <a href={managerTel} className="flex items-center gap-2 text-sm text-[var(--color-body-text)] hover:text-[var(--color-dark)]">
+              <Phone className="h-3.5 w-3.5" /> {manager.phone}
+            </a>
+          )}
         </div>
       </div>
       <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">

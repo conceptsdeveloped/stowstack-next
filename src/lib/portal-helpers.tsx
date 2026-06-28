@@ -15,6 +15,40 @@ export interface ClientData {
   signedAt: string;
   accessCode: string;
   monthlyGoal: number;
+  /**
+   * Account-manager contact for the "Your Team" card. Data-driven so white-label
+   * clients see their management company, not the StorageAds founder. Optional
+   * for back-compat with sessions persisted before this field existed.
+   */
+  accountManager?: {
+    name: string;
+    email: string;
+    phone: string | null;
+    initial: string;
+  };
+}
+
+/**
+ * Client-side fallback for the account-manager card when a persisted session
+ * predates the `accountManager` field. Keep in sync with DEFAULT_ACCOUNT_MANAGER
+ * in src/app/api/client-data/route.ts (the authoritative server-side default).
+ */
+export const DEFAULT_ACCOUNT_MANAGER = {
+  name: "Blake",
+  email: "blake@storageads.com",
+  phone: "+1 (269) 929-8541" as string | null,
+  initial: "B",
+};
+
+export function accountManagerOf(client: ClientData) {
+  return client.accountManager ?? DEFAULT_ACCOUNT_MANAGER;
+}
+
+/** tel: href from a display phone string (strips spaces/parens, keeps +digits). */
+export function telHref(phone: string | null | undefined): string | null {
+  if (!phone) return null;
+  const cleaned = phone.replace(/[^\d+]/g, "");
+  return cleaned ? `tel:${cleaned}` : null;
 }
 
 export interface AttributionData {

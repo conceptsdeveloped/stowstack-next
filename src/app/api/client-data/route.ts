@@ -12,6 +12,53 @@ export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
+/**
+ * Account-manager contact shown in the portal "Your Team" / settings card.
+ * For StorageAds-managed clients this is the founder; for white-label
+ * management-company clients it must be THAT company's contact, never ours.
+ */
+export const DEFAULT_ACCOUNT_MANAGER = {
+  name: "Blake",
+  email: "blake@storageads.com",
+  phone: "+1 (269) 929-8541",
+  initial: "B",
+} as const;
+
+export interface AccountManager {
+  name: string;
+  email: string;
+  phone: string | null;
+  initial: string;
+}
+
+/**
+ * Pure: pick the account-manager contact for a facility's owning org. Only a
+ * white-label org with a real contact email overrides the StorageAds default —
+ * a white-label org missing contact info falls back rather than showing a blank
+ * card. Exported for unit testing the branch logic.
+ */
+export function pickAccountManager(
+  org:
+    | {
+        name: string;
+        white_label: boolean | null;
+        contact_email: string | null;
+        contact_phone: string | null;
+      }
+    | null
+    | undefined
+): AccountManager {
+  if (org?.white_label && org.contact_email) {
+    return {
+      name: org.name,
+      email: org.contact_email,
+      phone: org.contact_phone ?? null,
+      initial: (org.name.trim()[0] ?? "?").toUpperCase(),
+    };
+  }
+  return { ...DEFAULT_ACCOUNT_MANAGER };
+}
+
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
 
@@ -32,7 +79,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Helper to build client response
-    function clientResponse(c: {
+    async function clientResponse(c: {
       facility_id: string;
       email: string;
       name: string;
@@ -44,6 +91,22 @@ export async function POST(req: NextRequest) {
       access_code: string;
       monthly_goal: number | null;
     }) {
+      // White-label clients see their management company's contact, not ours.
+      const facility = await db.facilities.findUnique({
+        where: { id: c.facility_id },
+        select: {
+          organizations: {
+            select: {
+              name: true,
+              white_label: true,
+              contact_email: true,
+              contact_phone: true,
+            },
+          },
+        },
+      });
+      const accountManager = pickAccountManager(facility?.organizations);
+
       return jsonResponse(
         {
           client: {
@@ -57,6 +120,7 @@ export async function POST(req: NextRequest) {
             signedAt: c.signed_at,
             accessCode: c.access_code,
             monthlyGoal: c.monthly_goal || 0,
+            accountManager,
           },
         },
         200,
@@ -89,7 +153,7 @@ export async function POST(req: NextRequest) {
 
         if (client) {
           resetRateLimit(`portal_verify:${sanitizedEmail}`).catch((err) => console.error("[rate_limit] Fire-and-forget failed:", err));
-          return clientResponse(client);
+          return await clientResponse(client);
         }
       }
     }
@@ -108,7 +172,7 @@ export async function POST(req: NextRequest) {
     }
 
     resetRateLimit(`portal_verify:${sanitizedEmail}`).catch((err) => console.error("[rate_limit] Fire-and-forget failed:", err));
-    return clientResponse(client);
+    return await clientResponse(client);
   } catch {
     return errorResponse("Internal error", 500, origin);
   }
