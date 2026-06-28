@@ -254,7 +254,10 @@ export default function UploadPage() {
           Drag and drop your reports here
         </p>
         <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-          or click to browse. CSV, PDF, Excel (.xlsx, .xls) up to 25MB
+          or click to browse. Up to 25MB
+        </p>
+        <p className="mt-2 text-[11px] text-[var(--color-mid-gray)]">
+          CSV reports process automatically. PDF and Excel are reviewed by our team.
         </p>
       </div>
 
