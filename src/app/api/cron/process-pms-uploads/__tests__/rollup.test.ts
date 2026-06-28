@@ -12,7 +12,9 @@ const row = (over: Record<string, string> = {}) => ({
 
 describe("computeRentRollSnapshot", () => {
   it("returns all-zero metrics for an empty roll (no divide-by-zero)", () => {
-    expect(computeRentRollSnapshot([])).toEqual({
+    // toMatchObject (not toEqual) so the shared importer is free to surface
+    // extra fields without breaking this invariant.
+    expect(computeRentRollSnapshot([])).toMatchObject({
       totalUnits: 0,
       occupied: 0,
       occupancyPct: 0,

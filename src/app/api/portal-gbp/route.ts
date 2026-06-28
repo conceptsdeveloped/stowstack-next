@@ -52,40 +52,47 @@ export async function GET(req: NextRequest) {
 
     const connected = connection?.status === "connected";
 
-    /* ─── GBP reviews ─── */
+    const RESPONDED_STATUSES = ["responded", "published"];
 
-    const reviews = await db.gbp_reviews.findMany({
-      where: { facility_id: facilityId },
-      orderBy: { review_time: "desc" },
-      take: 50,
-      select: {
-        id: true,
-        author_name: true,
-        rating: true,
-        review_text: true,
-        review_time: true,
-        response_status: true,
-        response_text: true,
-      },
-    });
+    /* ─── aggregates over the FULL review set + the latest 5 for display ───
+       Computed in the DB, not over a capped slice, so a facility with hundreds
+       of reviews reports its true total / average / response rate rather than
+       stats for only the most recent page. */
 
-    /* ─── compute aggregates ─── */
+    const [totalReviews, ratingAgg, respondedCount, recentReviewRows] =
+      await Promise.all([
+        db.gbp_reviews.count({ where: { facility_id: facilityId } }),
+        db.gbp_reviews.aggregate({
+          where: { facility_id: facilityId },
+          _avg: { rating: true },
+        }),
+        db.gbp_reviews.count({
+          where: {
+            facility_id: facilityId,
+            response_status: { in: RESPONDED_STATUSES },
+          },
+        }),
+        db.gbp_reviews.findMany({
+          where: { facility_id: facilityId },
+          orderBy: { review_time: "desc" },
+          take: 5,
+          select: {
+            id: true,
+            author_name: true,
+            rating: true,
+            review_text: true,
+            review_time: true,
+            response_status: true,
+            response_text: true,
+          },
+        }),
+      ]);
 
-    const totalReviews = reviews.length;
-    const averageRating =
-      totalReviews > 0
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
-        : 0;
-
-    const respondedCount = reviews.filter(
-      (r) => r.response_status === "responded" || r.response_status === "published"
-    ).length;
+    const averageRating = ratingAgg._avg.rating ?? 0;
     const responseRate =
       totalReviews > 0 ? Math.round((respondedCount / totalReviews) * 100) : 0;
 
-    /* ─── recent reviews (last 5) ─── */
-
-    const recentReviews = reviews.slice(0, 5).map((r) => ({
+    const recentReviews = recentReviewRows.map((r) => ({
       id: r.id,
       authorName: r.author_name || "Anonymous",
       rating: r.rating,
