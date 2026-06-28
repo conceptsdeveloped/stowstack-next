@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { usePortal } from "@/components/portal/portal-shell";
-import { ErrorState } from "@/lib/portal-helpers";
+import { PortalPage, Badge, EmptyState, Button, ErrorState } from "@/components/portal/ui";
 
 /* ─── types ─── */
 
@@ -36,6 +36,8 @@ interface QueuedFile {
   state: FileUploadState;
   error?: string;
 }
+
+type BadgeTone = "neutral" | "success" | "warn" | "danger" | "info";
 
 const ACCEPT = ".csv,.pdf,.xlsx,.xls";
 const ACCEPT_TYPES = [
@@ -74,28 +76,16 @@ function formatDate(d: string | null) {
 }
 
 function statusBadge(status: string) {
-  const styles: Record<string, string> = {
-    uploaded:
-      "bg-[var(--color-light-gray)] text-[var(--color-body-text)]",
-    processing:
-      "bg-[var(--color-light-gray)] text-[var(--color-dark)]",
-    processed:
-      "bg-[var(--color-green)]/10 text-[var(--color-green)]",
-    error:
-      "bg-[var(--color-red)]/10 text-[var(--color-red)]",
-  };
+  const tone: BadgeTone =
+    status === "processed" ? "success" : status === "error" ? "danger" : "neutral";
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium capitalize ${
-        styles[status] ?? styles.uploaded
-      }`}
-    >
+    <Badge tone={tone} className="capitalize">
       {status === "processing" && <Loader2 className="h-3 w-3 animate-spin" />}
       {status === "processed" && <CheckCircle2 className="h-3 w-3" />}
       {status === "error" && <AlertTriangle className="h-3 w-3" />}
       {status === "uploaded" && <Clock className="h-3 w-3" />}
       {status}
-    </span>
+    </Badge>
   );
 }
 
@@ -205,268 +195,254 @@ export default function UploadPage() {
   const doneCount = queue.filter((q) => q.state === "done").length;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6 pb-24 md:pb-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-lg font-semibold text-[var(--color-dark)]">
-          Upload PMS Reports
-        </h2>
-        <p className="text-sm text-[var(--color-mid-gray)]">
-          Upload your facility management reports and our team will process them for{" "}
-          {client.facilityName}
-        </p>
-      </div>
-
-      {/* Drop zone */}
-      <div
-        className={`relative rounded-xl border-2 border-dashed p-10 text-center transition-colors cursor-pointer ${
-          dragOver
-            ? "border-[var(--color-dark)] bg-[var(--color-light-gray)]"
-            : "border-[var(--color-light-gray)] hover:border-[var(--color-dark)]/40 bg-[var(--bg-elevated)]"
-        }`}
-        onClick={() => fileRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setDragOver(false);
-          if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
-        }}
-      >
-        <input
-          ref={fileRef}
-          type="file"
-          accept={ACCEPT}
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files?.length) addFiles(e.target.files);
-            e.target.value = "";
+    <PortalPage
+      title="Upload PMS Reports"
+      subtitle={`Upload your facility management reports and our team will process them for ${client.facilityName}`}
+      maxWidth="5xl"
+    >
+      <div className="space-y-6">
+        {/* Drop zone */}
+        <div
+          className={`relative rounded-xl border-2 border-dashed p-10 text-center transition-colors cursor-pointer ${
+            dragOver
+              ? "border-[var(--color-dark)] bg-[var(--color-light-gray)]"
+              : "border-[var(--color-light-gray)] hover:border-[var(--color-dark)]/40 bg-[var(--bg-elevated)]"
+          }`}
+          onClick={() => fileRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDragOver(true);
           }}
-        />
-        <Upload className="mx-auto mb-3 h-10 w-10 text-[var(--color-mid-gray)]" />
-        <p className="text-sm font-medium text-[var(--color-dark)]">
-          Drag and drop your reports here
-        </p>
-        <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
-          or click to browse. Up to 25MB
-        </p>
-        <p className="mt-2 text-[11px] text-[var(--color-mid-gray)]">
-          CSV reports process automatically. PDF and Excel are reviewed by our team.
-        </p>
-      </div>
-
-      {/* File queue */}
-      {queue.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[var(--color-dark)]">
-              Files ({queue.length})
-            </h3>
-            {doneCount === queue.length && queue.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setQueue([])}
-                className="text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-dark)]"
-              >
-                Clear all
-              </button>
-            )}
-          </div>
-
-          <div className="divide-y divide-[var(--border-subtle)] rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] overflow-hidden">
-            {queue.map((q, i) => (
-              <div
-                key={`${q.file.name}-${i}`}
-                className="flex items-center gap-3 px-4 py-3"
-              >
-                {fileIcon(q.file.type)}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-[var(--color-dark)]">
-                    {q.file.name}
-                  </p>
-                  <p className="text-xs text-[var(--color-mid-gray)]">
-                    {formatSize(q.file.size)}
-                    {q.error && (
-                      <span className="ml-2 text-[var(--color-red)]">{q.error}</span>
-                    )}
-                  </p>
-                </div>
-                {q.state === "uploading" && (
-                  <Loader2 className="h-4 w-4 animate-spin text-[var(--color-dark)]" />
-                )}
-                {q.state === "done" && (
-                  <CheckCircle2 className="h-4 w-4 text-[var(--color-green)]" />
-                )}
-                {q.state === "error" && (
-                  <AlertTriangle className="h-4 w-4 text-[var(--color-red)]" />
-                )}
-                {(q.state === "pending" || q.state === "error") && !uploading && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFromQueue(i);
-                    }}
-                    className="p-1 text-[var(--color-mid-gray)] hover:text-[var(--color-dark)]"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Upload button */}
-          {pendingCount > 0 && (
-            <button
-              type="button"
-              onClick={uploadAll}
-              disabled={uploading}
-              className="flex items-center gap-2 rounded-lg bg-[var(--color-dark)] px-6 py-2.5 text-sm font-medium text-[var(--color-light)] transition-colors hover:opacity-90 disabled:opacity-50"
-            >
-              {uploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4" />
-                  Upload {pendingCount} {pendingCount === 1 ? "File" : "Files"}
-                </>
-              )}
-            </button>
-          )}
-
-          {/* Success message */}
-          {!uploading && doneCount > 0 && pendingCount === 0 && (
-            <div className="rounded-xl border border-[var(--color-green)]/20 bg-[var(--color-green)]/5 p-4">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 text-[var(--color-green)]" />
-                <div>
-                  <p className="text-sm font-medium text-[var(--color-dark)]">
-                    {doneCount} {doneCount === 1 ? "report" : "reports"} uploaded successfully
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--color-body-text)]">
-                    Our team will review and process your reports. You can track the status below.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDragOver(false);
+            if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+          }}
+        >
+          <input
+            ref={fileRef}
+            type="file"
+            accept={ACCEPT}
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files?.length) addFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <Upload className="mx-auto mb-3 h-10 w-10 text-[var(--color-mid-gray)]" />
+          <p className="text-sm font-medium text-[var(--color-dark)]">
+            Drag and drop your reports here
+          </p>
+          <p className="mt-1 text-xs text-[var(--color-mid-gray)]">
+            or click to browse. Up to 25MB
+          </p>
+          <p className="mt-2 text-[11px] text-[var(--color-mid-gray)]">
+            CSV reports process automatically. PDF and Excel are reviewed by our team.
+          </p>
         </div>
-      )}
 
-      {/* Upload History */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-[var(--color-dark)]">
-          Upload History
-        </h3>
-
-        {error && <ErrorState message={error} onRetry={fetchHistory} />}
-
-        {loading ? (
+        {/* File queue */}
+        {queue.length > 0 && (
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-16 animate-pulse rounded-xl bg-[var(--color-light-gray)]/50"
-              />
-            ))}
-          </div>
-        ) : history.length === 0 ? (
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-8 text-center">
-            <FileText className="mx-auto mb-3 h-8 w-8 text-[var(--color-mid-gray)]" />
-            <p className="text-sm text-[var(--color-body-text)]">
-              No reports uploaded yet. Upload your first PMS report above.
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* Desktop table */}
-            <div className="hidden overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] md:block">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--border-subtle)] text-[var(--color-mid-gray)]">
-                    <th className="px-5 py-3 font-medium">File</th>
-                    <th className="px-4 py-3 font-medium">Type</th>
-                    <th className="px-4 py-3 font-medium">Size</th>
-                    <th className="px-4 py-3 font-medium">Uploaded</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((r) => (
-                    <tr
-                      key={r.id}
-                      className="border-b border-[var(--border-subtle)] last:border-0 hover:bg-[var(--color-light-gray)]/20"
-                    >
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-2">
-                          {fileIcon(r.mime_type)}
-                          <span className="font-medium text-[var(--color-dark)] truncate max-w-[200px]">
-                            {r.file_name ?? "report"}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 capitalize text-[var(--color-body-text)]">
-                        {r.report_type ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 text-[var(--color-body-text)]">
-                        {formatSize(r.file_size)}
-                      </td>
-                      <td className="px-4 py-3 text-[var(--color-body-text)]">
-                        {formatDate(r.uploaded_at)}
-                      </td>
-                      <td className="px-4 py-3">{statusBadge(r.status)}</td>
-                      <td className="px-4 py-3 text-xs text-[var(--color-body-text)] max-w-[200px] truncate">
-                        {r.notes ?? "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-[var(--color-dark)]">
+                Files ({queue.length})
+              </h3>
+              {doneCount === queue.length && queue.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setQueue([])}
+                  className="text-xs text-[var(--color-mid-gray)] hover:text-[var(--color-dark)]"
+                >
+                  Clear all
+                </button>
+              )}
             </div>
 
-            {/* Mobile cards */}
-            <div className="space-y-3 md:hidden">
-              {history.map((r) => (
+            <div className="divide-y divide-[var(--border-subtle)] rounded-[6px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] overflow-hidden">
+              {queue.map((q, i) => (
                 <div
-                  key={r.id}
-                  className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
+                  key={`${q.file.name}-${i}`}
+                  className="flex items-center gap-3 px-4 py-3"
                 >
-                  <div className="flex items-start gap-3">
-                    {fileIcon(r.mime_type)}
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-[var(--color-dark)]">
-                        {r.file_name ?? "report"}
-                      </p>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--color-mid-gray)]">
-                        <span>{formatSize(r.file_size)}</span>
-                        <span>&middot;</span>
-                        <span>{formatDate(r.uploaded_at)}</span>
-                      </div>
-                      {r.notes && (
-                        <p className="mt-2 text-xs text-[var(--color-body-text)]">
-                          {r.notes}
-                        </p>
+                  {fileIcon(q.file.type)}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-[var(--color-dark)]">
+                      {q.file.name}
+                    </p>
+                    <p className="text-xs text-[var(--color-mid-gray)]">
+                      {formatSize(q.file.size)}
+                      {q.error && (
+                        <span className="ml-2 text-[var(--color-red)]">{q.error}</span>
                       )}
-                    </div>
-                    {statusBadge(r.status)}
+                    </p>
                   </div>
+                  {q.state === "uploading" && (
+                    <Loader2 className="h-4 w-4 animate-spin text-[var(--color-dark)]" />
+                  )}
+                  {q.state === "done" && (
+                    <CheckCircle2 className="h-4 w-4 text-[var(--color-green)]" />
+                  )}
+                  {q.state === "error" && (
+                    <AlertTriangle className="h-4 w-4 text-[var(--color-red)]" />
+                  )}
+                  {(q.state === "pending" || q.state === "error") && !uploading && (
+                    <button
+                      type="button"
+                      aria-label={`Remove ${q.file.name}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFromQueue(i);
+                      }}
+                      className="p-1 text-[var(--color-mid-gray)] hover:text-[var(--color-dark)]"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
-          </>
+
+            {/* Upload button */}
+            {pendingCount > 0 && (
+              <Button
+                onClick={uploadAll}
+                loading={uploading}
+                icon={<Upload className="h-4 w-4" />}
+              >
+                {uploading
+                  ? "Uploading..."
+                  : `Upload ${pendingCount} ${pendingCount === 1 ? "File" : "Files"}`}
+              </Button>
+            )}
+
+            {/* Success message */}
+            {!uploading && doneCount > 0 && pendingCount === 0 && (
+              <div className="rounded-[6px] border border-[var(--color-green)]/20 bg-[var(--color-green)]/5 p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-[var(--color-green)]" />
+                  <div>
+                    <p className="text-sm font-medium text-[var(--color-dark)]">
+                      {doneCount} {doneCount === 1 ? "report" : "reports"} uploaded successfully
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--color-body-text)]">
+                      Our team will review and process your reports. You can track the status below.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         )}
+
+        {/* Upload history */}
+        <div>
+          <h3 className="mb-3 text-sm font-semibold text-[var(--color-dark)]">
+            Upload History
+          </h3>
+
+          {error && <ErrorState message={error} onRetry={fetchHistory} />}
+
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-16 animate-pulse rounded-[6px] bg-[var(--color-light-gray)]/50"
+                />
+              ))}
+            </div>
+          ) : history.length === 0 ? (
+            <EmptyState
+              icon={<FileText className="h-8 w-8" />}
+              title="No reports uploaded yet"
+              message="Upload your first PMS report above and it will appear here."
+            />
+          ) : (
+            <>
+              {/* Desktop table */}
+              <div className="hidden overflow-hidden rounded-[6px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] md:block">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--border-subtle)] text-[var(--color-mid-gray)]">
+                      <th className="px-5 py-3 font-medium">File</th>
+                      <th className="px-4 py-3 font-medium">Type</th>
+                      <th className="px-4 py-3 font-medium">Size</th>
+                      <th className="px-4 py-3 font-medium">Uploaded</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {history.map((r) => (
+                      <tr
+                        key={r.id}
+                        className="border-b border-[var(--border-subtle)] last:border-0 hover:bg-[var(--color-light-gray)]/20"
+                      >
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-2">
+                            {fileIcon(r.mime_type)}
+                            <span className="font-medium text-[var(--color-dark)] truncate max-w-[200px]">
+                              {r.file_name ?? "report"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 capitalize text-[var(--color-body-text)]">
+                          {r.report_type ?? "—"}
+                        </td>
+                        <td className="px-4 py-3 text-[var(--color-body-text)]">
+                          {formatSize(r.file_size)}
+                        </td>
+                        <td className="px-4 py-3 text-[var(--color-body-text)]">
+                          {formatDate(r.uploaded_at)}
+                        </td>
+                        <td className="px-4 py-3">{statusBadge(r.status)}</td>
+                        <td className="px-4 py-3 text-xs text-[var(--color-body-text)] max-w-[200px] truncate">
+                          {r.notes ?? "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="space-y-3 md:hidden">
+                {history.map((r) => (
+                  <div
+                    key={r.id}
+                    className="rounded-[6px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4"
+                  >
+                    <div className="flex items-start gap-3">
+                      {fileIcon(r.mime_type)}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-[var(--color-dark)]">
+                          {r.file_name ?? "report"}
+                        </p>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--color-mid-gray)]">
+                          <span>{formatSize(r.file_size)}</span>
+                          <span>&middot;</span>
+                          <span>{formatDate(r.uploaded_at)}</span>
+                        </div>
+                        {r.notes && (
+                          <p className="mt-2 text-xs text-[var(--color-body-text)]">
+                            {r.notes}
+                          </p>
+                        )}
+                      </div>
+                      {statusBadge(r.status)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </PortalPage>
   );
 }
