@@ -1,14 +1,14 @@
 import { Prisma } from "@prisma/client";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
   jsonResponse,
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
   verifyCsrfOrigin,
 } from "@/lib/api-helpers";
+import { authenticatePortalRequest } from "@/lib/portal-auth";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { sendEmail, SENDERS } from "@/lib/email";
@@ -203,19 +203,6 @@ function computeCompletion(steps: OnboardingSteps): number {
   return Math.round((completed / VALID_STEPS.length) * 100);
 }
 
-async function verifyClientAuth(
-  code: string,
-  email: string
-): Promise<boolean> {
-  if (!code || !email) return false;
-  const client = await db.clients.findUnique({
-    where: { access_code: code },
-    select: { email: true },
-  });
-  if (!client) return false;
-  return client.email.toLowerCase() === email.trim().toLowerCase();
-}
-
 export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
@@ -224,18 +211,14 @@ export async function GET(req: NextRequest) {
   const limited = await applyRateLimit(req, RATE_LIMIT_TIERS.AUTHENTICATED, "client-onboarding");
   if (limited) return limited;
   const origin = getOrigin(req);
-  const isAdmin = isAdminRequest(req);
+
+  const scope = await authenticatePortalRequest(req);
+  if (scope instanceof NextResponse) return scope;
 
   const url = new URL(req.url);
-  const code = url.searchParams.get("code");
+  const code = url.searchParams.get("code") ?? url.searchParams.get("accessCode");
   if (!code) {
     return errorResponse("Missing access code", 400, origin);
-  }
-
-  if (!isAdmin) {
-    const email = url.searchParams.get("email");
-    const valid = await verifyClientAuth(code, email || "");
-    if (!valid) return errorResponse("Unauthorized", 401, origin);
   }
 
   try {
@@ -275,22 +258,22 @@ export async function PATCH(req: NextRequest) {
   const csrfErr = verifyCsrfOrigin(req);
   if (csrfErr) return csrfErr;
   const origin = getOrigin(req);
-  const isAdmin = isAdminRequest(req);
 
   try {
+    const scope = await authenticatePortalRequest(req);
+    if (scope instanceof NextResponse) return scope;
+
+    const url = new URL(req.url);
+    const code =
+      url.searchParams.get("code") ?? url.searchParams.get("accessCode");
     const body = await req.json();
-    const { code, step, data, email } = body || {};
+    const { step, data } = body || {};
 
     if (!code || !step || !data) {
       return errorResponse("Missing code, step, or data", 400, origin);
     }
     if (!VALID_STEPS.includes(step)) {
       return errorResponse("Invalid step", 400, origin);
-    }
-
-    if (!isAdmin) {
-      const valid = await verifyClientAuth(code, email || "");
-      if (!valid) return errorResponse("Unauthorized", 401, origin);
     }
 
     let row = await db.client_onboarding.findFirst({

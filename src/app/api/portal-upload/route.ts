@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
 import {
@@ -6,8 +6,8 @@ import {
   errorResponse,
   getOrigin,
   corsResponse,
-  isAdminRequest,
 } from "@/lib/api-helpers";
+import { authenticatePortalRequest } from "@/lib/portal-auth";
 import { SENDERS, sendEmail } from "@/lib/email";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
@@ -30,47 +30,6 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 /**
- * Resolve a portal client from code + email query params.
- * Returns { facilityId, clientEmail } or null.
- */
-async function resolveClient(req: NextRequest) {
-  const url = new URL(req.url);
-  const code = url.searchParams.get("code");
-  const email = url.searchParams.get("email")?.trim().toLowerCase();
-
-  if (!code || !email) return null;
-
-  // Try 4-digit login code
-  if (/^\d{4}$/.test(code)) {
-    const loginCode = await db.portal_login_codes.findFirst({
-      where: {
-        email: { equals: email, mode: "insensitive" },
-        code,
-        expires_at: { gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-      },
-    });
-    if (loginCode) {
-      const client = await db.clients.findFirst({
-        where: { email: { equals: email, mode: "insensitive" } },
-        select: { id: true, facility_id: true, email: true },
-      });
-      return client ? { facilityId: client.facility_id, clientEmail: client.email } : null;
-    }
-  }
-
-  // Legacy access code
-  const client = await db.clients.findUnique({
-    where: { access_code: code },
-    select: { id: true, facility_id: true, email: true },
-  });
-  if (client && client.email.toLowerCase() === email) {
-    return { facilityId: client.facility_id, clientEmail: client.email };
-  }
-
-  return null;
-}
-
-/**
  * POST — Upload a PMS report file from the client portal.
  */
 export async function POST(req: NextRequest) {
@@ -79,10 +38,21 @@ export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
 
   try {
-    const resolved = await resolveClient(req);
-    if (!resolved) {
-      return errorResponse("Unauthorized", 401, origin);
+    // Canonical portal auth (replaces the route's private resolveClient). Upload
+    // is a client action tied to a facility, so it requires a client scope. The
+    // shared helper returns no email, so resolve it from the client id for the
+    // pms_reports record + the admin notification.
+    const scope = await authenticatePortalRequest(req);
+    if (scope instanceof NextResponse) return scope;
+    if (scope.kind !== "client") {
+      return errorResponse("Client context required", 400, origin);
     }
+    const facilityId = scope.facilityId;
+    const clientRow = await db.clients.findUnique({
+      where: { id: scope.clientId },
+      select: { email: true },
+    });
+    const clientEmail = clientRow?.email ?? "";
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -107,23 +77,23 @@ export async function POST(req: NextRequest) {
     // Upload to Vercel Blob
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const blob = await put(
-      `pms-reports/${resolved.facilityId}/${Date.now()}-${sanitizedName}`,
+      `pms-reports/${facilityId}/${Date.now()}-${sanitizedName}`,
       file,
       { access: "public", contentType: file.type, multipart: true },
     );
 
     // Get facility name
     const facility = await db.facilities.findUnique({
-      where: { id: resolved.facilityId },
+      where: { id: facilityId },
       select: { name: true },
     });
 
     // Create pms_reports record
     const report = await db.pms_reports.create({
       data: {
-        facility_id: resolved.facilityId,
+        facility_id: facilityId,
         facility_name: facility?.name ?? null,
-        email: resolved.clientEmail,
+        email: clientEmail,
         report_type: reportType,
         file_name: file.name,
         file_url: blob.url,
@@ -135,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     // Mark facility as having PMS data
     await db.facilities.update({
-      where: { id: resolved.facilityId },
+      where: { id: facilityId },
       data: { pms_uploaded: true, updated_at: new Date() },
     });
 
@@ -152,7 +122,7 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">File</td><td>${escapeHtml(file.name)}</td></tr>
               <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">Type</td><td>${escapeHtml(reportType)}</td></tr>
               <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">Size</td><td>${(file.size / 1024).toFixed(1)} KB</td></tr>
-              <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">From</td><td>${escapeHtml(resolved.clientEmail)}</td></tr>
+              <tr><td style="padding-right: 12px; font-weight: 500; color: #141413;">From</td><td>${escapeHtml(clientEmail)}</td></tr>
             </table>
             <p style="margin-top: 16px;"><a href="${blob.url}" style="color: #141413;">View File</a></p>
           </div>`,
@@ -175,19 +145,19 @@ export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
 
   try {
-    let facilityId: string | null = null;
+    const scope = await authenticatePortalRequest(req);
+    if (scope instanceof NextResponse) return scope;
 
-    // Admin can pass facilityId directly
-    const url = new URL(req.url);
-    const paramFacilityId = url.searchParams.get("facilityId");
-    if (paramFacilityId && isAdminRequest(req)) {
+    // A client is pinned to their own facility; an admin may pass ?facilityId.
+    let facilityId: string;
+    if (scope.kind === "admin") {
+      const paramFacilityId = new URL(req.url).searchParams.get("facilityId");
+      if (!paramFacilityId) {
+        return errorResponse("Missing facilityId", 400, origin);
+      }
       facilityId = paramFacilityId;
     } else {
-      const resolved = await resolveClient(req);
-      if (!resolved) {
-        return errorResponse("Unauthorized", 401, origin);
-      }
-      facilityId = resolved.facilityId;
+      facilityId = scope.facilityId;
     }
 
     const reports = await db.pms_reports.findMany({

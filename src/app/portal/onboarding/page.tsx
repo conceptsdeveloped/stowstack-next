@@ -154,8 +154,8 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/[0.05] p-6 text-center">
-      <AlertCircle className="h-8 w-8 text-red-400" />
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-[var(--color-red)]/20 bg-[var(--color-red-light)] p-6 text-center">
+      <AlertCircle className="h-8 w-8 text-[var(--color-red)]" />
       <p className="text-sm text-[var(--color-body-text)]">{message}</p>
       <button
         onClick={onRetry}
@@ -378,16 +378,14 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
     async (step: string, data: StepData) => {
       setSaving(true);
       try {
-        const res = await fetch("/api/client-onboarding", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            code: session.accessCode,
-            email: session.email,
-            step,
-            data,
-          }),
-        });
+        const res = await fetch(
+          `/api/client-onboarding?code=${encodeURIComponent(session.accessCode)}&email=${encodeURIComponent(session.email)}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ step, data }),
+          }
+        );
         if (!res.ok) throw new Error();
         const json: { onboarding: { steps: OnboardingSteps; completedAt: string | null } } =
           await res.json();
@@ -471,7 +469,7 @@ function OnboardingWizard({ session }: { session: PortalSession }) {
                     isActive
                       ? "bg-[var(--color-dark)] text-[var(--color-light)]"
                       : isComplete
-                        ? "bg-green-500/20 text-green-400"
+                        ? "bg-[var(--color-green-light)] text-[var(--color-green)]"
                         : isPast
                           ? "bg-[var(--color-light-gray)] text-[var(--color-body-text)]"
                           : "bg-[var(--color-light-gray)] text-[var(--color-mid-gray)]"
@@ -1327,8 +1325,8 @@ function ReviewStep({
   if (completedAt) {
     return (
       <div className="py-6 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
-          <Check className="h-8 w-8 text-green-400" />
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-green-light)]">
+          <Check className="h-8 w-8 text-[var(--color-green)]" />
         </div>
         <h2 className="text-lg font-semibold">Onboarding Complete</h2>
         <p className="mt-2 text-sm text-[var(--color-body-text)]">
@@ -1363,19 +1361,19 @@ function ReviewStep({
             key={section.key}
             className={`rounded-lg border p-4 ${
               isComplete
-                ? "border-green-500/20 bg-green-500/[0.03]"
-                : "border-amber-500/20 bg-amber-500/[0.03]"
+                ? "border-[var(--color-green)]/20 bg-[var(--color-green-light)]"
+                : "border-[var(--border-subtle)] bg-[var(--bg-hi)]"
             }`}
           >
             <div className="mb-2 flex items-center gap-2">
-              <span className={isComplete ? "text-green-400" : "text-amber-400"}>
+              <span className={isComplete ? "text-[var(--color-green)]" : "text-[var(--color-mid-gray)]"}>
                 {section.icon}
               </span>
               <h3 className="text-sm font-medium">{section.label}</h3>
               {isComplete ? (
-                <Check className="ml-auto h-4 w-4 text-green-400" />
+                <Check className="ml-auto h-4 w-4 text-[var(--color-green)]" />
               ) : (
-                <span className="ml-auto text-[10px] text-amber-400">
+                <span className="ml-auto text-[10px] text-[var(--color-mid-gray)]">
                   Incomplete
                 </span>
               )}
@@ -1395,15 +1393,15 @@ function ReviewStep({
       })}
 
       {allComplete ? (
-        <div className="rounded-lg bg-green-500/[0.08] p-4 text-center">
-          <Check className="mx-auto mb-2 h-6 w-6 text-green-400" />
-          <p className="text-sm font-medium text-green-400">
+        <div className="rounded-lg bg-[var(--color-green-light)] p-4 text-center">
+          <Check className="mx-auto mb-2 h-6 w-6 text-[var(--color-green)]" />
+          <p className="text-sm font-medium text-[var(--color-green)]">
             All steps complete. Your setup is submitted.
           </p>
         </div>
       ) : (
-        <div className="rounded-lg bg-amber-500/[0.08] p-4 text-center">
-          <p className="text-sm text-amber-400">
+        <div className="rounded-lg bg-[var(--bg-hi)] p-4 text-center">
+          <p className="text-sm text-[var(--color-body-text)]">
             Complete all steps above to finish onboarding.
           </p>
         </div>
