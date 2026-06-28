@@ -198,6 +198,10 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
     where: { stripe_customer_id: customerId },
     data: { subscription_status: "past_due" },
   });
+
+  // M5 auto-sync: flip the matching client invoice to overdue (never downgrade a
+  // paid/void one). No-op when the invoice isn't linked to a client_invoices row.
+  await syncClientInvoiceStatus(invoice.id, "overdue");
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
@@ -208,5 +212,35 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   await db.organizations.updateMany({
     where: { stripe_customer_id: customerId, subscription_status: "past_due" },
     data: { subscription_status: "active" },
+  });
+
+  // M5 auto-sync: mark the linked client invoice paid + stamp paid_at, so admins
+  // no longer have to PATCH it by hand. Idempotent (guarded on status != paid).
+  await syncClientInvoiceStatus(invoice.id, "paid");
+}
+
+/**
+ * Reconcile a client_invoices row from a Stripe invoice event (M5 auto-sync).
+ * Matches on stripe_invoice_id; safe no-op for invoices that aren't linked.
+ * Idempotent and non-destructive: never overwrites a row already in a terminal
+ * state that outranks the incoming one (paid/void stay put).
+ */
+async function syncClientInvoiceStatus(
+  stripeInvoiceId: string | null | undefined,
+  status: "paid" | "overdue",
+) {
+  if (!stripeInvoiceId) return;
+  // Never overwrite a terminal state: a paid or void invoice stays put regardless
+  // of which event arrives (also makes paid→paid a no-op, so this is idempotent).
+  await db.client_invoices.updateMany({
+    where: {
+      stripe_invoice_id: stripeInvoiceId,
+      status: { notIn: ["paid", "void"] },
+    },
+    data: {
+      status,
+      updated_at: new Date(),
+      ...(status === "paid" ? { paid_at: new Date() } : {}),
+    },
   });
 }

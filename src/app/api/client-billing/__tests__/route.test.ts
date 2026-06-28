@@ -19,6 +19,7 @@ const ROW = {
   paid_at: null,
   issued_at: new Date("2026-06-01T00:00:00Z"),
   created_at: new Date("2026-06-01T00:00:00Z"),
+  stripe_invoice_id: null,
 };
 
 beforeEach(() => {
@@ -66,6 +67,7 @@ describe("GET /api/client-billing", () => {
       paidDate: null,
       notes: "Monthly",
       createdAt: "2026-06-01T00:00:00.000Z",
+      stripeInvoiceId: null,
     });
     // Scoped to the authenticated client.
     // @ts-expect-error — inspecting the mock

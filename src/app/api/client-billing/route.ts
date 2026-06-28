@@ -35,6 +35,7 @@ interface InvoiceRow {
   paid_at: Date | null;
   issued_at: Date;
   created_at: Date;
+  stripe_invoice_id: string | null;
 }
 
 function dec(v: unknown): number {
@@ -57,6 +58,7 @@ function toInvoice(row: InvoiceRow, code?: string) {
     paidDate: row.paid_at ? row.paid_at.toISOString() : null,
     notes: row.description ?? "",
     createdAt: row.created_at.toISOString(),
+    stripeInvoiceId: row.stripe_invoice_id ?? null,
     ...(code ? { code } : {}),
   };
 }
@@ -73,6 +75,7 @@ const INVOICE_SELECT = {
   paid_at: true,
   issued_at: true,
   created_at: true,
+  stripe_invoice_id: true,
 } as const;
 
 const VALID_STATUSES = ["draft", "sent", "paid", "overdue", "void"];
@@ -156,7 +159,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { code, month, amount, adSpend, managementFee, dueDate, notes, status } =
+    const { code, month, amount, adSpend, managementFee, dueDate, notes, status, stripeInvoiceId } =
       body || {};
 
     if (
@@ -187,6 +190,9 @@ export async function POST(req: NextRequest) {
         period: month,
         description: notes || null,
         due_at: new Date(dueDate),
+        ...(typeof stripeInvoiceId === "string" && stripeInvoiceId
+          ? { stripe_invoice_id: stripeInvoiceId }
+          : {}),
       },
       select: INVOICE_SELECT,
     });
@@ -206,7 +212,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { invoiceId, status, paidDate, notes } = body || {};
+    const { invoiceId, status, paidDate, notes, stripeInvoiceId } = body || {};
 
     if (!invoiceId) {
       return errorResponse("Missing invoiceId", 400, origin);
@@ -241,6 +247,9 @@ export async function PATCH(req: NextRequest) {
         ...(status !== undefined ? { status } : {}),
         ...(paid_at !== undefined ? { paid_at } : {}),
         ...(notes !== undefined ? { description: notes } : {}),
+        ...(stripeInvoiceId !== undefined
+          ? { stripe_invoice_id: stripeInvoiceId || null }
+          : {}),
       },
       select: INVOICE_SELECT,
     });

@@ -33,6 +33,9 @@ vi.mock("@/lib/db", () => {
     activity_log: {
       create: vi.fn(),
     },
+    client_invoices: {
+      updateMany: vi.fn(),
+    },
     $queryRaw: vi.fn(),
     $executeRaw: vi.fn(),
     $transaction: vi.fn(async (cb) => cb(db)),
@@ -297,6 +300,34 @@ describe("POST /api/stripe-webhook", () => {
         data: { subscription_status: "past_due" },
       });
     });
+
+    it("M5 auto-sync: flips the linked client invoice to overdue (not paid/void)", async () => {
+      mockStripe.webhooks.constructEvent.mockReturnValue(
+        makeEvent("invoice.payment_failed", {
+          customer: "cus_123",
+          id: "in_stripe_1",
+        }) as never
+      );
+      mockDb.organizations.updateMany.mockResolvedValue({ count: 1 } as never);
+      mockDb.client_invoices.updateMany.mockResolvedValue({ count: 1 } as never);
+
+      await POST(createWebhookRequest());
+      const call = mockDb.client_invoices.updateMany.mock.calls[0][0];
+      expect(call.where.stripe_invoice_id).toBe("in_stripe_1");
+      expect(call.where.status).toEqual({ notIn: ["paid", "void"] });
+      expect(call.data.status).toBe("overdue");
+      expect(call.data.paid_at).toBeUndefined();
+    });
+
+    it("does not touch client_invoices when the Stripe invoice has no id", async () => {
+      mockStripe.webhooks.constructEvent.mockReturnValue(
+        makeEvent("invoice.payment_failed", { customer: "cus_123" }) as never
+      );
+      mockDb.organizations.updateMany.mockResolvedValue({ count: 1 } as never);
+
+      await POST(createWebhookRequest());
+      expect(mockDb.client_invoices.updateMany).not.toHaveBeenCalled();
+    });
   });
 
   describe("invoice.payment_succeeded", () => {
@@ -315,6 +346,24 @@ describe("POST /api/stripe-webhook", () => {
         where: { stripe_customer_id: "cus_123", subscription_status: "past_due" },
         data: { subscription_status: "active" },
       });
+    });
+
+    it("M5 auto-sync: marks the linked client invoice paid + stamps paid_at", async () => {
+      mockStripe.webhooks.constructEvent.mockReturnValue(
+        makeEvent("invoice.payment_succeeded", {
+          customer: "cus_123",
+          id: "in_stripe_9",
+        }) as never
+      );
+      mockDb.organizations.updateMany.mockResolvedValue({ count: 1 } as never);
+      mockDb.client_invoices.updateMany.mockResolvedValue({ count: 1 } as never);
+
+      await POST(createWebhookRequest());
+      const call = mockDb.client_invoices.updateMany.mock.calls[0][0];
+      expect(call.where.stripe_invoice_id).toBe("in_stripe_9");
+      expect(call.where.status).toEqual({ notIn: ["paid", "void"] });
+      expect(call.data.status).toBe("paid");
+      expect(call.data.paid_at).toBeInstanceOf(Date);
     });
 
     it("does NOT update when org is already active", async () => {
