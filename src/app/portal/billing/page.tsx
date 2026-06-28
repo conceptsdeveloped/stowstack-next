@@ -144,6 +144,7 @@ export default function BillingPage() {
     <PortalPage
       title="Billing"
       subtitle={`Invoices and payment history for ${client.facilityName}`}
+      maxWidth="4xl"
       actions={
         <Button
           variant="secondary"
