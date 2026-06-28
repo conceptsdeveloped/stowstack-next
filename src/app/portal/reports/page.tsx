@@ -110,21 +110,35 @@ export default function ReportsPage() {
     URL.revokeObjectURL(url);
   }
 
+  function downloadPdf() {
+    const url = `/api/client-report-pdf?accessCode=${encodeURIComponent(session.accessCode)}&email=${encodeURIComponent(session.email)}`;
+    window.open(url, "_blank");
+  }
+
   return (
     <PortalPage
       title="Reports & Analytics"
       subtitle={`PMS data and unit performance for ${client.facilityName}`}
       maxWidth="5xl"
       actions={
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={downloadReport}
-          disabled={!data}
-          icon={<Download className="h-3.5 w-3.5" />}
-        >
-          Download Report
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={downloadPdf}
+            icon={<Download className="h-3.5 w-3.5" />}
+          >
+            Download PDF
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={downloadReport}
+            disabled={!data}
+          >
+            Export JSON
+          </Button>
+        </div>
       }
     >
       <div className="space-y-6">
