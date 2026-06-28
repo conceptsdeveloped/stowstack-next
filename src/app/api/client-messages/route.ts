@@ -9,6 +9,7 @@ import {
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { authenticatePortalRequest } from "@/lib/portal-auth";
+import { sendPushToAll } from "@/lib/push";
 
 /**
  * Two-way messaging (M4). Durable Postgres backend (`client_messages`) behind
@@ -150,8 +151,53 @@ export async function POST(req: NextRequest) {
       select: { id: true, sender: true, body: true, created_at: true },
     });
 
+    // D6: notify the *recipient* of the new message (fire-and-forget — a push
+    // failure must never fail the send). An admin reply pushes to that one
+    // client's devices; a client message pings the admins' devices.
+    void notifyRecipient(from, clientId, text);
+
     return jsonResponse({ success: true, message: toWire(row) }, 200, origin);
   } catch {
     return errorResponse("Failed to send message", 500, origin);
+  }
+}
+
+/**
+ * Push the new message to whoever did NOT send it. Best-effort: swallows its own
+ * errors so the message POST always succeeds even if push delivery is down or
+ * VAPID is unconfigured. `sendPushToAll` is itself a no-op without VAPID keys.
+ */
+async function notifyRecipient(
+  from: string,
+  clientId: string,
+  text: string,
+): Promise<void> {
+  const preview = text.length > 120 ? `${text.slice(0, 117)}...` : text;
+  try {
+    if (from === "admin") {
+      // Admin replied → notify this client on their own devices.
+      await sendPushToAll(
+        {
+          title: "New message from your StorageAds team",
+          body: preview,
+          url: "/portal/messages",
+          tag: "client-message",
+        },
+        { userType: "client", userId: clientId },
+      );
+    } else {
+      // Client wrote in → notify the admins (no userId filter = all admins).
+      await sendPushToAll(
+        {
+          title: "New client message",
+          body: preview,
+          url: "/admin/messages",
+          tag: "admin-client-message",
+        },
+        { userType: "admin" },
+      );
+    }
+  } catch (err) {
+    console.error("[client-messages] push notify failed:", err);
   }
 }
