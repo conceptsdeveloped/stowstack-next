@@ -99,6 +99,36 @@ export function detectPmsAnomalies(
   return problems;
 }
 
+/**
+ * Pure rollup of a rent-roll into the headline snapshot metrics the customer
+ * portal shows (occupancy %, delinquency %, gross potential, actual revenue).
+ * Extracted and exported so the math that drives customer-facing numbers is
+ * unit-tested independently of the DB write.
+ *
+ * Definitions:
+ *  - occupied   = rows with a non-blank tenant_name
+ *  - delinquent = rows with days_past_due > 0 (binary per unit, not dollars)
+ * Both percentages are 0 (not NaN) for an empty roll — no divide-by-zero.
+ * Blank/non-numeric numeric cells coerce to 0 via `Number(x) || 0`.
+ */
+export function computeRentRollSnapshot(rows: Record<string, string>[]): {
+  totalUnits: number;
+  occupied: number;
+  occupancyPct: number;
+  grossPotential: number;
+  actualRevenue: number;
+  delinquencyPct: number;
+} {
+  const totalUnits = rows.length;
+  const occupied = rows.filter((r) => r.tenant_name && r.tenant_name.trim() !== "").length;
+  const occupancyPct = totalUnits > 0 ? (occupied / totalUnits) * 100 : 0;
+  const grossPotential = rows.reduce((sum, r) => sum + (Number(r.rent_rate) || 0), 0);
+  const actualRevenue = rows.reduce((sum, r) => sum + (Number(r.total_due) || 0), 0);
+  const delinquentUnits = rows.filter((r) => (Number(r.days_past_due) || 0) > 0).length;
+  const delinquencyPct = totalUnits > 0 ? (delinquentUnits / totalUnits) * 100 : 0;
+  return { totalUnits, occupied, occupancyPct, grossPotential, actualRevenue, delinquencyPct };
+}
+
 async function ingestRentRoll(
   facilityId: string,
   snapshotDate: Date,
@@ -125,14 +155,9 @@ async function ingestRentRoll(
     })),
   });
 
-  // Rollup into facility_pms_snapshots
-  const totalUnits = rows.length;
-  const occupied = rows.filter((r) => r.tenant_name && r.tenant_name.trim() !== "").length;
-  const occupancyPct = totalUnits > 0 ? (occupied / totalUnits) * 100 : 0;
-  const grossPotential = rows.reduce((sum, r) => sum + (Number(r.rent_rate) || 0), 0);
-  const actualRevenue = rows.reduce((sum, r) => sum + (Number(r.total_due) || 0), 0);
-  const delinquentUnits = rows.filter((r) => (Number(r.days_past_due) || 0) > 0).length;
-  const delinquencyPct = totalUnits > 0 ? (delinquentUnits / totalUnits) * 100 : 0;
+  // Rollup into facility_pms_snapshots (headline metrics shown in the portal)
+  const { totalUnits, occupied, occupancyPct, grossPotential, actualRevenue, delinquencyPct } =
+    computeRentRollSnapshot(rows);
 
   await db.facility_pms_snapshots.upsert({
     where: {
