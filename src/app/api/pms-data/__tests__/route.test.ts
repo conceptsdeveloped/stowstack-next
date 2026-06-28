@@ -161,3 +161,73 @@ describe("POST /api/pms-data — process_report (approval gate)", () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe("POST /api/pms-data — import_rent_roll (report-ready notification)", () => {
+  const rows = [
+    { unit: "A1", size_label: "10x10", tenant_name: "Jane", rent_rate: "100", total_due: "100", days_past_due: "0" },
+    { unit: "A2", size_label: "10x10", tenant_name: "", rent_rate: "120", total_due: "0", days_past_due: "0" },
+  ];
+
+  function mockRentRollTables() {
+    // @ts-expect-error — db is a vi mock
+    mockDb.facility_pms_rent_roll = {
+      deleteMany: vi.fn().mockResolvedValue({}),
+      createMany: vi.fn().mockResolvedValue({}),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.facility_pms_snapshots = { upsert: vi.fn().mockResolvedValue({}) };
+    // @ts-expect-error — db is a vi mock
+    mockDb.facility_pms_units = { upsert: vi.fn().mockResolvedValue({}) };
+  }
+
+  it("401s without admin/owner auth (no import, no notify)", async () => {
+    mockRentRollTables();
+    const res = await POST(
+      createMockRequest("/api/pms-data", {
+        method: "POST",
+        body: { action: "import_rent_roll", facility_id: "f1", snapshot_date: "2026-06-01", rows },
+      })
+    );
+    expect(res.status).toBe(401);
+    // @ts-expect-error — inspecting the mock
+    expect(mockDb.facility_pms_rent_roll.createMany).not.toHaveBeenCalled();
+    expect(mockNotify).not.toHaveBeenCalled();
+  });
+
+  it("400s when rows are missing", async () => {
+    const res = await POST(
+      adminPost({ action: "import_rent_roll", facility_id: "f1", snapshot_date: "2026-06-01" })
+    );
+    expect(res.status).toBe(400);
+    expect(mockNotify).not.toHaveBeenCalled();
+  });
+
+  it("imports the roll and notifies the facility's client(s)", async () => {
+    mockRentRollTables();
+    const res = await POST(
+      adminPost({ action: "import_rent_roll", facility_id: "f1", snapshot_date: "2026-06-01", rows })
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.imported).toBe(2);
+    // Fresh occupancy/unit-mix is live → the client is told.
+    expect(mockNotify).toHaveBeenCalledWith("f1");
+    expect(mockNotify).toHaveBeenCalledTimes(1);
+  });
+
+  it("import_aging does NOT notify (single notice on the primary roll import)", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.facility_pms_aging = {
+      deleteMany: vi.fn().mockResolvedValue({}),
+      createMany: vi.fn().mockResolvedValue({}),
+    };
+    const agingRows = [
+      { unit: "A1", bucket_0_30: "100", bucket_31_60: "0", bucket_61_90: "0", bucket_over_90: "0" },
+    ];
+    const res = await POST(
+      adminPost({ action: "import_aging", facility_id: "f1", snapshot_date: "2026-06-01", rows: agingRows })
+    );
+    expect(res.status).toBe(200);
+    expect(mockNotify).not.toHaveBeenCalled();
+  });
+});
