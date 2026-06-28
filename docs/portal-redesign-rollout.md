@@ -56,13 +56,13 @@ middleware rewrite.
 - `portal-push-subscribe` route now exists (client push path partly built).
 
 ### High-risk surfaces (broken regardless of v1/v2 — fix during redesign, not before)
-| Surface | Issue | Severity |
-|---|---|---|
-| Messaging (`/api/client-messages`) | Redis-only; `verifyClient` reads a Redis `client:*` key the Postgres app never populates → 401s, or silently fake-succeeds when Upstash is unset | High |
-| Billing "Manage Payment Method" (`/api/create-billing-portal`) | Gated by partner/org `getSession` (`ss_` token) a portal client never has → **always 401s**. Dead button. | High |
-| Invoices | Two unrelated systems: Redis `billing:*` (shown) vs Postgres `activity_log` (`/api/client-invoices`, unused). No shared data. | Medium |
-| Reports | `move_ins_mtd`, `move_outs_mtd`, `delinquency_pct` hardcoded `0`, rendered as KPI cards | Medium |
-| Campaigns | Page only calls `attribution`; `client-campaigns` is `requireAdminKey`-gated, unreachable from the portal | Low |
+| Surface | Issue | Severity | Status |
+|---|---|---|---|
+| Messaging (`/api/client-messages`) | Redis-only; `verifyClient` reads a Redis `client:*` key the Postgres app never populates → 401s, or silently fake-succeeds when Upstash is unset | High | **FIXED** (`77caf2e`) — now uses canonical Postgres `authenticatePortalRequest`; Redis is storage-only |
+| Billing "Manage Payment Method" (`/api/create-billing-portal`) | Gated by partner/org `getSession` (`ss_` token) a portal client never has → **always 401s**. Dead button. | High | **FIXED** (`77caf2e`) — portal-client auth; Stripe customer resolved via client → facility → org |
+| Invoices | Two unrelated systems: Redis `billing:*` (shown) vs Postgres `activity_log` (`/api/client-invoices`, unused). No shared data. | Medium | Open — `client-billing` works on its own auth helper; consolidation deferred (peer's active lane) |
+| Reports | `move_ins_mtd`, `move_outs_mtd`, `delinquency_pct` hardcoded `0`, rendered as KPI cards | Medium | **FIXED** (`23c9db1`) — move-ins/outs from facility-scoped `lead_status_events` MTD (same source as goal tracker); delinquency from latest PMS snapshot |
+| Campaigns | Page only calls `attribution`; `client-campaigns` is `requireAdminKey`-gated, unreachable from the portal | Low | Open — attribution is **Angelo's domain**; do not touch without coordination |
 
 ### Rollout infrastructure: none exists yet
 No feature-flag lib, no parallel routes, no route groups, no cohort column on
@@ -120,6 +120,25 @@ partner auth surface, not the client portal. The portal cohort flag must live on
 - Messaging (Redis→Postgres), billing portal auth mismatch, invoice
   consolidation. These are broken in v1 too, so fix as you redesign those pages
   rather than reskinning a broken backend. Mirrors backend M4/M5.
+- **DONE so far:**
+  - Messaging auth (`77caf2e`) — `client-messages` now authenticates with the
+    canonical `authenticatePortalRequest` (Postgres); Redis is storage-only.
+    Credentials moved to the query string; route + page updated together.
+  - Billing-portal auth (`77caf2e`) — `create-billing-portal` now authenticates
+    the portal client and resolves the Stripe customer through
+    client → facility → `organizations.stripe_customer_id`. The dead "Manage
+    Payment Method" button works whenever the org has a Stripe customer.
+  - Reports KPIs (`23c9db1`) — `client-reports` move-in/out MTD now come from
+    facility-scoped `lead_status_events` (consistent with the goal tracker) and
+    delinquency from the latest PMS snapshot. No more hardcoded `0` cards.
+  - All three landed on the peer's shared `authenticatePortalRequest` helper
+    rather than a competing one, with route-level tests (16 new).
+- **REMAINING:**
+  - Invoice consolidation (Redis `billing:*` vs Postgres `activity_log`) — left
+    open: `client-billing` works on its own auth helper, and the peer is active
+    in that surface. Converge `client-billing` onto `authenticatePortalRequest`
+    when claiming this.
+  - Campaigns reachability — **Angelo's domain** (attribution); coordinate first.
 
 ### R5 — Cohort cutover & retire v1
 - Migrate clients to `portal_version=2` in waves (Blake → alpha portfolio → all).
