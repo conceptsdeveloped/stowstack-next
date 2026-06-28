@@ -155,10 +155,10 @@ Each milestone ships independently and is demoable on its own. Order is by **dat
 
 ---
 
-## M8 — Polish, design compliance, downloadable PDF  ◑ MOSTLY DONE (commit 7d95b6e)
+## M8 — Polish, design compliance, downloadable PDF  ✅ DONE (commits 7d95b6e, 947789b)
 **Goal:** the dashboard looks and feels finished for alpha.
 
-**Shipped:** PDF report download (`/api/client-report-pdf` + `src/lib/occupancy-pdf.tsx`, "Download PDF" on /portal/reports). Gold-token cleanup: portal is already token-clean (no `--color-gold`/amber). Empty/loading/error states: covered by the portal UI kit. **Remaining:** the operator-voice copy pass (subjective, no functional defect) — the one open polish item.
+**Shipped:** PDF report download (`/api/client-report-pdf` + `src/lib/occupancy-pdf.tsx`, "Download PDF" on /portal/reports). Gold-token cleanup: portal is already token-clean (no `--color-gold`/amber). Empty/loading/error states: covered by the portal UI kit. Operator-voice copy pass complete: portal strings are honest about what's connected (GBP empty state says "not yet connected", no live-sync over-claims) and the one prose em-dash (campaigns ROAS tip) is gone. Remaining em-dash glyphs are empty-cell placeholders (UI convention), not prose.
 
 - Design-system pass: remove `--color-gold` usage outside the logo across all portal components; replace with charcoal/light tokens (see `.claude/design-system.md`).
 - Downloadable report as PDF (reuses `@react-pdf/renderer` already in the stack) in addition to the JSON export.
@@ -204,12 +204,14 @@ M8 (polish) ──────> last, across everything
 
 After each milestone: `npx prisma validate && npm run typecheck && npm run test && npm run build`. For mutation routes, manually verify in prod after deploy (CSRF + auth). For PWA (M6), test on a real installed instance including iOS Safari.
 
-## ⚠️ Required prod step (M4 + M5)
+## ✅ Required prod step (M4 + M5) — APPLIED 2026-06-28
 
-The `client_messages` and `client_invoices` tables (M4/M5) are defined in the schema and generated client, but the **tables must be created in prod** before those features work live. The migration is additive and idempotent (no data-loss ops). Run from a shell that has `DATABASE_URL`:
+The `client_messages` and `client_invoices` tables (M4/M5) were created in prod on **2026-06-28** via:
 
 ```bash
 npx prisma db execute --file prisma/manual/2026-06-28-customer-dashboard-tables.sql --schema prisma/schema.prisma
 ```
 
-Then deploy (the build runs `prisma generate`). Until this runs, `/api/client-messages` and `/api/client-billing` will error against the missing tables. `client_goals` (M1) is owned by the client-goals feature and is intentionally not in this file.
+Verified live: both tables query cleanly through the Prisma client. `/api/client-messages` and `/api/client-billing` are now functional in prod. The script is idempotent (additive `CREATE TABLE IF NOT EXISTS`), so re-running is safe. `client_goals` (M1) is owned by the client-goals feature and is intentionally not in this file.
+
+**M5 Stripe auto-sync (follow-on) — DONE (commit 6847a6c):** the Stripe webhook now reconciles `client_invoices` by `stripe_invoice_id` (`invoice.payment_succeeded` → paid+`paid_at`, `invoice.payment_failed` → overdue; idempotent, never overwrites paid/void). Admins link an invoice to its Stripe counterpart via `stripeInvoiceId` on the billing POST/PATCH. Standing up actual Stripe-invoice *creation* (vs. linking an existing id) remains future scope.
