@@ -335,6 +335,39 @@ describe("POST /api/client-messages — D6 email notifications", () => {
     expect(params.html).toContain("Your campaign is live.");
   });
 
+  it("HTML-escapes message text in the email body (no injection/breakage)", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.clients = {
+      findUnique: vi.fn().mockResolvedValue({
+        id: "c9",
+        email: "owner@acme.com",
+        name: "Dana",
+        facility_name: "Acme",
+      }),
+    };
+    // @ts-expect-error — db is a vi mock
+    mockDb.client_messages = {
+      create: vi.fn().mockResolvedValue({
+        id: "m7",
+        sender: "admin",
+        body: "<script>alert(1)</script> & <b>hi</b>",
+        created_at: new Date("2026-06-07T00:00:00Z"),
+      }),
+    };
+    const res = await POST(
+      createAdminRequest("/api/client-messages?accessCode=AC", {
+        method: "POST",
+        body: { text: "<script>alert(1)</script> & <b>hi</b>", from: "admin" },
+      })
+    );
+    expect(res.status).toBe(200);
+    await vi.waitFor(() => expect(mockSendEmail).toHaveBeenCalledTimes(1));
+    const params = mockSendEmail.mock.calls[0][0];
+    expect(params.html).not.toContain("<script>");
+    expect(params.html).toContain("&lt;script&gt;");
+    expect(params.html).toContain("&amp;");
+  });
+
   it("does not email a client that has no address on file", async () => {
     // @ts-expect-error — db is a vi mock
     mockDb.clients = {

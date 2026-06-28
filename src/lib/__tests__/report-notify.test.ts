@@ -68,6 +68,19 @@ describe("notifyClientsReportReady", () => {
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
 
+  it("HTML-escapes the client name in the email body (no injection/breakage)", async () => {
+    // @ts-expect-error — db is a vi mock
+    mockDb.clients = {
+      findMany: vi.fn().mockResolvedValue([
+        { id: "c1", email: "a@x.com", name: "<script>alert(1)</script>", facility_name: "F & Co" },
+      ]),
+    };
+    await notifyClientsReportReady("f1");
+    const params = mockSendEmail.mock.calls[0][0];
+    expect(params.html).not.toContain("<script>");
+    expect(params.html).toContain("&lt;script&gt;");
+  });
+
   it("sends nothing when the facility has no clients", async () => {
     // @ts-expect-error — db is a vi mock
     mockDb.clients = { findMany: vi.fn().mockResolvedValue([]) };
