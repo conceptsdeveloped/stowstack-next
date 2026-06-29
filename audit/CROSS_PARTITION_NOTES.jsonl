@@ -1,0 +1,1 @@
+{"note":"cross-partition","source_finding":"api-v1-external SSRF at src/app/api/v1/webhooks/route.ts:113","completion_touches":"src/lib/webhook.ts dispatchWebhook (lib-core partition)","reuse":"isAllowedUrl guard from src/app/api/proxy-video/route.ts","for":"Scout 5 lib-core / merge dependency link"}
