@@ -1,0 +1,1254 @@
+[
+  {
+    "partition": "tenancy",
+    "category": "tenancy-breach",
+    "severity": "P0",
+    "file": "src/app/api/tenants/route.ts",
+    "line": 64,
+    "evidence": "if (tenantId) { ... WHERE t.id = ${tenantId}::uuid ... } (all sub-queries scoped only by tenant_id, never re-checked against the facility the caller is authorized for)",
+    "golden_path_step": 8,
+    "claim_violated": "tenant/renter data is scoped to the operator's own facility",
+    "expected": "the ?tenantId branch must verify the resolved tenant.facility_id is one the caller is authorized for (admin, or manageScopeAllows(scope, tenant.facility_id)), not merely that the caller passed an owned ?facilityId",
+    "done_when": "a manage-session scoped to facility A that requests ?facilityId=A&tenantId=<tenant of facility B> receives 401/404, and a regression test asserts cross-facility tenantId reads are denied",
+    "completion_hint": "after fetching the tenant by id, resolve its facility_id and call requireFacilityAccess(req, tenant.facility_id) (mirror the pattern already used in call-logs PATCH / facility-context DELETE) before returning payments/escalations/churn/communications",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "upgrade",
+    "_review_reason": "CONFIRMED cross-tenant IDOR and UPGRADED P1->P0. tenants GET guards with requireFacilityAccess(req) which (api-helpers.ts:186-192) falls back to the ?facilityId query param and only checks manageScopeAllows(scope, ?facilityId). The ?tenantId branch (lines 64-110) then SELECTs tenants/tenant_payments/delinquency_escalations/churn_predictions/upsell_opportunities/tenant_communications WHERE id=tenantId with NO re-check that the tenant's facility_id is one the caller owns. A facility-A manage session calling ?facilityId=A&tenantId=<facility B's tenant> receives B's tenant PII (payments, delinquency, comms). This is exactly the rubric's P0 example ('cross-tenant data leak') and the Coordinator's P0 definition ('resolves a caller then queries db.* UNSCOPED'). Evidence accurate, done_when concrete (regression test specified), completion_hint correct (mirror requireFacilityAccess(req, tenant.facility_id) as call-logs PATCH already does). Real-world exploitability requires facility-scoped manage sessions issued to distinct operators \u2014 the product's multi-tenant design intent \u2014 so default-up applies.",
+    "partitions": [
+      "tenancy"
+    ],
+    "id": "SA-0001"
+  },
+  {
+    "partition": "api-attribution-tracking",
+    "category": "integration-gap",
+    "severity": "P0",
+    "file": "src/app/api/walkin-attribution/route.ts",
+    "line": 10,
+    "evidence": "export async function POST(req: NextRequest) \u2014 route is NOT listed in isCsrfExempt() (src/proxy.ts:80-130); caller src/app/walkin/[code]/page.tsx:67 POSTs with headers { 'Content-Type': 'application/json' } only (no x-csrf-token, no x-admin-key/Bearer/x-org-token).",
+    "golden_path_step": 9,
+    "claim_violated": "walk-in move-ins are attributed back to ad source",
+    "expected": "A facility manager on /walkin/[code] can submit a walk-in attribution and it is recorded.",
+    "done_when": "POST /api/walkin-attribution succeeds (200, row persisted) when called from the public /walkin/[code] page in production; either the path is added to isCsrfExempt() in src/proxy.ts (it authenticates via accessCode in the body, same model as the existing audit-form/consumer-lead/client-data exemptions) OR the client sends a valid double-submit x-csrf-token. Verified by a non-403 POST in prod.",
+    "completion_hint": "Add `if (path === \"/api/walkin-attribution\") return true;` to isCsrfExempt() in src/proxy.ts \u2014 it is body/accessCode authenticated and rate-limited, matching the existing public-lead exemptions. proxy.ts requiresCsrf('POST')=true + not exempt + no token = hard 403 'Invalid or missing CSRF token'.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED prod-breaking. proxy.ts enforces requiresCsrf(method)&&!isCsrfExempt \u2192 validateCsrf 403 (lines 140-151). requiresCsrf('POST')=true (csrf.ts STATE_CHANGING_METHODS line 43). validateCsrf returns false without an x-csrf-token header (csrf.ts:30-32). walkin-attribution is NOT in isCsrfExempt() and the route is body/accessCode-authed (no x-admin-key/Bearer/x-org-token header exemption). Caller walkin/[code]/page.tsx submit handler POSTs headers {'Content-Type':'application/json'} only, no token (verified lines 66-70), and AWAITS the result (setError on failure) \u2192 a VISIBLE hard 403 for the facility manager. Golden-path step 9 walk-in attribution fully broken in prod. Matches known memory project_csrf_gate_gotcha. Keep P0.",
+    "partitions": [
+      "api-attribution-tracking"
+    ],
+    "id": "SA-0002"
+  },
+  {
+    "partition": "api-admin-misc",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/signup/route.ts",
+    "line": 57,
+    "evidence": "POST /api/signup is called from src/app/signup/page.tsx via fetch(\"/api/signup\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" } }) \u2014 no x-csrf-token, no Bearer/x-admin-key/x-org-token; and /api/signup is NOT in isCsrfExempt() (src/proxy.ts:80-130).",
+    "golden_path_step": 2,
+    "claim_violated": "an operator/partner can self-serve sign up (the public pricing-page signup CTA)",
+    "expected": "POST /api/signup reaches its handler and creates the org + session",
+    "done_when": "a public signup POST succeeds in prod: either /api/signup is added to isCsrfExempt() (it authenticates by email+password in the body, no ambient session to protect), OR a first-party client helper injects the x-csrf-token double-submit header. Today the proxy CSRF gate (src/proxy.ts:138-152) runs validateCsrf(), which fails because no client sends x-csrf-token (grep finds the header only in src/lib/csrf.ts), so every signup POST 403s before reaching the handler. Same root cause that broke /portal login (since fixed by exemption).",
+    "completion_hint": "add path===\"/api/signup\" to isCsrfExempt() next to /api/organizations, OR ship a global csrf-token fetch wrapper",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED vs src/proxy.ts:80-133 isCsrfExempt - '/api/signup' is NOT in the path list and a plain fetch from signup/page.tsx sends no x-admin-key/Bearer/x-org-token header, so it misses the header exemptions too. Mutating POST + not exempt -> proxy gate (proxy.ts:138-152) runs validateCsrf which fails (no client sends x-csrf-token; grep finds it only in src/lib/csrf.ts) -> 403 before the handler. Live pricing-page signup CTA is dead in prod. Exact same root cause that broke /portal login (since exempted). done_when (add path to isCsrfExempt next to /api/organizations, OR ship a csrf-token fetch wrapper) is concrete. KEEP P1.",
+    "partitions": [
+      "api-admin-misc"
+    ],
+    "id": "SA-0003"
+  },
+  {
+    "partition": "api-admin-misc",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/password-reset/route.ts",
+    "line": 1,
+    "evidence": "All 3 actions called from src/components/partner/partner-shell.tsx via plain fetch(\"/api/password-reset\", {method:\"POST\", headers:{\"Content-Type\":\"application/json\"}}); /api/password-reset is NOT in isCsrfExempt() (src/proxy.ts:80-130).",
+    "golden_path_step": 3,
+    "claim_violated": "a partner can recover their account via password reset",
+    "expected": "POST /api/password-reset (request/verify/reset) reaches the handler",
+    "done_when": "password-reset POST succeeds in prod: add /api/password-reset to isCsrfExempt() (pre-login flow, no session cookie to protect; abuse bounded by per-IP/email rate limits) OR inject the x-csrf-token header client-side. Today the proxy CSRF gate 403s all three actions before the handler runs, so password reset is fully non-functional in prod.",
+    "completion_hint": "exempt /api/password-reset in isCsrfExempt() alongside the other pre-auth endpoints",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED '/api/password-reset' absent from isCsrfExempt (proxy.ts:80-133); all 3 actions called from partner-shell.tsx via plain fetch (no exempting header) -> 403 at the proxy before the handler. Pre-login flow with no session cookie to protect, so CSRF is moot and exemption is the correct fix (abuse bounded by per-IP/email rate limits). Partner account recovery fully non-functional in prod. done_when concrete. KEEP P1.",
+    "partitions": [
+      "api-admin-misc"
+    ],
+    "id": "SA-0004"
+  },
+  {
+    "partition": "api-admin-misc",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/2fa/route.ts",
+    "line": 1,
+    "evidence": "2FA login-challenge verify is called from src/components/partner/two-factor-setup.tsx:475 via plain fetch(\"/api/2fa\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"}}) with a tempToken (pre-session); /api/2fa is NOT in isCsrfExempt().",
+    "golden_path_step": 3,
+    "claim_violated": "a partner who enabled 2FA can complete the 2FA login challenge",
+    "expected": "POST /api/2fa login-challenge reaches the handler",
+    "done_when": "the tempToken-based 2FA verify POST succeeds in prod (exempt /api/2fa in isCsrfExempt or inject x-csrf-token). Today it 403s at the proxy, locking out any partner who enabled 2FA. NOTE: the 2fa enable/setup call at line 42 uses authFetch (sends Authorization: Bearer ss_), so THAT path is auto-exempt \u2014 only the pre-session login challenge (line 475, plain fetch) is broken.",
+    "completion_hint": "exempt /api/2fa for the tempToken challenge, or make two-factor-setup.tsx:475 use the authFetch/token wrapper",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED '/api/2fa' absent from isCsrfExempt. Precise diagnosis verified: the enable/setup call (two-factor-setup.tsx:42) uses authFetch sending Authorization: Bearer ss_ -> auto-exempt via proxy.ts:130 header check, so that path works; ONLY the pre-session login-challenge verify (two-factor-setup.tsx:475, plain fetch with tempToken) hits the gate -> 403. Locks out any partner who enabled 2FA. done_when (exempt /api/2fa for tempToken challenge or route line 475 through authFetch) concrete. KEEP P1.",
+    "partitions": [
+      "api-admin-misc"
+    ],
+    "id": "SA-0005"
+  },
+  {
+    "partition": "api-portal-client",
+    "category": "config-gap",
+    "severity": "P1",
+    "file": "src/app/api/client-messages/route.ts",
+    "line": 84,
+    "evidence": "const rows = await db.client_messages.findMany({ where: { client_id: clientId }, ... })",
+    "golden_path_step": 3,
+    "claim_violated": "the finished portal two-way messaging UI is backed by a durable Postgres store",
+    "expected": "the client_messages table exists in prod so the portal messages thread loads and sends",
+    "done_when": "prisma/manual/2026-06-28-customer-dashboard-tables.sql is applied to prod (npx prisma db execute) and verified; GET/POST /api/client-messages return 200 against the real table instead of throwing (caught -> 500). There is NO migration that creates this table (prisma/migrations has only 0_init); the model exists in schema.prisma so typecheck/build pass and the gap is invisible until runtime.",
+    "completion_hint": "apply the documented manual DDL to prod, then redeploy so the generated client matches; consider promoting it to a real migration so deploys are self-applying",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED runtime-broken-until-DDL. `model client_messages` exists in prisma/schema.prisma:1236 (so typecheck/build pass) but is created by NO migration - prisma/migrations contains only 0_init and grep for client_messages there is empty; the table ships only via the un-applied manual DDL prisma/manual/2026-06-28-customer-dashboard-tables.sql. Until that SQL is run in prod, db.client_messages.findMany (src:84) / .create (src:151) throw -> caught -> 500, so the finished portal messaging thread (golden-path step 3) is dead. Route code & tenancy are CORRECT (authenticatePortalRequest src:72, where:{client_id:clientId} src:85/95/151, clientId from scope). Schema-drift config-gap, not a code defect. done_when (apply DDL + verify 200, or promote to a real migration) is concrete. KEEP P1.",
+    "partitions": [
+      "api-portal-client"
+    ],
+    "id": "SA-0006"
+  },
+  {
+    "partition": "contract",
+    "category": "contract-break",
+    "severity": "P1",
+    "file": "src/components/partner/partner-shell.tsx",
+    "line": 74,
+    "evidence": "fetch(\"/api/password-reset\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: { action: \"verify\"|\"request\", ... } }) \u2014 no exempting header; /api/password-reset not in isCsrfExempt()",
+    "golden_path_step": 3,
+    "claim_violated": "a partner/org user can reset their password",
+    "expected": "password-reset POST (both request and verify actions) is pre-authentication (no session, no admin key, no Bearer), so it carries no exempting header and the path is not in isCsrfExempt() -> proxy returns 403 in prod -> partners can never request or complete a password reset",
+    "done_when": "POST /api/password-reset succeeds in prod for both actions; /api/password-reset added to isCsrfExempt() and a test asserts the proxy does not 403 it",
+    "completion_hint": "add `if (path === \"/api/password-reset\") return true;` to isCsrfExempt() in src/proxy.ts (public pre-auth, rate-limited at the route)",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0007"
+  },
+  {
+    "partition": "contract",
+    "category": "contract-break",
+    "severity": "P1",
+    "file": "src/app/verify-email/page.tsx",
+    "line": 23,
+    "evidence": "fetch(\"/api/verify-email\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: { action: \"verify\", token } }) \u2014 no exempting header; /api/verify-email not in isCsrfExempt()",
+    "golden_path_step": 3,
+    "claim_violated": "a user can verify their email from the emailed link",
+    "expected": "the verify action runs from the emailed link with no ambient session yet, sends no exempting header, and the path is not in isCsrfExempt() -> proxy 403s it in prod -> email verification is impossible",
+    "done_when": "clicking the verification link verifies the email in prod; /api/verify-email added to isCsrfExempt() and a test asserts no proxy 403",
+    "completion_hint": "add `if (path === \"/api/verify-email\") return true;` to isCsrfExempt() in src/proxy.ts (token-in-body auth, rate-limited)",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0008"
+  },
+  {
+    "partition": "ui-admin",
+    "category": "missing-impl",
+    "severity": "P1",
+    "file": "src/app/admin/onboarding/page.tsx",
+    "line": 202,
+    "evidence": "<button type=\"button\" ...>Test & Save</button>  // no onClick; adjacent <input placeholder=\"storEDGE API Key\"> has no value/onChange binding",
+    "golden_path_step": 5,
+    "claim_violated": "storEDGE step says 'Your storEDGE API key connects your reservation system to StorageAds. This is how we track move-ins.' but the form is inert",
+    "expected": "Test & Save validates + persists the storEDGE API key (or this is honestly labeled as not-yet-available, given storEDGE live API is not built)",
+    "done_when": "entering a key and clicking Test & Save calls a real endpoint and persists/validates the connection",
+    "completion_hint": "wire the input to state and POST to a platform-connections endpoint; or gate the step behind 'Blake will set this up'",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED: \"Test & Save\" button (type=button) has no onClick; adjacent storEDGE API Key input has placeholder but no value/onChange binding. Inert form, and storEDGE live API is not built. Real golden-path-step-5 gap.",
+    "partitions": [
+      "ui-admin"
+    ],
+    "id": "SA-0009"
+  },
+  {
+    "partition": "api-audit-funnel",
+    "category": "contract-break",
+    "severity": "P1",
+    "file": "src/app/api/consumer-lead/route.ts",
+    "line": 116,
+    "evidence": "db.partial_leads.create({ data: { ... converted: true, lead_status: \"new\" ... } }) \u2014 no funnel post_conversion drip enrollment anywhere in this handler",
+    "golden_path_step": 7,
+    "claim_violated": "converting on a funnel landing page enrolls the lead in that funnel's post-conversion drip sequence",
+    "expected": "When a lead converts via the live landing-page/exit-intent path (consumer-lead), if the landing page belongs to a funnel with a post_conversion drip template, the lead is enrolled and the drip fires.",
+    "done_when": "a conversion through /api/consumer-lead on a funnel-owned landing page creates a drip_sequences row for that funnel's post_conversion template (the enrollInFunnelDrip logic currently dead in lead-capture is invoked from the live path).",
+    "completion_hint": "call/port enrollInFunnelDrip (lead-capture/route.ts:13) into consumer-lead after the partial_leads.create, keyed on landing_page_id -> funnel_id; OR repoint landing-page forms at /api/lead-capture and CSRF-exempt it.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED: consumer-lead handler has zero drip/funnel enrollment (grep empty); lead-capture defines enrollInFunnelDrip (line 13) and invokes it (line 177) but is orphaned. The live funnel-conversion path never enrolls leads in the post-conversion drip. Real golden-path-step-7 gap, testable done_when.",
+    "partitions": [
+      "api-audit-funnel"
+    ],
+    "id": "SA-0010"
+  },
+  {
+    "partition": "api-pms-intel",
+    "category": "stub-return",
+    "severity": "P1",
+    "file": "src/app/api/occupancy-forecast/route.ts",
+    "line": 134,
+    "evidence": "const revenueLoss = vacantUnits * 110;",
+    "golden_path_step": 8,
+    "claim_violated": "Occupancy forecast presents data-driven projected revenue loss per facility",
+    "expected": "Per-vacant-unit revenue loss should derive from the facility's real rates (snapshot actual_revenue/occupied_units or facility_pms_units.street_rate), which are already loaded",
+    "done_when": "revenueLoss uses the facility's computed average/street rate instead of a flat $110 constant",
+    "completion_hint": "Compute avgRate from the latest snapshot (actual_revenue/occupied_units) or units street_rate and multiply by vacantUnits",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED at src:134 `const revenueLoss = vacantUnits * 110;` - a flat $110/vacant-unit constant applied to every facility regardless of its actual rates, surfaced as a per-facility data-driven projected revenue loss (golden-path step 8 intelligence output). This is the rubric's canonical P1 example ('dashboard metric hardcoded'): silently wrong for any facility not at ~$110 street rate. Strengthened by the fact the route currently loads NO rate data at all (snapshot SELECT pulls only occupancy_pct/total_units, verified via grep - no actual_revenue/occupied_units/street_rate), so the fix requires wiring real rate data, not just swapping a variable. done_when (derive avgRate from snapshot revenue/occupied_units or facility_pms_units.street_rate) is concrete and testable. KEEP P1.",
+    "partitions": [
+      "api-pms-intel"
+    ],
+    "id": "SA-0011"
+  },
+  {
+    "partition": "api-attribution-tracking",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/tracking/visit/route.ts",
+    "line": 17,
+    "evidence": "POST not in isCsrfExempt() (src/proxy.ts); caller src/hooks/use-tracking-params.ts:48 fires fetch('/api/tracking/visit',{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{}) \u2014 no x-csrf-token, failure swallowed silently.",
+    "golden_path_step": 9,
+    "claim_violated": "paid-click visits (gclid/fbclid/utm) are captured for attribution",
+    "expected": "Visiting any page with paid UTM params records a tracking_visit row tying the session to the campaign.",
+    "done_when": "POST /api/tracking/visit returns 200 and persists a visit in prod; add the path to isCsrfExempt() in src/proxy.ts OR have the hook send a valid x-csrf-token. Verified by a non-403 POST in prod.",
+    "completion_hint": "Add `/api/tracking/visit` to isCsrfExempt() (public anonymous beacon, no session, rate-limited PUBLIC_WRITE). Currently 403s in prod and the .catch(()=>{}) hides it, so visit/UTM attribution silently records nothing.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED. Not in isCsrfExempt(); caller use-tracking-params.ts:48 fires fetch('/api/tracking/visit',{method:'POST',headers:{'Content-Type':'application/json'}}) with no x-csrf-token (confirmed) and .catch(()=>{}) swallows the 403. So paid-click/UTM visit attribution silently records nothing in prod. P1 correct (silent data loss, not a visible flow break \u2014 that's why it's below the walkin P0).",
+    "partitions": [
+      "api-attribution-tracking"
+    ],
+    "id": "SA-0012"
+  },
+  {
+    "partition": "api-attribution-tracking",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/tracking/event/route.ts",
+    "line": 17,
+    "evidence": "POST not in isCsrfExempt() (src/proxy.ts); caller src/components/storedge/storedge-embed.tsx:142 fires fetch('/api/tracking/event',{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{}) \u2014 no x-csrf-token, failure swallowed silently.",
+    "golden_path_step": 9,
+    "claim_violated": "reservation/move-in funnel events from the storEDGE embed are captured",
+    "expected": "storEDGE embed funnel events (view/step/reserve) POST to /api/tracking/event and are recorded against the facility/landing page.",
+    "done_when": "POST /api/tracking/event returns 200 and persists in prod; add the path to isCsrfExempt() in src/proxy.ts OR send a valid x-csrf-token. Verified by a non-403 POST in prod.",
+    "completion_hint": "Add `/api/tracking/event` to isCsrfExempt() (public anonymous embed beacon, rate-limited). Currently 403s in prod; the embed's .catch(()=>{}) hides the failure, so storEDGE funnel events are silently dropped.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED. Same CSRF cluster root cause: not in isCsrfExempt(); storEDGE embed caller POSTs with no token and .catch swallows the 403. storEDGE funnel events (view/step/reserve) silently dropped in prod. P1 correct. Single proxy.ts isCsrfExempt() line resolves this with the rest of the cluster.",
+    "partitions": [
+      "api-attribution-tracking"
+    ],
+    "id": "SA-0013"
+  },
+  {
+    "partition": "api-attribution-tracking",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/page-interactions/route.ts",
+    "line": 32,
+    "evidence": "POST not in isCsrfExempt() (src/proxy.ts); caller src/app/lp/[slug]/page.tsx:922 fires fetch('/api/page-interactions',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true}).catch(()=>{}) \u2014 no x-csrf-token, failure swallowed silently.",
+    "golden_path_step": 9,
+    "claim_violated": "landing-page engagement (scroll depth, time-on-page, clicks) is captured for A/B and attribution",
+    "expected": "Landing-page interaction heartbeats POST to /api/page-interactions and persist heatmap/engagement rows.",
+    "done_when": "POST /api/page-interactions returns 200 and persists in prod; add the path to isCsrfExempt() in src/proxy.ts OR send a valid x-csrf-token. Verified by a non-403 POST in prod.",
+    "completion_hint": "Add `/api/page-interactions` to isCsrfExempt() (public anonymous landing-page beacon, IP rate-limited 30/60s). Currently 403s in prod; .catch(()=>{}) hides it, so landing-page analytics record nothing.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED. Not in isCsrfExempt(); lp/[slug] caller POSTs keepalive beacon with no x-csrf-token and .catch swallows the 403. Landing-page engagement (scroll/time/clicks) silently records nothing in prod. P1 correct.",
+    "partitions": [
+      "api-attribution-tracking"
+    ],
+    "id": "SA-0014"
+  },
+  {
+    "partition": "api-attribution-tracking",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/meta-capi/route.ts",
+    "line": 221,
+    "evidence": "POST not in isCsrfExempt() (src/proxy.ts); caller src/app/lp/[slug]/page.tsx:884 fires fetch('/api/meta-capi',{method:'POST',...}) from the browser with no x-csrf-token. NOTE: meta-capi route logic is Angelo's domain; the fix is in proxy.ts (Blake's).",
+    "golden_path_step": 9,
+    "claim_violated": "server-side Meta conversion events (CAPI) fire for ad attribution",
+    "expected": "Browser-side landing page triggers /api/meta-capi which forwards a server-side conversion event to Meta.",
+    "done_when": "POST /api/meta-capi from the browser returns non-403 in prod; add the path to isCsrfExempt() in src/proxy.ts OR send a valid x-csrf-token. Verified by a non-403 POST in prod.",
+    "completion_hint": "Add `/api/meta-capi` (and likely `/api/google-conversion`) to isCsrfExempt() in src/proxy.ts. Advisory: route internals are Angelo's; the CSRF exemption is Blake's proxy.ts. Currently the browser-fired CAPI call 403s in prod.",
+    "owner_domain": "angelo",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED route is NOT in isCsrfExempt() and requiresCsrf('POST')=true, so a browser-fired call 403s in prod \u2192 server-side Meta CAPI conversions never fire. owner_domain=angelo (route internals are advisory per README) BUT the fix is a single Blake-owned proxy.ts isCsrfExempt() line shared with the rest of this CSRF cluster, so it IS actionable. Keep P1; treat route internals as angelo-advisory, the exemption fix as Blake's.",
+    "partitions": [
+      "api-attribution-tracking"
+    ],
+    "id": "SA-0015"
+  },
+  {
+    "partition": "api-v1-external",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/v1/webhooks/route.ts",
+    "line": 113,
+    "evidence": "const resp = await fetch(webhook.url, { method: \"POST\", headers: {...}, body, signal: controller.signal }); ... const responseBody = (await resp.text()).slice(0, 1024); ... responsePreview: responseBody.slice(0, 200)",
+    "claim_violated": "server-side fetches cannot be pointed at internal infrastructure (SSRF)",
+    "expected": "The webhook `test` action (POST ?action=test) fetches a tenant-stored URL and reflects up to 200 chars of the response back to the caller. Webhook URLs are only validated for https: protocol at creation (line 165) with NO private-IP / internal-host / DNS-rebind guard. An authenticated org user with webhooks:manage can register an https URL resolving to an internal service and use test (or normal dispatch via lib/webhook.ts dispatchWebhook) to probe the internal network and read responses. The codebase already implements the correct guard in src/app/api/proxy-video/route.ts (isAllowedUrl: blocks localhost/127.0.0.1/0.0.0.0/10./192.168./172./169.254.169.254/.internal/.local).",
+    "golden_path_step": 9,
+    "done_when": "webhook target URLs are validated against private/loopback/link-local/metadata ranges (RFC1918, 127.0.0.0/8, 169.254.0.0/16, ::1, .internal/.local) at create-time AND re-checked at test/dispatch-time (resolve hostname to defeat DNS rebinding), mirroring proxy-video's isAllowedUrl; blocked URLs return 400",
+    "completion_hint": "extract proxy-video's isAllowedUrl into a shared lib (e.g. src/lib/ssrf-guard.ts) and call it in v1/webhooks test + lib/webhook.ts dispatchWebhook (lib-core / Scout 5 owns webhook.ts \u2014 coordinate)",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "upgrade",
+    "_review_reason": "CONFIRMED exploitable SSRF at src:108-138. POST ?action=test fetches the tenant-stored webhook.url and reflects up to 200 chars of the response back to the caller (responsePreview, line 136). Create-time validation (src:172-180) checks ONLY protocol==='https:' with no private-IP/loopback/link-local/metadata guard; an authenticated org user with webhooks:manage can register an https host resolving to internal infra (or 169.254.169.254) and read the response. The exact fix already exists in-repo: proxy-video's isAllowedUrl (src/app/api/proxy-video/route.ts:24 blocks 127.0.0.1/192.168./169.254.169.254/.internal/.local) - verified present. UPGRADE P2->P1: response-reflecting SSRF is OWASP A10, the active Security Audit directive demands it not ship buried in P2, and the fix is cheap (extract isAllowedUrl to shared lib, call in test + lib/webhook.ts dispatch with re-resolve to defeat DNS rebind). done_when is concrete and testable.",
+    "partitions": [
+      "api-v1-external"
+    ],
+    "id": "SA-0016"
+  },
+  {
+    "partition": "contract",
+    "category": "contract-break",
+    "severity": "P1",
+    "file": "src/app/walkin/[code]/page.tsx",
+    "line": 40,
+    "evidence": "const res = await fetch(`/api/walkin-attribution?code=${encodeURIComponent(code)}`); ... if (!res.ok) { setInvalidCode(true); return; }",
+    "golden_path_step": 9,
+    "claim_violated": "walk-in attribution capture page validates a code and lets a manager log an in-person move-in",
+    "expected": "the validation GET must hit a handler that returns the facility for a valid code; /api/walkin-attribution exports only OPTIONS+POST (route.ts:10), so this GET returns 405 for every code, setting invalidCode=true and rendering the 'Invalid Access Code' screen (page.tsx:113) instead of the form \u2014 the entire walk-in page is non-functional for all users",
+    "done_when": "loading /walkin/<valid-code> renders the attribution form (not the invalid-code screen); a regression test asserts GET /api/walkin-attribution?code=<valid> returns 200 with facilityName, and the page shows the form",
+    "completion_hint": "add an `export async function GET` to src/app/api/walkin-attribution/route.ts that looks up the facility by access code and returns { facilityName } (scoped to that client), OR point the client validation at an existing endpoint that resolves a code to a facility",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED. page.tsx:39-42 fetches GET /api/walkin-attribution?code= on mount (no method => GET); route.ts exports only OPTIONS (line 6) + POST (line 10), no GET, so the request 405s, res.ok is false, setInvalidCode(true) fires (line 43), and the page renders the 'Invalid Access Code' screen (line 113) for EVERY code \u2014 the walk-in capture page is non-functional for all users. The line-67 POST is the separate (working) form submit. Evidence verbatim-accurate, done_when concrete with a regression test. P1 correct: a fully-broken secondary attribution capture page (golden-path step 9), not the primary digital attribution spine, so not P0.",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0017"
+  },
+  {
+    "partition": "contract",
+    "category": "contract-break",
+    "severity": "P1",
+    "file": "src/app/walkin/[code]/page.tsx",
+    "line": 67,
+    "evidence": "fetch(\"/api/walkin-attribution\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: ... }) \u2014 no x-admin-key/Bearer/x-org-token/x-csrf-token; /api/walkin-attribution is NOT in proxy.ts isCsrfExempt()",
+    "golden_path_step": 9,
+    "claim_violated": "a facility manager can log an in-person walk-in move-in",
+    "expected": "the walk-in submit POST passes the proxy CSRF gate (src/proxy.ts:138-147). It currently sends no exempting header and the path is not in isCsrfExempt(), so validateCsrf() fails and the proxy returns 403 before the route runs \u2014 the form submit is broken in prod (in addition to the GET-405 validation break already filed)",
+    "done_when": "submitting the walk-in form persists a walkin_attribution row in prod; a test asserts POST /api/walkin-attribution without a CSRF token is not rejected by the proxy (route added to isCsrfExempt, mirroring the other credential-in-body public routes)",
+    "completion_hint": "add `if (path === \"/api/walkin-attribution\") return true;` to isCsrfExempt() in src/proxy.ts (it authenticates via accessCode in the body, like resend-access-code/client-data)",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED. page.tsx:39-42 fetches GET /api/walkin-attribution?code= on mount (no method => GET); route.ts exports only OPTIONS (line 6) + POST (line 10), no GET, so the request 405s, res.ok is false, setInvalidCode(true) fires (line 43), and the page renders the 'Invalid Access Code' screen (line 113) for EVERY code \u2014 the walk-in capture page is non-functional for all users. The line-67 POST is the separate (working) form submit. Evidence verbatim-accurate, done_when concrete with a regression test. P1 correct: a fully-broken secondary attribution capture page (golden-path step 9), not the primary digital attribution spine, so not P0.",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0018"
+  },
+  {
+    "partition": "golden-path",
+    "category": "integration-gap",
+    "severity": "P1",
+    "file": "src/app/api/webhooks/storedge/route.ts",
+    "line": 126,
+    "evidence": "if (payload.event === 'move_in.completed' && ...) { await db.activity_log.create({ data: { type: 'attributed_move_in', facility_id: facilityId, ... } }); }",
+    "golden_path_step": 9,
+    "claim_violated": "every move-in is tied back to campaign/source and counted in cost-per-move-in",
+    "expected": "a storEDGE move_in.completed webhook updates the matched lead to moved_in (partial_leads.lead_status) and/or writes a lead_status_events row, so the move-in is counted by attribution and the dashboard.",
+    "done_when": "a move_in.completed webhook with tracking params flips the matched partial_leads row to moved_in (and writes a lead_status_events 'moved_in' row), and attribution/route.ts move_ins + cost_per_move_in reflect it; covered by a test.",
+    "completion_hint": "The branch only inserts an activity_log 'attributed_move_in' row; attribution/route.ts and client-reports count move-ins exclusively from partial_leads.lead_status='moved_in' and lead_status_events.to_status='moved_in', so webhook-sourced move-ins are invisible to every revenue metric.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED. storedge/route.ts:126 writes only an activity_log row (type 'attributed_move_in') on move_in.completed; it never updates partial_leads.lead_status nor writes lead_status_events. attribution/route.ts counts move-ins EXCLUSIVELY from partial_leads.lead_status='moved_in' (lines 75,157) and lead_status_events.to_status='moved_in' (line 184). So webhook move-ins are invisible to cost_per_move_in/ROAS. In-scope (webhook endpoint is built+signature-verified; this is the core ad-to-move-in claim). Evidence verbatim-accurate, done_when concrete. P1 correct (core attribution silently undercounts; not a hard funnel block).",
+    "partitions": [
+      "golden-path"
+    ],
+    "id": "SA-0019"
+  },
+  {
+    "partition": "api-billing-stripe",
+    "category": "missing-impl",
+    "severity": "P1",
+    "file": "src/app/api/checkout-success/route.ts",
+    "line": 59,
+    "evidence": "if (meta.userId) { await db.$executeRaw`UPDATE org_users SET setup_token_hash = ${setupTokenHash} ...` } ... return jsonResponse({ ..., tempPassword: meta.tempPassword, ... })",
+    "golden_path_step": 10,
+    "claim_violated": "post-checkout the operator is handed a working path into their account",
+    "expected": "checkout-success returns a usable activation credential backed by values that are actually set upstream.",
+    "done_when": "the dead setup_token_hash branch (meta.userId is never set) and the always-empty tempPassword are removed and replaced with the real invite_token activation path; a test proves the returned payload yields a working first login.",
+    "completion_hint": "meta.userId and meta.tempPassword are never set anywhere (neither the webhook nor create-checkout-session set them), so the setup_token_hash UPDATE never runs and tempPassword is always empty. Wire to the invite_token activation flow.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED real. meta = Stripe customer.metadata; webhook sets only {signupComplete,orgSlug} and create-checkout-session sets customer metadata {plan,facilityCount} (line 44) + session metadata {plan,companyName,facilityCount,billingType} (lines 73-78) \u2014 neither ever sets userId or tempPassword. So the setup_token_hash UPDATE branch (lines 59-68) is dead (meta.userId always undefined) and returned tempPassword (line 84) is always empty. Post-checkout handoff yields no working credential. Same broken activation flow as the webhook finding, from the success-page side. P1 correct.",
+    "partitions": [
+      "api-billing-stripe"
+    ],
+    "id": "SA-0020"
+  },
+  {
+    "partition": "api-portal-client",
+    "category": "config-gap",
+    "severity": "P1",
+    "file": "src/app/api/client-billing/route.ts",
+    "line": 110,
+    "evidence": "const rows = await db.client_invoices.findMany({ orderBy: { issued_at: \"desc\" }, ... })",
+    "golden_path_step": 10,
+    "claim_violated": "M5: invoices are a single Postgres system of record surfaced in the portal billing tab",
+    "expected": "the client_invoices table exists in prod so portal billing (GET) and admin invoice authoring (POST/PATCH) work",
+    "done_when": "prisma/manual/2026-06-28-customer-dashboard-tables.sql applied to prod and verified; GET/POST/PATCH /api/client-billing operate on the real client_invoices table instead of throwing (caught -> 500). Same un-migrated-table gap as client_messages: model is in schema.prisma but no migration creates it.",
+    "completion_hint": "apply the documented manual DDL; promote to a migration to make it deploy-safe",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED same un-migrated-table gap as client_messages. `model client_invoices` at prisma/schema.prisma:1249, absent from prisma/migrations (only 0_init), created only by the un-applied manual DDL. Portal billing GET (client branch scopes where:{client_id:clientId} src:139; admin branch is legit god-mode per PortalScope) + admin invoice authoring POST/PATCH all hit db.client_invoices -> throw/500 until DDL applied. Tenancy sound (authenticatePortalRequest src:104). golden-path step 10. done_when (apply + promote to migration) concrete. KEEP P1.",
+    "partitions": [
+      "api-portal-client"
+    ],
+    "id": "SA-0021"
+  },
+  {
+    "partition": "golden-path",
+    "category": "missing-impl",
+    "severity": "P1",
+    "file": "src/app/api/stripe-webhook/route.ts",
+    "line": 88,
+    "evidence": "const inviteToken = randomBytes(32).toString(\"hex\"); ... await tx.org_users.create({ data: { ... invite_token: inviteToken, password_hash: \"\" } });",
+    "golden_path_step": 10,
+    "claim_violated": "a paying operator can sign in after checkout completes",
+    "expected": "after checkout.session.completed creates the org + admin user, the operator receives an activation email with a tokenized set-password link (consuming invite_token) to log into /partner.",
+    "done_when": "checkout dispatches an activation email keyed on invite_token; a route consumes invite_token to set the initial password and grant first login; covered by a test.",
+    "completion_hint": "invite_token is generated but never emailed/consumed; no welcome email in handleCheckoutComplete; checkout-success reads meta.userId/meta.tempPassword that are never set. Cross-partition dup of the api-billing-stripe finding; dedups at merge. Not alpha-blocking (alpha = Blake's own portfolio, self-serve checkout unwired) but blocks the first real paying customer.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "downgrade",
+    "_review_reason": "VERIFIED real. invite_token written at stripe-webhook:114 and org-users:89 but grep across all of src/ shows it is NEVER read/consumed; handleCheckoutComplete sends no welcome/activation email (only sets Stripe customer metadata signupComplete/orgSlug, lines 131-141); password-reset consumes reset_token not invite_token. So a self-serve paid operator gets org+org_users(password_hash='') with no path to first login. Downgrade P0->P1: README says alpha=Blake's own portfolio (manual onboarding) and partner self-serve subscription is post-alpha, so this is launch-blocking not alpha-blocking. DUP of golden-path step (billing->operator access); Coordinator to dedup at merge, keep this side.",
+    "partitions": [
+      "api-billing-stripe",
+      "golden-path"
+    ],
+    "_dup_count": 2,
+    "id": "SA-0022"
+  },
+  {
+    "partition": "api-billing-stripe",
+    "category": "schema-drift",
+    "severity": "P1",
+    "file": "src/app/api/client-invoices/route.ts",
+    "line": 323,
+    "evidence": "const invoices = await db.activity_log.findMany({ where: { type: \"invoice_sent\", ...(facilityId ? { facility_id: facilityId } : {}) }, ... }); return jsonResponse({ success: true, data: invoices });",
+    "claim_violated": "a single canonical invoice system of record (client_invoices) per the M5 migration",
+    "expected": "GET /api/client-invoices reads the canonical client_invoices table (as its own POST writes and as /api/client-billing GET reads), returning the documented invoice wire shape.",
+    "done_when": "client-invoices GET reads client_invoices (not activity_log) and returns the same invoice shape as client-billing, or this stale endpoint is removed; verified by a test asserting the source table.",
+    "completion_hint": "POST persists to client_invoices (line 254) but GET still lists activity_log rows of type 'invoice_sent' \u2014 two divergent invoice readers (client-billing reads client_invoices). Migrate or delete.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED real. POST persists to canonical db.client_invoices (line 254) but GET reads db.activity_log.findMany({type:'invoice_sent'}) (lines 323-330) and returns those rows \u2014 a different shape than the canonical invoice table that client-billing GET reads. Divergent invoice readers on a money path. Auth/scoping on the GET is fine (authenticatePortalRequest line 305, client scoped to facility_id line 326, admin god-mode intentional) so NOT a tenancy issue \u2014 purely the read-source drift. P1 correct.",
+    "partitions": [
+      "api-billing-stripe"
+    ],
+    "id": "SA-0023"
+  },
+  {
+    "partition": "api-billing-stripe",
+    "category": "config-gap",
+    "severity": "P1",
+    "file": "src/app/api/client-invoices/route.ts",
+    "line": 15,
+    "evidence": "const PLAN_PRICES: Record<string, number> = { launch: 499, growth: 999, portfolio: 1499 };  // vs src/lib/stripe.ts PLANS: launch 750, growth 1500, portfolio 0",
+    "claim_violated": "invoice amounts reflect the operator's actual subscription price",
+    "expected": "a single source of truth for plan pricing used by invoicing, the pricing page, and Stripe price IDs.",
+    "done_when": "plan prices come from one shared constant (or the canonical pricing page values) so invoiced management fees match subscription pricing; mismatch resolved and covered by a test.",
+    "completion_hint": "client-invoices hardcodes 499/999/1499 as the plan management fee while lib/stripe.ts PLANS hardcodes 750/1500/0. Consolidate; reconcile against src/app/pricing/page.tsx (canonical per CLAUDE.md).",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED real and money-path. client-invoices PLAN_PRICES = launch 499 / growth 999 / portfolio 1499 (lines 16-18) diverges from BOTH src/lib/stripe.ts PLANS (launch 750 / growth 1500 / portfolio 0; lines 25,33,41) AND canonical src/app/pricing/page.tsx ($750 / $1,500 / Custom; lines 24,40,60). planPrice feeds invoice 'fee' (line 260). portfolio:1499 is an impossible FIXED price for a 'Custom' tier \u2014 strong signal these constants are stale. Upgrading builder's 'medium' confidence to high; keep P1 (wrong invoice amounts on a billing path).",
+    "partitions": [
+      "api-billing-stripe"
+    ],
+    "id": "SA-0024"
+  },
+  {
+    "partition": "golden-path",
+    "category": "scope-gap",
+    "severity": "P2",
+    "file": "src/app/api/audit-generate-diagnostic/route.ts",
+    "line": 918,
+    "evidence": "const authErr = await requireAdminKey(req); ... // and neither src/app/api/audit-form/route.ts nor src/app/api/consumer-lead/route.ts ever invokes diagnostic generation or creates a shared_audits row",
+    "golden_path_step": 1,
+    "claim_violated": "prospect enters facility info -> gets a marketing diagnostic -> schedule a call to review results (CLAUDE.md top-of-funnel)",
+    "expected": "the public audit-tool funnel auto-generates a persisted diagnostic (shared_audits) the prospect can view at /audit/[slug], OR the inline Google quick-score is confirmed to be the intended consumer diagnostic and the README spine description is corrected.",
+    "done_when": "either audit-form/consumer-lead triggers diagnostic generation that persists a shared_audits row rendered at /audit/[slug] for the prospect, or product owner confirms the inline quick-audit is the deliverable and the /audit/[slug] shared audit is an admin/sales-only artifact (then this drops to context).",
+    "completion_hint": "Today the rich Claude diagnostic + shared_audits slug is created only by admin-gated routes (audit-generate-diagnostic POST requires admin key; audit-save/audit-approve are admin). The public funnel delivers a Google-Places quick score + lead capture only. Ambiguous scope -> filed as scope-gap to resolve. Overlaps Scout 1 / api-audit-funnel.",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "golden-path"
+    ],
+    "id": "SA-0025"
+  },
+  {
+    "partition": "api-admin-misc",
+    "category": "integration-gap",
+    "severity": "P2",
+    "file": "src/app/api/verify-email/route.ts",
+    "line": 88,
+    "evidence": "action 'verify' is called from src/app/verify-email/page.tsx:23 via plain fetch (no auth header) with a body token; /api/verify-email is NOT in isCsrfExempt().",
+    "golden_path_step": 2,
+    "claim_violated": "a user can verify their email via the emailed link",
+    "expected": "POST /api/verify-email action=verify reaches the handler",
+    "done_when": "the email-link verify POST succeeds in prod (exempt /api/verify-email or inject the token client-side). Today it 403s at the proxy. NOTE: the 'resend' action sends Authorization/X-Org-Token and is auto-exempt; only the link-driven 'verify' branch (which uses the body token, not a session) is broken.",
+    "completion_hint": "exempt /api/verify-email in isCsrfExempt() (the verify branch authenticates by the body token, not a session)",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED '/api/verify-email' absent from isCsrfExempt. Precise: the 'resend' action sends Authorization/X-Org-Token -> auto-exempt; only the link-driven 'verify' branch (verify-email/page.tsx:23, plain fetch with body token) 403s at the proxy. Email-verification link broken in prod. P2 (degrades onboarding, not a hard golden-path block). done_when (exempt /api/verify-email - verify branch authenticates by body token, not a session) concrete. KEEP P2.",
+    "partitions": [
+      "api-admin-misc"
+    ],
+    "id": "SA-0026"
+  },
+  {
+    "partition": "golden-path",
+    "category": "contract-break",
+    "severity": "P2",
+    "file": "src/app/portal/upload/page.tsx",
+    "line": 42,
+    "evidence": "ACCEPT includes .csv,.pdf,.xlsx,.xls (UI), but src/app/api/portal-upload/route.ts:204-206 comment: 'PDF/XLSX stay uploaded for manual handling (parser is CSV-only by design)' and cron/process-pms-uploads returns needs_review for non-CSV",
+    "golden_path_step": 5,
+    "claim_violated": "operator can upload their PMS report and have it processed",
+    "expected": "the upload UI either restricts to formats the pipeline can actually parse (CSV), or PDF/XLSX are genuinely parsed; the operator is not silently left with an unprocessed file.",
+    "done_when": "either the upload accept list is narrowed to .csv (matching the parser) with clear copy, or a PDF/XLSX parse path is implemented; the operator gets explicit status that a non-CSV needs manual handling. Verified by a test.",
+    "completion_hint": "UI promises PDF/Excel support the backend does not deliver; files silently sit in 'uploaded'. Known gap (Scout 2 ui-portal / Scout 5 api-pms-intel own the per-route depth); recorded here as the step-5 spine contract mismatch.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "golden-path"
+    ],
+    "id": "SA-0027"
+  },
+  {
+    "partition": "api-pms-intel",
+    "category": "stub-return",
+    "severity": "P2",
+    "file": "src/app/api/occupancy-forecast/route.ts",
+    "line": 105,
+    "evidence": "const monthlyChurnRate = 0.06; ... const organicMoveIns = Math.round(avgMoveInsPerMonth * 0.3 * seasonalFactor);",
+    "golden_path_step": 8,
+    "claim_violated": "The 'with ads vs without ads' occupancy delta is the forecast's headline output",
+    "expected": "Churn rate and the without-ads organic-demand factor should be derived from the facility's own move-out / organic history or labeled as model assumptions",
+    "done_when": "churn and organic-retention factors are computed from facility_pms_revenue_history move_outs / move_ins or surfaced as explicit, tunable assumptions",
+    "completion_hint": "Derive monthlyChurnRate from historical move_outs/occupied; derive organic share from pre-ads months; or annotate the response as assumption-based",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED at src:105 `const monthlyChurnRate = 0.06;` and organic factor `avgMoveInsPerMonth * 0.3 * seasonalFactor` - both hardcoded model assumptions feeding the 'with ads vs without ads' delta, not derived from the facility's own move_out/move_in history nor labeled as assumptions. Correctly rated below F1 at P2: a fixed churn/organic default is a more defensible placeholder than a flat revenue constant, and 'label as explicit tunable assumptions' is a valid alternative fix. done_when (derive from facility_pms_revenue_history or annotate response as assumption-based) is concrete. KEEP P2. NOTE: did NOT re-file storEDGE-CSV-labeling or intel-uses-mock-data - Scout 5 cleared both and source confirms intel computes from real PMS snapshots.",
+    "partitions": [
+      "api-pms-intel"
+    ],
+    "id": "SA-0028"
+  },
+  {
+    "partition": "api-attribution-tracking",
+    "category": "validation",
+    "severity": "P2",
+    "file": "src/app/api/page-interactions/route.ts",
+    "line": 45,
+    "evidence": "const { landingPageId, facilityId, ... } = body; if (!landingPageId || !facilityId) { return errorResponse('Missing required fields',400) } \u2014 no isValidUuid() check and no ownership verification, unlike sibling routes src/app/api/tracking/event/route.ts:32 and tracking/visit/route.ts:38 which call isValidUuid().",
+    "golden_path_step": 9,
+    "claim_violated": "per-facility analytics are accurate and isolated",
+    "expected": "page-interactions validates landingPageId/facilityId as UUIDs (and ideally confirms the landing page belongs to the facility) before inserting, matching the sibling tracking routes.",
+    "done_when": "page-interactions rejects or null-guards non-UUID landingPageId/facilityId (via isValidUuid from @/lib/validation) so a public caller cannot write arbitrary cross-facility analytics rows or trigger raw-SQL type errors; covered by a test.",
+    "completion_hint": "Import isValidUuid from @/lib/validation and validate landingPageId & facilityId (same pattern as tracking/event + tracking/visit). Public route accepts both IDs straight from the untrusted body into $executeRaw INSERTs.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED. landingPageId/facilityId destructured from untrusted body (line 43), only presence-checked (line 45), then inserted via $executeRaw (line 56) with NO isValidUuid \u2014 while siblings tracking/visit:38 and tracking/event:32 both call isValidUuid. CLARIFICATION: the INSERT is a Prisma tagged-template ($executeRaw) so values are BOUND parameters \u2014 this is NOT SQL injection. Real risk is (a) a public caller writing page_interactions rows for arbitrary facilityId (cross-facility analytics pollution) and (b) raw type errors on non-UUID input. done_when (add isValidUuid, match siblings) is concrete. Keep P2.",
+    "partitions": [
+      "api-attribution-tracking"
+    ],
+    "id": "SA-0029"
+  },
+  {
+    "partition": "contract",
+    "category": "contract-break",
+    "severity": "P2",
+    "file": "src/app/lp/[slug]/page.tsx",
+    "line": 884,
+    "evidence": "public landing page POSTs /api/meta-capi (line 884) and /api/page-interactions (line 922), and src/components/storedge/storedge-embed.tsx:142 POSTs /api/tracking/event \u2014 all with only Content-Type, none in isCsrfExempt()",
+    "golden_path_step": 9,
+    "claim_violated": "campaign landing pages emit conversion/interaction tracking used for attribution",
+    "expected": "these public, no-session tracking POSTs are not exempt and carry no token -> proxy 403s every one in prod. meta-capi (server-side conversion), page-interactions (engagement), and tracking/event (storEDGE embed funnel events) all silently fail (fire-and-forget .catch), so attribution loses LP-side signal",
+    "done_when": "LP tracking POSTs return 2xx in prod; /api/meta-capi, /api/page-interactions, /api/tracking/event (or /api/tracking/) added to isCsrfExempt() and a test asserts they are not 403'd",
+    "completion_hint": "add these public tracking paths to isCsrfExempt() in src/proxy.ts (they are unauthenticated, abuse-bounded by rate limits). meta-capi is Angelo's domain \u2014 coordinate.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0030"
+  },
+  {
+    "partition": "api-billing-stripe",
+    "category": "contract-break",
+    "severity": "P2",
+    "file": "src/app/api/create-checkout-session/route.ts",
+    "line": 11,
+    "evidence": "export async function POST(req: NextRequest) { ... }  // no x-csrf-token check, not in proxy.ts isCsrfExempt() list; pricing page (src/app/pricing/page.tsx) is explicitly 'not a self-serve' flow and links to /#cta, never calls this route",
+    "golden_path_step": 10,
+    "claim_violated": "an operator can subscribe (agency revenue) end-to-end",
+    "expected": "either a self-serve checkout UI calls create-checkout-session with a valid CSRF token / via an exempted path, or checkout is documented as founder-initiated for pre-launch.",
+    "done_when": "if/when a browser CTA is wired to create-checkout-session, the route is added to proxy.ts isCsrfExempt() (it sends no x-admin-key/Bearer/x-org-token and no client sends x-csrf-token, so the proxy 403s it) OR the client sends the double-submit token; otherwise the self-serve checkout path is documented as intentionally manual.",
+    "completion_hint": "Same CSRF footgun that broke /portal login in prod: a mutating /api POST not in isCsrfExempt and not header-authed is 403'd before reaching the handler. create-billing-portal is exempt (proxy.ts:125) but create-checkout-session is not. Currently latent because no UI calls it.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "api-billing-stripe"
+    ],
+    "id": "SA-0031"
+  },
+  {
+    "partition": "api-portal-client",
+    "category": "contract-break",
+    "severity": "P2",
+    "file": "src/app/api/client-invoices/route.ts",
+    "line": 323,
+    "evidence": "const invoices = await db.activity_log.findMany({ where: { type: \"invoice_sent\", ... } })",
+    "golden_path_step": 10,
+    "claim_violated": "client_invoices is the single system of record for invoices (M5)",
+    "expected": "both portal invoice surfaces read the same canonical store",
+    "done_when": "client-invoices GET reads the canonical client_invoices table (like client-billing GET) rather than the legacy activity_log 'invoice_sent' events, OR this GET is removed in favor of client-billing GET; the two portal invoice views can no longer disagree (POST writes client_invoices + activity_log; this GET reads only activity_log).",
+    "completion_hint": "point this GET at db.client_invoices scoped by client/facility, or delete it and consolidate on client-billing",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED at src:323 this GET reads db.activity_log where type='invoice_sent' while client-billing GET reads the canonical db.client_invoices - two portal invoice surfaces backed by different stores that can disagree (POST src:257-280 writes BOTH client_invoices AND activity_log; this GET reads only activity_log). Notably activity_log EXISTS in prod so this surface works today while client-billing's client_invoices read is dead until DDL - the inconsistency is real and live. Tenancy is SOUND (authenticatePortalRequest src:305, facility-scoped: client->scope.facilityId, admin->optional clientId narrow, src:308-330), so NOT a leak. done_when (point GET at client_invoices scoped by client, or delete and consolidate on client-billing) concrete. KEEP P2.",
+    "partitions": [
+      "api-portal-client"
+    ],
+    "id": "SA-0032"
+  },
+  {
+    "partition": "api-admin-misc",
+    "category": "integration-gap",
+    "severity": "P2",
+    "file": "src/app/api/manage/unlock/route.ts",
+    "line": 35,
+    "evidence": "POST /api/manage/unlock is called from src/app/manage/page.tsx:28 via plain fetch; manage session is an httpOnly cookie (src/lib/manage-session.ts:13) so no exempting header is sent; /api/manage/unlock is NOT in isCsrfExempt() and its own verifyCsrfOrigin() (line 38) never runs because the proxy gate 403s first.",
+    "claim_violated": "a facility owner can unlock the /manage owner-tools",
+    "expected": "POST /api/manage/unlock reaches the handler so the owner can authenticate",
+    "done_when": "manage unlock succeeds in prod (exempt /api/manage/unlock + /api/manage/scratch in isCsrfExempt \u2014 they already enforce Origin via verifyCsrfOrigin in-route \u2014 OR inject x-csrf-token). Today both 403 at the proxy before their own Origin check runs, so the entire cookie-based /manage owner-tools subsystem (and every requireFacilityAccess mutation reached via a manage session) is unreachable for owners; only x-admin-key callers (the admin dashboard) work. Scope caveat: confirm /manage is in alpha scope.",
+    "completion_hint": "exempt /api/manage/unlock and /api/manage/scratch in isCsrfExempt(); they self-enforce via verifyCsrfOrigin()",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED '/api/manage/unlock' absent from isCsrfExempt; manage session is an httpOnly cookie (manage-session.ts) so NO exempting header is sent; called from manage/page.tsx:28 via plain fetch. The route's own verifyCsrfOrigin() (verified at unlock/route.ts:38) never runs because the proxy token gate 403s first -> the entire cookie-based /manage owner-tools subsystem is unreachable for owners (only x-admin-key admin-dashboard callers work). done_when (exempt /api/manage/unlock + /api/manage/scratch - they self-enforce via verifyCsrfOrigin) concrete. KEEP P2; build swarm/Blake to confirm /manage is in alpha scope (finding self-flags this).",
+    "partitions": [
+      "api-admin-misc"
+    ],
+    "id": "SA-0033"
+  },
+  {
+    "partition": "api-admin-misc",
+    "category": "validation",
+    "severity": "P2",
+    "file": "src/app/api/manage/unlock/route.ts",
+    "line": 53,
+    "evidence": "// TODO(pre-launch): add per-IP rate limiting (Upstash) to slow code guessing.",
+    "claim_violated": "the manage unlock code cannot be brute-forced",
+    "expected": "the manage unlock endpoint rate-limits guesses per IP before launch",
+    "done_when": "manage/unlock applies a per-IP rate limit (e.g. applyRateLimit/Upstash) so the access code cannot be brute-forced; the documented pre-launch TODO is closed.",
+    "completion_hint": "wrap POST with applyRateLimit on a strict tier keyed by IP",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED at unlock/route.ts:53 `// TODO(pre-launch): add per-IP rate limiting (Upstash) to slow code guessing.` - the unlock endpoint validates an access code with NO per-IP rate limit, so once the CSRF gate (finding above) is opened the code is brute-forceable. Not a bare marker: a documented pre-launch security gap on an auth-code endpoint, which is exactly the 'what work remains before alpha' this audit catalogs; aligns with the active Security Audit directive (brute-force/rate-limit). done_when (wrap POST with applyRateLimit on a strict per-IP tier, close the TODO) concrete. KEEP P2.",
+    "partitions": [
+      "api-admin-misc"
+    ],
+    "id": "SA-0034"
+  },
+  {
+    "partition": "api-billing-stripe",
+    "category": "error-handling",
+    "severity": "P2",
+    "file": "src/app/api/stripe-webhook/route.ts",
+    "line": 75,
+    "evidence": "if (!email || !plan || !companyName) return;",
+    "claim_violated": "a completed checkout always provisions an org or surfaces a failure",
+    "expected": "a checkout.session.completed with missing metadata is logged/alerted rather than silently dropped, so a paid customer is never left without an org.",
+    "done_when": "the early return logs an error and/or captures to Sentry (captureRouteError) with the session id; verified by a test that a metadata-less session triggers an alert.",
+    "completion_hint": "Our own create-checkout-session always sets metadata, but a Stripe-dashboard or Payment-Link checkout would hit this silent return \u2014 paid, no org, no signal. Relevant since checkout is currently founder-initiated.",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED real silent-failure. `if (!email || !plan || !companyName) return;` (line 75) drops the event with no log/Sentry. Our own create-checkout-session always sets plan/companyName (lines 73-78) and email comes from customer_details, so this only fires on out-of-band checkouts (Stripe dashboard / Payment Links) \u2014 not the alpha path. But a paid checkout that silently provisions no org with zero signal is exactly the kind of payment-path silent failure worth a log line; done_when (log+capture session id) is concrete and cheap. Keep P2.",
+    "partitions": [
+      "api-billing-stripe"
+    ],
+    "id": "SA-0035"
+  },
+  {
+    "partition": "api-partner-org",
+    "category": "validation",
+    "severity": "P2",
+    "file": "src/app/api/org-email/route.ts",
+    "line": 134,
+    "evidence": "${vars.leadName ? `<p ...><strong>Name:</strong> ${vars.leadName}</p>` : \"\"}",
+    "claim_violated": "branded org emails render untrusted lead data safely",
+    "expected": "User-derived template variables (leadName, leadEmail, leadPhone, unitSize, source, facilityName, name) originate from public, unauthenticated lead-capture and are interpolated raw into the email HTML. They must be HTML-escaped before interpolation.",
+    "done_when": "all interpolated `vars.*` values in the welcome/campaign_live/monthly_report/lead_notification templates are passed through escapeHtml() (already used in partner-signup/org-users) so a lead name like `<img src=x onerror=...>` cannot inject markup into the operator-facing email",
+    "completion_hint": "reuse escapeHtml from src/lib/validation; wrap every ${vars.X} that is text content",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED at src:130-141. lead_notification/monthly_report templates interpolate vars.leadName/leadEmail/leadPhone/unitSize/source/facilityName raw into email HTML with no escapeHtml(); these vars carry attacker-influenced public lead-capture data into the operator inbox = HTML/markup injection (phishing links, tracking pixels, layout break). escapeHtml exists in src/lib/validation.ts and is already used in partner-signup/org-users, so done_when is concrete and executable. Route is requireAdminKey-gated (caller is trusted) but the interpolated CONTENT is untrusted, so the injection gap stands. Active Security Audit directive (OWASP injection) keeps this at P2.",
+    "partitions": [
+      "api-partner-org"
+    ],
+    "id": "SA-0036"
+  },
+  {
+    "partition": "contract",
+    "category": "contract-break",
+    "severity": "P2",
+    "file": "src/app/manage/page.tsx",
+    "line": 28,
+    "evidence": "POST /api/manage/unlock and POST /api/manage/scratch (manage/page.tsx:52) send only Content-Type; /api/manage/* is NOT in isCsrfExempt(); additionally authHeaders() (src/lib/facility-auth.ts:47) sends x-manage-token, which proxy.ts does NOT treat as a CSRF-exempt header (only x-admin-key/Bearer/x-org-token)",
+    "claim_violated": "a facility owner can unlock a manage session and operate facility tabs without an admin key",
+    "expected": "the entire /manage owner-access flow is dead in prod: manage/unlock (login) and manage/scratch (create sandbox facility) 403 at the proxy CSRF gate, and even if a manage session existed, every facility-tab mutation made via authHeaders()'s x-manage-token would also 403 since x-manage-token isn't an exempt header. Admin-key users are unaffected, so this only blocks the non-admin owner path.",
+    "done_when": "manage/unlock + manage/scratch succeed in prod and a manage-session user can perform a facility-tab mutation; /api/manage/* added to isCsrfExempt() AND x-manage-token added to the exempt-header checks in isCsrfExempt()",
+    "completion_hint": "in src/proxy.ts isCsrfExempt(): add `if (path.startsWith(\"/api/manage/\")) return true;` and `if (req.headers.get(\"x-manage-token\")) return true;`",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0037"
+  },
+  {
+    "partition": "ui-admin",
+    "category": "missing-impl",
+    "severity": "P2",
+    "file": "src/app/admin/onboarding/page.tsx",
+    "line": 309,
+    "evidence": "Review step reads state.storedgeConnected / metaConnected / googleConnected, but the storedge step onNext = ()=>{setCurrentView('ad_accounts')} (line 444) and ad_accounts onNext = ()=>{setCurrentView('review')} (line 449) never call completeStep, so those flags are never set",
+    "expected": "completing each step marks it done so the Review summary reflects true status",
+    "done_when": "after a successful storEDGE/ad connection the Review shows 'Connected' instead of always 'Pending'",
+    "completion_hint": "call completeStep('storedge') / completeStep on successful connect; only mark done on real success",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED: storedge onNext (line 444) and ad_accounts onNext (line 449) only setCurrentView and never call completeStep, so storedgeConnected/metaConnected/googleConnected stay false; the Review step always renders \"Pending\". Real state-wiring gap.",
+    "partitions": [
+      "ui-admin"
+    ],
+    "id": "SA-0038"
+  },
+  {
+    "partition": "ui-admin",
+    "category": "integration-gap",
+    "severity": "P2",
+    "file": "src/app/admin/billing/page.tsx",
+    "line": 267,
+    "evidence": "useAdminFetch<...>(\"/api/client-invoices\") and admin/messages/page.tsx fetches /api/client-messages",
+    "claim_violated": "client_invoices/client_messages models exist in schema but await a one-time prod DDL apply (per project memory)",
+    "expected": "admin billing + messages pages render against tables that exist in prod",
+    "done_when": "client_invoices and client_messages tables are applied in prod and both admin pages load without 500s",
+    "completion_hint": "apply the pending DDL for client_invoices/client_messages before alpha; verify the routes return 200",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED high-value known gap: admin billing fetches /api/client-invoices and admin/messages fetches /api/client-messages, both backed by client_invoices/client_messages tables that await a one-time prod DDL apply (project memory) -> runtime-broken until applied. Keep P2.",
+    "partitions": [
+      "ui-admin"
+    ],
+    "id": "SA-0039"
+  },
+  {
+    "partition": "ui-admin",
+    "category": "integration-gap",
+    "severity": "P2",
+    "file": "src/app/admin/changelog/page.tsx",
+    "line": 501,
+    "evidence": "fetch(\"/api/commit-notes\") backing the rich changelog; backed by changelog_entries model",
+    "claim_violated": "rich changelog restored in code but awaits one prod DDL step (prisma/manual/restore-changelog-tables.sql per memory)",
+    "expected": "admin changelog loads against an existing changelog_entries table in prod",
+    "done_when": "changelog_entries DDL is applied in prod and /admin/changelog renders entries without error",
+    "completion_hint": "run the pending changelog restore SQL in prod, then verify the sync + list",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED: /api/commit-notes-backed rich changelog depends on changelog_entries DDL (prisma/manual/restore-changelog-tables.sql) not yet applied in prod (project memory). /admin/changelog errors until applied. Keep P2.",
+    "partitions": [
+      "ui-admin"
+    ],
+    "id": "SA-0040"
+  },
+  {
+    "partition": "ui-marketing",
+    "category": "stub-return",
+    "severity": "P2",
+    "file": "src/app/status/page.tsx",
+    "line": 21,
+    "evidence": "// System components \u2014 wire to /api/health-check when monitoring is set up\\nconst components = [{ name: \"Dashboard\", status: \"operational\", uptime: 99.98 }, ... { name: \"storEDGE Integration\", status: \"operational\", uptime: 99.96 }, ...]",
+    "claim_violated": "the public /status page reports real system health and uptime",
+    "expected": "The status page reflects actual component health/uptime (queried from /api/health or a real monitor), or it is not published with fabricated 99.9x% uptime numbers.",
+    "done_when": "/status renders live/last-checked status from a real source (e.g. /api/health) instead of hardcoded 'operational' + invented uptime constants; components not actually monitored are not shown as 99.9x% operational.",
+    "completion_hint": "wire to /api/health (exists) per the in-file TODO; at minimum drop the fabricated uptime figures. Note: 'storEDGE Integration' is shown operational but the storEDGE API is not built (widget embed only) \u2014 remove or correct.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED: COMPONENTS array hardcodes status \"operational\" + fabricated 99.9x% uptime constants behind an in-file TODO (\"wire to /api/health-check when monitoring is set up\"); storEDGE Integration shown operational despite storEDGE live API not built (widget embed only). Public-facing fabricated health data. Keep P2.",
+    "partitions": [
+      "ui-marketing"
+    ],
+    "id": "SA-0041"
+  },
+  {
+    "partition": "api-audit-funnel",
+    "category": "config-gap",
+    "severity": "P3",
+    "file": "src/proxy.ts",
+    "line": 89,
+    "evidence": "isCsrfExempt() lists audit-form/consumer-lead/diagnostic-intake/facility-lookup but NOT /api/lead-capture or /api/partial-lead; changelog.json:610 claims 'Exempt public lead-capture endpoints from CSRF' yet lead-capture is absent. No client sends x-csrf-token.",
+    "golden_path_step": 2,
+    "claim_violated": "public lead-capture endpoints accept conversions without a session/CSRF token",
+    "expected": "Every public, credential-in-body mutating POST that a browser is meant to call is in isCsrfExempt(), or it is intentionally admin-only.",
+    "done_when": "if lead-capture/partial-lead are meant to be public POST endpoints they are added to isCsrfExempt() (or confirmed dead and removed); a browser POST to the live conversion endpoint never 403s on CSRF.",
+    "completion_hint": "reconcile changelog claim with proxy.ts; tie to the orphan decision above \u2014 if consumer-lead remains the live path (already exempt) this is moot once the orphans are removed.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "downgrade",
+    "_review_reason": "CONFIRMED lead-capture/partial-lead are absent from isCsrfExempt() while audit-form/consumer-lead/diagnostic-intake/facility-lookup are present. BUT the live conversion endpoint (consumer-lead) IS exempt and functional, so no live browser flow 403s today. Impact is contingent on the orphan decision (not unknown) and blocks nothing live; it's changelog claim-drift + a latent footgun. Downgrade P2->P3.",
+    "partitions": [
+      "api-audit-funnel"
+    ],
+    "id": "SA-0042"
+  },
+  {
+    "partition": "api-portal-client",
+    "category": "scope-gap",
+    "severity": "P3",
+    "file": "src/app/api/portal-upload/route.ts",
+    "line": 204,
+    "evidence": "PDF/XLSX stay \"uploaded\" for manual handling (parser is CSV-only by design) \u2014 only text/csv is auto-processed (line 208).",
+    "golden_path_step": 5,
+    "claim_violated": "uploaded PMS reports are ingested",
+    "expected": "non-CSV uploads have a real manual-processing path, not a dead-end",
+    "done_when": "confirm an admin workflow exists to process PDF/Excel uploads that sit at status \"uploaded\" (cross-ref Scout 5 api-pms-intel/ui-admin admin-pms-queue). The portal UI already correctly discloses this (upload/page.tsx:244 \"CSV process automatically. PDF and Excel are reviewed by our team\"), so this is NOT a user-facing contract break \u2014 the only residual risk is non-CSV uploads accumulating with no admin action surface. The API 415 message advertising CSV/PDF/Excel is accurate.",
+    "completion_hint": "verify admin-pms-queue surfaces status=uploaded non-CSV files for manual processing; if not, add it",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "api-portal-client"
+    ],
+    "id": "SA-0043"
+  },
+  {
+    "partition": "golden-path",
+    "category": "context",
+    "severity": "P3",
+    "file": "src/app/api/sms-send/route.ts",
+    "line": 42,
+    "evidence": "if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) { return ...500 }  // Twilio not set up yet per CLAUDE.md",
+    "golden_path_step": 7,
+    "claim_violated": "SMS marketing surfaces fire",
+    "expected": "DEFERRED/config \u2014 SMS + call-tracking are inert until Twilio credentials are provisioned; the code path is real and would send when configured.",
+    "done_when": "N/A \u2014 context. Provision Twilio creds to activate; no code change required. Owned by Scout 4 (api-attribution-tracking) for depth.",
+    "completion_hint": "Not a code defect; a config/integration deferral. Email/drip/GBP marketing surfaces are fully live.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "golden-path"
+    ],
+    "id": "SA-0044"
+  },
+  {
+    "partition": "api-billing-stripe",
+    "category": "context",
+    "severity": "P3",
+    "file": "src/app/pricing/page.tsx",
+    "line": 1,
+    "evidence": "Pricing page copy: 'This isn't a self-serve [signup]. StorageAds is built for operators...' CTAs link to / and /#cta; no client code calls /api/create-checkout-session anywhere in src/.",
+    "golden_path_step": 10,
+    "claim_violated": "self-serve subscription checkout is wired",
+    "expected": "DEFERRED/founder-led \u2014 the full create-checkout-session -> checkout-success -> webhook provisioning chain is built but intentionally not exposed via UI pre-launch (alpha = Blake's own portfolio).",
+    "done_when": "N/A \u2014 context note. Confirm self-serve checkout being unwired is intentional for alpha; the activation-email + CSRF-exempt gaps above must be closed before wiring a self-serve CTA.",
+    "completion_hint": "Not a defect for alpha; recorded so the build swarm wires activation email + CSRF exemption together when self-serve billing is turned on.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "api-billing-stripe"
+    ],
+    "id": "SA-0045"
+  },
+  {
+    "partition": "api-audit-funnel",
+    "category": "scope-gap",
+    "severity": "P3",
+    "file": "src/app/api/lead-capture/route.ts",
+    "line": 87,
+    "evidence": "export async function POST(req) \u2014 no in-repo caller (rg over src finds zero fetch('/api/lead-capture') call sites); live landing pages + exit-intent popup post to /api/consumer-lead instead",
+    "claim_violated": "lead-capture is the landing-page conversion endpoint",
+    "expected": "Either lead-capture is the live conversion endpoint (and is wired + CSRF-exempt), or it is removed and its unique logic (funnel post-conversion drip enrollment, Meta CAPI fire) is moved to the live consumer-lead path.",
+    "done_when": "lead-capture either has a real caller or is deleted with its enrollInFunnelDrip/meta-capi logic relocated; no orphaned conversion endpoint remains.",
+    "completion_hint": "decide canonical conversion endpoint; this orphan is why SA(post-conversion drip) is dead \u2014 see the P1 above.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED orphan: 0 in-repo references to /api/lead-capture. Holds the only enrollInFunnelDrip + meta-capi logic; root cause of the P1 above. Decide canonical conversion endpoint or relocate logic into consumer-lead.",
+    "partitions": [
+      "api-audit-funnel"
+    ],
+    "id": "SA-0046"
+  },
+  {
+    "partition": "api-audit-funnel",
+    "category": "scope-gap",
+    "severity": "P3",
+    "file": "src/app/api/partial-lead/route.ts",
+    "line": 152,
+    "evidence": "export async function POST(req) {...} writes partial_leads via raw INSERT \u2014 but no in-repo client caller; consumer-lead already creates partial_leads, and admin/recovery only uses GET/PATCH",
+    "claim_violated": "partial-lead POST captures abandoned/partial form leads for the recovery pipeline",
+    "expected": "A single canonical writer for partial_leads. partial-lead POST is either wired to a real client (exit-intent/partial form) or removed in favor of consumer-lead.",
+    "done_when": "partial-lead POST has a real caller or is removed; the recovery pipeline's input source is unambiguous (currently fed only by consumer-lead).",
+    "completion_hint": "confirm consumer-lead is the sole intended writer and delete the dead POST, or wire the partial-capture client to it.",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED low-stakes orphan: only 1 file references /api/partial-lead (admin recovery GET/PATCH per finding); POST has no client caller and consumer-lead is the sole live partial_leads writer. Keep P3; ambiguous writer surface worth resolving.",
+    "partitions": [
+      "api-audit-funnel"
+    ],
+    "id": "SA-0047"
+  },
+  {
+    "partition": "api-audit-funnel",
+    "category": "scope-gap",
+    "severity": "P3",
+    "file": "src/app/api/analyze-map/route.ts",
+    "line": 65,
+    "evidence": "export async function POST(req) \u2014 EXPENSIVE_API_HOURLY rate-limited AI endpoint with no in-repo caller (zero fetch('/api/analyze-map') call sites)",
+    "claim_violated": "analyze-map powers a map/competitor analysis step in the audit funnel",
+    "expected": "analyze-map is either invoked by the audit funnel UI or removed.",
+    "done_when": "analyze-map has a caller or is deleted; no orphaned billed AI endpoint remains in the funnel.",
+    "completion_hint": "verify against the audit-tool flow; if unused, remove to shrink the un-CSRF-exempt public POST surface.",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED orphan: 0 in-repo references to /api/analyze-map; an EXPENSIVE_API_HOURLY-billed AI endpoint with no caller in the funnel. Wire or remove to shrink the public POST surface.",
+    "partitions": [
+      "api-audit-funnel"
+    ],
+    "id": "SA-0048"
+  },
+  {
+    "partition": "api-billing-stripe",
+    "category": "integration-gap",
+    "severity": "P3",
+    "file": "src/app/api/stripe-webhook/route.ts",
+    "line": 29,
+    "evidence": "try { switch (event.type) { ... } } catch (err) { ... }  // no record of processed event.id; no idempotency-key store",
+    "claim_violated": "webhook is idempotent against Stripe at-least-once redelivery",
+    "expected": "processed Stripe event ids are recorded/deduped so a redelivered event cannot double-apply a non-idempotent effect.",
+    "done_when": "the handler records event.id and short-circuits on replay, or each handler is provably idempotent and that is documented/tested.",
+    "completion_hint": "Org creation is guarded by stripe_customer_id and the updateMany handlers are naturally idempotent, but there is no explicit event-id dedup.",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "downgrade",
+    "_review_reason": "VERIFIED but over-scored. The financially-meaningful effects ARE idempotent: org creation guarded by existingOrg/stripe_customer_id (lines 78-81), all updateMany handlers naturally idempotent, syncClientInvoiceStatus guarded status notIn [paid,void] (lines 235-239). Only genuinely non-idempotent effect on Stripe at-least-once redelivery = duplicate activity_log rows (e.g. subscription_canceled re-logs, lines 182-188). That is cosmetic, not a double-applied money effect. done_when (event-id dedup) is concrete but the impact is P3, not P2.",
+    "partitions": [
+      "api-billing-stripe"
+    ],
+    "id": "SA-0049"
+  },
+  {
+    "partition": "api-billing-stripe",
+    "category": "config-gap",
+    "severity": "P3",
+    "file": "src/app/api/create-checkout-session/route.ts",
+    "line": 25,
+    "evidence": "const validPlans = [\"launch\", \"growth\", \"portfolio\", \"enterprise\"]; ... const priceMap = { launch:..., growth:..., portfolio:... };",
+    "claim_violated": "plan set matches the productized tiers (no Enterprise tier per CLAUDE.md)",
+    "expected": "validPlans matches the real tiers; no dead 'enterprise' branch.",
+    "done_when": "'enterprise' is removed from validPlans (it passes validation then fails at priceId lookup with a misleading 'Invalid plan'), aligning with CLAUDE.md 'No Enterprise tier'.",
+    "completion_hint": "Drop 'enterprise' from validPlans or add a real price; currently a misleading dead branch.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "VERIFIED real dead branch. validPlans includes 'enterprise' (line 25) but priceMap has no enterprise entry (lines 50-54), so 'enterprise' passes validation then fails at the price lookup with a misleading generic 'Invalid plan' (line 58). CLAUDE.md states 'No Enterprise tier'. Cosmetic/housekeeping; P3 correct.",
+    "partitions": [
+      "api-billing-stripe"
+    ],
+    "id": "SA-0050"
+  },
+  {
+    "partition": "api-partner-org",
+    "category": "validation",
+    "severity": "P3",
+    "file": "src/app/api/referrals/route.ts",
+    "line": 283,
+    "evidence": "const { code_id, amount, description } = body; ... if (parseFloat(String(codeRow.credit_balance)) < amount) ... const newBalance = parseFloat(String(codeRow.credit_balance)) - amount;",
+    "claim_violated": "referral credit redemption cannot corrupt a balance",
+    "expected": "`amount` is used in arithmetic and a balance check without validating it is a positive, finite number. A negative or non-numeric `amount` bypasses the insufficient-balance guard and inflates credit_balance (newBalance = balance - (negative)).",
+    "done_when": "redeem rejects amount unless it is a finite number > 0 (and <= credit_balance); same numeric guard applied wherever amount feeds arithmetic",
+    "completion_hint": "validate `typeof amount === 'number' && Number.isFinite(amount) && amount > 0` before the balance check; admin-key gated so impact is low",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED at src:282-291. redeem reads {amount} from body; `!amount` rejects 0/undefined but NOT a negative number: amount=-5 passes the `credit_balance < amount` guard (positive < -5 is false) then newBalance = balance - (-5) inflates the balance. No finite/positive check. POST verified requireAdminKey-gated (line 90) so blast radius is admin-error only -> P3 correct. done_when (require Number.isFinite(amount) && amount>0 && <=balance) is concrete.",
+    "partitions": [
+      "api-partner-org"
+    ],
+    "id": "SA-0051"
+  },
+  {
+    "partition": "api-partner-org",
+    "category": "validation",
+    "severity": "P3",
+    "file": "src/app/api/org-activity/route.ts",
+    "line": 77,
+    "evidence": "const activity = await db.activity_log.create({ data: { type, facility_id: facilityId || null, facility_name: facilityName || null, detail } });",
+    "claim_violated": "activity rows are bound to the writer's org",
+    "expected": "An authenticated org user can create an activity_log row with arbitrary type/facility_name/detail; when facilityId is omitted the row is written with facility_id null and no organization binding. GET only returns rows JOINed to facilities in the caller's org, so these become unreadable orphan rows (no cross-tenant leak), but the write is unvalidated/unscoped.",
+    "done_when": "org-activity POST requires a facilityId that belongs to the caller's org (reject when absent) so every activity row is org-bound, OR drop the write path if unused",
+    "completion_hint": "make facility ownership check mandatory (currently only runs `if (facilityId && orgId)`); low severity since GET is org-scoped",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "api-partner-org"
+    ],
+    "id": "SA-0052"
+  },
+  {
+    "partition": "api-v1-external",
+    "category": "validation",
+    "severity": "P3",
+    "file": "src/app/api/v1/api-keys/route.ts",
+    "line": 78,
+    "evidence": "const requestedScopes = scopes || VALID_SCOPES;",
+    "claim_violated": "API keys are least-privilege by default",
+    "expected": "When `scopes` is omitted on key creation, the key is granted ALL 11 valid scopes (read+write+webhooks:manage) by default rather than failing closed or defaulting to read-only. Admin-key gated, so impact is limited to admin error, but a forgotten scopes field silently mints a fully-privileged key.",
+    "done_when": "key creation requires an explicit non-empty scopes array (or defaults to a minimal read-only set), so over-privileged keys are an explicit choice not a silent default",
+    "completion_hint": "return v1Error when scopes is missing/empty, or default to a documented minimal set",
+    "owner_domain": "blake",
+    "confidence": "medium",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED at src:78 `const requestedScopes = scopes || VALID_SCOPES` - omitting scopes on key creation silently mints a key with ALL 11 scopes (read+write+webhooks:manage) instead of failing closed or defaulting read-only = fail-open least-privilege violation. POST is isAdminRequest-gated (src:67) so a forgotten scopes field is an admin error, blast radius limited -> P3 retained. done_when (reject empty scopes or default to minimal read-only set) is concrete.",
+    "partitions": [
+      "api-v1-external"
+    ],
+    "id": "SA-0053"
+  },
+  {
+    "partition": "contract",
+    "category": "marker",
+    "severity": "P3",
+    "file": "src/app/help/page.tsx",
+    "line": 107,
+    "evidence": "{ icon: MessageCircle, label: \"Chat\", value: \"Coming soon\", href: undefined, external: false }",
+    "claim_violated": "help-page contact options are actionable",
+    "expected": "the 'Chat' contact card is a visible non-functional placeholder (href undefined, value 'Coming soon'). Intentional-deferred but user-visible on a public page.",
+    "done_when": "either wire the chat option to a real channel, or hide the card until chat ships, so the public help page shows no dead contact methods",
+    "completion_hint": "remove the Chat entry from the contact list (or gate it behind a flag) until live chat is implemented",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED. help/page.tsx:107 renders a 'Chat' contact card with value 'Coming soon' and href:undefined on a public page \u2014 a visible non-functional placeholder. Correctly classified intentional-deferred-but-user-visible. P3 appropriate (cosmetic dead contact method, non-blocking). done_when concrete (wire it or hide it).",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0054"
+  },
+  {
+    "partition": "contract",
+    "category": "context",
+    "severity": "P3",
+    "file": "src/app/_CONTRACT_VERDICT",
+    "line": 0,
+    "evidence": "Contract verdict: 1 P1 break, 1 P3 placeholder. Diffed every literal fetch('/api/...') call in src/app + src/components against the 203 route.ts files: ALL referenced static AND dynamic-segment paths resolve to an existing route (0 missing-route breaks; query-param design means no orphaned path segments). No variable-first-segment fetches (/api/${...}). Dead-UI scan clean: 0 href='#', 0 empty onClick/onSubmit handlers, 0 onClick={undefined}. The only verb-vs-route mismatch across all fetch sites is the walk-in GET above. alert() usages (admin pipeline/settings/campaign-wizard/social) are genuine error surfaces, not placeholders.",
+    "expected": "informational verdict for merge/COVERAGE",
+    "done_when": "n/a",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "Contract verdict summary. I independently confirmed the one P1 break (walkin GET verb mismatch) and the P3 placeholder. The blanket 'all literal fetch('/api/...') sites resolve to an existing route; 0 dead-UI' claim is the builder's diff summary \u2014 consistent with Scout 1 recon (0 href=#, 0 empty handlers) but not exhaustively re-verified site-by-site here (out of per-finding verifier scope). Accept as informational verdict for COVERAGE.",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0055"
+  },
+  {
+    "partition": "contract",
+    "category": "context",
+    "severity": "P3",
+    "file": "src/app/_CONTRACT_VERDICT_CSRF",
+    "line": 0,
+    "evidence": "CSRF-gate sub-audit (per Coordinator guardrail): scanned all mutating client fetches (POST/PUT/PATCH/DELETE) against src/proxy.ts isCsrfExempt(). Admin facility-tabs are SAFE (send X-Admin-Key via authHeaders()/inline; proxy reads case-insensitively). Partner pages SAFE (Authorization: Bearer via use-partner-auth authedFetch). Portal mutations SAFE (exempt paths: client-data/client-messages/portal-upload/portal-push-subscribe/client-onboarding/resend-access-code + create-billing-portal). BROKEN (non-exempt, no exempting header -> 403 in prod): walkin-attribution POST, password-reset, verify-email (verify action), manage/unlock, manage/scratch, meta-capi, page-interactions, tracking/event. Also: x-manage-token is not a proxy-exempt header, so the manage-session owner mutation path is broken even past unlock. manage/logout (P3) is best-effort and redirects regardless. False positive ruled out: marketing-plan (uses authHeaders).",
+    "expected": "informational \u2014 see the 5 CSRF contract-break findings above",
+    "done_when": "n/a",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "contract"
+    ],
+    "id": "SA-0056"
+  },
+  {
+    "partition": "golden-path",
+    "category": "context",
+    "severity": "P3",
+    "file": "src/app/api/audit-form/route.ts",
+    "line": 1,
+    "evidence": "ADAPTED 10-STEP GOLDEN PATH VERDICT (v1 stowstack-next, per audit/README_SWARM.md): 1.Top-of-funnel=PARTIALLY-WIRED (audit-tool shows inline Google quick-score + consumer-lead capture; audit-form creates a facilities row but never calls audit-generate-diagnostic, which is requireAdminKey-gated at audit-generate-diagnostic/route.ts:918 -> public prospect never auto-receives a persisted shared_audits diagnostic at /audit/[slug]). 2.Lead capture & pipeline=PRESENT-AND-COMPLETE (consumer-lead/lead-capture persist partial_leads; admin/pipeline kanban; PATCH admin-leads status transitions + activity_log). 3.Client conversion=PRESENT-AND-COMPLETE (admin-leads client_signed -> provisionPortalAccess generates 8-char access_code on clients + welcome email; resend-access-code 4-digit login; authenticatePortalRequest validates). 4.Onboarding=PRESENT-AND-COMPLETE (portal/onboarding wizard -> client-onboarding persists sanitized step JSON scoped to client). 5.PMS data=PARTIALLY-WIRED (CSV auto-parse->pms-import.ts->facility_pms_* complete; upload UI accepts .pdf/.xlsx but parser is CSV-only by design -> they stay 'uploaded' for manual handling). 6.Campaigns->LP=PRESENT-AND-COMPLETE (funnels/generate + landing-pages/generate persist unique-slug landing_pages + sections; /lp/[slug] renders published). 7.Marketing surfaces=PRESENT-AND-COMPLETE (process-drips + send-template via Resend real; process-gbp real Google API + AI replies; SMS inert without Twilio creds - documented). 8.Reports/intelligence=PRESENT-AND-COMPLETE (client-reports + revenue-intelligence compute real PMS/lead_status_events numbers; comment confirms previously-hardcoded values now real). 9.Attribution=PARTIALLY-WIRED (attribution/route.ts computes cpl/cost_per_move_in/roas from campaign_spend+partial_leads+lead_status_events, but storEDGE move_in.completed webhook never writes those tables -> webhook move-ins uncounted). 10.Billing=PARTIALLY-WIRED (Stripe webhook lifecycle + sig-verify work; post-checkout activation handoff missing; self-serve checkout intentionally unwired pre-launch - see api-billing-stripe).",
+    "expected": "all 10 spine steps present-and-complete",
+    "done_when": "steps 1,5,9,10 reach present-and-complete per their individual findings",
+    "completion_hint": "Trace summary row; actionable items are the sibling findings.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "unreviewed-keep",
+    "partitions": [
+      "golden-path"
+    ],
+    "id": "SA-0057"
+  },
+  {
+    "partition": "lib-core",
+    "category": "stub-return",
+    "severity": "P3",
+    "file": "src/lib/v1-auth.ts",
+    "line": 87,
+    "evidence": "INSERT INTO api_usage_log (api_key_id, organization_id, method, path, status_code, duration_ms) VALUES (${row.id}::uuid, ${row.organization_id}::uuid, ${method}, ${path}, 200, ${duration})",
+    "expected": "api_usage_log should record the actual HTTP status of the request; logging happens inside requireApiAuth before the handler runs, so the real status (4xx/5xx) is never captured and every logged row reads 200",
+    "done_when": "api_usage_log rows reflect the true response status (e.g. log written from a route wrapper after the handler resolves) instead of a constant 200",
+    "completion_hint": "Move usage logging into a response wrapper that knows the final status, or backfill status via a deferred update keyed on api_key_id+path+timestamp",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED: api_usage_log INSERT hardcodes status_code 200 inside a pre-handler setTimeout (runs before the route resolves), so every logged row reads 200 regardless of the real 4xx/5xx response. Real logging-fidelity defect; concrete done_when (log from a response wrapper).",
+    "partitions": [
+      "lib-core"
+    ],
+    "id": "SA-0058"
+  },
+  {
+    "partition": "tenancy",
+    "category": "context",
+    "severity": "P3",
+    "file": "src/app/api/tenants/route.ts",
+    "line": 54,
+    "evidence": "requireFacilityAccess(req) with no explicit facilityId falls back to the ?facilityId query param; the helper validates that param but cannot know the actual record being queried in id/tenantId branches",
+    "expected": "NOTE (not a standalone fix): the requireFacilityAccess(req)-with-fallback pattern is safe only when the handler queries by the SAME ?facilityId it validated. Any branch that pivots to a different record id (tenantId, funnel id, etc.) must re-validate that record's facility. funnels GET ?id= is safe because a manage-session with no ?facilityId fails the guard (admin-only); tenants ?tenantId is NOT safe because the caller supplies an owned ?facilityId alongside a foreign tenantId.",
+    "done_when": "audit note only \u2014 see SA tenants IDOR finding above",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED. Accurate explanatory context for the IDOR above: requireFacilityAccess(req)-with-?facilityId-fallback is safe only when the handler queries the SAME ?facilityId it validated; the tenantId branch pivots to a foreign record without re-validation. Verified the contrasting claim is plausible (funnels GET ?id without ?facilityId fails the guard as admin-only). Keep as supporting context, not a standalone backlog item.",
+    "partitions": [
+      "tenancy"
+    ],
+    "id": "SA-0059"
+  },
+  {
+    "partition": "tenancy",
+    "category": "context",
+    "severity": "P3",
+    "file": "src/app/api/_VERDICT",
+    "line": 0,
+    "evidence": "Tenancy verdict: PASS with 1 cross-tenant defect. Traced all 203 route.ts files across the 4 auth systems. Admin routes (admin-*, ecri, ideas, drip-sequences, churn-predictions, campaign-*, etc.) call requireAdminKey/isAdminRequest. Facility-scoped data routes (facility-assets/context/creatives/pms, funnels, gbp-*, market-intel, marketing-plan, moveout-remarketing, nurture-sequences, occupancy/revenue-intelligence, platform-connections, utm-links, call-logs, call-tracking) gate every handler with requireFacilityAccess (admin key OR facility-scoped manage session) and scope queries by facility_id. Portal routes (client-*, portal-*) use authenticatePortalRequest or inline email+access-code lookup scoped to the client. attribution/pms-data/pms-upload enforce admin-or-client-bearer and bind facilityId to the authenticated client. Partner/org routes (org-*, partner/*, organizations) scope to session.organization.id via getSession. v1/* all call requireApiAuth+requireScope and scope SELECTs to f.organization_id (id lookups re-validate org). All 23 cron routes call verifyCronSecret.",
+    "expected": "informational verdict for merge/COVERAGE",
+    "done_when": "n/a",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "Tenancy verdict summary (PASS with 1 cross-tenant defect). I independently verified the ONE filed defect (tenants IDOR) = real and upgraded it to P0. The blanket 'all 203 routes scoped' claim is the builder's trace summary and is NOT independently re-verified finding-by-finding here (out of a per-finding verifier's scope); accept as an informational verdict for COVERAGE, with the caveat that the verdict line should read 'PASS with 1 P0 cross-tenant defect' after the upgrade. Synthetic file path/line is acceptable for a verdict note.",
+    "partitions": [
+      "tenancy"
+    ],
+    "id": "SA-0060"
+  },
+  {
+    "partition": "ui-admin",
+    "category": "missing-impl",
+    "severity": "P3",
+    "file": "src/app/admin/onboarding/page.tsx",
+    "line": 276,
+    "evidence": "Meta/Google 'Connect' buttons rendered in SetupStep3AdAccounts have no onClick handler",
+    "claim_violated": "'These connections let StorageAds run and optimize your ads directly' but Connect does nothing",
+    "expected": "Connect initiates the OAuth/connection flow or is removed in favor of the existing settings integration cards",
+    "done_when": "clicking Connect starts a real platform-connection flow",
+    "completion_hint": "reuse the settings/integration-card connect flow, or remove the dead buttons",
+    "owner_domain": "angelo",
+    "confidence": "high",
+    "_verdict": "downgrade",
+    "_review_reason": "CONFIRMED dead Meta/Google Connect buttons (no onClick). owner_domain:angelo (ad-platform connection flow is Angelo's domain) -> advisory per README_SWARM, not a Blake-owned alpha blocker. Fix is to reuse the wired settings integration-card flow. Downgrade to advisory P3.",
+    "partitions": [
+      "ui-admin"
+    ],
+    "id": "SA-0061"
+  },
+  {
+    "partition": "ui-misc-shared",
+    "category": "scope-gap",
+    "severity": "P3",
+    "file": "src/components/theme-provider.tsx",
+    "line": 1,
+    "evidence": "ThemeProvider/ThemeToggle are imported only by src/components/__tests__/theme-toggle.test.tsx and referenced in a globals.css comment; no app/layout.tsx or page mounts them",
+    "claim_violated": "a shipped theme toggle is wired into the app",
+    "expected": "Either the theme provider/toggle is mounted (rendered in a layout/shell) or removed as dead code; tests should not be the only consumer.",
+    "done_when": "ThemeProvider/ThemeToggle are either mounted in the real component tree or deleted; no exported-but-never-rendered theme UI remains.",
+    "completion_hint": "confirm intent (theme switching is not part of the light-only design system) and remove, or mount if intended.",
+    "owner_domain": "blake",
+    "confidence": "high",
+    "_verdict": "keep",
+    "_review_reason": "CONFIRMED dead exported UI: ThemeProvider/ThemeToggle have no non-test consumer (rg found no layout/page mount). Genuine orphaned component with a concrete done_when (mount or delete). Light-only design system implies delete. Keep P3 cleanup.",
+    "partitions": [
+      "ui-misc-shared"
+    ],
+    "id": "SA-0062"
+  }
+]
