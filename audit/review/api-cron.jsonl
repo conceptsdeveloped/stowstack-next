@@ -1,0 +1,1 @@
+{"file":"src/app/api/cron","line":0,"category":"context","verdict":"drop","reason":"api-cron swept by Scout 4 with zero findings (done marker present, no findings file). Reviewed as a clean pass — no findings to verify. Cron auth gating (verifyCronSecret, fail-closed) is the documented architecture."}
