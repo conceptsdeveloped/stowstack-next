@@ -265,10 +265,10 @@ const STATS = [
 const CAPABILITIES = [
   { icon: Search, label: "Market Intelligence", desc: "Competitor pricing, reviews, positioning, and trade area analysis. See the field before you spend a dollar.", color: "#8a70b0" },
   { icon: Sparkles, label: "Ad Creator", desc: "Generate Meta and Google ads from facility data. Copy, headlines, creative.", color: "var(--color-blue)" },
-  { icon: Megaphone, label: "Publishing Manager", desc: "Publish to Meta and Google from one dashboard. Both channels, side by side.", color: "var(--color-dark)" },
+  { icon: Megaphone, label: "Ad Publishing", desc: "Publish to Meta and Google from one dashboard. Both channels, side by side.", color: "var(--color-dark)" },
   { icon: FileText, label: "Landing Pages", desc: "A page for every campaign. storEDGE rental flow embedded so the renter books on your branded page.", color: "var(--color-green)" },
   { icon: Target, label: "Organic Capture", desc: "Google Business Profile, review management, walk-in capture. The leads you already get, organized.", color: "var(--color-dark)" },
-  { icon: BarChart3, label: "Reservation Conversion", desc: "Automated follow-up that turns reservations into move-ins. Stop leaking revenue at the last step.", color: "var(--color-blue)" },
+  { icon: BarChart3, label: "Reservation Follow-up", desc: "Automated follow-up that turns reservations into move-ins. Stop leaking revenue at the last step.", color: "var(--color-blue)" },
   { icon: Eye, label: "A/B Testing", desc: "Headlines, offers, and pages scored by move-ins, not clicks.", color: "var(--color-green)" },
   { icon: Activity, label: "Revenue Intelligence", desc: "Rate moves, ancillary revenue, tax advantages, occupancy modeling. Every tenant worth more.", color: "#8a70b0" },
 ];
@@ -1981,7 +1981,7 @@ export function ROITeaser({ isVisible }: { isVisible: boolean }) {
           className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase flex-shrink-0"
           style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-heading)", letterSpacing: "0.06em" }}
         >
-          ROAS
+          Return on ad spend
         </span>
         <div className="flex-1 h-4 overflow-hidden" style={{ background: "var(--border-medium)" }}>
           <div
@@ -2009,7 +2009,7 @@ export function ROITeaser({ isVisible }: { isVisible: boolean }) {
 /* ═══════════════════════════════════════════
    HERO STATUS STRIP — ultra-thin ribbon between nav and hero content.
    Left: live pulse + "MARKETING INFRASTRUCTURE · BUILT FOR SELF-STORAGE".
-   Right: revision date · wall clock · compliance tag.
+   Right: revision date · wall clock.
    Ported from the handoff hero reference §205.
    This is the natural home for the clock — NOT crammed into the nav.
    ═══════════════════════════════════════════ */
@@ -2068,7 +2068,7 @@ function HeroStatusStrip() {
           {/* Mobile: REV date only. Tablet+: full timestamp + compliance tag. */}
           <span className="sm:hidden">REV {clock.ymd}</span>
           <span className="hidden sm:inline">
-            REV {clock.ymd} · {clock.hms} {clock.tz} · SOC2
+            REV {clock.ymd} · {clock.hms} {clock.tz} · OPERATOR BUILT
           </span>
         </Label>
       </div>
@@ -2522,7 +2522,7 @@ export default function Hero() {
                 textWrap: "pretty",
               }}
             >
-              Public Storage and Extra Space run this exact machine to hit 92.6% occupancy<Cite n={1} />. We built the same system for our own facilities, then turned it into software you can plug in. Meta and Google ads, a landing page per ad, reservations that become signed leases, and an audit that finds where you&apos;re leaking revenue.
+              Public Storage and Extra Space run this exact machine to hit 92.6% occupancy<Cite n={1} />. We built the same system for our own facilities. Now it maps your competitors, runs Meta and Google, builds a page for every ad, chases every reservation to a signed lease, and finds where you&apos;re leaking revenue. Run it yourself or hand the whole thing to us.
             </p>
 
             {/* CTAs */}

@@ -183,7 +183,7 @@ export default function Results() {
             A move-in at a typical facility pays $130 a month and stays 14
             months. That&apos;s about $1,820 per move-in. Five to ten extra
             move-ins a month adds $9,000-18,000 in future rent every month.
-            The System tier plus a typical ad budget runs about $1,750 a
+            The Launch plan plus a typical ad budget runs about $1,750 a
             month. That&apos;s 5-10x before the system even starts tightening
             up.
           </p>

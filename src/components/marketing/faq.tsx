@@ -33,7 +33,7 @@ const FAQS: FaqEntry[] = [
   },
   {
     q: "Do we need marketing experience to run it?",
-    a: "No. The Ad Creator builds campaigns from your facility data. The Publishing Manager puts them live. The system handles targeting, bidding, and creative rotation. You approve and watch the numbers.",
+    a: "No. The system builds campaigns from your facility data and puts them live, then handles targeting, bidding, and creative rotation. You approve and watch the numbers.",
   },
   {
     q: "How fast is it live?",
@@ -60,7 +60,7 @@ const FAQS: FaqEntry[] = [
   },
   {
     q: "We only have one facility. Is this for us?",
-    a: "Yes. The system was built on a single facility and runs on our own portfolio. One facility is the primary use case. Enterprise tiers exist for ten or more.",
+    a: "Yes. The system was built on a single facility and runs on our own portfolio. One facility is the primary use case. The Portfolio plan covers operators with ten or more.",
   },
   {
     q: "How does the storEDGE integration work?",
