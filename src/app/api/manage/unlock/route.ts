@@ -13,6 +13,8 @@ import {
   MANAGE_TTL_DAYS,
 } from "@/lib/manage-session";
 import { db } from "@/lib/db";
+import { applyRateLimitStrict } from "@/lib/with-rate-limit";
+import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 
 /**
  * POST /api/manage/unlock
@@ -50,7 +52,15 @@ export async function POST(req: NextRequest) {
     return errorResponse("A valid access code is required", 400, origin);
   }
 
-  // TODO(pre-launch): add per-IP rate limiting (Upstash) to slow code guessing.
+  // Fail-closed per-IP limit: the access code is the only gate on this
+  // entry point, so code guessing must be slow even if Upstash is down.
+  const limited = await applyRateLimitStrict(
+    req,
+    RATE_LIMIT_TIERS.PUBLIC_WRITE_HOURLY,
+    "manage-unlock"
+  );
+  if (limited) return limited;
+
   const facility = await db.facilities.findUnique({
     where: { access_code: code },
     select: {

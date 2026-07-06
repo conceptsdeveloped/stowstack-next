@@ -90,6 +90,17 @@ export function isCsrfExempt(req: NextRequest): boolean {
   if (path === "/api/consumer-lead") return true;
   if (path === "/api/diagnostic-intake") return true;
   if (path === "/api/facility-lookup") return true;
+  // Public anonymous tracking beacons fired from landing pages / embeds.
+  // No session, fire-and-forget from the browser (failures are swallowed
+  // client-side), abuse bounded by per-IP rate limits at the route level.
+  if (path.startsWith("/api/tracking/")) return true;
+  if (path === "/api/page-interactions") return true;
+  // Pre-auth credential-in-body routes: they authenticate via a credential
+  // carried in the request body (access code / email+password / reset token),
+  // not an ambient session cookie, so the double-submit token is moot.
+  if (path === "/api/walkin-attribution") return true;
+  if (path === "/api/signup") return true;
+  if (path === "/api/password-reset") return true;
   // Public, pre-authentication portal login endpoints (email → 4-digit code →
   // verify). These authenticate via email + code in the request body, not via
   // an ambient session cookie, so CSRF protection is moot; abuse is bounded by
@@ -124,9 +135,23 @@ export function isCsrfExempt(req: NextRequest): boolean {
   if (path === "/api/organizations") return true;
   if (path === "/api/create-billing-portal") return true;
   if (path === "/api/data-deletion") return true;
+  if (path === "/api/2fa") return true;
+  if (path === "/api/verify-email") return true;
+  // Meta CAPI is fired from the browser on public landing pages; the route
+  // enforces verifyCsrfOrigin() itself. Route internals are Angelo's domain —
+  // only this exemption lives on our side.
+  if (path === "/api/meta-capi") return true;
+  // Owner-tools manage session: unlock/scratch mint the httpOnly cookie and
+  // self-enforce verifyCsrfOrigin(); the other /api/manage/* endpoints are
+  // authenticated by that cookie/x-manage-token via requireFacilityAccess.
+  if (path.startsWith("/api/manage/")) return true;
   if (req.headers.get("x-admin-key")) return true;
   if (req.headers.get("authorization")?.startsWith("Bearer ")) return true;
   if (req.headers.get("x-org-token")) return true;
+  // Manage-session fallback header; must match HEADER_NAME in
+  // src/lib/manage-session.ts (not imported here: that module pulls node
+  // `crypto` into the middleware bundle).
+  if (req.headers.get("x-manage-token")) return true;
   return false;
 }
 

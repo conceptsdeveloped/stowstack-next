@@ -51,4 +51,38 @@ describe("isCsrfExempt — portal login footgun guard", () => {
   it("does NOT exempt an arbitrary mutating route with no auth header", () => {
     expect(isCsrfExempt(req("/api/some-random-route"))).toBe(false);
   });
+
+  it("exempts pre-auth credential-in-body routes", () => {
+    // Regression for the prod-403 cluster (audit SA-0002/3/4): these run
+    // before any session exists, so they cannot ride the header exemptions.
+    expect(isCsrfExempt(req("/api/walkin-attribution"))).toBe(true);
+    expect(isCsrfExempt(req("/api/signup"))).toBe(true);
+    expect(isCsrfExempt(req("/api/password-reset"))).toBe(true);
+  });
+
+  it("exempts routes that self-defend via verifyCsrfOrigin", () => {
+    expect(isCsrfExempt(req("/api/2fa"))).toBe(true);
+    expect(isCsrfExempt(req("/api/verify-email"))).toBe(true);
+    expect(isCsrfExempt(req("/api/meta-capi"))).toBe(true);
+    expect(isCsrfExempt(req("/api/manage/unlock"))).toBe(true);
+    expect(isCsrfExempt(req("/api/manage/scratch"))).toBe(true);
+  });
+
+  it("exempts public anonymous tracking beacons", () => {
+    expect(isCsrfExempt(req("/api/tracking/visit"))).toBe(true);
+    expect(isCsrfExempt(req("/api/tracking/event"))).toBe(true);
+    expect(isCsrfExempt(req("/api/page-interactions"))).toBe(true);
+  });
+
+  it("exempts the manage-session fallback header", () => {
+    // Regression: facility-auth.ts documents x-manage-token as CSRF-exempt;
+    // before this it wasn't, so every owner facility-tab mutation 403'd.
+    expect(isCsrfExempt(req("/api/facility-context", { "x-manage-token": "t" }))).toBe(true);
+  });
+
+  it("does NOT exempt prefix lookalikes", () => {
+    expect(isCsrfExempt(req("/api/manage-fake"))).toBe(false);
+    expect(isCsrfExempt(req("/api/trackings"))).toBe(false);
+    expect(isCsrfExempt(req("/api/signup-bonus"))).toBe(false);
+  });
 });
