@@ -48,11 +48,11 @@ const demandEnginePlans = [
       "Retargeting campaigns for abandoned visitors",
       "A/B testing on creative and landing pages",
       "Video creative production",
-      "Full attribution dashboard: cost per reservation, cost per move-in, ROAS by creative",
-      "Bi-weekly optimization calls",
+      "Full attribution dashboard: what each move-in cost and what it returned, by creative",
+      "Campaign review call every two weeks",
     ],
     bestFor:
-      "Operators who want every dollar tracked to a move-in and a dedicated team optimizing campaigns every two weeks.",
+      "Operators who want every dollar tracked to a move-in and a dedicated team tightening campaigns every two weeks.",
     isRecommended: true,
   },
   {
@@ -63,7 +63,7 @@ const demandEnginePlans = [
       "Everything in Growth, scaled across your portfolio.",
     features: [
       "Unlimited landing pages across all facilities",
-      "Cross-facility budget allocation and optimization",
+      "Budget moved to whichever facilities fill cheapest",
       "Portfolio-level attribution and reporting",
       "Dedicated strategist",
       "Volume discount: 20-35% off per-facility rates",
@@ -81,7 +81,7 @@ const conversionPlans = [
     features: [
       "Custom designed and branded to your facility",
       "Embedded storEDGE rental flow: customers reserve without leaving your site",
-      "Mobile-optimized and speed-optimized",
+      "Fast on mobile, built for the reserve button",
       "Trust elements and social proof built in",
     ],
     bestFor:
@@ -96,7 +96,7 @@ const conversionPlans = [
       "5 ad-specific landing pages built for campaign traffic",
       "Per-page tracking setup",
       "A/B testing framework",
-      "Ongoing conversion rate optimization",
+      "Pages tested and improved monthly, scored by reservations",
     ],
     bestFor:
       "Operators planning to run paid ads (now or soon) who want the landing page infrastructure ready from day one.",
@@ -213,7 +213,7 @@ export default function PricingPage() {
               maxWidth: "680px",
             }}
           >
-            We create, manage, and optimize paid ad campaigns. Every campaign
+            We create, manage, and tune paid ad campaigns. Every campaign
             maps to its own landing page.
           </p>
           <p
