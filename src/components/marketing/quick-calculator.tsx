@@ -111,9 +111,8 @@ export default function QuickCalculator() {
                       Current Occupancy
                     </label>
                     <span
-                      className={`text-sm font-semibold ${
-                        occupancy < 85 ? "text-red-400" : "text-[var(--text)]"
-                      }`}
+                      className="text-sm font-semibold"
+                      style={{ color: occupancy < 85 ? "var(--color-red)" : "var(--text)" }}
                     >
                       {occupancy}%
                     </span>
@@ -151,14 +150,14 @@ export default function QuickCalculator() {
               </div>
 
               <div className="space-y-4">
-                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-center">
+                <div className="rounded-xl p-4 text-center" style={{ background: "rgba(176,74,58,0.08)", border: "1px solid rgba(176,74,58,0.2)" }}>
                   <p
-                    className="text-xs uppercase text-red-400 mb-1"
-                    style={{ letterSpacing: "var(--tracking-wide)" }}
+                    className="text-xs uppercase mb-1"
+                    style={{ letterSpacing: "var(--tracking-wide)", color: "var(--color-red)" }}
                   >
                     You&apos;re Losing
                   </p>
-                  <p className="text-3xl font-semibold text-red-400">
+                  <p className="text-3xl font-semibold" style={{ color: "var(--color-red)" }}>
                     ${monthlyLoss.toLocaleString()}
                     <span className="text-lg font-medium">/mo</span>
                   </p>
@@ -171,14 +170,14 @@ export default function QuickCalculator() {
                   </p>
                 </div>
 
-                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
+                <div className="rounded-xl p-4 text-center" style={{ background: "rgba(120,140,93,0.1)", border: "1px solid rgba(120,140,93,0.25)" }}>
                   <p
-                    className="text-xs uppercase text-green-500 mb-1"
-                    style={{ letterSpacing: "var(--tracking-wide)" }}
+                    className="text-xs uppercase mb-1"
+                    style={{ letterSpacing: "var(--tracking-wide)", color: "var(--color-green)" }}
                   >
                     With StorageAds
                   </p>
-                  <p className="text-3xl font-semibold text-green-500">
+                  <p className="text-3xl font-semibold" style={{ color: "var(--color-green)" }}>
                     {projectedMoveIns}{" "}
                     <span className="text-lg font-medium">move-ins/mo</span>
                   </p>
