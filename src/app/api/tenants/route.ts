@@ -70,6 +70,16 @@ export async function GET(req: NextRequest) {
       if (!tenants.length)
         return errorResponse("Tenant not found", 404, origin);
 
+      // Re-guard against the tenant's OWN facility: the blanket check above
+      // only validated the ?facilityId param, so without this a session
+      // scoped to facility A could read any tenant by id (cross-tenant IDOR).
+      // 404 (not the denial response) so unauthorized callers can't confirm
+      // a tenant id exists.
+      const tenantFacilityId = (tenants[0] as { facility_id: string })
+        .facility_id;
+      const tenantDenied = await requireFacilityAccess(req, tenantFacilityId);
+      if (tenantDenied) return errorResponse("Tenant not found", 404, origin);
+
       const payments = await db.tenant_payments.findMany({
         where: { tenant_id: tenantId },
         orderBy: { payment_date: "desc" },

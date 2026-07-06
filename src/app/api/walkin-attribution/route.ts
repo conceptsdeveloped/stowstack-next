@@ -7,6 +7,38 @@ export async function OPTIONS(req: NextRequest) {
   return corsResponse(getOrigin(req));
 }
 
+// Validates an access code for the public /walkin/[code] page and returns the
+// facility name to display. Only the name is exposed — the code itself is the
+// credential, and invalid codes get a generic 404.
+export async function GET(req: NextRequest) {
+  const origin = getOrigin(req);
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rl = await checkRateLimit(`walkin_attribution:${ip}`, 10, 60);
+  if (!rl.allowed) {
+    return errorResponse("Too many requests", 429, origin);
+  }
+
+  const code = req.nextUrl.searchParams.get("code") || "";
+  if (!code || code.length > 100) {
+    return errorResponse("Invalid access code", 404, origin);
+  }
+
+  try {
+    const facility = await db.facilities.findFirst({
+      where: { access_code: code, deleted_at: null },
+      select: { name: true },
+    });
+    if (!facility) {
+      return errorResponse("Invalid access code", 404, origin);
+    }
+    return jsonResponse({ facilityName: facility.name }, 200, origin);
+  } catch (err) {
+    console.error("Walk-in code validation error:", err);
+    return errorResponse("Failed to validate code", 500, origin);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
 
