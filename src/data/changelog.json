@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "b39fe28b89",
+      "date": "2026-09-02",
+      "category": "feature",
+      "scope": "jobs",
+      "title": "Durable job queue with resumable workers (MISSION.md s1)"
+    },
+    {
       "id": "7c18004b89",
       "date": "2026-07-05",
       "category": "fix",

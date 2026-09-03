@@ -16,6 +16,7 @@
  */
 
 import type { JobHandler } from "./types";
+import { detectForFacility, facilitiesWithHistory } from "@/lib/events/detect";
 
 /**
  * Resumability proof. Counts to `payload.to` in chunks, yielding whenever the
@@ -39,6 +40,35 @@ const chunkedCounter: JobHandler = async (ctx) => {
   return { kind: "done", progressDone: at };
 };
 
+/**
+ * Turn PMS snapshots into domain events, facility by facility (MISSION.md s7).
+ *
+ * Resumable on purpose, and this is the first real use of it: a portfolio
+ * account is twenty facilities of up to 12,000 units each, and diffing them all
+ * in one 300s invocation is exactly the shape of work that used to die halfway
+ * with nothing to show. The cursor is the last facility id processed, so a
+ * timeout costs one facility's work rather than all of it.
+ */
+const detectPmsEvents: JobHandler = async (ctx) => {
+  let after = (ctx.cursor as { after?: string } | null)?.after;
+  let emitted = Number((ctx.cursor as { emitted?: number } | null)?.emitted ?? 0);
+
+  for (;;) {
+    const batch = await facilitiesWithHistory(after, 25);
+    if (batch.length === 0) return { kind: "done", progressDone: emitted };
+
+    for (const facilityId of batch) {
+      const res = await detectForFacility(facilityId);
+      emitted += res.emitted;
+      after = facilityId;
+      if (ctx.shouldYield()) {
+        return { kind: "more", cursor: { after, emitted }, progressDone: emitted };
+      }
+    }
+  }
+};
+
 export const HANDLERS: Record<string, JobHandler> = {
   "demo.chunked": chunkedCounter,
+  "pms.detect-events": detectPmsEvents,
 };

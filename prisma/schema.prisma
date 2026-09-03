@@ -2201,3 +2201,33 @@ model jobs {
   @@index([tenant_key, status], map: "idx_jobs_tenant")
   @@index([lease_expires_at], map: "idx_jobs_lease")
 }
+
+/// Domain event log / outbox (MISSION.md s7).
+///
+/// Half of Modules v2 is "when X happens, do Y" — the welcome kit on move-in,
+/// the referral card in month two, the rate-increase letter, the delinquency
+/// ladder, the sold-out waitlist. None of it had an X. This is the X.
+///
+/// Append-only. An event is a fact that already happened; it is never edited or
+/// deleted, only superseded by a later fact. Delivery is NOT tracked here —
+/// each subscriber gets its own row in `jobs`, so retries, freezes and
+/// fair-share come from the queue rather than being reinvented.
+model domain_events {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type        String   @db.VarChar(64)
+  facility_id String?  @db.Uuid
+  /// Fair-share bucket handed to every job fanned out from this event.
+  tenant_key  String?  @db.VarChar(128)
+  payload     Json     @default("{}")
+  /// Identity of the FACT, not of the detection run. A given account moving
+  /// into a given unit happens once, so re-running detection over the same
+  /// snapshots emits nothing new.
+  source_key  String   @db.VarChar(300)
+  occurred_at DateTime @db.Timestamptz(6)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([type, source_key])
+  @@index([facility_id, type, occurred_at], map: "idx_events_facility_type")
+  @@index([occurred_at], map: "idx_events_occurred")
+  @@index([type, created_at], map: "idx_events_type_created")
+}
