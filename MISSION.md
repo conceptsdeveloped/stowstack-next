@@ -175,10 +175,27 @@ Nothing above this line ships to a portfolio account. These are the pieces every
   - **(D) Shard across `sub_account`s.** `sub_account` is a documented order field. If the 60/min
     limit is per sub-account rather than account-wide, throughput multiplies **with no attribution
     tradeoff at all.** One email to the vendor settles it. **Cheapest possible win — ask first.**
-- [ ] `s7` **Event bus / outbox for lifecycle events** — NONE — ⚡SCALE
-  *Acceptance:* move-in, move-out, delinquent, rate-change and unit-vacated are emitted once,
-  durably, and consumable by more than one subscriber. **Half of Modules v2 is "when X happens,
-  do Y" and there is no X today.**
+- [ ] `s7` **Event bus / outbox for lifecycle events** — **BUILT, 4 of 5 producers wired** — ⚡SCALE
+  Shipped 2026-09-03: `domain_events` + `src/lib/events/{types,bus,subscribers,detect}.ts`,
+  delivered through the `s1` queue as one job per subscriber. Detection diffs two
+  `facility_pms_rent_roll` snapshots — the only history this product actually keeps.
+  *Acceptance, item by item:*
+  - [x] **move-in · move-out · delinquent · rate-change** emitted from real PMS diffs
+  - [x] **emitted once, durably** — `source_key` is the identity of the *fact*, not of the
+        detection run, so re-uploading the same CSV emits nothing new. **Proven against
+        production:** a second full run wrote 0 events and 0 duplicate jobs
+  - [x] **consumable by more than one subscriber** — one `jobs` row each, so a failing subscriber
+        cannot hold up the others; 6 events fanned out to 12 jobs across 8 queues
+  - [x] delivery inherits retry, backoff, freeze-on-unknown and fair-share from `s1`
+  - [ ] **`inventory.available` (unit vacated)** — the rule is written and tested (`diffInventory`,
+        the zero-to-something edge), but **`facility_pms_units` has `last_updated` and no
+        `snapshot_date`**, so there is no previous row to diff. Needs a `snapshot_date` column or a
+        units-history table. **The only reason the box above is unticked**, and it blocks `r9`/`c6`.
+
+  > **The subscriber map is now the wiring diagram.** `mail.welcome-kit`, `retain.autopay-push`,
+  > `retain.delinquency-notice`, `mail.rate-increase-letter`, `mail.winback-schedule` and the rest
+  > are registered with no handlers yet — an unregistered queue *freezes* rather than fails, so the
+  > work accumulates visibly and is re-deliverable the day each handler ships.
 - [ ] `s8` **Attribution roll-up tables, computed nightly** — NONE — ⚡SCALE
   *Acceptance:* cost per move-in by channel × card × ad × creative × ZIP is precomputed; the
   portfolio dashboard reads roll-ups only; **no attribution aggregation runs on page load.**
@@ -432,6 +449,10 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-03 · Claude** — `s7` built and proven against production (10 integration checks: real
+  rent-roll diff → 6 events → 12 subscriber jobs across 8 queues, re-run idempotent, temp data
+  cleaned up). Delivery rides on the `s1` queue rather than its own machinery. **New follow-on:**
+  `facility_pms_units` keeps no history, so the waitlist trigger cannot be produced yet.
 - **2026-09-02 · Claude** — `s1` built and proven against production (14 integration checks:
   claim/skip-locked, dedupe, resume-with-cursor, crash reclaim, fair-share ordering). Two bugs the
   verification caught before they shipped: the worker was written as `POST` when **every** Vercel
