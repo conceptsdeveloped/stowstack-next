@@ -83,9 +83,11 @@ signed approval links, idempotent sends, a production render pipeline and Stripe
    check has a null path through it.
 3. **`organizations.facility_limit` defaults to 10.** A twenty-facility owner trips the plan ceiling
    on signing day.
-4. **Mail throughput leaves ~100× unclaimed.** Thanks.io's send endpoint takes a `recipients[]`
-   array — one call, N recipients, one order. We send **one recipient per call**, throttled to
-   50/min against an account-wide 60/min. See §4.
+4. **Mail throughput is capped at 50 pieces/min company-wide, and the obvious fix has a price.**
+   Thanks.io takes a `recipients[]` array, but **every creative field — front, message, QR — is
+   order-level**, so batching means one QR across the whole batch and the loss of per-card
+   attribution. ⚠️ *Corrected 2026-09-02; the original entry called this a free ~100×.* Four
+   options, none of them free except possibly `sub_account` sharding. See `s-mail-batch` and §4.
 5. **Four of the ten MAIL triggers do not exist**, and the distress ones that do are gated. See §5.
 6. **White-label is already half-modelled** — `organizations.white_label`, `rev_share_enabled`,
    `rev_share_pct`, `rev_share_tier`, `lifetime_earnings`, `payout_method`, `custom_domain`.
@@ -113,10 +115,31 @@ Nothing above this line ships to a portfolio account. These are the pieces every
 - [ ] `s4` **Portfolio plan tier — raise `facility_limit` past 10** — NONE — ⚡SCALE
   *Acceptance:* a 20+ facility org can be created and billed; the tier has a price in
   `src/app/pricing/page.tsx`; limit enforcement has a test.
-- [ ] `s-mail-batch` **Batch `recipients[]` on the mail provider** — NONE — ⚡SCALE
-  *Acceptance:* one order carries N recipients; `custom1` still carries the mailing id per piece;
-  the idempotency guard still holds per piece; throughput measured before/after. **Highest-leverage
-  single change in the platform** — see §4.
+- [ ] `s-mail-batch` **Batch `recipients[]` on the mail provider** — BLOCKED ON A PRODUCT DECISION — ⚡SCALE
+  ⚠️ **Corrected 2026-09-02. The original framing of this task was wrong** — it is not a contained
+  engineering change. Verified against `THANKS.IO openapi.json`:
+
+  | Order-level (shared by every piece) | Per-recipient (all that can vary) |
+  |---|---|
+  | `front_image_url` · `image_template_id` · `message` · `message_template_id` · **`qrcode_url`** · `custom_background_image` · `handwriting_*` · `sub_account` · return address | `name` · `company` · `address` · `address2` · `city` · `province` · `postal_code` · `country` · `dob` · `anniversary` · `email` · `phone` · `custom1`–`custom4` |
+
+  **Every creative field is order-level.** Batching N cards into one order gives all N the same
+  front, the same message and **the same QR code** — which destroys per-card attribution, the thing
+  `CONTEXT.md` calls the differentiator. The only merge variable that appears anywhere in the spec
+  is `%FIRST_NAME%` (examples only); the captured vendor docs document none at all.
+
+  **Resolve one of these before writing code — see the open decision in §7:**
+  - **(A) Batch and move attribution from card → order.** Full throughput multiplier. You learn
+    which *batch* booked the job, not which household. Changes the final `/r/[code]` shape.
+  - **(B) Do not batch.** Preserves per-card attribution. 50 pieces/min stands, so `s2` fair-share
+    becomes mandatory and a large drop is spread over days — which a 5-touch/24-day cadence
+    tolerates naturally.
+  - **(C) Batch, carry the per-piece code in `message` via a merge variable.** QR goes batch-level,
+    promo code stays per piece. **Depends on `%CUSTOM1%`-style substitution that is undocumented.**
+    One `preview: true` call settles it and creates no order.
+  - **(D) Shard across `sub_account`s.** `sub_account` is a documented order field. If the 60/min
+    limit is per sub-account rather than account-wide, throughput multiplies **with no attribution
+    tradeoff at all.** One email to the vendor settles it. **Cheapest possible win — ask first.**
 - [ ] `s7` **Event bus / outbox for lifecycle events** — NONE — ⚡SCALE
   *Acceptance:* move-in, move-out, delinquent, rate-change and unit-vacated are emitted once,
   durably, and consumable by more than one subscriber. **Half of Modules v2 is "when X happens,
@@ -243,7 +266,7 @@ Wednesday late.**
 
 | Chokepoint | Limit today | Breaks when | Fix |
 |---|---|---|---|
-| **Mail API** (Thanks.io) | 60 req/min **account-wide**, throttled to 50. One recipient per call. ≈2.16M cards/month company-wide | **Immediately.** A 50,000-piece run is 50,000 calls = **16.7 hours** of the company's entire mail capacity, everyone else queued behind it | `s-mail-batch`. At 100/call the same run is **500 calls, ~10 minutes** |
+| **Mail API** (Thanks.io) | 60 req/min **account-wide**, throttled to 50. One recipient per call. ≈2.16M cards/month company-wide | **Immediately.** A 50,000-piece run is 50,000 calls = **16.7 hours** of the company's entire mail capacity, everyone else queued behind it | ⚠️ **Not simply "batch it"** — see `s-mail-batch`. Batching costs per-card attribution because every creative field is order-level. Probe `sub_account` sharding (D) first: it is the only option with no product tradeoff |
 | **Job runtime** | Vercel functions cap at 300s. **No queue.** | Any run over 300s | `s1` — prerequisite for most of this table |
 | **PROVE roll-ups** | Live joins across `facility_id IN (…)` × 5 dimensions | 20 facilities × cost-per-move-in by channel/card/ad/creative/ZIP | `s8` nightly roll-ups |
 | **PMS APIs** | Per-connection vendor limits | 100 customers × 20 facilities = **2,000 connections**; 5-min polling = 24,000 calls/hour | `s6` webhooks first, then shared scheduler with cursors and backoff |
@@ -262,9 +285,10 @@ Wednesday late.**
 | **Portfolio** | **20+** | **All of Phase A is mandatory** |
 | White-label | partner × many orgs | Adds a tenancy level above org, per-partner 10DLC brands, per-partner billing |
 
-> **The one thing to do before signing a portfolio account:** ship `s-mail-batch` and `s1`. Together
-> they turn the largest load the platform will ever take from a sixteen-hour company-wide outage
-> into a ten-minute job.
+> **Before signing a portfolio account:** ship `s1` (queue) and `s2` (fair-share), and resolve
+> `s-mail-batch` one way or the other. Fair-share matters *more* if the answer is (B) do-not-batch,
+> because then 50 pieces/min is a hard company-wide ceiling and the only defence a small customer
+> has against a portfolio drop is a guaranteed floor.
 
 ---
 
@@ -361,8 +385,18 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   `continue.md` have referenced since they were written. States derived from schema reading, not
   from running the app; see the provenance note in §0.
 
+- **2026-09-02 · Claude** — `s-mail-batch` corrected from "contained ~100× change" to "blocked on a
+  product decision." Verified against the vendor's OpenAPI spec that `front_image_url`, `message`
+  and `qrcode_url` are order-level, so batching trades per-card attribution for throughput. The
+  original entry would have sent a builder at a change that silently degrades the differentiator.
+  This is the sixth pinned fact about this vendor to survive first contact badly — **read the spec
+  before pinning anything about Thanks.io.**
+
 ### Open decisions
 
+- **`s-mail-batch` — throughput vs per-card attribution.** Four options (A–D) in Phase A.
+  *Recommendation: ask the vendor about per-`sub_account` rate limits (D) before choosing.* Angelo
+  and Blake own this one; it is a product call, not an engineering one.
 - **`s11`** — absorb PostcardRobot or keep the API boundary? *Recommendation: keep it separate.*
 - **Voice vendor** — concurrency pricing and latency decide it; the one dependency with no fallback.
 - **Which PMS first** — storEDGE is named in CONVERT; SiteLink and Storable are the rest of the market.
