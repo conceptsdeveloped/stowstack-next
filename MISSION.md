@@ -101,10 +101,22 @@ signed approval links, idempotent sends, a production render pipeline and Stripe
 
 Nothing above this line ships to a portfolio account. These are the pieces every module leans on.
 
-- [ ] `s1` **Durable job queue with resumable workers** — NONE — ⚡SCALE
-  *Acceptance:* a job survives a 300s function boundary; a crash mid-run resumes without repeating
-  completed work; per-job progress is inspectable in `/admin`; at-least-once delivery with
-  idempotent handlers.
+- [ ] `s1` **Durable job queue with resumable workers** — **BUILT, one criterion left** — ⚡SCALE
+  Shipped 2026-09-02: `jobs` table + `src/lib/jobs/{types,queue,runner,handlers}.ts` +
+  `GET /api/cron/jobs` (every minute, `maxDuration = 300`). Postgres-backed — `FOR UPDATE SKIP
+  LOCKED` — rather than a broker, so no new service to operate.
+  *Acceptance, item by item:*
+  - [x] survives a 300s boundary — the runner stops claiming inside a 30s headroom and a handler
+        returns `{ kind: "more", cursor }` to be resumed next minute
+  - [x] a crash mid-run resumes without repeating work — lease expiry reclaims the row and the
+        cursor survives; **proven against production**, 14 checks
+  - [x] at-least-once with idempotent handlers — `dedupe_key` unique per queue; re-enqueue is a no-op
+  - [x] outcome-unknown **freezes and is never retried** (`OutcomeUnknown`) — the PostcardRobot
+        lesson, ported rather than relearned
+  - [x] fair-share ordering by per-tenant in-flight count, so one portfolio drop cannot starve
+        every other customer (the `s2` seam, already load-bearing)
+  - [ ] **per-job progress inspectable in `/admin`** — today it is `GET /api/cron/jobs?stats=1`,
+        which needs the cron secret. This is the only reason the box above is unticked.
 - [ ] `s2` **Per-tenant fair-share budgets on every shared resource** — NONE — ⚡SCALE
   *Acceptance:* mail throughput, SMS TPS, voice lines and PMS calls each carry a per-tenant floor;
   one tenant cannot consume another's floor; bursting into idle capacity is allowed; **no shared
@@ -420,6 +432,13 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-02 · Claude** — `s1` built and proven against production (14 integration checks:
+  claim/skip-locked, dedupe, resume-with-cursor, crash reclaim, fair-share ordering). Two bugs the
+  verification caught before they shipped: the worker was written as `POST` when **every** Vercel
+  cron in this repo triggers on `GET` (it would simply never have run), and `ON CONFLICT ON
+  CONSTRAINT` referenced a constraint that did not exist because the DDL created a bare unique
+  index — every enqueue would have thrown. The index was promoted to a real constraint so the
+  database matches Prisma's `@@unique`.
 - **2026-09-02 · Claude** — `s3` and `s4` corrected against production data; the migration was not
   run. Two of five Phase A items were misdiagnosed from schema shape alone. **Lesson, and it now
   governs this file: a schema tells you what CAN be null, not what the column MEANS.** Read the data

@@ -1,0 +1,65 @@
+import { NextRequest, NextResponse } from "next/server";
+import { verifyCronSecret } from "@/lib/cron-auth";
+import { HANDLERS } from "@/lib/jobs/handlers";
+import { runJobs } from "@/lib/jobs/runner";
+import { queueStats } from "@/lib/jobs/queue";
+
+/**
+ * The worker (MISSION.md s1).
+ *
+ * Runs every minute and drains what it can inside its budget. Nothing here
+ * needs to finish: a job that cannot complete in one pass persists its cursor
+ * and the next minute's invocation resumes it.
+ *
+ * GET is the trigger, matching every other cron route in this repo — Vercel
+ * Cron issues GET, so a POST-only worker would simply never run.
+ * `GET ?stats=1` is the read-only view and does no work.
+ */
+export const maxDuration = 300;
+export const dynamic = "force-dynamic";
+
+/** Stop claiming with time left to finish the job in hand and write its result. */
+const BUDGET_MS = 300_000;
+const HEADROOM_MS = 30_000;
+
+async function handle(req: NextRequest) {
+  if (!verifyCronSecret(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Read-only inspection: what is queued, running or stuck.
+  if (new URL(req.url).searchParams.get("stats") === "1") {
+    try {
+      return NextResponse.json({ ok: true, stats: await queueStats() });
+    } catch (error) {
+      return NextResponse.json(
+        { ok: false, error: error instanceof Error ? error.message : String(error) },
+        { status: 500 }
+      );
+    }
+  }
+
+  // One id per invocation so a stuck lease traces back to a specific run.
+  const workerId = `w_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+
+  try {
+    const summary = await runJobs({
+      workerId,
+      budgetMs: BUDGET_MS,
+      headroomMs: HEADROOM_MS,
+      handlers: HANDLERS,
+    });
+    return NextResponse.json({ ok: true, workerId, ...summary });
+  } catch (error) {
+    // A throw here means the queue itself is broken (DB unreachable, bad SQL),
+    // not that a job failed — jobs handle their own outcomes inside runJobs.
+    console.error("[cron/jobs] runner failed:", error);
+    return NextResponse.json(
+      { ok: false, workerId, error: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
+}
+
+export const GET = handle;
+export const POST = handle;

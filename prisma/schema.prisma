@@ -2156,3 +2156,48 @@ model dev_handoffs {
 
   @@index([status], map: "idx_dev_handoffs_status")
 }
+
+/// Durable work queue (MISSION.md s1).
+///
+/// Exists because every long job in this repo runs inside a Vercel function
+/// capped at 300s: a portfolio mail drop, a 20-facility PMS sync or a review
+/// sweep across 12,000 units cannot finish in one invocation, and today they
+/// simply die mid-run. A job here carries its own `cursor`, so the worker can
+/// stop at the time budget, persist where it got to, and the next invocation
+/// resumes instead of restarting.
+///
+/// `status` is one of: pending | running | done | failed | frozen.
+/// `frozen` is deliberate and is NOT retried — it means the outcome is UNKNOWN
+/// (a vendor timeout after the request may have landed). Retrying an unknown
+/// send is how you mail a card twice and pay for it twice.
+model jobs {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  queue            String    @db.VarChar(64)
+  payload          Json      @default("{}")
+  status           String    @default("pending") @db.VarChar(16)
+  /// Fair-share key (MISSION.md s2). One tenant must not be able to starve
+  /// another on a shared vendor limit, so the claim orders by in-flight work
+  /// per tenant rather than first-come-first-served.
+  tenant_key       String?   @db.VarChar(128)
+  /// Idempotency. NULL is allowed and repeats freely; a set value is unique
+  /// per queue, so enqueueing the same unit of work twice is a no-op.
+  dedupe_key       String?   @db.VarChar(200)
+  cursor           Json?
+  progress_done    Int       @default(0)
+  progress_total   Int?
+  attempts         Int       @default(0)
+  max_attempts     Int       @default(5)
+  run_after        DateTime  @default(now()) @db.Timestamptz(6)
+  locked_by        String?   @db.VarChar(64)
+  lease_expires_at DateTime? @db.Timestamptz(6)
+  last_error       String?
+  created_at       DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime  @updatedAt @default(now()) @db.Timestamptz(6)
+  finished_at      DateTime? @db.Timestamptz(6)
+
+  @@unique([queue, dedupe_key], map: "jobs_queue_dedupe_key")
+  @@index([status, run_after], map: "idx_jobs_claim")
+  @@index([queue, status], map: "idx_jobs_queue_status")
+  @@index([tenant_key, status], map: "idx_jobs_tenant")
+  @@index([lease_expires_at], map: "idx_jobs_lease")
+}

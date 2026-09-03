@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "7c18004b89",
+      "date": "2026-07-05",
+      "category": "fix",
+      "scope": "p0",
+      "title": "Tenants cross-facility IDOR guard + walkin code-validation GET"
+    },
+    {
       "id": "66c7c52377",
       "date": "2026-06-26",
       "category": "feature",
