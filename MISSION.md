@@ -109,11 +109,34 @@ Nothing above this line ships to a portfolio account. These are the pieces every
   *Acceptance:* mail throughput, SMS TPS, voice lines and PMS calls each carry a per-tenant floor;
   one tenant cannot consume another's floor; bursting into idle capacity is allowed; **no shared
   vendor limit is served FIFO.**
-- [ ] `s3` **`facilities.organization_id` → NOT NULL, with backfill** — NONE — ⚡SCALE
-  *Acceptance:* migration applied; zero orphan facilities; every org-scoped query provably reaches
-  an org; `boundaries.test.ts` covers the cross-org case.
-- [ ] `s4` **Portfolio plan tier — raise `facility_limit` past 10** — NONE — ⚡SCALE
-  *Acceptance:* a 20+ facility org can be created and billed; the tier has a price in
+- [ ] `s3` **Stop prospect facilities leaking into org-scoped views** — RE-SPECCED — ⚡SCALE
+  ⚠️ **Corrected 2026-09-02. The original task — "make `organization_id` NOT NULL" — was wrong and
+  must not be run.** Measured against production:
+
+  | | |
+  |---|---|
+  | `facilities` | **29** |
+  | with `organization_id` NULL | **29 — all of them** |
+  | `organizations` | **0** |
+  | `org_users` | **0** |
+  | pipeline | `lost` 19 · `submitted` 6 · `audit_sent` 3 · `diagnostic_submitted` 1 |
+
+  **`facilities` is the audit-tool lead table, not a customer's facility roster.** Every row is a
+  prospect from the free funnel at `/audit-tool` — including obvious test rows (Test Facility, QA
+  Test Facility, ACME SELF STORAGE ×4). Nineteen of 29 are `lost`. **The nullable column is correct
+  by design:** somebody who runs the free audit has no organization, and a NOT NULL constraint would
+  break the entire top of funnel. Every row violates it today, so the migration cannot even apply.
+
+  *The underlying concern is still real, but it is a query-discipline problem, not a migration.*
+  **Acceptance:** no org-scoped query can return a facility whose `organization_id` is null or
+  belongs to another org; `boundaries.test.ts` covers both cases; if an "owned" state is ever
+  distinguishable from a prospect state, enforce it with a CHECK on that state, never on the column.
+- [ ] `s4` **Portfolio plan tier — raise `facility_limit` past 10** — PREMATURE — ⚡SCALE
+  ⚠️ **Corrected 2026-09-02.** There are **zero `organizations` and zero `org_users` in production** —
+  the org/partner system has never been used. Raising a default nobody has hit yet is not the work;
+  the work is that the first portfolio org can be created at all. Keep the item, drop it out of
+  Phase A, and revisit when org #1 exists.
+  *Acceptance (unchanged):* a 20+ facility org can be created and billed; the tier has a price in
   `src/app/pricing/page.tsx`; limit enforcement has a test.
 - [ ] `s-mail-batch` **Batch `recipients[]` on the mail provider** — BLOCKED ON A PRODUCT DECISION — ⚡SCALE
   ⚠️ **Corrected 2026-09-02. The original framing of this task was wrong** — it is not a contained
@@ -392,11 +415,22 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   This is the sixth pinned fact about this vendor to survive first contact badly — **read the spec
   before pinning anything about Thanks.io.**
 
+- **2026-09-02 · Angelo** — `s-mail-batch`: **option D chosen for now** — shard across
+  `sub_account` rather than batching recipients. Per-card attribution is preserved and no creative
+  field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
+  per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
+  A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-02 · Claude** — `s3` and `s4` corrected against production data; the migration was not
+  run. Two of five Phase A items were misdiagnosed from schema shape alone. **Lesson, and it now
+  governs this file: a schema tells you what CAN be null, not what the column MEANS.** Read the data
+  and the funnel that writes it before pinning a task. §0's provenance caveat was too narrow — it
+  warned about PARTIAL states when the errors were in the tasks themselves.
+
 ### Open decisions
 
-- **`s-mail-batch` — throughput vs per-card attribution.** Four options (A–D) in Phase A.
-  *Recommendation: ask the vendor about per-`sub_account` rate limits (D) before choosing.* Angelo
-  and Blake own this one; it is a product call, not an engineering one.
+- **`s-mail-batch` D — the vendor question.** *Ask Thanks.io: "Is the 60 requests/minute API rate
+  limit applied per sub-account, or across the parent account? If we create one sub-account per
+  customer, does each get its own limit?"* One email. Everything else here waits on it.
 - **`s11`** — absorb PostcardRobot or keep the API boundary? *Recommendation: keep it separate.*
 - **Voice vendor** — concurrency pricing and latency decide it; the one dependency with no fallback.
 - **Which PMS first** — storEDGE is named in CONVERT; SiteLink and Storable are the rest of the market.
