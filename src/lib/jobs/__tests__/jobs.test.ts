@@ -205,3 +205,37 @@ describe("runner", () => {
     vi.doUnmock("@/lib/jobs/queue");
   });
 });
+
+describe("recurring schedule", () => {
+  it("every recurring queue has a registered handler", async () => {
+    const { RECURRING } = await import("@/lib/jobs/schedule");
+    const { HANDLERS: H } = await import("@/lib/jobs/handlers");
+    RECURRING.forEach((r) => expect(Object.keys(H)).toContain(r.queue));
+  });
+
+  it("buckets are stable inside an interval and change across it", async () => {
+    const { bucketOf } = await import("@/lib/jobs/schedule");
+    const every = 120_000;
+    expect(bucketOf(0, every)).toBe(bucketOf(119_999, every));
+    expect(bucketOf(0, every)).not.toBe(bucketOf(120_000, every));
+  });
+
+  it("seeding twice inside one bucket creates nothing the second time", async () => {
+    vi.resetModules();
+    const seen = new Set<string>();
+    vi.doMock("@/lib/jobs/queue", () => ({
+      enqueue: async ({ dedupeKey, queue }: { dedupeKey: string; queue: string }) => {
+        const k = `${queue}|${dedupeKey}`;
+        if (seen.has(k)) return null; // the unique index, in miniature
+        seen.add(k);
+        return k;
+      },
+    }));
+    const { ensureScheduled, RECURRING } = await import("@/lib/jobs/schedule");
+    const first = await ensureScheduled(1_000_000);
+    const second = await ensureScheduled(1_000_000);
+    expect(first).toBe(RECURRING.length);
+    expect(second).toBe(0);
+    vi.doUnmock("@/lib/jobs/queue");
+  });
+});

@@ -175,7 +175,7 @@ Nothing above this line ships to a portfolio account. These are the pieces every
   - **(D) Shard across `sub_account`s.** `sub_account` is a documented order field. If the 60/min
     limit is per sub-account rather than account-wide, throughput multiplies **with no attribution
     tradeoff at all.** One email to the vendor settles it. **Cheapest possible win — ask first.**
-- [ ] `s7` **Event bus / outbox for lifecycle events** — **BUILT, 4 of 5 producers wired** — ⚡SCALE
+- [x] `s7` **Event bus / outbox for lifecycle events** — **DONE** — ⚡SCALE
   Shipped 2026-09-03: `domain_events` + `src/lib/events/{types,bus,subscribers,detect}.ts`,
   delivered through the `s1` queue as one job per subscriber. Detection diffs two
   `facility_pms_rent_roll` snapshots — the only history this product actually keeps.
@@ -187,10 +187,15 @@ Nothing above this line ships to a portfolio account. These are the pieces every
   - [x] **consumable by more than one subscriber** — one `jobs` row each, so a failing subscriber
         cannot hold up the others; 6 events fanned out to 12 jobs across 8 queues
   - [x] delivery inherits retry, backoff, freeze-on-unknown and fair-share from `s1`
-  - [ ] **`inventory.available` (unit vacated)** — the rule is written and tested (`diffInventory`,
-        the zero-to-something edge), but **`facility_pms_units` has `last_updated` and no
-        `snapshot_date`**, so there is no previous row to diff. Needs a `snapshot_date` column or a
-        units-history table. **The only reason the box above is unticked**, and it blocks `r9`/`c6`.
+  - [x] **recurring work actually runs** — `src/lib/jobs/schedule.ts` seeds detection from the
+        worker itself, idempotent per time bucket. Without it the handlers existed and nothing
+        ever enqueued them. One cron entry drives everything rather than a 24th `vercel.json` row.
+  - [x] **`inventory.available` (unit vacated)** — unblocked 2026-09-03 by
+        `facility_pms_unit_history`. `facility_pms_units` is read by 25 files and written by 4, so
+        it was left alone entirely: the detector copies the mix into history whenever the source
+        timestamp moves, and diffs the last two captures. **Proven against production** (13 checks)
+        — fires on the zero-to-something edge only, ignores a size that already had vacancy, and
+        re-detection emits nothing. RESPOND `r9` / CONVERT `c6` now have their X.
 
   > **The subscriber map is now the wiring diagram.** `mail.welcome-kit`, `retain.autopay-push`,
   > `retain.delinquency-notice`, `mail.rate-increase-letter`, `mail.winback-schedule` and the rest
@@ -449,6 +454,11 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-03 · Claude** — `s7` COMPLETE. Unit-mix history added additively
+  (`facility_pms_unit_history`) rather than putting a snapshot column on `facility_pms_units`,
+  which 25 files read and 4 write. Waitlist trigger proven end to end. Also found: that table's
+  `vacant_count` is a STORED generated column — correctly modelled, but a hand-written INSERT
+  naming it fails with 428C9, so it is now documented at the field.
 - **2026-09-03 · Claude** — `s7` built and proven against production (10 integration checks: real
   rent-roll diff → 6 events → 12 subscriber jobs across 8 queues, re-run idempotent, temp data
   cleaned up). Delivery rides on the `s1` queue rather than its own machinery. **New follow-on:**

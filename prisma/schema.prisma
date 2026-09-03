@@ -713,6 +713,9 @@ model facility_pms_units {
   features        String[]   @default([])
   total_count     Int        @default(0)
   occupied_count  Int        @default(0)
+  /// Read-only: a STORED generated column in Postgres. Prisma models it as a
+  /// dbgenerated default, so it is never sent on write — but a hand-written
+  /// INSERT/UPDATE naming this column fails at runtime with 428C9.
   vacant_count    Int?       @default(dbgenerated("(total_count - occupied_count)"))
   street_rate     Decimal?   @db.Decimal(8, 2)
   actual_avg_rate Decimal?   @db.Decimal(8, 2)
@@ -2230,4 +2233,35 @@ model domain_events {
   @@index([facility_id, type, occurred_at], map: "idx_events_facility_type")
   @@index([occurred_at], map: "idx_events_occurred")
   @@index([type, created_at], map: "idx_events_type_created")
+}
+
+/// Unit-mix history (MISSION.md s7 follow-on).
+///
+/// `facility_pms_units` is upserted CURRENT state — it has `last_updated` and no
+/// snapshot date — so there is no previous row to diff and the sold-out waitlist
+/// trigger (RESPOND r9 / CONVERT c6) could not be produced. Twenty-five files
+/// read that table and four write it, so adding a snapshot column there would
+/// change semantics under all of them.
+///
+/// This is the additive alternative: the detection job copies the current mix in
+/// here whenever the source data has moved, and diffs the last two captures.
+/// Nothing that writes `facility_pms_units` today has to change.
+///
+/// `captured_at` is the facility's own latest unit-data timestamp, not the time
+/// we looked — so a capture is atomic per facility and re-running detection
+/// records nothing new.
+model facility_pms_unit_history {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id    String   @db.Uuid
+  captured_at    DateTime @db.Timestamptz(6)
+  unit_type      String
+  size_label     String?
+  total_count    Int
+  occupied_count Int
+  vacant_count   Int?
+  street_rate    Decimal? @db.Decimal(10, 2)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([facility_id, unit_type, captured_at], map: "pms_unit_history_key")
+  @@index([facility_id, captured_at], map: "idx_unit_history_facility")
 }

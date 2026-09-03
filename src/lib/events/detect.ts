@@ -6,17 +6,14 @@
  * snapshots for a facility yields move-ins, move-outs, rate changes and the
  * delinquency ladder.
  *
- * ⚠️ `inventory.available` is NOT produced here. `facility_pms_units` is
- * upserted current state — it has `last_updated` but no `snapshot_date`, so
- * there is no previous row to diff against. The rule itself exists and is
- * tested (`diffInventory`); it needs either a `snapshot_date` on that table or
- * a small units-history table before it can be wired. That is a schema change
- * and it is logged as a follow-on rather than guessed at here.
+ * `inventory.available` needs a second source. `facility_pms_units` is upserted
+ * CURRENT state, so `captureUnitMix` copies it into `facility_pms_unit_history`
+ * whenever the source data has moved, and the last two captures are diffed.
  */
 
 import { db } from "@/lib/db";
 import { emit, type EmitResult } from "./bus";
-import { diffRentRoll, type RentRollRow } from "./types";
+import { diffInventory, diffRentRoll, type RentRollRow, type UnitTypeRow } from "./types";
 
 /** Facilities with at least two rent-roll snapshots — the only ones diffable. */
 export async function facilitiesWithHistory(afterId?: string, limit = 25): Promise<string[]> {
@@ -56,4 +53,69 @@ export async function detectForFacility(facilityId: string): Promise<EmitResult>
   // The facility is the fair-share bucket: one customer's 12,000-unit roll must
   // not monopolise the workers ahead of everybody else's.
   return emit(events, facilityId);
+}
+
+
+/**
+ * Copy the facility's current unit mix into history, if it has moved.
+ *
+ * `captured_at` is the facility's own latest unit-data timestamp — not the time
+ * we looked — so running this every minute records nothing until an upload
+ * actually changes the mix, and re-running is a no-op.
+ */
+export async function captureUnitMix(facilityId: string): Promise<number> {
+  const rows = await db.$queryRaw<{ id: string }[]>`
+    WITH src AS (
+      SELECT unit_type, size_label, total_count, occupied_count, vacant_count, street_rate,
+             coalesce(last_updated, created_at) AS ts
+      FROM facility_pms_units
+      WHERE facility_id = ${facilityId}::uuid
+    ),
+    mark AS (SELECT max(ts) AS captured_at FROM src)
+    INSERT INTO facility_pms_unit_history
+      (facility_id, captured_at, unit_type, size_label, total_count, occupied_count, vacant_count, street_rate)
+    SELECT ${facilityId}::uuid, mark.captured_at, src.unit_type, src.size_label,
+           src.total_count, src.occupied_count, src.vacant_count, src.street_rate
+    FROM src CROSS JOIN mark
+    WHERE mark.captured_at IS NOT NULL
+    ON CONFLICT ON CONSTRAINT pms_unit_history_key DO NOTHING
+    RETURNING id
+  `;
+  return rows.length;
+}
+
+/**
+ * Emit `inventory.available` for any size that went from nothing free to
+ * something free — the moment a unit can be sold before it is vacant a day.
+ */
+export async function detectInventoryForFacility(facilityId: string): Promise<EmitResult> {
+  await captureUnitMix(facilityId);
+
+  const marks = await db.$queryRaw<{ captured_at: Date }[]>`
+    SELECT DISTINCT captured_at FROM facility_pms_unit_history
+    WHERE facility_id = ${facilityId}::uuid
+    ORDER BY captured_at DESC LIMIT 2
+  `;
+  if (marks.length < 2) return { emitted: 0, duplicates: 0, fannedOut: 0 };
+
+  const [curAt, prevAt] = marks.map((m) => m.captured_at);
+  const load = (at: Date) => db.$queryRaw<UnitTypeRow[]>`
+    SELECT unit_type, size_label, total_count, occupied_count, vacant_count,
+           street_rate::float8 AS street_rate
+    FROM facility_pms_unit_history
+    WHERE facility_id = ${facilityId}::uuid AND captured_at = ${at}
+  `;
+
+  const [next, prev] = await Promise.all([load(curAt), load(prevAt)]);
+  return emit(diffInventory(prev, next, curAt.toISOString(), facilityId), facilityId);
+}
+
+/** Facilities with a unit mix at all — capture runs for these even before history exists. */
+export async function facilitiesWithUnitMix(afterId?: string, limit = 25): Promise<string[]> {
+  const rows = await db.$queryRaw<{ facility_id: string }[]>`
+    SELECT DISTINCT facility_id FROM facility_pms_units
+    WHERE (${afterId ?? null}::uuid IS NULL OR facility_id > ${afterId ?? null}::uuid)
+    ORDER BY facility_id ASC LIMIT ${limit}
+  `;
+  return rows.map((r) => r.facility_id);
 }

@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "bf3c6cf81d",
+      "date": "2026-09-03",
+      "category": "feature",
+      "scope": "events",
+      "title": "Domain event bus over the job queue (MISSION.md s7)"
+    },
+    {
       "id": "b39fe28b89",
       "date": "2026-09-02",
       "category": "feature",

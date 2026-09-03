@@ -3,6 +3,7 @@ import { verifyCronSecret } from "@/lib/cron-auth";
 import { HANDLERS } from "@/lib/jobs/handlers";
 import { runJobs } from "@/lib/jobs/runner";
 import { queueStats } from "@/lib/jobs/queue";
+import { ensureScheduled } from "@/lib/jobs/schedule";
 
 /**
  * The worker (MISSION.md s1).
@@ -43,13 +44,17 @@ async function handle(req: NextRequest) {
   const workerId = `w_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 
   try {
+    // Recurring work is seeded here rather than from its own cron entries: one
+    // schedule, one function, one thing to watch. Idempotent per time bucket.
+    const scheduled = await ensureScheduled();
+
     const summary = await runJobs({
       workerId,
       budgetMs: BUDGET_MS,
       headroomMs: HEADROOM_MS,
       handlers: HANDLERS,
     });
-    return NextResponse.json({ ok: true, workerId, ...summary });
+    return NextResponse.json({ ok: true, workerId, scheduled, ...summary });
   } catch (error) {
     // A throw here means the queue itself is broken (DB unreachable, bad SQL),
     // not that a job failed — jobs handle their own outcomes inside runJobs.

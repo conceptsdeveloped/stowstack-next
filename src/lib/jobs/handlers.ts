@@ -16,7 +16,12 @@
  */
 
 import type { JobHandler } from "./types";
-import { detectForFacility, facilitiesWithHistory } from "@/lib/events/detect";
+import {
+  detectForFacility,
+  detectInventoryForFacility,
+  facilitiesWithHistory,
+  facilitiesWithUnitMix,
+} from "@/lib/events/detect";
 
 /**
  * Resumability proof. Counts to `payload.to` in chunks, yielding whenever the
@@ -68,7 +73,33 @@ const detectPmsEvents: JobHandler = async (ctx) => {
   }
 };
 
+/**
+ * Capture the unit mix and emit `inventory.available` (RESPOND r9 / CONVERT c6).
+ *
+ * Separate from `pms.detect-events` on purpose: this one is cheap, has no
+ * dependency on rent-roll history, and wants to run often — the waitlist only
+ * pays off if the notice goes out within minutes of a unit freeing up.
+ */
+const detectInventory: JobHandler = async (ctx) => {
+  let after = (ctx.cursor as { after?: string } | null)?.after;
+  let emitted = Number((ctx.cursor as { emitted?: number } | null)?.emitted ?? 0);
+
+  for (;;) {
+    const batch = await facilitiesWithUnitMix(after, 25);
+    if (batch.length === 0) return { kind: "done", progressDone: emitted };
+
+    for (const facilityId of batch) {
+      emitted += (await detectInventoryForFacility(facilityId)).emitted;
+      after = facilityId;
+      if (ctx.shouldYield()) {
+        return { kind: "more", cursor: { after, emitted }, progressDone: emitted };
+      }
+    }
+  }
+};
+
 export const HANDLERS: Record<string, JobHandler> = {
   "demo.chunked": chunkedCounter,
   "pms.detect-events": detectPmsEvents,
+  "pms.detect-inventory": detectInventory,
 };
