@@ -117,10 +117,16 @@ Nothing above this line ships to a portfolio account. These are the pieces every
         every other customer (the `s2` seam, already load-bearing)
   - [ ] **per-job progress inspectable in `/admin`** — today it is `GET /api/cron/jobs?stats=1`,
         which needs the cron secret. This is the only reason the box above is unticked.
-- [ ] `s2` **Per-tenant fair-share budgets on every shared resource** — NONE — ⚡SCALE
-  *Acceptance:* mail throughput, SMS TPS, voice lines and PMS calls each carry a per-tenant floor;
-  one tenant cannot consume another's floor; bursting into idle capacity is allowed; **no shared
-  vendor limit is served FIFO.**
+- [ ] `s2` **Per-tenant fair-share budgets on every shared resource** — **HALF DONE** — ⚡SCALE
+  - [x] **Job scheduling is already fair-shared** — shipped with `s1`. The claim orders by
+        per-tenant in-flight count, not FIFO, so one portfolio account cannot occupy every worker
+        until its drop drains. Proven against production: a busy tenant yields to an idle one
+        despite being ten minutes older.
+  - [ ] **Vendor budgets** — mail throughput, SMS TPS and voice lines each need a per-tenant floor.
+        ⚠️ **Deliberately not built yet: none of those vendors is connected.** Thanks.io is behind
+        the `s-mail-batch` decision, and there is no SMS or voice provider at all (`s5`). A rate
+        limiter for a vendor that does not exist is a guess about its shape. Build each one with
+        its integration, not before.
 - [ ] `s3` **Stop prospect facilities leaking into org-scoped views** — RE-SPECCED — ⚡SCALE
   ⚠️ **Corrected 2026-09-02. The original task — "make `organization_id` NOT NULL" — was wrong and
   must not be run.** Measured against production:
@@ -201,9 +207,32 @@ Nothing above this line ships to a portfolio account. These are the pieces every
   > `retain.delinquency-notice`, `mail.rate-increase-letter`, `mail.winback-schedule` and the rest
   > are registered with no handlers yet — an unregistered queue *freezes* rather than fails, so the
   > work accumulates visibly and is re-deliverable the day each handler ships.
-- [ ] `s8` **Attribution roll-up tables, computed nightly** — NONE — ⚡SCALE
-  *Acceptance:* cost per move-in by channel × card × ad × creative × ZIP is precomputed; the
-  portfolio dashboard reads roll-ups only; **no attribution aggregation runs on page load.**
+- [ ] `s8` **Portfolio attribution without the N+1** — **RE-SPECCED ON EVIDENCE** — ⚡SCALE
+  ⚠️ **Corrected 2026-09-03. "Compute nightly roll-up tables" was the wrong fix.** I benchmarked
+  the shipped query in `/api/attribution` against a seeded portfolio — 20 facilities, 30,000 leads,
+  3,600 spend rows, a realistic year — instead of assuming:
+
+  | | |
+  |---|---|
+  | one facility (the shipped query) | **38 ms** |
+  | 20 facilities **looped** — what a portfolio dashboard does today | **1,553 ms** |
+  | 20 facilities in **one grouped query** | **100 ms** |
+  | full cube: facility × month × campaign × source | **552 ms** |
+
+  **Live aggregation is not the problem. The N+1 loop is.** One grouped query is **15× faster**
+  than looping the per-facility one, and 100 ms needs no precomputation, no nightly job, no
+  staleness and no cache invalidation. Roll-up tables would have been real machinery bought to
+  solve a problem the numbers say does not exist yet.
+
+  *Acceptance (revised):* the portfolio view issues **one grouped query**, not one per facility;
+  `/api/attribution` gains a portfolio mode taking many facility ids; latency is measured, not
+  assumed. **Revisit precomputation only when a measurement justifies it** — extrapolating, that is
+  somewhere north of ~300k leads, and it is a decision to make with real data.
+  ⚠️ **Blocked on the `campaign_spend` bug below** — there is no point optimising the read path of
+  a table nothing can write to. And note the dimensions in the original wording were fiction:
+  there is no ZIP on leads, no creative column on spend, and no card dimension at all until
+  PostcardRobot is connected. Channel and campaign are what exist.
+
 - [ ] `s9` **Idempotency discipline on anything that spends or sends** — NONE — ⚡SCALE
   *Acceptance:* intent row written before the call; unique index on the provider id; outcome-unknown
   freezes rather than retries. **Port the PostcardRobot pattern — do not reinvent it.**
@@ -454,6 +483,19 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-03 · Claude** — 🔴 **PRODUCTION BUG FOUND, NOT FIXED (Angelo's domain).**
+  `campaign_spend.updated_at` is `NOT NULL` with **no database default**, and the only writer —
+  the Meta spend sync at `src/app/api/campaign-spend/route.ts:178` — omits it. Every insert fails
+  with SQLSTATE 23502. **Proven against production**: the exact statement fails; the same statement
+  with `updated_at` succeeds. That is why `campaign_spend` has 0 rows, and it means **cost per
+  move-in — the number `OVERVIEW.md` calls "the whole company" — is structurally always zero.**
+  Two one-line fixes, either works: add `updated_at` to the INSERT and the `DO UPDATE SET`, or
+  `ALTER TABLE campaign_spend ALTER COLUMN updated_at SET DEFAULT now()`. Left for Angelo per
+  CLAUDE.md's rule that ad-platform integrations are his and are not modified without coordination.
+- **2026-09-03 · Claude** — `s8` re-specced on a benchmark rather than an assumption (numbers in
+  Phase A). Live aggregation is fine; the N+1 loop is the problem. `s2` marked half done: its
+  scheduling half shipped with `s1`, and its vendor half is deliberately deferred until there are
+  vendors to budget.
 - **2026-09-03 · Claude** — `s7` COMPLETE. Unit-mix history added additively
   (`facility_pms_unit_history`) rather than putting a snapshot column on `facility_pms_units`,
   which 25 files read and 4 write. Waitlist trigger proven end to end. Also found: that table's
