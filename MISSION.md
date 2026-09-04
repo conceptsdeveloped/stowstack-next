@@ -224,10 +224,21 @@ Nothing above this line ships to a portfolio account. These are the pieces every
   staleness and no cache invalidation. Roll-up tables would have been real machinery bought to
   solve a problem the numbers say does not exist yet.
 
-  *Acceptance (revised):* the portfolio view issues **one grouped query**, not one per facility;
-  `/api/attribution` gains a portfolio mode taking many facility ids; latency is measured, not
-  assumed. **Revisit precomputation only when a measurement justifies it** — extrapolating, that is
-  somewhere north of ~300k leads, and it is a decision to make with real data.
+  *Acceptance, item by item:*
+  - [x] **one grouped query, not one per facility** — shipped 2026-09-04 as
+        `src/lib/attribution/portfolio.ts` + `GET /api/attribution/portfolio`. **Two queries for
+        the whole portfolio regardless of size**, not two per facility.
+  - [x] **measured, not assumed** — re-benchmarked against the real implementation on a seeded
+        20-facility portfolio: **1,507 ms looped → 56 ms grouped, 27× faster**, and the grouped
+        totals match the loop exactly on spend, leads, move-ins and revenue. A faster query that
+        disagreed would be worthless, so equality is asserted, not hoped for.
+  - [x] the single-facility route is **untouched** — its campaign-cohort join carries a "must not
+        change" note and belongs to the ad-platform integration, so portfolio sits beside it
+  - [ ] **an admin UI consuming it.** The endpoint is admin-authenticated and unused; `/admin/portfolio`
+        still loops. Wiring it is the remaining work, and it is why the box above is unticked.
+
+  **Revisit precomputation only when a measurement justifies it** — on these numbers that is
+  somewhere well north of 300k leads, and it is a decision to make with real data.
   ✅ **Unblocked 2026-09-04** — the `campaign_spend` write bug is fixed, so spend can land and the
   read path is worth optimising. And note the dimensions in the original wording were fiction:
   there is no ZIP on leads, no creative column on spend, and no card dimension at all until
@@ -483,6 +494,11 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-04 · Claude** — `s8` shipped as a grouped query rather than the roll-up tables the
+  original task asked for. Re-benchmarked against the real implementation: **27× faster than the
+  loop with identical totals.** No nightly job, no staleness, no invalidation. The org-session
+  caller is deliberately not wired — there are zero organizations in production, so its shape
+  would be a guess.
 - **2026-09-04 · Angelo + Claude** — ✅ **FIXED, and it was four sites, not one.** The sweep found
   **7 tables** with a `NOT NULL updated_at` and no database default, and **4 hand-written INSERTs
   across 3 of them** omitted the column — so those writes had never once succeeded:

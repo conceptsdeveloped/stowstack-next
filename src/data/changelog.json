@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "97d098569c",
+      "date": "2026-09-04",
+      "category": "fix",
+      "scope": "db",
+      "title": "NOT NULL updated_at with no default broke 4 raw INSERTs"
+    },
+    {
       "id": "d4faff15ce",
       "date": "2026-09-03",
       "category": "feature",
