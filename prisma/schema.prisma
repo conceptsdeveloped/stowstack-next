@@ -2265,3 +2265,75 @@ model facility_pms_unit_history {
   @@unique([facility_id, unit_type, captured_at], map: "pms_unit_history_key")
   @@index([facility_id, captured_at], map: "idx_unit_history_facility")
 }
+
+/// Sold-out waitlist (MISSION.md RESPOND r9 / CONVERT c6).
+///
+/// Someone wants a 10x10 and there isn't one. Capturing that is the difference
+/// between a lost enquiry and a unit that sells itself the moment it frees up —
+/// which the `inventory.available` event now makes possible.
+model unit_waitlist {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String    @db.Uuid
+  /// Matched against the size that frees up. Null means "any size here".
+  size_label    String?
+  contact_name  String?
+  contact_phone String    @db.VarChar(20)
+  contact_email String?
+  /// waiting | notified | converted | cancelled
+  status        String    @default("waiting") @db.VarChar(16)
+  notified_at   DateTime? @db.Timestamptz(6)
+  notify_count  Int       @default(0)
+  source        String?   @db.VarChar(32)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime  @updatedAt @default(now()) @db.Timestamptz(6)
+
+  @@index([facility_id, size_label, status], map: "idx_waitlist_match")
+  @@index([contact_phone], map: "idx_waitlist_phone")
+}
+
+/// Every outbound message, written BEFORE it is sent (MISSION.md s5).
+///
+/// The intent row is the idempotency guard, ported from the mail system: a
+/// crash between "sent" and "recorded" must never let a retry text somebody
+/// twice. `dedupe_key` is unique, so a replayed job is a no-op rather than a
+/// second message to a real phone.
+///
+/// `frozen` means the outcome is UNKNOWN — the provider may or may not have
+/// delivered — and is never retried automatically.
+model message_log {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String?   @db.Uuid
+  /// sms | voice
+  channel     String    @db.VarChar(8)
+  direction   String    @default("outbound") @db.VarChar(8)
+  to_number   String    @db.VarChar(20)
+  from_number String?   @db.VarChar(20)
+  body        String
+  /// queued | sent | failed | frozen | suppressed
+  status      String    @default("queued") @db.VarChar(16)
+  provider    String?   @db.VarChar(16)
+  provider_id String?
+  dedupe_key  String    @db.VarChar(200)
+  error       String?
+  sent_at     DateTime? @db.Timestamptz(6)
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime  @updatedAt @default(now()) @db.Timestamptz(6)
+
+  @@unique([dedupe_key], map: "message_log_dedupe_key")
+  @@index([facility_id, created_at], map: "idx_message_facility")
+  @@index([status], map: "idx_message_status")
+  @@index([to_number], map: "idx_message_to")
+}
+
+/// One opt-out registry, forever, everywhere (MISSION.md s5).
+///
+/// A STOP reply is a legal obligation, not a preference: it outranks every
+/// other rule and every campaign. Global by phone number rather than scoped to
+/// a facility — somebody who said stop did not mean "stop, but only here".
+model message_optout {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phone      String   @unique @db.VarChar(20)
+  reason     String?  @db.VarChar(32)
+  source     String?  @db.VarChar(32)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+}

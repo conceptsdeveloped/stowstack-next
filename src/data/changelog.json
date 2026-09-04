@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "533dd6731b",
+      "date": "2026-09-04",
+      "category": "feature",
+      "scope": "admin",
+      "title": "Windows onto the queue, the event stream and cost per move-in"
+    },
+    {
       "id": "a99643047a",
       "date": "2026-09-04",
       "category": "feature",

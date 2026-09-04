@@ -17,6 +17,7 @@
 
 import { db } from "@/lib/db";
 import type { JobHandler } from "./types";
+import { notifyWaitlist } from "@/lib/respond/waitlist";
 import {
   detectForFacility,
   detectInventoryForFacility,
@@ -131,8 +132,35 @@ const pruneJobs: JobHandler = async (ctx) => {
   }
 };
 
+/**
+ * RESPOND r9 — text the waitlist when a unit frees up.
+ *
+ * The first subscriber with a real handler. Everything upstream of it already
+ * existed: the PMS diff, the event, the fan-out, the queue's retry and freeze
+ * semantics. This just decides what to say and to whom.
+ */
+const waitlistNotify: JobHandler = async (ctx) => {
+  const p = (ctx.payload ?? {}) as {
+    eventId?: string; facilityId?: string; sizeLabel?: string | null;
+    available?: number; streetRate?: number | null;
+  };
+  if (!p.eventId || !p.facilityId) {
+    // A malformed payload is a bug upstream, not something to retry into.
+    return { kind: "unknown", reason: "waitlist job missing eventId or facilityId" };
+  }
+  const res = await notifyWaitlist({
+    eventId: p.eventId,
+    facilityId: p.facilityId,
+    sizeLabel: p.sizeLabel ?? null,
+    available: Number(p.available ?? 1),
+    streetRate: p.streetRate == null ? null : Number(p.streetRate),
+  });
+  return { kind: "done", progressDone: res.sent };
+};
+
 export const HANDLERS: Record<string, JobHandler> = {
   "demo.chunked": chunkedCounter,
+  "respond.waitlist-notify": waitlistNotify,
   "pms.detect-events": detectPmsEvents,
   "pms.detect-inventory": detectInventory,
   "jobs.prune": pruneJobs,

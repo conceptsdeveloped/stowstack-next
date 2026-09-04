@@ -257,9 +257,23 @@ Nothing above this line ships to a portfolio account. These are the pieces every
 - [ ] `s9` **Idempotency discipline on anything that spends or sends** — NONE — ⚡SCALE
   *Acceptance:* intent row written before the call; unique index on the provider id; outcome-unknown
   freezes rather than retries. **Port the PostcardRobot pattern — do not reinvent it.**
-- [ ] `s5` **Messaging layer — SMS + voice behind one interface** — NONE — ⚡SCALE
-  *Acceptance:* one seam; nothing outside it imports the vendor (the `PrintProvider` rule);
-  per-brand 10DLC registration state is modelled and visible.
+- [x] `s5` **Messaging layer — SMS + voice behind one interface** — **DONE** — ⚡SCALE
+  Shipped 2026-09-04: `src/lib/messaging/{types,sim,twilio,index,send}.ts` + `message_log`,
+  `message_optout`. Twilio when keyed, sim otherwise, and it says which out loud — a silent
+  fallback to sim looks like success while nobody receives anything.
+  - [x] one seam; **only `twilio.ts` imports the vendor** (the `PrintProvider` rule)
+  - [x] **live is double-gated** — credentials AND `MESSAGING_LIVE=true`, an operator attestation
+        that the 10DLC brand and campaign are registered. Credentials alone are not consent to text
+        real people; an unregistered campaign gets filtered or fined rather than delivered.
+  - [x] **intent row written before the vendor is called** — a crash between send and record would
+        otherwise let a retry text a real person twice. Ported from the mail system.
+  - [x] **outcome-unknown freezes, never retries**; a 4xx is definitive and fails cleanly
+  - [x] **one opt-out registry, forever, everywhere** — global by phone, checked before every send,
+        recorded as `suppressed` rather than silently dropped
+  - [x] **quiet hours** — 8am–9pm recipient-local, skipped rather than assumed when the timezone is
+        unknown, because assuming UTC is how you text somebody at 3am
+  - [ ] per-brand 10DLC registration state modelled and visible — deferred with white-label; there
+        are no partners yet, so its shape would be a guess.
 - [ ] `s6` **PMS adapter interface — storEDGE / SiteLink / Storable** — PARTIAL — ⚡SCALE
   *Acceptance:* one contract, one adapter per vendor; webhooks preferred over polling; a shared
   scheduler with per-facility cursors and vendor-aware backoff. Today's `facility_pms_*` tables are
@@ -283,7 +297,14 @@ hard half. Gate: Phase A complete.
 - [ ] `r6` Tour booking with 24h and 1h reminders — NONE
 - [ ] `r7` No-show recovery same day — NONE
 - [ ] `r8` Abandoned online rental rescued within 10 minutes — PARTIAL — `partial_leads` is this capture
-- [ ] `r9` Sold-out waitlist, auto-notify, payment link — NONE — **best idea in the module**; needs `s7`
+- [~] `r9` Sold-out waitlist, auto-notify, payment link — **NOTIFY CHAIN DONE** — `unit_waitlist`
+      + `respond.waitlist-notify`. **The first capability that runs end to end with no human in it:**
+      a PMS upload changes the mix → `inventory.available` → job → text. Proven against the real
+      database with the real modules (6 checks): baseline emits nothing, only the zero-to-something
+      edge fires, the list is texted oldest-first, a replay sends nothing, and an opted-out number is
+      never texted even when it is the only match.
+      **Still missing:** somewhere for a customer to *join* the list (no form or endpoint yet —
+      entries are inserted directly), and the payment link, which needs `s10` and Stripe.
 - [ ] `r10` Spanish flows throughout — NONE — cheaper built in than retrofitted
 - [ ] `r11` Overflow routing to a human — NONE — ⚡SCALE — **the pressure valve that makes voice
       concurrency caps safe. Build it with the agent, not after.**
@@ -504,6 +525,13 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-04 · Claude** — **Phase B begun.** `s5` messaging seam complete and `r9`'s notify chain
+  working end to end — the first automation in this platform with no human step. Two bugs my own
+  tests caught before they shipped: `segmentCount`'s non-GSM check was written as `/[^ -]/`, which
+  matches nearly every character, so every message was being costed as 70-char UCS-2; and the
+  waitlist copy contained an em-dash, which really does force UCS-2 and would have doubled the bill
+  on every send. Both fixed, both now tested. Integration tests live behind
+  `vitest.integration.config.ts` so `npm run test` stays hermetic.
 - **2026-09-04 · Claude** — Three admin surfaces shipped, closing the last acceptance item on `s1`
   and `s8`: `/admin/jobs`, `/admin/events`, `/admin/attribution`. **Phase A is complete.** Watching
   the queue in production also revealed it had no retention — 802 `done` rows in 24h — so
