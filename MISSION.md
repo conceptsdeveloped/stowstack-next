@@ -101,7 +101,7 @@ signed approval links, idempotent sends, a production render pipeline and Stripe
 
 Nothing above this line ships to a portfolio account. These are the pieces every module leans on.
 
-- [ ] `s1` **Durable job queue with resumable workers** — **BUILT, one criterion left** — ⚡SCALE
+- [x] `s1` **Durable job queue with resumable workers** — **DONE** — ⚡SCALE
   Shipped 2026-09-02: `jobs` table + `src/lib/jobs/{types,queue,runner,handlers}.ts` +
   `GET /api/cron/jobs` (every minute, `maxDuration = 300`). Postgres-backed — `FOR UPDATE SKIP
   LOCKED` — rather than a broker, so no new service to operate.
@@ -115,8 +115,13 @@ Nothing above this line ships to a portfolio account. These are the pieces every
         lesson, ported rather than relearned
   - [x] fair-share ordering by per-tenant in-flight count, so one portfolio drop cannot starve
         every other customer (the `s2` seam, already load-bearing)
-  - [ ] **per-job progress inspectable in `/admin`** — today it is `GET /api/cron/jobs?stats=1`,
-        which needs the cron secret. This is the only reason the box above is unticked.
+  - [x] **per-job progress inspectable in `/admin`** — shipped 2026-09-04: `/admin/jobs` (System →
+        Job Queue) over `/api/admin-jobs`. Queue depth by status, anything frozen or failed with its
+        error, expired-lease count, and a **Release** action — deliberately manual, because freezing
+        exists so a person decides whether an unknown outcome is safe to retry.
+  - [x] **retention** — added after watching production: the detectors complete ~800×/day and each
+        left a `done` row (~290k rows a year). `jobs.prune` keeps 7 days, deletes in bounded batches
+        and yields between them, so the tidy-up cannot lock the table the worker claims from.
 - [ ] `s2` **Per-tenant fair-share budgets on every shared resource** — **HALF DONE** — ⚡SCALE
   - [x] **Job scheduling is already fair-shared** — shipped with `s1`. The claim orders by
         per-tenant in-flight count, not FIFO, so one portfolio account cannot occupy every worker
@@ -203,11 +208,14 @@ Nothing above this line ships to a portfolio account. These are the pieces every
         — fires on the zero-to-something edge only, ignores a size that already had vacancy, and
         re-detection emits nothing. RESPOND `r9` / CONVERT `c6` now have their X.
 
+  **Visible since 2026-09-04:** `/admin/events` (System → Events) shows the stream, what each event
+  fanned out to, and the queues holding work with no handler yet.
+
   > **The subscriber map is now the wiring diagram.** `mail.welcome-kit`, `retain.autopay-push`,
   > `retain.delinquency-notice`, `mail.rate-increase-letter`, `mail.winback-schedule` and the rest
   > are registered with no handlers yet — an unregistered queue *freezes* rather than fails, so the
   > work accumulates visibly and is re-deliverable the day each handler ships.
-- [ ] `s8` **Portfolio attribution without the N+1** — **RE-SPECCED ON EVIDENCE** — ⚡SCALE
+- [x] `s8` **Portfolio attribution without the N+1** — **DONE** — ⚡SCALE
   ⚠️ **Corrected 2026-09-03. "Compute nightly roll-up tables" was the wrong fix.** I benchmarked
   the shipped query in `/api/attribution` against a seeded portfolio — 20 facilities, 30,000 leads,
   3,600 spend rows, a realistic year — instead of assuming:
@@ -234,8 +242,10 @@ Nothing above this line ships to a portfolio account. These are the pieces every
         disagreed would be worthless, so equality is asserted, not hoped for.
   - [x] the single-facility route is **untouched** — its campaign-cohort join carries a "must not
         change" note and belongs to the ad-platform integration, so portfolio sits beside it
-  - [ ] **an admin UI consuming it.** The endpoint is admin-authenticated and unused; `/admin/portfolio`
-        still loops. Wiring it is the remaining work, and it is why the box above is unticked.
+  - [x] **an admin UI consuming it** — shipped 2026-09-04: `/admin/attribution` (Intelligence →
+        Cost per Move-in). Correction to the earlier note: `/admin/portfolio` does **not** loop — it
+        reads the pre-aggregated, client-scoped `client_campaigns` table. The facility-level
+        portfolio view simply did not exist, so this adds it rather than replacing anything.
 
   **Revisit precomputation only when a measurement justifies it** — on these numbers that is
   somewhere well north of 300k leads, and it is a decision to make with real data.
@@ -494,6 +504,11 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-04 · Claude** — Three admin surfaces shipped, closing the last acceptance item on `s1`
+  and `s8`: `/admin/jobs`, `/admin/events`, `/admin/attribution`. **Phase A is complete.** Watching
+  the queue in production also revealed it had no retention — 802 `done` rows in 24h — so
+  `jobs.prune` was added. Correction on the record: `/admin/portfolio` never looped per facility;
+  it reads `client_campaigns`. The facility-level portfolio view did not exist at all.
 - **2026-09-04 · Claude** — `s8` shipped as a grouped query rather than the roll-up tables the
   original task asked for. Re-benchmarked against the real implementation: **27× faster than the
   loop with identical totals.** No nightly job, no staleness, no invalidation. The org-session

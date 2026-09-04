@@ -36,6 +36,10 @@ export const RECURRING: Recurring[] = [
   // there is nothing to find between uploads. Fifteen minutes is well inside
   // any lifecycle mail window and keeps the worker free for real work.
   { queue: "pms.detect-events", everyMs: 15 * MIN },
+
+  // Retention. The detectors above complete ~800 times a day and each leaves a
+  // `done` row; without this the table grows by ~290k rows a year forever.
+  { queue: "jobs.prune", everyMs: 6 * 60 * MIN },
 ];
 
 /** Bucket a timestamp so every seed inside one interval shares a dedupe key. */

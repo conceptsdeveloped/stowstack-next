@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "a99643047a",
+      "date": "2026-09-04",
+      "category": "feature",
+      "scope": "attribution",
+      "title": "Portfolio cost per move-in in a constant number of queries"
+    },
+    {
       "id": "97d098569c",
       "date": "2026-09-04",
       "category": "fix",

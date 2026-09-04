@@ -32,6 +32,9 @@ import {
   Target,
   TrendingUp,
   Users,
+  TrendingDown,
+  ListChecks,
+  Radio,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -113,6 +116,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Revenue", href: "/admin/intelligence/revenue", icon: BarChart3, scoped: true },
       { label: "ECRI Finder", href: "/admin/intelligence/ecri", icon: TrendingUp, scoped: true },
       { label: "Portfolio", href: "/admin/portfolio", icon: Target },
+      { label: "Cost per Move-in", href: "/admin/attribution", icon: TrendingDown },
       { label: "Reports", href: "/admin/reports", icon: FileText },
     ],
   },
@@ -143,6 +147,8 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "SYSTEM",
     items: [
       { label: "Activity", href: "/admin/activity", icon: Activity },
+      { label: "Job Queue", href: "/admin/jobs", icon: ListChecks },
+      { label: "Events", href: "/admin/events", icon: Radio },
       { label: "Setup", href: "/admin/onboarding", icon: Sparkles },
       { label: "Settings", href: "/admin/settings", icon: Settings },
       { label: "Changelog", href: "/admin/changelog", icon: BookOpen },

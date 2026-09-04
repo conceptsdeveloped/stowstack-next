@@ -15,6 +15,7 @@
  *     effect happened. Never guess, and never retry an unknown.
  */
 
+import { db } from "@/lib/db";
 import type { JobHandler } from "./types";
 import {
   detectForFacility,
@@ -98,8 +99,41 @@ const detectInventory: JobHandler = async (ctx) => {
   }
 };
 
+/**
+ * Retention (added 2026-09-04 after watching the queue in production).
+ *
+ * The recurring detectors complete cleanly ~800 times a day, and every one left
+ * a `done` row behind — about 290,000 rows a year, growing with each recurring
+ * job added. Completed work is worth keeping long enough to debug an incident
+ * and no longer.
+ *
+ * Deletes in bounded batches and yields between them: a single unbounded DELETE
+ * would hold a long transaction against the same table the worker is claiming
+ * from, which is how a tidy-up job takes down the thing it is tidying.
+ */
+const RETAIN_DAYS = 7;
+const PRUNE_BATCH = 2_000;
+
+const pruneJobs: JobHandler = async (ctx) => {
+  let removed = Number((ctx.cursor as { removed?: number } | null)?.removed ?? 0);
+
+  for (;;) {
+    const rows = await db.$queryRaw<{ id: string }[]>`
+      DELETE FROM jobs WHERE id IN (
+        SELECT id FROM jobs
+        WHERE status = 'done' AND finished_at < now() - (${RETAIN_DAYS}::int * interval '1 day')
+        LIMIT ${PRUNE_BATCH}
+      ) RETURNING id
+    `;
+    removed += rows.length;
+    if (rows.length < PRUNE_BATCH) return { kind: "done", progressDone: removed };
+    if (ctx.shouldYield()) return { kind: "more", cursor: { removed }, progressDone: removed };
+  }
+};
+
 export const HANDLERS: Record<string, JobHandler> = {
   "demo.chunked": chunkedCounter,
   "pms.detect-events": detectPmsEvents,
   "pms.detect-inventory": detectInventory,
+  "jobs.prune": pruneJobs,
 };
