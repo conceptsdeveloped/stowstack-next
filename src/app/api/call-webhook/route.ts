@@ -106,8 +106,8 @@ export async function POST(req: NextRequest) {
 
   // Log the call with campaign attribution (fire-and-forget)
   db.$executeRaw`
-    INSERT INTO call_logs (tracking_number_id, facility_id, twilio_call_sid, caller_number, caller_city, caller_state, campaign_source, status, started_at)
-    VALUES (${trackingNum.id}::uuid, ${trackingNum.facility_id}::uuid, ${CallSid}, ${From || null}, ${FromCity || null}, ${FromState || null}, ${campaignSource}, 'ringing', NOW())
+    INSERT INTO call_logs (tracking_number_id, facility_id, twilio_call_sid, caller_number, caller_city, caller_state, campaign_source, status, started_at, updated_at)
+    VALUES (${trackingNum.id}::uuid, ${trackingNum.facility_id}::uuid, ${CallSid}, ${From || null}, ${FromCity || null}, ${FromState || null}, ${campaignSource}, 'ringing', NOW(), NOW())
     ON CONFLICT (twilio_call_sid) DO NOTHING
   `.catch((err) => console.error("[call_log] Fire-and-forget failed:", err));
 

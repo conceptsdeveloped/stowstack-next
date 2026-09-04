@@ -175,14 +175,15 @@ export async function POST(req: NextRequest) {
         .replace(/\s+/g, "-");
 
       await db.$executeRaw`
-        INSERT INTO campaign_spend (facility_id, platform, date, campaign_name, campaign_id, utm_campaign, spend, impressions, clicks)
-        VALUES (${facilityId}::uuid, 'meta', ${row.date_start}::date, ${row.campaign_name || null}, ${row.campaign_id || `unknown-${row.date_start}`}, ${utmCampaign || null}, ${parseFloat(row.spend) || 0}, ${parseInt(row.impressions) || 0}, ${parseInt(row.clicks) || 0})
+        INSERT INTO campaign_spend (facility_id, platform, date, campaign_name, campaign_id, utm_campaign, spend, impressions, clicks, updated_at)
+        VALUES (${facilityId}::uuid, 'meta', ${row.date_start}::date, ${row.campaign_name || null}, ${row.campaign_id || `unknown-${row.date_start}`}, ${utmCampaign || null}, ${parseFloat(row.spend) || 0}, ${parseInt(row.impressions) || 0}, ${parseInt(row.clicks) || 0}, NOW())
         ON CONFLICT (facility_id, platform, campaign_id, date) DO UPDATE SET
           campaign_name = EXCLUDED.campaign_name,
           utm_campaign = EXCLUDED.utm_campaign,
           spend = EXCLUDED.spend,
           impressions = EXCLUDED.impressions,
-          clicks = EXCLUDED.clicks
+          clicks = EXCLUDED.clicks,
+          updated_at = NOW()
       `;
       synced++;
     }

@@ -385,12 +385,13 @@ export async function POST(request: NextRequest) {
       const result = computeChurnScore(tenant, payments);
 
       await db.$executeRaw`
-        INSERT INTO churn_predictions (tenant_id, facility_id, risk_score, risk_level, predicted_vacate, factors, recommended_actions, last_scored_at)
-         VALUES (${tenant.id}::uuid, ${tenant.facility_id}::uuid, ${result.score}, ${result.riskLevel}, ${result.predictedVacate}, ${JSON.stringify(result.factors)}::jsonb, ${JSON.stringify(result.actions)}::jsonb, NOW())
+        INSERT INTO churn_predictions (tenant_id, facility_id, risk_score, risk_level, predicted_vacate, factors, recommended_actions, last_scored_at, updated_at)
+         VALUES (${tenant.id}::uuid, ${tenant.facility_id}::uuid, ${result.score}, ${result.riskLevel}, ${result.predictedVacate}, ${JSON.stringify(result.factors)}::jsonb, ${JSON.stringify(result.actions)}::jsonb, NOW(), NOW())
          ON CONFLICT (tenant_id) DO UPDATE SET
            risk_score = EXCLUDED.risk_score, risk_level = EXCLUDED.risk_level,
            predicted_vacate = EXCLUDED.predicted_vacate, factors = EXCLUDED.factors,
-           recommended_actions = EXCLUDED.recommended_actions, last_scored_at = NOW()
+           recommended_actions = EXCLUDED.recommended_actions, last_scored_at = NOW(),
+           updated_at = NOW()
       `;
 
       scored++;

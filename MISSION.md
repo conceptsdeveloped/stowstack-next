@@ -228,8 +228,8 @@ Nothing above this line ships to a portfolio account. These are the pieces every
   `/api/attribution` gains a portfolio mode taking many facility ids; latency is measured, not
   assumed. **Revisit precomputation only when a measurement justifies it** — extrapolating, that is
   somewhere north of ~300k leads, and it is a decision to make with real data.
-  ⚠️ **Blocked on the `campaign_spend` bug below** — there is no point optimising the read path of
-  a table nothing can write to. And note the dimensions in the original wording were fiction:
+  ✅ **Unblocked 2026-09-04** — the `campaign_spend` write bug is fixed, so spend can land and the
+  read path is worth optimising. And note the dimensions in the original wording were fiction:
   there is no ZIP on leads, no creative column on spend, and no card dimension at all until
   PostcardRobot is connected. Channel and campaign are what exist.
 
@@ -483,7 +483,18 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
-- **2026-09-03 · Claude** — 🔴 **PRODUCTION BUG FOUND, NOT FIXED (Angelo's domain).**
+- **2026-09-04 · Angelo + Claude** — ✅ **FIXED, and it was four sites, not one.** The sweep found
+  **7 tables** with a `NOT NULL updated_at` and no database default, and **4 hand-written INSERTs
+  across 3 of them** omitted the column — so those writes had never once succeeded:
+  `campaign_spend` (Meta spend sync), `call_logs` (**Twilio call logging, failing fire-and-forget
+  behind a `console.error`, so every tracked call was silently dropped**), and `churn_predictions`
+  (two sites). Fixed in three layers: a database default on all 7 tables so the class cannot recur,
+  `@default(now())` in Prisma so the schema agrees, and `updated_at` added to all 4 INSERTs *and*
+  their `ON CONFLICT DO UPDATE SET` — without which the column would have gone stale on every
+  upsert. **Verified against production:** every previously-failing statement now writes, the
+  upsert path bumps the timestamp, an INSERT omitting the column is rescued by the default, and
+  zero at-risk tables remain. `s8` is unblocked.
+- **2026-09-03 · Claude** — 🔴 PRODUCTION BUG FOUND (original entry, kept for the record).
   `campaign_spend.updated_at` is `NOT NULL` with **no database default**, and the only writer —
   the Meta spend sync at `src/app/api/campaign-spend/route.ts:178` — omits it. Every insert fails
   with SQLSTATE 23502. **Proven against production**: the exact statement fails; the same statement

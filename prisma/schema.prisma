@@ -166,7 +166,7 @@ model call_logs {
   facilities            facilities            @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   call_tracking_numbers call_tracking_numbers @relation(fields: [tracking_number_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   partial_leads         partial_leads[]
-  updated_at            DateTime              @updatedAt @db.Timestamptz(6)
+  updated_at            DateTime              @updatedAt @default(now()) @db.Timestamptz(6)
 
   @@index([created_at(sort: Desc)], map: "idx_call_logs_created")
   @@index([facility_id], map: "idx_call_logs_facility")
@@ -209,7 +209,7 @@ model campaign_spend {
   impressions   Int?       @default(0)
   clicks        Int?       @default(0)
   created_at    DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime   @updatedAt @db.Timestamptz(6)
+  updated_at    DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   facilities    facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([facility_id, platform, campaign_id, date])
@@ -230,7 +230,7 @@ model churn_predictions {
   retention_status      String?    @default("none")
   last_scored_at        DateTime?  @default(now()) @db.Timestamptz(6)
   created_at            DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at            DateTime   @updatedAt @db.Timestamptz(6)
+  updated_at            DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   facilities            facilities           @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tenants               tenants              @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   retention_campaigns   retention_campaigns? @relation(fields: [retention_campaign_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -948,7 +948,7 @@ model landing_pages {
   storedge_widget_url   String?
   funnel_id             String?                 @db.Uuid
   created_at            DateTime                @default(now()) @db.Timestamptz(6)
-  updated_at            DateTime                @updatedAt @db.Timestamptz(6)
+  updated_at            DateTime                @updatedAt @default(now()) @db.Timestamptz(6)
   published_at          DateTime?               @db.Timestamptz(6)
   call_tracking_numbers call_tracking_numbers[]
   landing_page_sections landing_page_sections[]
@@ -1942,7 +1942,7 @@ model creative_performance {
   leads         Int           @default(0)
   move_ins      Int           @default(0)
   created_at    DateTime      @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime      @updatedAt @db.Timestamptz(6)
+  updated_at    DateTime      @updatedAt @default(now()) @db.Timestamptz(6)
   facilities    facilities    @relation(fields: [facility_id], references: [id], onDelete: Cascade)
   ad_variations ad_variations @relation(fields: [variation_id], references: [id], onDelete: Cascade)
   funnels       funnels?      @relation(fields: [funnel_id], references: [id], onUpdate: NoAction)
@@ -1963,7 +1963,7 @@ model funnels {
   daily_budget    Decimal?  @db.Decimal(10, 2)
   target_audience Json?     // Targeting config: age range, radius, interests, custom audiences
   created_at      DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime  @updatedAt @db.Timestamptz(6)
+  updated_at      DateTime  @updatedAt @default(now()) @db.Timestamptz(6)
   published_at    DateTime? @db.Timestamptz(6)
   archived_at     DateTime? @db.Timestamptz(6)
 
@@ -2001,7 +2001,7 @@ model facility_learnings {
   learnings_json   Json       @default("{}")
   last_synthesized DateTime?  @db.Timestamptz(6)
   created_at       DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at       DateTime   @updatedAt @db.Timestamptz(6)
+  updated_at       DateTime   @updatedAt @default(now()) @db.Timestamptz(6)
   facilities       facilities @relation(fields: [facility_id], references: [id], onDelete: Cascade)
 }
 

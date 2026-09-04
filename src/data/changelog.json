@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "d4faff15ce",
+      "date": "2026-09-03",
+      "category": "feature",
+      "scope": "events",
+      "title": "Unit-mix history unblocks the waitlist trigger; worker now schedules itself"
+    },
+    {
       "id": "bf3c6cf81d",
       "date": "2026-09-03",
       "category": "feature",
