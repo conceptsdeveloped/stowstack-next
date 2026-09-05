@@ -93,6 +93,7 @@ describe("detectLanguage", () => {
 describe("every template exists in every language", () => {
   const KEYS: (keyof Templates)[] = [
     "missedCall", "leadAck", "operatorAlert", "rescue", "waitlist",
+    "tourConfirmed", "tourReminder24", "tourReminder1", "tourNoShow",
     "stop", "start", "help", "heldOk", "heldGone", "noHold",
   ];
   LANGUAGES.forEach((lang) => {
@@ -108,6 +109,7 @@ describe("every template exists in every language", () => {
    * rather than the best one.
    */
   const LONG = "Longhorn State Storage Springtown";
+  const WHEN = "Sat, Sep 12 at 2:30 PM";
 
   /** Keyed, not indexed, so adding a template cannot silently shift an assertion. */
   const rendered = (lang: Language): Record<string, string> => {
@@ -126,13 +128,23 @@ describe("every template exists in every language", () => {
       rescueBare: c.rescue({ name: null, unitSize: null, facilityName: LONG }),
       waitlist: c.waitlist({ name: "Dana", sizeLabel: "10x10", facilityName: LONG, streetRate: 149 }),
       waitlistBare: c.waitlist({ name: null, sizeLabel: null, facilityName: LONG, streetRate: null }),
+      tourConfirmed: c.tourConfirmed({ name: "Dana Reeves", when: WHEN, facilityName: LONG }),
+      tourConfirmedBare: c.tourConfirmed({ name: null, when: WHEN, facilityName: LONG }),
+      tourReminder24: c.tourReminder24({ name: "Dana", when: "tomorrow at 2:30 PM", facilityName: LONG }),
+      tourReminder1: c.tourReminder1({ name: "Dana", when: "2:30 PM", facilityName: LONG }),
+      tourNoShow: c.tourNoShow({ name: "Dana Reeves", facilityName: LONG }),
+      tourNoShowBare: c.tourNoShow({ name: null, facilityName: LONG }),
       stop: c.stop, start: c.start, help: c.help, heldGone: c.heldGone, noHold: c.noHold,
       heldOk: c.heldOk("10x10", 30), heldOkBare: c.heldOk(null, 30),
     };
   };
 
   /** Messages that go to a customer. The operator alert is internal. */
-  const MARKETING = ["missedCall", "leadAck", "leadAckBare", "rescue", "rescueBare", "waitlist", "waitlistBare"];
+  const MARKETING = [
+    "missedCall", "leadAck", "leadAckBare", "rescue", "rescueBare", "waitlist", "waitlistBare",
+    "tourConfirmed", "tourConfirmedBare", "tourReminder24", "tourReminder1",
+    "tourNoShow", "tourNoShowBare",
+  ];
 
   LANGUAGES.forEach((lang) => {
     it(`${lang} never renders null or undefined into a message`, () => {

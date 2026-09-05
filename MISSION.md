@@ -317,8 +317,12 @@ hard half. Gate: Phase A complete.
       thing that actually rents a unit is a human calling back. Wired into `/api/consumer-lead`,
       `/api/lead-capture` and `POST /api/v1/leads`. Latency is stamped on `partial_leads.first_response_at`
       and measured against `converted_at`, so PROVE has a real speed-to-lead number.
-- [ ] `r6` Tour booking with 24h and 1h reminders — NONE
-- [ ] `r7` No-show recovery same day — NONE
+- [x] `r6` Tour booking with 24h and 1h reminders — **done 2026-09-05** — `facility_tours` +
+      `src/lib/respond/tour.ts` + `POST /api/tour`. Booking confirms by text immediately; reminders are
+      SWEPT from the tour row (not pre-scheduled jobs) so a reschedule cannot leave a stale reminder
+      pointing at the old time. Quiet hours are gated in the facility's own zone.
+- [x] `r7` No-show recovery same day — **done 2026-09-05** — `sweepNoShows` marks the tour and offers to
+      rebook, only while it is still the same calendar day where the customer is.
 - [x] `r8` Abandoned online rental rescued within 10 minutes — **DONE** — ⚠️ **and it did not
       replace anything.** `/api/cron/process-recovery` is already 361 lines of multi-step EMAIL
       recovery running daily; that system is untouched. This adds the leg it cannot cover — a text
@@ -715,3 +719,44 @@ Inline, not queued, for the same reason as `r3`: the worker ticks once a minute 
 being inside the first one. The queued `respond.speed-to-lead` job is the safety net for the one case
 inline cannot cover — a submit request that died between writing the lead and answering it — and it
 sweeps for leads with no response at all, so on a healthy system it finds nothing.
+
+### 2026-09-05 — `r6`/`r7`, and two things the data refused to support
+
+`lead_status` already had a `'toured'` value and the schema carried a `tour_booked` comment, but nothing
+ever booked a tour. `facility_tours` is that missing table.
+
+**Slot availability is deliberately not built.** The plan was to generate bookable slots from
+`facilities.hours`. Zero of the 29 facilities have `hours` populated, so any slot list would have been
+invented. A requested time is instead checked for the things that are certainly mistakes — in the past,
+past a 60-day horizon, or outside 7am-8pm *in the facility's own zone* — and otherwise trusted.
+`withinBookableHours` is the single place to tighten when real hours exist.
+
+**Timezone had to become a column.** Facilities span Michigan to Colorado — Eastern through Mountain —
+and `location` is freeform text ("Newark", "417 South Lake Road", "mattawan mi") that cannot be parsed
+into a zone. So `facilities.timezone` is a nullable IANA string. It is survivable that it is currently
+unset everywhere because tours are stored in absolute time: an unset zone changes how a time is printed
+and whether the quiet-hours gate thinks it is evening, never when a reminder actually fires.
+
+Three design calls:
+
+1. **Reminders are swept, not pre-scheduled.** Enqueueing two jobs at booking time with a future
+   `run_after` is the obvious design and it is wrong: the moment somebody reschedules, those jobs still
+   point at the old time, and cancelling them means storing job ids on the tour. Sweeping means the tour
+   row is the only truth about when the tour is, and `message_log` is the only truth about what was
+   sent — the same reasoning as `r8`, and no third copy of either fact to drift.
+
+2. **A second booking is a reschedule.** Enforced by a partial unique index on
+   (facility_id, contact_phone) WHERE status IN ('booked','confirmed'), which `bookTour` infers as its
+   ON CONFLICT target — so two concurrent submits cannot both win and produce two sets of reminders.
+   Prisma cannot express an index predicate, so it lives in the migration SQL with a note in the schema
+   telling a future reader not to "clean up" the apparent absence of a unique constraint.
+
+3. **No-show recovery is same-day or not at all.** "Sorry we missed you today" stops being true
+   tomorrow, so `sweepNoShows` marks the status regardless but only texts while it is still the same
+   calendar day *where the customer is*. A tour missed at 6pm and noticed at 1am gets the status and no
+   message.
+
+Caught in verification rather than in production: the tour integration test leaked three `partial_leads`
+rows across runs, because `partial_leads.facility_id` is ON DELETE SET NULL — deleting the test facility
+orphaned the lead instead of removing it, so cleaning up "by facility" could never find it. The teardown
+now deletes by `session_id` prefix.

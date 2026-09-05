@@ -50,6 +50,13 @@ export interface OperatorAlertInput {
   facilityName: string;
 }
 
+export interface TourInput {
+  name: string | null;
+  /** Already phrased for the message, e.g. "Fri Sep 12 at 2:00 PM" or "tomorrow at 2:00 PM". */
+  when: string;
+  facilityName: string;
+}
+
 export interface WaitlistInput {
   name: string | null;
   sizeLabel: string | null;
@@ -71,6 +78,14 @@ export interface Templates {
   rescue(input: RescueInput): string;
   /** Sent when a unit they are waiting for frees up. */
   waitlist(input: WaitlistInput): string;
+  /** Sent the moment a tour is booked. */
+  tourConfirmed(input: TourInput): string;
+  /** Sent the day before. */
+  tourReminder24(input: TourInput): string;
+  /** Sent about an hour before, which is when a no-show becomes preventable. */
+  tourReminder1(input: TourInput): string;
+  /** Sent the same day they did not turn up, while rebooking is still easy. */
+  tourNoShow(input: Omit<TourInput, "when">): string;
   /** Carrier-expected confirmation after an opt-out. Exempt from opt-out itself. */
   stop: string;
   /** Confirmation after an opt-in. */
@@ -111,6 +126,22 @@ const EN: Templates = {
     `${name ? `${firstName(name)}, ` : ""}${sizeLabel ? `a ${sizeLabel}` : "a unit"} ` +
     `just opened up at ${facilityName}${streetRate ? ` at $${Math.round(streetRate)}/mo` : ""}. ` +
     `You're on the waitlist. Reply YES to hold it, STOP to opt out.`,
+
+  tourConfirmed: ({ name, when, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}you're booked for a tour at ${facilityName} on ${when}. ` +
+    `Reply here to change it. Reply STOP to opt out.`,
+
+  tourReminder24: ({ name, when, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}reminder: your tour at ${facilityName} is ${when}. ` +
+    `Reply here to move it. Reply STOP to opt out.`,
+
+  tourReminder1: ({ name, when, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}see you at ${facilityName} at ${when}. ` +
+    `Reply here if anything changes. Reply STOP to opt out.`,
+
+  tourNoShow: ({ name, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}sorry we missed you at ${facilityName} today. ` +
+    `Reply here and we'll rebook you. Reply STOP to opt out.`,
 
   stop: "You're unsubscribed and won't get any more texts from us. Reply START to resume.",
   start: "You're resubscribed. Reply STOP at any time to opt out.",
@@ -156,6 +187,22 @@ const ES: Templates = {
     `${name ? `${firstName(name)}, ` : ""}se desocupó ${sizeLabel ? `una ${sizeLabel}` : "una unidad"} ` +
     `en ${facilityName}${streetRate ? ` por $${Math.round(streetRate)}/mes` : ""}. ` +
     `Estás en la lista de espera. Responde SI para apartarla, PARAR para salir.`,
+
+  tourConfirmed: ({ name, when, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}tu visita a ${facilityName} quedó para ${when}. ` +
+    `Responde aquí para cambiarla. Responde PARAR para salir.`,
+
+  tourReminder24: ({ name, when, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}recuerda tu visita a ${facilityName} ${when}. ` +
+    `Responde aquí para moverla. Responde PARAR para salir.`,
+
+  tourReminder1: ({ name, when, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}te esperamos en ${facilityName} a las ${when}. ` +
+    `Responde aquí si algo cambia. Responde PARAR para salir.`,
+
+  tourNoShow: ({ name, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}no pudimos verte hoy en ${facilityName}. ` +
+    `Responde aquí y te reagendamos. Responde PARAR para salir.`,
 
   stop: "Ya no recibirás más mensajes nuestros. Responde INICIO para reactivarlos.",
   start: "Estás suscrito de nuevo. Responde PARAR en cualquier momento para salir.",

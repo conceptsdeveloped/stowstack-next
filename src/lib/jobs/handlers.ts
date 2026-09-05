@@ -22,6 +22,7 @@ import { expireHolds } from "@/lib/respond/hold";
 import { textBackMissedCall } from "@/lib/respond/missed-call";
 import { rescueAbandoned } from "@/lib/respond/abandoned";
 import { respondToNewLead, unansweredLeads } from "@/lib/respond/speed-to-lead";
+import { sweepNoShows, sweepReminders1, sweepReminders24 } from "@/lib/respond/tour";
 import {
   detectForFacility,
   detectInventoryForFacility,
@@ -219,7 +220,34 @@ const speedToLead: JobHandler = async (ctx) => {
   return { kind: "done", progressDone: answered };
 };
 
+/**
+ * RESPOND r6 — tour reminders.
+ *
+ * Both windows in one job: they read the same table, and splitting them would
+ * double the queue traffic to save nothing. Each reminder has its own dedupe key
+ * on the message log, so the 24-hour and 1-hour messages are independent.
+ */
+const tourReminders: JobHandler = async () => {
+  const a = await sweepReminders24();
+  const b = await sweepReminders1();
+  return { kind: "done", progressDone: a.sent + b.sent };
+};
+
+/**
+ * RESPOND r7 — no-show recovery.
+ *
+ * Marks the tours nobody attended and offers to rebook, same day only. Slower
+ * than the reminders because nothing is time-critical once the appointment has
+ * already been missed.
+ */
+const tourNoShows: JobHandler = async () => ({
+  kind: "done",
+  progressDone: (await sweepNoShows()).sent,
+});
+
 export const HANDLERS: Record<string, JobHandler> = {
+  "respond.tour-reminders": tourReminders,
+  "respond.tour-noshow": tourNoShows,
   "respond.speed-to-lead": speedToLead,
   "demo.chunked": chunkedCounter,
   "respond.abandoned-rescue": abandonedRescue,

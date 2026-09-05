@@ -53,6 +53,16 @@ export const RECURRING: Recurring[] = [
   // all, so on a healthy system it finds nothing.
   { queue: "respond.speed-to-lead", everyMs: 5 * MIN },
 
+  // RESPOND r6. The 1-hour reminder is the one that prevents a no-show, so the
+  // sweep has to be finer than the window it is looking for: every 5 minutes
+  // against a 15-minute window leaves room for a missed run without either
+  // double-sending (the message-log key prevents that) or missing anybody.
+  { queue: "respond.tour-reminders", everyMs: 5 * MIN },
+
+  // RESPOND r7. Nothing is time-critical once the tour has already been missed,
+  // and the message only goes out while it is still the same day where they are.
+  { queue: "respond.tour-noshow", everyMs: 15 * MIN },
+
   // Retention. The detectors above complete ~800 times a day and each leaves a
   // `done` row; without this the table grows by ~290k rows a year forever.
   { queue: "jobs.prune", everyMs: 6 * 60 * MIN },

@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "572c54df1f",
+      "date": "2026-09-05",
+      "category": "feature",
+      "scope": "respond",
+      "title": "Speed-to-lead, and stop telling finished leads they didn't finish"
+    },
+    {
       "id": "05e0abafd7",
       "date": "2026-09-05",
       "category": "feature",

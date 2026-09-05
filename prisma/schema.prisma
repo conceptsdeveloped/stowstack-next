@@ -432,6 +432,12 @@ model facilities {
   review_count                 Int?
   google_maps_url              String?
   hours                        Json?
+  /// IANA zone, e.g. America/Chicago (MISSION.md RESPOND r6). Nullable because
+  /// `location` is freeform text ("Newark", "mattawan mi") that cannot be parsed
+  /// into a zone reliably. Tours are stored in absolute time, so an unset zone
+  /// only affects the quiet-hours gate and how a time is rendered, never when a
+  /// reminder actually fires.
+  timezone                     String?                        @db.VarChar(64)
   status                       String?                        @default("intake")
   pipeline_status              String?                        @default("submitted")
   follow_up_date               DateTime?                      @db.Date
@@ -510,6 +516,7 @@ model facilities {
   deleted_at                   DateTime?                      @db.Timestamptz(6)
   deleted_by                   String?
 
+  facility_tours               facility_tours[]
   @@index([access_code], map: "idx_facilities_access_code")
   @@index([contact_email], map: "idx_facilities_contact_email")
   @@index([organization_id], map: "idx_facilities_organization")
@@ -1162,6 +1169,7 @@ model partial_leads {
   call_logs             call_logs?             @relation(fields: [call_log_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   matched_tenant        tenants?               @relation("LeadTenantMatch", fields: [matched_tenant_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   status_events         lead_status_events[]
+  tours                 facility_tours[]
 
   @@index([created_at(sort: Desc)], map: "idx_partial_leads_created")
   @@index([email], map: "idx_partial_leads_email")
@@ -2387,4 +2395,50 @@ model contact_language {
   source     String?  @db.VarChar(16)
   created_at DateTime @default(now()) @db.Timestamptz(6)
   updated_at DateTime @updatedAt @default(now()) @db.Timestamptz(6)
+}
+
+/// A booked walk-through at a facility (MISSION.md RESPOND r6/r7).
+///
+/// `lead_status` already carried a 'toured' value and the schema anticipated
+/// `tour_booked`, but nothing ever booked one. This is that missing table.
+///
+/// Reminders are found by sweeping this table rather than by enqueueing a job at
+/// booking time with a future `run_after`: a rescheduled tour would leave the
+/// pre-scheduled job pointing at the old time, and there is no flag column to
+/// drift out of sync with what we actually sent — `message_log` is the record.
+model facility_tours {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id   String    @db.Uuid
+  /// The lead this tour belongs to, when it came from a form rather than a call.
+  lead_id       String?   @db.Uuid
+  contact_name  String?   @db.VarChar(120)
+  contact_phone String    @db.VarChar(20)
+  size_label    String?   @db.VarChar(32)
+  /// Absolute time. The facility's zone is for rendering and the quiet-hours gate.
+  scheduled_at  DateTime  @db.Timestamptz(6)
+  /// booked | confirmed | completed | no_show | cancelled
+  status        String    @default("booked") @db.VarChar(16)
+  /// web | phone | sms | operator
+  source        String?   @db.VarChar(16)
+  cancelled_at  DateTime? @db.Timestamptz(6)
+  completed_at  DateTime? @db.Timestamptz(6)
+  no_show_at    DateTime? @db.Timestamptz(6)
+  notes         String?
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime  @updatedAt @default(now()) @db.Timestamptz(6)
+
+  facilities facilities     @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  lead       partial_leads? @relation(fields: [lead_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  /// NOTE: a partial UNIQUE index `idx_tours_one_live` on
+  /// (facility_id, contact_phone) WHERE status IN ('booked','confirmed') also
+  /// exists in the database. Prisma cannot express an index predicate, so it
+  /// lives only in `prisma/migrations/20260905_tours/migration.sql` — it is what
+  /// makes a second booking a reschedule instead of a duplicate tour, and
+  /// `bookTour` infers it as its ON CONFLICT target. Do not "clean up" the
+  /// apparent absence of a unique constraint here.
+  @@index([status, scheduled_at], map: "idx_tours_due")
+  @@index([facility_id, scheduled_at(sort: Desc)], map: "idx_tours_facility")
+  @@index([contact_phone], map: "idx_tours_phone")
+  @@index([lead_id], map: "idx_tours_lead")
 }
