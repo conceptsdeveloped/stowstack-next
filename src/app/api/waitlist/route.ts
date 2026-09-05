@@ -4,6 +4,8 @@ import { corsResponse, errorResponse, getOrigin, jsonResponse } from "@/lib/api-
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { normalisePhone } from "@/lib/messaging/types";
+import { asLanguage } from "@/lib/messaging/copy";
+import { setLanguage } from "@/lib/messaging/language";
 import { isOptedOut } from "@/lib/messaging/send";
 import { availabilityFor } from "@/lib/respond/hold";
 
@@ -35,6 +37,13 @@ export async function POST(req: NextRequest) {
   const sizeLabel = typeof body.sizeLabel === "string" && body.sizeLabel.trim() ? body.sizeLabel.trim() : null;
   const name = typeof body.name === "string" ? body.name.trim().slice(0, 120) : null;
   const email = typeof body.email === "string" ? body.email.trim().slice(0, 200) : null;
+  // A Spanish-language landing page posts `language: "es"`. Anything unrecognised
+  // becomes English rather than an error — a bad locale string should not cost us
+  // the lead. `stated` stays null when the form said nothing, which is NOT the
+  // same as saying English: recording an unstated "en" as a deliberate choice
+  // would permanently block us from ever learning Spanish from their replies.
+  const stated = typeof body.language === "string" && body.language.trim() ? asLanguage(body.language) : null;
+  const language = stated ?? "en";
 
   if (!facilityId || !/^[0-9a-f-]{36}$/i.test(facilityId)) {
     return errorResponse("A valid facilityId is required", 400, origin);
@@ -68,9 +77,15 @@ export async function POST(req: NextRequest) {
     }
 
     const rows = await db.$queryRaw<{ id: string }[]>`
-      INSERT INTO unit_waitlist (facility_id, size_label, contact_name, contact_phone, contact_email, source)
-      VALUES (${facilityId}::uuid, ${sizeLabel}, ${name}, ${phone}, ${email}, 'web')
+      INSERT INTO unit_waitlist (facility_id, size_label, contact_name, contact_phone, contact_email, source, language)
+      VALUES (${facilityId}::uuid, ${sizeLabel}, ${name}, ${phone}, ${email}, 'web', ${language})
       RETURNING id`;
+
+    // Recorded against the number too, so every later message on any list is in
+    // the language they filled the form in. A form is a deliberate statement, so
+    // it outranks anything we later infer from a reply — which is exactly why we
+    // only write one when the form actually stated something.
+    if (stated) await setLanguage(phone, stated, "form");
 
     // Useful, and honest: if the size is actually available right now they
     // should be told to just book it rather than wait for a text that may

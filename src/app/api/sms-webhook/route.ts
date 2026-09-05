@@ -3,7 +3,8 @@ import twilio from "twilio";
 import { db } from "@/lib/db";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
-import { classifyInbound, REPLIES } from "@/lib/messaging/inbound";
+import { noteLanguageFromReply } from "@/lib/messaging/language";
+import { classifyInbound, replies } from "@/lib/messaging/inbound";
 import { normalisePhone } from "@/lib/messaging/types";
 import { optIn, optOut } from "@/lib/messaging/send";
 import { HOLD_MINUTES, placeHold } from "@/lib/respond/hold";
@@ -75,6 +76,12 @@ export async function POST(req: NextRequest) {
     ON CONFLICT ON CONSTRAINT message_log_dedupe_key DO NOTHING
   `;
 
+  // Learn the language before answering, so the answer is in it. Best-effort by
+  // construction: `noteLanguageFromReply` swallows its own failures and falls
+  // back to English, because failing to record a language must never stop us
+  // honouring a STOP.
+  const R = replies(await noteLanguageFromReply(from, body));
+
   try {
     if (intent === "stop") {
       await optOut(from, "stop_reply", "sms-webhook");
@@ -83,15 +90,15 @@ export async function POST(req: NextRequest) {
         UPDATE unit_waitlist SET status = 'cancelled', updated_at = now()
         WHERE contact_phone = ${from} AND status IN ('waiting', 'notified')
       `;
-      return twiml(REPLIES.stop);
+      return twiml(R.stop);
     }
 
     if (intent === "start") {
       await optIn(from);
-      return twiml(REPLIES.start);
+      return twiml(R.start);
     }
 
-    if (intent === "help") return twiml(REPLIES.help);
+    if (intent === "help") return twiml(R.help);
 
     if (intent === "confirm") {
       // The most recent notification is what they are saying yes to.
@@ -101,7 +108,7 @@ export async function POST(req: NextRequest) {
         ORDER BY notified_at DESC NULLS LAST LIMIT 1
       `;
       const entry = rows[0];
-      if (!entry) return twiml(REPLIES.noHold);
+      if (!entry) return twiml(R.noHold);
 
       const hold = await placeHold({
         facilityId: entry.facility_id,
@@ -113,12 +120,12 @@ export async function POST(req: NextRequest) {
       });
 
       if (!hold.held && hold.reason === "none-available") {
-        return twiml(REPLIES.heldGone);
+        return twiml(R.heldGone);
       }
       await db.$executeRaw`
         UPDATE unit_waitlist SET status = 'converted', updated_at = now() WHERE id = ${entry.id}::uuid
       `;
-      return twiml(REPLIES.heldOk(entry.size_label, HOLD_MINUTES));
+      return twiml(R.heldOk(entry.size_label, HOLD_MINUTES));
     }
 
     // Anything else is a real person typing a real question. Say nothing rather

@@ -9,12 +9,23 @@
  * route does signature verification and I/O.
  */
 
-import { isStartReply, isStopReply } from "./types";
+import { COPY, t, type Language, type Templates } from "./copy";
+import { foldKeyword, isStartReply, isStopReply } from "./types";
 
 export type InboundIntent = "stop" | "start" | "help" | "confirm" | "unknown";
 
-const HELP_WORDS = new Set(["help", "info"]);
-const YES_WORDS = new Set(["yes", "y", "yep", "yeah", "confirm", "ok", "okay"]);
+const HELP_WORDS = new Set(["help", "info", "ayuda", "informacion", "info"]);
+
+/**
+ * Words that mean "hold it for me". `si` is here rather than in START_WORDS
+ * because our Spanish waitlist copy says "Responde SI para apartarla" — it is a
+ * confirmation, and routing it to the resubscribe path would leave the unit
+ * unheld while telling them they were resubscribed.
+ */
+const YES_WORDS = new Set([
+  "yes", "y", "yep", "yeah", "confirm", "ok", "okay",
+  "si", "sii", "claro", "dale", "bueno", "esta-bien", "confirmo", "apartala", "apartar",
+]);
 
 /**
  * Order matters and is not arbitrary. STOP is checked first and wins outright:
@@ -24,8 +35,8 @@ const YES_WORDS = new Set(["yes", "y", "yep", "yeah", "confirm", "ok", "okay"]);
  */
 export function classifyInbound(body: string | null | undefined): InboundIntent {
   if (isStopReply(body)) return "stop";
-  if (isStartReply(body) && !YES_WORDS.has((body ?? "").trim().toLowerCase())) return "start";
-  const word = (body ?? "").trim().toLowerCase().replace(/[^a-z]/g, "");
+  const word = foldKeyword(body);
+  if (isStartReply(body) && !YES_WORDS.has(word)) return "start";
   if (!word) return "unknown";
   if (HELP_WORDS.has(word)) return "help";
   if (YES_WORDS.has(word)) return "confirm";
@@ -33,19 +44,15 @@ export function classifyInbound(body: string | null | undefined): InboundIntent 
 }
 
 /**
- * Replies.
+ * Replies, per language.
  *
  * Confirmations after STOP and HELP are the two messages a carrier expects to
  * see and are exempt from opt-out — sending nothing at all after STOP is itself
- * a compliance smell. Everything here is plain ASCII: one curly quote would
- * halve the segment size (see `segmentCount`).
+ * a compliance smell. The text lives in `./copy`; this is the door to it.
  */
-export const REPLIES = {
-  stop: "You're unsubscribed and won't get any more texts from us. Reply START to resume.",
-  start: "You're resubscribed. Reply STOP at any time to opt out.",
-  help: "StorageAds notifies you when a unit opens up. Reply STOP to opt out. Msg & data rates may apply.",
-  heldOk: (size: string | null, minutes: number) =>
-    `Held${size ? ` a ${size}` : ""} for you for ${minutes} minutes. We'll call to finish the paperwork.`,
-  heldGone: "Sorry, that one just went. You're still on the list for the next one.",
-  noHold: "Thanks! We don't have anything on hold for you right now, but you're on the list.",
-} as const;
+export function replies(language: Language | string | null | undefined): Templates {
+  return t(language);
+}
+
+/** English replies. Kept for callers that have no contact to look a language up on. */
+export const REPLIES = COPY.en;

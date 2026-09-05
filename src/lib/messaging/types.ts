@@ -81,25 +81,60 @@ export function normalisePhone(raw: string | null | undefined): string | null {
 }
 
 /**
- * Words that mean stop. Carriers already honour these at the network level for
- * standard keywords, but we must honour them in our own registry too — the
+ * Fold a reply down to bare letters for keyword matching.
+ *
+ * The accent stripping is load-bearing, not cosmetic: without it `sí` reduces to
+ * `s` and `PARÁ` to `par`, so a Spanish speaker's reply matches nothing. NFD
+ * splits a letter from its accent and the range below removes the accent.
+ */
+export function foldKeyword(body: string | null | undefined): string {
+  return (body ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z-]/g, "");
+}
+
+/**
+ * Words that mean stop. Carriers already honour the standard English keywords at
+ * the network level, but we must honour them in our own registry too — the
  * obligation is ours, not the carrier's, and a reply that reaches our webhook
  * has to end the conversation everywhere.
+ *
+ * The Spanish words are here for the same reason and are not optional: once we
+ * send somebody a message that says "Responde PARAR para salir", PARAR has to
+ * work. Nothing outside this file listens for it.
+ *
+ * `no` is deliberately absent. Somebody answering "no" to "Reply YES to hold it"
+ * is declining a unit, not unsubscribing from everything, and treating that as an
+ * opt-out silently loses a customer we could still rent to.
  */
 const STOP_WORDS = new Set([
+  // English
   "stop", "stopall", "unsubscribe", "cancel", "end", "quit", "revoke", "optout", "opt-out",
+  // Spanish
+  "parar", "para", "pare", "alto", "cancelar", "salir", "baja", "eliminar", "elimina",
+  "desuscribir", "desuscribirme", "borrar",
 ]);
 
 export function isStopReply(body: string | null | undefined): boolean {
   if (!body) return false;
-  const first = body.trim().toLowerCase().replace(/[^a-z-]/g, "");
-  return STOP_WORDS.has(first);
+  return STOP_WORDS.has(foldKeyword(body));
 }
 
-const START_WORDS = new Set(["start", "unstop", "yes", "resume"]);
+/**
+ * `si` is deliberately NOT here. It is Spanish for yes and belongs to the
+ * hold-confirmation path; our Spanish opt-out copy tells people to reply INICIO
+ * to resubscribe, so that is what listens for it.
+ */
+const START_WORDS = new Set([
+  "start", "unstop", "yes", "resume",
+  "inicio", "iniciar", "comenzar", "reactivar", "alta", "continuar",
+]);
 export function isStartReply(body: string | null | undefined): boolean {
   if (!body) return false;
-  return START_WORDS.has(body.trim().toLowerCase().replace(/[^a-z]/g, ""));
+  return START_WORDS.has(foldKeyword(body));
 }
 
 /**

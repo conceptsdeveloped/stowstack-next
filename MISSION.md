@@ -331,7 +331,12 @@ hard half. Gate: Phase A complete.
       tells a joiner if the size is actually free right now rather than making them wait for a text.
       **Confirm shipped:** replying YES takes a real hold (`s10`) and converts the entry.
       **Still missing:** the payment link, which needs Stripe.
-- [ ] `r10` Spanish flows throughout — NONE — cheaper built in than retrofitted
+- [x] `r10` Spanish flows throughout — **done 2026-09-05** — `src/lib/messaging/copy.ts` holds every
+      template as a `Templates` interface implemented once per language, so a template added in English
+      and forgotten in Spanish is a compile error. `contact_language` (keyed by phone, like the opt-out
+      registry) stores the preference; a Spanish reply teaches it, a form statement outranks a reply, an
+      operator outranks both. Spanish opt-out keywords (PARAR/ALTO/CANCELAR/SALIR/BAJA) are honoured —
+      they had to be, because our own Spanish copy tells people to send them.
 - [ ] `r11` Overflow routing to a human — NONE — ⚡SCALE — **the pressure valve that makes voice
       concurrency caps safe. Build it with the agent, not after.**
 
@@ -634,3 +639,32 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
 - **Portfolio price** — $2,497 is the current top tier; a 20-facility owner is a different animal.
 - **Does the distress filter-bite proof pass?** Seven of ten triggers depend on it.
 - **Who operates this at 50 accounts?** The console is good; it is not a support team.
+
+### 2026-09-05 — `r10` built before `r5`-`r7`, on purpose
+
+The doc said Spanish was "cheaper built in than retrofitted", so it went first, while there were eight
+templates in four files rather than fifteen in ten. Three things fell out of doing it that only show up
+once you actually write the second language:
+
+1. **Accent folding is load-bearing, not cosmetic.** `isStopReply` stripped `[^a-z-]`, which reduces
+   `sí` to `s` and `PARÁ` to `par` — so every accented Spanish reply matched nothing. `foldKeyword`
+   NFD-normalises and drops the combining marks before matching. `classifyInbound` had its own copy of
+   the old strip and needed the same fix; it now shares the one function.
+
+2. **The copy and the keyword sets are one system.** Sending "Responde PARAR para salir" while nothing
+   listens for PARAR is worse than sending no Spanish at all — it is an opt-out instruction that does
+   nothing. There is now a test asserting that every keyword the copy names is a keyword we honour, in
+   both languages.
+
+3. **"No signal" is not "English".** `detectLanguage` returns `null` for `STOP`, `ok` and `no`, because
+   those say nothing about language, and reading them as English would silently reset somebody who had
+   already written to us in Spanish. Detection only ever flips a contact *to* Spanish.
+
+Also caught while wiring the capture form: recording an unstated `en` as source `form` would have
+permanently blocked reply-detection for every waitlist signup, since a form outranks a reply. The route
+now writes a preference only when the form actually states one.
+
+Cost accepted deliberately: Spanish needs á/í/ó/ú, which GSM-03.38 lacks, so Spanish messages bill as
+70-character UCS-2 — about three segments instead of one, two extra cents against a rental worth $150 a
+month. Stripping the accents to save that is the wrong trade and the tests cap Spanish at three segments
+rather than pushing it back to ASCII.

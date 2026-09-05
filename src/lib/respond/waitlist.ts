@@ -8,6 +8,8 @@
  */
 
 import { db } from "@/lib/db";
+import { asLanguage, t, type Language } from "@/lib/messaging/copy";
+import { languagesFor } from "@/lib/messaging/language";
 import { sendMessage } from "@/lib/messaging/send";
 import { normalisePhone } from "@/lib/messaging/types";
 
@@ -18,6 +20,7 @@ export interface WaitlistEntry {
   contact_name: string | null;
   contact_phone: string;
   notify_count: number;
+  language: string | null;
 }
 
 /**
@@ -33,7 +36,7 @@ export async function matchWaitlist(
   limit: number
 ): Promise<WaitlistEntry[]> {
   return db.$queryRaw<WaitlistEntry[]>`
-    SELECT id, facility_id, size_label, contact_name, contact_phone, notify_count
+    SELECT id, facility_id, size_label, contact_name, contact_phone, notify_count, language
     FROM unit_waitlist
     WHERE facility_id = ${facilityId}::uuid
       AND status = 'waiting'
@@ -51,19 +54,11 @@ export async function matchWaitlist(
  * reason to ignore it. STOP is appended because it must be — an opt-out path is
  * a legal requirement on marketing SMS, not a courtesy.
  */
-export function waitlistMessage(input: {
-  name: string | null;
-  sizeLabel: string | null;
-  facilityName: string;
-  streetRate: number | null;
-}): string {
-  const who = input.name ? `${input.name.split(" ")[0]}, ` : "";
-  const size = input.sizeLabel ? `a ${input.sizeLabel}` : "a unit";
-  const rate = input.streetRate ? ` at $${Math.round(input.streetRate)}/mo` : "";
-  // Plain ASCII only, deliberately: one em-dash or curly quote drops the whole
-  // message to 70-character UCS-2 segments and doubles the bill for every send.
-  return `${who}${size} just opened up at ${input.facilityName}${rate}. ` +
-    `You're on the waitlist. Reply YES to hold it, STOP to opt out.`;
+export function waitlistMessage(
+  input: { name: string | null; sizeLabel: string | null; facilityName: string; streetRate: number | null },
+  language: Language = "en"
+): string {
+  return t(language).waitlist(input);
 }
 
 /**
@@ -99,6 +94,9 @@ export async function notifyWaitlist(input: {
 
   const entries = await matchWaitlist(input.facilityId, input.sizeLabel, notifyCount(input.available));
   const res: NotifyResult = { matched: entries.length, sent: 0, skipped: 0 };
+  // What the contact has told us since signing up beats what the sign-up form
+  // captured, so the registry is checked first and the row is the fallback.
+  const languages = await languagesFor(entries.map((e) => e.contact_phone));
 
   for (const entry of entries) {
     const phone = normalisePhone(entry.contact_phone);
@@ -107,12 +105,15 @@ export async function notifyWaitlist(input: {
     const outcome = await sendMessage({
       to: phone,
       facilityId: input.facilityId,
-      body: waitlistMessage({
-        name: entry.contact_name,
-        sizeLabel: input.sizeLabel,
-        facilityName,
-        streetRate: input.streetRate,
-      }),
+      body: waitlistMessage(
+        {
+          name: entry.contact_name,
+          sizeLabel: input.sizeLabel,
+          facilityName,
+          streetRate: input.streetRate,
+        },
+        languages.get(phone) ?? asLanguage(entry.language)
+      ),
       // Keyed on (event, entry): the same person is told about the same opening
       // exactly once, however many times the job is replayed.
       dedupeKey: `wl:${input.eventId}:${entry.id}`,

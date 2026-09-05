@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "aab9cf5cdd",
+      "date": "2026-09-05",
+      "category": "feature",
+      "scope": "respond",
+      "title": "Missed-call text-back and abandoned-rental rescue"
+    },
+    {
       "id": "1ace8161ac",
       "date": "2026-09-04",
       "category": "feature",

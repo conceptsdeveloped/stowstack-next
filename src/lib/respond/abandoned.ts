@@ -17,6 +17,8 @@
  */
 
 import { db } from "@/lib/db";
+import { t, type Language } from "@/lib/messaging/copy";
+import { languagesFor } from "@/lib/messaging/language";
 import { sendMessage } from "@/lib/messaging/send";
 import { normalisePhone } from "@/lib/messaging/types";
 
@@ -40,16 +42,11 @@ export interface AbandonedLead {
   unit_size: string | null;
 }
 
-export function rescueText(input: {
-  name: string | null;
-  unitSize: string | null;
-  facilityName: string;
-}): string {
-  const who = input.name ? `${input.name.trim().split(" ")[0]}, ` : "";
-  const what = input.unitSize ? `the ${input.unitSize}` : "a unit";
-  // Plain ASCII throughout — one curly quote halves the segment size.
-  return `${who}you were part-way through reserving ${what} at ${input.facilityName}. ` +
-    `Reply here and we'll finish it for you. Reply STOP to opt out.`;
+export function rescueText(
+  input: { name: string | null; unitSize: string | null; facilityName: string },
+  language: Language = "en"
+): string {
+  return t(language).rescue(input);
 }
 
 /**
@@ -82,6 +79,8 @@ export interface RescueResult { found: number; sent: number; skipped: number }
 export async function rescueAbandoned(limit = 50): Promise<RescueResult> {
   const leads = await findAbandoned(limit);
   const res: RescueResult = { found: leads.length, sent: 0, skipped: 0 };
+  // One query for the whole batch rather than one per lead.
+  const languages = await languagesFor(leads.map((l) => l.phone));
 
   for (const lead of leads) {
     const to = normalisePhone(lead.phone);
@@ -90,11 +89,14 @@ export async function rescueAbandoned(limit = 50): Promise<RescueResult> {
     const outcome = await sendMessage({
       to,
       facilityId: lead.facility_id ?? undefined,
-      body: rescueText({
-        name: lead.name,
-        unitSize: lead.unit_size,
-        facilityName: lead.facility_name ?? "our facility",
-      }),
+      body: rescueText(
+        {
+          name: lead.name,
+          unitSize: lead.unit_size,
+          facilityName: lead.facility_name ?? "our facility",
+        },
+        languages.get(to) ?? "en"
+      ),
       dedupeKey: `rescue:${lead.id}`,
     });
 

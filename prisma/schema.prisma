@@ -2284,6 +2284,7 @@ model unit_waitlist {
   notified_at   DateTime? @db.Timestamptz(6)
   notify_count  Int       @default(0)
   source        String?   @db.VarChar(32)
+  language      String    @default("en") @db.VarChar(5)
   created_at    DateTime  @default(now()) @db.Timestamptz(6)
   updated_at    DateTime  @updatedAt @default(now()) @db.Timestamptz(6)
 
@@ -2366,4 +2367,20 @@ model unit_hold {
 
   @@index([facility_id, size_label, status, expires_at], map: "idx_hold_availability")
   @@index([held_for_phone], map: "idx_hold_phone")
+}
+
+/// Preferred language per contact (MISSION.md RESPOND r10).
+///
+/// Keyed by phone rather than hung off a lead or waitlist row, for the same
+/// reason `message_optout` is: somebody who replies in Spanish means it for
+/// every message we ever send them, not just the one list they happen to be on.
+model contact_language {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phone      String   @unique @db.VarChar(20)
+  /// en | es
+  language   String   @default("en") @db.VarChar(5)
+  /// reply | form | operator — how we learned it
+  source     String?  @db.VarChar(16)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @default(now()) @db.Timestamptz(6)
 }

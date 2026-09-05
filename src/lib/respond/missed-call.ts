@@ -11,6 +11,8 @@
  */
 
 import { db } from "@/lib/db";
+import { t, type Language } from "@/lib/messaging/copy";
+import { languageFor } from "@/lib/messaging/language";
 import { sendMessage } from "@/lib/messaging/send";
 import { normalisePhone } from "@/lib/messaging/types";
 
@@ -40,10 +42,8 @@ export function isMissedCall(input: { status: string | null; duration: number | 
  */
 export const COOLDOWN_MINUTES = 60;
 
-export function missedCallText(facilityName: string): string {
-  // Plain ASCII: one em-dash or curly quote halves the segment size.
-  return `Sorry we missed your call at ${facilityName}. Reply here and we'll help you find a unit, ` +
-    `or call us back any time. Reply STOP to opt out.`;
+export function missedCallText(facilityName: string, language: Language = "en"): string {
+  return t(language).missedCall(facilityName);
 }
 
 export interface TextBackResult {
@@ -95,7 +95,7 @@ export async function textBackMissedCall(callSid: string): Promise<TextBackResul
     to,
     from: call.from_number ?? undefined,
     facilityId: call.facility_id ?? undefined,
-    body: missedCallText(call.facility_name ?? "our facility"),
+    body: missedCallText(call.facility_name ?? "our facility", await languageFor(to)),
     dedupeKey: `missed:${callSid}`,
   });
 
