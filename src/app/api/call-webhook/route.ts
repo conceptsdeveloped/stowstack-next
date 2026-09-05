@@ -3,6 +3,8 @@ import twilio from "twilio";
 import { db } from "@/lib/db";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
+import { isMissedCall, textBackMissedCall } from "@/lib/respond/missed-call";
+import { enqueue } from "@/lib/jobs/queue";
 
 const { VoiceResponse } = twilio.twiml;
 
@@ -69,6 +71,37 @@ export async function POST(req: NextRequest) {
         `;
       });
     }
+    // RESPOND r3 — text back a missed call, inline and immediately.
+    //
+    // Deliberately NOT queued: the worker runs once a minute, and a text that
+    // arrives a minute later reaches somebody who has already called a
+    // competitor. The queue is the fallback when this fails, not the path.
+    //
+    // Wrapped so a messaging failure can never break call tracking or make us
+    // return non-2xx to Twilio, which would have it retry the whole callback.
+    if (CallSid && isMissedCall({ status: CallStatus ?? null, duration: parseInt(CallDuration) || 0 })) {
+      try {
+        const res = await textBackMissedCall(CallSid);
+        if (!res.sent && res.reason !== "cooldown" && res.reason !== "already-handled") {
+          // Worth one durable retry — but never for a reason that will not change.
+          await enqueue({
+            queue: "respond.missed-call",
+            dedupeKey: `missed:${CallSid}`,
+            payload: { callSid: CallSid },
+            maxAttempts: 3,
+          });
+        }
+      } catch (err) {
+        console.error("[call-webhook] missed-call text-back failed:", err);
+        await enqueue({
+          queue: "respond.missed-call",
+          dedupeKey: `missed:${CallSid}`,
+          payload: { callSid: CallSid },
+          maxAttempts: 3,
+        }).catch(() => {});
+      }
+    }
+
     return new NextResponse(null, { status: 200 });
   }
 

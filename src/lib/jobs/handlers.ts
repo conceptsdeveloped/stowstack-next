@@ -19,6 +19,8 @@ import { db } from "@/lib/db";
 import type { JobHandler } from "./types";
 import { notifyWaitlist } from "@/lib/respond/waitlist";
 import { expireHolds } from "@/lib/respond/hold";
+import { textBackMissedCall } from "@/lib/respond/missed-call";
+import { rescueAbandoned } from "@/lib/respond/abandoned";
 import {
   detectForFacility,
   detectInventoryForFacility,
@@ -169,8 +171,34 @@ const expireStaleHolds: JobHandler = async () => ({
   progressDone: await expireHolds(),
 });
 
+/**
+ * Durable fallback for r3. The inline send on the status webhook is the path;
+ * this only runs when that failed, so it must stay idempotent — the dedupe key
+ * on the message log is what stops it texting somebody a second time.
+ */
+const missedCallTextBack: JobHandler = async (ctx) => {
+  const callSid = (ctx.payload as { callSid?: string } | null)?.callSid;
+  if (!callSid) return { kind: "unknown", reason: "missed-call job has no callSid" };
+  const res = await textBackMissedCall(callSid);
+  return { kind: "done", progressDone: res.sent ? 1 : 0 };
+};
+
+/**
+ * RESPOND r8 — text somebody who abandoned a rental part-way through.
+ *
+ * Runs often because the value is entirely in the speed; the existing daily
+ * email sequence in `/api/cron/process-recovery` owns everything after two
+ * hours and is untouched by this.
+ */
+const abandonedRescue: JobHandler = async () => ({
+  kind: "done",
+  progressDone: (await rescueAbandoned()).sent,
+});
+
 export const HANDLERS: Record<string, JobHandler> = {
   "demo.chunked": chunkedCounter,
+  "respond.abandoned-rescue": abandonedRescue,
+  "respond.missed-call": missedCallTextBack,
   "holds.expire": expireStaleHolds,
   "respond.waitlist-notify": waitlistNotify,
   "pms.detect-events": detectPmsEvents,

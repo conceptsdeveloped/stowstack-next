@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "1ace8161ac",
+      "date": "2026-09-04",
+      "category": "feature",
+      "scope": "respond",
+      "title": "Reservation lock, inbound SMS, waitlist capture"
+    },
+    {
       "id": "104f944dc1",
       "date": "2026-09-04",
       "category": "feature",

@@ -304,12 +304,22 @@ hard half. Gate: Phase A complete.
 
 - [ ] `r1` AI voice agent quoting live sizes and prices — NONE — reads `facility_pms_units`
 - [ ] `r2` Reservation + payment link by text mid-call — NONE — ⚡SCALE — needs `s10`
-- [ ] `r3` Missed-call text-back in 5 seconds — NONE — ⚡SCALE — cron cannot do 5 seconds; needs `s1`+`s5`
+- [x] `r3` Missed-call text-back in 5 seconds — **DONE** — sent **inline from the Twilio status
+      callback**, not from the queue: the worker runs once a minute, and a text a minute late reaches
+      somebody who has already called a competitor. The queue is the durable fallback when the inline
+      send fails, not the path. Counts `no-answer`/`busy`/`failed`/`canceled` **and a `completed`
+      call under 15s** — Twilio reports `completed` for voicemail-then-hangup, which the caller
+      experienced as a missed call. One text per caller per hour however many times they redial.
 - [ ] `r4` AI chat trained on the facility — SPEC — `facility_context` is the knowledge source
 - [ ] `r5` Speed-to-lead under 60 seconds on every form — PARTIAL — ⚡SCALE — `partial_leads`, `lead_status_events`
 - [ ] `r6` Tour booking with 24h and 1h reminders — NONE
 - [ ] `r7` No-show recovery same day — NONE
-- [ ] `r8` Abandoned online rental rescued within 10 minutes — PARTIAL — `partial_leads` is this capture
+- [x] `r8` Abandoned online rental rescued within 10 minutes — **DONE** — ⚠️ **and it did not
+      replace anything.** `/api/cron/process-recovery` is already 361 lines of multi-step EMAIL
+      recovery running daily; that system is untouched. This adds the leg it cannot cover — a text
+      inside a 10-to-120-minute window, checked every 5 minutes. After two hours the email sequence
+      owns the lead. **No new column:** `message_log` already records what we sent, so the dedupe key
+      is both the idempotency guard and the "have we rescued this" answer, and cannot drift from it.
 - [~] `r9` Sold-out waitlist, auto-notify, payment link — **CAPTURE → NOTIFY → HOLD DONE** — `unit_waitlist`
       + `respond.waitlist-notify`. **The first capability that runs end to end with no human in it:**
       a PMS upload changes the mix → `inventory.available` → job → text. Proven against the real
@@ -541,6 +551,10 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-05 · Claude** — `r3` and `r8` done. Both are "inbound signal → fast text", both ride on
+  machinery that already existed. **`r8` nearly became a duplicate system:** a 361-line email
+  recovery cron was already running, and the honest fix was to add the SMS leg beside it rather than
+  rebuild recovery. Checked before building, per the lesson this file keeps re-learning.
 - **2026-09-04 · Claude** — Phase B continued: `s10` done (reservation lock, concurrency proven),
   inbound SMS handled, waitlist capture shipped. **The chain is now closed both ways** — a customer
   joins, a unit frees, they are texted, they reply YES, a unit is really held for them, and STOP

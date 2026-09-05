@@ -37,6 +37,11 @@ export const RECURRING: Recurring[] = [
   // any lifecycle mail window and keeps the worker free for real work.
   { queue: "pms.detect-events", everyMs: 15 * MIN },
 
+  // RESPOND r8. The whole value is speed — the window opens at 10 minutes, so
+  // checking every 5 keeps the worst case close to it. The daily email
+  // sequence owns anything older than two hours.
+  { queue: "respond.abandoned-rescue", everyMs: 5 * MIN },
+
   // Holds lapse on their own as far as availability is concerned; this only
   // keeps the operator view honest about which are still live.
   { queue: "holds.expire", everyMs: 5 * MIN },

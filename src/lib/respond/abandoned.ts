@@ -1,0 +1,116 @@
+/**
+ * Abandoned-rental rescue by text (MISSION.md RESPOND r8).
+ *
+ * ⚠️ There is already a recovery system: `/api/cron/process-recovery` is 361
+ * lines of multi-step EMAIL recovery driven by `recovery_status`,
+ * `recovery_sent_count` and `next_recovery_at`, and it runs daily. This does not
+ * replace it and does not touch it.
+ *
+ * What it adds is the leg that system cannot cover: a text within minutes. Email
+ * on a daily cron is the right tool for a nurture sequence and the wrong one for
+ * somebody who half-filled a rental form ten minutes ago and is, right now,
+ * looking at a competitor's site.
+ *
+ * Deliberately no new column: `message_log` already records exactly what we sent
+ * and when, so `dedupeKey` is both the idempotency guard and the "have we
+ * rescued this lead" answer.
+ */
+
+import { db } from "@/lib/db";
+import { sendMessage } from "@/lib/messaging/send";
+import { normalisePhone } from "@/lib/messaging/types";
+
+/**
+ * The window.
+ *
+ * Ten minutes is late enough that they have genuinely stopped rather than
+ * stepped away mid-form, and two hours is the point at which "you were just
+ * looking at this" stops being true and starts being creepy. Outside the window
+ * the email sequence owns the lead.
+ */
+export const RESCUE_AFTER_MINUTES = 10;
+export const RESCUE_BEFORE_MINUTES = 120;
+
+export interface AbandonedLead {
+  id: string;
+  facility_id: string | null;
+  facility_name: string | null;
+  name: string | null;
+  phone: string | null;
+  unit_size: string | null;
+}
+
+export function rescueText(input: {
+  name: string | null;
+  unitSize: string | null;
+  facilityName: string;
+}): string {
+  const who = input.name ? `${input.name.trim().split(" ")[0]}, ` : "";
+  const what = input.unitSize ? `the ${input.unitSize}` : "a unit";
+  // Plain ASCII throughout — one curly quote halves the segment size.
+  return `${who}you were part-way through reserving ${what} at ${input.facilityName}. ` +
+    `Reply here and we'll finish it for you. Reply STOP to opt out.`;
+}
+
+/**
+ * Leads worth a text right now.
+ *
+ * `NOT EXISTS` against `message_log` rather than a flag column: the message log
+ * is the record of what we actually sent, and a flag can drift from it.
+ */
+export async function findAbandoned(limit = 50): Promise<AbandonedLead[]> {
+  return db.$queryRaw<AbandonedLead[]>`
+    SELECT pl.id, pl.facility_id, f.name AS facility_name, pl.name, pl.phone, pl.unit_size
+    FROM partial_leads pl
+    LEFT JOIN facilities f ON f.id = pl.facility_id
+    WHERE pl.phone IS NOT NULL
+      AND pl.deleted_at IS NULL
+      AND COALESCE(pl.converted, FALSE) = FALSE
+      AND COALESCE(pl.lead_status, 'partial') = 'partial'
+      AND pl.created_at <= now() - (${RESCUE_AFTER_MINUTES}::int * interval '1 minute')
+      AND pl.created_at >  now() - (${RESCUE_BEFORE_MINUTES}::int * interval '1 minute')
+      AND NOT EXISTS (
+        SELECT 1 FROM message_log m WHERE m.dedupe_key = 'rescue:' || pl.id
+      )
+    ORDER BY pl.created_at ASC
+    LIMIT ${limit}
+  `;
+}
+
+export interface RescueResult { found: number; sent: number; skipped: number }
+
+export async function rescueAbandoned(limit = 50): Promise<RescueResult> {
+  const leads = await findAbandoned(limit);
+  const res: RescueResult = { found: leads.length, sent: 0, skipped: 0 };
+
+  for (const lead of leads) {
+    const to = normalisePhone(lead.phone);
+    if (!to) { res.skipped++; continue; }
+
+    const outcome = await sendMessage({
+      to,
+      facilityId: lead.facility_id ?? undefined,
+      body: rescueText({
+        name: lead.name,
+        unitSize: lead.unit_size,
+        facilityName: lead.facility_name ?? "our facility",
+      }),
+      dedupeKey: `rescue:${lead.id}`,
+    });
+
+    if (outcome.sent) {
+      res.sent++;
+      // Recorded on the lead so the EMAIL sequence and a human both know a text
+      // already went out — without changing how that sequence decides anything.
+      await db.$executeRaw`
+        UPDATE partial_leads
+        SET recovery_sent_count = COALESCE(recovery_sent_count, 0) + 1, updated_at = now()
+        WHERE id = ${lead.id}::uuid
+      `;
+    } else {
+      res.skipped++;
+    }
+  }
+
+  return res;
+}
