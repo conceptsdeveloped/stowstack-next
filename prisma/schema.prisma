@@ -2337,3 +2337,33 @@ model message_optout {
   source     String?  @db.VarChar(32)
   created_at DateTime @default(now()) @db.Timestamptz(6)
 }
+
+/// Unit reservation lock (MISSION.md s10).
+///
+/// Two callers must not be able to book the same unit. The PMS is the source of
+/// truth for how many of a size exist and how many are occupied, but it is
+/// updated by upload — minutes to hours behind — so it cannot arbitrate a race
+/// happening on two phone calls right now. This table is that arbiter:
+/// availability is the PMS vacancy minus the holds we ourselves are carrying.
+///
+/// Holds expire. A caller who says "let me think" must not silently keep a unit
+/// off the market forever, so a hold is a short lease, not a booking.
+model unit_hold {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id    String    @db.Uuid
+  size_label     String?
+  unit_type      String?
+  held_for_phone String?   @db.VarChar(20)
+  held_for_name  String?
+  waitlist_id    String?   @db.Uuid
+  /// waitlist | call | web
+  source         String    @default("web") @db.VarChar(16)
+  /// active | converted | released | expired
+  status         String    @default("active") @db.VarChar(16)
+  expires_at     DateTime  @db.Timestamptz(6)
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime  @updatedAt @default(now()) @db.Timestamptz(6)
+
+  @@index([facility_id, size_label, status, expires_at], map: "idx_hold_availability")
+  @@index([held_for_phone], map: "idx_hold_phone")
+}

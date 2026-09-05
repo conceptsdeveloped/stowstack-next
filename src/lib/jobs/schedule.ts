@@ -37,6 +37,10 @@ export const RECURRING: Recurring[] = [
   // any lifecycle mail window and keeps the worker free for real work.
   { queue: "pms.detect-events", everyMs: 15 * MIN },
 
+  // Holds lapse on their own as far as availability is concerned; this only
+  // keeps the operator view honest about which are still live.
+  { queue: "holds.expire", everyMs: 5 * MIN },
+
   // Retention. The detectors above complete ~800 times a day and each leaves a
   // `done` row; without this the table grows by ~290k rows a year forever.
   { queue: "jobs.prune", everyMs: 6 * 60 * MIN },

@@ -272,14 +272,27 @@ Nothing above this line ships to a portfolio account. These are the pieces every
         recorded as `suppressed` rather than silently dropped
   - [x] **quiet hours** — 8am–9pm recipient-local, skipped rather than assumed when the timezone is
         unknown, because assuming UTC is how you text somebody at 3am
+  - [x] **inbound handled** — `POST /api/sms-webhook`, Twilio-signature verified. STOP writes the
+        opt-out registry *and* cancels the person's waitlist entries; START resubscribes; HELP
+        identifies the sender and mentions rates as carriers expect; YES takes a hold. **Until this
+        existed our own copy was a lie** — every message said "Reply STOP" and nothing honoured it.
   - [ ] per-brand 10DLC registration state modelled and visible — deferred with white-label; there
         are no partners yet, so its shape would be a guess.
 - [ ] `s6` **PMS adapter interface — storEDGE / SiteLink / Storable** — PARTIAL — ⚡SCALE
   *Acceptance:* one contract, one adapter per vendor; webhooks preferred over polling; a shared
   scheduler with per-facility cursors and vendor-aware backoff. Today's `facility_pms_*` tables are
   upload-driven.
-- [ ] `s10` **Unit-level hold / reservation lock** — NONE
-  *Acceptance:* two concurrent callers cannot book the same unit; holds expire.
+- [x] `s10` **Unit-level hold / reservation lock** — **DONE**
+  Shipped 2026-09-04: `unit_hold` + `src/lib/respond/hold.ts`. Real availability is PMS vacancy
+  minus the holds we carry — the PMS is updated by upload, minutes to hours behind, so it cannot
+  arbitrate a race happening on two phone calls right now.
+  - [x] **two concurrent callers cannot book the same unit** — the insert is gated on availability
+        inside one statement, so there is no check-then-insert window. **Proven against production:
+        8 simultaneous attempts for the last unit, exactly 1 won.**
+  - [x] **holds expire** — and availability ignores a lapsed hold *immediately* rather than waiting
+        for a sweep, because a free unit that looks taken until a cron runs is a lost rental.
+        `holds.expire` runs every 5 minutes purely to keep the operator view honest.
+  - [x] one person cannot accumulate holds on the same size by replying twice
 - [ ] `s11` **Decide: absorb PostcardRobot, or keep it behind an API** — SPEC
   *Recommendation:* keep it separate behind an API. It already has a public-API task on its roadmap
   and it is the only part of the stack that spends real money on every call. **Log the decision in §7.**
@@ -297,14 +310,17 @@ hard half. Gate: Phase A complete.
 - [ ] `r6` Tour booking with 24h and 1h reminders — NONE
 - [ ] `r7` No-show recovery same day — NONE
 - [ ] `r8` Abandoned online rental rescued within 10 minutes — PARTIAL — `partial_leads` is this capture
-- [~] `r9` Sold-out waitlist, auto-notify, payment link — **NOTIFY CHAIN DONE** — `unit_waitlist`
+- [~] `r9` Sold-out waitlist, auto-notify, payment link — **CAPTURE → NOTIFY → HOLD DONE** — `unit_waitlist`
       + `respond.waitlist-notify`. **The first capability that runs end to end with no human in it:**
       a PMS upload changes the mix → `inventory.available` → job → text. Proven against the real
       database with the real modules (6 checks): baseline emits nothing, only the zero-to-something
       edge fires, the list is texted oldest-first, a replay sends nothing, and an opted-out number is
       never texted even when it is the only match.
-      **Still missing:** somewhere for a customer to *join* the list (no form or endpoint yet —
-      entries are inserted directly), and the payment link, which needs `s10` and Stripe.
+      **Capture shipped 2026-09-04:** `POST /api/waitlist` — public, deduped per number+size, and
+      it refuses to add somebody who has opted out of the texts the list exists to send. It also
+      tells a joiner if the size is actually free right now rather than making them wait for a text.
+      **Confirm shipped:** replying YES takes a real hold (`s10`) and converts the entry.
+      **Still missing:** the payment link, which needs Stripe.
 - [ ] `r10` Spanish flows throughout — NONE — cheaper built in than retrofitted
 - [ ] `r11` Overflow routing to a human — NONE — ⚡SCALE — **the pressure valve that makes voice
       concurrency caps safe. Build it with the agent, not after.**
@@ -525,6 +541,11 @@ Append-only. Date, decider, decision. Newest entry wins over prose above.
   field moves to order level. **Blocked on one question to the vendor:** is the 60 req/min limit
   per sub-account or account-wide? If account-wide, D buys nothing and the choice reopens between
   A, B and C. **Nothing should be built against D until that answer exists.**
+- **2026-09-04 · Claude** — Phase B continued: `s10` done (reservation lock, concurrency proven),
+  inbound SMS handled, waitlist capture shipped. **The chain is now closed both ways** — a customer
+  joins, a unit frees, they are texted, they reply YES, a unit is really held for them, and STOP
+  really stops it. The em-dash bug appeared a *second* time in the inbound replies and the segment
+  test caught it again; that test has now paid for itself twice.
 - **2026-09-04 · Claude** — **Phase B begun.** `s5` messaging seam complete and `r9`'s notify chain
   working end to end — the first automation in this platform with no human step. Two bugs my own
   tests caught before they shipped: `segmentCount`'s non-GSM check was written as `/[^ -]/`, which

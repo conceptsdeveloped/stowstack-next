@@ -18,6 +18,7 @@
 import { db } from "@/lib/db";
 import type { JobHandler } from "./types";
 import { notifyWaitlist } from "@/lib/respond/waitlist";
+import { expireHolds } from "@/lib/respond/hold";
 import {
   detectForFacility,
   detectInventoryForFacility,
@@ -158,8 +159,19 @@ const waitlistNotify: JobHandler = async (ctx) => {
   return { kind: "done", progressDone: res.sent };
 };
 
+/**
+ * Mark lapsed holds (MISSION.md s10). Availability already ignores expired
+ * holds, so this is bookkeeping for the operator view rather than correctness —
+ * which is precisely why it belongs on the queue and not in the request path.
+ */
+const expireStaleHolds: JobHandler = async () => ({
+  kind: "done",
+  progressDone: await expireHolds(),
+});
+
 export const HANDLERS: Record<string, JobHandler> = {
   "demo.chunked": chunkedCounter,
+  "holds.expire": expireStaleHolds,
   "respond.waitlist-notify": waitlistNotify,
   "pms.detect-events": detectPmsEvents,
   "pms.detect-inventory": detectInventory,
