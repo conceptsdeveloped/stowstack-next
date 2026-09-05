@@ -311,7 +311,12 @@ hard half. Gate: Phase A complete.
       call under 15s** — Twilio reports `completed` for voicemail-then-hangup, which the caller
       experienced as a missed call. One text per caller per hour however many times they redial.
 - [ ] `r4` AI chat trained on the facility — SPEC — `facility_context` is the knowledge source
-- [ ] `r5` Speed-to-lead under 60 seconds on every form — PARTIAL — ⚡SCALE — `partial_leads`, `lead_status_events`
+- [x] `r5` Speed-to-lead under 60 seconds on every form — **done 2026-09-05** —
+      `src/lib/respond/speed-to-lead.ts`. Two messages, inline on the submit request: an
+      acknowledgement to the lead, and an alert with their phone number to the operator, because the
+      thing that actually rents a unit is a human calling back. Wired into `/api/consumer-lead`,
+      `/api/lead-capture` and `POST /api/v1/leads`. Latency is stamped on `partial_leads.first_response_at`
+      and measured against `converted_at`, so PROVE has a real speed-to-lead number.
 - [ ] `r6` Tour booking with 24h and 1h reminders — NONE
 - [ ] `r7` No-show recovery same day — NONE
 - [x] `r8` Abandoned online rental rescued within 10 minutes — **DONE** — ⚠️ **and it did not
@@ -668,3 +673,45 @@ Cost accepted deliberately: Spanish needs á/í/ó/ú, which GSM-03.38 lacks, so
 70-character UCS-2 — about three segments instead of one, two extra cents against a rental worth $150 a
 month. Stripping the accents to save that is the wrong trade and the tests cap Spanish at three segments
 rather than pushing it back to ASCII.
+
+### 2026-09-05 — `r5`, and the "you didn't finish" text sent to people who finished
+
+Recon before writing, and it paid for itself twice.
+
+**1. The obvious hook was the wrong one.** `POST /api/partial-lead` looked like the form endpoint. It is
+not — it is a progressive beacon that fires repeatedly while somebody is still typing, upserting on
+`session_id`, and it is how `r8` knows about abandonment at all. Hooking speed-to-lead to it would have
+texted people in the middle of filling the form in. The real submit paths are `/api/consumer-lead` and
+`/api/lead-capture`, and my first grep missed both because it searched for `INSERT INTO partial_leads`
+while those two use Prisma client methods.
+
+**2. A live bug, and it was mine to inherit.** `/api/lead-capture`'s **create** branch set neither
+`converted` nor `lead_status`, while its **update** branch set both. So a lead who submitted a full
+name/email/phone on a funnel landing page with no prior beacon row landed as
+`lead_status = 'partial', converted = false` — which is precisely what `r8`'s abandoned-rescue sweep
+looks for. That lead was queued a "you were part-way through, reply and we'll finish it" text ten
+minutes after they had in fact finished. Fixed at the source (the create branch now matches the update
+branch), and `r8` hardened with a third guard on `recovery_status <> 'converted'` so no single path's
+drift can produce that message again.
+
+**3. `converted_at` already existed and nothing set it.** `/api/consumer-lead` set `converted = true`
+without a timestamp, so there was no submit moment to measure speed against. Reused that column rather
+than adding `submitted_at`; the only new column is `first_response_at`.
+
+Measuring from `converted_at` and not `created_at` is the whole point: `created_at` is when the beacon
+first saw them, which can be an hour before they submit, and measuring from it would report an
+hour-long response to a lead answered in two seconds. `COALESCE(first_response_at, now())` keeps the
+first response, so a retry cannot rewrite history into looking faster than it was.
+
+Two design calls worth keeping:
+
+- **The two sends have separate dedupe keys**, so one failing does not suppress the other. A lead who
+  has opted out of texts has not opted the operator out of being told they exist — there is a test for
+  exactly that.
+- **The operator alert carries no opt-out line.** It is an internal message to a business contact, not
+  marketing, and a test asserts it stays that way.
+
+Inline, not queued, for the same reason as `r3`: the worker ticks once a minute and the entire value is
+being inside the first one. The queued `respond.speed-to-lead` job is the safety net for the one case
+inline cannot cover — a submit request that died between writing the lead and answering it — and it
+sweeps for leads with no response at all, so on a healthy system it finds nothing.

@@ -46,6 +46,13 @@ export const RECURRING: Recurring[] = [
   // keeps the operator view honest about which are still live.
   { queue: "holds.expire", everyMs: 5 * MIN },
 
+  // RESPOND r5. Not the path — the submit routes answer a lead inline, inside
+  // the minute, because that is the entire point. This is the safety net for the
+  // case the inline path cannot cover: a submit request that died between
+  // writing the lead and answering it. It sweeps for leads with no response at
+  // all, so on a healthy system it finds nothing.
+  { queue: "respond.speed-to-lead", everyMs: 5 * MIN },
+
   // Retention. The detectors above complete ~800 times a day and each leaves a
   // `done` row; without this the table grows by ~290k rows a year forever.
   { queue: "jobs.prune", everyMs: 6 * 60 * MIN },

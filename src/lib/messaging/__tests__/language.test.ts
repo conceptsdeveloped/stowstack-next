@@ -92,7 +92,8 @@ describe("detectLanguage", () => {
 
 describe("every template exists in every language", () => {
   const KEYS: (keyof Templates)[] = [
-    "missedCall", "rescue", "waitlist", "stop", "start", "help", "heldOk", "heldGone", "noHold",
+    "missedCall", "leadAck", "operatorAlert", "rescue", "waitlist",
+    "stop", "start", "help", "heldOk", "heldGone", "noHold",
   ];
   LANGUAGES.forEach((lang) => {
     it(`${lang} implements all ${KEYS.length} templates`, () => {
@@ -100,22 +101,42 @@ describe("every template exists in every language", () => {
     });
   });
 
-  const rendered = (lang: Language): string[] => {
+  /**
+   * A deliberately long real facility name. LONG is 14 characters and
+   * flatters the copy; this is 33 and is the shape of a name we actually have on
+   * the books, so the segment budget is proved against the worst realistic case
+   * rather than the best one.
+   */
+  const LONG = "Longhorn State Storage Springtown";
+
+  /** Keyed, not indexed, so adding a template cannot silently shift an assertion. */
+  const rendered = (lang: Language): Record<string, string> => {
     const c = COPY[lang];
-    return [
-      c.missedCall("Midway Storage"),
-      c.rescue({ name: "Dana Reeves", unitSize: "10x10", facilityName: "Midway Storage" }),
-      c.rescue({ name: null, unitSize: null, facilityName: "Midway Storage" }),
-      c.waitlist({ name: "Dana", sizeLabel: "10x10", facilityName: "Midway", streetRate: 149 }),
-      c.waitlist({ name: null, sizeLabel: null, facilityName: "Midway", streetRate: null }),
-      c.stop, c.start, c.help, c.heldGone, c.noHold,
-      c.heldOk("10x10", 30), c.heldOk(null, 30),
-    ];
+    return {
+      missedCall: c.missedCall(LONG),
+      leadAck: c.leadAck({ name: "Dana Reeves", unitSize: "10x10", facilityName: LONG }),
+      leadAckBare: c.leadAck({ name: null, unitSize: null, facilityName: LONG }),
+      operatorAlert: c.operatorAlert({
+        name: "Dana Reeves", phone: "+15125550123", unitSize: "10x10", facilityName: LONG,
+      }),
+      operatorAlertBare: c.operatorAlert({
+        name: null, phone: null, unitSize: null, facilityName: LONG,
+      }),
+      rescue: c.rescue({ name: "Dana Reeves", unitSize: "10x10", facilityName: LONG }),
+      rescueBare: c.rescue({ name: null, unitSize: null, facilityName: LONG }),
+      waitlist: c.waitlist({ name: "Dana", sizeLabel: "10x10", facilityName: LONG, streetRate: 149 }),
+      waitlistBare: c.waitlist({ name: null, sizeLabel: null, facilityName: LONG, streetRate: null }),
+      stop: c.stop, start: c.start, help: c.help, heldGone: c.heldGone, noHold: c.noHold,
+      heldOk: c.heldOk("10x10", 30), heldOkBare: c.heldOk(null, 30),
+    };
   };
+
+  /** Messages that go to a customer. The operator alert is internal. */
+  const MARKETING = ["missedCall", "leadAck", "leadAckBare", "rescue", "rescueBare", "waitlist", "waitlistBare"];
 
   LANGUAGES.forEach((lang) => {
     it(`${lang} never renders null or undefined into a message`, () => {
-      rendered(lang).forEach((m) => {
+      Object.values(rendered(lang)).forEach((m) => {
         expect(m).not.toMatch(/null|undefined|NaN/);
         expect(m).not.toMatch(/\s{2,}/); // a dropped name must not leave a double space
         expect(m).toBe(m.trim());
@@ -124,9 +145,8 @@ describe("every template exists in every language", () => {
 
     it(`${lang} carries an opt-out on every marketing message`, () => {
       const optOutWord = lang === "es" ? /PARAR/ : /STOP/;
-      [rendered(lang)[0], rendered(lang)[1], rendered(lang)[3]].forEach((m) =>
-        expect(m).toMatch(optOutWord)
-      );
+      const r = rendered(lang);
+      MARKETING.forEach((k) => expect(r[k], k).toMatch(optOutWord));
     });
 
     /**
@@ -137,16 +157,19 @@ describe("every template exists in every language", () => {
      */
     it(`${lang} stays inside its segment budget`, () => {
       const cap = lang === "es" ? 3 : 1;
-      rendered(lang).forEach((m) => expect(segmentCount(m)).toBeLessThanOrEqual(cap));
+      Object.entries(rendered(lang)).forEach(([k, m]) =>
+        expect(segmentCount(m), `${k}: ${m.length} chars`).toBeLessThanOrEqual(cap)
+      );
     });
   });
 
   it("English is plain ASCII, so it bills as one segment", () => {
-    rendered("en").forEach((m) => expect(/^[\x20-\x7e]*$/.test(m)).toBe(true));
+    Object.entries(rendered("en")).forEach(([k, m]) => expect(/^[\x20-\x7e]*$/.test(m), k).toBe(true));
   });
 
   it("the two languages are actually different text", () => {
-    rendered("en").forEach((m, i) => expect(m).not.toBe(rendered("es")[i]));
+    const en = rendered("en"), es = rendered("es");
+    Object.keys(en).forEach((k) => expect(es[k], k).not.toBe(en[k]));
   });
 
   /**

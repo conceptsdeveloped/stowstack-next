@@ -21,6 +21,7 @@ import { notifyWaitlist } from "@/lib/respond/waitlist";
 import { expireHolds } from "@/lib/respond/hold";
 import { textBackMissedCall } from "@/lib/respond/missed-call";
 import { rescueAbandoned } from "@/lib/respond/abandoned";
+import { respondToNewLead, unansweredLeads } from "@/lib/respond/speed-to-lead";
 import {
   detectForFacility,
   detectInventoryForFacility,
@@ -195,7 +196,31 @@ const abandonedRescue: JobHandler = async () => ({
   progressDone: (await rescueAbandoned()).sent,
 });
 
+/**
+ * RESPOND r5 — durable fallback for the inline speed-to-lead response.
+ *
+ * Two jobs in one: a `leadId` payload retries one specific lead whose inline
+ * send failed, and no payload sweeps for leads that were never answered at all
+ * — which catches the case the inline path cannot, a submit request that died
+ * between writing the lead and answering it.
+ */
+const speedToLead: JobHandler = async (ctx) => {
+  const leadId = (ctx.payload as { leadId?: string } | null)?.leadId;
+  if (leadId) {
+    const res = await respondToNewLead(leadId);
+    return { kind: "done", progressDone: res.acked || res.alerted ? 1 : 0 };
+  }
+
+  let answered = 0;
+  for (const lead of await unansweredLeads()) {
+    const res = await respondToNewLead(lead.id);
+    if (res.acked || res.alerted) answered++;
+  }
+  return { kind: "done", progressDone: answered };
+};
+
 export const HANDLERS: Record<string, JobHandler> = {
+  "respond.speed-to-lead": speedToLead,
   "demo.chunked": chunkedCounter,
   "respond.abandoned-rescue": abandonedRescue,
   "respond.missed-call": missedCallTextBack,

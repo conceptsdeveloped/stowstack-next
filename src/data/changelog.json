@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "05e0abafd7",
+      "date": "2026-09-05",
+      "category": "feature",
+      "scope": "messaging",
+      "title": "Spanish throughout, and honour Spanish opt-outs"
+    },
+    {
       "id": "aab9cf5cdd",
       "date": "2026-09-05",
       "category": "feature",

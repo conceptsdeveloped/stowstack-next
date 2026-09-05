@@ -11,6 +11,7 @@ import {
   requireScope,
 } from "@/lib/v1-auth";
 import { dispatchWebhook } from "@/lib/webhook";
+import { respondToNewLeadSafely } from "@/lib/respond/speed-to-lead";
 import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidUuid } from "@/lib/validation";
@@ -155,6 +156,18 @@ export async function POST(request: NextRequest) {
 
     dispatchWebhook(orgId, "lead.created", { lead: rows[0] })
       .catch((err) => console.error("[webhook:lead.created]", err instanceof Error ? err.message : err));
+
+    // RESPOND r5. A lead pushed in over the API is still a lead somebody is
+    // waiting on, so it gets the same answer as a web form — but only when it
+    // arrives as new. A caller importing historical leads passes their real
+    // status, and texting those would be a mass send to old records.
+    // Awaited, not fire-and-forget: a floating promise can be killed the moment
+    // the serverless response returns, and this is the one part of the request
+    // that has a deadline.
+    if (!leadStatus || leadStatus === "new") {
+      const id = rows[0]?.id;
+      if (typeof id === "string") await respondToNewLeadSafely(id);
+    }
 
     return v1Json({ lead: rows[0] });
   } catch {

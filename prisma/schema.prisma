@@ -1141,6 +1141,10 @@ model partial_leads {
   fbclid              String?
   gclid               String?
   status_updated_at   DateTime?      @db.Timestamptz(6)
+  /// First time we answered this lead, for speed-to-lead (MISSION.md RESPOND r5).
+  /// Latency is measured against `converted_at`, which is the submit moment —
+  /// `created_at` is when they first touched the form, which can be much earlier.
+  first_response_at   DateTime?      @db.Timestamptz(6)
   lead_notes          String?
   deleted_at          DateTime?      @db.Timestamptz(6)
   // Roadmap 10 phase 1 (revised): attribution scaffold

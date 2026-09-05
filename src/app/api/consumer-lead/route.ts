@@ -5,6 +5,8 @@ import { applyRateLimit } from "@/lib/with-rate-limit";
 import { RATE_LIMIT_TIERS } from "@/lib/rate-limit-tiers";
 import { isValidEmail, sanitizeString, escapeHtml } from "@/lib/validation";
 import { sendEmail, SENDERS } from "@/lib/email";
+import { respondToNewLeadSafely } from "@/lib/respond/speed-to-lead";
+import { enqueue } from "@/lib/jobs/queue";
 
 /** Clamp optional string fields from untrusted input */
 function clean(val: unknown, max: number): string | null {
@@ -97,6 +99,7 @@ export async function POST(req: NextRequest) {
           name: cleanName || existingPartial.name,
           unit_size: cleanUnitSize || existingPartial.unit_size,
           converted: true,
+          converted_at: existingPartial.converted_at ?? new Date(),
           lead_status: "new",
           fbclid: fbclid || existingPartial.fbclid,
           gclid: gclid || existingPartial.gclid,
@@ -106,6 +109,22 @@ export async function POST(req: NextRequest) {
           utm_content: cleanUtmContent || existingPartial.utm_content,
         },
       });
+      // RESPOND r5 — inline, not queued. The worker ticks once a minute and the
+      // whole value of this is being inside the first one. `…Safely` swallows
+      // its own failures: the customer is waiting on this response and a
+      // messaging fault is ours to log, not theirs to see.
+      const speed = await respondToNewLeadSafely(updated.id);
+      if (!speed.acked && !speed.alerted) {
+        // Durable fallback for a transient vendor failure. Dedupe keys inside
+        // make the retry safe even if the inline send half-succeeded.
+        await enqueue({
+          queue: "respond.speed-to-lead",
+          payload: { leadId: updated.id },
+          dedupeKey: `speed:${updated.id}`,
+          tenantKey: updated.facility_id ?? undefined,
+        }).catch(() => { /* best effort: the sweep will find it */ });
+      }
+
       if (source === "audit_tool") {
         notifyAuditLead({ email: cleanEmail, facilityName, location, auditScore });
       }
@@ -123,6 +142,7 @@ export async function POST(req: NextRequest) {
         name: cleanName,
         unit_size: cleanUnitSize,
         converted: true,
+        converted_at: new Date(),
         lead_status: "new",
         fbclid: fbclid || null,
         gclid: gclid || null,
@@ -144,6 +164,22 @@ export async function POST(req: NextRequest) {
           meta: { sessionId, source: fbclid ? "meta" : gclid ? "google" : "direct" },
         },
       }).catch((err) => console.error("[activity_log] Fire-and-forget failed:", err));
+    }
+
+    // RESPOND r5 — inline, not queued. The worker ticks once a minute and the
+    // whole value of this is being inside the first one. `…Safely` swallows
+    // its own failures: the customer is waiting on this response and a
+    // messaging fault is ours to log, not theirs to see.
+    const speed = await respondToNewLeadSafely(lead.id);
+    if (!speed.acked && !speed.alerted) {
+      // Durable fallback for a transient vendor failure. Dedupe keys inside
+      // make the retry safe even if the inline send half-succeeded.
+      await enqueue({
+        queue: "respond.speed-to-lead",
+        payload: { leadId: lead.id },
+        dedupeKey: `speed:${lead.id}`,
+        tenantKey: lead.facility_id ?? undefined,
+      }).catch(() => { /* best effort: the sweep will find it */ });
     }
 
     if (source === "audit_tool") {

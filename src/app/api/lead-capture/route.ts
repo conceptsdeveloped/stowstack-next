@@ -5,6 +5,8 @@ import { SENDERS, sendEmail } from "@/lib/email";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isValidEmail, sanitizeString } from "@/lib/validation";
 import { fireMetaCapi } from "@/lib/meta-capi";
+import { respondToNewLeadSafely } from "@/lib/respond/speed-to-lead";
+import { enqueue } from "@/lib/jobs/queue";
 
 /**
  * When a lead converts on a landing page that belongs to a funnel,
@@ -125,7 +127,7 @@ export async function POST(req: NextRequest) {
     }
 
     const sid = sessionId || `lead-${Date.now()}`;
-    await db.partial_leads.upsert({
+    const lead = await db.partial_leads.upsert({
       where: { session_id: sid },
       create: {
         session_id: sid,
@@ -143,6 +145,14 @@ export async function POST(req: NextRequest) {
         fields_completed: 5,
         total_fields: 5,
         recovery_status: "converted",
+        // These three were missing, and the update branch below always set them.
+        // A first-touch submit (no prior `partial-lead` beacon row) therefore
+        // landed as lead_status='partial', converted=false — which is exactly
+        // what the abandoned-rescue sweep looks for, so somebody who had just
+        // filled the form in full was queued a "you didn't finish" text.
+        converted: true,
+        converted_at: new Date(),
+        lead_status: "new",
         lead_score: 80,
       },
       update: {
@@ -154,10 +164,23 @@ export async function POST(req: NextRequest) {
         recovery_status: "converted",
         converted: true,
         converted_at: new Date(),
+        lead_status: "new",
         lead_score: 80,
         updated_at: new Date(),
       },
     });
+
+    // RESPOND r5 — inline, before the fire-and-forget work below, because the
+    // first minute is the whole point and the drip/CAPI calls are not urgent.
+    const speed = await respondToNewLeadSafely(lead.id);
+    if (!speed.acked && !speed.alerted) {
+      await enqueue({
+        queue: "respond.speed-to-lead",
+        payload: { leadId: lead.id },
+        dedupeKey: `speed:${lead.id}`,
+        tenantKey: facilityId || undefined,
+      }).catch(() => { /* best effort: the sweep will find it */ });
+    }
 
     if (facilityId) {
       db.activity_log

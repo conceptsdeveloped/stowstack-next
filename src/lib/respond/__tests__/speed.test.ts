@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { COOLDOWN_MINUTES, SHORT_CALL_SECONDS, isMissedCall, missedCallText } from "@/lib/respond/missed-call";
 import { RESCUE_AFTER_MINUTES, RESCUE_BEFORE_MINUTES, rescueText } from "@/lib/respond/abandoned";
 import { segmentCount } from "@/lib/messaging/types";
+import { COPY } from "@/lib/messaging/copy";
+import { TARGET_SECONDS } from "@/lib/respond/speed-to-lead";
 
 describe("isMissedCall", () => {
   it("counts the obvious misses", () => {
@@ -89,5 +91,65 @@ describe("rescue copy", () => {
 
   it("always carries an opt-out", () => {
     expect(rescueText(base)).toMatch(/STOP/);
+  });
+});
+
+describe("speed-to-lead target (r5)", () => {
+  it("is the industry minute, not a number we invented", () => {
+    expect(TARGET_SECONDS).toBe(60);
+  });
+});
+
+describe("lead acknowledgement copy", () => {
+  const base = { name: "Dana Reeves", unitSize: "10x10", facilityName: "Longhorn State Storage Springtown" };
+
+  it("uses the first name only, and names what they asked about", () => {
+    const m = COPY.en.leadAck(base);
+    expect(m).toContain("Dana");
+    expect(m).not.toContain("Reeves");
+    expect(m).toContain("10x10");
+    expect(m).toContain(base.facilityName);
+  });
+
+  // It promises a call. If the copy stops saying so, the operator alert below
+  // has no counterpart and we have quietly broken the promise.
+  it("promises the callback that the operator alert exists to enable", () => {
+    expect(COPY.en.leadAck(base)).toMatch(/call you/i);
+    expect(COPY.es.leadAck(base)).toMatch(/llamamos/i);
+  });
+
+  it("degrades without a name or size rather than printing null", () => {
+    const m = COPY.en.leadAck({ name: null, unitSize: null, facilityName: "Midway" });
+    expect(m).not.toMatch(/null|undefined/);
+    expect(m).not.toMatch(/\s{2,}/);
+  });
+});
+
+describe("operator alert copy", () => {
+  const base = {
+    name: "Dana Reeves", phone: "+15125550123", unitSize: "10x10",
+    facilityName: "Longhorn State Storage Springtown",
+  };
+
+  // The single thing this message exists to deliver.
+  it("carries the number the operator has to dial", () => {
+    expect(COPY.en.operatorAlert(base)).toContain("+15125550123");
+  });
+
+  it("says which facility, because an operator may run twenty", () => {
+    expect(COPY.en.operatorAlert(base)).toContain(base.facilityName);
+  });
+
+  it("is internal, so it carries no opt-out and no marketing", () => {
+    const m = COPY.en.operatorAlert(base);
+    expect(m).not.toMatch(/STOP/);
+    expect(m).not.toMatch(/opt out/i);
+  });
+
+  it("still reads as a sentence when the lead left no name or size", () => {
+    const m = COPY.en.operatorAlert({ name: null, phone: null, unitSize: null, facilityName: "Midway" });
+    expect(m).not.toMatch(/null|undefined/);
+    expect(m).toContain("no name given");
+    expect(segmentCount(m)).toBe(1);
   });
 });

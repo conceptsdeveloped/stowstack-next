@@ -37,6 +37,19 @@ export interface RescueInput {
   facilityName: string;
 }
 
+export interface AckInput {
+  name: string | null;
+  unitSize: string | null;
+  facilityName: string;
+}
+
+export interface OperatorAlertInput {
+  name: string | null;
+  phone: string | null;
+  unitSize: string | null;
+  facilityName: string;
+}
+
 export interface WaitlistInput {
   name: string | null;
   sizeLabel: string | null;
@@ -47,6 +60,13 @@ export interface WaitlistInput {
 export interface Templates {
   /** Sent seconds after a call rings out. */
   missedCall(facilityName: string): string;
+  /** Sent seconds after somebody submits a rental form, to the lead. */
+  leadAck(input: AckInput): string;
+  /**
+   * Sent to the operator so a human can call inside the minute. Internal, so it
+   * carries no opt-out line and no marketing: just who, what, and the number.
+   */
+  operatorAlert(input: OperatorAlertInput): string;
   /** Sent 10-120 minutes after somebody abandons a rental form. */
   rescue(input: RescueInput): string;
   /** Sent when a unit they are waiting for frees up. */
@@ -72,6 +92,15 @@ const EN: Templates = {
   missedCall: (f) =>
     `Sorry we missed your call at ${f}. Reply here and we'll help you find a unit, ` +
     `or call us back any time. Reply STOP to opt out.`,
+
+  leadAck: ({ name, unitSize, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}thanks for reaching out to ${facilityName}. ` +
+    `We got your request${unitSize ? ` for the ${unitSize}` : ""} and will call you shortly. ` +
+    `Reply STOP to opt out.`,
+
+  operatorAlert: ({ name, phone, unitSize, facilityName }) =>
+    `New lead at ${facilityName}: ${name ? firstName(name) : "no name given"}` +
+    `${phone ? `, ${phone}` : ""}${unitSize ? `, wants a ${unitSize}` : ""}. Call now.`,
 
   rescue: ({ name, unitSize, facilityName }) =>
     `${name ? `${firstName(name)}, ` : ""}you were part-way through reserving ` +
@@ -108,6 +137,15 @@ const ES: Templates = {
   missedCall: (f) =>
     `Perdimos tu llamada en ${f}. Responde aquí y te ayudamos a encontrar una unidad, ` +
     `o llámanos cuando quieras. Responde PARAR para salir.`,
+
+  leadAck: ({ name, unitSize, facilityName }) =>
+    `${name ? `${firstName(name)}, ` : ""}gracias por contactar a ${facilityName}. ` +
+    `Recibimos tu solicitud${unitSize ? ` de la ${unitSize}` : ""} y te llamamos pronto. ` +
+    `Responde PARAR para salir.`,
+
+  operatorAlert: ({ name, phone, unitSize, facilityName }) =>
+    `Nuevo prospecto en ${facilityName}: ${name ? firstName(name) : "sin nombre"}` +
+    `${phone ? `, ${phone}` : ""}${unitSize ? `, quiere una ${unitSize}` : ""}. Llama ya.`,
 
   rescue: ({ name, unitSize, facilityName }) =>
     `${name ? `${firstName(name)}, ` : ""}dejaste a medias tu reserva de ` +

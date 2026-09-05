@@ -64,6 +64,12 @@ export async function findAbandoned(limit = 50): Promise<AbandonedLead[]> {
       AND pl.deleted_at IS NULL
       AND COALESCE(pl.converted, FALSE) = FALSE
       AND COALESCE(pl.lead_status, 'partial') = 'partial'
+      -- Belt and braces. converted and lead_status are the real signal, but
+      -- recovery_status is set independently by the landing-page capture path,
+      -- and a lead that any one of the three calls finished must never be told
+      -- it did not finish. Defence against exactly the drift found in
+      -- /api/lead-capture, whose create branch used to set only this one.
+      AND COALESCE(pl.recovery_status, 'pending') <> 'converted'
       AND pl.created_at <= now() - (${RESCUE_AFTER_MINUTES}::int * interval '1 minute')
       AND pl.created_at >  now() - (${RESCUE_BEFORE_MINUTES}::int * interval '1 minute')
       AND NOT EXISTS (
