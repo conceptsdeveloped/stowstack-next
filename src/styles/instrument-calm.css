@@ -1,0 +1,181 @@
+/* Vendored VERBATIM from the Instrument Calm kit (~/Desktop/Instrument-Calm-Design-Language/tokens.css,
+   kit v1.1, 2026-10-07; reference library entry 008). Regenerate there with tools/build_tokens.py and
+   copy it here; never hand-edit. StorageAds adaptations live in globals.css under "Instrument Calm adapter". */
+
+/* Instrument Calm tokens — GENERATED from tokens.json by tools/build_tokens.py. Do not hand-edit. */
+/* No prefers-color-scheme switch anywhere: dark is a deliberate surface, never automatic (TASTE Law #2). */
+
+:root {
+  --ic-ground-cool: #E0E0E5;
+  --ic-ground-white: #FFFFFF;
+  --ic-ground-soft: #F0F0F3;
+  --ic-ground-field: #C0BFCF;
+  --ic-ground-black: #121214;
+  --ic-ground-black-raised: #1C1D22;
+  --ic-ink-primary: #121214;
+  --ic-ink-secondary: #3F4350;
+  --ic-ink-instruction: #525766;
+  --ic-ink-on-black: #F0F0F3;
+  --ic-ink-on-black-secondary: #A9ADB8;
+  --ic-ink-inverse: #FFFFFF;
+  --ic-line-instrument: #121214;
+  --ic-line-instrument-width: 1px;
+  --ic-line-spine: #121214;
+  --ic-line-spine-width: 1.5px;
+  --ic-line-quiet: #C3C5CF;
+  --ic-line-quiet-width: 1px;
+  --ic-line-on-black: #3A3D47;
+  --ic-line-on-black-width: 1px;
+  --ic-signal-selected: #1E3C74;
+  --ic-signal-selected-text: #FFFFFF;
+  --ic-signal-selected-alt: #2B6952;
+  --ic-signal-selected-alt-text: #FFFFFF;
+  --ic-signal-reading: #1E3C74;
+  --ic-dither-ink: #5E604C;
+  --ic-dither-ink-black: #121214;
+  --ic-dither-paper: #FFFFFF;
+  --ic-dither-density-whisper: 0.06;
+  --ic-dither-density-light: 0.14;
+  --ic-dither-density-mid: 0.28;
+  --ic-dither-density-deep: 0.46;
+  --ic-dither-density-shadow: 0.64;
+  --ic-data-gain: #147E23;
+  --ic-data-loss: #B24F16;
+  --ic-data-system: #166BD2;
+  --ic-data-risk: #C33B3E;
+  --ic-cta-filled-bg: #121214;
+  --ic-cta-filled-text: #FFFFFF;
+  --ic-cta-filled-hover-bg: #2A2C33;
+  --ic-cta-ghost-bg: transparent;
+  --ic-cta-ghost-border: #121214;
+  --ic-cta-ghost-border-width: 1.5px;
+  --ic-cta-ghost-text: #121214;
+  --ic-cta-ghost-hover-bg: #FFFFFF;
+  --ic-cta-filled-on-black-bg: #F0F0F3;
+  --ic-cta-filled-on-black-text: #121214;
+  --ic-cta-filled-on-black-hover-bg: #FFFFFF;
+  --ic-cta-ghost-on-black-bg: transparent;
+  --ic-cta-ghost-on-black-border: #F0F0F3;
+  --ic-cta-ghost-on-black-border-width: 1.5px;
+  --ic-cta-ghost-on-black-text: #F0F0F3;
+  --ic-cta-ghost-on-black-hover-bg: #1C1D22;
+  --ic-cta-strict-secondary-bg: #86B8FB;
+  --ic-cta-strict-secondary-text: #121214;
+
+  --ic-font-brand: "Manrope", "Libre Franklin", system-ui, sans-serif;
+  --ic-font-default: "Libre Franklin", system-ui, sans-serif;
+  --ic-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --ic-weight-display: 800;
+  --ic-weight-heading: 800;
+  --ic-weight-text: 600;
+  --ic-weight-label: 700;
+  --ic-weight-mono: 600;
+  --ic-weight-floor: 500;
+  --ic-size-micro: 11px;
+  --ic-size-label: 12px;
+  --ic-size-ui: 14px;
+  --ic-size-body: 16px;
+  --ic-size-lead: 18px;
+  --ic-size-h4: 21px;
+  --ic-size-h3: 24px;
+  --ic-size-h2: 32px;
+  --ic-size-h1: 44px;
+  --ic-size-display: 64px;
+  --ic-size-poster: 88px;
+  --ic-size-plate: 96px;
+  --ic-leading-display: 0.98;
+  --ic-leading-heading: 1.08;
+  --ic-leading-text: 1.45;
+  --ic-leading-label: 1.2;
+  --ic-tracking-display: -0.025em;
+  --ic-tracking-heading: -0.015em;
+  --ic-tracking-text: 0em;
+  --ic-tracking-label-caps: 0.08em;
+  --ic-measure: 68ch;
+
+  --ic-space-1: 4px;
+  --ic-space-2: 8px;
+  --ic-space-3: 12px;
+  --ic-space-4: 16px;
+  --ic-space-5: 24px;
+  --ic-space-6: 32px;
+  --ic-space-7: 48px;
+  --ic-space-8: 64px;
+  --ic-space-9: 96px;
+  --ic-space-10: 128px;
+  --ic-radius-control: 0px;
+  --ic-radius-stamp: 0px;
+  --ic-radius-pane: 4px;
+  --ic-radius-card: 4px;
+  --ic-radius-plate: 0px;
+  --ic-stroke-hairline: 1px;
+  --ic-stroke-spine: 1.5px;
+  --ic-stroke-control: 1.5px;
+  --ic-stroke-house-mark-ratio: 0.045;
+  --ic-stroke-house-mark-min-px: 1.5px;
+  --ic-stroke-illustration-key: 2;
+  --ic-stroke-facility-stamp-frame-ratio: 0.0625;
+  --ic-dial-outer-stroke: 2px;
+  --ic-dial-inner-ratio: 0.58;
+  --ic-dial-segment-gap: 2deg;
+  --ic-dial-hatch-step: 3deg;
+  --ic-dial-size-chip: 32px;
+  --ic-dial-size-tile: 96px;
+  --ic-dial-size-hero: 220px;
+  --ic-stamp-size-dense: 16px;
+  --ic-stamp-size-ui: 24px;
+  --ic-stamp-size-menu: 32px;
+  --ic-stamp-size-framed: 48px;
+  --ic-stamp-size-card: 64px;
+  --ic-stamp-size-plate: 160px;
+  --ic-dur-fast: 120ms;
+  --ic-dur-base: 240ms;
+  --ic-dur-slow: 480ms;
+  --ic-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ---------- Base recipes (opt-in classes; see COMPONENTS.md) ---------- */
+
+.ic-ground-cool  { background: var(--ic-ground-cool);  color: var(--ic-ink-primary); }
+.ic-ground-white { background: var(--ic-ground-white); color: var(--ic-ink-primary); }
+.ic-ground-black { background: var(--ic-ground-black); color: var(--ic-ink-on-black); } /* only when asked */
+
+.ic-display { font-family: var(--ic-font-brand); font-weight: var(--ic-weight-display); font-size: clamp(40px, 7vw, var(--ic-size-poster));
+  line-height: var(--ic-leading-display); letter-spacing: var(--ic-tracking-display); text-wrap: balance; }
+.ic-text  { font-family: var(--ic-font-brand); font-weight: var(--ic-weight-text); font-size: var(--ic-size-body); line-height: var(--ic-leading-text); max-width: var(--ic-measure); }
+.ic-label { font-family: var(--ic-font-mono); font-weight: var(--ic-weight-mono); font-size: var(--ic-size-micro); letter-spacing: var(--ic-tracking-label-caps); text-transform: uppercase; color: var(--ic-ink-instruction); }
+.ic-reading { font-variant-numeric: tabular-nums; font-weight: var(--ic-weight-display); }
+
+.ic-spine { border: 0; border-top: var(--ic-line-spine-width) solid var(--ic-line-spine); margin: 0; }
+.ic-rule  { border: 0; border-top: 1px solid var(--ic-line-quiet); margin: 0; }
+
+/* CTA pair: one filled black + one ghost outline per view (Instrument Calm deviation D1, see LANGUAGE.md). */
+.ic-cta { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 var(--ic-space-5);
+  font-family: var(--ic-font-brand); font-weight: var(--ic-weight-label); font-size: var(--ic-size-body);
+  border-radius: var(--ic-radius-control); text-decoration: none; cursor: pointer;
+  transition: background-color var(--ic-dur-base) var(--ic-ease), color var(--ic-dur-base) var(--ic-ease); }
+.ic-cta--filled { background: var(--ic-cta-filled-bg); color: var(--ic-cta-filled-text); border: var(--ic-cta-ghost-border-width) solid var(--ic-cta-filled-bg); }
+.ic-cta--filled:hover { background: var(--ic-cta-filled-hover-bg); }
+.ic-cta--ghost  { background: transparent; color: var(--ic-cta-ghost-text); border: var(--ic-cta-ghost-border-width) solid var(--ic-cta-ghost-border); }
+.ic-cta--ghost:hover { background: var(--ic-cta-ghost-hover-bg); }
+.ic-ground-black .ic-cta--filled { background: var(--ic-cta-filled-on-black-bg); color: var(--ic-cta-filled-on-black-text); border-color: var(--ic-cta-filled-on-black-bg); }
+.ic-ground-black .ic-cta--ghost  { color: var(--ic-cta-ghost-on-black-text); border-color: var(--ic-cta-ghost-on-black-border); }
+.ic-cta--strict { background: var(--ic-cta-strict-secondary-bg); color: var(--ic-cta-strict-secondary-text); border: 0; } /* law-strict alternative to ghost */
+.ic-cta:focus-visible { outline: 2px solid var(--ic-signal-selected); outline-offset: 2px; }
+
+.ic-tile { background: var(--ic-ground-white); border: var(--ic-line-instrument-width) solid var(--ic-line-instrument); border-radius: var(--ic-radius-control);
+  display: grid; grid-template-rows: auto 1fr auto; padding: var(--ic-space-3); aspect-ratio: 1; }
+.ic-tile__title { font-weight: var(--ic-weight-label); font-size: var(--ic-size-ui); }
+.ic-tile__reading { font-weight: var(--ic-weight-display); font-size: var(--ic-size-h2); font-variant-numeric: tabular-nums; }
+.ic-selected { background: var(--ic-signal-selected); color: var(--ic-signal-selected-text); }
+
+.ic-dither { background-color: var(--ic-dither-paper); image-rendering: pixelated; } /* use exported PNG plates; never a CSS gradient */
+
+/* Stamps (STAMPS.md): inline the SVG from stamps/svg/ (ink = currentColor). One accent element per stamp, class "accent". */
+.ic-stamp { width: var(--ic-stamp-size-ui); height: var(--ic-stamp-size-ui); flex: none; color: inherit; vertical-align: middle; }
+.ic-stamp--dense { width: var(--ic-stamp-size-dense); height: var(--ic-stamp-size-dense); }
+.ic-stamp, .ic-stamp img { image-rendering: pixelated; } /* pixel stamps: keep edges hard */
+.ic-stamp--accent .accent { fill: var(--ic-signal-selected); }
+.ic-selected .ic-stamp--accent .accent { fill: currentColor; } /* on a navy block the stamp goes all white */
+
+@media (prefers-reduced-motion: reduce) { .ic-cta { transition: none; } }

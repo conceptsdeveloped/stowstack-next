@@ -14,7 +14,7 @@ export default function PortalIndexPage() {
   const { data, loading, error, reload } = useOntology({ kind: "portal", facilityId: client.facilityId, authFetch });
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-24 pt-6">
+    <div className="mx-auto max-w-5xl px-4 pb-24 pt-6">
       {loading && !data ? (
         <div className="space-y-4">
           <SectionSkeleton />

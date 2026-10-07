@@ -1,17 +1,4 @@
-import {
-  LayoutDashboard,
-  Megaphone,
-  BarChart3,
-  MapPin,
-  Upload,
-  MessageSquare,
-  CreditCard,
-  Settings,
-  ClipboardCheck,
-  Wrench,
-  Network,
-  type LucideIcon,
-} from "lucide-react";
+import type { StampKey } from "@/lib/instrument-calm/stamps";
 
 /**
  * Single source of truth for the client portal navigation.
@@ -27,7 +14,8 @@ export interface PortalNavItem {
   /** Canonical label, used everywhere unless `tabLabel` overrides it. */
   label: string;
   href: string;
-  icon: LucideIcon;
+  /** Its Instrument Calm stamp (library entry 008): stamps are the portal's only icons. */
+  stamp: StampKey;
   /** Optional shorter label for the dense mobile bottom tab bar. */
   tabLabel?: string;
 }
@@ -42,32 +30,32 @@ export const PORTAL_NAV_GROUPS: PortalNavGroup[] = [
   {
     label: "Results",
     items: [
-      { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
+      { label: "Dashboard", href: "/portal", stamp: "console" },
       // The facility ontology: every object the tools act on, with one address each.
-      { label: "Index", href: "/portal/index", icon: Network },
-      { label: "Campaigns", href: "/portal/campaigns", icon: Megaphone },
-      { label: "Reports", href: "/portal/reports", icon: BarChart3 },
+      { label: "Index", href: "/portal/index", stamp: "facility" },
+      { label: "Campaigns", href: "/portal/campaigns", stamp: "campaigns" },
+      { label: "Reports", href: "/portal/reports", stamp: "reports" },
     ],
   },
   {
     // The facility tools (ads, landing pages, Google Business, market data…),
     // opened by the same portal login. See src/components/owner-tools.
     label: "Tools",
-    items: [{ label: "Facility Tools", href: "/portal/tools", icon: Wrench }],
+    items: [{ label: "Facility Tools", href: "/portal/tools", stamp: "tools" }],
   },
   {
     label: "Property",
     items: [
-      { label: "Reviews", href: "/portal/gbp", icon: MapPin },
-      { label: "Upload", href: "/portal/upload", icon: Upload },
+      { label: "Reviews", href: "/portal/gbp", stamp: "reviews" },
+      { label: "Upload", href: "/portal/upload", stamp: "upload" },
     ],
   },
   {
     label: "Account",
     items: [
-      { label: "Messages", href: "/portal/messages", icon: MessageSquare },
-      { label: "Billing", href: "/portal/billing", icon: CreditCard },
-      { label: "Settings", href: "/portal/settings", icon: Settings },
+      { label: "Messages", href: "/portal/messages", stamp: "messages" },
+      { label: "Billing", href: "/portal/billing", stamp: "pricing" },
+      { label: "Settings", href: "/portal/settings", stamp: "settings" },
     ],
   },
 ];
@@ -80,7 +68,7 @@ export const PORTAL_NAV_GROUPS: PortalNavGroup[] = [
 export const PORTAL_ONBOARDING_ITEM: PortalNavItem = {
   label: "Onboarding",
   href: "/portal/onboarding",
-  icon: ClipboardCheck,
+  stamp: "onboarding",
 };
 
 /** Flattened list of every primary item, in nav order. */

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../styles/instrument-calm.css";
 
 /* ═══════════════════════════════════════════
    THEMES
@@ -108,49 +109,19 @@
   --hue-d: #5e3880;
 }
 
-/* Instrument Calm (reference library 008, Grok for StorageAds; values measured
-   from its token sheet, each matching the label it carries). Ink on a cool
-   ground, white panes, one signal: navy, for what is selected and what needs
-   you. The plate olive is for dither imagery only. Used by the facility
-   ontology (src/components/ontology). Contrast: ink on cool 14.2:1, on white
-   18.7:1; secondary 7.5:1 and instruction 5.5:1 on cool; white on navy 10.7:1. */
-:root,
-:root[data-palette="cool"],
-:root[data-palette="white"] {
-  --ic-ground: #E0E0E5;
-  --ic-pane: #FFFFFF;
-  --ic-soft: #F0F0F3;
-  --ic-ink: #121214;
-  --ic-secondary: #3F4350;
-  --ic-instruction: #525766;
-  --ic-dither: #5E604C;
-  --ic-selected: #1E3C74;
-  --ic-on-selected: #FFFFFF;
-  /* CTA pair: ink fill, and an ink frame. On a black ground they swap. */
-  --ic-primary: #121214;
-  --ic-on-primary: #FFFFFF;
+/* Instrument Calm adapter (the kit's tokens are imported verbatim from
+   src/styles/instrument-calm.css; reference library entry 008).
+   - Faces: the portal layout loads Manrope and IBM Plex Mono through next/font;
+     these point the kit's face tokens at them.
+   - The site-wide `.urbit-landing span/p` rules reset font-family and weight on
+     every span and paragraph, so the kit's label class is pinned here. */
+:root {
+  --ic-font-brand: var(--font-manrope), "Manrope", "Libre Franklin", system-ui, sans-serif;
+  --ic-font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
 }
-:root[data-palette="black"] {
-  --ic-ground: #121214;
-  --ic-pane: #1A1A22;
-  --ic-soft: #26262E;
-  --ic-ink: #F0F0F3;
-  --ic-secondary: #C4C4CE;
-  --ic-instruction: #A2A2AE;
-  --ic-selected: #8EC1FF;
-  --ic-on-selected: #121214;
-  --ic-primary: #F0F0F3;
-  --ic-on-primary: #121214;
-}
-
-/* Labels: IBM Plex Mono 600, caps, +0.08em. !important because the site-wide
-   `.urbit-landing span` rule sets every span to Manrope. */
-.ic-label {
-  font-family: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace !important;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
+.urbit-landing .ic-label {
+  font-family: var(--ic-font-mono) !important;
+  font-weight: var(--ic-weight-mono);
 }
 
 /* Keyframes driving all motion — prefers-reduced-motion override below */

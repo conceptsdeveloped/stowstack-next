@@ -28,14 +28,14 @@ describe("portal nav source", () => {
     expect(PORTAL_NAV_ITEMS).toEqual(PORTAL_NAV_GROUPS.flatMap((g) => g.items));
   });
 
-  it("every nav item (incl. onboarding) has a unique href, non-empty label, and icon", () => {
+  it("every nav item (incl. onboarding) has a unique href, non-empty label, and stamp", () => {
     const all = [...PORTAL_NAV_ITEMS, PORTAL_ONBOARDING_ITEM];
     const hrefs = all.map((i) => i.href);
     expect(new Set(hrefs).size).toBe(hrefs.length);
     for (const item of all) {
       expect(item.href.startsWith("/portal")).toBe(true);
       expect(item.label.length).toBeGreaterThan(0);
-      expect(item.icon).toBeTypeOf("object");
+      expect(item.stamp).toBeTypeOf("string");
     }
   });
 

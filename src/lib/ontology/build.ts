@@ -14,6 +14,7 @@ import {
   slugify,
 } from "./address";
 import { TYPE_DEFS, TYPE_ORDER } from "./registry";
+import { facilitySlug, initials, primaryUnitType } from "@/lib/instrument-calm/identity";
 import type {
   Fact,
   Move,
@@ -753,7 +754,18 @@ export function buildOntology(raw: RawFacility, now: Date): Ontology {
   moves.sort((a, b) => b.rank - a.rank || (a.id < b.id ? -1 : 1));
 
   return {
-    facility: { id: raw.facility.id, name: raw.facility.name },
+    facility: {
+      id: raw.facility.id,
+      name: raw.facility.name,
+      initials: initials(raw.facility.name),
+      slug: facilitySlug(raw.facility.name),
+      unitType: primaryUnitType(raw.units),
+      seq: 1,
+      units: {
+        total: raw.units.reduce((s, u) => s + u.total, 0),
+        occupied: raw.units.reduce((s, u) => s + Math.min(u.occupied, u.total), 0),
+      },
+    },
     generatedAt: now.toISOString(),
     objects,
     summaries,

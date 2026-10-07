@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MoreHorizontal } from "lucide-react";
+import { MenuBars, Stamp } from "@/components/instrument-calm/stamp";
 import { PORTAL_BOTTOM_TABS, isNavItemActive } from "./portal-nav";
 
 export function PortalBottomTabs({ onMore }: { onMore: () => void }) {
@@ -17,7 +17,6 @@ export function PortalBottomTabs({ onMore }: { onMore: () => void }) {
       <div className="flex items-stretch">
         {PORTAL_BOTTOM_TABS.map((tab) => {
           const isActive = isNavItemActive(tab.href, pathname);
-          const Icon = tab.icon;
 
           return (
             <Link
@@ -30,7 +29,7 @@ export function PortalBottomTabs({ onMore }: { onMore: () => void }) {
                   : "text-[var(--color-mid-gray)]"
               }`}
             >
-              <Icon className="h-5 w-5" />
+              <Stamp name={tab.stamp} size={24} accent={isActive} />
               <span>{tab.tabLabel ?? tab.label}</span>
             </Link>
           );
@@ -42,7 +41,7 @@ export function PortalBottomTabs({ onMore }: { onMore: () => void }) {
           aria-haspopup="dialog"
           className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-[var(--color-mid-gray)] transition-colors"
         >
-          <MoreHorizontal className="h-5 w-5" />
+          <MenuBars />
           <span>More</span>
         </button>
       </div>

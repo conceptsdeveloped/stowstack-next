@@ -9,7 +9,6 @@ import {
   Send,
   Loader2,
   AlertCircle,
-  Menu,
 } from "lucide-react";
 import {
   type PortalSession,
@@ -23,6 +22,7 @@ import { PortalBottomTabs } from "./portal-bottom-tabs";
 import { portalNavGroups, portalNavTitle, isNavItemActive } from "./portal-nav";
 import { haptic } from "@/lib/haptics";
 import { bootPortalDemo, isPortalDemo, tidyDemoUrl } from "@/lib/portal-demo/demo-mode";
+import { MenuBars, Stamp } from "@/components/instrument-calm/stamp";
 import { clearOntologyCache } from "@/components/ontology/use-ontology";
 
 /* ─── context ─── */
@@ -309,20 +309,21 @@ function Sidebar({ client, mobileOpen, onClose, showOnboarding }: { client: Clie
             <ul className="space-y-0.5">
               {group.items.map((item) => {
                 const isActive = isNavItemActive(item.href, pathname);
-                const Icon = item.icon;
+
                 return (
                   <li key={item.href}>
                     <Link
                       href={item.href}
                       onClick={onClose}
                       aria-current={isActive ? "page" : undefined}
-                      className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${
+                      className={`flex min-h-10 items-center gap-3 px-2.5 py-1.5 text-sm font-bold transition-colors duration-[120ms] ${
                         isActive
-                          ? "bg-[var(--color-dark)]/[0.08] font-medium text-[var(--color-dark)]"
-                          : "text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] hover:text-[var(--color-dark)]"
+                          ? "bg-[var(--ic-signal-selected)] text-[var(--ic-signal-selected-text)]"
+                          : "text-[var(--ic-ink-primary)] hover:bg-[var(--ic-ground-soft)]"
                       }`}
                     >
-                      <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[var(--color-dark)]" : ""}`} />
+                      {/* Selected is a navy block with a white stamp (Instrument Calm, library entry 008). */}
+                      <Stamp name={item.stamp} size={24} />
                       <span>{item.label}</span>
                     </Link>
                   </li>
@@ -365,7 +366,7 @@ function PortalHeader({ client, onToggle, onLogout, expanded, toggleRef }: { cli
   return (
     <header className="safe-top sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--color-light)]/80 px-4 backdrop-blur-xl md:px-6">
       <button ref={toggleRef} type="button" onClick={onToggle} aria-label="Open navigation menu" aria-expanded={expanded} aria-controls="portal-mobile-nav" className="rounded-lg p-2 text-[var(--color-body-text)] hover:bg-[var(--color-light-gray)] md:hidden">
-        <Menu className="h-5 w-5" />
+        <MenuBars />
       </button>
       <h1 className="text-base font-semibold text-[var(--color-dark)]">{portalNavTitle(pathname)}</h1>
       <div className="ml-auto flex items-center gap-3">

@@ -1,3 +1,4 @@
+import type { StampKey } from "@/lib/instrument-calm/stamps";
 import type { LaneKey, ObjectTypeKey, ToolKey } from "./types";
 
 /**
@@ -20,6 +21,8 @@ export interface TypeDef {
   definition: string;
   /** The tool that owns this type, opened with the object in focus. */
   tool: ToolKey | null;
+  /** Its Instrument Calm stamp (library entry 008): the kind's icon everywhere. */
+  stamp: StampKey;
 }
 
 export interface LaneDef {
@@ -43,6 +46,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "space",
     definition: "Each size you rent.",
     tool: "occupancy",
+    stamp: "occupancy",
   },
   offers: {
     key: "offers",
@@ -51,6 +55,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "space",
     definition: "Specials you run, and the sizes they apply to.",
     tool: "revenue",
+    stamp: "pricing",
   },
   campaigns: {
     key: "campaigns",
@@ -59,6 +64,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "signal",
     definition: "A campaign ties ads, a page and follow-up into one run.",
     tool: "funnels",
+    stamp: "campaigns",
   },
   ads: {
     key: "ads",
@@ -67,6 +73,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "signal",
     definition: "Every ad written for you, drafts included.",
     tool: "ad-studio",
+    stamp: "ad-studio",
   },
   pages: {
     key: "pages",
@@ -75,6 +82,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "signal",
     definition: "Landing pages your ads and links send people to.",
     tool: "landing-pages",
+    stamp: "landing-page",
   },
   links: {
     key: "links",
@@ -83,6 +91,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "signal",
     definition: "Tracking links, so every click knows where it came from.",
     tool: "utm-links",
+    stamp: "links",
   },
   posts: {
     key: "posts",
@@ -91,6 +100,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "signal",
     definition: "Google Business and social posts.",
     tool: "gbp",
+    stamp: "posts",
   },
   leads: {
     key: "leads",
@@ -99,6 +109,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "people",
     definition: "People who asked about a unit in the last 90 days.",
     tool: "lead-nurture",
+    stamp: "leads",
   },
   tours: {
     key: "tours",
@@ -107,6 +118,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "people",
     definition: "Visits people booked to see the facility.",
     tool: null,
+    stamp: "reserve",
   },
   tenants: {
     key: "tenants",
@@ -115,6 +127,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "people",
     definition: "Tenants who moved in during the last 90 days.",
     tool: "tenants",
+    stamp: "move-ins",
   },
   reviews: {
     key: "reviews",
@@ -123,6 +136,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "place",
     definition: "Your Google reviews, and whether you answered.",
     tool: "gbp",
+    stamp: "reviews",
   },
   competitors: {
     key: "competitors",
@@ -131,6 +145,7 @@ export const TYPE_DEFS: Record<ObjectTypeKey, TypeDef> = {
     lane: "place",
     definition: "Facilities near you, with the prices they list.",
     tool: "market-intel",
+    stamp: "market",
   },
 };
 
@@ -159,3 +174,16 @@ export function typeOfAddress(address: string): ObjectTypeKey | null {
   const head = address.split("/")[0];
   return (TYPE_ORDER as string[]).includes(head) ? (head as ObjectTypeKey) : null;
 }
+
+/** The stamp beside each kind of move (what the action does). */
+export const RULE_STAMPS: Record<string, StampKey> = {
+  foundation: "upload",
+  "unsold-space": "ad-studio",
+  "leads-waiting": "leads",
+  "reviews-waiting": "reviews",
+  "offer-unseen": "posts",
+  undercut: "market",
+  "page-no-leads": "landing-page",
+  "drafts-idle": "campaigns",
+};
+

@@ -125,8 +125,22 @@ export interface Move {
   action: ObjectAction;
 }
 
+/** The facility itself: its stamp facts (library entry 008) and its occupancy. */
+export interface FacilityIdentity {
+  id: string;
+  name: string;
+  /** Two characters, stenciled like a unit number. Derived from the canonical name until stored. */
+  initials: string;
+  /** Speakable, tilde-free: "maple-street-01". */
+  slug: string;
+  /** Primary unit type, from the unit mix. */
+  unitType: "drive_up" | "climate_controlled" | "vehicle" | "business" | "general" | "tower";
+  seq: number;
+  units: { total: number; occupied: number };
+}
+
 export interface Ontology {
-  facility: { id: string; name: string };
+  facility: FacilityIdentity;
   generatedAt: string;
   objects: OntologyObject[];
   summaries: TypeSummary[];

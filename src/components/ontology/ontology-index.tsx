@@ -1,12 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, Copy, Check } from "lucide-react";
-import { LANES, TYPE_DEFS, TYPE_ORDER, typeOfAddress } from "@/lib/ontology/registry";
+import Link from "next/link";
+import { FacilityStamp, Stamp } from "@/components/instrument-calm/stamp";
+import { LANES, TYPE_DEFS, TYPE_ORDER, typeOfAddress, typesInLane } from "@/lib/ontology/registry";
 import type { ObjectTypeKey, Ontology, OntologyObject } from "@/lib/ontology/types";
-import { FacilityInstrument } from "./facility-instrument";
-import { ObjectMark, TypeGlyph } from "./object-mark";
-import { IcButton } from "./ic-button";
 import { actionHref } from "./use-ontology";
 
 /**
@@ -15,9 +13,13 @@ import { actionHref } from "./use-ontology";
  * link walks the graph: open a unit, see the leads who asked for that size,
  * open one of them, see the page they came from.
  *
+ * Built to the Instrument Calm kit (library entry 008): a report-style
+ * masthead with the full facility stamp, a stamped menu where the selected
+ * kind is a navy block, objects as whole-row targets, and the "Looking at"
+ * inspector (COMPONENTS.md §10) carrying the view's only CTA pair.
+ *
  * State lives in the URL (?t=units, ?o=units/10x10-climate) so any object can
- * be linked to, and the back button behaves. Drawn in Instrument Calm (library
- * entry 008): white panes, ink, mono-caps labels, navy for what's selected.
+ * be linked to, and the back button behaves.
  */
 export function OntologyIndex({ ontology, toolsBase = "/portal/tools" }: { ontology: Ontology; toolsBase?: string }) {
   const byAddress = useMemo(() => new Map(ontology.objects.map((o) => [o.address, o])), [ontology]);
@@ -37,7 +39,6 @@ export function OntologyIndex({ ontology, toolsBase = "/portal/tools" }: { ontol
     } else if (t && (TYPE_ORDER as string[]).includes(t)) {
       setType(t);
     } else {
-      // Arrive on the first kind that has anything in it.
       const first = TYPE_ORDER.find((k) => ontology.summaries.find((s) => s.type === k)?.count);
       if (first) setType(first);
     }
@@ -77,63 +78,111 @@ export function OntologyIndex({ ontology, toolsBase = "/portal/tools" }: { ontol
     writeUrl(next ? { o: next } : { t: type });
   };
 
+  const f = ontology.facility;
   const def = TYPE_DEFS[type];
-  const lane = LANES.find((l) => l.key === def.lane)!;
   const summary = ontology.summaries.find((s) => s.type === type)!;
   const objects = ontology.objects.filter((o) => o.type === type);
 
   return (
-    <div className="space-y-8">
-      <header className="border-b-2 border-[var(--ic-ink)] pb-4">
-        <div className="ic-label text-[11px] text-[var(--ic-instruction)]">Index</div>
-        <h1 className="mt-1 text-[28px] font-extrabold leading-tight tracking-tight text-[var(--ic-ink)]">{ontology.facility.name}</h1>
-        <div className="mt-1 text-[15px] font-semibold text-[var(--ic-secondary)]">
-          Every unit, offer, ad, lead and review here, each with one address and everything it touches.
+    <div className="space-y-6 text-[var(--ic-ink-primary)]">
+      <header className="flex items-center gap-4 border-b-[1.5px] border-[var(--ic-line-spine)] pb-4">
+        <FacilityStamp initials={f.initials} type={f.unitType} seq={f.seq} size={64} label={f.name} />
+        <div className="min-w-0">
+          <div className="ic-label">Index</div>
+          <h1 className="truncate text-[28px] font-extrabold leading-tight tracking-[-0.015em] md:text-[32px]">{f.name}</h1>
+          <div className="ic-label mt-0.5">
+            {f.slug} · {f.units.total.toLocaleString("en-US")} units · {ontology.objects.length} things
+          </div>
         </div>
       </header>
 
-      <FacilityInstrument summaries={ontology.summaries} selected={type} onSelect={selectType} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[13.5rem_minmax(0,1fr)]">
+        <KindMenu ontology={ontology} selected={type} onSelect={selectType} />
 
-      <section aria-labelledby="index-type" ref={listRef} tabIndex={-1} className="outline-none">
-        <div className="ic-label text-[11px] text-[var(--ic-instruction)]">
-          {lane.label} <span aria-hidden="true">·</span> {lane.definition}
-        </div>
-        <div className="mt-2 flex items-start gap-3 border-b-2 border-[var(--ic-ink)] pb-3">
-          <TypeGlyph type={type} className="mt-1 h-6 w-6 shrink-0" />
-          <div className="min-w-0">
-            <h2 id="index-type" className="text-[22px] font-extrabold leading-tight text-[var(--ic-ink)]">
-              {def.plural} <span className="tabular-nums text-[var(--ic-selected)]">{summary.count}</span>
-            </h2>
-            <div className="mt-1 text-[14px] font-semibold text-[var(--ic-secondary)]">
-              {def.definition} {summary.reading.value} {summary.reading.unit}: {summary.reading.definition.charAt(0).toLowerCase() + summary.reading.definition.slice(1)}
+        <section aria-labelledby="index-type" ref={listRef} tabIndex={-1} className="min-w-0 outline-none">
+          <div className="flex items-start gap-3 border-b-[1.5px] border-[var(--ic-line-spine)] pb-3">
+            <Stamp name={def.stamp} size={32} className="mt-0.5" />
+            <div className="min-w-0">
+              <h2 id="index-type" className="text-[24px] font-extrabold leading-tight">
+                {def.plural} <span className="ic-reading text-[var(--ic-signal-reading)]">{summary.count}</span>
+              </h2>
+              <div className="mt-1 text-[15px] font-semibold text-[var(--ic-ink-secondary)]">
+                {def.definition} {summary.reading.value} {summary.reading.unit}:{" "}
+                {summary.reading.definition.charAt(0).toLowerCase() + summary.reading.definition.slice(1)}
+              </div>
             </div>
           </div>
-        </div>
 
-        {objects.length === 0 ? (
-          <EmptyKind type={type} toolsBase={toolsBase} />
-        ) : (
-          <ul className="mt-4 border border-[var(--ic-ink)] bg-[var(--ic-pane)]">
-            {objects.map((o) => (
-              <ObjectRow
-                key={o.address}
-                object={o}
-                open={open === o.address}
-                onToggle={() => toggle(o.address)}
-                byAddress={byAddress}
-                moves={ontology.moves.filter((m) => m.subject === o.address)}
-                goTo={goTo}
-                toolsBase={toolsBase}
-              />
-            ))}
-          </ul>
-        )}
-      </section>
+          {objects.length === 0 ? (
+            <EmptyKind type={type} toolsBase={toolsBase} />
+          ) : (
+            <ul className="mt-4 space-y-2">
+              {objects.map((o) => (
+                <ObjectRow
+                  key={o.address}
+                  object={o}
+                  open={open === o.address}
+                  onToggle={() => toggle(o.address)}
+                  byAddress={byAddress}
+                  moves={ontology.moves.filter((m) => m.subject === o.address)}
+                  goTo={goTo}
+                  toolsBase={toolsBase}
+                />
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
 
 const rowId = (address: string) => `obj-${address.replace(/[^a-z0-9]+/gi, "-")}`;
+
+/** The kinds, stamped, by lane. Selected = navy inversion with a white stamp (COMPONENTS.md §10 rail rule). */
+function KindMenu({
+  ontology,
+  selected,
+  onSelect,
+}: {
+  ontology: Ontology;
+  selected: ObjectTypeKey;
+  onSelect: (t: ObjectTypeKey) => void;
+}) {
+  return (
+    <nav aria-label="Kinds of things" className="grid grid-cols-1 gap-x-4 gap-y-4 min-[420px]:grid-cols-2 lg:block lg:space-y-4">
+      {LANES.map((lane) => (
+        <div key={lane.key}>
+          <div className="ic-label mb-1">{lane.label}</div>
+          <ul>
+            {typesInLane(lane.key).map((t) => {
+              const on = t === selected;
+              const count = ontology.summaries.find((s) => s.type === t)!.count;
+              return (
+                <li key={t}>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(t)}
+                    aria-current={on ? "true" : undefined}
+                    className={`flex min-h-10 w-full items-center gap-2.5 px-2 text-left transition-colors duration-[120ms] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ic-signal-selected)] ${
+                      on
+                        ? "bg-[var(--ic-signal-selected)] text-[var(--ic-signal-selected-text)]"
+                        : "text-[var(--ic-ink-primary)] hover:bg-[var(--ic-ground-soft)]"
+                    }`}
+                  >
+                    <Stamp name={TYPE_DEFS[t].stamp} size={24} />
+                    <span className="flex-1 text-[15px] font-bold">{TYPE_DEFS[t].plural}</span>
+                    <span className="ic-reading text-[14px]">{count}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  );
+}
 
 function EmptyKind({ type, toolsBase }: { type: ObjectTypeKey; toolsBase: string }) {
   const def = TYPE_DEFS[type];
@@ -144,12 +193,13 @@ function EmptyKind({ type, toolsBase }: { type: ObjectTypeKey; toolsBase: string
         ? { label: `Open ${toolLabel(def.tool)}`, href: actionHref({ label: "", tool: def.tool }, null, toolsBase) }
         : null;
   return (
-    <div className="py-8">
-      <div className="text-[15px] font-semibold text-[var(--ic-secondary)]">No {def.plural.toLowerCase()} yet.</div>
+    <div className="flex flex-col items-start gap-4 py-8">
+      <Stamp name={def.stamp} size={64} framed />
+      <div className="text-[16px] font-semibold text-[var(--ic-ink-secondary)]">No {def.plural.toLowerCase()} yet.</div>
       {action && (
-        <IcButton href={action.href} className="mt-3">
-          {action.label}
-        </IcButton>
+        <Link href={action.href} className="text-[15px] font-extrabold">
+          {action.label} <span aria-hidden="true">→</span>
+        </Link>
       )}
     </div>
   );
@@ -189,80 +239,142 @@ function ObjectRow({
   toolsBase: string;
 }) {
   const id = rowId(object.address);
+  const def = TYPE_DEFS[object.type];
   return (
-    <li id={id} className={`scroll-mt-20 border-b border-[var(--ic-ink)]/20 last:border-b-0 ${open ? "outline outline-[3px] -outline-offset-[3px] outline-[var(--ic-selected)]" : ""}`}>
+    <li
+      id={id}
+      className={`scroll-mt-20 bg-[var(--ic-ground-white)] ${
+        open ? "border-[3px] border-[var(--ic-signal-selected)]" : "border border-[var(--ic-line-quiet)] hover:border-[var(--ic-line-instrument)]"
+      }`}
+    >
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
         aria-controls={`${id}-detail`}
-        className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors duration-[240ms] hover:bg-[var(--ic-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ic-selected)] sm:px-4"
+        className="flex w-full items-center gap-3 px-3 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ic-signal-selected)] sm:px-4"
       >
-        <ObjectMark address={object.address} size={28} />
+        <Stamp name={def.stamp} size={16} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[15px] font-bold text-[var(--ic-ink)]">{object.name}</span>
-          <span className="ic-label block truncate text-[10.5px] normal-case tracking-[0.02em] text-[var(--ic-instruction)]">{object.address}</span>
+          <span className="block truncate text-[16px] font-bold">{object.name}</span>
+          <span className="ic-label block truncate normal-case tracking-[0.02em]">{object.address}</span>
         </span>
-        {moves.length > 0 && (
-          <span className="ic-label shrink-0 text-[10.5px] text-[var(--ic-selected)]">Needs you</span>
+        {moves.length > 0 ? (
+          <span className="ic-label shrink-0" style={{ color: "var(--ic-signal-selected)" }}>
+            Needs you
+          </span>
+        ) : (
+          object.status && <span className="ic-label hidden shrink-0 sm:inline">{object.status.replace(/_/g, " ")}</span>
         )}
-        {object.status && moves.length === 0 && (
-          <span className="ic-label hidden shrink-0 text-[10.5px] text-[var(--ic-instruction)] sm:inline">{object.status.replace(/_/g, " ")}</span>
-        )}
-        <span className="ic-label hidden shrink-0 text-[10.5px] text-[var(--ic-instruction)] sm:inline">
+        <span className="ic-label hidden shrink-0 sm:inline">
           {object.links.length} {object.links.length === 1 ? "link" : "links"}
         </span>
-        <ChevronDown
-          aria-hidden="true"
-          className={`h-4 w-4 shrink-0 text-[var(--ic-ink)] transition-transform duration-[240ms] ${open ? "rotate-180" : ""}`}
-        />
+        <span aria-hidden="true" className={`shrink-0 text-[15px] font-extrabold transition-transform duration-[120ms] ${open ? "rotate-90" : ""}`}>
+          →
+        </span>
       </button>
 
-      {open && (
-        <div id={`${id}-detail`} className="space-y-5 px-3 pb-5 sm:px-4 sm:pl-[3.75rem]">
-          {moves.length > 0 && (
-            <div>
-              <div className="ic-label mb-1.5 text-[10.5px] text-[var(--ic-selected)]">Needs you</div>
-              <ul className="space-y-1.5">
-                {moves.map((m, i) => (
-                  <li key={m.id} className="flex gap-2">
-                    <span aria-hidden="true" className="ic-label shrink-0 text-[13px] text-[var(--ic-instruction)]">
-                      {i === moves.length - 1 ? "└" : "├"}
-                    </span>
-                    <span>
-                      <span className="block text-[14px] font-bold text-[var(--ic-ink)]">{m.sentence}</span>
-                      <span className="block text-[13px] font-semibold text-[var(--ic-secondary)]">{m.reason}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+      {open && <Inspector id={`${id}-detail`} object={object} moves={moves} byAddress={byAddress} goTo={goTo} toolsBase={toolsBase} />}
+    </li>
+  );
+}
 
-          {object.facts.length > 0 && (
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[max-content_1fr]">
-              {object.facts.map((f) => (
-                <div key={f.label} className="contents">
-                  <dt className="ic-label text-[10.5px] text-[var(--ic-instruction)] sm:pt-1">{f.label}</dt>
-                  <dd className="-mt-1.5 text-[14px] font-semibold text-[var(--ic-ink)] sm:mt-0">{f.value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-
-          <Links object={object} byAddress={byAddress} goTo={goTo} />
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            {object.actions.map((a, i) => (
-              <IcButton key={a.label} href={actionHref(a, object.address, toolsBase)} variant={i === 0 ? "primary" : "secondary"}>
-                {a.label}
-              </IcButton>
-            ))}
-            <CopyAddress address={object.address} />
+/** COMPONENTS.md §10: LOOKING AT → title → quiet rule → stamp + name + slug → list → the CTA pair, stacked → a mono line. */
+function Inspector({
+  id,
+  object,
+  moves,
+  byAddress,
+  goTo,
+  toolsBase,
+}: {
+  id: string;
+  object: OntologyObject;
+  moves: Ontology["moves"];
+  byAddress: Map<string, OntologyObject>;
+  goTo: (address: string) => void;
+  toolsBase: string;
+}) {
+  const def = TYPE_DEFS[object.type];
+  const [primary, secondary, ...rest] = object.actions;
+  return (
+    <div id={id} className="space-y-5 border-t border-[var(--ic-line-quiet)] px-3 pb-5 pt-4 sm:px-5">
+      <div>
+        <div className="ic-label">Looking at · {def.singular}</div>
+        <div className="mt-1 text-[24px] font-extrabold leading-tight">{object.name}</div>
+      </div>
+      <div className="flex items-center gap-3 border-t border-[var(--ic-line-quiet)] pt-4">
+        <Stamp name={def.stamp} size={48} framed />
+        <div className="min-w-0">
+          <div className="text-[17px] font-extrabold leading-snug">{object.brief}</div>
+          <div className="ic-label mt-0.5 normal-case tracking-[0.02em]">
+            {object.address}
+            {object.status ? ` · ${object.status.replace(/_/g, " ")}` : ""}
           </div>
         </div>
+      </div>
+
+      {moves.length > 0 && (
+        <div>
+          <div className="ic-label mb-1.5" style={{ color: "var(--ic-signal-selected)" }}>
+            Needs you
+          </div>
+          <TreeList items={moves.map((m) => ({ key: m.id, title: m.sentence, note: m.reason }))} />
+        </div>
       )}
-    </li>
+
+      {object.facts.length > 0 && (
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[max-content_1fr]">
+          {object.facts.map((fact) => (
+            <div key={fact.label} className="contents">
+              <dt className="ic-label sm:pt-1">{fact.label}</dt>
+              <dd className="-mt-1.5 text-[15px] font-semibold sm:mt-0">{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      <Links object={object} byAddress={byAddress} goTo={goTo} />
+
+      {primary && (
+        <div className="flex max-w-md flex-col gap-2.5">
+          <Link href={actionHref(primary, object.address, toolsBase)} className="ic-cta ic-cta--filled w-full">
+            {primary.label}
+          </Link>
+          {secondary && (
+            <Link href={actionHref(secondary, object.address, toolsBase)} className="ic-cta ic-cta--ghost w-full">
+              {secondary.label}
+            </Link>
+          )}
+          {rest.map((a) => (
+            <Link key={a.label} href={actionHref(a, object.address, toolsBase)} className="text-[15px] font-extrabold">
+              {a.label} <span aria-hidden="true">→</span>
+            </Link>
+          ))}
+          <div className="ic-label mt-1">Opens the tool with this loaded. Nothing changes until you save there.</div>
+        </div>
+      )}
+      <CopyAddress address={object.address} />
+    </div>
+  );
+}
+
+/** Box-drawing bullets stand in for icons in lists (COMPONENTS.md §9). */
+function TreeList({ items }: { items: { key: string; title: string; note?: string }[] }) {
+  return (
+    <ul className="space-y-1.5">
+      {items.map((item, i) => (
+        <li key={item.key} className="flex gap-2.5">
+          <span aria-hidden="true" className="ic-label shrink-0 pt-0.5 text-[14px]">
+            {i === items.length - 1 ? "└─" : "├─"}
+          </span>
+          <span>
+            <span className="block text-[15px] font-bold">{item.title}</span>
+            {item.note && <span className="block text-[14px] font-semibold text-[var(--ic-ink-secondary)]">{item.note}</span>}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -276,7 +388,7 @@ function Links({
   goTo: (address: string) => void;
 }) {
   if (object.links.length === 0) {
-    return <div className="text-[13px] font-semibold text-[var(--ic-secondary)]">Not linked to anything yet.</div>;
+    return <div className="text-[14px] font-semibold text-[var(--ic-ink-secondary)]">Not linked to anything yet.</div>;
   }
   const groups = TYPE_ORDER.map((t) => ({
     type: t,
@@ -284,26 +396,26 @@ function Links({
   })).filter((g) => g.items.length);
   return (
     <div className="space-y-3">
-      <div className="ic-label text-[10.5px] text-[var(--ic-instruction)]">Linked to</div>
+      <div className="ic-label">Linked to</div>
       {groups.map((g) => (
         <div key={g.type}>
-          <div className="mb-1 text-[13px] font-extrabold text-[var(--ic-ink)]">{TYPE_DEFS[g.type].plural}</div>
-          <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
+          <div className="mb-1 flex items-center gap-2 text-[14px] font-extrabold">
+            <Stamp name={TYPE_DEFS[g.type].stamp} size={16} />
+            {TYPE_DEFS[g.type].plural}
+          </div>
+          <ul className="flex flex-wrap gap-x-4 gap-y-1.5 pl-6">
             {g.items.slice(0, 12).map((o) => (
               <li key={o.address}>
                 <button
                   type="button"
                   onClick={() => goTo(o.address)}
-                  className="inline-flex max-w-[16rem] items-center gap-2 text-left text-[13px] font-bold text-[var(--ic-ink)] underline decoration-[var(--ic-ink)]/30 underline-offset-4 hover:decoration-[var(--ic-ink)]"
+                  className="max-w-[16rem] truncate text-left text-[14px] font-bold underline decoration-[var(--ic-line-quiet)] decoration-2 underline-offset-4 hover:decoration-[var(--ic-ink-primary)]"
                 >
-                  <ObjectMark address={o.address} size={20} />
-                  <span className="truncate">{o.name}</span>
+                  {o.name}
                 </button>
               </li>
             ))}
-            {g.items.length > 12 && (
-              <li className="text-[13px] font-semibold text-[var(--ic-secondary)]">and {g.items.length - 12} more</li>
-            )}
+            {g.items.length > 12 && <li className="text-[14px] font-semibold text-[var(--ic-ink-secondary)]">and {g.items.length - 12} more</li>}
           </ul>
         </div>
       ))}
@@ -322,10 +434,9 @@ function CopyAddress({ address }: { address: string }) {
           setTimeout(() => setDone(false), 1600);
         });
       }}
-      className="inline-flex min-h-10 items-center gap-1.5 px-1 text-[13px] font-bold text-[var(--ic-ink)] underline underline-offset-4"
+      className="text-[14px] font-extrabold underline underline-offset-4"
     >
-      {done ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
-      {done ? "Copied" : "Copy address"}
+      {done ? "Copied" : "Copy the address"}
     </button>
   );
 }
