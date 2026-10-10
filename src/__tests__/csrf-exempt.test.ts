@@ -25,6 +25,16 @@ describe("isCsrfExempt — portal login footgun guard", () => {
     expect(isCsrfExempt(req("/api/consumer-lead"))).toBe(true);
     expect(isCsrfExempt(req("/api/diagnostic-intake"))).toBe(true);
     expect(isCsrfExempt(req("/api/facility-lookup"))).toBe(true);
+    expect(isCsrfExempt(req("/api/places-suggest"))).toBe(true);
+  });
+
+  it("exempts the landing page's own form, its tour booking and the one-tap answer", () => {
+    // A phone visitor's only way to ask on a campaign page; production would 403 them otherwise.
+    expect(isCsrfExempt(new NextRequest("https://storageads.com/api/lead-capture", { method: "POST" }))).toBe(true);
+    expect(isCsrfExempt(new NextRequest("https://storageads.com/api/tour", { method: "POST" }))).toBe(true);
+    expect(isCsrfExempt(new NextRequest("https://storageads.com/api/heard", { method: "POST" }))).toBe(true);
+    // The operator's side of tours (mark attended, cancel) is not public.
+    expect(isCsrfExempt(new NextRequest("https://storageads.com/api/tour", { method: "PATCH" }))).toBe(false);
   });
 
   it("exempts session/portal routes that self-defend via verifyCsrfOrigin", () => {

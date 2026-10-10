@@ -237,6 +237,7 @@ function ObjectRow({
                     </span>
                     <span>
                       <span className="block text-[14px] font-extrabold text-[var(--ic-ink)]">{m.sentence}</span>
+                      {m.why && <span className="block text-[13px] font-bold text-[var(--ic-ink)]">{m.why}</span>}
                       <span className="block text-[13px] font-semibold text-[var(--ic-secondary)]">{m.reason}</span>
                     </span>
                   </li>
@@ -259,8 +260,11 @@ function ObjectRow({
           <Links object={object} byAddress={byAddress} goTo={goTo} />
 
           <div className="flex flex-wrap items-center gap-2.5">
+            <ActionFill href={`${toolsBase}?focus=${object.address}`} n={0}>
+              Open the track
+            </ActionFill>
             {object.actions.map((a, i) => (
-              <ActionFill key={a.label} href={actionHref(a, object.address, toolsBase)} n={i}>
+              <ActionFill key={a.label} href={actionHref(a, object.address, toolsBase)} n={i + 1}>
                 {a.label}
               </ActionFill>
             ))}
